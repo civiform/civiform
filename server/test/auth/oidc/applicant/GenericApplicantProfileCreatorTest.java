@@ -18,7 +18,7 @@ import repository.UserRepository;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
-public class GenericOidcProfileAdapterTest extends ResetPostgres {
+public class GenericApplicantProfileCreatorTest extends ResetPostgres {
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
 
@@ -28,7 +28,7 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
   private static final String MIDDLE_NAME_ATTRIBUTE_NAME = "middle_name";
   private static final String LAST_NAME_ATTRIBUTE_NAME = "last_name";
 
-  private GenericOidcProfileAdapter oidcProfileAdapter;
+  private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
 
@@ -40,7 +40,7 @@ public class GenericOidcProfileAdapterTest extends ResetPostgres {
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
     oidcProfileAdapter =
-        new GenericOidcProfileAdapter(
+        new GenericApplicantProfileCreator(
             client_config,
             client,
             profileFactory,

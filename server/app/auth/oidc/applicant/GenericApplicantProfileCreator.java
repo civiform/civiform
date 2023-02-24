@@ -12,8 +12,8 @@ import repository.UserRepository;
  * profile. Right now this is only extracting the email address, since that is all that AD provides
  * right now.
  */
-public class GenericOidcProfileAdapter extends OidcApplicantProfileAdapter {
-  public GenericOidcProfileAdapter(
+public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
+  public GenericApplicantProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,

@@ -14,7 +14,7 @@ public enum AuthIdentityProviderName {
   AUTH0_APPLICANT("auth0"),
   DISABLED_APPLICANT("disabled");
 
-  public static String AUTH_APPLICANT_CONFIG_PATH = "auth.applicant_idp";
+  public static final String AUTH_APPLICANT_CONFIG_PATH = "auth.applicant_idp";
 
   private final String authIdentityProviderNameString;
 

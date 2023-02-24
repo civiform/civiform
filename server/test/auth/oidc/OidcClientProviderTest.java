@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProfileFactory;
-import auth.oidc.applicant.IdcsProfileAdapter;
-import auth.oidc.applicant.IdcsProvider;
+import auth.oidc.applicant.IdcsApplicantProfileCreator;
+import auth.oidc.applicant.IdcsClientProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -25,8 +25,8 @@ import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
-public class OidcProviderTest extends ResetPostgres {
-  private OidcProvider oidcProvider;
+public class OidcClientProviderTest extends ResetPostgres {
+  private OidcClientProvider oidcClientProvider;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
   private static final String DISCOVERY_URI =
@@ -51,17 +51,17 @@ public class OidcProviderTest extends ResetPostgres {
                 BASE_URL));
 
     // Just need some complete adaptor to access methods.
-    oidcProvider =
-        new IdcsProvider(
+    oidcClientProvider =
+        new IdcsClientProvider(
             config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
   @Test
   public void Test_getConfigurationValues() {
-    String client_id = oidcProvider.getClientID();
+    String client_id = oidcClientProvider.getClientID();
     assertThat(client_id).isEqualTo("idcs-fake-oidc-client");
 
-    String client_secret = oidcProvider.getClientSecret().get();
+    String client_secret = oidcClientProvider.getClientSecret().get();
     assertThat(client_secret).isEqualTo("idcs-fake-oidc-secret");
   }
 
@@ -107,11 +107,11 @@ public class OidcProviderTest extends ResetPostgres {
   public void Test_get(String name, String wantResponseType, ImmutableMap<String, String> c) {
     Config config = ConfigFactory.parseMap(c);
 
-    OidcProvider oidcProvider =
-        new IdcsProvider(
+    OidcClientProvider oidcClientProvider =
+        new IdcsClientProvider(
             config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
 
-    OidcClient client = oidcProvider.get();
+    OidcClient client = oidcClientProvider.get();
 
     assertThat(client.getCallbackUrl()).isEqualTo(c.get("base_url") + "/callback");
     assertThat(client.getName()).isEqualTo("OidcClient");
@@ -127,7 +127,7 @@ public class OidcProviderTest extends ResetPostgres {
 
     ProfileCreator adaptor = client.getProfileCreator();
 
-    assertThat(adaptor.getClass()).isEqualTo(IdcsProfileAdapter.class);
+    assertThat(adaptor.getClass()).isEqualTo(IdcsApplicantProfileCreator.class);
   }
 
   static ImmutableList<Object[]> provideConfigsForInvalidConfig() {
@@ -175,12 +175,12 @@ public class OidcProviderTest extends ResetPostgres {
     Config bad_secret_config = ConfigFactory.parseMap(c);
     assertThatThrownBy(
             () -> {
-              OidcProvider badOidcProvider =
-                  new IdcsProvider(
+              OidcClientProvider badOidcClientProvider =
+                  new IdcsClientProvider(
                       bad_secret_config,
                       profileFactory,
                       CfTestHelpers.userRepositoryProvider(userRepository));
-              badOidcProvider.get();
+              badOidcClientProvider.get();
             })
         .isInstanceOf(RuntimeException.class);
   }

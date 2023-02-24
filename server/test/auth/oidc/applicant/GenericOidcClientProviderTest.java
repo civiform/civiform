@@ -21,8 +21,8 @@ import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
-public class GenericOidcProviderTest extends ResetPostgres {
-  private GenericOidcProvider genericOidcProvider;
+public class GenericOidcClientProviderTest extends ResetPostgres {
+  private GenericOidcClientProvider genericOidcProvider;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
   private static final String DISCOVERY_URI =
@@ -54,7 +54,7 @@ public class GenericOidcProviderTest extends ResetPostgres {
 
     // Just need some complete adaptor to access methods.
     genericOidcProvider =
-        new GenericOidcProvider(
+        new GenericOidcClientProvider(
             config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
@@ -62,10 +62,10 @@ public class GenericOidcProviderTest extends ResetPostgres {
   public void Test_getConfigurationValues() {
     OidcClient client = genericOidcProvider.get();
     OidcConfiguration client_config = client.getConfiguration();
-    ProfileCreator adaptor = genericOidcProvider.getProfileAdapter(client_config, client);
+    ProfileCreator adaptor = genericOidcProvider.getProfileCreator(client_config, client);
 
-    assertThat(adaptor.getClass()).isEqualTo(GenericOidcProfileAdapter.class);
-    GenericOidcProfileAdapter profileAdapter = (GenericOidcProfileAdapter) adaptor;
+    assertThat(adaptor.getClass()).isEqualTo(GenericApplicantProfileCreator.class);
+    GenericApplicantProfileCreator profileAdapter = (GenericApplicantProfileCreator) adaptor;
 
     String provider = genericOidcProvider.getProviderName().orElse("");
     assertThat(provider).isEqualTo("Auth0");

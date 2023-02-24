@@ -18,9 +18,9 @@ import repository.UserRepository;
 
 // TODO(#3856): Update with a non deprecated saml impl.
 @SuppressWarnings("deprecation")
-public class LoginRadiusProvider implements Provider<SAML2Client> {
+public class LoginRadiusClientProvider implements Provider<SAML2Client> {
 
-  private static final Logger logger = LoggerFactory.getLogger(LoginRadiusProvider.class);
+  private static final Logger logger = LoggerFactory.getLogger(LoginRadiusClientProvider.class);
 
   private final Config configuration;
   private final ProfileFactory profileFactory;
@@ -28,7 +28,7 @@ public class LoginRadiusProvider implements Provider<SAML2Client> {
   private final String baseUrl;
 
   @Inject
-  public LoginRadiusProvider(
+  public LoginRadiusClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
@@ -62,7 +62,7 @@ public class LoginRadiusProvider implements Provider<SAML2Client> {
     SAML2Client client = new SAML2Client(config);
 
     client.setProfileCreator(
-        new SamlProfileAdapter(config, client, profileFactory, applicantRepositoryProvider));
+        new SamlProfileCreator(config, client, profileFactory, applicantRepositoryProvider));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");

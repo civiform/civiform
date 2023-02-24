@@ -25,14 +25,14 @@ import repository.UserRepository;
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
  * profile.
  */
-public final class IdcsProfileAdapter extends OidcApplicantProfileAdapter {
-  public static final Logger logger = LoggerFactory.getLogger(IdcsProfileAdapter.class);
+public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
+  public static final Logger logger = LoggerFactory.getLogger(IdcsApplicantProfileCreator.class);
 
   private static final String EMAIL_ATTRIBUTE_NAME = "user_emailid";
   private static final String LOCALE_ATTRIBUTE_NAME = "user_locale";
   private static final String NAME_ATTRIBUTE_NAME = "user_displayname";
 
-  public IdcsProfileAdapter(
+  public IdcsApplicantProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
