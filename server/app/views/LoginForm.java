@@ -70,7 +70,7 @@ public class LoginForm extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
-    String title = "Login";
+    String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
     htmlBundle.addMainContent(mainContent(request, messages));

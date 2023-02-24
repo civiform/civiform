@@ -41,6 +41,9 @@ content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu k
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Soo gal
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
 

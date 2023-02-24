@@ -50,6 +50,9 @@ content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" tamb
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Acceso
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Accede con tu cuenta {0}
 

@@ -47,6 +47,9 @@ content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka r
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Mag log in
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 

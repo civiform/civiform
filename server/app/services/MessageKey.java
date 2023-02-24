@@ -113,6 +113,7 @@ public enum MessageKey {
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
+  TITLE_LOGIN("title.login"),
   TITLE_PROGRAMS("title.programs"),
   TITLE_PROGRAMS_ACTIVE_UPDATED("title.activeProgramsUpdated"),
   TITLE_PROGRAMS_IN_PROGRESS_UPDATED("title.inProgressProgramsUpdated"),

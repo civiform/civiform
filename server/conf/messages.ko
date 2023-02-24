@@ -48,6 +48,9 @@ content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=로그인
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt={0} 계정으로 로그인하세요.
 

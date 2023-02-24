@@ -47,6 +47,9 @@ content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም �
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=ግባ
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
 
