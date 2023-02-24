@@ -672,7 +672,6 @@ public final class ApplicantService {
                         .findFirst()
                     : Optional.empty();
 
-            Application submittedApp = maybeSubmittedApp.get();
             // Get the program definition from the all programs list, since that has the
             // associated question data.
             ProgramDefinition programDefinition =
@@ -682,10 +681,6 @@ public final class ApplicantService {
                     .setProgram(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
-
-            applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligibilityStatus(
-                    submittedApp.getApplicant().getApplicantData(), programDefinition));
 
             submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);

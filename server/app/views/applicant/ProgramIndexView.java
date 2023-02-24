@@ -383,12 +383,22 @@ public final class ProgramIndexView extends BaseHtmlView {
     MessageKey mayNotQualifyMessage =
         isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
     Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
-    String color = isEligible ? "bg-blue-100" : "bg-gray-200";
+    String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
     String tagClass =
         isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
     String tagText =
         isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
-    return p().withClasses(tagClass, "border", "rounded-lg", "px-2", "py-1", "mb-4", color)
+    return p().withClasses(
+            tagClass,
+            "border",
+            "rounded-full",
+            "px-2",
+            "py-1",
+            "mb-4",
+            "gap-x-2",
+            "inline-block",
+            "w-auto",
+            color)
         .with(
             Icons.svg(icon)
                 .withClasses("inline-block")
