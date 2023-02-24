@@ -28,5 +28,6 @@ services:
       - BASE_URL=http://civiform:9000
       - LOCALSTACK_URL=http://localhost.localstack.cloud:4566
       - CIVIFORM_TIME_ZONE_ID
+      - CIVIFORM_ADMIN_REPORTING_UI_ENABLED=true
     command: ~runBrowserTestsServer
     entrypoint: ./entrypoint.sh

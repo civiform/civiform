@@ -48,7 +48,7 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewApplicant() {
-    return create(new Roles[] {Roles.ROLE_APPLICANT});
+    return create(new Role[] {Role.ROLE_APPLICANT});
   }
 
   public CiviFormProfileData createNewAdmin() {
@@ -60,7 +60,7 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewAdmin(Optional<String> maybeAuthorityId) {
-    CiviFormProfileData profileData = create(new Roles[] {Roles.ROLE_CIVIFORM_ADMIN});
+    CiviFormProfileData profileData = create(new Role[] {Role.ROLE_CIVIFORM_ADMIN});
 
     wrapProfileData(profileData)
         .getAccount()
@@ -90,10 +90,10 @@ public final class ProfileFactory {
   }
 
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */
-  private CiviFormProfileData create(Roles[] roleList) {
+  private CiviFormProfileData create(Role[] roleList) {
     CiviFormProfileData p = new CiviFormProfileData();
     p.init(dbContext);
-    for (Roles role : roleList) {
+    for (Role role : roleList) {
       p.addRole(role.toString());
     }
     return p;
@@ -108,7 +108,7 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewProgramAdmin() {
-    return create(new Roles[] {Roles.ROLE_PROGRAM_ADMIN});
+    return create(new Role[] {Role.ROLE_PROGRAM_ADMIN});
   }
 
   /**
@@ -116,7 +116,7 @@ public final class ProfileFactory {
    * with a fake email address.
    */
   public CiviFormProfileData createFakeProgramAdmin() {
-    CiviFormProfileData p = create(new Roles[] {Roles.ROLE_PROGRAM_ADMIN});
+    CiviFormProfileData p = create(new Role[] {Role.ROLE_PROGRAM_ADMIN});
     wrapProfileData(p)
         .getAccount()
         .thenAccept(
@@ -140,8 +140,7 @@ public final class ProfileFactory {
    * programs with a fake email address.
    */
   public CiviFormProfileData createFakeDualAdmin() {
-    CiviFormProfileData p =
-        create(new Roles[] {Roles.ROLE_PROGRAM_ADMIN, Roles.ROLE_CIVIFORM_ADMIN});
+    CiviFormProfileData p = create(new Role[] {Role.ROLE_PROGRAM_ADMIN, Role.ROLE_CIVIFORM_ADMIN});
     wrapProfileData(p)
         .getAccount()
         .thenAccept(
@@ -173,7 +172,7 @@ public final class ProfileFactory {
       group = existingGroups.get(0);
     }
 
-    CiviFormProfileData tiProfileData = create(new Roles[] {Roles.ROLE_TI});
+    CiviFormProfileData tiProfileData = create(new Role[] {Role.ROLE_TI});
     wrapProfileData(tiProfileData)
         .getAccount()
         .thenAccept(

@@ -156,6 +156,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "name",
             "description",
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
             versionRepo.getDraftVersion(),
@@ -191,6 +192,15 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ImmutableSet<String> result = repo.getAllProgramNames();
 
     assertThat(result).isEqualTo(ImmutableSet.of("old name", "new name"));
+  }
+
+  @Test
+  public void commonIntakeFormExists() {
+    resourceCreator.insertActiveProgram("regular program");
+    assertThat(repo.commonIntakeFormExists()).isFalse();
+
+    resourceCreator.insertActiveCommonIntakeForm("common intake form");
+    assertThat(repo.commonIntakeFormExists()).isTrue();
   }
 
   @Test

@@ -3,7 +3,7 @@ package auth.oidc.applicant;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
-import auth.Roles;
+import auth.Role;
 import auth.oidc.OidcProfileAdapter;
 import com.beust.jcommander.internal.Nullable;
 import com.google.common.annotations.VisibleForTesting;
@@ -84,15 +84,15 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
   }
 
   @Override
-  protected final ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
+  protected final ImmutableSet<Role> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (isTrustedIntermediary(profile)) {
-      return ImmutableSet.of(Roles.ROLE_APPLICANT, Roles.ROLE_TI);
+      return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
     }
-    return ImmutableSet.of(Roles.ROLE_APPLICANT);
+    return ImmutableSet.of(Role.ROLE_APPLICANT);
   }
 
   @Override
-  protected final void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
+  protected final void adaptForRole(CiviFormProfile profile, ImmutableSet<Role> roles) {
     // Not used for applicants.
   }
 

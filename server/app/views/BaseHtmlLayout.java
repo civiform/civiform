@@ -67,12 +67,17 @@ public class BaseHtmlLayout {
     return getBundle(new HtmlBundle(viewUtils));
   }
 
+  /** Get the application feature flags. */
+  public FeatureFlags getFeatureFlags() {
+    return featureFlags;
+  }
+
   /**
    * The reason for two getBundle methods here is that order occasionally matters, but this method
    * should only be used if you know what you're doing.
    *
-   * <p>Most of the time you'll want to use {@link admin.AdminLayout} or {@link
-   * applicant.ApplicantLayout} instead.
+   * <p>Most of the time you'll want to use {@link views.admin.AdminLayout} or {@link
+   * views.applicant.ApplicantLayout} instead.
    *
    * <pre>
    *  Example: If we want to add specific styles before the core tailwind styles we

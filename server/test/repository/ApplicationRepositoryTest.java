@@ -331,6 +331,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             name,
             "desc",
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
             draftVersion,

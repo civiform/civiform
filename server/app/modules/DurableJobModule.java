@@ -11,17 +11,16 @@ import durablejobs.DurableJobRunner;
 import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.OldJobCleanupJob;
+import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import java.time.Duration;
 import java.util.Random;
 import repository.PersistedDurableJobRepository;
+import repository.ReportingRepository;
 import scala.concurrent.ExecutionContext;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
  * recurring, their {@link durablejobs.RecurringJobExecutionTimeResolver}.
- *
- * <p>NOTE: THIS SYSTEM IS STILL UNDER DEVELOPMENT AND THIS MODULE IS NOT CURRENTLY ENABLED IN
- * application.conf TODO(https://github.com/civiform/civiform/issues/4191): Enable DurableJobModule
  */
 public final class DurableJobModule extends AbstractModule {
 
@@ -61,7 +60,8 @@ public final class DurableJobModule extends AbstractModule {
 
   @Provides
   public DurableJobRegistry provideDurableJobRegistry(
-      PersistedDurableJobRepository persistedDurableJobRepository) {
+      PersistedDurableJobRepository persistedDurableJobRepository,
+      ReportingRepository reportingRepository) {
     var durableJobRegistry = new DurableJobRegistry();
 
     durableJobRegistry.register(
@@ -69,6 +69,12 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new OldJobCleanupJob(persistedDurableJobRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.Sunday2Am());
+
+    durableJobRegistry.register(
+        DurableJobName.REPORTING_DASHBOARD_MONTHLY_REFRESH,
+        persistedDurableJob ->
+            new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
 
     return durableJobRegistry;
   }

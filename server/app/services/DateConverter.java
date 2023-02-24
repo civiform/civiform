@@ -3,12 +3,15 @@ package services;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Calendar;
+import java.util.TimeZone;
 
 /** Utility class for converting dates between different formats. */
 public final class DateConverter {
@@ -89,5 +92,13 @@ public final class DateConverter {
   /** Formats a {@link Long} timestamp to a {@link LocalDate}. */
   public LocalDate renderLocalDate(Long timestamp) {
     return Instant.ofEpochMilli(timestamp).atZone(this.zoneId).toLocalDate();
+  }
+
+  /** Formats a {@link java.sql.Timestamp} to MM/YY. */
+  public String renderAsTwoDigitMonthAndYear(Timestamp timestamp) {
+    var calendar = Calendar.getInstance(TimeZone.getTimeZone(zoneId));
+    calendar.setTimeInMillis(timestamp.getTime());
+
+    return (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR);
   }
 }

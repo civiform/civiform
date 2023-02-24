@@ -67,6 +67,12 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract LocalizedStrings localizedDescription();
 
+  /**
+   * A custom message to be inserted into the confirmation screen for the Program, localized for
+   * each supported locale.
+   */
+  public abstract LocalizedStrings localizedConfirmationMessage();
+
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
@@ -80,6 +86,12 @@ public abstract class ProgramDefinition {
   public abstract Optional<Instant> lastModifiedTime();
 
   public abstract ProgramType programType();
+
+  /**
+   * Whether or not eligibility criteria for this program blocks the application from being
+   * submitted.
+   */
+  public abstract Boolean eligibilityIsGating();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -98,6 +110,12 @@ public abstract class ProgramDefinition {
             .build();
     orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = Optional.of(true);
     return orderedProgramDefinition;
+  }
+
+  /** Returns whether a program has eligibility conditions applied. */
+  public boolean hasEligibilityEnabled() {
+    return blockDefinitions().stream()
+        .anyMatch(blockDef -> blockDef.eligibilityDefinition().isPresent());
   }
 
   private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
@@ -663,6 +681,10 @@ public abstract class ProgramDefinition {
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
   }
 
+  public boolean isCommonIntakeForm() {
+    return this.programType() == ProgramType.COMMON_INTAKE_FORM;
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 
@@ -680,6 +702,9 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    public abstract Builder setLocalizedConfirmationMessage(
+        LocalizedStrings localizedConfirmationMessage);
+
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
     public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
@@ -690,11 +715,15 @@ public abstract class ProgramDefinition {
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
 
+    public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
+
     public abstract Builder setCreateTime(@Nullable Instant createTime);
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
 
     public abstract Builder setProgramType(ProgramType programType);
+
+    public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract ProgramDefinition build();
 
@@ -710,6 +739,11 @@ public abstract class ProgramDefinition {
 
     public Builder addLocalizedDescription(Locale locale, String description) {
       localizedDescriptionBuilder().put(locale, description);
+      return this;
+    }
+
+    public Builder addLocalizedConfirmationMessage(Locale locale, String customText) {
+      localizedConfirmationMessageBuilder().put(locale, customText);
       return this;
     }
   }

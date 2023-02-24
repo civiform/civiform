@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -21,8 +22,9 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramNewOneView(AdminLayoutFactory layoutFactory, Config configuration) {
-    super(configuration);
+  public ProgramNewOneView(
+      AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
+    super(configuration, featureFlags);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -35,7 +37,7 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
     DivTag contentDiv =
         div(
-            buildProgramForm(programForm, /* editExistingProgram = */ false)
+            buildProgramForm(request, programForm, /* editExistingProgram = */ false)
                 .with(makeCsrfTokenInputTag(request))
                 .withAction(controllers.admin.routes.AdminProgramController.create().url()));
 

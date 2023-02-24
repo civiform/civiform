@@ -7,6 +7,7 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.QuestionService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
@@ -41,6 +43,7 @@ public final class AdminProgramController extends CiviFormController {
   private final VersionRepository versionRepository;
   private final ProfileUtils profileUtils;
   private final RequestChecker requestChecker;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminProgramController(
@@ -52,7 +55,8 @@ public final class AdminProgramController extends CiviFormController {
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
@@ -62,6 +66,7 @@ public final class AdminProgramController extends CiviFormController {
     this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.featureFlags = featureFlags;
   }
 
   /**
@@ -96,8 +101,11 @@ public final class AdminProgramController extends CiviFormController {
             program.getAdminDescription(),
             program.getLocalizedDisplayName(),
             program.getLocalizedDisplayDescription(),
+            program.getLocalizedConfirmationMessage(),
             program.getExternalLink(),
-            program.getDisplayMode());
+            program.getDisplayMode(),
+            program.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
+            featureFlags.isIntakeFormEnabled(request));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(newOneView.render(request, program, Optional.of(message)));
@@ -167,8 +175,13 @@ public final class AdminProgramController extends CiviFormController {
             programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            programData.getIsCommonIntakeForm()
+                ? ProgramType.COMMON_INTAKE_FORM
+                : ProgramType.DEFAULT,
+            featureFlags.isIntakeFormEnabled(request));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));

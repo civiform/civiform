@@ -2,7 +2,7 @@ package auth.oidc.admin;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
-import auth.Roles;
+import auth.Role;
 import auth.oidc.OidcProfileAdapter;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -44,16 +44,16 @@ public class AdfsProfileAdapter extends OidcProfileAdapter {
   }
 
   @Override
-  protected ImmutableSet<Roles> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
+  protected ImmutableSet<Role> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (this.isGlobalAdmin(oidcProfile)) {
-      return ImmutableSet.of(Roles.ROLE_CIVIFORM_ADMIN);
+      return ImmutableSet.of(Role.ROLE_CIVIFORM_ADMIN);
     }
-    return ImmutableSet.of(Roles.ROLE_PROGRAM_ADMIN);
+    return ImmutableSet.of(Role.ROLE_PROGRAM_ADMIN);
   }
 
   @Override
-  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Roles> roles) {
-    if (roles.contains(Roles.ROLE_CIVIFORM_ADMIN)) {
+  protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Role> roles) {
+    if (roles.contains(Role.ROLE_CIVIFORM_ADMIN)) {
       profile
           .getAccount()
           .thenAccept(

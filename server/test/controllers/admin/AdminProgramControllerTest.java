@@ -280,7 +280,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "externalLink",
                     "https://external.program.link",
                     "displayMode",
-                    DisplayMode.PUBLIC.getValue()));
+                    DisplayMode.PUBLIC.getValue(),
+                    "isCommonIntakeForm",
+                    "true"));
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 

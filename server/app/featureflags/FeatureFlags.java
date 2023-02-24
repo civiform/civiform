@@ -24,6 +24,7 @@ public final class FeatureFlags {
   // Long lived feature flags.
   public static final String ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS =
       "allow_civiform_admin_access_programs";
+  public static final String ADMIN_REPORTING_UI_ENABLED = "admin_reporting_ui_enabled";
   public static final String SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE =
       "show_civiform_image_tag_on_landing_page";
 
@@ -31,8 +32,6 @@ public final class FeatureFlags {
   public static final String PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED =
       "program_eligibility_conditions_enabled";
   public static final String PROGRAM_READ_ONLY_VIEW_ENABLED = "program_read_only_view_enabled";
-  public static final String PREDICATES_MULTIPLE_QUESTIONS_ENABLED =
-      "predicates_multiple_questions_enabled";
 
   private final Config config;
 
@@ -69,13 +68,9 @@ public final class FeatureFlags {
     return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
   }
 
-  /**
-   * If specifying multiple questions in a predicate is enabled.
-   *
-   * <p>Allows for overrides set in {@code request}.
-   */
-  public boolean isPredicatesMultipleQuestionsEnabled(Request request) {
-    return getFlagEnabled(request, PREDICATES_MULTIPLE_QUESTIONS_ENABLED);
+  /** If the reporting view in the admin UI is enabled */
+  public boolean isAdminReportingUiEnabled() {
+    return config.getBoolean(ADMIN_REPORTING_UI_ENABLED);
   }
 
   public boolean allowCiviformAdminAccessPrograms(Request request) {
@@ -125,8 +120,6 @@ public final class FeatureFlags {
         showCiviformImageTagOnLandingPage(request),
         PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
         isProgramEligibilityConditionsEnabled(request),
-        PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-        isPredicatesMultipleQuestionsEnabled(request),
         PROGRAM_READ_ONLY_VIEW_ENABLED,
         isReadOnlyProgramViewEnabled(request),
         ESRI_ADDRESS_CORRECTION_ENABLED,

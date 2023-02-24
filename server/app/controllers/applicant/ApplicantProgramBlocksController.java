@@ -43,7 +43,9 @@ import services.cloud.StorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.program.PathNotInBlockException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import views.ApplicationBaseView;
@@ -76,6 +78,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final IneligibleBlockView ineligibleBlockView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
+  private final ProgramService programService;
+
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -94,7 +98,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
-      AddressSuggestionJsonSerializer addressSuggestionJsonSerializer) {
+      AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
+      ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -109,6 +114,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
+    this.programService = checkNotNull(programService);
   }
 
   /**
@@ -498,16 +504,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (featureFlags.isProgramEligibilityConditionsEnabled(request)
         && !roApplicantProgramService.isBlockEligible(blockId)) {
       CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
-      return supplyAsync(
-          () ->
-              ok(
-                  ineligibleBlockView.render(
-                      request,
-                      submittingProfile,
-                      roApplicantProgramService,
-                      applicantName,
-                      messagesApi.preferred(request),
-                      applicantId)));
+      try {
+        ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+
+        return supplyAsync(
+            () ->
+                ok(
+                    ineligibleBlockView.render(
+                        request,
+                        submittingProfile,
+                        roApplicantProgramService,
+                        messagesApi.preferred(request),
+                        applicantId,
+                        programDefinition)));
+      } catch (ProgramNotFoundException e) {
+        notFound(e.toString());
+      }
     }
 
     Optional<String> nextBlockIdMaybe =

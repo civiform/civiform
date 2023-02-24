@@ -41,6 +41,9 @@ content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu k
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Soo gal
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
 
@@ -179,12 +182,6 @@ title.applicantNotEligible=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta in
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inaanu u qalmin {0}.
-
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=Waa inaad buuxiso shuruudahan barnaamijka:
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=Macmiilkaagu waa inuu buuxiyo shuruudaha barnaamijka:
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import forms.BlockForm;
 import io.ebean.DB;
@@ -116,8 +117,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
+            "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().id()).isNotNull();
@@ -131,8 +135,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
+            "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
@@ -145,7 +152,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Test
   public void createProgram_returnsErrors() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition("", "", "", "", "", DisplayMode.PUBLIC.getValue());
+        ps.createProgramDefinition(
+            "", "", "", "", "", "", DisplayMode.PUBLIC.getValue(), ProgramType.DEFAULT, false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -154,15 +162,22 @@ public class ProgramServiceImplTest extends ResetPostgres {
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
             CiviFormError.of("A program URL is required"),
-            CiviFormError.of("A program note is required"),
-            CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
+            CiviFormError.of("A program note is required"));
   }
 
   @Test
   public void createProgramWithoutDisplayMode_returnsError() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "test-program", "description", "name", "description", "https://usa.gov", "");
+            "test-program",
+            "description",
+            "name",
+            "description",
+            "",
+            "https://usa.gov",
+            "",
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -177,8 +192,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "description",
         "display name",
         "display description",
+        "",
         "https://usa.gov",
-        DisplayMode.PUBLIC.getValue());
+        DisplayMode.PUBLIC.getValue(),
+        ProgramType.DEFAULT,
+        /* isIntakeFormFeatureEnabled= */ false);
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -186,8 +204,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -204,8 +225,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -226,8 +250,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "description",
                 "display name",
                 "display description",
+                "",
                 "https://usa.gov",
-                DisplayMode.PUBLIC.getValue())
+                DisplayMode.PUBLIC.getValue(),
+                ProgramType.DEFAULT,
+                /* isIntakeFormFeatureEnabled= */ false)
             .getResult();
     // Program name here is missing the extra space
     // so that the names are different but the resulting
@@ -243,12 +270,110 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "display name",
             "display description",
+            "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+  }
+
+  @Test
+  public void createProgram_intakeFormDisabled() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ false);
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
+  }
+
+  @Test
+  public void createProgram_allowsSettingCommonIntakeFormWhenNoneExists() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+  }
+
+  @Test
+  public void createProgram_allowsSettingDefaultProgram() {
+    ps.createProgramDefinition(
+        "name-one",
+        "description",
+        "display name",
+        "display description",
+        "",
+        "https://usa.gov",
+        DisplayMode.PUBLIC.getValue(),
+        ProgramType.COMMON_INTAKE_FORM,
+        /* isIntakeFormFeatureEnabled= */ true);
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-two",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
+  }
+
+  @Test
+  public void createProgram_protectsAgainstSettingMultipleCommonIntakeForms() {
+    ps.createProgramDefinition(
+        "name-one",
+        "description",
+        "display name",
+        "display description",
+        "",
+        "https://usa.gov",
+        DisplayMode.PUBLIC.getValue(),
+        ProgramType.COMMON_INTAKE_FORM,
+        /* isIntakeFormFeatureEnabled= */ true);
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "name-two",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("A program set as the Common Intake Form already exists"));
   }
 
   @Test
@@ -261,8 +386,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     "new description",
                     "name",
                     "description",
+                    "",
                     "https://usa.gov",
-                    DisplayMode.PUBLIC.getValue()))
+                    DisplayMode.PUBLIC.getValue(),
+                    ProgramType.DEFAULT,
+                    /* isIntakeFormFeatureEnabled= */ false))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -278,8 +406,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "new description",
             "name",
             "description",
+            "",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();
@@ -307,8 +438,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "new description",
                 "name",
                 "description",
+                "",
                 "https://usa.gov",
-                DisplayMode.PUBLIC.getValue())
+                DisplayMode.PUBLIC.getValue(),
+                ProgramType.DEFAULT,
+                /* isIntakeFormFeatureEnabled= */ false)
             .getResult();
 
     QuestionDefinition foundQuestion =
@@ -322,7 +456,16 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
-            program.id(), Locale.US, "", "", "", "", DisplayMode.PUBLIC.getValue());
+            program.id(),
+            Locale.US,
+            "",
+            "",
+            "",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ false);
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -330,8 +473,67 @@ public class ProgramServiceImplTest extends ResetPostgres {
         .containsOnly(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
-            CiviFormError.of("A program link must begin with 'http://' or 'https://'"),
             CiviFormError.of("A program note is required"));
+  }
+
+  @Test
+  public void updateProgram_clearsOldConfirmationScreenTranslations() throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("original", "original description").buildDefinition();
+    ErrorAnd<ProgramDefinition, CiviFormError> resultOne =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "custom confirmation screen message",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false);
+
+    // check that the confirmation screen message saved
+    LocalizedStrings expectedUsString =
+        LocalizedStrings.create(ImmutableMap.of(Locale.US, "custom confirmation screen message"));
+    ProgramDefinition firstProgramUpdate = resultOne.getResult();
+    assertThat(firstProgramUpdate.localizedConfirmationMessage()).isEqualTo(expectedUsString);
+
+    // update the confirmation screen with an translation and check that it saves correctly
+    ErrorAnd<ProgramDefinition, CiviFormError> resultTwo =
+        ps.updateProgramDefinition(
+            firstProgramUpdate.id(),
+            Locale.FRANCE,
+            "new description",
+            "name",
+            "description",
+            "french custom confirmation screen message",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false);
+    ProgramDefinition secondProgramUpdate = resultTwo.getResult();
+    assertThat(secondProgramUpdate.localizedConfirmationMessage())
+        .isEqualTo(
+            expectedUsString.updateTranslation(
+                Locale.FRANCE, "french custom confirmation screen message"));
+
+    // delete the english confirmation screen and check that all translations were cleared as well
+    ErrorAnd<ProgramDefinition, CiviFormError> resultThree =
+        ps.updateProgramDefinition(
+            firstProgramUpdate.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false);
+    ProgramDefinition thirdProgramUpdate = resultThree.getResult();
+    assertThat(thirdProgramUpdate.localizedConfirmationMessage())
+        .isEqualTo(LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
   }
 
   @Test
@@ -340,6 +542,149 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition found = ps.getProgramDefinition(programDefinition.id());
 
     assertThat(found.adminName()).isEqualTo(programDefinition.adminName());
+  }
+
+  @Test
+  public void updateProgram_intakeFormDisabled() throws Exception {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            program.id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ false);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
+  }
+
+  @Test
+  public void updateProgram_allowsSettingProgramAsCommonIntakeFormWhenNoneExists()
+      throws Exception {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            program.id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+  }
+
+  @Test
+  public void updateProgram_protectsAgainstSettingMultipleCommonIntakeForms() throws Exception {
+    ps.createProgramDefinition(
+        "name-one",
+        "description",
+        "display name",
+        "display description",
+        "",
+        "https://usa.gov",
+        DisplayMode.PUBLIC.getValue(),
+        ProgramType.COMMON_INTAKE_FORM,
+        /* isIntakeFormFeatureEnabled= */ true);
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            program.id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isFalse();
+    assertThat(result.isError()).isTrue();
+    assertThat(result.getErrors())
+        .containsExactly(
+            CiviFormError.of("A program set as the Common Intake Form already exists"));
+  }
+
+  @Test
+  public void updateProgram_allowsUpdatingCommonIntakeForm() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> commonIntakeForm =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            commonIntakeForm.getResult().id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+  }
+
+  @Test
+  public void updateProgram_allowsUpdatingCommonIntakeFormToDefaultProgram() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> commonIntakeForm =
+        ps.createProgramDefinition(
+            "name-one",
+            "description",
+            "display name",
+            "display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            commonIntakeForm.getResult().id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
@@ -649,8 +994,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "description",
                 "name",
                 "description",
+                "",
                 "https://usa.gov",
-                DisplayMode.PUBLIC.getValue())
+                DisplayMode.PUBLIC.getValue(),
+                ProgramType.DEFAULT,
+                false)
             .getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)
@@ -1238,6 +1586,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1289,6 +1638,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1297,6 +1647,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1356,6 +1707,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("")
             .setLocalizedDisplayDescription("")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
             .build();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -1374,6 +1726,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("a name")
             .setLocalizedDisplayDescription("a description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(ImmutableList.of())
             .build();
     assertThatThrownBy(() -> ps.updateLocalization(1000L, Locale.FRENCH, updateData))
@@ -1387,6 +1740,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1395,6 +1749,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1449,6 +1804,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1483,6 +1839,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("German Name")
             .setLocalizedDisplayDescription("German Description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()
@@ -1502,6 +1859,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
+            .withLocalizedConfirmationMessage(Locale.FRENCH, "")
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
             .build();
@@ -1510,6 +1868,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
         LocalizationUpdate.builder()
             .setLocalizedDisplayName("new French name")
             .setLocalizedDisplayDescription("new French description")
+            .setLocalizedConfirmationMessage("")
             .setStatuses(
                 ImmutableList.of(
                     LocalizationUpdate.StatusUpdate.builder()

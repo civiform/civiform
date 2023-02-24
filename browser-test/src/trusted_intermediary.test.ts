@@ -158,7 +158,7 @@ describe('Trusted intermediaries', () => {
         fullProgramName,
         'Screen 1',
       )
-      await adminPredicates.addLegacyPredicate(
+      await adminPredicates.addPredicate(
         eligibilityQuestionId,
         /* action= */ null,
         'number',
