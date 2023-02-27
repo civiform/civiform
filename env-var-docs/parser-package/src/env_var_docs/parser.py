@@ -132,8 +132,8 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
     except (json.JSONDecodeError, ValueError) as e:
         return [
             NodeParseError(
-                json_root,
-                [ParseError(json_root, f"file is not valid: {e}")], [])
+                json_root, [ParseError(json_root, f"file is not valid: {e}")],
+                [])
         ]
     if not isinstance(docs, dict):
         return [
