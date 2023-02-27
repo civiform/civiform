@@ -3,7 +3,7 @@ package auth.oidc.admin;
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.Role;
-import auth.oidc.OidcProfileAdapter;
+import auth.oidc.CiviformOidcProfileCreator;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.util.List;
@@ -21,13 +21,13 @@ import repository.UserRepository;
  * profile. Right now this is only extracting the email address, since that is all that AD provides
  * right now.
  */
-public class AdfsProfileAdapter extends OidcProfileAdapter {
-  private static final Logger logger = LoggerFactory.getLogger(AdfsProfileAdapter.class);
+public class AdfsProfileCreator extends CiviformOidcProfileCreator {
+  private static final Logger logger = LoggerFactory.getLogger(AdfsProfileCreator.class);
 
   private final String adminGroupName;
   private final String ad_groups_attribute_name;
 
-  public AdfsProfileAdapter(
+  public AdfsProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,

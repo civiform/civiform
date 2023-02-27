@@ -32,14 +32,14 @@ import repository.UserRepository;
  * - pac4j doesn't come with it. It's abstract because AD and IDCS need slightly different
  * implementations of the two abstract methods.
  */
-public abstract class OidcProfileAdapter extends OidcProfileCreator {
+public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
-  private static final Logger logger = LoggerFactory.getLogger(OidcProfileAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
 
-  public OidcProfileAdapter(
+  public CiviformOidcProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
@@ -69,7 +69,7 @@ public abstract class OidcProfileAdapter extends OidcProfileCreator {
     return Optional.empty();
   }
 
-  protected final Optional<String> getAuthorityId(OidcProfile oidcProfile) {
+  private Optional<String> getAuthorityId(OidcProfile oidcProfile) {
     // In OIDC the user is uniquely identified by the iss(user) and sub(ject)
     // claims.
     // https://openid.net/specs/openid-connect-core-1_0.html#IDToken

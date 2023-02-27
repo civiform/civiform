@@ -1,7 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
-import auth.oidc.OidcProvider;
+import auth.oidc.OidcClientProvider;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -13,7 +13,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import repository.UserRepository;
 
-public class GenericOidcProvider extends OidcProvider {
+public class GenericOidcClientProvider extends OidcClientProvider {
 
   private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc";
   private static final ImmutableList<String> DEFAULT_SCOPES =
@@ -34,7 +34,7 @@ public class GenericOidcProvider extends OidcProvider {
   private static final String LOCALE_ATTRIBUTE_CONFIG_NAME = "locale_attribute";
 
   @Inject
-  public GenericOidcProvider(
+  public GenericOidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
@@ -53,7 +53,7 @@ public class GenericOidcProvider extends OidcProvider {
   }
 
   @Override
-  public ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client) {
+  public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
     String emailAttr = getConfigurationValueOrThrow(EMAIL_ATTRIBUTE_CONFIG_NAME);
     Optional<String> localeAttr = getConfigurationValue(LOCALE_ATTRIBUTE_CONFIG_NAME);
 
@@ -61,7 +61,7 @@ public class GenericOidcProvider extends OidcProvider {
     getConfigurationValue(FIRST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(MIDDLE_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
     getConfigurationValue(LAST_NAME_ATTRIBUTE_CONFIG_NAME).ifPresent(nameAttrsBuilder::add);
-    return new GenericOidcProfileAdapter(
+    return new GenericApplicantProfileCreator(
         config,
         client,
         profileFactory,

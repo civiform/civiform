@@ -49,8 +49,7 @@ public class CiviFormProfile {
         .thenApplyAsync(
             (a) ->
                 a.getApplicants().stream()
-                    .sorted(Comparator.comparing(Applicant::getWhenCreated))
-                    .findFirst()
+                    .min(Comparator.comparing(Applicant::getWhenCreated))
                     .orElseThrow(),
             httpContext.current());
   }

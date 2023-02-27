@@ -29,20 +29,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
-public class SamlProfileAdapter extends AuthenticatorProfileCreator {
+public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
-  private static final Logger logger = LoggerFactory.getLogger(SamlProfileAdapter.class);
+  private static final Logger logger = LoggerFactory.getLogger(SamlProfileCreator.class);
   protected final CiviFormProfileMerger civiFormProfileMerger;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
   // TODO(#3856): Update with a non deprecated saml impl.
   @SuppressWarnings("deprecation")
-  protected SAML2Client saml2Client;
+  protected final SAML2Client saml2Client;
 
   // TODO(#3856): Update with a non deprecated saml impl.
   @SuppressWarnings("deprecation")
-  public SamlProfileAdapter(
+  public SamlProfileCreator(
       SAML2Configuration configuration,
       SAML2Client client,
       ProfileFactory profileFactory,

@@ -19,8 +19,8 @@ import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
-public class IdcsProviderTest extends ResetPostgres {
-  private IdcsProvider idcsProvider;
+public class IdcsClientProviderTest extends ResetPostgres {
+  private IdcsClientProvider idcsProvider;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
   private static final String DISCOVERY_URI =
@@ -46,7 +46,7 @@ public class IdcsProviderTest extends ResetPostgres {
 
     // Just need some complete adaptor to access methods.
     idcsProvider =
-        new IdcsProvider(
+        new IdcsClientProvider(
             config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
@@ -54,7 +54,7 @@ public class IdcsProviderTest extends ResetPostgres {
   public void Test_getConfigurationValues() {
     OidcClient client = idcsProvider.get();
     OidcConfiguration client_config = client.getConfiguration();
-    ProfileCreator adaptor = idcsProvider.getProfileAdapter(client_config, client);
+    ProfileCreator adaptor = idcsProvider.getProfileCreator(client_config, client);
 
     String clientId = idcsProvider.getClientID();
     assertThat(clientId).isEqualTo("idcs-fake-oidc-client");
@@ -71,6 +71,6 @@ public class IdcsProviderTest extends ResetPostgres {
     String callbackUrl = client.getCallbackUrl();
     assertThat(callbackUrl).isEqualTo(BASE_URL + "/callback");
 
-    assertThat(adaptor.getClass()).isEqualTo(IdcsProfileAdapter.class);
+    assertThat(adaptor.getClass()).isEqualTo(IdcsApplicantProfileCreator.class);
   }
 }

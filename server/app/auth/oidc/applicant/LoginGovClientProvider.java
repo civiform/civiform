@@ -20,12 +20,12 @@ import repository.UserRepository;
 /*
  * Login.gov (https://developers.login.gov/oidc/) OIDC provider using the PKCE method.
  */
-public final class LoginGovProvider extends GenericOidcProvider {
+public final class LoginGovClientProvider extends GenericOidcClientProvider {
   // Login.gov requires a state longer than 22 characters
-  static RandomValueGenerator stateGenerator = new RandomValueGenerator(30);
+  static final RandomValueGenerator stateGenerator = new RandomValueGenerator(30);
 
   @Inject
-  public LoginGovProvider(
+  public LoginGovClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
@@ -39,10 +39,10 @@ public final class LoginGovProvider extends GenericOidcProvider {
   }
 
   @Override
-  public ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client) {
+  public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
 
     var nameAttrs = ImmutableList.of("given_name", "family_name");
-    return new GenericOidcProfileAdapter(
+    return new GenericApplicantProfileCreator(
         config,
         client,
         profileFactory,
