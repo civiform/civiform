@@ -14,6 +14,12 @@ structure of env-var-docs.json. As part of a CiviForm release, the
 documentation is rendered as markdown and added to our [documentation
 website](https://docs.civiform.us/it-manual/sre-playbook/server-environment-variables).
 
+The documentation includes support for adding value validation rules. Tools
+that deploy the CiviForm server
+([civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra),
+for example) should use these rules to validate user-provided values before the
+server is deployed.
+
 ## GitHub actions automations
 
 - [check_vars_documented.py](./check_vars_documented.py): Ensures all
