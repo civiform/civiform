@@ -123,7 +123,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getDraftProgramDefinition(name),
                                             request,
                                             profile))
-                                .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
+                                .sorted(
+                                    ProgramCardFactory
+                                        .programTypeThenLastModifiedThenNameComparator())
                                 .map(
                                     cardData ->
                                         programCardFactory.renderCard(request, cardData)))));

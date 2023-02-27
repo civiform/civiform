@@ -75,8 +75,7 @@ public final class ProgramCardFactory {
                         p(programDescriptionText)
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
-                        featureFlags.isIntakeFormEnabled(request)
-                            && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM),
+                        shouldShowCommonIntakeFormIndicator(request, displayProgram),
                         div()
                             .withClasses("text-black", "items-center", "flex", "pt-4")
                             .with(
@@ -171,6 +170,12 @@ public final class ProgramCardFactory {
                                 .with(programRow.extraRowActions()))));
   }
 
+  private boolean shouldShowCommonIntakeFormIndicator(
+      Request request, ProgramDefinition displayProgram) {
+    return featureFlags.isIntakeFormEnabled(request)
+        && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
+  }
+
   private static ProgramDefinition getDisplayProgram(ProgramCardData cardData) {
     if (cardData.draftProgram().isPresent()) {
       return cardData.draftProgram().get().program();
@@ -178,7 +183,7 @@ public final class ProgramCardFactory {
     return cardData.activeProgram().get().program();
   }
 
-  public static Comparator<ProgramCardData> lastModifiedTimeThenNameComparator() {
+  public static Comparator<ProgramCardData> programTypeThenLastModifiedThenNameComparator() {
     Comparator<ProgramCardData> c =
         Comparator.comparingInt(
             (cardData) ->
