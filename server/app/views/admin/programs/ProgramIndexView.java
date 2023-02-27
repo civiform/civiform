@@ -123,8 +123,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getDraftProgramDefinition(name),
                                             request,
                                             profile))
-                                .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
-                                .map(programCardFactory::renderCard))));
+                                .sorted(
+                                    ProgramCardFactory
+                                        .programTypeThenLastModifiedThenNameComparator())
+                                .map(
+                                    cardData ->
+                                        programCardFactory.renderCard(request, cardData)))));
 
     HtmlBundle htmlBundle =
         layout

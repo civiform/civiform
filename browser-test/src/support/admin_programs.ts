@@ -76,6 +76,7 @@ export class AdminPrograms {
     externalLink = 'https://usa.gov',
     hidden = false,
     adminDescription = 'admin description',
+    isCommonIntake = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -92,6 +93,10 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("Hide from applicants.")`)
     } else {
       await this.page.check(`label:has-text("Publicly visible")`)
+    }
+
+    if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
+      await this.clickCommonIntakeFormToggle()
     }
 
     await this.page.click('#program-update-button')
