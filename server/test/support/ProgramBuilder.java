@@ -215,6 +215,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withProgramType(ProgramType programType) {
+    builder.setProgramType(programType);
+    return this;
+  }
+
   /**
    * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and
    * description.

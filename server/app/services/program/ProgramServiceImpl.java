@@ -214,8 +214,7 @@ public final class ProgramServiceImpl implements ProgramService {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
     if (isIntakeFormFeatureEnabled) {
-      if (programType == ProgramType.COMMON_INTAKE_FORM
-          && programRepository.commonIntakeFormExists()) {
+      if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
         errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
       }
     } else {
@@ -280,10 +279,12 @@ public final class ProgramServiceImpl implements ProgramService {
       errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
     }
     if (isIntakeFormFeatureEnabled) {
-      if (programType == ProgramType.COMMON_INTAKE_FORM
-          && programRepository.commonIntakeFormExists()
-          && !programDefinition.isCommonIntakeForm()) {
-        errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
+      if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+        Optional<ProgramDefinition> commonIntake = getCommonIntakeForm();
+        if (commonIntake.isPresent()
+            && !programDefinition.adminName().equals(commonIntake.get().adminName())) {
+          errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
+        }
       }
     } else {
       programType = ProgramType.DEFAULT;
@@ -1165,5 +1166,21 @@ public final class ProgramServiceImpl implements ProgramService {
       throws QuestionNotFoundException {
     QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
     return pqd.loadCompletely(programDefinitionId, questionDefinition);
+  }
+
+  /*
+   * Looks at the most recent version of each program and returns the program marked as the
+   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   */
+  private Optional<ProgramDefinition> getCommonIntakeForm() {
+    ActiveAndDraftPrograms activeAndDraftPrograms = getActiveAndDraftPrograms();
+    for (String name : activeAndDraftPrograms.getProgramNames()) {
+      ProgramDefinition mostRecentVersion =
+          activeAndDraftPrograms.getMostRecentProgramDefinition(name);
+      if (mostRecentVersion.isCommonIntakeForm()) {
+        return Optional.of(mostRecentVersion);
+      }
+    }
+    return Optional.empty();
   }
 }

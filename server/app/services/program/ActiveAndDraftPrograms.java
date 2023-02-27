@@ -85,6 +85,11 @@ public final class ActiveAndDraftPrograms {
     return versionedByName.get(name).second();
   }
 
+  public ProgramDefinition getMostRecentProgramDefinition(String name) {
+    Optional<ProgramDefinition> draft = getDraftProgramDefinition(name);
+    return draft.isPresent() ? draft.get() : getActiveProgramDefinition(name).get();
+  }
+
   public boolean anyDraft() {
     return draftPrograms.size() > 0;
   }
