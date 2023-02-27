@@ -175,7 +175,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             questionPathToValueMap ->
                 applicantService.stageAndUpdateIfValid(
-                    applicantId, programId, blockId, cleanForm(questionPathToValueMap)),
+                    applicantId,
+                    programId,
+                    blockId,
+                    cleanForm(questionPathToValueMap),
+                    featureFlags.isEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService ->
