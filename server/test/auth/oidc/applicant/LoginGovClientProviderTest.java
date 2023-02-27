@@ -27,8 +27,8 @@ import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
-public class LoginGovProviderTest extends ResetPostgres {
-  private LoginGovProvider loginGovProvider;
+public class LoginGovClientProviderTest extends ResetPostgres {
+  private LoginGovClientProvider loginGovProvider;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
@@ -54,7 +54,7 @@ public class LoginGovProviderTest extends ResetPostgres {
 
     // Just need some complete adaptor to access methods.
     loginGovProvider =
-        new LoginGovProvider(
+        new LoginGovClientProvider(
             config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
   }
 
@@ -62,7 +62,7 @@ public class LoginGovProviderTest extends ResetPostgres {
   public void testGetConfigurationValues() {
     OidcClient client = loginGovProvider.get();
     OidcConfiguration client_config = client.getConfiguration();
-    ProfileCreator adaptor = loginGovProvider.getProfileAdapter(client_config, client);
+    ProfileCreator adaptor = loginGovProvider.getProfileCreator(client_config, client);
 
     String clientId = loginGovProvider.getClientID();
     assertThat(clientId).isEqualTo(CLIENT_ID);
@@ -79,7 +79,7 @@ public class LoginGovProviderTest extends ResetPostgres {
     String callbackUrl = client.getCallbackUrl();
     assertThat(callbackUrl).isEqualTo(BASE_URL + "/callback");
 
-    assertThat(adaptor.getClass()).isEqualTo(GenericOidcProfileAdapter.class);
+    assertThat(adaptor.getClass()).isEqualTo(GenericApplicantProfileCreator.class);
 
     String provider = loginGovProvider.getProviderName().orElse("");
     assertThat(provider).isEqualTo("LoginGov");

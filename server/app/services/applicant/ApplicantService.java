@@ -15,7 +15,13 @@ import com.typesafe.config.Config;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -50,6 +56,7 @@ import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
+import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
@@ -83,6 +90,7 @@ public final class ApplicantService {
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
+  private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
 
   @Inject
@@ -97,6 +105,7 @@ public final class ApplicantService {
       Config configuration,
       HttpExecutionContext httpExecutionContext,
       DeploymentType deploymentType,
+      ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -106,6 +115,7 @@ public final class ApplicantService {
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
@@ -205,7 +215,11 @@ public final class ApplicantService {
    *     </ul>
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      boolean addressServiceAreaValidationEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -222,11 +236,17 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
-    return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
+    return stageAndUpdateIfValid(
+        applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      ImmutableSet<Update> updates,
+      boolean addressServiceAreaValidationEnabled) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -255,30 +275,30 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
-              ImmutableMap<Path, String> failedUpdates;
-              try {
-                failedUpdates =
-                    stageUpdates(
-                        applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates);
-              } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
-                return CompletableFuture.failedFuture(e);
-              }
-
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
-
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
-              if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-                return userRepository
-                    .updateApplicant(applicant)
-                    .thenApplyAsync(
-                        (finishedSaving) -> roApplicantProgramService,
+              if (addressServiceAreaValidationEnabled
+                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+                return serviceAreaUpdateResolver
+                    .getServiceAreaUpdate(blockBeforeUpdate, updateMap)
+                    .thenComposeAsync(
+                        (serviceAreaUpdate) -> {
+                          return stageAndUpdateIfValid(
+                              applicant,
+                              baseUrl,
+                              blockBeforeUpdate,
+                              programDefinition,
+                              updates,
+                              serviceAreaUpdate);
+                        },
                         httpExecutionContext.current());
               }
 
-              return CompletableFuture.completedFuture(roApplicantProgramService);
+              return stageAndUpdateIfValid(
+                  applicant,
+                  baseUrl,
+                  blockBeforeUpdate,
+                  programDefinition,
+                  updates,
+                  Optional.empty());
             },
             httpExecutionContext.current())
         .thenCompose(
@@ -286,6 +306,42 @@ public final class ApplicantService {
                 applicationRepository
                     .createOrUpdateDraft(applicantId, programId)
                     .thenApplyAsync(appDraft -> v));
+  }
+
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+      Applicant applicant,
+      String baseUrl,
+      Block blockBeforeUpdate,
+      ProgramDefinition programDefinition,
+      ImmutableSet<Update> updates,
+      Optional<ServiceAreaUpdate> serviceAreaUpdate) {
+    UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
+    ImmutableMap<Path, String> failedUpdates;
+    try {
+      failedUpdates =
+          stageUpdates(
+              applicant.getApplicantData(),
+              blockBeforeUpdate,
+              updateMetadata,
+              updates,
+              serviceAreaUpdate);
+    } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
+      return CompletableFuture.failedFuture(e);
+    }
+
+    ReadOnlyApplicantProgramService roApplicantProgramService =
+        new ReadOnlyApplicantProgramServiceImpl(
+            applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
+
+    Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
+    if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+      return userRepository
+          .updateApplicant(applicant)
+          .thenApplyAsync(
+              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+    }
+
+    return CompletableFuture.completedFuture(roApplicantProgramService);
   }
 
   /**
@@ -677,7 +733,6 @@ public final class ApplicantService {
                         .findFirst()
                     : Optional.empty();
 
-            Application submittedApp = maybeSubmittedApp.get();
             // Get the program definition from the all programs list, since that has the
             // associated question data.
             ProgramDefinition programDefinition =
@@ -687,10 +742,6 @@ public final class ApplicantService {
                     .setProgram(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
-
-            applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligibilityStatus(
-                    submittedApp.getApplicant().getApplicantData(), programDefinition));
 
             submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
@@ -816,12 +867,13 @@ public final class ApplicantService {
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
-      ImmutableSet<Update> updates)
+      ImmutableSet<Update> updates,
+      Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     if (block.isEnumerator()) {
       return stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
     } else {
-      return stageNormalUpdates(applicantData, block, updateMetadata, updates);
+      return stageNormalUpdates(applicantData, block, updateMetadata, updates, serviceAreaUpdate);
     }
   }
 
@@ -938,7 +990,8 @@ public final class ApplicantService {
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
-      ImmutableSet<Update> updates)
+      ImmutableSet<Update> updates,
+      Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ArrayList<Path> visitedPaths = new ArrayList<>();
     ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
@@ -994,10 +1047,19 @@ public final class ApplicantService {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
+          case SERVICE_AREA:
+            // service areas get updated below
+            break;
           default:
             throw new UnsupportedScalarTypeException(type);
         }
       }
+    }
+
+    if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
+      applicantData.putString(
+          serviceAreaUpdate.get().path(),
+          ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.

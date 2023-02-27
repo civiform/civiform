@@ -11,6 +11,8 @@ import services.Address;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaInclusionGroup;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -32,6 +34,8 @@ public final class AddressQuestion extends Question {
   private Optional<Double> latitudeValue;
   private Optional<Double> longitudeValue;
   private Optional<Long> wellKnownIdValue;
+  private Path serviceAreaPath;
+  private Optional<ImmutableList<ServiceAreaInclusion>> serviceAreaValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -205,6 +209,20 @@ public final class AddressQuestion extends Question {
     return wellKnownIdValue;
   }
 
+  public Optional<ImmutableList<ServiceAreaInclusion>> getServiceAreaValue() {
+    if (serviceAreaValue != null) {
+      return serviceAreaValue;
+    }
+
+    Optional<String> serviceAreaString =
+        applicantQuestion.getApplicantData().readString(getServiceAreaPath());
+
+    return serviceAreaValue =
+        serviceAreaString.isPresent()
+            ? Optional.of(ServiceAreaInclusionGroup.deserialize(serviceAreaString.get()))
+            : Optional.empty();
+  }
+
   public AddressQuestionDefinition getQuestionDefinition() {
     return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -243,6 +261,13 @@ public final class AddressQuestion extends Question {
 
   public Path getWellKnownIdPath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
+  }
+
+  public Path getServiceAreaPath() {
+    if (serviceAreaPath != null) {
+      return serviceAreaPath;
+    }
+    return serviceAreaPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
   }
 
   public Address getAddress() {
@@ -289,6 +314,7 @@ public final class AddressQuestion extends Question {
         getCorrectedPath(),
         getLatitudePath(),
         getLongitudePath(),
-        getWellKnownIdPath());
+        getWellKnownIdPath(),
+        getServiceAreaPath());
   }
 }

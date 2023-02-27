@@ -23,18 +23,18 @@ import repository.UserRepository;
 
 /**
  * This class provides the base applicant OIDC implementation. It's abstract because AD and other
- * providers need slightly different implementations and profile adaptors, and use different config
+ * providers need slightly different implementations and profile creators, and use different config
  * values.
  */
-public abstract class OidcProvider implements Provider<OidcClient> {
+public abstract class OidcClientProvider implements Provider<OidcClient> {
 
-  private static final Logger logger = LoggerFactory.getLogger(OidcProvider.class);
+  private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
   protected final Provider<UserRepository> applicantRepositoryProvider;
   protected final String baseUrl;
 
-  public OidcProvider(
+  public OidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
@@ -58,9 +58,9 @@ public abstract class OidcProvider implements Provider<OidcClient> {
   protected abstract Optional<String> getProviderName();
 
   /*
-   * Provide the profile adaptor that should be used.
+   * Provide the profile creator that should be used.
    */
-  public abstract ProfileCreator getProfileAdapter(OidcConfiguration config, OidcClient client);
+  public abstract ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client);
 
   /*
    * The OIDC Client ID.
@@ -215,7 +215,7 @@ public abstract class OidcProvider implements Provider<OidcClient> {
       client.setName(providerName.get());
     }
     client.setCallbackUrl(callbackURL);
-    client.setProfileCreator(getProfileAdapter(config, client));
+    client.setProfileCreator(getProfileCreator(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
         new CiviformOidcLogoutActionBuilder(civiformConfig, config, config.getClientId()));

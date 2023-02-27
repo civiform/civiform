@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
-import auth.oidc.applicant.IdcsProfileAdapter;
+import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -20,14 +20,14 @@ import repository.UserRepository;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
-public class OidcProfileAdapterTest extends ResetPostgres {
+public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String EMAIL = "foo@bar.com";
   private static final String NAME = "Philip J. Fry";
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
 
-  private OidcProfileAdapter oidcProfileAdapter;
+  private CiviformOidcProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
   private static UserRepository userRepository;
 
@@ -39,7 +39,7 @@ public class OidcProfileAdapterTest extends ResetPostgres {
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
     oidcProfileAdapter =
-        new IdcsProfileAdapter(
+        new IdcsApplicantProfileCreator(
             client_config,
             client,
             profileFactory,

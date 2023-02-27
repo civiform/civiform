@@ -3,10 +3,14 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static play.mvc.Results.ok;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -22,9 +26,13 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import play.libs.ws.WSClient;
+import play.routing.RoutingDsl;
+import play.server.Server;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
@@ -47,7 +55,14 @@ import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
-import services.program.*;
+import services.geo.esri.EsriClient;
+import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.program.EligibilityDefinition;
+import services.program.PathNotInBlockException;
+import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.StatusDefinitions;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -56,7 +71,10 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
-import services.question.types.*;
+import services.question.types.CheckboxQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -74,7 +92,28 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Before
   public void setUp() throws Exception {
+    // configure EsriClient instance for ServiceAreaUpdateResolver which is injected into
+    // ApplicantService
+    Config config = ConfigFactory.load();
+    Clock clock = instanceOf(Clock.class);
+    EsriServiceAreaValidationConfig esriServiceAreaValidationConfig =
+        instanceOf(EsriServiceAreaValidationConfig.class);
+    Server server =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/query")
+                    .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
+                    .build());
+    WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
+    EsriClient esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
+    ServiceAreaUpdateResolver serviceAreaUpdateResolver =
+        instanceOf(ServiceAreaUpdateResolver.class);
+    // set instance of esriClient for ServiceAreaUpdateResolver
+    FieldUtils.writeField(serviceAreaUpdateResolver, "esriClient", esriClient, true);
     subject = instanceOf(ApplicantService.class);
+    // set instance of serviceAreaUpdateResolver for ApplicantService
+    FieldUtils.writeField(subject, "serviceAreaUpdateResolver", serviceAreaUpdateResolver, true);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
@@ -88,7 +127,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);
     Mockito.when(trustedIntermediaryProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(account));
-
     programService = instanceOf(ProgramServiceImpl.class);
   }
 
@@ -100,7 +138,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -130,7 +168,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -144,7 +182,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -172,7 +210,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -182,7 +220,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -226,7 +264,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // data suitable for displaying errors downstream.
     ReadOnlyApplicantProgramService resultService =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
             .toCompletableFuture()
             .join();
 
@@ -266,7 +304,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Empty update should put metadata in
     ImmutableMap<String, String> updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -282,7 +320,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -306,7 +344,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(0).toString(), "0",
             deletionPath.atIndex(1).toString(), "1");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -338,7 +376,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -360,7 +398,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // get deleted.
     updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -389,7 +427,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -410,7 +448,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -454,7 +492,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -472,7 +510,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -486,7 +524,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -517,7 +555,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -542,7 +580,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates = ImmutableMap.of();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -562,7 +600,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        badApplicantId, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -579,7 +618,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates)
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false)
                     .toCompletableFuture()
                     .join());
 
@@ -598,7 +637,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), badBlockId, updates)
+                        applicant.id, programDefinition.id(), badBlockId, updates, false)
                     .toCompletableFuture()
                     .join());
 
@@ -618,7 +657,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join());
 
@@ -636,7 +676,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -659,7 +700,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -707,7 +749,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -767,7 +809,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     secondProgram.save();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates)
+        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -814,7 +856,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -834,7 +876,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Elisa")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -891,7 +933,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -908,6 +950,122 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
         .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "555 E 5th St.")
+            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
+                "47.578374020558954")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
+                "-122.3360380354971")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
+                "4326")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString()).contains("Seattle_InArea_");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation_with_existing_service_areas() {
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "555 E 5th St.")
+            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
+                "47.578374020558954")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
+                "-122.3360380354971")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
+                "4326")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
+                "Bloomington_NotInArea_1234,Seattle_Failed_4567")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString())
+        .contains("Bloomington_NotInArea_1234", "Seattle_InArea_");
+    assertThat(applicantDataAfter.asJsonString()).doesNotContain("Seattle_Failed_4567");
   }
 
   @Test

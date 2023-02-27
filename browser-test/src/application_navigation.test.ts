@@ -400,7 +400,7 @@ describe('Applicant navigation flow', () => {
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
-      // Fill out application and submit.
+      // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
 
@@ -412,6 +412,18 @@ describe('Applicant navigation flow', () => {
       )
       await validateScreenshot(page, 'eligible-home-page-program-tag')
       await validateAccessibility(page)
+
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      await validateScreenshot(
+        page,
+        'home-page-no-eligibility-tag-for-submitted',
+      )
     })
 
     it('shows not eligible with ineligible answer from another application', async () => {

@@ -14,7 +14,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import repository.UserRepository;
 
 /** Provider class for the AD OIDC Client. */
-public class AdfsProvider implements Provider<OidcClient> {
+public class AdfsClientProvider implements Provider<OidcClient> {
 
   private final Config configuration;
   private final String baseUrl;
@@ -22,7 +22,7 @@ public class AdfsProvider implements Provider<OidcClient> {
   private final Provider<UserRepository> applicantRepositoryProvider;
 
   @Inject
-  public AdfsProvider(
+  public AdfsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {
@@ -82,7 +82,7 @@ public class AdfsProvider implements Provider<OidcClient> {
     // of a profile for different identity profiles we have different creators.
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
-        new AdfsProfileAdapter(
+        new AdfsProfileCreator(
             config, client, profileFactory, configuration, applicantRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();

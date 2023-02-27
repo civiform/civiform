@@ -18,6 +18,7 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.geo.ServiceAreaState;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.AddressQuestionDefinition;
 import support.QuestionAnswerer;
@@ -108,7 +109,8 @@ public class AddressQuestionTest {
         "true",
         10.1,
         -20.1,
-        1000L);
+        1000L,
+        "Seattle_InArea_1234");
 
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
@@ -122,6 +124,11 @@ public class AddressQuestionTest {
     assertThat(addressQuestion.getLatitudeValue().get()).isEqualTo(10.1);
     assertThat(addressQuestion.getLongitudeValue().get()).isEqualTo(-20.1);
     assertThat(addressQuestion.getWellKnownIdValue().get()).isEqualTo(1000L);
+    assertThat(addressQuestion.getServiceAreaValue().get().get(0).getServiceAreaId())
+        .isEqualTo("Seattle");
+    assertThat(addressQuestion.getServiceAreaValue().get().get(0).getState())
+        .isEqualTo(ServiceAreaState.IN_AREA);
+    assertThat(addressQuestion.getServiceAreaValue().get().get(0).getTimeStamp()).isEqualTo(1234);
   }
 
   @Test

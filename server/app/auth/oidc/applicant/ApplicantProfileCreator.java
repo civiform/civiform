@@ -4,7 +4,7 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Role;
-import auth.oidc.OidcProfileAdapter;
+import auth.oidc.CiviformOidcProfileCreator;
 import com.beust.jcommander.internal.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -28,7 +28,7 @@ import repository.UserRepository;
  * - pac4j doesn't come with it. It's abstract because AD and IDCS need slightly different
  * implementations of the two abstract methods.
  */
-public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
+public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator {
 
   @VisibleForTesting public final String emailAttributeName;
 
@@ -36,7 +36,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
 
   @VisibleForTesting public final ImmutableList<String> nameAttributeNames;
 
-  public OidcApplicantProfileAdapter(
+  public ApplicantProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
@@ -50,7 +50,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
     this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
   }
 
-  private final Optional<String> getName(OidcProfile oidcProfile) {
+  private Optional<String> getName(OidcProfile oidcProfile) {
     String name =
         nameAttributeNames.stream()
             .filter(s -> !s.isBlank())
@@ -61,7 +61,7 @@ public abstract class OidcApplicantProfileAdapter extends OidcProfileAdapter {
     return Optional.ofNullable(Strings.emptyToNull(name));
   }
 
-  private final Optional<String> getLocale(OidcProfile oidcProfile) {
+  private Optional<String> getLocale(OidcProfile oidcProfile) {
     return localeAttributeName
         .filter(s -> !s.isBlank())
         .map(name -> oidcProfile.getAttribute(name, String.class))

@@ -206,6 +206,21 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
+  async gotoProgramSettingsPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', ':text("Settings")'),
+    )
+
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramSettingsPage()
+  }
+
   async gotoEditDraftProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -308,6 +323,10 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain(
       'Manage Admins for Program',
     )
+  }
+
+  async expectProgramSettingsPage() {
+    expect(await this.page.innerText('h1')).toContain('settings')
   }
 
   async expectAddProgramAdminErrorToast() {

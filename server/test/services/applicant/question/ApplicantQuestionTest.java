@@ -429,4 +429,35 @@ public class ApplicantQuestionTest {
 
     assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isFalse();
   }
+
+  @Test
+  public void isAddressCorrectionEnabled_isTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+            .setAddressCorrectionEnabled(true);
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
+
+    assertThat(applicantQuestion.isAddressCorrectionEnabled()).isTrue();
+  }
+
+  @Test
+  public void isAddressCorrectionEnabled_isFalse() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
+    QuestionAnswerer.addMetadata(
+        applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
+
+    assertThat(applicantQuestion.isAddressCorrectionEnabled()).isFalse();
+  }
 }

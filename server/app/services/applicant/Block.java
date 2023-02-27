@@ -14,6 +14,8 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.PredicateAddressServiceAreaNodeExtractor;
 import services.program.predicate.PredicateDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
@@ -120,6 +122,35 @@ public final class Block {
   /** This block is an address block if its {@link BlockDefinition} contains an address question. */
   public boolean hasAddressWithCorrectionEnabled() {
     return blockDefinition.hasAddressWithCorrectionEnabled();
+  }
+
+  /**
+   * Returns a list of address service area IDs defined for eligibility on this block. Returns empty
+   * if no service area IDs are configured for eligibility.
+   */
+  public Optional<ImmutableList<String>> getLeafAddressNodeServiceAreaIds() {
+    Optional<EligibilityDefinition> eligibilityDefinition = getEligibilityDefinition();
+    if (eligibilityDefinition.isEmpty()) {
+      return Optional.empty();
+    }
+
+    ImmutableList<LeafAddressServiceAreaExpressionNode> nodes =
+        PredicateAddressServiceAreaNodeExtractor.extract(eligibilityDefinition.get().predicate());
+
+    return Optional.of(
+        nodes.stream()
+            .map(LeafAddressServiceAreaExpressionNode::serviceAreaId)
+            .collect(ImmutableList.toImmutableList()));
+  }
+
+  /**
+   * Returns a {@link ApplicantQuestion} that has address correction enabled if it exists. Returns
+   * empty if no questions have address correction enabled.
+   */
+  public Optional<ApplicantQuestion> getAddressQuestionWithCorrectionEnabled() {
+    return getQuestions().stream()
+        .filter(ApplicantQuestion::isAddressCorrectionEnabled)
+        .findFirst();
   }
 
   public ImmutableList<ApplicantQuestion> getQuestions() {

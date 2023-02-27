@@ -19,10 +19,10 @@ import repository.UserRepository;
  *
  * <p>https://auth0.com/docs/authenticate/protocols/openid-connect-protocol
  */
-public class Auth0Provider extends GenericOidcProvider {
+public class Auth0ClientProvider extends GenericOidcClientProvider {
 
   @Inject
-  public Auth0Provider(
+  public Auth0ClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
       Provider<UserRepository> applicantRepositoryProvider) {

@@ -219,6 +219,14 @@ export class ApplicantQuestions {
     expect(await cardLocator.locator(tag).count()).toEqual(1)
   }
 
+  async seeNoEligibilityTags(programName: string) {
+    const cardLocator = this.page.locator('.cf-application-card', {
+      has: this.page.locator(`:text("${programName}")`),
+    })
+    expect(await cardLocator.locator('.cf-eligible-tag').count()).toEqual(0)
+    expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
+  }
+
   async expectPrograms({
     wantNotStartedPrograms,
     wantInProgressPrograms,

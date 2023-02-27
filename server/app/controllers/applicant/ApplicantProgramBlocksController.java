@@ -369,7 +369,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .thenComposeAsync(
                       (StoredFile unused) ->
                           applicantService.stageAndUpdateIfValid(
-                              applicantId, programId, blockId, fileUploadQuestionFormData.build()));
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              featureFlags.isEsriAddressServiceAreaValidationEnabled(request)));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -413,7 +417,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
               return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData);
+                  applicantId,
+                  programId,
+                  blockId,
+                  formData,
+                  featureFlags.isEsriAddressServiceAreaValidationEnabled(request));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
