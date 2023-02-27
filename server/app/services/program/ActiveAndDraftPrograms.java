@@ -89,6 +89,12 @@ public final class ActiveAndDraftPrograms {
     return getDraftProgramDefinition(name).orElseGet(getActiveProgramDefinition(name)::get);
   }
 
+  public ImmutableList<ProgramDefinition> getMostRecentProgramDefinitions() {
+    return getProgramNames().stream()
+        .map(this::getMostRecentProgramDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public boolean anyDraft() {
     return draftPrograms.size() > 0;
   }

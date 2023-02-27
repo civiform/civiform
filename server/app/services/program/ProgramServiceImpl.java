@@ -1173,14 +1173,8 @@ public final class ProgramServiceImpl implements ProgramService {
    * common intake form if it exists. The most recent version may be in the draft or active stage.
    */
   private Optional<ProgramDefinition> getCommonIntakeForm() {
-    ActiveAndDraftPrograms activeAndDraftPrograms = getActiveAndDraftPrograms();
-    for (String name : activeAndDraftPrograms.getProgramNames()) {
-      ProgramDefinition mostRecentVersion =
-          activeAndDraftPrograms.getMostRecentProgramDefinition(name);
-      if (mostRecentVersion.isCommonIntakeForm()) {
-        return Optional.of(mostRecentVersion);
-      }
-    }
-    return Optional.empty();
+    return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+        .filter(p -> p.isCommonIntakeForm())
+        .findFirst();
   }
 }
