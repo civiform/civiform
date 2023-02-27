@@ -86,8 +86,7 @@ public final class ActiveAndDraftPrograms {
   }
 
   public ProgramDefinition getMostRecentProgramDefinition(String name) {
-    Optional<ProgramDefinition> draft = getDraftProgramDefinition(name);
-    return draft.isPresent() ? draft.get() : getActiveProgramDefinition(name).get();
+    return getDraftProgramDefinition(name).orElseGet(getActiveProgramDefinition(name)::get);
   }
 
   public boolean anyDraft() {
