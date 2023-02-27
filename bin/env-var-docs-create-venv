@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
-# DOC: Creates a python virtual environment for the env-var-docs python files
+# DOC: Creates a python virtual environment for the env-var-docs/ python files
 # DOC: and installs dependencies. Will replace an existing venv directory if
-# DOC called multiple times (a good way to get back to a known good state).
+# DOC: called multiple times (a good way to get back to a known good state).
 
 source bin/lib.sh
 

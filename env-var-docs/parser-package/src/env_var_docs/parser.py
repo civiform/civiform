@@ -15,18 +15,30 @@ UnparsedJSON = dict[str, typing.Any]
 
 @dataclasses.dataclass
 class Group:
+    """A group of Variables.
+
+    See parser-package/README.md for the expected JSON structure.
+    """
     group_description: str
     members: dict[str, UnparsedJSON]
 
 
 @dataclasses.dataclass
 class RegexTest:
+    """A test case for a Variable's regex.
+
+    See parser-package/README.md for the expected JSON structure.
+    """
     val: str
     should_match: bool
 
 
 @dataclasses.dataclass
 class Variable:
+    """An environment variable referenced in application.conf.
+
+    See parser-package/README.md for the expected JSON structure.
+    """
     description: str
     type: str
     required: bool
@@ -105,14 +117,23 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
     """
     file.seek(0)  # Ensure we are reading from the beginning of the file.
 
+    def raise_on_duplicate_keys(fields):
+        """Callback for json.load object_pairs_hook parameter."""
+        out = {}
+        for k, v in fields:
+            if k in out:
+                raise ValueError(f"found duplicate key '{k}'")
+            out[k] = v
+        return out
+
     json_root = "file"
     try:
-        docs = json.load(file)
-    except json.JSONDecodeError as e:
+        docs = json.load(file, object_pairs_hook=raise_on_duplicate_keys)
+    except (json.JSONDecodeError, ValueError) as e:
         return [
             NodeParseError(
                 json_root,
-                [ParseError(json_root, f"file is not valid JSON: {e}")], [])
+                [ParseError(json_root, f"file is not valid: {e}")], [])
         ]
     if not isinstance(docs, dict):
         return [
@@ -145,7 +166,7 @@ def _recursively_parse(
     """Recursively visits a node and its children, in preorder traversal order (visit root then children)."""
     path = _path(parent_path, key)
 
-    # Is this a group?
+    # First, try to parse details as a Group.
     group, group_errors = _parse_group(path, value)
     if len(group_errors) == 0:
         assert group is not None  # appease mypy
@@ -159,7 +180,7 @@ def _recursively_parse(
                 parsing_errors)
         return
 
-    # Is this a variable?
+    # details was not successfully parsed as a Group. Next, try to parse it as a Variable.
     var, var_errors = _parse_variable(path, value)
     if len(var_errors) == 0:
         assert var is not None  # appease mypy
@@ -392,7 +413,11 @@ def _parse_field(
 
 
 def _path(*args: str) -> str:
-    """Creates a path from segments. Segments can not be the empty string."""
+    """Creates a JSON key path from keys.
+
+    Raises a ValueError if no called with no arguments or any of the arguments
+    is the empty string.
+    """
     if len(args) == 0:
         raise ValueError("must have at least one argument")
     for a in args:

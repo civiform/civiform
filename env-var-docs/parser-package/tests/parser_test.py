@@ -19,8 +19,25 @@ class TestVisit(unittest.TestCase):
                     group_errors=[
                         ParseError(
                             "file",
-                            "file is not valid JSON: Expecting value: line 1 column 1 (char 0)"
+                            "file is not valid: Expecting value: line 1 column 1 (char 0)"
                         )
+                    ],
+                    variable_errors=[])
+            ])
+
+    def test_file_has_duplicate_keys(self):
+        f = io.StringIO(
+            '{ "MY_VAR": { "description": "A var", "type": "string", "type": "bool"} }'
+        )
+        got = visit(f, donothing)
+        self.assertEqual(
+            got, [
+                NodeParseError(
+                    path="file",
+                    group_errors=[
+                        ParseError(
+                            "file",
+                            "file is not valid: found duplicate key 'type'")
                     ],
                     variable_errors=[])
             ])

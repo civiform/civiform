@@ -42,9 +42,14 @@ $ python3 --version
 ```
 
 We use [virtual python
-environments](https://docs.python.org/3/library/venv.html) to manage
-dependencies. To set up a virtual environment with the required dependencies,
-run `bin/env-var-docs-create-venv` from the repository root. To activate the
+environments](https://docs.python.org/3/library/venv.html) (venv) to manage
+dependencies. A virtual environment isolates the available python packages to
+just those explicitly installed inside the virtual environment. Using a virtual
+environment decreases the chances that the env-var-docs python scripts rely on
+undeclared dependencies.
+
+To set up a virtual environment with the required dependencies, run
+`bin/env-var-docs-create-venv` from the repository root. To activate the
 virtual environment in your shell, run `source env-var-docs/venv/bin/activate`.
 Re-running `bin/env-var-docs-create-venv` will delete and re-create the virtual
 environment. Doing so is a good way to get back to a known good state.

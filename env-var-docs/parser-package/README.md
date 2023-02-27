@@ -10,8 +10,8 @@ See [../README.md#developer-setup](../README.md#developer-setup).
 ### Environment variable documentation file format
 
 An environment variable documentation file contains key-value pairs. Each key
-references either a group of environment variables or an environment variable
-referenced in application.conf.
+is either a group name or the name of an environment variables referenced in
+application.conf.
 
 Groups have the following fields:
 
@@ -38,7 +38,11 @@ Variables have the following fields:
   escaped like \\" or \\\. If `regex` is defined, `values` can not be defined.
   If `regex` is defined, `regex_tests` must also be defined.
 - `regex_tests`: A list of objects. Each object contains a `val` field with a
-  string value and a `should_match` field with a boolean value.
+  string value and a `should_match` field with a boolean value. Tests reduce
+  the likelihood of typos or errors in `regex`. At a minimum, at least two
+  tests should be specified: one that matches the regular expression and one
+  that does not. Depending on the complexity of `regex`, many more tests should
+  be specified that test the corner-cases.
 
 The `description` and `type` fields must be defined for each variable.
 

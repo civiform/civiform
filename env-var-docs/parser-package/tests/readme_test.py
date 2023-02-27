@@ -5,6 +5,9 @@ import unittest
 
 
 class TestReadmeExample(unittest.TestCase):
+    """Tests the example environment variable documentation file in
+    parser-package/README.md.
+    """
 
     def test_example(self):
         example = ""
