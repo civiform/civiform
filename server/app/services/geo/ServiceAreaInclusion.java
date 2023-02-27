@@ -1,7 +1,6 @@
 package services.geo;
 
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
 
 /** Represents the inclusion state of an address in a service area. */
 @AutoValue
@@ -17,7 +16,7 @@ public abstract class ServiceAreaInclusion {
   public abstract ServiceAreaState getState();
 
   /** The timestamp for when the inclusion check was made. */
-  public abstract Instant getTimeStamp();
+  public abstract long getTimeStamp();
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -25,7 +24,7 @@ public abstract class ServiceAreaInclusion {
 
     public abstract Builder setState(ServiceAreaState state);
 
-    public abstract Builder setTimeStamp(Instant now);
+    public abstract Builder setTimeStamp(long now);
 
     public abstract ServiceAreaInclusion build();
   }
