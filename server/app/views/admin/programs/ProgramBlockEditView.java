@@ -601,9 +601,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             addressCorrectionEnabled);
 
     ret.with(icon, content);
-    maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
+      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
       maybeOptionalToggle.ifPresent(ret::with);
       ret.with(
           this.createMoveQuestionButtonsSection(
@@ -620,6 +620,19 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
               blockDefinition.id(),
               questionDefinition,
               canRemove));
+    } else {
+      // For each toggle, use a label instead in the read only view
+      if (maybeAddressCorrectionEnabledToggle.isPresent()) {
+        String label =
+            addressCorrectionEnabled
+                ? "Address correction: enabled"
+                : "Address correction: disabled";
+        ret.with(makeReadOnlyLabel(label));
+      }
+      if (maybeOptionalToggle.isPresent()) {
+        String label = isOptional ? "optional question" : "required question";
+        ret.with(makeReadOnlyLabel(label));
+      }
     }
     return ret;
   }
@@ -739,6 +752,22 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             .withAction(toggleOptionalAction)
             .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
+  }
+
+  // Creates label that can be used in the read only view, for example to replace a toggle.
+  private DivTag makeReadOnlyLabel(String label) {
+    DivTag ret =
+        div()
+            .withClasses(
+                "flex",
+                "gap-2",
+                "items-center",
+                "text-gray-400",
+                "font-medium",
+                "bg-transparent",
+                "rounded-full")
+            .with(p(label));
+    return ret;
   }
 
   private Optional<FormTag> addressCorrectionEnabledToggle(
