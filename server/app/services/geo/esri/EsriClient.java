@@ -131,6 +131,9 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     request.addQueryParameter("outFields", ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS);
     // "f" stands for "format", options are json and pjson (PrettyJson)
     request.addQueryParameter("f", ESRI_RESPONSE_FORMAT);
+    // limit max locations to 3 to keep the size down, since CF stores the suggestions in the user
+    // session
+    request.addQueryParameter("maxLocations", "3");
     Optional<String> address =
         Optional.ofNullable(addressJson.findPath(AddressField.STREET.getValue()).textValue());
     Optional<String> address2 =
