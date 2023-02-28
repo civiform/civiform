@@ -444,8 +444,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             "bg-blue-100")
         .with(
             Icons.svg(Icons.INFO)
-                .withClasses("inline-block")
-                .withStyle("width: 18px; height: 18px;"),
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5"),
             span(String.format(
                     "%s: %s",
                     messages.at(MessageKey.TITLE_STATUS.getKeyName()),
@@ -479,9 +479,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             color)
         .with(
             Icons.svg(icon)
-                .withClasses("inline-block")
-                // Can't set 18px using Tailwind CSS classes.
-                .withStyle("width: 18px; height: 18px;"),
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5"),
             span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium"));
   }
 

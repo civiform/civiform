@@ -52,6 +52,9 @@ module.exports = {
           DEFAULT: '#4a148c',
         },
       },
+      spacing: {
+        4.5: '18px',
+      },
     },
   },
   plugins: [require('@tailwindcss/line-clamp')],
