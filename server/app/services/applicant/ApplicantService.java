@@ -67,7 +67,6 @@ import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
 import views.applicant.AddressCorrectionBlockView;
-import views.components.TextFormatter;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -1132,7 +1131,8 @@ public final class ApplicantService {
                     new ProgramBlockNotFoundException(programId, blockId));
               }
 
-              ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(blockMaybe.get());
+              ApplicantQuestion applicantQuestion =
+                  getFirstAddressCorrectionEnabledApplicantQuestion(blockMaybe.get());
               AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
               Optional<AddressSuggestion> suggestionMaybe =
@@ -1144,8 +1144,12 @@ public final class ApplicantService {
 
               ImmutableMap<String, String> questionPathToValueMap =
                   buildCorrectedAddressAsFormData(
-                      applicantId, programId, blockId,
-                      addressQuestion, suggestionMaybe, selectedAddress);
+                      applicantId,
+                      programId,
+                      blockId,
+                      addressQuestion,
+                      suggestionMaybe,
+                      selectedAddress);
 
               return CompletableFuture.completedFuture(questionPathToValueMap);
             });
@@ -1188,7 +1192,11 @@ public final class ApplicantService {
     } else {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(), CorrectedAddressState.FAILED.toString());
-      logger.error("Address correction failed for applicantId: {} programId: {} blockId: {}", applicantId, programId, blockId);
+      logger.error(
+          "Address correction failed for applicantId: {} programId: {} blockId: {}",
+          applicantId,
+          programId,
+          blockId);
     }
 
     return ImmutableMap.<String, String>builder().putAll(questionPathToValueMap).build();
@@ -1199,7 +1207,8 @@ public final class ApplicantService {
    * correction enabled.
    */
   public ApplicantQuestion getFirstAddressCorrectionEnabledApplicantQuestion(Block block) {
-    Optional<ApplicantQuestion> applicantQuestionMaybe = block.getAddressQuestionWithCorrectionEnabled();
+    Optional<ApplicantQuestion> applicantQuestionMaybe =
+        block.getAddressQuestionWithCorrectionEnabled();
 
     if (applicantQuestionMaybe.isEmpty()) {
       throw new RuntimeException(
@@ -1217,14 +1226,15 @@ public final class ApplicantService {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-    return
-        esriClient.getAddressSuggestions(addressQuestion.getAddress())
-          .thenApplyAsync(suggestionsMaybe -> {
-            if (suggestionsMaybe.isEmpty()) {
-              throw new RuntimeException("Call to EsriClient.getAddressSuggestions failed.");
-            }
+    return esriClient
+        .getAddressSuggestions(addressQuestion.getAddress())
+        .thenApplyAsync(
+            suggestionsMaybe -> {
+              if (suggestionsMaybe.isEmpty()) {
+                throw new RuntimeException("Call to EsriClient.getAddressSuggestions failed.");
+              }
 
-            return suggestionsMaybe.get();
-          });
+              return suggestionsMaybe.get();
+            });
   }
 }
