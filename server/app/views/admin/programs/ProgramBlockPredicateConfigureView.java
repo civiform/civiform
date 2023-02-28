@@ -342,7 +342,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
    */
   private static ImmutableList<PredicateExpressionNode> getExistingAndNodes(
       PredicateDefinition existingPredicate) {
-    PredicateDefinition.PredicateFormat format = existingPredicate.computePredicateFormat();
+    PredicateDefinition.PredicateFormat format = existingPredicate.predicateFormat();
     switch (format) {
       case SINGLE_QUESTION:
         {

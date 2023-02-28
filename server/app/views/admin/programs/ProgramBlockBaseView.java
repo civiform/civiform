@@ -47,16 +47,16 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
     DivTag container = div();
 
     if (predicateDefinition
-        .computePredicateFormat()
+        .predicateFormat()
         .equals(PredicateDefinition.PredicateFormat.SINGLE_QUESTION)) {
       return container.with(
           text(predicateDefinition.toDisplayString(blockName, questionDefinitions)));
     } else if (!predicateDefinition
-        .computePredicateFormat()
+        .predicateFormat()
         .equals(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS)) {
       throw new IllegalArgumentException(
           String.format(
-              "Predicate type %s is unsupported.", predicateDefinition.computePredicateFormat()));
+              "Predicate type %s is unsupported.", predicateDefinition.predicateFormat()));
     }
 
     ImmutableList<PredicateExpressionNode> andNodes =

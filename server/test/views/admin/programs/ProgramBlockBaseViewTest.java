@@ -80,8 +80,7 @@ public class ProgramBlockBaseViewTest {
                                             .setOperator(Operator.EQUAL_TO)
                                             .setComparedValue(PredicateValue.of("test@example.com"))
                                             .build()))))))),
-            PredicateAction.HIDE_BLOCK,
-            PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+            PredicateAction.HIDE_BLOCK);
 
     DivTag result =
         new ProgramBlockBaseViewTestChild()
@@ -138,8 +137,7 @@ public class ProgramBlockBaseViewTest {
                                             .setComparedValue(
                                                 PredicateValue.of("other@example.com"))
                                             .build()))))))),
-            PredicateAction.HIDE_BLOCK,
-            PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+            PredicateAction.HIDE_BLOCK);
 
     DivTag result =
         new ProgramBlockBaseViewTestChild()

@@ -102,8 +102,7 @@ public final class PredicateGenerator {
                           .map(AndNode::create)
                           .map(PredicateExpressionNode::create)
                           .collect(toImmutableList()))),
-              predicateAction,
-              PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
+              predicateAction);
         }
 
       case SINGLE_QUESTION:
@@ -112,9 +111,7 @@ public final class PredicateGenerator {
               leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
 
           return PredicateDefinition.create(
-              PredicateExpressionNode.create(singleQuestionNode),
-              predicateAction,
-              PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
+              PredicateExpressionNode.create(singleQuestionNode), predicateAction);
         }
 
       default:
