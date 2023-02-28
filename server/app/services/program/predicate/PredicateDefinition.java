@@ -4,13 +4,11 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -31,19 +29,22 @@ public abstract class PredicateDefinition {
   @JsonCreator
   public static PredicateDefinition create(
       @JsonProperty("rootNode") PredicateExpressionNode rootNode,
-      @JsonProperty("action") PredicateAction action,
-      @JsonProperty("predicateFormat") Optional<PredicateFormat> predicateFormat) {
-    return new AutoValue_PredicateDefinition(rootNode, action, predicateFormat);
+      @JsonProperty("action") PredicateAction action) {
+    return new AutoValue_PredicateDefinition(rootNode, action);
   }
 
-  public static PredicateDefinition create(
-      PredicateExpressionNode rootNode, PredicateAction action, PredicateFormat predicateFormat) {
-    return create(rootNode, action, Optional.of(predicateFormat));
-  }
-
-  public static PredicateDefinition create(
-      PredicateExpressionNode rootNode, PredicateAction action) {
-    return create(rootNode, action, /* predicateFormat= */ Optional.empty());
+  /** Determines what {@link PredicateFormat} a given predicate expression tree is. */
+  public static PredicateFormat detectPredicateFormat(PredicateExpressionNode rootNode) {
+    switch (rootNode.getType()) {
+      case OR:
+        return PredicateFormat.OR_OF_SINGLE_LAYER_ANDS;
+      case LEAF_ADDRESS_SERVICE_AREA:
+      case LEAF_OPERATION:
+        return PredicateFormat.SINGLE_QUESTION;
+      default:
+        throw new IllegalStateException(
+            String.format("Unsupported predicate expression format: %s", rootNode));
+    }
   }
 
   @JsonProperty("rootNode")
@@ -63,18 +64,8 @@ public abstract class PredicateDefinition {
   }
 
   /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
-  @JsonInclude(JsonInclude.Include.NON_EMPTY)
-  @JsonProperty("predicateFormat")
-  public abstract Optional<PredicateFormat> predicateFormat();
-
-  /**
-   * Returns the {@code predicateFormat} if present otherwise defaults to SINGLE_QUESTION.
-   *
-   * <p>Before {@link PredicateFormat} was added, all predicates were a single leaf node.
-   * PredicateDefinitions saved without formats are therefore assumed to have that shape.
-   */
-  public PredicateFormat computePredicateFormat() {
-    return predicateFormat().orElse(PredicateFormat.SINGLE_QUESTION);
+  public PredicateFormat predicateFormat() {
+    return detectPredicateFormat(rootNode());
   }
 
   /**

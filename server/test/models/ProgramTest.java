@@ -218,7 +218,8 @@ public class ProgramTest extends ResetPostgres {
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
     assertThat(block.visibilityPredicate()).hasValue(predicate);
     assertThat(block.eligibilityDefinition()).hasValue(eligibilityDefinition);
-    assertThat(block.eligibilityDefinition().get().predicate().predicateFormat()).isEmpty();
+    assertThat(block.eligibilityDefinition().get().predicate().predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
     assertThat(block.optionalPredicate()).isEmpty();
   }
 
