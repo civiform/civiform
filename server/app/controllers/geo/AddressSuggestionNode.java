@@ -13,8 +13,8 @@ public final class AddressSuggestionNode {
   public AddressSuggestionNode(
       @JsonProperty("serializedPayload") String serializedPayload,
       @JsonProperty("signature") String signature) {
-    this.serializedPayload = serializedPayload;
-    this.signature = signature;
+    this.serializedPayload = checkNotNull(serializedPayload);
+    this.signature = checkNotNull(signature);
   }
 
   public String getSerializedPayload() {

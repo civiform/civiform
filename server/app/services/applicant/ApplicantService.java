@@ -1121,7 +1121,6 @@ public final class ApplicantService {
       String blockId,
       String selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
-
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {

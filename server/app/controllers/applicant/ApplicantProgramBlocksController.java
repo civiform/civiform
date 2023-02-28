@@ -156,12 +156,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
     Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
 
-    if (maybeAddressJson.isEmpty()) {
-      throw new RuntimeException("Address JSON missing");
-    }
-
     ImmutableList<AddressSuggestion> suggestions =
-        addressSuggestionJsonSerializer.deserialize(maybeAddressJson.get());
+        addressSuggestionJsonSerializer.deserialize(
+            maybeAddressJson.orElseThrow(new RuntimeException("Address JSON missing")));
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
