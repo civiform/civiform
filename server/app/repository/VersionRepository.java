@@ -26,6 +26,7 @@ import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.AndNode;
@@ -312,6 +313,16 @@ public final class VersionRepository {
       updatedBlock.setVisibilityPredicate(
           PredicateDefinition.create(
               updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
+    }
+    if (block.eligibilityDefinition().isPresent()) {
+      EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
+      PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
+      PredicateDefinition newPredicate =
+          PredicateDefinition.create(
+              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
+
+      updatedBlock.setEligibilityDefinition(
+          eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
     }
     if (block.optionalPredicate().isPresent()) {
       PredicateDefinition oldPredicate = block.optionalPredicate().get();

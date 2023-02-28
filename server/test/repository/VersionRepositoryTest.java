@@ -15,6 +15,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -377,6 +378,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(oldTwo)
             .withVisibilityPredicate(predicate)
+            .withEligibilityDefinition(
+                EligibilityDefinition.builder().setPredicate(predicate).build())
             .build();
     program.save();
 
@@ -401,6 +404,17 @@ public class VersionRepositoryTest extends ResetPostgres {
                 .get(1)
                 .visibilityPredicate()
                 .get()
+                .rootNode()
+                .getLeafOperationNode()
+                .questionId())
+        .isEqualTo(newOne.id);
+    assertThat(
+            updated
+                .blockDefinitions()
+                .get(1)
+                .eligibilityDefinition()
+                .get()
+                .predicate()
                 .rootNode()
                 .getLeafOperationNode()
                 .questionId())
