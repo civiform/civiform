@@ -158,7 +158,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
-            maybeAddressJson.orElseThrow(new RuntimeException("Address JSON missing")));
+            maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
