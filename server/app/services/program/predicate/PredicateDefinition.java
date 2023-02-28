@@ -4,6 +4,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
@@ -14,8 +15,13 @@ import services.question.types.QuestionDefinition;
 /**
  * Conditional logic associated with a single program screen (block). This may be used to (for
  * example) show or hide a block based on the answers an applicant provides.
+ *
+ * <p>The class is annotated to ignore "predicateFormat" as a JSON property due to a previous
+ * version of the code that stored the predicate format in the database rather than computing it
+ * from the expression tree.
  */
 @AutoValue
+@JsonIgnoreProperties(value = {"predicateFormat"})
 public abstract class PredicateDefinition {
 
   /** Indicates the shape of the predicate's AST so view code can render the appropriate UI. */
