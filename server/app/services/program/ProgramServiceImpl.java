@@ -36,6 +36,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.IdentifierBasedPaginationSpec;
+import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation;
@@ -48,6 +49,19 @@ import services.question.types.QuestionDefinition;
 
 /** Implementation class for {@link ProgramService} interface. */
 public final class ProgramServiceImpl implements ProgramService {
+
+  private static final String MISSING_DISPLAY_NAME_MSG =
+      "A public display name for the program is required";
+  private static final String MISSING_DISPLAY_DESCRIPTION_MSG =
+      "A public description for the program is required";
+  private static final String MISSING_DISPLAY_MODE_MSG =
+      "A program visibility option must be selected";
+  private static final String MISSING_ADMIN_DESCRIPTION_MSG = "A program note is required";
+  private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
+  private static final String INVALID_ADMIN_NAME_MSG =
+      "A program URL may only contain lowercase letters, numbers, and dashes";
+  private static final String DUPLICATE_INTAKE_FORM_MSG =
+      "A program set as the Common Intake Form already exists";
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -108,6 +122,30 @@ public final class ProgramServiceImpl implements ProgramService {
         .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
   }
 
+  @Override
+  public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
+      ImmutableList<ProgramDefinition> programDefinitions) {
+    return questionService
+        .getReadOnlyQuestionService()
+        .thenApplyAsync(
+            roQuestionService ->
+                programDefinitions.stream()
+                    .map(
+                        programDefinition -> {
+                          try {
+                            return syncProgramDefinitionQuestions(
+                                programDefinition, roQuestionService);
+                          } catch (QuestionNotFoundException e) {
+                            throw new RuntimeException(
+                                String.format(
+                                    "Question not found for Program %s", programDefinition.id()),
+                                e);
+                          }
+                        })
+                    .collect(ImmutableList.toImmutableList()),
+            httpExecutionContext.current());
+  }
+
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
@@ -145,33 +183,43 @@ public final class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultConfirmationMessage,
       String externalLink,
-      String displayMode) {
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled) {
 
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
 
     if (defaultDisplayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
     if (defaultDisplayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     }
     if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program URL is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(
-          CiviFormError.of(
-              "A program URL may only contain lowercase letters, numbers, and dashes"));
+      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
     } else if (hasProgramNameCollision(adminName)) {
       errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
     }
     if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
     }
     if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program note is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
     }
-
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
+    }
+    if (isIntakeFormFeatureEnabled) {
+      if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
+        errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
+      }
+    } else {
+      programType = ProgramType.DEFAULT;
+    }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
@@ -184,18 +232,18 @@ public final class ProgramServiceImpl implements ProgramService {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
-
     Program program =
         new Program(
             adminName,
             adminDescription,
             defaultDisplayName,
             defaultDisplayDescription,
+            defaultConfirmationMessage,
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion(),
-            ProgramType.DEFAULT);
+            programType);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -207,27 +255,47 @@ public final class ProgramServiceImpl implements ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String confirmationMessage,
       String externalLink,
-      String displayMode)
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public display name for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
     if (displayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A public description for the program is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
     }
     if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program visibility option must be selected"));
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
     }
     if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of("A program note is required"));
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
+    }
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
+    }
+    if (isIntakeFormFeatureEnabled) {
+      if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+        Optional<ProgramDefinition> commonIntake = getCommonIntakeForm();
+        if (commonIntake.isPresent()
+            && !programDefinition.adminName().equals(commonIntake.get().adminName())) {
+          errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
+        }
+      }
+    } else {
+      programType = ProgramType.DEFAULT;
     }
     ImmutableSet<CiviFormError> errors = errorsBuilder.build();
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
+
+    LocalizedStrings newConfirmationMessageTranslations =
+        maybeClearConfirmationMessageTranslations(programDefinition, locale, confirmationMessage);
 
     Program program =
         programDefinition.toBuilder()
@@ -238,8 +306,10 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, displayDescription))
+            .setLocalizedConfirmationMessage(newConfirmationMessageTranslations)
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
+            .setProgramType(programType)
             .build()
             .toProgram();
     return ErrorAnd.of(
@@ -247,6 +317,34 @@ public final class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  // Checks whether a URL would work correctly if an href attribute was set to it.
+  // That is, it must start with http:// or https:// so that the href link doesn't
+  // treat it as relative to the current URL.
+  //
+  // We treat blank links as an exception, so that we can default to the program
+  // details page if a link isn't provided.
+  private boolean isValidAbsoluteLink(String url) {
+    return url.isBlank() || url.startsWith("http://") || url.startsWith("https://");
+  }
+
+  /**
+   * When an admin deletes a custom confirmation screen, we want to also clear out all associated
+   * translations
+   */
+  private LocalizedStrings maybeClearConfirmationMessageTranslations(
+      ProgramDefinition programDefinition, Locale locale, String confirmationMessage) {
+    LocalizedStrings existingConfirmationMessageTranslations =
+        programDefinition.localizedConfirmationMessage();
+    LocalizedStrings newConfirmationMessageTranslations;
+    if (locale.equals(Locale.US) && confirmationMessage.equals("")) {
+      newConfirmationMessageTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
+    } else {
+      newConfirmationMessageTranslations =
+          existingConfirmationMessageTranslations.updateTranslation(locale, confirmationMessage);
+    }
+    return newConfirmationMessageTranslations;
   }
 
   /**
@@ -281,7 +379,6 @@ public final class ProgramServiceImpl implements ProgramService {
     validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
     validateProgramText(
         errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
-
     validateLocalizationStatuses(localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
@@ -332,6 +429,10 @@ public final class ProgramServiceImpl implements ProgramService {
                 programDefinition
                     .localizedDescription()
                     .updateTranslation(locale, localizationUpdate.localizedDisplayDescription()))
+            .setLocalizedConfirmationMessage(
+                programDefinition
+                    .localizedConfirmationMessage()
+                    .updateTranslation(locale, localizationUpdate.localizedConfirmationMessage()))
             .setStatusDefinitions(
                 programDefinition.statusDefinitions().setStatuses(toUpdateStatusesBuilder.build()))
             .build()
@@ -936,6 +1037,20 @@ public final class ProgramServiceImpl implements ProgramService {
         .collect(ImmutableList.toImmutableList());
   }
 
+  @Override
+  public ProgramDefinition setEligibilityIsGating(
+      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    if (!isNongatedEligibilityFeatureEnabled) {
+      return programDefinition;
+    }
+    programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
   private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(
       ProgramDefinition programDefinition, ImmutableList<BlockDefinition> blocks)
       throws IllegalPredicateOrderingException {
@@ -1051,5 +1166,15 @@ public final class ProgramServiceImpl implements ProgramService {
       throws QuestionNotFoundException {
     QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
     return pqd.loadCompletely(programDefinitionId, questionDefinition);
+  }
+
+  /*
+   * Looks at the most recent version of each program and returns the program marked as the
+   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   */
+  private Optional<ProgramDefinition> getCommonIntakeForm() {
+    return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+        .filter(p -> p.isCommonIntakeForm())
+        .findFirst();
   }
 }

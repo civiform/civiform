@@ -85,6 +85,20 @@ public final class ActiveAndDraftPrograms {
     return versionedByName.get(name).second();
   }
 
+  /** Returns the most recent version of the specified program, which may be active or a draft. */
+  public ProgramDefinition getMostRecentProgramDefinition(String name) {
+    return getDraftProgramDefinition(name).orElseGet(getActiveProgramDefinition(name)::get);
+  }
+
+  /**
+   * Returns the most recent versions of all the programs, which may be a mix of active and draft.
+   */
+  public ImmutableList<ProgramDefinition> getMostRecentProgramDefinitions() {
+    return getProgramNames().stream()
+        .map(this::getMostRecentProgramDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
   public boolean anyDraft() {
     return draftPrograms.size() > 0;
   }

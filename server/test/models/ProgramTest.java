@@ -68,11 +68,14 @@ public class ProgramTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedConfirmationMessage(
+                LocalizedStrings.of(Locale.US, "custom confirmation message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(false)
             .build();
     Program program = new Program(definition);
 
@@ -83,6 +86,8 @@ public class ProgramTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
+    assertThat(found.getProgramDefinition().localizedConfirmationMessage())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation message"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())
@@ -146,6 +151,7 @@ public class ProgramTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -201,6 +207,7 @@ public class ProgramTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -299,6 +306,7 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();

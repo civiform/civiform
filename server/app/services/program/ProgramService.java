@@ -45,6 +45,18 @@ public interface ProgramService {
   ActiveAndDraftPrograms getActiveAndDraftPrograms();
 
   /**
+   * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously, by
+   * querying for questions then updating each {@link ProgramDefinition}s.
+   *
+   * @param programDefinitions the list of program definitions that should be updated
+   * @return a list of updated {@link ProgramDefinition}s with all of its associated questions if
+   *     they exist, or a QuestionNotFoundException is thrown when the future completes and a
+   *     question is not found.
+   */
+  CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
+      ImmutableList<ProgramDefinition> programDefinitions);
+
+  /**
    * Get the definition of a given program asynchronously.
    *
    * @param id the ID of the program to retrieve
@@ -72,8 +84,12 @@ public interface ProgramService {
    * @param adminDescription a description of this program for use by admins
    * @param defaultDisplayName the name of this program to display to applicants
    * @param defaultDisplayDescription a description for this program to display to applicants
+   * @param defaultConfirmationMessage a custom message to display on the confirmation screen when
+   *     the applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param programType ProgramType for this Program.
+   * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -82,8 +98,11 @@ public interface ProgramService {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultConfirmationMessage,
       String externalLink,
-      String displayMode);
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -95,8 +114,12 @@ public interface ProgramService {
    * @param adminDescription the description of this program - visible only to admins
    * @param displayName a name for this program
    * @param displayDescription the description of what the program provides
+   * @param confirmationMessage a custom message to display on the confirmation screen when the
+   *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param programType ProgramType for this program
+   * @param isIntakeFormFeatureEnabled whether or not the common intake for feature is enabled.
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -107,8 +130,11 @@ public interface ProgramService {
       String adminDescription,
       String displayName,
       String displayDescription,
+      String confirmationMessage,
       String externalLink,
-      String displayMode)
+      String displayMode,
+      ProgramType programType,
+      Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException;
 
   /**
@@ -472,5 +498,18 @@ public interface ProgramService {
    * @throws ProgramNotFoundException If the specified Program could not be found.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(long programId, String toRemoveStatusName)
+      throws ProgramNotFoundException;
+
+  /**
+   * Set a program's eligibility criteria to gating or non-gating.
+   *
+   * @param programId the ID of the program to update.
+   * @param gating boolean representing whether eligibility is gating or non-gating.
+   * @param isNongatedEligibilityFeatureEnabled boolean representing whether non-gating eligibility
+   *     feature is enabled.
+   * @return the updated program definition
+   */
+  ProgramDefinition setEligibilityIsGating(
+      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
       throws ProgramNotFoundException;
 }

@@ -47,6 +47,9 @@ content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=登錄
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=請使用「{0}」帳戶登入
 
@@ -208,12 +211,6 @@ title.applicantNotEligible=根據您的回覆，您可能不符合「{0}」的�
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=您必須符合以下計畫申請條件：
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=您的客戶必須符合以下計畫申請條件：
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
 
@@ -283,11 +280,11 @@ content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你�
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=門牌號碼
+label.addressLine2=公寓、套房等 (選填)
 label.city=城市
 label.state=州
 label.selectState=請選取州
-label.street=地址 1
+label.street=地址
 label.zipcode=郵遞區號
 
 # Validation errors that are shown when a user enters an invalid address.

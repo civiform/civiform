@@ -35,4 +35,15 @@ public class PersistedDurableJobTest extends ResetPostgres {
     job.decrementRemainingAttempts();
     assertThat(job.getRemainingAttempts()).isEqualTo(2);
   }
+
+  @Test
+  public void hasFailedWithNoRemainingAttempts() {
+    var job = new PersistedDurableJob("fake-job-name", Instant.ofEpochMilli(1000));
+
+    assertThat(job.hasFailedWithNoRemainingAttempts()).isFalse();
+    job.decrementRemainingAttempts().decrementRemainingAttempts().decrementRemainingAttempts();
+    assertThat(job.hasFailedWithNoRemainingAttempts()).isTrue();
+    job.setSuccessTime(Instant.now());
+    assertThat(job.hasFailedWithNoRemainingAttempts()).isFalse();
+  }
 }

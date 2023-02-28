@@ -23,8 +23,6 @@ public class FeatureFlagsTest {
               "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
-              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
 
@@ -33,15 +31,11 @@ public class FeatureFlagsTest {
           ImmutableMap.of(
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
               "true",
-              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
-              "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
   private static final Map<String, String> allFeaturesEnabledMap =
       Map.of(
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "true",
-          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "true",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "true");
@@ -51,8 +45,6 @@ public class FeatureFlagsTest {
   private static final Map<String, String> allFeaturesDisabledMap =
       Map.of(
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "false",
-          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "false",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "false");
@@ -66,7 +58,6 @@ public class FeatureFlagsTest {
     FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
 
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
@@ -76,8 +67,6 @@ public class FeatureFlagsTest {
     // Overrides only apply if the config is present.
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
         .isFalse();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(allFeaturesEnabledRequest))
-        .isFalse();
   }
 
   @Test
@@ -85,7 +74,6 @@ public class FeatureFlagsTest {
     FeatureFlags featureFlags = new FeatureFlags(featuresDisabledConfig);
 
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
@@ -93,7 +81,6 @@ public class FeatureFlagsTest {
     FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
 
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isTrue();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isTrue();
   }
 
   @Test

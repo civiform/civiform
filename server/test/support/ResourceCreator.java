@@ -86,6 +86,10 @@ public class ResourceCreator {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
+  public Program insertActiveCommonIntakeForm(String name) {
+    return ProgramBuilder.newActiveCommonIntakeForm(name).build();
+  }
+
   public Program insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }

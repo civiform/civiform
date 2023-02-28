@@ -160,46 +160,6 @@ export class AdminPredicates {
     await waitForPageJsLoad(this.page)
   }
 
-  // For the old admin predicates UI
-  // // TODO(#4004): remove this function
-  async addLegacyPredicate(
-    questionName: string,
-    action: string | null,
-    scalar: string,
-    operator: string,
-    value: string,
-  ) {
-    await this.page.click(`button:has-text("Admin ID: ${questionName}")`)
-
-    if (action != null) {
-      await this.page.selectOption('.cf-predicate-action:visible select', {
-        label: action,
-      })
-    }
-    await this.page.selectOption('.cf-scalar-select:visible select', {
-      label: scalar,
-    })
-    await this.page.selectOption('.cf-operator-select:visible select', {
-      label: operator,
-    })
-
-    const valueInput = await this.page.$(
-      '.cf-predicate-value-input:visible input',
-    )
-    if (valueInput) {
-      await valueInput.fill(value)
-    } else {
-      // We have a checkbox for the value.
-      const valueArray = value.split(',')
-      for (const value of valueArray) {
-        await this.page.check(`label:has-text("${value}")`)
-      }
-    }
-
-    await this.page.click('button:visible:has-text("Submit")')
-    await waitForPageJsLoad(this.page)
-  }
-
   async expectPredicateDisplayTextContains(condition: string) {
     expect(await this.page.innerText('.cf-display-predicate')).toContain(
       condition,

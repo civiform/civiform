@@ -73,9 +73,10 @@ export class AdminPrograms {
   async addProgram(
     programName: string,
     description = 'program description',
-    externalLink = '',
+    externalLink = 'https://usa.gov',
     hidden = false,
     adminDescription = 'admin description',
+    isCommonIntake = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -92,6 +93,10 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("Hide from applicants.")`)
     } else {
       await this.page.check(`label:has-text("Publicly visible")`)
+    }
+
+    if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
+      await this.clickCommonIntakeFormToggle()
     }
 
     await this.page.click('#program-update-button')
@@ -211,6 +216,21 @@ export class AdminPrograms {
     await this.expectManageProgramAdminsPage()
   }
 
+  async gotoProgramSettingsPage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', ':text("Settings")'),
+    )
+
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramSettingsPage()
+  }
+
   async gotoEditDraftProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -313,6 +333,10 @@ export class AdminPrograms {
     expect(await this.page.innerText('h1')).toContain(
       'Manage Admins for Program',
     )
+  }
+
+  async expectProgramSettingsPage() {
+    expect(await this.page.innerText('h1')).toContain('settings')
   }
 
   async expectAddProgramAdminErrorToast() {
@@ -966,5 +990,13 @@ export class AdminPrograms {
       .locator('..')
       .locator('button:has-text("Address correction")')
       .click()
+  }
+
+  getCommonIntakeFormToggle() {
+    return this.page.locator('input[name=isCommonIntakeForm]')
+  }
+
+  async clickCommonIntakeFormToggle() {
+    await this.page.click('input[name=isCommonIntakeForm]')
   }
 }

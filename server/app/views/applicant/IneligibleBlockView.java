@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.*;
 
+import auth.CiviFormProfile;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -14,6 +15,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.Icons;
@@ -33,16 +35,25 @@ public final class IneligibleBlockView extends ApplicationBaseView {
 
   public Content render(
       Request request,
+      CiviFormProfile submittingProfile,
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      Optional<String> applicantName,
       Messages messages,
-      long applicantId) {
+      long applicantId,
+      ProgramDefinition programDefinition) {
+    Optional<String> applicantName =
+        roApplicantProgramService.getApplicantData().getApplicantName();
     long programId = roApplicantProgramService.getProgramId();
+    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+    // Use external link if it is present else use the default Program details page
+    String programDetailsLink =
+        programDefinition.externalLink().isEmpty()
+            ? routes.ApplicantProgramsController.view(applicantId, programId).url()
+            : programDefinition.externalLink();
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase())
-            .setHref(routes.ApplicantProgramsController.view(applicantId, programId).url())
+            .setHref(programDetailsLink)
             .opensInNewTab()
             .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()
@@ -59,11 +70,10 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
                 h2(messages.at(
-                        MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE.getKeyName(),
+                        isTrustedIntermediary
+                            ? MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE_TI.getKeyName()
+                            : MessageKey.TITLE_APPLICATION_NOT_ELIGIBLE.getKeyName(),
                         roApplicantProgramService.getProgramTitle()))
-                    .withClasses("mb-4"))
-            .with(
-                div(messages.at(MessageKey.CONTENT_MUST_MEET_REQUIREMENTS.getKeyName()))
                     .withClasses("mb-4"))
             .with(div().with(listTag).withClasses("mb-4"))
             .with(

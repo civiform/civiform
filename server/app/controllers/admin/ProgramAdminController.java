@@ -44,6 +44,6 @@ public class ProgramAdminController extends CiviFormController {
         profile.get().getAccount().join().getAdministeredProgramNames();
     ActiveAndDraftPrograms activeAndDraftPrograms = this.programService.getActiveAndDraftPrograms();
 
-    return ok(listView.render(activeAndDraftPrograms, administeredPrograms, profile));
+    return ok(listView.render(request, activeAndDraftPrograms, administeredPrograms, profile));
   }
 }

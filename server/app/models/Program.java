@@ -74,6 +74,8 @@ public class Program extends BaseModel {
 
   @DbJsonB private LocalizedStrings localizedDescription;
 
+  @DbJsonB private LocalizedStrings localizedConfirmationMessage;
+
   /**
    * legacyLocalizedDescription is the legacy storage column for program description translations.
    * Programs created before early May 2021 may use this, but all other programs should not.
@@ -94,6 +96,8 @@ public class Program extends BaseModel {
   @WhenModified private Instant lastModifiedTime;
 
   @Constraints.Required private ProgramType programType;
+
+  @Constraints.Required private Boolean eligibilityIsGating;
 
   @ManyToMany(mappedBy = "programs")
   private List<Version> versions;
@@ -130,10 +134,12 @@ public class Program extends BaseModel {
     this.externalLink = definition.externalLink();
     this.localizedName = definition.localizedName();
     this.localizedDescription = definition.localizedDescription();
+    this.localizedConfirmationMessage = definition.localizedConfirmationMessage();
     this.blockDefinitions = definition.blockDefinitions();
     this.statusDefinitions = definition.statusDefinitions();
     this.displayMode = definition.displayMode().getValue();
     this.programType = definition.programType();
+    this.eligibilityIsGating = definition.eligibilityIsGating();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -150,6 +156,7 @@ public class Program extends BaseModel {
       String adminDescription,
       String defaultDisplayName,
       String defaultDisplayDescription,
+      String defaultConfirmationMessage,
       String externalLink,
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
@@ -160,12 +167,15 @@ public class Program extends BaseModel {
     // A program is always created with the default CiviForm locale first, then localized.
     this.localizedName = LocalizedStrings.withDefaultValue(defaultDisplayName);
     this.localizedDescription = LocalizedStrings.withDefaultValue(defaultDisplayDescription);
+    this.localizedConfirmationMessage =
+        LocalizedStrings.withDefaultValue(defaultConfirmationMessage);
     this.externalLink = externalLink;
     this.displayMode = displayMode;
     this.blockDefinitions = blockDefinitions;
     this.statusDefinitions = new StatusDefinitions();
     this.versions.add(associatedVersion);
     this.programType = programType;
+    this.eligibilityIsGating = true;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -177,11 +187,13 @@ public class Program extends BaseModel {
     description = programDefinition.adminDescription();
     localizedName = programDefinition.localizedName();
     localizedDescription = programDefinition.localizedDescription();
+    localizedConfirmationMessage = programDefinition.localizedConfirmationMessage();
     blockDefinitions = programDefinition.blockDefinitions();
     statusDefinitions = programDefinition.statusDefinitions();
     slug = programDefinition.slug();
     displayMode = programDefinition.displayMode().getValue();
     programType = programDefinition.programType();
+    eligibilityIsGating = programDefinition.eligibilityIsGating();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -202,10 +214,12 @@ public class Program extends BaseModel {
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime)
-            .setProgramType(programType);
+            .setProgramType(programType)
+            .setEligibilityIsGating(eligibilityIsGating);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);
+    setLocalizedConfirmationMessage(builder);
     this.programDefinition = builder.build();
   }
 
@@ -228,6 +242,16 @@ public class Program extends BaseModel {
       builder.setLocalizedDescription(localizedDescription);
     } else {
       builder.setLocalizedDescription(LocalizedStrings.create(legacyLocalizedDescription));
+    }
+    return this;
+  }
+
+  private Program setLocalizedConfirmationMessage(ProgramDefinition.Builder builder) {
+    if (localizedConfirmationMessage != null) {
+      builder.setLocalizedConfirmationMessage(localizedConfirmationMessage);
+    } else {
+      builder.setLocalizedConfirmationMessage(
+          LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
     }
     return this;
   }

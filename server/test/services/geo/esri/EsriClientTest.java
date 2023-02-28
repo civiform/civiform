@@ -14,7 +14,8 @@ import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
-import java.time.Instant;
+import java.time.Clock;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -74,6 +75,7 @@ public class EsriClientTest {
   @Before
   // setup Servers to return mock data from JSON files
   public void setup() {
+    Clock clock = Clock.system(ZoneId.of("America/Los_Angeles"));
     config = ConfigFactory.load();
     esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(config);
     esriServiceAreaValidationOption =
@@ -98,7 +100,7 @@ public class EsriClientTest {
                     .routingTo(request -> ok().sendResource("esri/findAddressCandidates.json"))
                     .build());
     ws = play.test.WSTestClient.newClient(server.httpPort());
-    client = new EsriClient(config, esriServiceAreaValidationConfig, ws);
+    client = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
     // overwrite to not include base URL so it uses the mock service
     client.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -113,7 +115,8 @@ public class EsriClientTest {
                     .build());
     wsNoCandidates = play.test.WSTestClient.newClient(serverNoCandidates.httpPort());
 
-    clientNoCandidates = new EsriClient(config, esriServiceAreaValidationConfig, wsNoCandidates);
+    clientNoCandidates =
+        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsNoCandidates);
     // overwrite to not include base URL so it uses the mock service
     clientNoCandidates.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -128,7 +131,7 @@ public class EsriClientTest {
                     .build());
     wsError = play.test.WSTestClient.newClient(serverError.httpPort());
 
-    clientError = new EsriClient(config, esriServiceAreaValidationConfig, wsError);
+    clientError = new EsriClient(config, clock, esriServiceAreaValidationConfig, wsError);
     // overwrite to not include base URL so it uses the mock service
     clientError.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -142,7 +145,7 @@ public class EsriClientTest {
                     .build());
     wsValidation = play.test.WSTestClient.newClient(serverValidation.httpPort());
 
-    clientValidation = new EsriClient(config, esriServiceAreaValidationConfig, wsValidation);
+    clientValidation = new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidation);
 
     // create a server for service area validation with error returned
     serverValidationError =
@@ -156,7 +159,7 @@ public class EsriClientTest {
     wsValidationError = play.test.WSTestClient.newClient(serverValidationError.httpPort());
 
     clientValidationError =
-        new EsriClient(config, esriServiceAreaValidationConfig, wsValidationError);
+        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationError);
 
     // create a server for service area validation with service area not in response
     serverValidationNotIncluded =
@@ -171,7 +174,7 @@ public class EsriClientTest {
         play.test.WSTestClient.newClient(serverValidationNotIncluded.httpPort());
 
     clientValidationNotIncluded =
-        new EsriClient(config, esriServiceAreaValidationConfig, wsValidationNotIncluded);
+        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationNotIncluded);
 
     // create a server for service area validation with no features in response
     serverValidationNoFeatures =
@@ -186,7 +189,7 @@ public class EsriClientTest {
         play.test.WSTestClient.newClient(serverValidationNoFeatures.httpPort());
 
     clientValidationNoFeatures =
-        new EsriClient(config, esriServiceAreaValidationConfig, wsValidationNoFeatures);
+        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationNoFeatures);
   }
 
   @After
@@ -330,7 +333,7 @@ public class EsriClientTest {
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
     assertEquals(ServiceAreaState.IN_AREA, area.get().getState());
-    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
   @Test
@@ -344,7 +347,7 @@ public class EsriClientTest {
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
     assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
-    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
   @Test
@@ -358,7 +361,7 @@ public class EsriClientTest {
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
     assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
-    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
   @Test
@@ -372,6 +375,6 @@ public class EsriClientTest {
     assertThat(area.isPresent()).isTrue();
     assertEquals("Seattle", area.get().getServiceAreaId());
     assertEquals(ServiceAreaState.FAILED, area.get().getState());
-    assertThat(area.get().getTimeStamp()).isInstanceOf(Instant.class);
+    assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 }

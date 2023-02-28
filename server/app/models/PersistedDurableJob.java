@@ -46,6 +46,10 @@ public final class PersistedDurableJob extends BaseModel {
     return executionTime;
   }
 
+  public boolean hasFailedWithNoRemainingAttempts() {
+    return successTime == null && remainingAttempts == 0;
+  }
+
   public Optional<Instant> getSuccessTime() {
     return Optional.ofNullable(successTime);
   }

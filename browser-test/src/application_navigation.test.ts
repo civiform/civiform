@@ -1,7 +1,6 @@
 import {
   AdminQuestions,
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
@@ -148,8 +147,8 @@ describe('Applicant navigation flow', () => {
       const popup = await popupPromise
       const popupURL = await popup.evaluate('location.href')
 
-      // Verify if the program details page Url ends in "/programs/{program ID}"
-      expect(popupURL).toMatch(/\/programs\/[0-9]+$/)
+      // Verify that we are taken to the program details page
+      expect(popupURL).toMatch('https://www.usa.gov')
     })
 
     it('verify program list page', async () => {
@@ -315,7 +314,6 @@ describe('Applicant navigation flow', () => {
     beforeAll(async () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
-      await disableFeatureFlag(page, 'predicates_multiple_questions_enabled')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       await adminQuestions.addNumberQuestion({
@@ -336,7 +334,7 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         'Screen 1',
       )
-      await adminPredicates.addLegacyPredicate(
+      await adminPredicates.addPredicate(
         'nav-predicate-number-q',
         /* action= */ null,
         'number',
@@ -380,6 +378,10 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       await applicantQuestions.validateToastMessage('may not qualify')
@@ -388,6 +390,39 @@ describe('Applicant navigation flow', () => {
       )
       await validateScreenshot(page, 'application-ineligible-same-application')
       await validateAccessibility(page)
+    })
+
+    it('shows may be eligible with an eligible answer', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and without submitting.
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+
+      // Verify the question is marked eligible
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
+      )
+      await validateScreenshot(page, 'eligible-home-page-program-tag')
+      await validateAccessibility(page)
+
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+      await validateScreenshot(
+        page,
+        'home-page-no-eligibility-tag-for-submitted',
+      )
     })
 
     it('shows not eligible with ineligible answer from another application', async () => {
@@ -420,6 +455,11 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
+      await validateScreenshot(page, 'ineligible-home-page-program-tag')
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.validateToastMessage('may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
@@ -443,6 +483,10 @@ describe('Applicant navigation flow', () => {
 
       // Verify the question is marked ineligible.
       await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,

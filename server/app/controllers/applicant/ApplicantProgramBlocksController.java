@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,7 +38,9 @@ import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.program.PathNotInBlockException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import views.ApplicationBaseView;
@@ -66,6 +69,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FeatureFlags featureFlags;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
+  private final ProgramService programService;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -82,7 +86,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Config configuration,
       FeatureFlags featureFlags,
       FileUploadViewStrategy fileUploadViewStrategy,
-      IneligibleBlockView ineligibleBlockView) {
+      IneligibleBlockView ineligibleBlockView,
+      ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -95,6 +100,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
+    this.programService = checkNotNull(programService);
   }
 
   /**
@@ -306,7 +312,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   .thenComposeAsync(
                       (StoredFile unused) ->
                           applicantService.stageAndUpdateIfValid(
-                              applicantId, programId, blockId, fileUploadQuestionFormData.build()));
+                              applicantId,
+                              programId,
+                              blockId,
+                              fileUploadQuestionFormData.build(),
+                              featureFlags.isEsriAddressServiceAreaValidationEnabled(request)));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -350,7 +360,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
 
               return applicantService.stageAndUpdateIfValid(
-                  applicantId, programId, blockId, formData);
+                  applicantId,
+                  programId,
+                  blockId,
+                  formData,
+                  featureFlags.isEsriAddressServiceAreaValidationEnabled(request));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -401,15 +415,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     if (featureFlags.isProgramEligibilityConditionsEnabled(request)
         && !roApplicantProgramService.isBlockEligible(blockId)) {
-      return supplyAsync(
-          () ->
-              ok(
-                  ineligibleBlockView.render(
-                      request,
-                      roApplicantProgramService,
-                      applicantName,
-                      messagesApi.preferred(request),
-                      applicantId)));
+      CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+      try {
+        ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+
+        return supplyAsync(
+            () ->
+                ok(
+                    ineligibleBlockView.render(
+                        request,
+                        submittingProfile,
+                        roApplicantProgramService,
+                        messagesApi.preferred(request),
+                        applicantId,
+                        programDefinition)));
+      } catch (ProgramNotFoundException e) {
+        notFound(e.toString());
+      }
     }
 
     Optional<String> nextBlockIdMaybe =

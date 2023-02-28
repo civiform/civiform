@@ -7,7 +7,9 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import featureflags.FeatureFlags;
 import forms.ProgramForm;
+import forms.ProgramSettingsForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Program;
@@ -23,10 +25,12 @@ import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.question.QuestionService;
 import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramNewOneView;
+import views.admin.programs.ProgramSettingsEditView;
 import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing program definitions. */
@@ -37,10 +41,12 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
   private final ProgramEditView editView;
+  private final ProgramSettingsEditView programSettingsEditView;
   private final FormFactory formFactory;
   private final VersionRepository versionRepository;
   private final ProfileUtils profileUtils;
   private final RequestChecker requestChecker;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminProgramController(
@@ -49,19 +55,23 @@ public final class AdminProgramController extends CiviFormController {
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramEditView editView,
+      ProgramSettingsEditView programSettingsEditView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
+    this.programSettingsEditView = checkNotNull(programSettingsEditView);
     this.versionRepository = checkNotNull(versionRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.featureFlags = featureFlags;
   }
 
   /**
@@ -96,8 +106,11 @@ public final class AdminProgramController extends CiviFormController {
             program.getAdminDescription(),
             program.getLocalizedDisplayName(),
             program.getLocalizedDisplayDescription(),
+            program.getLocalizedConfirmationMessage(),
             program.getExternalLink(),
-            program.getDisplayMode());
+            program.getDisplayMode(),
+            program.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
+            featureFlags.isIntakeFormEnabled(request));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(newOneView.render(request, program, Optional.of(message)));
@@ -167,12 +180,46 @@ public final class AdminProgramController extends CiviFormController {
             programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            programData.getIsCommonIntakeForm()
+                ? ProgramType.COMMON_INTAKE_FORM
+                : ProgramType.DEFAULT,
+            featureFlags.isIntakeFormEnabled(request));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
     }
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
+  }
+
+  /** Returns an HTML page containing a form to edit program-level settings. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result editProgramSettings(Request request, Long programId)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
+    return ok(programSettingsEditView.render(request, program));
+  }
+
+  /** POST endpoint for editing whether or not eligibility is gating for a specific program. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result setEligibilityIsGating(Request request, long programId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    ProgramSettingsForm programSettingsForm =
+        formFactory.form(ProgramSettingsForm.class).bindFromRequest(request).get();
+
+    try {
+      programService.setEligibilityIsGating(
+          programId,
+          programSettingsForm.getEligibilityIsGating(),
+          featureFlags.isNongatedEligibilityEnabled(request));
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    }
+
+    return redirect(controllers.admin.routes.AdminProgramController.editProgramSettings(programId));
   }
 }

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
+import java.util.HashSet;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.slf4j.Logger;
@@ -174,5 +175,35 @@ public final class EsriServiceAreaValidationConfig {
     }
 
     return Optional.of(option);
+  }
+
+  /**
+   * Returns one {@link EsriServiceAreaValidationOption} per URL in a list from the config list for
+   * Esri address service area settings given service area ids.
+   */
+  public Optional<ImmutableList<EsriServiceAreaValidationOption>> getOptionsByServiceAreaIds(
+      ImmutableList<String> serviceAreaIds) {
+    ImmutableMap<String, EsriServiceAreaValidationOption> options = getImmutableMap();
+    ImmutableList.Builder<EsriServiceAreaValidationOption> listBuilder = ImmutableList.builder();
+
+    HashSet<String> addedUrls = new HashSet<>();
+
+    for (String id : serviceAreaIds) {
+      EsriServiceAreaValidationOption option = options.get(id);
+      if (option != null && !addedUrls.contains(option.getUrl())) {
+        listBuilder.add(option);
+        addedUrls.add(option.getUrl());
+      }
+    }
+
+    if (addedUrls.isEmpty()) {
+      logger.error(
+          "Error calling EsriServiceAreaValidationConfig.getOptionsByServiceAreaIds. Error: No"
+              + " service areas specified for {}",
+          serviceAreaIds);
+      return Optional.empty();
+    }
+
+    return Optional.of(listBuilder.build());
   }
 }

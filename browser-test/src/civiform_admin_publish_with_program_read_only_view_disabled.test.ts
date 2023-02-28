@@ -36,7 +36,7 @@ describe('publishing all draft questions and programs with program read only vie
     await adminPrograms.addProgram(
       hiddenProgramNoQuestions,
       'program description',
-      '',
+      'https://usa.gov',
       true,
     )
 

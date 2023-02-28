@@ -7,7 +7,11 @@ package durablejobs;
  * models.PersistedDurableJob} records in the database via their {@code DurableJobName}.
  */
 public enum DurableJobName {
-  OLD_JOB_CLEANUP("OLD_JOB_CLEANUP");
+  OLD_JOB_CLEANUP("OLD_JOB_CLEANUP"),
+  REPORTING_DASHBOARD_MONTHLY_REFRESH("REPORTING_DASHBOARD_MONTHLY_REFRESH"),
+
+  // job names used for tests
+  TEST("TEST");
 
   private final String jobName;
 
@@ -15,7 +19,7 @@ public enum DurableJobName {
     this.jobName = jobName;
   }
 
-  public String getJobName() {
+  public String getJobNameString() {
     return jobName;
   }
 }

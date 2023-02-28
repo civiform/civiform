@@ -82,6 +82,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   private static final String CREATE_BLOCK_FORM_ID = "block-create-form";
   private static final String CREATE_REPEATED_BLOCK_FORM_ID = "repeated-block-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
+  private static final int BASE_INDENTATION_SIZE = 4;
+  private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
 
   @Inject
   public ProgramBlockEditView(
@@ -246,7 +248,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ImmutableList<BlockDefinition> blockDefinitions,
       long focusedBlockId,
       int level) {
-    DivTag container = div().withClass("pl-" + level * 2);
+    DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
 
@@ -254,7 +256,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
       String blockName = blockDefinition.name();
-
+      // indentation value for enums and repeaters
+      int listIndentationFactor =
+          BASE_INDENTATION_SIZE + (level * INDENTATION_FACTOR_INCREASE_ON_LEVEL);
       String selectedClasses = blockDefinition.id() == focusedBlockId ? "bg-gray-100" : "";
       DivTag blockTag =
           div()
@@ -263,7 +267,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   "flex-row",
                   "gap-2",
                   "py-2",
-                  "px-4",
+                  "px-" + listIndentationFactor,
                   "border",
                   "border-white",
                   StyleUtils.hover("border-gray-300"),
@@ -518,7 +522,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     DivTag currentBlockStatus =
         predicate.isEmpty()
             ? div(
-                "You can add eligibility conditions to help you screen out applicants who do not"
+                "You can add eligibility conditions to help screen applicants who do not"
                     + " meet the minimum requirements for a program early in the application"
                     + " process.")
             : renderExistingPredicate(blockName, predicate.get().predicate(), questions);
@@ -833,7 +837,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(div(ViewUtils.makeSvgToolTip(toolTipText, Icons.HELP)));
+            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.HELP)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())

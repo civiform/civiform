@@ -35,7 +35,8 @@ public class QuestionAnswerer {
       String corrected,
       Double latitude,
       Double longitude,
-      Long wellKnownId) {
+      Long wellKnownId,
+      String serviceArea) {
     applicantData.putString(contextualizedPath.join(Scalar.STREET), street);
     applicantData.putString(contextualizedPath.join(Scalar.LINE2), line2);
     applicantData.putString(contextualizedPath.join(Scalar.CITY), city);
@@ -45,6 +46,7 @@ public class QuestionAnswerer {
     applicantData.putDouble(contextualizedPath.join(Scalar.LATITUDE), latitude);
     applicantData.putDouble(contextualizedPath.join(Scalar.LONGITUDE), longitude);
     applicantData.putLong(contextualizedPath.join(Scalar.WELL_KNOWN_ID), wellKnownId);
+    applicantData.putString(contextualizedPath.join(Scalar.SERVICE_AREA), serviceArea);
   }
 
   public static void answerCurrencyQuestion(

@@ -415,4 +415,29 @@ describe('program creation', () => {
       expect(actualQuestions[i]).toContain(expectedQuestions[i])
     }
   }
+
+  it('create common intake form with intake form feature enabled', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'intake_form_enabled')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+
+    await validateScreenshot(
+      page,
+      'program-description-page-with-intake-form-false',
+    )
+    const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+    expect(await commonIntakeFormInput.isChecked()).toBe(false)
+
+    await adminPrograms.clickCommonIntakeFormToggle()
+    await validateScreenshot(
+      page,
+      'program-description-page-with-intake-form-true',
+    )
+    expect(await commonIntakeFormInput.isChecked()).toBe(true)
+  })
 })

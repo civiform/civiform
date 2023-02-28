@@ -10,10 +10,10 @@ import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ScriptTag;
-import java.net.URI;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import views.components.ToastMessage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -37,11 +37,15 @@ public class BaseHtmlLayout {
   public final ViewUtils viewUtils;
   protected final FeatureFlags featureFlags;
   private final Optional<String> measurementId;
-  private final String hostName;
-  private final boolean isStaging;
+  private final boolean isDevOrStaging;
+  private final boolean addNoindexMetaTag;
 
   @Inject
-  public BaseHtmlLayout(ViewUtils viewUtils, Config configuration, FeatureFlags featureFlags) {
+  public BaseHtmlLayout(
+      ViewUtils viewUtils,
+      Config configuration,
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
     checkNotNull(configuration);
     this.viewUtils = checkNotNull(viewUtils);
     this.featureFlags = checkNotNull(featureFlags);
@@ -50,10 +54,9 @@ public class BaseHtmlLayout {
             ? Optional.of(configuration.getString("measurement_id"))
             : Optional.empty();
 
-    String baseUrl = configuration.getString("base_url");
-    String stagingHostname = configuration.getString("staging_hostname");
-    this.hostName = URI.create(baseUrl).getHost();
-    this.isStaging = hostName.equals(stagingHostname);
+    this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
+    this.addNoindexMetaTag =
+        this.isDevOrStaging && configuration.getBoolean("staging_add_noindex_meta_tag");
 
     civiformImageTag = configuration.getString("civiform_image_tag");
     civiformFaviconUrl = configuration.getString("whitelabel.favicon_url");
@@ -64,12 +67,17 @@ public class BaseHtmlLayout {
     return getBundle(new HtmlBundle(viewUtils));
   }
 
+  /** Get the application feature flags. */
+  public FeatureFlags getFeatureFlags() {
+    return featureFlags;
+  }
+
   /**
    * The reason for two getBundle methods here is that order occasionally matters, but this method
    * should only be used if you know what you're doing.
    *
-   * <p>Most of the time you'll want to use {@link admin.AdminLayout} or {@link
-   * applicant.ApplicantLayout} instead.
+   * <p>Most of the time you'll want to use {@link views.admin.AdminLayout} or {@link
+   * views.applicant.ApplicantLayout} instead.
    *
    * <pre>
    *  Example: If we want to add specific styles before the core tailwind styles we
@@ -84,9 +92,12 @@ public class BaseHtmlLayout {
     bundle.addMetadata(
         meta().withName("viewport").withContent("width=device-width, initial-scale=1"));
     bundle.addMetadata(meta().withName("civiform-build-tag").withContent(civiformImageTag));
+    if (addNoindexMetaTag) {
+      bundle.addMetadata(meta().withName("robots").withContent("noindex"));
+    }
 
     // Add the warning toast, only for staging
-    if (isStaging) {
+    if (isDevOrStaging) {
       ToastMessage privacyBanner =
           ToastMessage.warning(BANNER_TEXT)
               .setId("warning-message")

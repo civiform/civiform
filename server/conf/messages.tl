@@ -47,6 +47,9 @@ content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka r
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Mag log in
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 
@@ -208,12 +211,6 @@ title.applicantNotEligible=Batay sa iyong mga tugon, posibleng hindi ka kwalipik
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}.
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=Dapat mong matugunan ang mga kinakailangang ito ng programa:
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=Dapat matugunan ng iyong kliyente ang mga kinakailangang ito ng programa:
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
 
@@ -283,11 +280,11 @@ content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng l
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Unit/Numero ng Apartment
+label.addressLine2=Apartment, suite, atbp. (opsyonal)
 label.city=Lungsod
 label.state=Estado
 label.selectState=Pumili ng Estado
-label.street=Linya ng adres 1
+label.street=Address
 label.zipcode=Zip code
 
 # Validation errors that are shown when a user enters an invalid address.

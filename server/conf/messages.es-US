@@ -50,6 +50,9 @@ content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" tamb
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=Acceso
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Accede con tu cuenta {0}
 
@@ -211,12 +214,6 @@ title.applicantNotEligible=Según tus respuestas, es posible que no califiques p
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
 title.applicantNotEligibleTi=Según tus respuestas, es posible que tu cliente no califique para {0}.
 
-# A message that explains the applicant must meet certain program requirements, followed by a list of questions that determine eligibility.
-content.mustMeetRequirements=Debes cumplir con los siguientes requisitos del programa:
-
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client's behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=Tu cliente debe cumplir con los siguientes requisitos del programa:
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
 
@@ -286,11 +283,11 @@ content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardar�
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=Número de departamento o unidad
+label.addressLine2=Departamento, suite, etc. (opcional)
 label.city=Ciudad
 label.state=Estado
 label.selectState=Selecciona un estado
-label.street=Línea de dirección 1
+label.street=Dirección
 label.zipcode=Código postal
 
 

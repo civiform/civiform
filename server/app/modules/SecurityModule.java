@@ -14,13 +14,13 @@ import auth.CiviFormProfileData;
 import auth.FakeAdminClient;
 import auth.GuestClient;
 import auth.ProfileFactory;
-import auth.Roles;
-import auth.oidc.admin.AdfsProvider;
-import auth.oidc.applicant.Auth0Provider;
-import auth.oidc.applicant.GenericOidcProvider;
-import auth.oidc.applicant.IdcsProvider;
-import auth.oidc.applicant.LoginGovProvider;
-import auth.saml.LoginRadiusProvider;
+import auth.Role;
+import auth.oidc.admin.AdfsClientProvider;
+import auth.oidc.applicant.Auth0ClientProvider;
+import auth.oidc.applicant.GenericOidcClientProvider;
+import auth.oidc.applicant.IdcsClientProvider;
+import auth.oidc.applicant.LoginGovClientProvider;
+import auth.saml.LoginRadiusClientProvider;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -127,7 +127,9 @@ public class SecurityModule extends AbstractModule {
   private void bindAdminIdpProvider() {
     // Currently the only supported admin auth provider. As we add other admin auth providers,
     // this can be converted into a switch statement.
-    bind(IndirectClient.class).annotatedWith(AdminAuthClient.class).toProvider(AdfsProvider.class);
+    bind(IndirectClient.class)
+        .annotatedWith(AdminAuthClient.class)
+        .toProvider(AdfsClientProvider.class);
   }
 
   private void bindApplicantIdpProvider(com.typesafe.config.Config config) {
@@ -144,31 +146,31 @@ public class SecurityModule extends AbstractModule {
         case LOGIN_RADIUS_APPLICANT:
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(LoginRadiusProvider.class);
+              .toProvider(LoginRadiusClientProvider.class);
           logger.info("Using Login Radius for applicant auth provider");
           break;
         case IDCS_APPLICANT:
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(IdcsProvider.class);
+              .toProvider(IdcsClientProvider.class);
           logger.info("Using IDCS for applicant auth provider");
           break;
         case GENERIC_OIDC_APPLICANT:
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(GenericOidcProvider.class);
+              .toProvider(GenericOidcClientProvider.class);
           logger.info("Using generic OIDC for applicant auth provider");
           break;
         case LOGIN_GOV_APPLICANT:
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(LoginGovProvider.class);
+              .toProvider(LoginGovClientProvider.class);
           logger.info("Using login.gov PKCE OIDC for applicant auth provider");
           break;
         case AUTH0_APPLICANT:
           bind(IndirectClient.class)
               .annotatedWith(ApplicantAuthClient.class)
-              .toProvider(Auth0Provider.class);
+              .toProvider(Auth0ClientProvider.class);
           logger.info("Using Auth0 for applicant auth provider");
           break;
         default:
@@ -288,23 +290,23 @@ public class SecurityModule extends AbstractModule {
         // ANY_ADMIN.
         Authorizers.ANY_ADMIN.toString(),
         new RequireAnyRoleAuthorizer(
-            Roles.ROLE_CIVIFORM_ADMIN.toString(), Roles.ROLE_PROGRAM_ADMIN.toString()),
+            Role.ROLE_CIVIFORM_ADMIN.toString(), Role.ROLE_PROGRAM_ADMIN.toString()),
 
         // Having ROLE_PROGRAM_ADMIN authorizes a profile as PROGRAM_ADMIN.
         Authorizers.PROGRAM_ADMIN.toString(),
-        new RequireAllRolesAuthorizer(Roles.ROLE_PROGRAM_ADMIN.toString()),
+        new RequireAllRolesAuthorizer(Role.ROLE_PROGRAM_ADMIN.toString()),
 
         // Having ROLE_CIVIFORM_ADMIN authorizes a profile as CIVIFORM_ADMIN.
         Authorizers.CIVIFORM_ADMIN.toString(),
-        new RequireAllRolesAuthorizer(Roles.ROLE_CIVIFORM_ADMIN.toString()),
+        new RequireAllRolesAuthorizer(Role.ROLE_CIVIFORM_ADMIN.toString()),
 
         // Having ROLE_APPLICANT authorizes a profile as APPLICANT.
         Authorizers.APPLICANT.toString(),
-        new RequireAllRolesAuthorizer(Roles.ROLE_APPLICANT.toString()),
+        new RequireAllRolesAuthorizer(Role.ROLE_APPLICANT.toString()),
 
         // Having ROLE_TI authorizes a profile as TI.
         Authorizers.TI.toString(),
-        new RequireAllRolesAuthorizer(Roles.ROLE_TI.toString()));
+        new RequireAllRolesAuthorizer(Role.ROLE_TI.toString()));
   }
 
   // This provider is consumed by play-pac4j to get the app's security configuration.
