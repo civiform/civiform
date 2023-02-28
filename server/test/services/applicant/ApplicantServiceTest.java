@@ -57,10 +57,16 @@ import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.PathNotInBlockException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionInvalidException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
+import services.program.ProgramService;
+import services.program.ProgramServiceImpl;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -2204,7 +2210,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
 
     // Act
-    AddressSuggestionGroup addressSuggestionGroup = subject.getAddressSuggestionGroup(block);
+    AddressSuggestionGroup addressSuggestionGroup =
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
 
     // Assert
     assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);

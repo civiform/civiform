@@ -41,7 +41,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.geo.AddressSuggestion;
-import services.geo.AddressSuggestionGroup;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -480,32 +479,34 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
       if (addressQuestion.needsAddressCorrection(applicantQuestion.isAddressCorrectionEnabled())) {
-        AddressSuggestionGroup addressSuggestionGroup =
-            applicantService.getAddressSuggestionGroup(thisBlockUpdated);
-        ImmutableList<AddressSuggestion> suggestions =
-            addressSuggestionGroup.getAddressSuggestions();
-        String json = addressSuggestionJsonSerializer.serialize(suggestions);
 
-        // TODO: Check if eligibility is enabled
-        Boolean isEligibilityEnabled = false;
+        return applicantService
+            .getAddressSuggestionGroup(thisBlockUpdated)
+            .thenApplyAsync(
+                addressSuggestionGroup -> {
+                  ImmutableList<AddressSuggestion> suggestions =
+                      addressSuggestionGroup.getAddressSuggestions();
+                  String json = addressSuggestionJsonSerializer.serialize(suggestions);
 
-        return supplyAsync(
-            () ->
-                ok(addressCorrectionBlockView.render(
-                        buildApplicationBaseViewParams(
-                            request,
-                            applicantId,
-                            programId,
-                            blockId,
-                            inReview,
-                            roApplicantProgramService,
-                            thisBlockUpdated,
-                            applicantName,
-                            ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
-                        messagesApi.preferred(request),
-                        addressSuggestionGroup,
-                        isEligibilityEnabled))
-                    .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+                  Boolean isEligibilityEnabled =
+                      thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
+
+                  return ok(addressCorrectionBlockView.render(
+                          buildApplicationBaseViewParams(
+                              request,
+                              applicantId,
+                              programId,
+                              blockId,
+                              inReview,
+                              roApplicantProgramService,
+                              thisBlockUpdated,
+                              applicantName,
+                              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
+                          messagesApi.preferred(request),
+                          addressSuggestionGroup,
+                          isEligibilityEnabled))
+                      .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json);
+                });
       }
     }
 

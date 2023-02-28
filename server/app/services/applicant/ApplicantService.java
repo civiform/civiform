@@ -1124,15 +1124,15 @@ public final class ApplicantService {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
-              Optional<Block> block = roApplicantProgramService.getBlock(blockId);
+              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
 
-              if (block.isEmpty()) {
+              if (blockMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ProgramBlockNotFoundException(programId, blockId));
               }
 
               ApplicantQuestion applicantQuestion =
-                  getFirstAddressCorrectionEnabledApplicantQuestion(block.get());
+                  getFirstAddressCorrectionEnabledApplicantQuestion(blockMaybe.get());
               AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
               Optional<AddressSuggestion> suggestionMaybe =
@@ -1144,7 +1144,12 @@ public final class ApplicantService {
 
               ImmutableMap<String, String> questionPathToValueMap =
                   buildCorrectedAddressAsFormData(
-                      addressQuestion, suggestionMaybe, selectedAddress);
+                      applicantId,
+                      programId,
+                      blockId,
+                      addressQuestion,
+                      suggestionMaybe,
+                      selectedAddress);
 
               return CompletableFuture.completedFuture(questionPathToValueMap);
             });
@@ -1152,6 +1157,9 @@ public final class ApplicantService {
 
   /** Maps address suggestion and corrected state into a form data compatible map */
   private ImmutableMap<String, String> buildCorrectedAddressAsFormData(
+      long applicantId,
+      long programId,
+      String blockId,
       AddressQuestion addressQuestion,
       Optional<AddressSuggestion> suggestionMaybe,
       String selectedAddress) {
@@ -1184,9 +1192,14 @@ public final class ApplicantService {
     } else {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(), CorrectedAddressState.FAILED.toString());
+      logger.error(
+          "Address correction failed for applicantId: {} programId: {} blockId: {}",
+          applicantId,
+          programId,
+          blockId);
     }
 
-    return ImmutableMap.copyOf(questionPathToValueMap);
+    return ImmutableMap.<String, String>builder().putAll(questionPathToValueMap).build();
   }
 
   /**
@@ -1195,12 +1208,7 @@ public final class ApplicantService {
    */
   public ApplicantQuestion getFirstAddressCorrectionEnabledApplicantQuestion(Block block) {
     Optional<ApplicantQuestion> applicantQuestionMaybe =
-        block.getQuestions().stream()
-            .filter(
-                applicantQuestion ->
-                    applicantQuestion.getQuestionDefinition().isAddress()
-                        && applicantQuestion.isAddressCorrectionEnabled())
-            .findFirst();
+        block.getAddressQuestionWithCorrectionEnabled();
 
     if (applicantQuestionMaybe.isEmpty()) {
       throw new RuntimeException(
@@ -1214,16 +1222,19 @@ public final class ApplicantService {
   }
 
   /** Gets address suggestions */
-  public AddressSuggestionGroup getAddressSuggestionGroup(Block block) {
+  public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
-    Optional<AddressSuggestionGroup> suggestionsMaybe =
-        esriClient.getAddressSuggestions(addressQuestion.getAddress()).toCompletableFuture().join();
 
-    if (suggestionsMaybe.isEmpty()) {
-      throw new RuntimeException("Call to EsriClient.getAddressSuggestions failed.");
-    }
+    return esriClient
+        .getAddressSuggestions(addressQuestion.getAddress())
+        .thenApplyAsync(
+            suggestionsMaybe -> {
+              if (suggestionsMaybe.isEmpty()) {
+                throw new RuntimeException("Call to EsriClient.getAddressSuggestions failed.");
+              }
 
-    return suggestionsMaybe.get();
+              return suggestionsMaybe.get();
+            });
   }
 }
