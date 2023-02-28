@@ -2210,7 +2210,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
 
     // Act
-    AddressSuggestionGroup addressSuggestionGroup = subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
+    AddressSuggestionGroup addressSuggestionGroup =
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
 
     // Assert
     assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
