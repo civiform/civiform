@@ -280,8 +280,10 @@ public final class AddressQuestion extends Question {
         .build();
   }
 
-  public Boolean needsAddressCorrection(Boolean isAddressCorrectionEnabled) {
-    return isAddressCorrectionEnabled && getCorrectedValue().isEmpty();
+  /** Returns true if this question has address correction enabled, and it has not yet
+   * been through the correction process. */
+  public Boolean needsAddressCorrection() {
+    return applicantQuestion.isAddressCorrectionEnabled() && getCorrectedValue().isEmpty();
   }
 
   @Override

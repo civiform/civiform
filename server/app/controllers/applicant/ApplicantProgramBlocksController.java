@@ -493,7 +493,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
       AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
-      if (addressQuestion.needsAddressCorrection(applicantQuestion.isAddressCorrectionEnabled())) {
+      if (addressQuestion.needsAddressCorrection()) {
         return applicantService
             .getAddressSuggestionGroup(thisBlockUpdated)
             .thenApplyAsync(
