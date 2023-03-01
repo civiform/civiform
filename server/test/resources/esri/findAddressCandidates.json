@@ -5,7 +5,7 @@
   },
   "candidates": [
     {
-      "address": "380 New York St, Redlands, California, 92373",
+      "address": "380 New York St",
       "location": {
         "x": -117.19479001927878,
         "y": 34.057264995787875
@@ -14,7 +14,6 @@
       "attributes": {
         "SubAddr": "",
         "Address": "380 New York St",
-        "City": "Redlands",
         "RegionAbbr": "CA",
         "Postal": "92373"
       },
