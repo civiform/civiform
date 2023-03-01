@@ -1929,7 +1929,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(correctedAddress.get(addressQuestion.getWellKnownIdPath().toString()))
         .isEqualTo(addressLocation.getWellKnownId().toString());
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
-        .isEqualTo(CorrectedAddressState.CORRECTED.toString());
+        .isEqualTo(CorrectedAddressState.CORRECTED.getSerializationFormat());
   }
 
   @Test
@@ -2018,7 +2018,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Assert
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
-        .isEqualTo(CorrectedAddressState.AS_ENTERED_BY_USER.toString());
+        .isEqualTo(CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
   }
 
   @Test
@@ -2107,7 +2107,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Assert
     assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
-        .isEqualTo(CorrectedAddressState.FAILED.toString());
+        .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
   }
 
   @Test
