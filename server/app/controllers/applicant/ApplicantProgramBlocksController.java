@@ -159,7 +159,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
 
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    CompletableFuture<Optional<String>> applicantNameStage =
+        applicantService.getName(applicantId).toCompletableFuture();
+
+    return CompletableFuture.allOf(
+            checkApplicantAuthorization(profileUtils, request, applicantId), applicantNameStage)
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(
@@ -182,7 +186,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantId,
                   programId,
                   blockId,
-                  applicantService.getName(applicantId).toCompletableFuture().join(),
+                  applicantNameStage.join(),
                   inReview,
                   roApplicantProgramService);
             },
