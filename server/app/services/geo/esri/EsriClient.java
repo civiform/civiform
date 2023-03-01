@@ -349,7 +349,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
               List<String> features =
                   ctx.read(
                       "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
-              System.out.println("features = " + features);
+
               for (EsriServiceAreaValidationOption option : optionList) {
                 if (features.contains(option.getId())) {
                   inclusionListBuilder.add(
