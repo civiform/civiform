@@ -1199,7 +1199,8 @@ public final class ApplicantService {
           CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
     } else {
       questionPathToValueMap.put(
-          addressQuestion.getCorrectedPath().toString(), CorrectedAddressState.FAILED.getSerializationFormat());
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.FAILED.getSerializationFormat());
       logger.error(
           "Address correction failed for applicantId: {} programId: {} blockId: {}",
           applicantId,
