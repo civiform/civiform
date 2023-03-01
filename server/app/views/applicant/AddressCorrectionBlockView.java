@@ -36,11 +36,11 @@ import views.style.StyleUtils;
 
 /** Renders a page indicating the applicant is not eligible for a program. */
 public final class AddressCorrectionBlockView extends ApplicationBaseView {
-  private final String BLOCK_FORM_ID = "cf-block-form";
-  private static int MAX_SUGGESTIONS_TO_DISPLAY = 3;
+  private static final String BLOCK_FORM_ID = "cf-block-form";
+  private static final int MAX_SUGGESTIONS_TO_DISPLAY = 3;
+  public static final String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
+  public static final String SELECTED_ADDRESS_NAME = "selectedAddress";
   private final ApplicantLayout layout;
-  public static String USER_KEEPING_ADDRESS_VALUE = "USER_KEEPING_ADDRESS_VALUE";
-  public static String SELECTED_ADDRESS_NAME = "selectedAddress";
 
   @Inject
   AddressCorrectionBlockView(ApplicantLayout layout) {
@@ -52,7 +52,6 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
       Messages messages,
       AddressSuggestionGroup addressSuggestionGroup,
       Boolean isEligibilityEnabled) {
-
     Address addressAsEntered = addressSuggestionGroup.getOriginalAddress();
     ImmutableList<services.geo.AddressSuggestion> suggestions =
         addressSuggestionGroup.getAddressSuggestions();
