@@ -144,11 +144,28 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         Optional.ofNullable(addressJson.findPath(AddressField.STATE.getValue()).textValue());
     Optional<String> postal =
         Optional.ofNullable(addressJson.findPath(AddressField.ZIP.getValue()).textValue());
-    address.ifPresent(val -> request.addQueryParameter("address", val));
-    address2.ifPresent(val -> request.addQueryParameter("address2", val));
-    city.ifPresent(val -> request.addQueryParameter("city", val));
-    region.ifPresent(val -> request.addQueryParameter("region", val));
-    postal.ifPresent(val -> request.addQueryParameter("postal", val));
+    String singleLineAddress = "";
+    if (address.isPresent()) {
+      singleLineAddress += address.get();
+    }
+
+    if (address2.isPresent()) {
+      singleLineAddress += " " + address2.get();
+    }
+
+    if (city.isPresent()) {
+      singleLineAddress += " " + city.get();
+    }
+
+    if (region.isPresent()) {
+      singleLineAddress += " " + region.get();
+    }
+
+    if (postal.isPresent()) {
+      singleLineAddress += " " + postal.get();
+    }
+
+    request.addQueryParameter("SingleLine", singleLineAddress);
 
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
@@ -192,19 +209,21 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
               for (JsonNode candidateJson : json.get("candidates")) {
                 JsonNode location = candidateJson.get("location");
                 JsonNode attributes = candidateJson.get("attributes");
+
                 AddressLocation addressLocation =
                     AddressLocation.builder()
                         .setLongitude(location.get("x").asDouble())
                         .setLatitude(location.get("y").asDouble())
                         .setWellKnownId(wkid)
                         .build();
+
                 Address candidateAddress =
                     Address.builder()
-                        .setStreet(attributes.get("Address").asText())
-                        .setLine2(attributes.get("SubAddr").asText())
-                        .setCity(attributes.get("City").asText())
-                        .setState(attributes.get("RegionAbbr").asText())
-                        .setZip(attributes.get("Postal").asText())
+                        .setStreet(candidateJson.get("address").asText())
+                        .setLine2(attributes.get("SubAddr") == null ? "" : attributes.get("SubAddr").asText())
+                        .setCity(attributes.get("City") == null ? "" : attributes.get("City").asText())
+                        .setState(attributes.get("RegionAbbr") == null ? "" : attributes.get("RegionAbbr").asText())
+                        .setZip(attributes.get("Postal") == null ? "" : attributes.get("Postal").asText())
                         .build();
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
@@ -305,6 +324,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(
             (maybeJson) -> {
+              System.out.println("maybeJson = " + maybeJson);
               if (maybeJson.isEmpty()) {
                 logger.error(
                     "EsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
@@ -330,7 +350,7 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
               List<String> features =
                   ctx.read(
                       "features[*].attributes." + esriServiceAreaValidationOption.getAttribute());
-
+              System.out.println("features = " + features);
               for (EsriServiceAreaValidationOption option : optionList) {
                 if (features.contains(option.getId())) {
                   inclusionListBuilder.add(
