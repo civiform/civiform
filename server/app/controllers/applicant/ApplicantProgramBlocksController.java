@@ -37,7 +37,6 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
-import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.geo.AddressSuggestion;
@@ -488,10 +487,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (featureFlags.isEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
-      ApplicantQuestion applicantQuestion =
-          applicantService.getFirstAddressCorrectionEnabledApplicantQuestion(thisBlockUpdated);
-
-      AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+      AddressQuestion addressQuestion =
+          applicantService
+              .getFirstAddressCorrectionEnabledApplicantQuestion(thisBlockUpdated)
+              .createAddressQuestion();
 
       if (addressQuestion.needsAddressCorrection()) {
         return applicantService
