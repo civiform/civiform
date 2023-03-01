@@ -9,6 +9,7 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import com.google.common.collect.ImmutableList;
@@ -19,6 +20,7 @@ import controllers.admin.routes;
 import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.TagCreator;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -51,6 +53,7 @@ import views.components.QuestionBank;
 import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -389,11 +392,12 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
-                  program.id(),
+                  program,
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions));
+                  allQuestions,
+                  request));
     }
 
     DivTag programQuestions = div();
@@ -514,17 +518,15 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   }
 
   private DivTag renderEligibilityPredicate(
-      long programId,
+      ProgramDefinition program,
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions,
+      Request request) {
     DivTag currentBlockStatus =
         predicate.isEmpty()
-            ? div(
-                "You can add eligibility conditions to help screen applicants who do not"
-                    + " meet the minimum requirements for a program early in the application"
-                    + " process.")
+            ? renderEmptyEligibilityPredicate(program, request)
             : renderExistingPredicate(blockName, predicate.get().predicate(), questions);
     DivTag div =
         div()
@@ -540,10 +542,44 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       div.with(
           asRedirectElement(
               editScreenButton,
-              routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockId)
+              routes.AdminProgramBlockPredicatesController.editEligibility(program.id(), blockId)
                   .url()));
     }
     return div;
+  }
+
+  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
+    DivTag emptyPredicateDiv;
+    if (featureFlags.isNongatedEligibilityEnabled(request)) {
+      ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
+      if (program.eligibilityIsGating()) {
+        emptyPredicateContentBuilder.add(
+            text(
+                "You can add eligibility conditions to determine if an applicant qualifies for the"
+                    + " program. Applicants who do not meet the minimum requirements will be"
+                    + " blocked from submitting an application."));
+      } else {
+        emptyPredicateContentBuilder.add(
+            text(
+                "You can add eligibility conditions to determine if an applicant qualifies for the"
+                    + " program. Applicants can submit an application even if they do not meet the"
+                    + " minimum requirements."));
+      }
+      emptyPredicateContentBuilder
+          .add(text(" You can change this in "))
+          .add(
+              a().withText("program settings.")
+                  .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
+                  .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+      emptyPredicateDiv = div().with(emptyPredicateContentBuilder.build());
+    } else {
+      emptyPredicateDiv =
+          div(
+              "You can add eligibility conditions to help screen applicants who do not"
+                  + " meet the minimum requirements for a program early in the application"
+                  + " process.");
+    }
+    return emptyPredicateDiv;
   }
 
   private DivTag renderQuestion(
