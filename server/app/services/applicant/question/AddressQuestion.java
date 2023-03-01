@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import services.Address;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -267,6 +268,24 @@ public final class AddressQuestion extends Question {
       return serviceAreaPath;
     }
     return serviceAreaPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+  }
+
+  public Address getAddress() {
+    return Address.builder()
+        .setStreet(getStreetValue().orElse(""))
+        .setLine2(getLine2Value().orElse(""))
+        .setCity(getCityValue().orElse(""))
+        .setState(getStateValue().orElse(""))
+        .setZip(getZipValue().orElse(""))
+        .build();
+  }
+
+  /**
+   * Returns true if this question has address correction enabled, and it has not yet been through
+   * the correction process.
+   */
+  public Boolean needsAddressCorrection() {
+    return applicantQuestion.isAddressCorrectionEnabled() && getCorrectedValue().isEmpty();
   }
 
   @Override

@@ -40,6 +40,7 @@ import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.Address;
 import services.DeploymentType;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -47,10 +48,17 @@ import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.cloud.aws.SimpleEmail;
+import services.geo.AddressLocation;
+import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
+import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusionGroup;
+import services.geo.esri.EsriClient;
+import services.geo.esri.EsriClientRequestException;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -58,6 +66,7 @@ import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
+import views.applicant.AddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -83,6 +92,7 @@ public final class ApplicantService {
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
+  private final EsriClient esriClient;
 
   @Inject
   public ApplicantService(
@@ -96,7 +106,8 @@ public final class ApplicantService {
       Config configuration,
       HttpExecutionContext httpExecutionContext,
       DeploymentType deploymentType,
-      ServiceAreaUpdateResolver serviceAreaUpdateResolver) {
+      ServiceAreaUpdateResolver serviceAreaUpdateResolver,
+      EsriClient esriClient) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -115,6 +126,7 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
+    this.esriClient = checkNotNull(esriClient);
   }
 
   /** Create a new {@link Applicant}. */
@@ -1100,5 +1112,140 @@ public final class ApplicantService {
 
       abstract ApplicationPrograms build();
     }
+  }
+
+  /**
+   * Get corrected address from Esri and formats it as a map compatible with form data. It matches
+   * the user selected address and looks that up in the list of suggestions retrieved earlier from
+   * the Esri service. If ServiceArea validation is not enabled on this block the user is able to
+   * elect to keep the address as they entered it.
+   *
+   * <p>Returns a map containing the corrected address along with the corrected state in a format
+   * ready to be saved as form data.
+   */
+  public CompletionStage<ImmutableMap<String, String>> getCorrectedAddress(
+      long applicantId,
+      long programId,
+      String blockId,
+      String selectedAddress,
+      ImmutableList<AddressSuggestion> addressSuggestions) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              ApplicantQuestion applicantQuestion =
+                  getFirstAddressCorrectionEnabledApplicantQuestion(blockMaybe.get());
+              AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+              Optional<AddressSuggestion> suggestionMaybe =
+                  addressSuggestions.stream()
+                      .filter(
+                          addressSuggestion ->
+                              addressSuggestion.getSingleLineAddress().equals(selectedAddress))
+                      .findFirst();
+
+              ImmutableMap<String, String> questionPathToValueMap =
+                  buildCorrectedAddressAsFormData(
+                      applicantId,
+                      programId,
+                      blockId,
+                      addressQuestion,
+                      suggestionMaybe,
+                      selectedAddress);
+
+              return CompletableFuture.completedFuture(questionPathToValueMap);
+            });
+  }
+
+  /** Maps address suggestion and corrected state into a form data compatible map */
+  private ImmutableMap<String, String> buildCorrectedAddressAsFormData(
+      long applicantId,
+      long programId,
+      String blockId,
+      AddressQuestion addressQuestion,
+      Optional<AddressSuggestion> suggestionMaybe,
+      String selectedAddress) {
+
+    ImmutableMap.Builder<String, String> questionPathToValueMap = ImmutableMap.builder();
+
+    if (suggestionMaybe.isPresent()) {
+      AddressSuggestion suggestion = suggestionMaybe.get();
+      Address address = suggestion.getAddress();
+      AddressLocation location = suggestion.getLocation();
+
+      questionPathToValueMap.put(addressQuestion.getStreetPath().toString(), address.getStreet());
+      questionPathToValueMap.put(addressQuestion.getLine2Path().toString(), address.getLine2());
+      questionPathToValueMap.put(addressQuestion.getCityPath().toString(), address.getCity());
+      questionPathToValueMap.put(addressQuestion.getStatePath().toString(), address.getState());
+      questionPathToValueMap.put(addressQuestion.getZipPath().toString(), address.getZip());
+      questionPathToValueMap.put(
+          addressQuestion.getLatitudePath().toString(), location.getLatitude().toString());
+      questionPathToValueMap.put(
+          addressQuestion.getLongitudePath().toString(), location.getLongitude().toString());
+      questionPathToValueMap.put(
+          addressQuestion.getWellKnownIdPath().toString(), location.getWellKnownId().toString());
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.CORRECTED.toString());
+    } else if (selectedAddress.equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.AS_ENTERED_BY_USER.toString());
+    } else {
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectedPath().toString(), CorrectedAddressState.FAILED.toString());
+      logger.error(
+          "Address correction failed for applicantId: {} programId: {} blockId: {}",
+          applicantId,
+          programId,
+          blockId);
+    }
+
+    return questionPathToValueMap.build();
+  }
+
+  /**
+   * Finds the first {@link ApplicantQuestion} that is an address question type and has address
+   * correction enabled. When address correction is enabled we will make calls to the Esri service
+   * to check the user supplied address. The passed in {@link Block} contains the metadata used to
+   * determine if address correction is enabled for a question.
+   */
+  public ApplicantQuestion getFirstAddressCorrectionEnabledApplicantQuestion(Block block) {
+    Optional<ApplicantQuestion> applicantQuestionMaybe =
+        block.getAddressQuestionWithCorrectionEnabled();
+
+    if (applicantQuestionMaybe.isEmpty()) {
+      throw new RuntimeException(
+          String.format(
+              "Expected to find an address with address correction enabled in block %s, but did"
+                  + " not.",
+              block.getId()));
+    }
+
+    return applicantQuestionMaybe.get();
+  }
+
+  /** Gets address suggestions */
+  public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
+    ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    return esriClient
+        .getAddressSuggestions(addressQuestion.getAddress())
+        .thenApplyAsync(
+            suggestionsMaybe -> {
+              if (suggestionsMaybe.isEmpty()) {
+                throw new EsriClientRequestException(
+                    "Call to EsriClient.getAddressSuggestions failed.");
+              }
+
+              return suggestionsMaybe.get();
+            });
   }
 }

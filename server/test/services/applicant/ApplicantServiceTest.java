@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -36,6 +37,7 @@ import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.Address;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -44,16 +46,27 @@ import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.geo.AddressLocation;
+import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.PathNotInBlockException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionInvalidException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
+import services.program.ProgramService;
+import services.program.ProgramServiceImpl;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -69,6 +82,7 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
+import views.applicant.AddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
 
@@ -80,6 +94,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   private ApplicationRepository applicationRepository;
   private VersionRepository versionRepository;
   private CiviFormProfile trustedIntermediaryProfile;
+  private ProgramService programService;
 
   @Before
   public void setUp() throws Exception {
@@ -118,6 +133,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);
     Mockito.when(trustedIntermediaryProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(account));
+    programService = instanceOf(ProgramServiceImpl.class);
   }
 
   @Test
@@ -1807,5 +1823,397 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
+  }
+
+  @Test
+  public void getCorrectedAddress_whenSuccessfullyApplyingACorrectedAddress()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
+          ExecutionException, InterruptedException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    AddressSuggestion addressSuggestion1 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("123 Some St")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(100)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(1.0)
+                    .setLongitude(1.1)
+                    .setWellKnownId(2)
+                    .build())
+            .setSingleLineAddress("123 Some St Seattle, WA 99999")
+            .build();
+
+    AddressSuggestion addressSuggestion2 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Any Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Any Ave Seattle, WA 99999")
+            .build();
+
+    ImmutableList<AddressSuggestion> addressSuggestionList =
+        ImmutableList.of(addressSuggestion1, addressSuggestion2);
+    Address address = addressSuggestion1.getAddress();
+    AddressLocation addressLocation = addressSuggestion1.getLocation();
+
+    // Act
+    ImmutableMap<String, String> correctedAddress =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                addressSuggestion1.getSingleLineAddress(),
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddress.get(addressQuestion.getStreetPath().toString()))
+        .isEqualTo(address.getStreet());
+    assertThat(correctedAddress.get(addressQuestion.getLine2Path().toString()))
+        .isEqualTo(address.getLine2());
+    assertThat(correctedAddress.get(addressQuestion.getCityPath().toString()))
+        .isEqualTo(address.getCity());
+    assertThat(correctedAddress.get(addressQuestion.getStatePath().toString()))
+        .isEqualTo(address.getState());
+    assertThat(correctedAddress.get(addressQuestion.getZipPath().toString()))
+        .isEqualTo(address.getZip());
+    assertThat(correctedAddress.get(addressQuestion.getLatitudePath().toString()))
+        .isEqualTo(addressLocation.getLatitude().toString());
+    assertThat(correctedAddress.get(addressQuestion.getLongitudePath().toString()))
+        .isEqualTo(addressLocation.getLongitude().toString());
+    assertThat(correctedAddress.get(addressQuestion.getWellKnownIdPath().toString()))
+        .isEqualTo(addressLocation.getWellKnownId().toString());
+    assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.CORRECTED.toString());
+  }
+
+  @Test
+  public void getCorrectedAddress_whenUserChooseToKeepTheAddressOriginallyEntered()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
+          ExecutionException, InterruptedException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    AddressSuggestion addressSuggestion1 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("123 Some St")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(100)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(1.0)
+                    .setLongitude(1.1)
+                    .setWellKnownId(2)
+                    .build())
+            .setSingleLineAddress("123 Some St Seattle, WA 99999")
+            .build();
+
+    AddressSuggestion addressSuggestion2 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Any Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Any Ave Seattle, WA 99999")
+            .build();
+
+    ImmutableList<AddressSuggestion> addressSuggestionList =
+        ImmutableList.of(addressSuggestion1, addressSuggestion2);
+
+    // Act
+    ImmutableMap<String, String> correctedAddress =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.AS_ENTERED_BY_USER.toString());
+  }
+
+  @Test
+  public void getCorrectedAddress_whenExternalCorrectionFails()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
+          ExecutionException, InterruptedException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    AddressSuggestion addressSuggestion1 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("123 Some St")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(100)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(1.0)
+                    .setLongitude(1.1)
+                    .setWellKnownId(2)
+                    .build())
+            .setSingleLineAddress("123 Some St Seattle, WA 99999")
+            .build();
+
+    AddressSuggestion addressSuggestion2 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Any Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Any Ave Seattle, WA 99999")
+            .build();
+
+    ImmutableList<AddressSuggestion> addressSuggestionList =
+        ImmutableList.of(addressSuggestion1, addressSuggestion2);
+
+    // Act
+    ImmutableMap<String, String> correctedAddress =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                "asdf",
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.FAILED.toString());
+  }
+
+  @Test
+  public void getFirstAddressCorrectionEnabledApplicantQuestion_isSuccessful()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    programDefinition = programService.getProgramDefinition(program.id);
+    blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
+
+    Block block =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+
+    // Act
+    ApplicantQuestion applicantQuestionNew =
+        subject.getFirstAddressCorrectionEnabledApplicantQuestion(block);
+
+    // Assert
+    assertThat(applicantQuestionNew.isAddressCorrectionEnabled()).isTrue();
+  }
+
+  @Test
+  public void getFirstAddressCorrectionEnabledApplicantQuestion_fails() {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+
+    Block block =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+
+    // Act & Assert
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> subject.getFirstAddressCorrectionEnabledApplicantQuestion(block))
+        .withMessageContaining(
+            "Expected to find an address with address correction enabled in block");
+  }
+
+  @Test
+  public void getAddressSuggestionGroup_isSuccessful()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    programDefinition = programService.getProgramDefinition(program.id);
+    blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
+
+    Block block =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+
+    // Act
+    AddressSuggestionGroup addressSuggestionGroup =
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
+
+    // Assert
+    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
   }
 }

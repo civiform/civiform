@@ -75,10 +75,6 @@ public final class ApplicantQuestion {
     return programQuestionDefinition.optional();
   }
 
-  public boolean isAddressCorrectionEnabled() {
-    return programQuestionDefinition.addressCorrectionEnabled();
-  }
-
   /**
    * Return true if this question is answered or a skipped optional question in the program
    * specified. Questions can only be skipped and left unanswered if they are optional.
@@ -217,6 +213,10 @@ public final class ApplicantQuestion {
 
   public AddressQuestion createAddressQuestion() {
     return new AddressQuestion(this);
+  }
+
+  public boolean isAddressCorrectionEnabled() {
+    return programQuestionDefinition.addressCorrectionEnabled();
   }
 
   public CurrencyQuestion createCurrencyQuestion() {

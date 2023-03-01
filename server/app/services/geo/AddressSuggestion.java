@@ -1,5 +1,7 @@
 package services.geo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import services.Address;
 
@@ -11,14 +13,17 @@ import services.Address;
  * <p>See {@link AddressSuggestionGroup}
  */
 @AutoValue
+@JsonDeserialize(builder = AutoValue_AddressSuggestion.Builder.class)
 public abstract class AddressSuggestion {
   public static Builder builder() {
     return new AutoValue_AddressSuggestion.Builder();
   }
   /** returns an address as a single line */
+  @JsonProperty("singleLineAddress")
   public abstract String getSingleLineAddress();
 
   /** Returns the location object, which conatiins x and y coordinates */
+  @JsonProperty("location")
   public abstract AddressLocation getLocation();
 
   /**
@@ -27,19 +32,25 @@ public abstract class AddressSuggestion {
    *
    * <p>Score has the range [0-100], with 100 being the best possible score.
    */
+  @JsonProperty("score")
   public abstract int getScore();
 
   /** returns address attributes like getStreet() */
+  @JsonProperty("address")
   public abstract Address getAddress();
 
   @AutoValue.Builder
   public abstract static class Builder {
+    @JsonProperty("singleLineAddress")
     public abstract Builder setSingleLineAddress(String singleLineAddress);
 
+    @JsonProperty("location")
     public abstract Builder setLocation(AddressLocation location);
 
+    @JsonProperty("score")
     public abstract Builder setScore(int score);
 
+    @JsonProperty("address")
     public abstract Builder setAddress(Address address);
 
     public abstract AddressSuggestion build();

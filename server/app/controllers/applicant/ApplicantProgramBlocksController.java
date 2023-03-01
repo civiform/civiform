@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
+import controllers.geo.AddressSuggestionJsonSerializer;
 import featureflags.FeatureFlags;
 import java.util.Map;
 import java.util.Optional;
@@ -35,8 +36,10 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
+import services.geo.AddressSuggestion;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -45,6 +48,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
+import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
@@ -57,6 +61,7 @@ import views.questiontypes.ApplicantQuestionRendererParams;
  */
 public final class ApplicantProgramBlocksController extends CiviFormController {
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS = ImmutableSet.of("csrfToken");
+  private static final String ADDRESS_JSON_SESSION_KEY = "addressJson";
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -69,6 +74,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FeatureFlags featureFlags;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
+  private final AddressCorrectionBlockView addressCorrectionBlockView;
+  private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -87,6 +94,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       FeatureFlags featureFlags,
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
+      AddressCorrectionBlockView addressCorrectionBlockView,
+      AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
@@ -98,6 +107,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.featureFlags = checkNotNull(featureFlags);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
+    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
+    this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.editView =
         editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
     this.programService = checkNotNull(programService);
@@ -132,6 +143,66 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   public CompletionStage<Result> review(
       Request request, long applicantId, long programId, String blockId) {
     return editOrReview(request, applicantId, programId, blockId, true);
+  }
+
+  /** This method handles the applicant's selection from the address correction options. */
+  @Secure
+  public CompletionStage<Result> confirmAddress(
+      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    String selectedAddress = form.get(AddressCorrectionBlockView.SELECTED_ADDRESS_NAME);
+    Optional<String> maybeAddressJson = request.session().get(ADDRESS_JSON_SESSION_KEY);
+
+    ImmutableList<AddressSuggestion> suggestions =
+        addressSuggestionJsonSerializer.deserialize(
+            maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
+
+    CompletableFuture<Optional<String>> applicantNameStage =
+        applicantService.getName(applicantId).toCompletableFuture();
+
+    return CompletableFuture.allOf(
+            checkApplicantAuthorization(profileUtils, request, applicantId), applicantNameStage)
+        .thenComposeAsync(
+            v ->
+                applicantService.getCorrectedAddress(
+                    applicantId, programId, blockId, selectedAddress, suggestions),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            questionPathToValueMap ->
+                applicantService.stageAndUpdateIfValid(
+                    applicantId,
+                    programId,
+                    blockId,
+                    cleanForm(questionPathToValueMap),
+                    featureFlags.isEsriAddressServiceAreaValidationEnabled(request)),
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              removeAddressJsonFromSession(request);
+              return renderErrorOrRedirectToNextBlock(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  applicantNameStage.join(),
+                  inReview,
+                  roApplicantProgramService);
+            },
+            httpExecutionContext.current())
+        .exceptionally(
+            throwable -> {
+              removeAddressJsonFromSession(request);
+              return handleUpdateExceptions(throwable);
+            });
+  }
+
+  /**
+   * Clean up the address suggestions json from the session. Remove this to prevent the chance of
+   * the old session value being used on subsequent address corrections.
+   */
+  private void removeAddressJsonFromSession(Request request) {
+    request.session().removing(ADDRESS_JSON_SESSION_KEY);
   }
 
   /** This method navigates to the previous page of the application. */
@@ -411,6 +482,45 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           thisBlockUpdated,
                           applicantName,
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
+    }
+
+    if (featureFlags.isEsriAddressCorrectionEnabled(request)
+        && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
+
+      AddressQuestion addressQuestion =
+          applicantService
+              .getFirstAddressCorrectionEnabledApplicantQuestion(thisBlockUpdated)
+              .createAddressQuestion();
+
+      if (addressQuestion.needsAddressCorrection()) {
+        return applicantService
+            .getAddressSuggestionGroup(thisBlockUpdated)
+            .thenApplyAsync(
+                addressSuggestionGroup -> {
+                  ImmutableList<AddressSuggestion> suggestions =
+                      addressSuggestionGroup.getAddressSuggestions();
+                  String json = addressSuggestionJsonSerializer.serialize(suggestions);
+
+                  Boolean isEligibilityEnabledOnThisBlock =
+                      thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
+
+                  return ok(addressCorrectionBlockView.render(
+                          buildApplicationBaseViewParams(
+                              request,
+                              applicantId,
+                              programId,
+                              blockId,
+                              inReview,
+                              roApplicantProgramService,
+                              thisBlockUpdated,
+                              applicantName,
+                              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
+                          messagesApi.preferred(request),
+                          addressSuggestionGroup,
+                          isEligibilityEnabledOnThisBlock))
+                      .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json);
+                });
+      }
     }
 
     if (featureFlags.isProgramEligibilityConditionsEnabled(request)

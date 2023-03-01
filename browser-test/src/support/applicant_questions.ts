@@ -380,6 +380,22 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
+  async expectVerifyAddressPage() {
+    expect(await this.page.innerText('h2')).toContain('Verify address')
+  }
+
+  async expectAddressHasBeenCorrected(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
   async submitFromReviewPage() {
     // Assert that we're on the review page.
     await this.expectReviewPage()

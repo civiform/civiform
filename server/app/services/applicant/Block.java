@@ -119,6 +119,11 @@ public final class Block {
     return blockDefinition.hasAddress();
   }
 
+  /** This block is an address block if its {@link BlockDefinition} contains an address question. */
+  public boolean hasAddressWithCorrectionEnabled() {
+    return blockDefinition.hasAddressWithCorrectionEnabled();
+  }
+
   /**
    * Returns a list of address service area IDs defined for eligibility on this block. Returns empty
    * if no service area IDs are configured for eligibility.

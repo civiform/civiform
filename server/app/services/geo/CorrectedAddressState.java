@@ -5,7 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /** The result of correcting an address. */
 public enum CorrectedAddressState {
   CORRECTED("Corrected"),
-  FAILED("Failed");
+  FAILED("Failed"),
+  AS_ENTERED_BY_USER("AsEnteredByUser");
 
   private final String serializationFormat;
 

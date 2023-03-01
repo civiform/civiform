@@ -2,6 +2,7 @@ package services.geo;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import services.Address;
 
 /**
  * Represents address suggestions returned from Esri's findAddressCandidates endpoint
@@ -17,6 +18,8 @@ public abstract class AddressSuggestionGroup {
   /** returns a well-known ID for ArcGIS coordinate systems, used for spatial reference */
   public abstract int getWellKnownId();
 
+  public abstract Address getOriginalAddress();
+
   /**
    * returns a list of address suggestions ordered from highest scoring (most likely match) to
    * lowest scoring (least likely match).
@@ -28,6 +31,8 @@ public abstract class AddressSuggestionGroup {
     public abstract Builder setWellKnownId(int wellKnownId);
 
     public abstract Builder setAddressSuggestions(ImmutableList<AddressSuggestion> suggestions);
+
+    public abstract Builder setOriginalAddress(Address address);
 
     public abstract AddressSuggestionGroup build();
   }
