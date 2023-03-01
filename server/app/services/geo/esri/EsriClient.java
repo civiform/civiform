@@ -220,10 +220,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 Address candidateAddress =
                     Address.builder()
                         .setStreet(candidateJson.get("address").asText())
-                        .setLine2(attributes.get("SubAddr") == null ? "" : attributes.get("SubAddr").asText())
-                        .setCity(attributes.get("City") == null ? "" : attributes.get("City").asText())
-                        .setState(attributes.get("RegionAbbr") == null ? "" : attributes.get("RegionAbbr").asText())
-                        .setZip(attributes.get("Postal") == null ? "" : attributes.get("Postal").asText())
+                        .setLine2(attributes.get("SubAddr") == null ? address.getLine2() : attributes.get("SubAddr").asText())
+                        .setCity(attributes.get("City") == null || attributes.get("City").isEmpty() ? address.getCity() : attributes.get("City").asText())
+                        .setState(attributes.get("RegionAbbr") == null ? address.getState() : attributes.get("RegionAbbr").asText())
+                        .setZip(attributes.get("Postal") == null ? address.getZip() : attributes.get("Postal").asText())
                         .build();
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
@@ -324,7 +324,6 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     return fetchServiceAreaFeatures(location, esriServiceAreaValidationOption.getUrl())
         .thenApply(
             (maybeJson) -> {
-              System.out.println("maybeJson = " + maybeJson);
               if (maybeJson.isEmpty()) {
                 logger.error(
                     "EsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
