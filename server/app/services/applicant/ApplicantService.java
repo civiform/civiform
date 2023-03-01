@@ -1192,14 +1192,15 @@ public final class ApplicantService {
           addressQuestion.getWellKnownIdPath().toString(), location.getWellKnownId().toString());
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
-          CorrectedAddressState.CORRECTED.toString());
+          CorrectedAddressState.CORRECTED.getSerializationFormat());
     } else if (selectedAddress.equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
       questionPathToValueMap.put(
           addressQuestion.getCorrectedPath().toString(),
-          CorrectedAddressState.AS_ENTERED_BY_USER.toString());
+          CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
     } else {
       questionPathToValueMap.put(
-          addressQuestion.getCorrectedPath().toString(), CorrectedAddressState.FAILED.toString());
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.FAILED.getSerializationFormat());
       logger.error(
           "Address correction failed for applicantId: {} programId: {} blockId: {}",
           applicantId,
