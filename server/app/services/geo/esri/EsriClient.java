@@ -206,10 +206,23 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 Address candidateAddress =
                     Address.builder()
                         .setStreet(candidateJson.get("address").asText())
-                        .setLine2(attributes.get("SubAddr") == null || attributes.get("SubAddr").isEmpty() ? address.getLine2() : attributes.get("SubAddr").asText())
-                        .setCity(attributes.get("City") == null || attributes.get("City").isEmpty() ? address.getCity() : attributes.get("City").asText())
-                        .setState(attributes.get("RegionAbbr") == null || attributes.get("RegionAbbr").isEmpty() ? address.getState() : attributes.get("RegionAbbr").asText())
-                        .setZip(attributes.get("Postal") == null || attributes.get("Postal").isEmpty() ? address.getZip() : attributes.get("Postal").asText())
+                        .setLine2(
+                            attributes.get("SubAddr") == null || attributes.get("SubAddr").isEmpty()
+                                ? address.getLine2()
+                                : attributes.get("SubAddr").asText())
+                        .setCity(
+                            attributes.get("City") == null || attributes.get("City").isEmpty()
+                                ? address.getCity()
+                                : attributes.get("City").asText())
+                        .setState(
+                            attributes.get("RegionAbbr") == null
+                                    || attributes.get("RegionAbbr").isEmpty()
+                                ? address.getState()
+                                : attributes.get("RegionAbbr").asText())
+                        .setZip(
+                            attributes.get("Postal") == null || attributes.get("Postal").isEmpty()
+                                ? address.getZip()
+                                : attributes.get("Postal").asText())
                         .build();
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
