@@ -5,6 +5,9 @@ import static play.test.Helpers.fakeApplication;
 import akka.stream.Materializer;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
@@ -19,6 +22,9 @@ import support.ResourceCreator;
 import support.TestQuestionBank;
 
 public class ResetPostgres {
+
+  protected Clock testClock =
+      Clock.fixed(Instant.parse("2021-01-15T00:00:00.00Z"), ZoneId.systemDefault());
 
   protected static Application app;
 

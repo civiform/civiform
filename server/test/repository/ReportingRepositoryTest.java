@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.sql.Timestamp;
-import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -28,7 +27,7 @@ public class ReportingRepositoryTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    repo = instanceOf(ReportingRepository.class);
+    repo = new ReportingRepository(testClock);
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
@@ -36,8 +35,8 @@ public class ReportingRepositoryTest extends ResetPostgres {
 
   @Test
   public void monthlyReportingView() {
-    Instant lastMonth = Instant.now().minus(40, ChronoUnit.DAYS);
-    Instant twoMonthsAgo = Instant.now().minus(70, ChronoUnit.DAYS);
+    Instant lastMonth = testClock.instant().minus(40, ChronoUnit.DAYS);
+    Instant twoMonthsAgo = testClock.instant().minus(70, ChronoUnit.DAYS);
 
     ImmutableList.of(
             Triple.of(LifecycleStage.ACTIVE, lastMonth, lastMonth.plusSeconds(100)),
@@ -81,7 +80,7 @@ public class ReportingRepositoryTest extends ResetPostgres {
 
   @Test
   public void loadThisMonthReportingData() {
-    Instant today = Instant.now(instanceOf(Clock.class));
+    Instant today = testClock.instant();
 
     ImmutableList.of(
             Triple.of(LifecycleStage.ACTIVE, today, today.plusSeconds(100)),
