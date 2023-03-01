@@ -144,28 +144,14 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
         Optional.ofNullable(addressJson.findPath(AddressField.STATE.getValue()).textValue());
     Optional<String> postal =
         Optional.ofNullable(addressJson.findPath(AddressField.ZIP.getValue()).textValue());
-    String singleLineAddress = "";
-    if (address.isPresent()) {
-      singleLineAddress += address.get();
-    }
 
-    if (address2.isPresent()) {
-      singleLineAddress += " " + address2.get();
-    }
-
-    if (city.isPresent()) {
-      singleLineAddress += " " + city.get();
-    }
-
-    if (region.isPresent()) {
-      singleLineAddress += " " + region.get();
-    }
-
-    if (postal.isPresent()) {
-      singleLineAddress += " " + postal.get();
-    }
-
-    request.addQueryParameter("SingleLine", singleLineAddress);
+    StringBuilder singleLineAddress = new StringBuilder();
+    address.ifPresent(val -> singleLineAddress.append(val));
+    address2.ifPresent(val -> singleLineAddress.append(" " + val));
+    city.ifPresent(val -> singleLineAddress.append(" " + val + " ,"));
+    region.ifPresent(val -> singleLineAddress.append(" " + val));
+    postal.ifPresent(val -> singleLineAddress.append(" " + val));
+    request.addQueryParameter("SingleLine", singleLineAddress.toString());
 
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
@@ -220,10 +206,10 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
                 Address candidateAddress =
                     Address.builder()
                         .setStreet(candidateJson.get("address").asText())
-                        .setLine2(attributes.get("SubAddr") == null ? address.getLine2() : attributes.get("SubAddr").asText())
+                        .setLine2(attributes.get("SubAddr") == null || attributes.get("SubAddr").isEmpty() ? address.getLine2() : attributes.get("SubAddr").asText())
                         .setCity(attributes.get("City") == null || attributes.get("City").isEmpty() ? address.getCity() : attributes.get("City").asText())
-                        .setState(attributes.get("RegionAbbr") == null ? address.getState() : attributes.get("RegionAbbr").asText())
-                        .setZip(attributes.get("Postal") == null ? address.getZip() : attributes.get("Postal").asText())
+                        .setState(attributes.get("RegionAbbr") == null || attributes.get("RegionAbbr").isEmpty() ? address.getState() : attributes.get("RegionAbbr").asText())
+                        .setZip(attributes.get("Postal") == null || attributes.get("Postal").isEmpty() ? address.getZip() : attributes.get("Postal").asText())
                         .build();
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
