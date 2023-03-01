@@ -161,10 +161,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return checkApplicantAuthorization(profileUtils, request, applicantId)
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
-        .thenComposeAsync(
-            roApplicantProgramService ->
+            v ->
                 applicantService.getCorrectedAddress(
                     applicantId, programId, blockId, selectedAddress, suggestions),
             httpExecutionContext.current())
@@ -178,17 +175,31 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     featureFlags.isEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
-            roApplicantProgramService ->
-                renderErrorOrRedirectToNextBlock(
-                    request,
-                    applicantId,
-                    programId,
-                    blockId,
-                    applicantService.getName(applicantId).toCompletableFuture().join(),
-                    inReview,
-                    roApplicantProgramService),
+            roApplicantProgramService -> {
+              removeAddressJsonFromSession(request);
+              return renderErrorOrRedirectToNextBlock(
+                  request,
+                  applicantId,
+                  programId,
+                  blockId,
+                  applicantService.getName(applicantId).toCompletableFuture().join(),
+                  inReview,
+                  roApplicantProgramService);
+            },
             httpExecutionContext.current())
-        .exceptionally(this::handleUpdateExceptions);
+        .exceptionally(
+            throwable -> {
+              removeAddressJsonFromSession(request);
+              return handleUpdateExceptions(throwable);
+            });
+  }
+
+  /**
+   * Clean up the address suggestions json from the session. Remove this to prevent the chance of
+   * the old session value being used on subsequent address corrections.
+   */
+  private void removeAddressJsonFromSession(Request request) {
+    request.session().removing(ADDRESS_JSON_SESSION_KEY);
   }
 
   /** This method navigates to the previous page of the application. */
@@ -479,7 +490,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
       if (addressQuestion.needsAddressCorrection(applicantQuestion.isAddressCorrectionEnabled())) {
-
         return applicantService
             .getAddressSuggestionGroup(thisBlockUpdated)
             .thenApplyAsync(
@@ -488,7 +498,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       addressSuggestionGroup.getAddressSuggestions();
                   String json = addressSuggestionJsonSerializer.serialize(suggestions);
 
-                  Boolean isEligibilityEnabled =
+                  Boolean isEligibilityEnabledOnThisBlock =
                       thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
 
                   return ok(addressCorrectionBlockView.render(
@@ -504,7 +514,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
                           messagesApi.preferred(request),
                           addressSuggestionGroup,
-                          isEligibilityEnabled))
+                          isEligibilityEnabledOnThisBlock))
                       .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json);
                 });
       }

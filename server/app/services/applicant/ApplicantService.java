@@ -18,7 +18,6 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -59,6 +58,7 @@ import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
+import services.geo.esri.EsriClientRequestException;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -1114,7 +1114,15 @@ public final class ApplicantService {
     }
   }
 
-  /** Get corrected address from Esri and formats it as a map compatible with form data */
+  /**
+   * Get corrected address from Esri and formats it as a map compatible with form data. It matches
+   * the user selected address and looks that up in the list of suggestions retrieved earlier from
+   * the Esri service. If ServiceArea validation is not enabled on this block the user is able to
+   * elect to keep the address as they entered it.
+   *
+   * <p>Returns a map containing the corrected address along with the corrected state in a format
+   * ready to be saved as form data.
+   */
   public CompletionStage<ImmutableMap<String, String>> getCorrectedAddress(
       long applicantId,
       long programId,
@@ -1164,7 +1172,7 @@ public final class ApplicantService {
       Optional<AddressSuggestion> suggestionMaybe,
       String selectedAddress) {
 
-    Map<String, String> questionPathToValueMap = new HashMap<>(Map.of());
+    ImmutableMap.Builder<String, String> questionPathToValueMap = ImmutableMap.builder();
 
     if (suggestionMaybe.isPresent()) {
       AddressSuggestion suggestion = suggestionMaybe.get();
@@ -1199,12 +1207,14 @@ public final class ApplicantService {
           blockId);
     }
 
-    return ImmutableMap.<String, String>builder().putAll(questionPathToValueMap).build();
+    return questionPathToValueMap.build();
   }
 
   /**
    * Finds the first {@link ApplicantQuestion} that is an address question type and has address
-   * correction enabled.
+   * correction enabled. When address correction is enabled we will make calls to the Esri service
+   * to check the user supplied address. The passed in {@link Block} contains the metadata used to
+   * determine if address correction is enabled for a question.
    */
   public ApplicantQuestion getFirstAddressCorrectionEnabledApplicantQuestion(Block block) {
     Optional<ApplicantQuestion> applicantQuestionMaybe =
@@ -1231,7 +1241,8 @@ public final class ApplicantService {
         .thenApplyAsync(
             suggestionsMaybe -> {
               if (suggestionsMaybe.isEmpty()) {
-                throw new RuntimeException("Call to EsriClient.getAddressSuggestions failed.");
+                throw new EsriClientRequestException(
+                    "Call to EsriClient.getAddressSuggestions failed.");
               }
 
               return suggestionsMaybe.get();
