@@ -301,6 +301,14 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void createProgram_allowsSettingCommonIntakeFormWhenNoneExists() {
+    // No common intake form in the most recent version of any program, although some programs
+    // were previously marked as common intake.
+    ProgramBuilder.newObsoleteProgram("one")
+        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
+
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
             "name-one",
@@ -569,8 +577,15 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Test
   public void updateProgram_allowsSettingProgramAsCommonIntakeFormWhenNoneExists()
       throws Exception {
-    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    // No common intake form in the most recent version of any program, although some programs
+    // were previously marked as common intake.
+    ProgramBuilder.newObsoleteProgram("one")
+        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
 
+    ProgramDefinition program = ProgramBuilder.newDraftProgram("three").buildDefinition();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
             program.id(),

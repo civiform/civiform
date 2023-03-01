@@ -67,7 +67,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
         predicateGenerator.generatePredicateDefinition(
             programDefinition, form, readOnlyQuestionService);
 
-    assertThat(predicateDefinition.predicateFormat().get())
+    assertThat(predicateDefinition.predicateFormat())
         .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
@@ -102,7 +102,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
         predicateGenerator.generatePredicateDefinition(
             programDefinition, form, readOnlyQuestionService);
 
-    assertThat(predicateDefinition.predicateFormat().get())
+    assertThat(predicateDefinition.predicateFormat())
         .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())
@@ -174,7 +174,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
         predicateGenerator.generatePredicateDefinition(
             programDefinition, form, readOnlyQuestionService);
 
-    assertThat(predicateDefinition.predicateFormat().get())
+    assertThat(predicateDefinition.predicateFormat())
         .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.SHOW_BLOCK);
     assertThat(predicateDefinition.getQuestions())
@@ -244,7 +244,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
         predicateGenerator.generatePredicateDefinition(
             programDefinition, form, readOnlyQuestionService);
 
-    assertThat(predicateDefinition.predicateFormat().get())
+    assertThat(predicateDefinition.predicateFormat())
         .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
     assertThat(predicateDefinition.action()).isEqualTo(PredicateAction.HIDE_BLOCK);
     assertThat(predicateDefinition.getQuestions())

@@ -134,10 +134,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   }
 
   @Override
-  public final Optional<UserProfile> create(
+  public Optional<UserProfile> create(
       Credentials cred, WebContext context, SessionStore sessionStore) {
     ProfileUtils profileUtils = new ProfileUtils(sessionStore, profileFactory);
-    possiblyModifyConfigBasedOnCred(cred);
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
@@ -192,6 +191,4 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .toCompletableFuture()
         .join();
   }
-
-  protected abstract void possiblyModifyConfigBasedOnCred(Credentials cred);
 }

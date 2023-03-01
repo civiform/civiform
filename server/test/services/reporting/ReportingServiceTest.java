@@ -17,8 +17,10 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
 import org.junit.Test;
+import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
 import repository.ResetPostgres;
+import services.DateConverter;
 import support.ProgramBuilder;
 
 public class ReportingServiceTest extends ResetPostgres {
@@ -30,7 +32,11 @@ public class ReportingServiceTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    service = instanceOf(ReportingService.class);
+    service =
+        new ReportingService(
+            instanceOf(DateConverter.class),
+            new ReportingRepository(testClock),
+            instanceOf(SyncCacheApi.class));
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
@@ -55,9 +61,9 @@ public class ReportingServiceTest extends ResetPostgres {
 
     List<CSVRecord> records = parser.getRecords();
     assertThat(records.get(0).toList())
-        .containsExactly("12/2022", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("11/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
-        .containsExactly("1/2023", "8", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("12/2020", "8", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.size()).isEqualTo(2);
 
     parser =
@@ -82,8 +88,8 @@ public class ReportingServiceTest extends ResetPostgres {
   }
 
   private void insertFakeApplicationsAndRefreshDatabaseView() {
-    Instant lastMonth = Instant.now().minus(40, ChronoUnit.DAYS);
-    Instant today = Instant.now();
+    Instant lastMonth = testClock.instant().minus(30, ChronoUnit.DAYS);
+    Instant today = testClock.instant();
 
     ImmutableList.of(
             Pair.of(lastMonth, lastMonth.plusSeconds(100)),

@@ -76,6 +76,7 @@ export class AdminPrograms {
     externalLink = 'https://usa.gov',
     hidden = false,
     adminDescription = 'admin description',
+    isCommonIntake = false,
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -92,6 +93,10 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("Hide from applicants.")`)
     } else {
       await this.page.check(`label:has-text("Publicly visible")`)
+    }
+
+    if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
+      await this.clickCommonIntakeFormToggle()
     }
 
     await this.page.click('#program-update-button')
@@ -119,27 +124,32 @@ export class AdminPrograms {
   }
 
   /**
-   * Expects a specific question to be shown in the currently displayed program block.
+   * Expects a question card with a specified text label in it.
    */
-  expectQuestion(questionName: string) {
+  async expectQuestionCardWithLabel(questionName: string, label: string) {
     expect(
-      `.cf-program-question:has(:text("Admin ID: ${questionName}"))`,
-    ).not.toBeNull()
+      await this.page
+        .locator(
+          this.withinQuestionCardSelectorInProgramView(
+            questionName,
+            `p:has-text("${label}")`,
+          ),
+        )
+        .count(),
+    ).toBe(1)
   }
 
-  // Question card within a program edit page
-  questionCardSelectorInProgramEditor(questionName: string) {
+  // Question card within a program edit or read only page
+  questionCardSelectorInProgramView(questionName: string) {
     return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`
   }
 
   // Question card within a program edit page
-  withinQuestionCardSelectorInProgramEditor(
+  withinQuestionCardSelectorInProgramView(
     questionName: string,
     selector: string,
   ) {
-    return (
-      this.questionCardSelectorInProgramEditor(questionName) + ' ' + selector
-    )
+    return this.questionCardSelectorInProgramView(questionName) + ' ' + selector
   }
 
   programCardSelector(programName: string, lifecycle: string) {
@@ -387,7 +397,7 @@ export class AdminPrograms {
 
     for (const questionName of questionNames) {
       await this.page.click(
-        this.withinQuestionCardSelectorInProgramEditor(
+        this.withinQuestionCardSelectorInProgramView(
           questionName,
           'button:has-text("Delete")',
         ),

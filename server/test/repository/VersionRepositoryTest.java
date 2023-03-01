@@ -15,6 +15,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -365,8 +366,23 @@ public class VersionRepositoryTest extends ResetPostgres {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
-                LeafOperationExpressionNode.create(
-                    oldOne.id, Scalar.NUMBER, Operator.EQUAL_TO, PredicateValue.of(100))),
+                OrNode.create(
+                    ImmutableList.of(
+                        PredicateExpressionNode.create(
+                            AndNode.create(
+                                ImmutableList.of(
+                                    PredicateExpressionNode.create(
+                                        LeafOperationExpressionNode.create(
+                                            oldOne.id,
+                                            Scalar.NUMBER,
+                                            Operator.EQUAL_TO,
+                                            PredicateValue.of(100))),
+                                    PredicateExpressionNode.create(
+                                        LeafOperationExpressionNode.create(
+                                            oldTwo.id,
+                                            Scalar.NUMBER,
+                                            Operator.GREATER_THAN,
+                                            PredicateValue.of(10))))))))),
             PredicateAction.SHOW_BLOCK);
 
     // Create a program that uses the old questions in blocks and block predicates.
@@ -377,6 +393,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(oldTwo)
             .withVisibilityPredicate(predicate)
+            .withEligibilityDefinition(
+                EligibilityDefinition.builder().setPredicate(predicate).build())
             .build();
     program.save();
 
@@ -402,9 +420,49 @@ public class VersionRepositoryTest extends ResetPostgres {
                 .visibilityPredicate()
                 .get()
                 .rootNode()
+                .getOrNode()
+                .children()
+                .stream()
+                .findFirst()
+                .get()
+                .getAndNode()
+                .children()
+                .stream()
+                .findFirst()
+                .get()
                 .getLeafOperationNode()
                 .questionId())
         .isEqualTo(newOne.id);
+    assertThat(
+            updated
+                .blockDefinitions()
+                .get(1)
+                .eligibilityDefinition()
+                .get()
+                .predicate()
+                .rootNode()
+                .getOrNode()
+                .children()
+                .stream()
+                .findFirst()
+                .get()
+                .getAndNode()
+                .children()
+                .stream()
+                .findFirst()
+                .get()
+                .getLeafOperationNode()
+                .questionId())
+        .isEqualTo(newOne.id);
+    assertThat(
+            updated
+                .blockDefinitions()
+                .get(1)
+                .eligibilityDefinition()
+                .get()
+                .predicate()
+                .predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.OR_OF_SINGLE_LAYER_ANDS);
   }
 
   @Test
