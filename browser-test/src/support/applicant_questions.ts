@@ -360,6 +360,14 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
 
+  async expectIneligibleQuestion(questionText: string) {
+    expect(await this.page.innerText('li')).toContain(questionText)
+  }
+
+  async expectIneligibleQuestionsCount(number: number) {
+    expect(await this.page.locator('li').count()).toEqual(number)
+  }
+
   async expectQuestionIsNotEligible(questionText: string) {
     const questionLocator = this.page.locator('.cf-applicant-summary-row', {
       has: this.page.locator(`:text("${questionText}")`),

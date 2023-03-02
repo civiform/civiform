@@ -643,7 +643,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getEligibilityQuestionsForProgram_returnsQuestionWithEligibilityPredicate() {
+  public void getIneligibleQuestionsForProgram_doesNotIncludeUnansweredQuestions() {
     // Create an eligibility condition with number question == 5.
     QuestionDefinition numberQuestionDefinition =
         testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
@@ -669,12 +669,95 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
 
-    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getActiveEligibilityQuestions();
+    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
-    // The number question should be in the list of eligibility questions.
+    // The number question should not be in the list of eligibility questions, since the question
+    // hasn't been answered.
+    assertThat(eligibilityQuestions).hasSize(0);
+  }
+
+  @Test
+  public void getIneligibleQuestionsForProgram_includesQuestionsWithIneligibleAnswers() {
+    // Create an eligibility condition with number question == 5.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    // Answer the question with ineligible answer
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
+        2);
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
+
+    // The number question should be in the list of eligibility questions, since the answer makes
+    // the applicant not eligible.
     assertThat(eligibilityQuestions).hasSize(1);
     assertThat(eligibilityQuestions.stream().findFirst().get().getQuestionDefinition())
         .isEqualTo(testQuestionBank.applicantJugglingNumber().getQuestionDefinition());
+  }
+
+  @Test
+  public void getIneligibleQuestionsForProgram_doesNotIncludeQuestionsWithEligibleAnswers() {
+    // Create an eligibility condition with number question == 5.
+    QuestionDefinition numberQuestionDefinition =
+        testQuestionBank.applicantJugglingNumber().getQuestionDefinition();
+    PredicateDefinition numberPredicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    numberQuestionDefinition.getId(),
+                    Scalar.NUMBER,
+                    Operator.EQUAL_TO,
+                    PredicateValue.of("5"))),
+            PredicateAction.SHOW_BLOCK);
+
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder().setPredicate(numberPredicate).build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("My Program")
+            .withBlock("Block one")
+            .withRequiredQuestionDefinition(numberQuestionDefinition)
+            .withEligibilityDefinition(eligibilityDefinition)
+            .buildDefinition();
+
+    // Answer the question with eligible answer
+    answerNameQuestion(programDefinition.id());
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        ApplicantData.APPLICANT_PATH.join(numberQuestionDefinition.getQuestionPathSegment()),
+        5);
+
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, FAKE_BASE_URL);
+
+    ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
+
+    // The number question should not be in the list of eligibility questions, since the answer
+    // makes the applicant eligible.
+    assertThat(eligibilityQuestions).hasSize(0);
   }
 
   @Test

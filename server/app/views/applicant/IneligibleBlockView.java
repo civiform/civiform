@@ -62,7 +62,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                 messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase());
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
-        .getActiveEligibilityQuestions()
+        .getIneligibleQuestions()
         .forEach(question -> listTag.with(li().withText(question.getQuestionText())));
 
     DivTag content =
