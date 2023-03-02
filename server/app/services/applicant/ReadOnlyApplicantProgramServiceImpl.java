@@ -167,7 +167,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         eligibilityQuestions.forEach(
             question -> {
               try {
-                questionList.add(block.getQuestion(question.longValue()));
+                ApplicantQuestion applicantQuestion = block.getQuestion(question.longValue());
+                if (applicantQuestion.isAnswered()
+                    && !isQuestionEligibleInBlock(block, applicantQuestion)) {
+                  questionList.add(applicantQuestion);
+                }
               } catch (QuestionNotFoundException e) {
                 throw new RuntimeException(e);
               }

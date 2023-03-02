@@ -943,6 +943,8 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerNameQuestion('hidden', 'next', 'screen')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('name question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
       await applicantQuestions.clickNext()
@@ -951,6 +953,8 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerTextQuestion('red')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('text question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
       await applicantQuestions.clickNext()
@@ -959,6 +963,8 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('number question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
       await applicantQuestions.clickNext()
@@ -967,6 +973,8 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerNumberQuestion('11111')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('number question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickNext()
@@ -975,6 +983,10 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerCurrencyQuestion('100.01')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion(
+        'currency question text',
+      )
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
       await applicantQuestions.clickNext()
@@ -983,6 +995,8 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerDateQuestion('2021-01-01')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('date question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2020-12-31')
       await applicantQuestions.clickNext()
@@ -991,6 +1005,8 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerDateQuestion('2022-12-31')
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('date question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2023-01-01')
       await applicantQuestions.clickNext()
@@ -999,6 +1015,10 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerCheckboxQuestion(['rabbit'])
       await applicantQuestions.clickNext()
       await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion(
+        'checkbox question text',
+      )
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
       await validateScreenshot(
         page,
         'ineligible-multiple-eligibility-questions',
