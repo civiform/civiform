@@ -157,7 +157,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
-  public ImmutableList<ApplicantQuestion> getActiveEligibilityQuestions() {
+  public ImmutableList<ApplicantQuestion> getIneligibleQuestions() {
     ImmutableList<Block> blocks = getAllActiveBlocks();
     List<ApplicantQuestion> questionList = new ArrayList<>();
     for (Block block : blocks) {
