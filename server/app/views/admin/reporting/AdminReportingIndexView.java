@@ -131,7 +131,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                 .map(
                     stat ->
                         tr(
-                            td(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get())),
+                            td(getDisplayMonth(stat)),
                             td(DECIMAL_FORMAT.format(stat.applicationCount())),
                             td(renderDurationWithTestStubbing(stat.submissionDurationSeconds25p())),
                             td(renderDurationWithTestStubbing(stat.submissionDurationSeconds50p())),
@@ -147,6 +147,14 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                 controllers.admin.routes.AdminReportingController.downloadCsv(
                         AdminReportingController.DataSetName.APPLICATION_COUNTS_BY_MONTH.toString())
                     .url()));
+  }
+
+  private String getDisplayMonth(ApplicationSubmissionsStat stat) {
+    if (useDeterministicStatsForBrowserTest) {
+      return "MM/YY";
+    }
+
+    return dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get());
   }
 
   public static final ImmutableList<ReportingTableHeader> APPLICATION_COUNTS_BY_PROGRAM_HEADERS =
