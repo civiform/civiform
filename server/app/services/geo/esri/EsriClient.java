@@ -256,6 +256,8 @@ public class EsriClient implements WSBodyReadables, WSBodyWritables {
     request.addQueryParameter("geometryType", "esriGeometryPoint");
     request.addQueryParameter("returnGeometry", "false");
     request.addQueryParameter("outFields", "*");
+    // "inSR" specifies the spatial reference for the service to use
+    request.addQueryParameter("inSR", location.getWellKnownId().toString());
     String geo = "{'x':";
     geo += location.getLongitude();
     geo += ",'y':";
