@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
@@ -236,6 +237,7 @@ describe('program creation', () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'esri_address_correction_enabled')
 
     await adminQuestions.addAddressQuestion({questionName: 'acd-address'})
 
