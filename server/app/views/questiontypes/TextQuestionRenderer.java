@@ -10,6 +10,9 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
 import views.components.FieldWithLabel;
 
+import static j2html.TagCreator.form;
+import static j2html.TagCreator.input;
+
 /** Renders a text question. */
 public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
@@ -28,21 +31,10 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {
     TextQuestion textQuestion = question.createTextQuestion();
-
-    FieldWithLabel textField =
-        FieldWithLabel.input()
-            .setFieldName(textQuestion.getTextPath().toString())
-            .setValue(textQuestion.getTextValue().orElse(""))
-            .setFieldErrors(
-                params.messages(),
-                validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))
-            .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionTextForScreenReader());
-
-    if (!validationErrors.isEmpty()) {
-      textField.forceAriaInvalid();
-    }
-
-    return textField.getInputTag();
+    DivTag phoneInput = new DivTag().with(input()
+                                  .withId(getReferenceClass())
+                                  .withType("text")
+                                  .withValue(textQuestion.getTextValue().orElse("")));
+    return phoneInput;
   }
 }

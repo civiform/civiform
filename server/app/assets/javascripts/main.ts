@@ -9,6 +9,40 @@
  */
 import {addEventListenerToElements, assertNotNull} from './util'
 
+import { AsYouType } from 'libphonenumber-js'
+import {format} from "libphonenumber-js/custom";
+
+function phoneFunction(elementId : string) {
+  let element = document.getElementById(elementId)
+  console.log("+++++++++++" + element)
+  console.log(elementId)
+  if(element) {
+    console.log("+++++++++++" + "in the if")
+    element.addEventListener('keydown',(e) => {
+      (element as HTMLInputElement).value = formatPhone((element as HTMLInputElement).value)
+    })
+  }
+}
+function formatPhone(value: string) {
+  console.log("####" +  value)
+  if(!value) return value;
+  console.log("+++++++++++" + "in the formatPhone ")
+  const phoneNumber = value.replace(/[^\d]/g,'');
+  const phoneNumberLength = phoneNumber.length;
+
+  if(phoneNumberLength<4) return phoneNumber
+
+  // if phoneNumberLength is greater than 4 and less the 7 we start to return
+  // the formatted number
+  if (phoneNumberLength < 7) {
+    return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
+  }
+
+  // finally, if the phoneNumberLength is greater then seven, we add the last
+  // bit of formatting and return it.
+  return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6  )}-${phoneNumber.slice(6, 9)}`;
+
+}
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
   const element = document.getElementById(elementId)
@@ -215,6 +249,7 @@ function disableEnterToSubmitBehaviorOnForms() {
 
 export function init() {
   attachDropdown('create-question-button')
+//  phoneFunction('cf-question-text')
   Array.from(document.querySelectorAll('.cf-with-dropdown')).forEach((el) => {
     attachDropdown(el.id)
   })

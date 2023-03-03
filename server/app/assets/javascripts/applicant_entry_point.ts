@@ -12,6 +12,7 @@ import * as modal from './modal'
 import * as fileUpload from './file_upload'
 import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
+import * as phone from './phone_number'
 
 window.addEventListener('load', () => {
   main.init()
@@ -23,4 +24,5 @@ window.addEventListener('load', () => {
   fileUpload.init()
   azureDelete.init()
   azureUpload.init()
+  phone.init()
 })
