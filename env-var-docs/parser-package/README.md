@@ -13,7 +13,7 @@ The parser.py module itself does not depend on any third-party packages and
 should be kept that way if possible. If a non-stdlib dependency is deemed
 critical, add it to [./pyproject.toml](./pyproject.toml) in
 `[project].dependencies`. Pinning an exact dependency version is encouraged to
-minimize reproducability issues.  For example:
+minimize reproducability issues. For example:
 
 ```
 [project]
