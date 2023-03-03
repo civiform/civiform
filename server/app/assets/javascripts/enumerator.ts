@@ -250,7 +250,7 @@ function repaintAllLabelsAndButtons() {
  * @param {number} index The index to add to the button and label
  */
 function addIndexToLabelAndButton(field: Element, index: number) {
-  const indexString = ` # ${index + 1}`
+  const indexString = ` #${index + 1}`
   const labelBaseText = assertNotNull(
     document.querySelector('div[data-label-text]'),
   ).getAttribute('data-label-text')
