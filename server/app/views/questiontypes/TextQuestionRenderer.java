@@ -4,14 +4,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptionTag;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.TextQuestion;
-import views.components.FieldWithLabel;
 
-import static j2html.TagCreator.form;
-import static j2html.TagCreator.input;
+import static j2html.TagCreator.*;
 
 /** Renders a text question. */
 public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
@@ -31,7 +30,16 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds) {
     TextQuestion textQuestion = question.createTextQuestion();
-    DivTag phoneInput = new DivTag().with(input()
+    OptionTag optionTagUS = option("US").withValue("US");
+    OptionTag optionTagCA = option("CA").withValue("CA");
+    OptionTag optionTagIN = option("IN").withValue("IN");
+
+    DivTag phoneInput = new DivTag().with(select()
+                                    .withId("cf-country-selector")
+                                    .with(optionTagCA)
+                                    .with(optionTagUS)
+        .with(optionTagIN))
+                                  .with(input()
                                   .withId(getReferenceClass())
                                   .withType("text")
                                   .withValue(textQuestion.getTextValue().orElse("")));
