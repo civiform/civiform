@@ -26,7 +26,7 @@ import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
 import services.DateConverter;
-import views.admin.reporting.AdminReportingIndexView;
+import views.admin.reporting.ReportingTableRenderer;
 
 /** A service responsible for logic related to collating and presenting reporting data. */
 public final class ReportingService {
@@ -72,13 +72,13 @@ public final class ReportingService {
             printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
             printer.print(stat.applicationCount());
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds25p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds50p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds50p()));
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds75p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds75p()));
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds99p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds99p()));
 
             printer.println();
           } catch (IOException e) {
@@ -97,13 +97,13 @@ public final class ReportingService {
             printer.print(stat.programName());
             printer.print(stat.applicationCount());
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds25p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds50p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds50p()));
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds75p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds75p()));
             printer.print(
-                AdminReportingIndexView.renderDuration(stat.submissionDurationSeconds99p()));
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds99p()));
 
             printer.println();
           } catch (IOException e) {
@@ -114,13 +114,13 @@ public final class ReportingService {
 
   private String buildCsv(
       ImmutableList<ApplicationSubmissionsStat> stats,
-      ImmutableList<AdminReportingIndexView.ReportingTableHeader> headers,
+      ImmutableList<ReportingTableRenderer.ReportingTableHeader> headers,
       BiConsumer<CSVPrinter, ApplicationSubmissionsStat> printFn) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
 
     String[] csvHeaders =
         headers.stream()
-            .map(AdminReportingIndexView.ReportingTableHeader::headerText)
+            .map(ReportingTableRenderer.ReportingTableHeader::headerText)
             .toArray(String[]::new);
 
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
@@ -144,6 +144,8 @@ public final class ReportingService {
         reportingRepository.loadThisMonthReportingData();
 
     return MonthlyStats.create(
+        Stream.concat(submissionsByProgramByMonth.stream(), submissionsThisMonth.stream())
+            .collect(ImmutableList.toImmutableList()),
         monthlySubmissionsAggregated(submissionsByProgramByMonth, submissionsThisMonth),
         totalSubmissionsByProgram(submissionsByProgramByMonth, submissionsThisMonth));
   }
@@ -200,16 +202,19 @@ public final class ReportingService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  /** Application stats in two groups: one grouped by program, one grouped by submission month. */
+  /** Application submission stats. */
   @AutoValue
   public abstract static class MonthlyStats {
 
     public static MonthlyStats create(
+        ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsByProgram,
         ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsAggregated,
         ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram) {
       return new AutoValue_ReportingService_MonthlyStats(
-          monthlySubmissionsAggregated, totalSubmissionsByProgram);
+          monthlySubmissionsByProgram, monthlySubmissionsAggregated, totalSubmissionsByProgram);
     }
+
+    public abstract ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsByProgram();
 
     public abstract ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsAggregated();
 
