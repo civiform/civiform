@@ -7,3 +7,9 @@ name = "env_var_docs"
 version = "1.0.0"
 readme = "README.md"
 requires-python = ">=3.10"
+
+[project.optional-dependencies]
+test = [
+    "mypy==1.0.1",
+    "pytest-cov==4.0.0"
+]

@@ -7,6 +7,26 @@ visiting nodes within an environment variable documentation file.
 
 See [../README.md#developer-setup](../README.md#developer-setup).
 
+### Python dependencies
+
+The parser.py module itself does not depend on any third-party packages and
+should be kept that way if possible. If a non-stdlib dependency is deemed
+critical, add it to [./pyproject.toml](./pyproject.toml) in
+`[project].dependencies`. Pinning an exact dependency version is encouraged to
+minimize reproducability issues.  For example:
+
+```
+[project]
+...
+dependencies = [
+    "PyYAML==6.0"
+]
+```
+
+We declare our developer dependencies in `[project.optional-dependencies]`. For
+example, dependencies needed to run tests are in
+`[project.optional-dependencies].test`.
+
 ### Environment variable documentation file format
 
 An environment variable documentation file contains key-value pairs. Each key

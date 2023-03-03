@@ -42,7 +42,6 @@ python3 -m venv env-var-docs/venv
 echo "Installing dependencies..."
 source env-var-docs/venv/bin/activate
 
-pip install pytest-cov mypy
-pip install -e env-var-docs/parser-package
+pip install -e 'env-var-docs/parser-package[test]'
 
 echo -e "\nIMPORTANT: To activate the virtual environment in your shell, you MUST run 'source env-var-docs/venv/bin/activate'. To deactivate the environment, run 'deactivate'."
