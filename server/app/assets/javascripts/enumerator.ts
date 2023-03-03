@@ -92,6 +92,7 @@ function removeEnumeratorField(event: Event) {
   ) as HTMLElement
   enumeratorFieldDiv.remove()
 
+  // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
 
   setFocusAfterEnumeratorRemoval()
@@ -131,6 +132,7 @@ function removeExistingEnumeratorField(event: Event) {
   // Add the hidden deleted entity input to the page.
   enumeratorFieldDiv.appendChild(deletedEntityInput)
 
+  // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
 
   setFocusAfterEnumeratorRemoval()
@@ -245,7 +247,7 @@ function repaintAllLabelsAndButtons() {
 
 /**
  * When enumerator entities are added or removed from the page we need to repaint
- * the label and button text for the remaining entities to add in the index
+ * the label and button text to update the index
  * @param {Element} field The element comtaining the button and label to be relabled
  * @param {number} index The index to add to the button and label
  */

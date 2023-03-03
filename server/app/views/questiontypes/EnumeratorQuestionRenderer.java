@@ -81,7 +81,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .with(
                 button()
                     .withId(ADD_ELEMENT_BUTTON_ID)
-                    // need to specify type "button" to avoid default on click browser behavior
+                    // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
