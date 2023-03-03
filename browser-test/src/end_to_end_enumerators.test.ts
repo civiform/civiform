@@ -221,15 +221,15 @@ describe('End to end enumerator test', () => {
     await validateScreenshot(page, 'enumerator-errors')
   })
 
-  it('Renders the correct indexes for labels and buttons', async() => {
+  it('Renders the correct indexes for labels and buttons', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English', true)
     await applicantQuestions.applyProgram(programName)
 
-      // Fill in name question
-     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
-     await applicantQuestions.clickNext()
+    // Fill in name question
+    await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+    await applicantQuestions.clickNext()
 
     // Put some things in the enumerator question, they should be numbered in order
     await applicantQuestions.addEnumeratorAnswer('Bugs')
