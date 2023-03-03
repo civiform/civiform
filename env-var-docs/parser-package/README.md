@@ -38,11 +38,13 @@ Variables have the following fields:
   escaped like \\" or \\\. If `regex` is defined, `values` can not be defined.
   If `regex` is defined, `regex_tests` must also be defined.
 - `regex_tests`: A list of objects. Each object contains a `val` field with a
-  string value and a `should_match` field with a boolean value. Tests reduce
-  the likelihood of typos or errors in `regex`. At a minimum, at least two
-  tests should be specified: one that matches the regular expression and one
-  that does not. Depending on the complexity of `regex`, many more tests should
-  be specified that test the corner-cases.
+  string value and a `should_match` field with a boolean value. This allows for
+  presubmit checks to test each `val` against `regex` and ensure `should_match`
+  is equal to the actual outcome. Tests reduce the likelihood of typos or
+  errors in `regex`. At a minimum, at least two tests should be specified: one
+  that matches the regular expression and one that does not. Depending on the
+  complexity of `regex`, many more tests should be specified that test the
+  corner-cases.
 
 The `description` and `type` fields must be defined for each variable.
 

@@ -29,8 +29,12 @@ class RegexTest:
 
     See parser-package/README.md for the expected JSON structure.
     """
+
     val: str
+    """Value to test regex on."""
+
     should_match: bool
+    """If the regex should match val."""
 
 
 @dataclasses.dataclass
