@@ -10,6 +10,7 @@ import * as toast from './toast'
 import * as adminApplicationView from './admin_application_view'
 import * as adminApplications from './admin_applications'
 import * as adminPredicates from './admin_predicate_configuration'
+import * as adminProgramBlockEdit from './admin_program_block_edit'
 import * as adminPrograms from './admin_programs'
 import * as adminValidation from './admin_validation'
 import * as devIcons from './dev_icons'
@@ -25,6 +26,7 @@ window.addEventListener('load', () => {
   adminApplicationView.init()
   adminApplications.init()
   adminPredicates.init()
+  adminProgramBlockEdit.init()
   adminPrograms.init()
   adminValidation.init()
   devIcons.init()
