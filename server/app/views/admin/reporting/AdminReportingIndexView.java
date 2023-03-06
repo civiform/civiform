@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.AdminReportingController;
 import j2html.tags.specialized.DivTag;
+import modules.MainModule;
 import play.twirl.api.Content;
 import services.DateConverter;
 import services.reporting.ApplicationSubmissionsStat;
@@ -18,6 +19,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
+import views.components.LinkElement;
 
 /** Summary view for reporting data. */
 public final class AdminReportingIndexView extends BaseHtmlView {
@@ -160,7 +162,14 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                 .map(
                     stat ->
                         tr(
-                            td(stat.programName()),
+                            td(
+                                new LinkElement()
+                                    .setText(stat.programName())
+                                    .setHref(
+                                        controllers.admin.routes.AdminReportingController.show(
+                                                MainModule.SLUGIFIER.slugify(stat.programName()))
+                                            .url())
+                                    .asAnchorText()),
                             td(
                                 ReportingTableRenderer.DECIMAL_FORMAT.format(
                                     stat.applicationCount())),
