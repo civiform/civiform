@@ -17,3 +17,10 @@ logs
 .bsp
 .ammonite
 sbt_cache
+
+.mypy_cache
+.pytest_cache
+env-var-docs/venv
+htmlcov
+coverage.yml
+.coverage

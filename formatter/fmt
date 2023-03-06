@@ -74,3 +74,12 @@ echo 'Start format shell'
 shfmt -bn -ci -i 2 -w -l \
   $(shfmt -f . | grep -v -e /node_modules)
 echo 'Done formatting shell'
+
+echo 'Start format env-var-docs python'
+yapf \
+  --verbose \
+  --style='{based_on_style: google, SPLIT_BEFORE_FIRST_ARGUMENT:true}' \
+  --in-place \
+  --recursive \
+  --exclude env-var-docs/venv \
+  env-var-docs
