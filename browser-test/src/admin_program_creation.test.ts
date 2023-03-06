@@ -2,7 +2,7 @@ import {
   createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
-  loginAsAdmin, validateAccessibility,
+  loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -42,11 +42,17 @@ describe('program creation', () => {
 
     await loginAsAdmin(page)
 
-    await adminQuestions.addAddressQuestion({questionName: 'address-w-admin-note', description:'this is a note'})
+    await adminQuestions.addAddressQuestion({
+      questionName: 'address-w-admin-note',
+      description: 'this is a note',
+    })
 
     const programName = 'search-program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.editProgramBlock(programName, 'search program description')
+    await adminPrograms.editProgramBlock(
+      programName,
+      'search program description',
+    )
 
     await adminPrograms.openQuestionBank()
 
@@ -60,7 +66,7 @@ describe('program creation', () => {
     await validateScreenshot(page, 'open-question-search')
   })
 
-    it('create program with enumerator and repeated questions', async () => {
+  it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
