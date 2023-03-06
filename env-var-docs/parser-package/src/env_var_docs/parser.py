@@ -52,35 +52,6 @@ class Variable:
 
 
 @dataclasses.dataclass
-class ParseError:
-    path: str
-    """The JSON path of the invalid object."""
-
-    msg: str
-    """"Why the object is invalid."""
-
-
-ParseErrors = list[ParseError]
-
-
-@dataclasses.dataclass
-class NodeParseError:
-    """As the environment variable documentation file is parsed, any invalid
-    structures are reported through ParseErrors. A ParseError means that
-    neither a Group nor a Variable was able to be parsed.
-    """
-
-    path: str
-    """The JSON path of the invalid object."""
-
-    group_errors: ParseErrors
-    """Errors from attempting to parse as a Group."""
-
-    variable_errors: ParseErrors
-    """Errors from attempting to parse as a Variable."""
-
-
-@dataclasses.dataclass
 class Node:
     """A node within an environment variable documentation file.
 
@@ -107,6 +78,39 @@ class Node:
 
 VisitFn = typing.Callable[[Node], None]
 """A function that takes a Node and does something with it."""
+
+
+@dataclasses.dataclass
+class ParseError:
+    """Invalid structures encountered while parsing the JSON structure are
+    reported through a ParseError.
+    """
+
+    path: str
+    """The JSON path of the invalid object."""
+
+    msg: str
+    """"Why the object is invalid."""
+
+
+ParseErrors = list[ParseError]
+
+
+@dataclasses.dataclass
+class NodeParseError:
+    """Invalid fields in the environment documentation file are reported
+    through a NodeParseError. A field is invalid if it can not be successfully
+    parsed as a Group or a Variable.
+    """
+
+    path: str
+    """The JSON path of the invalid object."""
+
+    group_errors: ParseErrors
+    """Errors from attempting to parse as a Group."""
+
+    variable_errors: ParseErrors
+    """Errors from attempting to parse as a Variable."""
 
 
 def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
@@ -167,44 +171,52 @@ def visit(file: typing.TextIO, visit_fn: VisitFn) -> list[NodeParseError]:
 def _recursively_parse(
         level: int, parent_path: str, key: str, value: UnparsedJSON,
         nodes_to_visit: list[Node], parsing_errors: list[NodeParseError]):
-    """Recursively visits a node and its children, in preorder traversal order (visit root then children)."""
+    """Recursively visits a node and its children, in preorder traversal order
+    (visit root then children).
+
+    It is valid for value to be either a Group or a Variable. If it
+    successfully parses as a Group, it is a Group, if it successfully parses as
+    a Variable, it is a Variable.
+    
+    If value does not parse as a Group nor a Variable, it is invalid.
+    """
     path = _path(parent_path, key)
 
-    # First, try to parse details as a Group.
-    group, group_errors = _parse_group(path, value)
+    group, group_errors = _try_parse_group(path, value)
     if len(group_errors) == 0:
+        # A Group was successfully parsed. Add the Group to the visit list then
+        # attempt to parse each field in its members.
+
         assert group is not None  # appease mypy
         nodes_to_visit.append(
             Node(level=level, json_path=parent_path, name=key, details=group))
 
-        # Recurse into group members.
         for sub_key, sub_value in group.members.items():
             _recursively_parse(
                 level + 1, path, sub_key, sub_value, nodes_to_visit,
                 parsing_errors)
         return
 
-    # details was not successfully parsed as a Group. Next, try to parse it as a Variable.
-    var, var_errors = _parse_variable(path, value)
+    var, var_errors = _try_parse_variable(path, value)
     if len(var_errors) == 0:
+        # A Variable was successfully parsed. Add the Variable to the visit list.
+
         assert var is not None  # appease mypy
         nodes_to_visit.append(
             Node(level=level, json_path=parent_path, name=key, details=var))
         return
 
-    # details is neither a group nor a variable.
+    # If we are here, neither a Group nor a Variable was successfully parsed.
+    # Append parsing errors.
     parsing_errors.append(NodeParseError(path, group_errors, var_errors))
 
 
-def _parse_group(parent_path: str,
-                 obj: UnparsedJSON) -> tuple[Group | None, ParseErrors]:
-    """Parses a Group from obj. If ParseErrors are encountered, None is returned."""
-
+def _try_parse_group(parent_path: str,
+                     obj: UnparsedJSON) -> tuple[Group | None, ParseErrors]:
+    """Attempts to parse a Group from obj. If ParseErrors are encountered, None is returned."""
     errors = []
-    errors.extend(
-        _ensure_no_extra_fields(
-            parent_path, obj, ["group_description", "members"]))
 
+    # Parse the 'group_description' field.
     group_description, errs = _parse_field(
         parent_path=parent_path,
         key="group_description",
@@ -213,6 +225,7 @@ def _parse_group(parent_path: str,
         obj=obj)
     errors.extend(errs)
 
+    # Parse the 'members' field.
     members, errs = _parse_field(
         parent_path=parent_path,
         key="members",
@@ -220,6 +233,11 @@ def _parse_group(parent_path: str,
         required=True,
         obj=obj)
     errors.extend(errs)
+
+    # Check that no other fields are defined.
+    errors.extend(
+        _ensure_no_extra_fields(
+            parent_path, obj, ["group_description", "members"]))
 
     if len(errors) != 0:
         return None, errors
@@ -230,18 +248,13 @@ def _parse_group(parent_path: str,
         return Group(group_description, members), []
 
 
-def _parse_variable(parent_path: str,
-                    obj: UnparsedJSON) -> tuple[Variable | None, ParseErrors]:
-    """Parses a Variable from obj. If ParseErrors are encountered, None is returned."""
-
+def _try_parse_variable(
+        parent_path: str,
+        obj: UnparsedJSON) -> tuple[Variable | None, ParseErrors]:
+    """Attempts to parse a Variable from obj. If ParseErrors are encountered, None is returned."""
     errors = []
-    errors.extend(
-        _ensure_no_extra_fields(
-            parent_path, obj, [
-                "description", "type", "required", "values", "regex",
-                "regex_tests"
-            ]))
 
+    # Parse the 'description' field.
     description, errs = _parse_field(
         parent_path=parent_path,
         key="description",
@@ -250,6 +263,7 @@ def _parse_variable(parent_path: str,
         obj=obj)
     errors.extend(errs)
 
+    # Parse the 'type' field.
     type, errs = _parse_field(
         parent_path=parent_path,
         key="type",
@@ -259,6 +273,7 @@ def _parse_variable(parent_path: str,
         checks=[_variable_check_type_is_valid])
     errors.extend(errs)
 
+    # Parse the 'required' field.
     required, errs = _parse_field(
         parent_path=parent_path,
         key="required",
@@ -268,6 +283,7 @@ def _parse_variable(parent_path: str,
         default=False)
     errors.extend(errs)
 
+    # Parse the 'values' field. Get out a list[str] instead of a JSON list.
     def convert_values(obj: UnparsedJSON) -> list[str]:
         out = []
         for v in obj["values"]:
@@ -287,6 +303,7 @@ def _parse_variable(parent_path: str,
         extract_fn=convert_values)
     errors.extend(errs)
 
+    # Parse the 'regex' field.
     regex, errs = _parse_field(
         parent_path=parent_path,
         key="regex",
@@ -299,6 +316,7 @@ def _parse_variable(parent_path: str,
         ])
     errors.extend(errs)
 
+    # Parse the 'regex_tests' field. Get out a list[RegexTest] instead of a JSON list.
     def convert_regex_tests(obj: UnparsedJSON) -> list[RegexTest]:
         out = []
         for test in obj["regex_tests"]:
@@ -315,6 +333,14 @@ def _parse_variable(parent_path: str,
         return_type=list[RegexTest],
         extract_fn=convert_regex_tests)
     errors.extend(errs)
+
+    # Check that no other fields are defined.
+    errors.extend(
+        _ensure_no_extra_fields(
+            parent_path, obj, [
+                "description", "type", "required", "values", "regex",
+                "regex_tests"
+            ]))
 
     if len(errors) != 0:
         return None, errors

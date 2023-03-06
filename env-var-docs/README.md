@@ -40,6 +40,15 @@ server is deployed.
 
 ## Developer setup
 
+### TL;DR
+
+1. Make code changes and add tests exercising the changes.
+1. Run `bin/fmt`.
+1. Run `bin/env-var-docs-create-venv`.
+1. Run `bin/env-var-docs-run-tests`.
+
+### Python dependencies
+
 To contribute to any of the python files in this directory, ensure you have a
 system installation of python version 3.10 or greater:
 
@@ -48,16 +57,24 @@ $ python3 --version
 ```
 
 We use [virtual python
-environments](https://docs.python.org/3/library/venv.html) (venv) to manage
-dependencies. A virtual environment isolates the available python packages to
-just those explicitly installed inside the virtual environment. Using a virtual
-environment decreases the chances that the env-var-docs python scripts rely on
-undeclared dependencies.
+environments](https://docs.python.org/3/library/venv.html) (venv) to install
+python dependencies rather than installing them in the system-wide packages.
+Because a venv is just a directory, it is easier and less risky to manage its
+lifecycle than the system-wide python installation. It also makes it less
+likely that developers run into package version conflicts. For example, say you
+had a project that requires PyGithub v1 and that version is installed in your
+system-wide packages. Say generate_markdown.py requires PyGithub v2. To run
+generate_markdown.py locally without a venv, you would need to upgrade the
+system-wide version to v2. But then your other project would fail to run. Using
+a venv allows us to install PyGithub v2 for generate_markdown.py while
+retaining PyGithub v1 in your system-wide packages.
 
 To set up a virtual environment with the required dependencies, run
-`bin/env-var-docs-create-venv` from the repository root. To activate the
-virtual environment in your shell, run `source env-var-docs/venv/bin/activate`.
-Re-running `bin/env-var-docs-create-venv` will delete and re-create the virtual
+`bin/env-var-docs-create-venv` from the repository root. This creates a venv in
+`env-var-docs/venv`. To make the `python` and `pip` executables in your shell
+point to the venv, run `source env-var-docs/venv/bin/activate`. To make them
+point back to your system-wide installation, run `deactivate`. Re-running
+`bin/env-var-docs-create-venv` will delete and re-create the virtual
 environment. Doing so is a good way to get back to a known good state.
 
 ### Tests
@@ -67,7 +84,8 @@ hints](https://docs.python.org/3/library/typing.html) and
 [pytest-cov](https://pypi.org/project/pytest-cov/) to ensure tests pass and to
 generate code coverage.
 
-Run `bin/env-var-docs-run-tests` to run these tests.
+Run `bin/env-var-docs-run-tests` to run these tests. You do not need to run
+`source env-var-docs/venv/bin/activate` for this script to run successfully.
 
 ### Formatting
 
