@@ -9,6 +9,8 @@ import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.PredicateAddressServiceAreaNodeExtractor;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -117,6 +119,38 @@ public abstract class BlockDefinition {
         .anyMatch(questionType -> questionType.equals(QuestionType.FILEUPLOAD));
   }
 
+  @JsonIgnore
+  @Memoized
+  public boolean hasAddress() {
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.ADDRESS));
+  }
+
+  /**
+   * Check if this block contains a question that is an address and that has address correction
+   * enabled
+   */
+  @JsonIgnore
+  public boolean hasAddressWithCorrectionEnabled() {
+    return hasAddress()
+        && programQuestionDefinitions().stream()
+            .anyMatch(ProgramQuestionDefinition::addressCorrectionEnabled);
+  }
+
+  /**
+   * Check if block already contains a question with address correction enabled, ignoring the given
+   * question ID that you are trying to enable it on.
+   */
+  @JsonIgnore
+  public boolean hasAddressCorrectionEnabledOnDifferentQuestion(long questionDefinitionId) {
+    return programQuestionDefinitions().stream()
+        .anyMatch(
+            question ->
+                question.addressCorrectionEnabled() && question.id() != questionDefinitionId);
+  }
+
   /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
@@ -131,6 +165,37 @@ public abstract class BlockDefinition {
   @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("eligibilityDefinition")
   public abstract Optional<EligibilityDefinition> eligibilityDefinition();
+
+  /**
+   * True if the block has an eligibility or visibility predicate containing one or more {@link
+   * LeafAddressServiceAreaExpressionNode}.
+   */
+  @JsonIgnore
+  @Memoized
+  public boolean hasAddressServiceAreaPredicateNodes() {
+    return !getAddressServiceAreaPredicateNodes().isEmpty();
+  }
+
+  /**
+   * Returns all {@link LeafAddressServiceAreaExpressionNode}s in the block's eligibility and
+   * visibility predicates.
+   */
+  @JsonIgnore
+  @Memoized
+  public ImmutableList<LeafAddressServiceAreaExpressionNode> getAddressServiceAreaPredicateNodes() {
+    ImmutableList.Builder<LeafAddressServiceAreaExpressionNode> result = ImmutableList.builder();
+
+    eligibilityDefinition()
+        .map(EligibilityDefinition::predicate)
+        .map(PredicateAddressServiceAreaNodeExtractor::extract)
+        .ifPresent(result::addAll);
+
+    visibilityPredicate()
+        .map(PredicateAddressServiceAreaNodeExtractor::extract)
+        .ifPresent(result::addAll);
+
+    return result.build();
+  }
 
   /**
    * A {@link PredicateDefinition} that determines whether this is optional or required.

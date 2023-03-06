@@ -15,9 +15,12 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
+import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -59,13 +62,22 @@ import views.style.StyleUtils;
 public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final FeatureFlags featureFlags;
+  private final ProfileUtils profileUtils;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final ZoneId zoneId;
 
   @Inject
-  public ProgramIndexView(ApplicantLayout layout, Config config, ZoneId zoneId) {
+  public ProgramIndexView(
+      ApplicantLayout layout,
+      Config config,
+      ZoneId zoneId,
+      FeatureFlags featureFlags,
+      ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
+    this.featureFlags = checkNotNull(featureFlags);
+    this.profileUtils = checkNotNull(profileUtils);
     this.maybeLogoUrl =
         checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
             ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
@@ -99,7 +111,8 @@ public final class ProgramIndexView extends BaseHtmlView {
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
             messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
-        mainContent(messages, applicationPrograms, applicantId, messages.lang().toLocale()));
+        mainContent(
+            request, messages, applicationPrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
@@ -146,6 +159,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private DivTag mainContent(
+      Http.Request request,
       Messages messages,
       ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
@@ -169,6 +183,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (!relevantPrograms.inProgress().isEmpty()) {
       content.with(
           programCardsSection(
+              request,
               messages,
               MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED,
               cardContainerStyles,
@@ -176,13 +191,12 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
-              // TODO(#3577): Once button.continueSr translations are available, switch to using
-              // those.
-              MessageKey.BUTTON_APPLY_SR));
+              MessageKey.BUTTON_CONTINUE_SR));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
           programCardsSection(
+              request,
               messages,
               MessageKey.TITLE_PROGRAMS_SUBMITTED,
               cardContainerStyles,
@@ -190,13 +204,12 @@ public final class ProgramIndexView extends BaseHtmlView {
               preferredLocale,
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
-              // TODO(#3577): Once button.editSr translations are available, switch to using
-              // those.
-              MessageKey.BUTTON_APPLY_SR));
+              MessageKey.BUTTON_EDIT_SR));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
           programCardsSection(
+              request,
               messages,
               MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED,
               cardContainerStyles,
@@ -225,6 +238,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private DivTag programCardsSection(
+      Http.Request request,
       Messages messages,
       MessageKey sectionTitle,
       String cardContainerStyles,
@@ -248,6 +262,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         cards,
                         (card) ->
                             programCard(
+                                request,
                                 messages,
                                 card,
                                 applicantId,
@@ -257,6 +272,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private LiTag programCard(
+      Http.Request request,
       Messages messages,
       ApplicantService.ApplicantProgramData cardData,
       Long applicantId,
@@ -264,6 +280,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       MessageKey buttonTitle,
       MessageKey buttonSrText) {
     ProgramDefinition program = cardData.program();
+
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
     H4Tag title =
@@ -289,18 +306,26 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardApplicationStatus(
               preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
+    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+        && cardData.isProgramMaybeEligible().isPresent()) {
+      programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
+    }
     programData.with(title, description);
-
-    // Add info link.
-    String infoUrl =
-        controllers.applicant.routes.ApplicantProgramsController.view(applicantId, program.id())
-            .url();
+    // Use external link if it is present else use the default Program details page
+    String programDetailsLink =
+        program.externalLink().isEmpty()
+            ? controllers.applicant.routes.ApplicantProgramsController.view(
+                    applicantId, program.id())
+                .url()
+            : program.externalLink();
     ATag infoLink =
         new LinkElement()
             .setId(baseId + "-info-link")
             .setStyles("mb-2", "text-sm", "underline")
             .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()))
-            .setHref(infoUrl)
+            .setHref(programDetailsLink)
+            .opensInNewTab()
+            .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()
             .attr(
                 "aria-label",
@@ -308,24 +333,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                     MessageKey.LINK_PROGRAM_DETAILS_SR.getKeyName(),
                     program.localizedName().getOrDefault(preferredLocale)));
     programData.with(div(infoLink));
-
-    // Add external link if it is set.
-    if (!program.externalLink().isEmpty()) {
-      ATag externalLink =
-          new LinkElement()
-              .setId(baseId + "-external-link")
-              .setStyles("mb-2", "text-sm", "underline")
-              .setText(messages.at(MessageKey.EXTERNAL_LINK.getKeyName()))
-              .setHref(program.externalLink())
-              .opensInNewTab()
-              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-              .asAnchorText()
-              .attr(
-                  "aria-label",
-                  messages.at(MessageKey.EXTERNAL_LINK_OPENS_IN_NEW_TAB.getKeyName()));
-
-      programData.with(div(externalLink));
-    }
 
     if (cardData.latestSubmittedApplicationTime().isPresent()) {
       programData.with(
@@ -366,6 +373,38 @@ public final class ProgramIndexView extends BaseHtmlView {
         .with(
             span(status.localizedStatusText().getOrDefault(preferredLocale))
                 .withClasses("text-xs", "font-medium"));
+  }
+
+  private PTag eligibilityTag(Http.Request request, Messages messages, boolean isEligible) {
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+    MessageKey mayQualifyMessage =
+        isTrustedIntermediary ? MessageKey.TAG_MAY_QUALIFY_TI : MessageKey.TAG_MAY_QUALIFY;
+    MessageKey mayNotQualifyMessage =
+        isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
+    Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
+    String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
+    String tagClass =
+        isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
+    String tagText =
+        isEligible ? mayQualifyMessage.getKeyName() : mayNotQualifyMessage.getKeyName();
+    return p().withClasses(
+            tagClass,
+            "border",
+            "rounded-full",
+            "px-2",
+            "py-1",
+            "mb-4",
+            "gap-x-2",
+            "inline-block",
+            "w-auto",
+            color)
+        .with(
+            Icons.svg(icon)
+                .withClasses("inline-block")
+                // Can't set 18px using Tailwind CSS classes.
+                .withStyle("width: 18px; height: 18px;"),
+            span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium"));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {

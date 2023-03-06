@@ -1,14 +1,19 @@
 package services.applicant.predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.applicant.ApplicantData;
 import services.applicant.exception.InvalidPredicateException;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateExpressionNode;
 
 /** Evaluates complex predicates based on the given {@link ApplicantData}. */
 public final class PredicateEvaluator {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PredicateEvaluator.class);
 
   private final ApplicantData applicantData;
   private final JsonPathPredicateGenerator predicateGenerator;
@@ -27,7 +32,9 @@ public final class PredicateEvaluator {
   public boolean evaluate(PredicateExpressionNode node) {
     switch (node.getType()) {
       case LEAF_OPERATION:
-        return evaluateLeafNode(node.getLeafNode());
+        return evaluateLeafNode(node.getLeafOperationNode());
+      case LEAF_ADDRESS_SERVICE_AREA:
+        return evaluateLeafAddressServiceAreaNode(node.getLeafAddressNode());
       case AND:
         return evaluateAndNode(node.getAndNode());
       case OR:
@@ -47,6 +54,28 @@ public final class PredicateEvaluator {
       JsonPathPredicate predicate = predicateGenerator.fromLeafNode(node);
       return applicantData.evalPredicate(predicate);
     } catch (InvalidPredicateException e) {
+      LOGGER.error(
+          "InvalidPredicateException when evaluating LeafOperationExpressionNode {}: {}",
+          node,
+          e.getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * Returns true if and only if the answer for the address question referenced by the {@link
+   * LeafAddressServiceAreaExpressionNode} has an in-area or failed service area in {@link
+   * ApplicantData}.
+   */
+  private boolean evaluateLeafAddressServiceAreaNode(LeafAddressServiceAreaExpressionNode node) {
+    try {
+      JsonPathPredicate predicate = predicateGenerator.fromLeafAddressServiceAreaNode(node);
+      return applicantData.evalPredicate(predicate);
+    } catch (InvalidPredicateException e) {
+      LOGGER.error(
+          "InvalidPredicateException when evaluating LeafAddressServiceAreaExpressionNode {}: {}",
+          node,
+          e.getMessage());
       return false;
     }
   }

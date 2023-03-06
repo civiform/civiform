@@ -16,6 +16,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
+import services.program.ProgramType;
 import support.CfTestHelpers;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
@@ -91,10 +92,16 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
     Program program = createProgram("Program");
+    // If the applicant already has an application to a different version of
+    // the same program, that version should be used.
+    Program programV2 = createProgram("Program");
+
+    assertThat(program.id).isNotEqualTo(programV2.id);
+
     Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
     Application appDraft2 =
-        repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
+        repo.createOrUpdateDraft(applicant, programV2).toCompletableFuture().join();
 
     assertThat(appDraft1.id).isEqualTo(appDraft2.id);
     // Since this is a draft application, it shouldn't have a submit time set.
@@ -324,9 +331,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
             name,
             "desc",
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            draftVersion);
+            draftVersion,
+            ProgramType.DEFAULT);
     program.save();
     return program;
   }

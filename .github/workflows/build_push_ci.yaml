@@ -86,18 +86,22 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - id: file_changes
-        uses: trilom/file-changes-action@v1.2.4
+        uses: tj-actions/changed-files@v35
+        with:
+          json: 'true'
         if: ${{ github.event_name != 'workflow_dispatch' }}
 
       - name: Check build & push
         id: check_build
         if: >
           ${{ (github.event_name == 'workflow_dispatch') ||
-            contains(toJSON(steps.file_changes.outputs.files), matrix.file_pattern) ||
-            contains(toJSON(steps.file_changes.outputs.files), matrix.script) ||
-            contains(toJSON(steps.file_changes.outputs.files), '.github') }}
+            contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.file_pattern) ||
+            contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.script) ||
+            contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github') }}
         run: echo "Build & push ${{ matrix.image }} due to event ${{github.event_name}}" && echo "build=build" >> $GITHUB_OUTPUT
 
       - name: Skip build & push

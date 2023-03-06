@@ -55,6 +55,17 @@ public final class ApplicantStyles {
           "flex-col",
           "gap-4");
 
+  public static final String PROGRAM_INFORMATION_BOX =
+      StyleUtils.joinStyles(
+          "border",
+          "border-gray-200",
+          "rounded-2xl",
+          "shadow-md",
+          "bg-white",
+          "p-4",
+          StyleUtils.responsiveSmall("p-6"),
+          "my-6");
+
   public static final String QUESTION_TEXT =
       StyleUtils.joinStyles("text-black", "text-xl", "font-bold", "mb-2");
   public static final String QUESTION_HELP_TEXT = StyleUtils.joinStyles("text-black", "text-xl");

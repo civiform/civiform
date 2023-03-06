@@ -9,7 +9,12 @@ describe('Managing API keys', () => {
 
     const programName = 'Api using program'
     const programDescription = 'This program uses the API.'
-    await adminPrograms.addProgram(programName, programDescription, '', false)
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      false,
+    )
     await adminPrograms.publishAllPrograms()
     await adminApiKeys.gotoNewApiKeyPage()
     await validateScreenshot(page, 'new-api-key-page')

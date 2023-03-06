@@ -7,6 +7,8 @@ import {
   logout,
   selectApplicantLanguage,
   testUserDisplayName,
+  waitForPageJsLoad,
+  validateScreenshot,
 } from './support'
 
 describe('Program admin review of submitted applications', () => {
@@ -241,6 +243,14 @@ describe('Program admin review of submitted applications', () => {
       'favorite-trees-q',
       'pine; cherry',
     )
+    // Expect CF logo to route ProgramAdmins back to their homepage
+    await page.click('text=CF')
+    await waitForPageJsLoad(page)
+
+    await validateScreenshot(page, 'applications-page')
+
+    await page.click('text=Reporting')
+    await validateScreenshot(page, 'reporting-page')
   })
 
   it('program applications listed most recent first', async () => {

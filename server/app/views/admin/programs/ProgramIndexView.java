@@ -54,22 +54,22 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
   private final String civicEntityShortName;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
+      FeatureFlags featureFlags,
       TranslationLocales translationLocales,
-      ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -123,8 +123,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                                             programs.getDraftProgramDefinition(name),
                                             request,
                                             profile))
-                                .sorted(ProgramCardFactory.lastModifiedTimeThenNameComparator())
-                                .map(programCardFactory::renderCard))));
+                                .sorted(
+                                    ProgramCardFactory
+                                        .programTypeThenLastModifiedThenNameComparator())
+                                .map(
+                                    cardData ->
+                                        programCardFactory.renderCard(request, cardData)))));
 
     HtmlBundle htmlBundle =
         layout
@@ -316,8 +320,10 @@ public final class ProgramIndexView extends BaseHtmlView {
       if (maybeManageTranslationsLink.isPresent()) {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
-      if (featureFlags.isStatusTrackingEnabled(request)) {
-        draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
+      if (maybeSettingsLink.isPresent()) {
+        draftRowExtraActions.add(maybeSettingsLink.get());
       }
       draftRow =
           Optional.of(
@@ -331,12 +337,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (activeProgram.isPresent()) {
       List<ButtonTag> activeRowActions = Lists.newArrayList();
       List<ButtonTag> activeRowExtraActions = Lists.newArrayList();
+
       Optional<ButtonTag> applicationsLink =
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+          activeRowExtraActions.add(
+              renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        } else {
+          activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
+        }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
+      }
+      if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+        activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRow =
@@ -379,6 +394,18 @@ public final class ProgramIndexView extends BaseHtmlView {
     return isActive
         ? toLinkButtonForPost(button, editLink, request)
         : asRedirectElement(button, editLink);
+  }
+
+  ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
+    String viewLink =
+        controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id()).url();
+    String viewLinkId = "program-view-link-" + program.id();
+
+    ButtonTag button =
+        makeSvgTextButton("View", Icons.VIEW)
+            .withId(viewLinkId)
+            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return asRedirectElement(button, viewLink);
   }
 
   private Optional<ButtonTag> renderManageTranslationsLink(ProgramDefinition program) {
@@ -446,5 +473,19 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId("manage-program-admin-link-" + program.id())
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectElement(button, adminLink);
+  }
+
+  private Optional<ButtonTag> maybeRenderSettingsLink(
+      Http.Request request, ProgramDefinition program) {
+    if (!(featureFlags.isProgramEligibilityConditionsEnabled(request)
+        && featureFlags.isNongatedEligibilityEnabled(request))) {
+      return Optional.empty();
+    }
+    String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();
+    ButtonTag button =
+        makeSvgTextButton("Settings", Icons.SETTINGS)
+            .withId("edit-settings-link-" + program.id())
+            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+    return Optional.of(asRedirectElement(button, linkDestination));
   }
 }

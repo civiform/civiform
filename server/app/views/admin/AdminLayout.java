@@ -8,10 +8,12 @@ import static j2html.TagCreator.span;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import featureflags.FeatureFlags;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
@@ -32,6 +34,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     PROGRAMS,
     QUESTIONS,
     INTERMEDIARIES,
+    REPORTING,
     API_KEYS
   }
 
@@ -40,8 +43,12 @@ public final class AdminLayout extends BaseHtmlLayout {
   private AdminType primaryAdminType = AdminType.CIVI_FORM_ADMIN;
 
   AdminLayout(
-      ViewUtils viewUtils, Config configuration, NavPage activeNavPage, FeatureFlags featureFlags) {
-    super(viewUtils, configuration, featureFlags);
+      ViewUtils viewUtils,
+      Config configuration,
+      NavPage activeNavPage,
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
+    super(viewUtils, configuration, featureFlags, deploymentType);
     this.activeNavPage = activeNavPage;
   }
 
@@ -84,8 +91,11 @@ public final class AdminLayout extends BaseHtmlLayout {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
-        div(span("C"), span("F").withClasses("font-thin"))
-            .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO);
+        div(
+            a().withHref(controllers.routes.HomeController.index().url())
+                .with(
+                    div(span("C"), span("F").withClasses("font-thin"))
+                        .withClasses(AdminStyles.ADMIN_NAV_BAR_LOGO)));
     DivTag headerTitle =
         div()
             .withClasses("font-normal", "text-xl", "inline", "pl-10", "py-0", "mr-4")
@@ -93,15 +103,11 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     NavTag adminHeader = nav().with(headerIcon, headerTitle).withClasses(AdminStyles.NAV_STYLES);
 
-    // Don't include nav links for program admin.
-    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
-      return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
-    }
-
-    String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
+    String programLink = controllers.admin.routes.AdminProgramController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
+    String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
 
     String activeNavStyle =
         StyleUtils.joinStyles(
@@ -110,24 +116,51 @@ public final class AdminLayout extends BaseHtmlLayout {
             "border-b-2",
             BaseStyles.BORDER_SEATTLE_BLUE);
 
-    return adminHeader
-        .with(
-            headerLink(
-                "Programs", programLink, activeNavPage == NavPage.PROGRAMS ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "Questions",
-                questionLink,
-                activeNavPage == NavPage.QUESTIONS ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "Intermediaries",
-                intermediaryLink,
-                activeNavPage == NavPage.INTERMEDIARIES ? activeNavStyle : ""))
-        .with(
-            headerLink(
-                "API keys", apiKeysLink, activeNavPage == NavPage.API_KEYS ? activeNavStyle : ""))
-        .with(headerLink("Logout", logoutLink, "float-right"));
+    DomContent reportingHeaderLink =
+        headerLink(
+            "Reporting",
+            reportingLink,
+            NavPage.REPORTING.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag programsHeaderLink =
+        headerLink(
+            "Programs", programLink, NavPage.PROGRAMS.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag questionsHeaderLink =
+        headerLink(
+            "Questions",
+            questionLink,
+            NavPage.QUESTIONS.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag intermediariesHeaderLink =
+        headerLink(
+            "Intermediaries",
+            intermediaryLink,
+            NavPage.INTERMEDIARIES.equals(activeNavPage) ? activeNavStyle : "");
+
+    ATag apiKeysHeaderLink =
+        headerLink(
+            "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
+
+    // Once feature flag is removed for reporting the program admin nav will include
+    // links for programs and reporting.
+    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)
+        && !getFeatureFlags().isAdminReportingUiEnabled()) {
+      return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
+    }
+
+    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
+      adminHeader.with(programsHeaderLink).with(reportingHeaderLink);
+    } else {
+      adminHeader
+          .with(programsHeaderLink)
+          .with(questionsHeaderLink)
+          .with(intermediariesHeaderLink)
+          .with(apiKeysHeaderLink)
+          .with(getFeatureFlags().isAdminReportingUiEnabled() ? reportingHeaderLink : null);
+    }
+
+    return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
   }
 
   private ATag headerLink(String text, String href, String... styles) {

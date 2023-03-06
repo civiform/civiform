@@ -14,6 +14,7 @@ public final class Models {
           Applicant.class,
           Application.class,
           ApplicationEvent.class,
+          PersistedDurableJob.class,
           Program.class,
           Question.class,
           StoredFile.class,

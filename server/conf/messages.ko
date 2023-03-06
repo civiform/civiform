@@ -48,6 +48,9 @@ content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# Title of the login page.
+title.login=로그인
+
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt={0} 계정으로 로그인하세요.
 
@@ -144,12 +147,6 @@ link.programDetails=프로그램 세부정보
 # The same text, read for screen readers.
 link.programDetailsSr={0}의 프로그램 세부정보
 
-# Link text to an external site to read more about a program.
-link.externalLink=외부 사이트
-
-# Screen reader text for open-in-new icon indicating that the link opens in a new tab.
-link.externalLinkOpensInNewTab=새 탭에서 열기
-
 # The title of the page for the list of programs.
 title.programs=프로그램 및 서비스
 
@@ -178,9 +175,21 @@ button.submit=제출
 # Continue application button
 button.continue=계속
 
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=제출을 위해 확인 필요
+
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=자격요건을 충족하지 않음
+
 # The text that appears next to an answered question that the applicant can click on to modify the response.
 link.edit=편집
 link.answer=답변
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn={0}에 답변됨
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -192,6 +201,64 @@ ariaLabel.answer={0}에 답변
 
 # Program Summary Title
 title.programSummary=프로그램 신청 요약
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다.
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
+title.applicantNotEligibleTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다.
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=돌아가서 수정
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=자격요건을 충족할 수 있음
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client's behalf.
+tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=현재 {0}에 대한 귀하의 자격을 확인할 수 없습니다.
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client's behalf.
+title.cannotCheckEligibilityTi=현재 {0}에 대한 클라이언트의 자격을 확인할 수 없습니다.
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=이 문제를 신속히 해결하기 위해 노력하는 중입니다. 잠시 후 다시 시도해 주세요.
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=모든 프로그램 보기
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client's behalf.
+toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
 
 #---------------------------------------------------------------------------------------------#
 # APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
@@ -214,18 +281,12 @@ content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며
 #----------------------------------------------------------#
 
 # Address question labels - these are shown as the field label before an input box.
-label.addressLine2=단위/아파트 번호
+label.addressLine2=아파트 등(선택사항)
 label.city=시/군/구
 label.state=주/도
-label.street=상세 주소 1
+label.selectState=주 선택
+label.street=주소
 label.zipcode=우편번호
-
-# Question placeholders - these are shown in the text input boxes, before a user enters an answer.
-placeholder.city=시/군/구
-placeholder.line2=아파트, 빌딩, 호, 층 등
-placeholder.state=시/도
-placeholder.street=상세 주소
-placeholder.zipcode=우편번호
 
 # Validation errors that are shown when a user enters an invalid address.
 validation.streetRequired=유효한 도로명과 번호를 입력하세요.
@@ -234,6 +295,36 @@ validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 
 validation.stateRequired=시/도를 입력하세요.
 validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
 validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=주소 확인
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=입력된 주소:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName=입력된 {0}:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=추천 주소:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=추천 주소:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=주소 수정
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=저장 및 확인
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=유효한 주소를 찾을 수 없습니다
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
 
 #----------------------------------------------------------------------------------------------------------#
 # DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
@@ -276,6 +367,9 @@ placeholder.entityName={0} 이름
 
 # Validation error that shows when an applicant does not select a file to upload
 validation.fileRequired=파일을 선택하세요.
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=파일 선택
 
 #---------------------------------------------------------------------#
 # ID QUESTION - id specific to filling out a question. #

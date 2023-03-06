@@ -2,6 +2,8 @@ package services.applicant;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import services.LocalizedStrings;
+import services.applicant.question.ApplicantQuestion;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
@@ -11,6 +13,15 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Returns the program title, localized to the applicant's preferred locale. */
   String getProgramTitle();
+
+  /** Returns the ID of the program. */
+  Long getProgramId();
+
+  /**
+   * Returns a custom message for the confirmation screen that renders after an applicant submits an
+   * application. If a custom message is not set, returns an empty string.
+   */
+  LocalizedStrings getCustomConfirmationMessage();
 
   /**
    * Get the {@link Block}s for this program and applicant. This includes all blocks an applicant
@@ -44,6 +55,12 @@ public interface ReadOnlyApplicantProgramService {
    */
   int getActiveAndCompletedInProgramBlockCount();
 
+  /**
+   * Get a list of questions that the applicant is currently not eligible for based on their answers
+   * from active blocks in the program.
+   */
+  ImmutableList<ApplicantQuestion> getIneligibleQuestions();
+
   /** Get the block with the given block ID */
   Optional<Block> getBlock(String blockId);
 
@@ -59,7 +76,7 @@ public interface ReadOnlyApplicantProgramService {
    * Get the program block with the lowest index that has missing answer data if there is one.
    * Static questions are marked as incomplete.
    */
-  Optional<Block> getFirstIncompleteBlock();
+  Optional<Block> getFirstIncompleteOrStaticBlock();
 
   /**
    * Get the program block with the lowest index that has missing answer data if there is one.
@@ -72,6 +89,18 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Get the string identifiers for all stored files for this application. */
   ImmutableList<String> getStoredFileKeys();
+
+  /**
+   * Returns if all Program eligibility criteria are met. This will return false in some cases where
+   * the eligibility questions haven't yet been answered.
+   */
+  boolean isApplicationEligible();
+
+  /**
+   * True if any of the answered questions in the program are not eligible, even if the application
+   * hasn't yet been completed.
+   */
+  boolean isApplicationNotEligible();
 
   /** Returns if the block eligibility criteria are met. */
   boolean isBlockEligible(String blockId);

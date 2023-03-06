@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -40,13 +40,25 @@ import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.Address;
+import services.DeploymentType;
 import services.Path;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.cloud.aws.SimpleEmail;
+import services.geo.AddressLocation;
+import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
+import services.geo.CorrectedAddressState;
+import services.geo.ServiceAreaInclusionGroup;
+import services.geo.esri.EsriClient;
+import services.geo.esri.EsriClientRequestException;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -54,6 +66,7 @@ import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.ScalarType;
+import views.applicant.AddressCorrectionBlockView;
 
 /**
  * The service responsible for accessing the Applicant resource. Applicants can view program
@@ -78,6 +91,8 @@ public final class ApplicantService {
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
+  private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
+  private final EsriClient esriClient;
 
   @Inject
   public ApplicantService(
@@ -89,7 +104,10 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext) {
+      HttpExecutionContext httpExecutionContext,
+      DeploymentType deploymentType,
+      ServiceAreaUpdateResolver serviceAreaUpdateResolver,
+      EsriClient esriClient) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
@@ -98,16 +116,17 @@ public final class ApplicantService {
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
 
-    String stagingHostname = checkNotNull(configuration).getString("staging_hostname");
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.isStaging = URI.create(baseUrl).getHost().equals(stagingHostname);
+    this.isStaging = checkNotNull(deploymentType).isStaging();
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
         checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
+    this.esriClient = checkNotNull(esriClient);
   }
 
   /** Create a new {@link Applicant}. */
@@ -164,6 +183,12 @@ public final class ApplicantService {
         application.getApplicantData(), programDefinition, baseUrl);
   }
 
+  /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
+  private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
+      ApplicantData applicantData, ProgramDefinition programDefinition) {
+    return new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, baseUrl);
+  }
+
   /**
    * Attempt to perform a set of updates to the applicant's {@link ApplicantData}. If updates are
    * valid, they are saved to storage. If not, a set of errors are returned along with the modified
@@ -191,7 +216,11 @@ public final class ApplicantService {
    *     </ul>
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableMap<String, String> updateMap) {
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      boolean addressServiceAreaValidationEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -208,11 +237,17 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
-    return stageAndUpdateIfValid(applicantId, programId, blockId, updates);
+    return stageAndUpdateIfValid(
+        applicantId, programId, blockId, updateMap, updates, addressServiceAreaValidationEnabled);
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
-      long applicantId, long programId, String blockId, ImmutableSet<Update> updates) {
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      ImmutableSet<Update> updates,
+      boolean addressServiceAreaValidationEnabled) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -241,30 +276,30 @@ public final class ApplicantService {
               }
               Block blockBeforeUpdate = maybeBlockBeforeUpdate.get();
 
-              UpdateMetadata updateMetadata = UpdateMetadata.create(programId, clock.millis());
-              ImmutableMap<Path, String> failedUpdates;
-              try {
-                failedUpdates =
-                    stageUpdates(
-                        applicant.getApplicantData(), blockBeforeUpdate, updateMetadata, updates);
-              } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
-                return CompletableFuture.failedFuture(e);
-              }
-
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
-
-              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
-              if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-                return userRepository
-                    .updateApplicant(applicant)
-                    .thenApplyAsync(
-                        (finishedSaving) -> roApplicantProgramService,
+              if (addressServiceAreaValidationEnabled
+                  && blockBeforeUpdate.getLeafAddressNodeServiceAreaIds().isPresent()) {
+                return serviceAreaUpdateResolver
+                    .getServiceAreaUpdate(blockBeforeUpdate, updateMap)
+                    .thenComposeAsync(
+                        (serviceAreaUpdate) -> {
+                          return stageAndUpdateIfValid(
+                              applicant,
+                              baseUrl,
+                              blockBeforeUpdate,
+                              programDefinition,
+                              updates,
+                              serviceAreaUpdate);
+                        },
                         httpExecutionContext.current());
               }
 
-              return CompletableFuture.completedFuture(roApplicantProgramService);
+              return stageAndUpdateIfValid(
+                  applicant,
+                  baseUrl,
+                  blockBeforeUpdate,
+                  programDefinition,
+                  updates,
+                  Optional.empty());
             },
             httpExecutionContext.current())
         .thenCompose(
@@ -272,6 +307,42 @@ public final class ApplicantService {
                 applicationRepository
                     .createOrUpdateDraft(applicantId, programId)
                     .thenApplyAsync(appDraft -> v));
+  }
+
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+      Applicant applicant,
+      String baseUrl,
+      Block blockBeforeUpdate,
+      ProgramDefinition programDefinition,
+      ImmutableSet<Update> updates,
+      Optional<ServiceAreaUpdate> serviceAreaUpdate) {
+    UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
+    ImmutableMap<Path, String> failedUpdates;
+    try {
+      failedUpdates =
+          stageUpdates(
+              applicant.getApplicantData(),
+              blockBeforeUpdate,
+              updateMetadata,
+              updates,
+              serviceAreaUpdate);
+    } catch (UnsupportedScalarTypeException | PathNotInBlockException e) {
+      return CompletableFuture.failedFuture(e);
+    }
+
+    ReadOnlyApplicantProgramService roApplicantProgramService =
+        new ReadOnlyApplicantProgramServiceImpl(
+            applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
+
+    Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
+    if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
+      return userRepository
+          .updateApplicant(applicant)
+          .thenApplyAsync(
+              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+    }
+
+    return CompletableFuture.completedFuture(roApplicantProgramService);
   }
 
   /**
@@ -286,10 +357,14 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile) {
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      boolean eligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
-      return submitterProfile
-          .getAccount()
+      return getReadOnlyApplicantProgramService(applicantId, programId)
+          .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+          .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
                   submitApplication(
@@ -299,10 +374,16 @@ public final class ApplicantService {
               httpExecutionContext.current());
     }
 
-    return submitApplication(applicantId, programId, /* tiSubmitterEmail= */ Optional.empty());
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+        .thenCompose(
+            v ->
+                submitApplication(
+                    applicantId, programId, /* tiSubmitterEmail= */ Optional.empty()));
   }
 
-  private CompletionStage<Application> submitApplication(
+  @VisibleForTesting
+  CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
     return applicationRepository
         .submitApplication(applicantId, programId, tiSubmitterEmail)
@@ -327,6 +408,28 @@ public final class ApplicantService {
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
             httpExecutionContext.current());
+  }
+
+  /**
+   * Validates that the application is complete and correct to submit.
+   *
+   * <p>An application may be submitted but incomplete if the application view with submit button
+   * contains stale data that has changed visibility conditions.
+   *
+   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
+   *     message for the issue.
+   */
+  private CompletableFuture<Void> validateApplicationForSubmission(
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      boolean eligibilityFeatureEnabled) {
+    // Check that all blocks have been answered.
+    if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
+      throw new ApplicationOutOfDateException();
+    }
+    if (eligibilityFeatureEnabled && !roApplicantProgramService.isApplicationEligible()) {
+      throw new ApplicationNotEligibleException();
+    }
+    return CompletableFuture.completedFuture(null);
   }
 
   /**
@@ -509,22 +612,50 @@ public final class ApplicantService {
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-    ImmutableList<ProgramDefinition> activePrograms =
+    ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getActiveVersion().getPrograms().stream()
             .map(Program::getProgramDefinition)
             .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
             .collect(ImmutableList.toImmutableList());
 
-    return applicationsFuture.thenApplyAsync(
-        applications -> {
-          logDuplicateDrafts(applications);
-          return relevantProgramsForApplicant(activePrograms, applications);
-        },
-        httpExecutionContext.current());
+    return applicationsFuture
+        .thenComposeAsync(
+            applications -> {
+              List<ProgramDefinition> programDefinitionsList =
+                  applications.stream()
+                      .map(application -> application.getProgram().getProgramDefinition())
+                      .collect(Collectors.toList());
+              programDefinitionsList.addAll(activeProgramDefinitions);
+              return programService.syncQuestionsToProgramDefinitions(
+                  programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
+            })
+        .thenApplyAsync(
+            allPrograms -> {
+              ImmutableSet<Application> applications = applicationsFuture.join();
+              logDuplicateDrafts(applications);
+              return relevantProgramsForApplicant(
+                  activeProgramDefinitions, applications, allPrograms);
+            },
+            httpExecutionContext.current());
+  }
+
+  /**
+   * Returns whether an application is maybe eligible for a program, and empty if there are no
+   * eligibility conditions for the program.
+   */
+  public Optional<Boolean> getOptionalEligibilityStatus(
+      ApplicantData applicantData, ProgramDefinition programDefinition) {
+    ReadOnlyApplicantProgramService roAppProgramService =
+        getReadOnlyApplicantProgramService(applicantData, programDefinition);
+    return programDefinition.hasEligibilityEnabled()
+        ? Optional.of(!roAppProgramService.isApplicationNotEligible())
+        : Optional.empty();
   }
 
   private ApplicationPrograms relevantProgramsForApplicant(
-      ImmutableList<ProgramDefinition> activePrograms, ImmutableSet<Application> applications) {
+      ImmutableList<ProgramDefinition> activePrograms,
+      ImmutableSet<Application> applications,
+      ImmutableList<ProgramDefinition> allPrograms) {
     // Use ImmutableMap.copyOf rather than the collector to guard against cases where the
     // provided active programs contains duplicate entries with the same adminName. In this
     // case, the ImmutableMap collector would throw since ImmutableMap builders don't allow
@@ -573,11 +704,19 @@ public final class ApplicantService {
           Optional<Instant> latestSubmittedApplicationTime =
               maybeSubmittedApp.map(Application::getSubmitTime);
           if (maybeDraftApp.isPresent()) {
-            inProgressPrograms.add(
+            Application draftApp = maybeDraftApp.get();
+            // Get the program definition from the all programs list, since that has the
+            // associated question data.
+            ProgramDefinition programDefinition =
+                findProgramWithId(allPrograms, draftApp.getProgram().id);
+            ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
-                    .setProgram(maybeDraftApp.get().getProgram().getProgramDefinition())
-                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .build());
+                    .setProgram(programDefinition)
+                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime);
+            applicantProgramDataBuilder.setIsProgramMaybeEligible(
+                getOptionalEligibilityStatus(
+                    draftApp.getApplicant().getApplicantData(), programDefinition));
+            inProgressPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             // When extracting the application status, the definitions associated with the program
@@ -594,32 +733,52 @@ public final class ApplicantService {
                                 programStatus.statusText().equals(maybeLatestStatus.get()))
                         .findFirst()
                     : Optional.empty();
-            submittedPrograms.add(
+
+            // Get the program definition from the all programs list, since that has the
+            // associated question data.
+            ProgramDefinition programDefinition =
+                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
+            ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
-                    .setProgram(activeProgramNames.get(programName))
+                    .setProgram(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
-                    .build());
+                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
+
+            submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           }
         });
 
     Set<String> unappliedActivePrograms =
         Sets.difference(activeProgramNames.keySet(), programNamesWithApplications);
+
     unappliedActivePrograms.forEach(
         programName -> {
-          unappliedPrograms.add(
-              ApplicantProgramData.builder()
-                  .setProgram(activeProgramNames.get(programName))
-                  .build());
+          ApplicantProgramData.Builder applicantProgramDataBuilder =
+              ApplicantProgramData.builder().setProgram(activeProgramNames.get(programName));
+
+          if (!mostRecentApplicationsByProgram.isEmpty()) {
+            Applicant applicant = applications.stream().findFirst().get().getApplicant();
+            ProgramDefinition program =
+                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
+
+            applicantProgramDataBuilder.setIsProgramMaybeEligible(
+                getOptionalEligibilityStatus(applicant.getApplicantData(), program));
+          }
+
+          unappliedPrograms.add(applicantProgramDataBuilder.build());
         });
 
-    // Ensure each list is ordered by database ID for consistent ordering.
     return ApplicationPrograms.builder()
         .setInProgress(sortByProgramId(inProgressPrograms.build()))
         .setSubmitted(sortByProgramId(submittedPrograms.build()))
         .setUnapplied(sortByProgramId(unappliedPrograms.build()))
         .build();
+  }
+
+  private ProgramDefinition findProgramWithId(
+      ImmutableList<ProgramDefinition> programList, long id) {
+    return programList.stream().filter(p -> p.id() == id).findFirst().get();
   }
 
   private ImmutableList<ApplicantProgramData> sortByProgramId(
@@ -673,6 +832,8 @@ public final class ApplicantService {
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
 
+    public abstract Optional<Boolean> isProgramMaybeEligible();
+
     public abstract Optional<Instant> latestSubmittedApplicationTime();
 
     public abstract Optional<StatusDefinitions.Status> latestSubmittedApplicationStatus();
@@ -684,6 +845,8 @@ public final class ApplicantService {
     @AutoValue.Builder
     abstract static class Builder {
       abstract Builder setProgram(ProgramDefinition v);
+
+      abstract Builder setIsProgramMaybeEligible(Optional<Boolean> v);
 
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 
@@ -705,12 +868,13 @@ public final class ApplicantService {
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
-      ImmutableSet<Update> updates)
+      ImmutableSet<Update> updates,
+      Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     if (block.isEnumerator()) {
       return stageEnumeratorUpdates(applicantData, block, updateMetadata, updates);
     } else {
-      return stageNormalUpdates(applicantData, block, updateMetadata, updates);
+      return stageNormalUpdates(applicantData, block, updateMetadata, updates, serviceAreaUpdate);
     }
   }
 
@@ -827,7 +991,8 @@ public final class ApplicantService {
       ApplicantData applicantData,
       Block block,
       UpdateMetadata updateMetadata,
-      ImmutableSet<Update> updates)
+      ImmutableSet<Update> updates,
+      Optional<ServiceAreaUpdate> serviceAreaUpdate)
       throws UnsupportedScalarTypeException, PathNotInBlockException {
     ArrayList<Path> visitedPaths = new ArrayList<>();
     ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
@@ -876,10 +1041,26 @@ public final class ApplicantService {
               failedUpdatesBuilder.put(currentPath, update.value());
             }
             break;
+          case DOUBLE:
+            try {
+              applicantData.putDouble(currentPath, update.value());
+            } catch (NumberFormatException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
+            break;
+          case SERVICE_AREA:
+            // service areas get updated below
+            break;
           default:
             throw new UnsupportedScalarTypeException(type);
         }
       }
+    }
+
+    if (serviceAreaUpdate.isPresent() && serviceAreaUpdate.get().value().size() > 0) {
+      applicantData.putString(
+          serviceAreaUpdate.get().path(),
+          ServiceAreaInclusionGroup.serialize(serviceAreaUpdate.get().value()));
     }
 
     // Write metadata for all questions in the block, regardless of whether they were blank or not.
@@ -931,5 +1112,141 @@ public final class ApplicantService {
 
       abstract ApplicationPrograms build();
     }
+  }
+
+  /**
+   * Get corrected address from Esri and formats it as a map compatible with form data. It matches
+   * the user selected address and looks that up in the list of suggestions retrieved earlier from
+   * the Esri service. If ServiceArea validation is not enabled on this block the user is able to
+   * elect to keep the address as they entered it.
+   *
+   * <p>Returns a map containing the corrected address along with the corrected state in a format
+   * ready to be saved as form data.
+   */
+  public CompletionStage<ImmutableMap<String, String>> getCorrectedAddress(
+      long applicantId,
+      long programId,
+      String blockId,
+      String selectedAddress,
+      ImmutableList<AddressSuggestion> addressSuggestions) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              ApplicantQuestion applicantQuestion =
+                  getFirstAddressCorrectionEnabledApplicantQuestion(blockMaybe.get());
+              AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+              Optional<AddressSuggestion> suggestionMaybe =
+                  addressSuggestions.stream()
+                      .filter(
+                          addressSuggestion ->
+                              addressSuggestion.getSingleLineAddress().equals(selectedAddress))
+                      .findFirst();
+
+              ImmutableMap<String, String> questionPathToValueMap =
+                  buildCorrectedAddressAsFormData(
+                      applicantId,
+                      programId,
+                      blockId,
+                      addressQuestion,
+                      suggestionMaybe,
+                      selectedAddress);
+
+              return CompletableFuture.completedFuture(questionPathToValueMap);
+            });
+  }
+
+  /** Maps address suggestion and corrected state into a form data compatible map */
+  private ImmutableMap<String, String> buildCorrectedAddressAsFormData(
+      long applicantId,
+      long programId,
+      String blockId,
+      AddressQuestion addressQuestion,
+      Optional<AddressSuggestion> suggestionMaybe,
+      String selectedAddress) {
+
+    ImmutableMap.Builder<String, String> questionPathToValueMap = ImmutableMap.builder();
+
+    if (suggestionMaybe.isPresent()) {
+      AddressSuggestion suggestion = suggestionMaybe.get();
+      Address address = suggestion.getAddress();
+      AddressLocation location = suggestion.getLocation();
+
+      questionPathToValueMap.put(addressQuestion.getStreetPath().toString(), address.getStreet());
+      questionPathToValueMap.put(addressQuestion.getLine2Path().toString(), address.getLine2());
+      questionPathToValueMap.put(addressQuestion.getCityPath().toString(), address.getCity());
+      questionPathToValueMap.put(addressQuestion.getStatePath().toString(), address.getState());
+      questionPathToValueMap.put(addressQuestion.getZipPath().toString(), address.getZip());
+      questionPathToValueMap.put(
+          addressQuestion.getLatitudePath().toString(), location.getLatitude().toString());
+      questionPathToValueMap.put(
+          addressQuestion.getLongitudePath().toString(), location.getLongitude().toString());
+      questionPathToValueMap.put(
+          addressQuestion.getWellKnownIdPath().toString(), location.getWellKnownId().toString());
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.CORRECTED.getSerializationFormat());
+    } else if (selectedAddress.equals(AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE)) {
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
+    } else {
+      questionPathToValueMap.put(
+          addressQuestion.getCorrectedPath().toString(),
+          CorrectedAddressState.FAILED.getSerializationFormat());
+      logger.error(
+          "Address correction failed for applicantId: {} programId: {} blockId: {}",
+          applicantId,
+          programId,
+          blockId);
+    }
+
+    return questionPathToValueMap.build();
+  }
+
+  /**
+   * Finds the first {@link ApplicantQuestion} that is an address question type and has address
+   * correction enabled. When address correction is enabled we will make calls to the Esri service
+   * to check the user supplied address. The passed in {@link Block} contains the metadata used to
+   * determine if address correction is enabled for a question.
+   */
+  public ApplicantQuestion getFirstAddressCorrectionEnabledApplicantQuestion(Block block) {
+    Optional<ApplicantQuestion> applicantQuestionMaybe =
+        block.getAddressQuestionWithCorrectionEnabled();
+
+    if (applicantQuestionMaybe.isEmpty()) {
+      throw new RuntimeException(
+          String.format(
+              "Expected to find an address with address correction enabled in block %s, but did"
+                  + " not.",
+              block.getId()));
+    }
+
+    return applicantQuestionMaybe.get();
+  }
+
+  /** Gets address suggestions */
+  public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
+    ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    return esriClient
+        .getAddressSuggestions(addressQuestion.getAddress())
+        .thenApplyAsync(
+            suggestionsMaybe -> {
+              if (suggestionsMaybe.isEmpty()) {
+                throw new EsriClientRequestException(
+                    "Call to EsriClient.getAddressSuggestions failed.");
+              }
+
+              return suggestionsMaybe.get();
+            });
   }
 }

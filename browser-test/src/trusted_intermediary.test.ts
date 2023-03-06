@@ -1,11 +1,14 @@
 import {
   ClientInformation,
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
   selectApplicantLanguage,
   validateScreenshot,
+  logout,
+  AdminQuestions,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -119,5 +122,112 @@ describe('Trusted intermediaries', () => {
     expect(await page.innerText('#ti-dashboard-link')).toContain(
       'VIEW AND ADD CLIENTS',
     )
+  })
+
+  describe('application flow with eligibility conditions', () => {
+    // Create a program with 2 questions and an eligibility condition.
+    const fullProgramName = 'Test program for eligibility navigation flows'
+    const eligibilityQuestionId = 'ti-eligibility-number-q'
+
+    beforeAll(async () => {
+      const {
+        page,
+        adminQuestions,
+        adminPrograms,
+        adminPredicates,
+        tiDashboard,
+      } = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+      await adminQuestions.addNumberQuestion({
+        questionName: eligibilityQuestionId,
+      })
+      await adminQuestions.addEmailQuestion({
+        questionName: 'ti-eligibility-email-q',
+      })
+
+      // Add the full program.
+      await adminPrograms.addProgram(fullProgramName)
+      await adminPrograms.editProgramBlock(
+        fullProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        fullProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        eligibilityQuestionId,
+        /* action= */ null,
+        'number',
+        'is equal to',
+        '5',
+      )
+
+      await adminPrograms.addProgramBlock(
+        fullProgramName,
+        'second description',
+        ['ti-eligibility-email-q'],
+      )
+
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(fullProgramName)
+
+      await logout(page)
+
+      await loginAsTrustedIntermediary(page)
+
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+    })
+
+    it('correctly handles eligibility', async () => {
+      const {page, tiDashboard, applicantQuestions} = ctx
+      await loginAsTrustedIntermediary(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.clickOnApplicantDashboard()
+
+      // Verify TI gets navigated to the ineligible page with TI text.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await tiDashboard.expectIneligiblePage()
+      await validateScreenshot(page, 'not-eligible-page-ti')
+
+      // Verify the 'may not qualify' tag shows on the program page
+      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.clickOnApplicantDashboard()
+      await applicantQuestions.seeEligibilityTag(fullProgramName, false)
+      await validateScreenshot(page, 'program-page-not-eligible-ti')
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+
+      // Verify the summary page shows the ineligible toast and the correct question is marked ineligible.
+      await applicantQuestions.validateToastMessage('may not qualify')
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+      await validateScreenshot(page, 'application-summary-page-not-eligible-ti')
+
+      // Change answer to one that passes eligibility and verify 'may qualify' tag appears on home page
+      await applicantQuestions.clickEdit()
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+      await tiDashboard.gotoTIDashboardPage(page)
+      await tiDashboard.clickOnApplicantDashboard()
+      await applicantQuestions.seeEligibilityTag(fullProgramName, true)
+      await validateScreenshot(page, 'program-page-eligible-ti')
+    })
   })
 })

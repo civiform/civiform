@@ -172,6 +172,11 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
+  async validateToastMessage(value: string) {
+    const toastMessages = await this.page.innerText('#toast-container')
+    expect(toastMessages).toContain(value)
+  }
+
   async applyProgram(programName: string) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.clickApplyProgramButton(programName)
@@ -184,13 +189,6 @@ export class ApplicantQuestions {
   async clickApplyProgramButton(programName: string) {
     await this.page.click(
       `.cf-application-card:has-text("${programName}") .cf-apply-button`,
-    )
-    await waitForPageJsLoad(this.page)
-  }
-
-  async clickProgramDetails(programName: string) {
-    await this.page.click(
-      `.cf-application-card:has-text("${programName}") >> text=Program details`,
     )
     await waitForPageJsLoad(this.page)
   }
@@ -211,6 +209,22 @@ export class ApplicantQuestions {
   async gotoApplicantHomePage() {
     await this.page.goto(BASE_URL)
     await waitForPageJsLoad(this.page)
+  }
+
+  async seeEligibilityTag(programName: string, isEligible: boolean) {
+    const cardLocator = this.page.locator('.cf-application-card', {
+      has: this.page.locator(`:text("${programName}")`),
+    })
+    const tag = isEligible ? '.cf-eligible-tag' : '.cf-not-eligible-tag'
+    expect(await cardLocator.locator(tag).count()).toEqual(1)
+  }
+
+  async seeNoEligibilityTags(programName: string) {
+    const cardLocator = this.page.locator('.cf-application-card', {
+      has: this.page.locator(`:text("${programName}")`),
+    })
+    expect(await cardLocator.locator('.cf-eligible-tag').count()).toEqual(0)
+    expect(await cardLocator.locator('.cf-not-eligible-tag').count()).toEqual(0)
   }
 
   async expectPrograms({
@@ -261,6 +275,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickContinue() {
+    await this.page.click('text="Continue"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickPrevious() {
     await this.page.click('text="Previous"')
     await waitForPageJsLoad(this.page)
@@ -273,6 +292,16 @@ export class ApplicantQuestions {
 
   async clickReview() {
     await this.page.click('text="Review"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickSubmit() {
+    await this.page.click('text="Submit"')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async clickEdit() {
+    await this.page.click('text="Edit"')
     await waitForPageJsLoad(this.page)
   }
 
@@ -328,9 +357,15 @@ export class ApplicantQuestions {
   }
 
   async expectIneligiblePage() {
-    expect(await this.page.innerText('p')).toContain(
-      'not eligible for this program',
-    )
+    expect(await this.page.innerText('h2')).toContain('you may not qualify')
+  }
+
+  async expectIneligibleQuestion(questionText: string) {
+    expect(await this.page.innerText('li')).toContain(questionText)
+  }
+
+  async expectIneligibleQuestionsCount(number: number) {
+    expect(await this.page.locator('li').count()).toEqual(number)
   }
 
   async expectQuestionIsNotEligible(questionText: string) {
@@ -343,13 +378,38 @@ export class ApplicantQuestions {
     ).toEqual(1)
   }
 
+  async expectQuestionHasNoEligibilityIndicator(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    expect(
+      await questionLocator.locator('.cf-applicant-not-eligible-text').count(),
+    ).toEqual(0)
+  }
+
+  async expectVerifyAddressPage() {
+    expect(await this.page.innerText('h2')).toContain('Verify address')
+  }
+
+  async expectAddressHasBeenCorrected(
+    questionText: string,
+    answerText: string,
+  ) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(await questionLocator.count()).toEqual(1)
+    const summaryRowText = await questionLocator.innerText()
+    expect(summaryRowText.includes(answerText)).toBeTruthy()
+  }
+
   async submitFromReviewPage() {
     // Assert that we're on the review page.
     await this.expectReviewPage()
 
     // Click on submit button.
-    await this.page.click('text="Submit"')
-    await waitForPageJsLoad(this.page)
+    await this.clickSubmit()
   }
 
   async validateHeader(lang: string) {
@@ -357,6 +417,28 @@ export class ApplicantQuestions {
     expect(await this.page.innerHTML('head')).toContain(
       '<meta name="viewport" content="width=device-width, initial-scale=1">',
     )
+  }
+
+  async validatePreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(
+      await questionLocator
+        .locator('.cf-applicant-question-previously-answered')
+        .isVisible(),
+    ).toEqual(true)
+  }
+
+  async validateNoPreviouslyAnsweredText(questionText: string) {
+    const questionLocator = this.page.locator('.cf-applicant-summary-row', {
+      has: this.page.locator(`:text("${questionText}")`),
+    })
+    expect(
+      await questionLocator
+        .locator('.cf-applicant-question-previously-answered')
+        .isVisible(),
+    ).toEqual(false)
   }
 
   async seeStaticQuestion(questionText: string) {

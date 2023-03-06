@@ -1,7 +1,6 @@
 import {
   createTestContext,
   dismissModal,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
 } from './support'
@@ -13,7 +12,6 @@ describe('modify program statuses', () => {
   beforeEach(async () => {
     const {page} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'application_status_tracking_enabled')
   })
 
   describe('statuses list', () => {
@@ -104,7 +102,6 @@ describe('modify program statuses', () => {
     beforeAll(async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
 
@@ -235,7 +232,6 @@ describe('modify program statuses', () => {
     beforeAll(async () => {
       const {page, adminPrograms, adminProgramStatuses} = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
 

@@ -67,6 +67,12 @@ public abstract class ProgramDefinition {
   /** A human readable description of a Program, localized for each supported locale. */
   public abstract LocalizedStrings localizedDescription();
 
+  /**
+   * A custom message to be inserted into the confirmation screen for the Program, localized for
+   * each supported locale.
+   */
+  public abstract LocalizedStrings localizedConfirmationMessage();
+
   /** The list of {@link BlockDefinition}s that make up the program. */
   public abstract ImmutableList<BlockDefinition> blockDefinitions();
 
@@ -78,6 +84,14 @@ public abstract class ProgramDefinition {
 
   /** When was this program last modified. Could be null for older programs. */
   public abstract Optional<Instant> lastModifiedTime();
+
+  public abstract ProgramType programType();
+
+  /**
+   * Whether or not eligibility criteria for this program blocks the application from being
+   * submitted.
+   */
+  public abstract Boolean eligibilityIsGating();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -96,6 +110,12 @@ public abstract class ProgramDefinition {
             .build();
     orderedProgramDefinition.hasOrderedBlockDefinitionsMemo = Optional.of(true);
     return orderedProgramDefinition;
+  }
+
+  /** Returns whether a program has eligibility conditions applied. */
+  public boolean hasEligibilityEnabled() {
+    return blockDefinitions().stream()
+        .anyMatch(blockDef -> blockDef.eligibilityDefinition().isPresent());
   }
 
   private ImmutableList<BlockDefinition> orderBlockDefinitionsInner(
@@ -384,6 +404,22 @@ public abstract class ProgramDefinition {
     return ImmutableSet.copyOf(intersection);
   }
 
+  /**
+   * Get the {@link ProgramQuestionDefinition} for the given question in the given program.
+   *
+   * @throws ProgramQuestionDefinitionNotFoundException if the program does not use the question.
+   */
+  public ProgramQuestionDefinition getProgramQuestionDefinition(long questionDefinitionId)
+      throws ProgramQuestionDefinitionNotFoundException {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .filter(pqd -> pqd.id() == questionDefinitionId)
+        .findAny()
+        .orElseThrow(
+            () -> new ProgramQuestionDefinitionNotFoundException(id(), questionDefinitionId));
+  }
+
   /** Returns the {@link QuestionDefinition} at the specified block and question indices. */
   public QuestionDefinition getQuestionDefinition(int blockIndex, int questionIndex) {
     return blockDefinitions().get(blockIndex).getQuestionDefinition(questionIndex);
@@ -524,13 +560,38 @@ public abstract class ProgramDefinition {
    * Returns a list of the question definitions that may be used to define eligibility predicates on
    * the block definition with the id {@code blockId}.
    *
-   * <p>This is the same as {@link #getAvailableVisibilityPredicateQuestionDefinitions} but it
-   * includes questions in the provided {@code blockId}.
+   * <p>The questions will be the valid predicate questions in the block {@code blockId}.
    */
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
-    // Questions through the block are available for this block's eligibility conditions.
-    return getAvailablePredicateQuestionDefinitions(blockId);
+    // Only questions in the block are available.
+    return getBlockDefinition(blockId).programQuestionDefinitions().stream()
+        .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** True if the give question definition ID is found in any of the program's predicates. */
+  public boolean isQuestionUsedInPredicate(long questionDefinitionId) {
+    return blockDefinitions().stream()
+        .map(
+            block ->
+                block
+                        .eligibilityDefinition()
+                        .map(
+                            eligibilityDefinition ->
+                                eligibilityDefinition
+                                    .predicate()
+                                    .getQuestions()
+                                    .contains(questionDefinitionId))
+                        .orElse(false)
+                    || block
+                        .visibilityPredicate()
+                        .map(
+                            predicateDefinition ->
+                                predicateDefinition.getQuestions().contains(questionDefinitionId))
+                        .orElse(false))
+        .anyMatch(Boolean::booleanValue);
   }
 
   /**
@@ -546,7 +607,7 @@ public abstract class ProgramDefinition {
    *   <li>Is not an enumerator.
    * </ul>
    */
-  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
+  public ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(long blockId)
       throws ProgramBlockDefinitionNotFoundException {
     if (blockId <= 0) {
       return ImmutableList.of();
@@ -557,8 +618,8 @@ public abstract class ProgramDefinition {
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
       builder.addAll(
           blockDefinition.programQuestionDefinitions().stream()
-              .map(ProgramQuestionDefinition::getQuestionDefinition)
               .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
+              .map(ProgramQuestionDefinition::getQuestionDefinition)
               .collect(Collectors.toList()));
     }
 
@@ -593,11 +654,17 @@ public abstract class ProgramDefinition {
     return builder.build();
   }
 
-  private static boolean isPotentialPredicateQuestionDefinition(QuestionDefinition qd) {
-    // TODO(https://github.com/seattle-uat/civiform/issues/322): Add the following once STATIC
-    //  questions are implemented.
-    //  && qd.getQuestionTyp() != QuestionType.STATIC
-    return !qd.isEnumerator() && qd.getQuestionType() != QuestionType.FILEUPLOAD;
+  private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
+      ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.FILEUPLOAD, QuestionType.STATIC);
+
+  /**
+   * A question definition is eligible for predicates if it is of an allowable question type and, if
+   * it is an address question, it must be configured for correction.
+   */
+  private static boolean isPotentialPredicateQuestionDefinition(ProgramQuestionDefinition pqd) {
+    return !NON_PREDICATE_QUESTION_TYPES.contains(pqd.getQuestionDefinition().getQuestionType())
+        && !(pqd.getQuestionDefinition().getQuestionType().equals(QuestionType.ADDRESS)
+            && !pqd.addressCorrectionEnabled());
   }
 
   public Program toProgram() {
@@ -612,6 +679,10 @@ public abstract class ProgramDefinition {
             b ->
                 b.programQuestionDefinitions().stream()
                     .map(ProgramQuestionDefinition::getQuestionDefinition));
+  }
+
+  public boolean isCommonIntakeForm() {
+    return this.programType() == ProgramType.COMMON_INTAKE_FORM;
   }
 
   @AutoValue.Builder
@@ -631,6 +702,9 @@ public abstract class ProgramDefinition {
 
     public abstract Builder setLocalizedDescription(LocalizedStrings localizedDescription);
 
+    public abstract Builder setLocalizedConfirmationMessage(
+        LocalizedStrings localizedConfirmationMessage);
+
     public abstract Builder setBlockDefinitions(ImmutableList<BlockDefinition> blockDefinitions);
 
     public abstract Builder setStatusDefinitions(StatusDefinitions statusDefinitions);
@@ -641,9 +715,15 @@ public abstract class ProgramDefinition {
 
     public abstract LocalizedStrings.Builder localizedDescriptionBuilder();
 
+    public abstract LocalizedStrings.Builder localizedConfirmationMessageBuilder();
+
     public abstract Builder setCreateTime(@Nullable Instant createTime);
 
     public abstract Builder setLastModifiedTime(@Nullable Instant lastModifiedTime);
+
+    public abstract Builder setProgramType(ProgramType programType);
+
+    public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract ProgramDefinition build();
 
@@ -659,6 +739,11 @@ public abstract class ProgramDefinition {
 
     public Builder addLocalizedDescription(Locale locale, String description) {
       localizedDescriptionBuilder().put(locale, description);
+      return this;
+    }
+
+    public Builder addLocalizedConfirmationMessage(Locale locale, String customText) {
+      localizedConfirmationMessageBuilder().put(locale, customText);
       return this;
     }
   }

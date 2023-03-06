@@ -15,8 +15,10 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.PredicateDefinition;
+import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -77,9 +79,11 @@ public class ProgramBuilder {
             name,
             description,
             "",
+            "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getDraftVersion());
+            versionRepository.getDraftVersion(),
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -116,9 +120,27 @@ public class ProgramBuilder {
     return newActiveProgram(adminName, displayName, /* description= */ "");
   }
 
+  /**
+   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with the type
+   * ProgramType.COMMON_INTAKE_FORM.
+   */
+  public static ProgramBuilder newActiveCommonIntakeForm(String name) {
+    return newActiveProgram(
+        /* adminName= */ name,
+        /* displayName= */ name,
+        /* description= */ "",
+        ProgramType.COMMON_INTAKE_FORM);
+  }
+
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description) {
+    return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT);
+  }
+
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
+  public static ProgramBuilder newActiveProgram(
+      String adminName, String displayName, String description, ProgramType programType) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
     Program program =
         new Program(
@@ -127,9 +149,11 @@ public class ProgramBuilder {
             displayName,
             description,
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getActiveVersion());
+            versionRepository.getActiveVersion(),
+            programType);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -150,9 +174,11 @@ public class ProgramBuilder {
             adminName,
             adminName,
             "",
+            "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            obsoleteVersion);
+            obsoleteVersion,
+            ProgramType.DEFAULT);
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -179,8 +205,18 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withLocalizedConfirmationMessage(Locale locale, String customText) {
+    builder.addLocalizedConfirmationMessage(locale, customText);
+    return this;
+  }
+
   public ProgramBuilder withStatusDefinitions(StatusDefinitions statusDefinitions) {
     builder.setStatusDefinitions(statusDefinitions);
+    return this;
+  }
+
+  public ProgramBuilder withProgramType(ProgramType programType) {
+    builder.setProgramType(programType);
     return this;
   }
 
@@ -278,6 +314,21 @@ public class ProgramBuilder {
       blockDefBuilder.addQuestion(
           ProgramQuestionDefinition.create(
               question.getQuestionDefinition(), Optional.of(programBuilder.programDefinitionId)));
+      return this;
+    }
+
+    /** Add a required address question that has correction enabled to the block. */
+    public BlockBuilder withRequiredCorrectedAddressQuestion(Question question) {
+      if (!(question.getQuestionDefinition() instanceof AddressQuestionDefinition)) {
+        throw new IllegalArgumentException("Only address questions can be address corrected.");
+      }
+
+      blockDefBuilder.addQuestion(
+          ProgramQuestionDefinition.create(
+              question.getQuestionDefinition(),
+              Optional.of(programBuilder.programDefinitionId),
+              /* optional= */ true,
+              /* addressCorrectionEnabled= */ true));
       return this;
     }
 

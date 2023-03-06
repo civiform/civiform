@@ -1,5 +1,7 @@
 import {
   createTestContext,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -17,6 +19,23 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.goToProgramDescriptionPage(programName)
     await validateScreenshot(page, 'program-description-page')
+  })
+
+  it('shows correct formatting during question creation', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.createStaticQuestion({
+      questionName: 'static-question',
+      questionText:
+        '### This is an example of some static text with formatting',
+    })
+
+    await validateScreenshot(
+      page,
+      'program-creation-static-question-with-formatting',
+    )
   })
 
   it('create program with enumerator and repeated questions', async () => {
@@ -80,6 +99,162 @@ describe('program creation', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
+  })
+
+  it('create program with address and address correction feature enabled', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address'})
+    await adminQuestions.addNameQuestion({questionName: 'ace-name'})
+
+    const programName = 'Ace program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'ace program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('ace-address')
+    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-address-correction-false',
+    )
+
+    const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
+
+    // the input value shows what it will be set to when clicked
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
+
+    await adminPrograms.clickAddressCorrectionToggle()
+
+    expect(await addressCorrectionInput.inputValue()).toBe('false')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-address-correction-true',
+    )
+
+    // ensure that non address question does not contain address correction button
+    expect(
+      await page.innerText(
+        adminPrograms.questionCardSelectorInProgramView('ace-name'),
+      ),
+    ).not.toContain('Address correction')
+  })
+
+  it('create program with multiple address questions, address correction feature enabled, and can only enable correction on one address', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+    const helpText =
+      'This screen already contains a question with address correction enabled'
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address-one'})
+    await adminQuestions.addAddressQuestion({questionName: 'ace-address-two'})
+    await adminQuestions.addNameQuestion({questionName: 'ace-name'})
+
+    const programName = 'Ace program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'ace program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('ace-address-one')
+    await adminPrograms.addQuestionFromQuestionBank('ace-address-two')
+    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-multiple-address-correction-false',
+    )
+
+    const addressCorrectionInput1 =
+      adminPrograms.getAddressCorrectionToggleByName('ace-address-one')
+    const addressCorrectionInput2 =
+      adminPrograms.getAddressCorrectionToggleByName('ace-address-two')
+    const addressCorrectionHelpText1 =
+      adminPrograms.getAddressCorrectionHelpTextByName('ace-address-one')
+    const addressCorrectionHelpText2 =
+      adminPrograms.getAddressCorrectionHelpTextByName('ace-address-two')
+
+    // the input value shows what it will be set to when clicked, so the
+    // opposite of its current value
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+
+    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
+
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
+
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-first-address-correction-true',
+    )
+
+    // Trying to toggle the other one should not do anything
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
+
+    expect(await addressCorrectionInput1.inputValue()).toBe('false')
+    expect(await addressCorrectionInput2.inputValue()).toBe('true')
+    expect(await addressCorrectionHelpText1.innerText()).not.toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).toContain(helpText)
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-first-address-correction-true',
+    )
+
+    // Once we untoggle the first one, we should be able to toggle the second one
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-one')
+    await adminPrograms.clickAddressCorrectionToggleByName('ace-address-two')
+
+    expect(await addressCorrectionInput1.inputValue()).toBe('true')
+    expect(await addressCorrectionInput2.inputValue()).toBe('false')
+    expect(await addressCorrectionHelpText1.innerText()).toContain(helpText)
+    expect(await addressCorrectionHelpText2.innerText()).not.toContain(helpText)
+
+    await validateScreenshot(
+      page,
+      'program-detail-page-with-second-address-correction-true',
+    )
+
+    // ensure that non address question does not contain address correction button
+    expect(
+      await page.innerText(
+        adminPrograms.questionCardSelectorInProgramView('ace-name'),
+      ),
+    ).not.toContain('Address correction')
+  })
+
+  it('create program with address and address correction feature disabled', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'esri_address_correction_enabled')
+
+    await adminQuestions.addAddressQuestion({questionName: 'acd-address'})
+
+    const programName = 'Acd program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'acd program description')
+
+    await adminPrograms.addQuestionFromQuestionBank('acd-address')
+
+    const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
+
+    // the input value shows what it will be set to when clicked
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
+
+    await adminPrograms.clickAddressCorrectionToggle()
+    // should be the same as before with button submit disabled
+    expect(await addressCorrectionInput.inputValue()).toBe('true')
   })
 
   it('change questions order within block', async () => {
@@ -206,7 +381,7 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
-    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
   })
 
   it('delete last block and edit', async () => {
@@ -218,7 +393,16 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 2')
-    await adminPrograms.goToManageQuestionsPage(programName)
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+  })
+
+  it('correctly renders delete screen confirmation modal', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminPrograms.launchDeleteScreenModal()
+    await validateScreenshot(page, 'delete-screen-confirmation-modal')
   })
 
   async function expectQuestionsOrderWithinBlock(
@@ -233,4 +417,29 @@ describe('program creation', () => {
       expect(actualQuestions[i]).toContain(expectedQuestions[i])
     }
   }
+
+  it('create common intake form with intake form feature enabled', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'intake_form_enabled')
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramDescriptionPage(programName)
+
+    await validateScreenshot(
+      page,
+      'program-description-page-with-intake-form-false',
+    )
+    const commonIntakeFormInput = adminPrograms.getCommonIntakeFormToggle()
+    expect(await commonIntakeFormInput.isChecked()).toBe(false)
+
+    await adminPrograms.clickCommonIntakeFormToggle()
+    await validateScreenshot(
+      page,
+      'program-description-page-with-intake-form-true',
+    )
+    expect(await commonIntakeFormInput.isChecked()).toBe(true)
+  })
 })

@@ -81,8 +81,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .setId("group-name-input")
             .setFieldName("emailAddress")
             .setLabelText("Member Email Address")
-            .setValue(request.flash().get("providedEmail").orElse(""))
-            .setPlaceholderText("The email address of the member you want to add.");
+            .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
             formTag.with(

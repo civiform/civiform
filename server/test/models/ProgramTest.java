@@ -12,8 +12,10 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
@@ -66,10 +68,14 @@ public class ProgramTest extends ResetPostgres {
             .setAdminDescription("Admin description")
             .setLocalizedName(LocalizedStrings.of(Locale.US, "ProgramTest"))
             .setLocalizedDescription(LocalizedStrings.of(Locale.US, "desc"))
+            .setLocalizedConfirmationMessage(
+                LocalizedStrings.of(Locale.US, "custom confirmation message"))
             .setBlockDefinitions(ImmutableList.of(blockDefinition))
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(false)
             .build();
     Program program = new Program(definition);
 
@@ -80,8 +86,12 @@ public class ProgramTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
+    assertThat(found.getProgramDefinition().localizedConfirmationMessage())
+        .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation message"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");
+    assertThat(found.getProgramDefinition().programType())
+        .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
 
     assertThat(
             found
@@ -140,6 +150,8 @@ public class ProgramTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -163,6 +175,16 @@ public class ProgramTest extends ResetPostgres {
                     1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
             PredicateAction.HIDE_BLOCK);
 
+    EligibilityDefinition eligibilityDefinition =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            1L, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of(""))),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
             .setId(1L)
@@ -170,6 +192,7 @@ public class ProgramTest extends ResetPostgres {
             .setDescription("set hide and deprecated optional")
             .setProgramQuestionDefinitions(ImmutableList.of())
             .setVisibilityPredicate(predicate)
+            .setEligibilityDefinition(eligibilityDefinition)
             .build();
 
     ProgramDefinition definition =
@@ -183,6 +206,8 @@ public class ProgramTest extends ResetPostgres {
             .setExternalLink("")
             .setStatusDefinitions(new StatusDefinitions())
             .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
             .build();
     Program program = new Program(definition);
     program.save();
@@ -192,6 +217,9 @@ public class ProgramTest extends ResetPostgres {
     assertThat(found.getProgramDefinition().blockDefinitions()).hasSize(1);
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
     assertThat(block.visibilityPredicate()).hasValue(predicate);
+    assertThat(block.eligibilityDefinition()).hasValue(eligibilityDefinition);
+    assertThat(block.eligibilityDefinition().get().predicate().predicateFormat())
+        .isEqualTo(PredicateDefinition.PredicateFormat.SINGLE_QUESTION);
     assertThat(block.optionalPredicate()).isEmpty();
   }
 
@@ -278,6 +306,8 @@ public class ProgramTest extends ResetPostgres {
             .setLocalizedName(LocalizedStrings.withDefaultValue("test name"))
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("test description"))
             .setBlockDefinitions(unorderedBlocks)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();

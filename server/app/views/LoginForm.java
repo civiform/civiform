@@ -15,6 +15,7 @@ import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeploymentType;
 import services.MessageKey;
 import views.style.BaseStyles;
 
@@ -29,18 +31,33 @@ import views.style.BaseStyles;
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
+  private final String civiformImageTag;
+  private final boolean isDevOrStaging;
+  private final boolean disableDemoModeLogins;
+  private final boolean disableApplicantGuestLogin;
   private final boolean renderCreateAccountButton;
   private final AuthIdentityProviderName applicantIdp;
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
-  private final FakeAdminClient fakeAdminClient;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  public LoginForm(BaseHtmlLayout layout, Config config, FakeAdminClient fakeAdminClient) {
+  public LoginForm(
+      BaseHtmlLayout layout,
+      Config config,
+      FeatureFlags featureFlags,
+      DeploymentType deploymentType) {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
+    checkNotNull(deploymentType);
 
+    this.civiformImageTag = config.getString("civiform_image_tag");
+    this.isDevOrStaging = deploymentType.isDevOrStaging();
+    this.disableDemoModeLogins =
+        this.isDevOrStaging && config.getBoolean("staging_disable_demo_mode_logins");
+    this.disableApplicantGuestLogin =
+        this.isDevOrStaging && config.getBoolean("staging_disable_applicant_guest_login");
     this.applicantIdp = AuthIdentityProviderName.fromConfig(config);
     this.maybeLogoUrl =
         config.hasPath("whitelabel.small_logo_url")
@@ -48,26 +65,24 @@ public class LoginForm extends BaseHtmlView {
             : Optional.empty();
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
-    this.fakeAdminClient = checkNotNull(fakeAdminClient);
+    this.featureFlags = checkNotNull(featureFlags);
     this.renderCreateAccountButton = config.hasPath("auth.register_uri");
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
-    String title = "Login";
+    String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
-    htmlBundle.addMainContent(mainContent(messages));
+    htmlBundle.addMainContent(mainContent(request, messages));
 
-    // "defense in depth", sort of - this client won't be present in production, and this button
-    // won't show up except when running in an acceptable environment.
-    if (fakeAdminClient.canEnable(request.host())) {
+    if (isDevOrStaging && !disableDemoModeLogins) {
       htmlBundle.addMainContent(debugContent());
     }
 
     return layout.render(htmlBundle);
   }
 
-  private DivTag mainContent(Messages messages) {
+  private DivTag mainContent(Http.Request request, Messages messages) {
     DivTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
 
     if (maybeLogoUrl.isPresent()) {
@@ -112,23 +127,33 @@ public class LoginForm extends BaseHtmlView {
       String loginMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
       content.with(applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages)));
+    }
+
+    DivTag alternativeLoginButtons = div();
+    // Render the "Don't have an account?" text if either button will be rendered.
+    if (renderCreateAccountButton || !disableApplicantGuestLogin) {
       String alternativeMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
       content.with(p(alternativeMessage).withClasses("text-lg"));
     }
 
-    DivTag alternativeLoginButtons = div();
     if (renderCreateAccountButton) {
-      String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
-      alternativeLoginButtons.with(createAccountButton(messages)).with(p(or));
+      alternativeLoginButtons.with(createAccountButton(messages));
     }
-    alternativeLoginButtons
-        .with(guestButton(messages))
-        .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
+    if (!disableApplicantGuestLogin) {
+      // Only include 'or' if the create account button was rendered.
+      if (renderCreateAccountButton) {
+        String or = messages.at(MessageKey.CONTENT_OR.getKeyName());
+        alternativeLoginButtons.with(p(or));
+      }
+      alternativeLoginButtons
+          .with(guestButton(messages))
+          .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
+    }
     content.with(alternativeLoginButtons);
 
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
-    content.with(
+    DivTag footer =
         div()
             .withClasses(
                 "bg-gray-100",
@@ -136,11 +161,16 @@ public class LoginForm extends BaseHtmlView {
                 "px-8",
                 "w-full",
                 "flex",
+                "flex-col",
                 "gap-2",
                 "justify-center",
                 "items-center",
                 "text-base")
-            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages))));
+            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
+    if (featureFlags.showCiviformImageTagOnLandingPage(request)) {
+      footer.with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600"));
+    }
+    content.with(footer);
 
     return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
   }

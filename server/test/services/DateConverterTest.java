@@ -56,4 +56,10 @@ public class DateConverterTest {
     assertThat(dateConverter.renderDateTimeDataOnly(instant))
         .isEqualTo("2022/04/09 10:07:03 AM UTC");
   }
+
+  @Test
+  public void renderLocalDate_isCorrect() {
+    Long timestamp = 1673453292339L;
+    assertThat(dateConverter.renderLocalDate(timestamp)).isEqualTo(LocalDate.of(2023, 1, 11));
+  }
 }

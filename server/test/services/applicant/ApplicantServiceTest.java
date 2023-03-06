@@ -3,15 +3,20 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static play.mvc.Results.ok;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -21,26 +26,55 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import play.libs.ws.WSClient;
+import play.routing.RoutingDsl;
+import play.server.Server;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import repository.VersionRepository;
+import services.Address;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.ApplicationNotEligibleException;
+import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.geo.AddressLocation;
+import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
+import services.geo.CorrectedAddressState;
+import services.geo.esri.EsriClient;
+import services.geo.esri.EsriServiceAreaValidationConfig;
+import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.PathNotInBlockException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionInvalidException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
+import services.program.ProgramService;
+import services.program.ProgramServiceImpl;
 import services.program.StatusDefinitions;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.LeafOperationExpressionNode;
+import services.program.predicate.Operator;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.CheckboxQuestionDefinition;
@@ -48,21 +82,44 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
+import views.applicant.AddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
 
   private ApplicantService subject;
   private QuestionService questionService;
-  private QuestionDefinition questionDefinition;
+  private NameQuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
   private UserRepository userRepository;
   private ApplicationRepository applicationRepository;
   private VersionRepository versionRepository;
   private CiviFormProfile trustedIntermediaryProfile;
+  private ProgramService programService;
 
   @Before
   public void setUp() throws Exception {
+    // configure EsriClient instance for ServiceAreaUpdateResolver which is injected into
+    // ApplicantService
+    Config config = ConfigFactory.load();
+    Clock clock = instanceOf(Clock.class);
+    EsriServiceAreaValidationConfig esriServiceAreaValidationConfig =
+        instanceOf(EsriServiceAreaValidationConfig.class);
+    Server server =
+        Server.forRouter(
+            (components) ->
+                RoutingDsl.fromComponents(components)
+                    .GET("/query")
+                    .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
+                    .build());
+    WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
+    EsriClient esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
+    ServiceAreaUpdateResolver serviceAreaUpdateResolver =
+        instanceOf(ServiceAreaUpdateResolver.class);
+    // set instance of esriClient for ServiceAreaUpdateResolver
+    FieldUtils.writeField(serviceAreaUpdateResolver, "esriClient", esriClient, true);
     subject = instanceOf(ApplicantService.class);
+    // set instance of serviceAreaUpdateResolver for ApplicantService
+    FieldUtils.writeField(subject, "serviceAreaUpdateResolver", serviceAreaUpdateResolver, true);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
@@ -76,6 +133,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);
     Mockito.when(trustedIntermediaryProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(account));
+    programService = instanceOf(ProgramServiceImpl.class);
   }
 
   @Test
@@ -86,7 +144,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithOptionalQuestion(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of())
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", ImmutableMap.of(), false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -116,7 +174,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -130,7 +188,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.LAST_NAME).toString(), "")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -158,7 +216,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(questionPath.join(Scalar.SELECTIONS).asArrayElement().atIndex(1).toString(), "2")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -168,7 +226,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -212,7 +270,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // data suitable for displaying errors downstream.
     ReadOnlyApplicantProgramService resultService =
         subject
-            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+            .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
             .toCompletableFuture()
             .join();
 
@@ -252,7 +310,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Empty update should put metadata in
     ImmutableMap<String, String> updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -268,7 +326,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -292,7 +350,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(0).toString(), "0",
             deletionPath.atIndex(1).toString(), "1");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -324,7 +382,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             enumeratorPath.atIndex(0).toString(), "first",
             enumeratorPath.atIndex(1).toString(), "second");
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -346,7 +404,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // get deleted.
     updates = ImmutableMap.of();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -375,7 +433,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -396,7 +454,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -440,7 +498,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -458,7 +516,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(checkboxPath.atIndex(1).toString(), "1")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -472,7 +530,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     updates =
         ImmutableMap.<String, String>builder().put(checkboxPath.atIndex(0).toString(), "").build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -503,7 +561,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             deletionPath.atIndex(1).toString(), "0");
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -528,7 +586,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<String, String> updates = ImmutableMap.of();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -548,7 +606,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(badApplicantId, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        badApplicantId, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -565,7 +624,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates)
+                    .stageAndUpdateIfValid(applicant.id, badProgramId, "1", updates, false)
                     .toCompletableFuture()
                     .join());
 
@@ -584,7 +643,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .stageAndUpdateIfValid(
-                        applicant.id, programDefinition.id(), badBlockId, updates)
+                        applicant.id, programDefinition.id(), badBlockId, updates, false)
                     .toCompletableFuture()
                     .join());
 
@@ -604,7 +663,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         catchThrowable(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join());
 
@@ -622,7 +682,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -645,7 +706,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+                    .stageAndUpdateIfValid(
+                        applicant.id, programDefinition.id(), "1", updates, false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -693,13 +755,17 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
     Application application =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -749,7 +815,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     secondProgram.save();
 
     subject
-        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates)
+        .stageAndUpdateIfValid(applicant.id, firstProgram.id, "1", updates, false)
         .toCompletableFuture()
         .join();
 
@@ -757,7 +823,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     storedFile.save();
 
     subject
-        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile)
+        .submitApplication(
+            applicant.id,
+            firstProgram.id,
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -766,7 +836,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
     subject
-        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile)
+        .submitApplication(
+            applicant.id,
+            secondProgram.id,
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -788,13 +862,17 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
     Application oldApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -804,13 +882,17 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Elisa")
             .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates)
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
 
     Application newApplication =
         subject
-            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -834,10 +916,182 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isThrownBy(
             () ->
                 subject
-                    .submitApplication(9999L, 9999L, trustedIntermediaryProfile)
+                    .submitApplication(9999L, 9999L, /* tiSubmitterEmail= */ Optional.empty())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void submitApplication_failsWithApplicationNotEligibleException() {
+    createProgramWithEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ true)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationNotEligibleException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "555 E 5th St.")
+            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
+                "47.578374020558954")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
+                "-122.3360380354971")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
+                "4326")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString()).contains("Seattle_InArea_");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation_with_existing_service_areas() {
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "555 E 5th St.")
+            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.CORRECTED).toString(),
+                CorrectedAddressState.CORRECTED.getSerializationFormat())
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
+                "47.578374020558954")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
+                "-122.3360380354971")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
+                "4326")
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA).toString(),
+                "Bloomington_NotInArea_1234,Seattle_Failed_4567")
+            .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.asJsonString())
+        .contains("Bloomington_NotInArea_1234", "Seattle_InArea_");
+    assertThat(applicantDataAfter.asJsonString()).doesNotContain("Seattle_Failed_4567");
+  }
+
+  @Test
+  public void submitApplication_failsWithApplicationOutOfDateException() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ false)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationOutOfDateException.class)
         .withMessageContaining("Application", "failed to save");
   }
 
@@ -986,6 +1240,118 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programForUnapplied.id);
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_setsEligibility() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
+    Program programForDraft =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.of(true));
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.empty());
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_setsEligibilityOnMultipleApps() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
+    Program programForDraft =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibilityDef)
+            .build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(result.inProgress().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.of(true));
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
+        .containsExactly(Optional.of(true));
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
@@ -1385,15 +1751,16 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private void createQuestions() {
     questionDefinition =
-        questionService
-            .create(
-                new NameQuestionDefinition(
-                    "name",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
-            .getResult();
+        (NameQuestionDefinition)
+            questionService
+                .create(
+                    new NameQuestionDefinition(
+                        "name",
+                        Optional.empty(),
+                        "description",
+                        LocalizedStrings.of(Locale.US, "question?"),
+                        LocalizedStrings.of(Locale.US, "help text")))
+                .getResult();
   }
 
   private void createProgram() {
@@ -1414,5 +1781,439 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withOptionalQuestion(question)
             .buildDefinition();
+  }
+  /**
+   * Makes an eligibility definition with a {@link NameQuestionDefinition} and an eligibility
+   * condition that the question's {@link Scalar.FIRST_NAME} be "eligible name"
+   */
+  private EligibilityDefinition createEligibilityDefinition(NameQuestionDefinition question) {
+    return EligibilityDefinition.builder()
+        .setPredicate(
+            PredicateDefinition.create(
+                PredicateExpressionNode.create(
+                    LeafOperationExpressionNode.create(
+                        question.getId(),
+                        Scalar.FIRST_NAME,
+                        Operator.EQUAL_TO,
+                        PredicateValue.of("eligible name"))),
+                PredicateAction.ELIGIBLE_BLOCK))
+        .build();
+  }
+
+  /**
+   * Makes a program with a {@link NameQuestionDefinition} and an eligibility condition that the
+   * question's {@link Scalar.FIRST_NAME} be "eligible name"
+   */
+  private void createProgramWithEligibility(NameQuestionDefinition question) {
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("eligible name"))),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(question))
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+  }
+
+  @Test
+  public void getCorrectedAddress_whenSuccessfullyApplyingACorrectedAddress()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
+          ExecutionException, InterruptedException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    AddressSuggestion addressSuggestion1 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("123 Some St")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(100)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(1.0)
+                    .setLongitude(1.1)
+                    .setWellKnownId(2)
+                    .build())
+            .setSingleLineAddress("123 Some St Seattle, WA 99999")
+            .build();
+
+    AddressSuggestion addressSuggestion2 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Any Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Any Ave Seattle, WA 99999")
+            .build();
+
+    ImmutableList<AddressSuggestion> addressSuggestionList =
+        ImmutableList.of(addressSuggestion1, addressSuggestion2);
+    Address address = addressSuggestion1.getAddress();
+    AddressLocation addressLocation = addressSuggestion1.getLocation();
+
+    // Act
+    ImmutableMap<String, String> correctedAddress =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                addressSuggestion1.getSingleLineAddress(),
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddress.get(addressQuestion.getStreetPath().toString()))
+        .isEqualTo(address.getStreet());
+    assertThat(correctedAddress.get(addressQuestion.getLine2Path().toString()))
+        .isEqualTo(address.getLine2());
+    assertThat(correctedAddress.get(addressQuestion.getCityPath().toString()))
+        .isEqualTo(address.getCity());
+    assertThat(correctedAddress.get(addressQuestion.getStatePath().toString()))
+        .isEqualTo(address.getState());
+    assertThat(correctedAddress.get(addressQuestion.getZipPath().toString()))
+        .isEqualTo(address.getZip());
+    assertThat(correctedAddress.get(addressQuestion.getLatitudePath().toString()))
+        .isEqualTo(addressLocation.getLatitude().toString());
+    assertThat(correctedAddress.get(addressQuestion.getLongitudePath().toString()))
+        .isEqualTo(addressLocation.getLongitude().toString());
+    assertThat(correctedAddress.get(addressQuestion.getWellKnownIdPath().toString()))
+        .isEqualTo(addressLocation.getWellKnownId().toString());
+    assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.CORRECTED.getSerializationFormat());
+  }
+
+  @Test
+  public void getCorrectedAddress_whenUserChooseToKeepTheAddressOriginallyEntered()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
+          ExecutionException, InterruptedException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    AddressSuggestion addressSuggestion1 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("123 Some St")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(100)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(1.0)
+                    .setLongitude(1.1)
+                    .setWellKnownId(2)
+                    .build())
+            .setSingleLineAddress("123 Some St Seattle, WA 99999")
+            .build();
+
+    AddressSuggestion addressSuggestion2 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Any Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Any Ave Seattle, WA 99999")
+            .build();
+
+    ImmutableList<AddressSuggestion> addressSuggestionList =
+        ImmutableList.of(addressSuggestion1, addressSuggestion2);
+
+    // Act
+    ImmutableMap<String, String> correctedAddress =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                AddressCorrectionBlockView.USER_KEEPING_ADDRESS_VALUE,
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.AS_ENTERED_BY_USER.getSerializationFormat());
+  }
+
+  @Test
+  public void getCorrectedAddress_whenExternalCorrectionFails()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException,
+          ExecutionException, InterruptedException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    AddressSuggestion addressSuggestion1 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("123 Some St")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(100)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(1.0)
+                    .setLongitude(1.1)
+                    .setWellKnownId(2)
+                    .build())
+            .setSingleLineAddress("123 Some St Seattle, WA 99999")
+            .build();
+
+    AddressSuggestion addressSuggestion2 =
+        AddressSuggestion.builder()
+            .setAddress(
+                Address.builder()
+                    .setStreet("456 Any Ave")
+                    .setLine2("")
+                    .setCity("Seattle")
+                    .setState("WA")
+                    .setZip("99999")
+                    .build())
+            .setScore(90)
+            .setLocation(
+                AddressLocation.builder()
+                    .setLatitude(3.0)
+                    .setLongitude(3.1)
+                    .setWellKnownId(4)
+                    .build())
+            .setSingleLineAddress("456 Any Ave Seattle, WA 99999")
+            .build();
+
+    ImmutableList<AddressSuggestion> addressSuggestionList =
+        ImmutableList.of(addressSuggestion1, addressSuggestion2);
+
+    // Act
+    ImmutableMap<String, String> correctedAddress =
+        subject
+            .getCorrectedAddress(
+                applicant.id,
+                program.id,
+                String.valueOf(blockDefinition.id()),
+                "asdf",
+                addressSuggestionList)
+            .toCompletableFuture()
+            .get();
+
+    // Assert
+    assertThat(correctedAddress.get(addressQuestion.getCorrectedPath().toString()))
+        .isEqualTo(CorrectedAddressState.FAILED.getSerializationFormat());
+  }
+
+  @Test
+  public void getFirstAddressCorrectionEnabledApplicantQuestion_isSuccessful()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    programDefinition = programService.getProgramDefinition(program.id);
+    blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
+
+    Block block =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+
+    // Act
+    ApplicantQuestion applicantQuestionNew =
+        subject.getFirstAddressCorrectionEnabledApplicantQuestion(block);
+
+    // Assert
+    assertThat(applicantQuestionNew.isAddressCorrectionEnabled()).isTrue();
+  }
+
+  @Test
+  public void getFirstAddressCorrectionEnabledApplicantQuestion_fails() {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+
+    Block block =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+
+    // Act & Assert
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> subject.getFirstAddressCorrectionEnabledApplicantQuestion(block))
+        .withMessageContaining(
+            "Expected to find an address with address correction enabled in block");
+  }
+
+  @Test
+  public void getAddressSuggestionGroup_isSuccessful()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    // Arrange
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    Question question = testQuestionBank.applicantAddress();
+
+    Program program =
+        ProgramBuilder.newActiveProgram("program")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .withBlock()
+            .withRequiredQuestion(question)
+            .build();
+
+    BlockDefinition blockDefinition =
+        program.getProgramDefinition().blockDefinitions().stream().findFirst().get();
+    QuestionDefinition questionDefinition = blockDefinition.getQuestionDefinition(0);
+
+    programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
+        program.id, blockDefinition.id(), questionDefinition.getId(), true);
+
+    programDefinition = programService.getProgramDefinition(program.id);
+    blockDefinition = programDefinition.getBlockDefinition(blockDefinition.id());
+
+    Block block =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+
+    // Act
+    AddressSuggestionGroup addressSuggestionGroup =
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
+
+    // Assert
+    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
   }
 }

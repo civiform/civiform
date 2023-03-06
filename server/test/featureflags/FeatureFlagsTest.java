@@ -19,13 +19,9 @@ public class FeatureFlagsTest {
           ImmutableMap.of(
               "feature_flag_overrides_enabled",
               "true",
-              FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
-              "true",
               FeatureFlags.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
               "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-              "true",
-              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
               "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
@@ -33,21 +29,13 @@ public class FeatureFlagsTest {
   private static final Config featuresEnabledConfig =
       ConfigFactory.parseMap(
           ImmutableMap.of(
-              FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
-              "true",
               FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-              "true",
-              FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
               "true",
               FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
               "true"));
   private static final Map<String, String> allFeaturesEnabledMap =
       Map.of(
-          FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
-          "true",
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "true",
-          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "true",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "true");
@@ -56,11 +44,7 @@ public class FeatureFlagsTest {
 
   private static final Map<String, String> allFeaturesDisabledMap =
       Map.of(
-          FeatureFlags.APPLICATION_STATUS_TRACKING_ENABLED,
-          "false",
           FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "false",
-          FeatureFlags.PREDICATES_MULTIPLE_QUESTIONS_ENABLED,
           "false",
           FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
           "false");
@@ -73,9 +57,7 @@ public class FeatureFlagsTest {
   public void isEnabled_withNoConfig_withNoOverride_isNotEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
 
-    assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
@@ -83,10 +65,7 @@ public class FeatureFlagsTest {
     FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
 
     // Overrides only apply if the config is present.
-    assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
-        .isFalse();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(allFeaturesEnabledRequest))
         .isFalse();
   }
 
@@ -94,18 +73,14 @@ public class FeatureFlagsTest {
   public void isEnabled_withFeatureDisabled_withNoOverride_isDisables() {
     FeatureFlags featureFlags = new FeatureFlags(featuresDisabledConfig);
 
-    assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isFalse();
   }
 
   @Test
   public void isEnabled_withFeatureEnabled_withNoOverride_isEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
 
-    assertThat(featureFlags.isStatusTrackingEnabled(fakeRequest().build())).isTrue();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isTrue();
-    assertThat(featureFlags.isPredicatesMultipleQuestionsEnabled(fakeRequest().build())).isTrue();
   }
 
   @Test
@@ -113,7 +88,6 @@ public class FeatureFlagsTest {
     // A flag not in the config can not be overriden.
     FeatureFlags featureFlags = new FeatureFlags(overridesEnabledConfig);
 
-    assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
         .isFalse();
   }
@@ -122,7 +96,6 @@ public class FeatureFlagsTest {
   public void isEnabled_withFeatureEnabled_withOverridesDisabled_withDisabledOverride_isEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
 
-    assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesDisabledRequest)).isTrue();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesDisabledRequest))
         .isTrue();
   }
@@ -131,7 +104,6 @@ public class FeatureFlagsTest {
   public void isEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideFalse_isNotEnabled() {
     FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
 
-    assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesDisabledRequest)).isFalse();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesDisabledRequest))
         .isFalse();
   }
@@ -140,7 +112,6 @@ public class FeatureFlagsTest {
   public void isEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
     FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
 
-    assertThat(featureFlags.isStatusTrackingEnabled(allFeaturesEnabledRequest)).isTrue();
     assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
         .isTrue();
   }

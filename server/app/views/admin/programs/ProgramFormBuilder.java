@@ -9,12 +9,15 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 
 import com.typesafe.config.Config;
+import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
 import modules.MainModule;
+import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import views.BaseHtmlView;
 import views.components.FieldWithLabel;
 import views.style.AdminStyles;
@@ -26,43 +29,56 @@ import views.style.BaseStyles;
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
 
+  private final FeatureFlags featureFlags;
   private final String baseUrl;
 
-  ProgramFormBuilder(Config configuration) {
+  ProgramFormBuilder(Config configuration, FeatureFlags featureFlags) {
+    this.featureFlags = featureFlags;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
   }
 
   /** Builds the form using program form data. */
-  protected final FormTag buildProgramForm(ProgramForm program, boolean editExistingProgram) {
+  protected final FormTag buildProgramForm(
+      Request request, ProgramForm program, boolean editExistingProgram) {
     return buildProgramForm(
+        request,
         program.getAdminName(),
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
         program.getLocalizedDisplayDescription(),
         program.getExternalLink(),
+        program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
+        program.getIsCommonIntakeForm(),
         editExistingProgram);
   }
 
   /** Builds the form using program definition data. */
-  protected final FormTag buildProgramForm(ProgramDefinition program, boolean editExistingProgram) {
+  protected final FormTag buildProgramForm(
+      Request request, ProgramDefinition program, boolean editExistingProgram) {
     return buildProgramForm(
+        request,
         program.adminName(),
         program.adminDescription(),
         program.localizedName().getDefault(),
         program.localizedDescription().getDefault(),
         program.externalLink(),
+        program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
+        program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
         editExistingProgram);
   }
 
   private FormTag buildProgramForm(
+      Request request,
       String adminName,
       String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
+      String confirmationSceen,
       String displayMode,
+      Boolean isCommonIntakeForm,
       boolean editExistingProgram) {
     FormTag formTag = form().withMethod("POST");
     formTag.with(
@@ -87,6 +103,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Link to program website")
             .setValue(externalLink)
             .getInputTag(),
+        FieldWithLabel.textArea()
+            .setId("program-confirmation-message-textarea")
+            .setFieldName("localizedConfirmationMessage")
+            .setLabelText(
+                "A custom message that will be shown on the confirmation page after an application"
+                    + " has been submitted. You can use this message to explain next steps of the"
+                    + " application process and/or highlight other programs to apply for.")
+            .setValue(confirmationSceen)
+            .getTextareaTag(),
         h2("Visible to administrators only").withClasses("py-2"),
         // TODO(#2618): Consider using helpers for grouping related radio controls.
         fieldset()
@@ -113,7 +138,17 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only*")
             .setValue(adminDescription)
-            .getTextareaTag(),
+            .getTextareaTag());
+    if (featureFlags.isIntakeFormEnabled(request)) {
+      formTag.with(
+          FieldWithLabel.checkbox()
+              .setFieldName("isCommonIntakeForm")
+              .setLabelText("Set program as common intake")
+              .setValue("true")
+              .setChecked(isCommonIntakeForm)
+              .getCheckboxTag());
+    }
+    formTag.with(
         submitButton("Save")
             .withId("program-update-button")
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));

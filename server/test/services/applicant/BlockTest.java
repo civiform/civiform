@@ -1,6 +1,8 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -14,7 +16,13 @@ import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
+import services.program.predicate.PredicateAction;
+import services.program.predicate.PredicateDefinition;
+import services.program.predicate.PredicateExpressionNode;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
@@ -109,6 +117,34 @@ public class BlockTest {
             new ApplicantQuestion(NAME_QUESTION, applicantData, Optional.empty()),
             new ApplicantQuestion(COLOR_QUESTION, applicantData, Optional.empty()));
     assertThat(block.getQuestions()).containsExactlyElementsOf(expected);
+  }
+
+  @Test
+  public void getQuestion_returnsCorrectQuestion() throws QuestionNotFoundException {
+    BlockDefinition definition = setUpBlockWithQuestions();
+    ApplicantData applicantData = new ApplicantData();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    ApplicantQuestion expectedQuestion1 =
+        new ApplicantQuestion(NAME_QUESTION, applicantData, Optional.empty());
+    ApplicantQuestion expectedQuestion2 =
+        new ApplicantQuestion(COLOR_QUESTION, applicantData, Optional.empty());
+
+    assertThat(block.getQuestion(1L)).isEqualTo(expectedQuestion1);
+    assertThat(block.getQuestion(2L)).isEqualTo(expectedQuestion2);
+  }
+
+  @Test
+  public void getQuestion_throwsExceptionIfIdNotPresent() {
+    BlockDefinition definition = setUpBlockWithQuestions();
+    ApplicantData applicantData = new ApplicantData();
+
+    Block block = new Block("1", definition, applicantData, Optional.empty());
+
+    assertThatThrownBy(() -> block.getQuestion(3L))
+        .isInstanceOf(QuestionNotFoundException.class)
+        .hasMessageContaining("Question not found for ID: 3");
   }
 
   @Test
@@ -648,6 +684,64 @@ public class BlockTest {
     Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
 
     assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+  }
+
+  @Test
+  public void getLeafAddressNodeServiceAreaIds() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+            .setOptional(true);
+    QuestionDefinition addressQuestion =
+        testQuestionBank.applicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle")),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .setEligibilityDefinition(eligibilityDef)
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+
+    Optional<ImmutableList<String>> serviceAreaIds = block.getLeafAddressNodeServiceAreaIds();
+
+    assertThat(serviceAreaIds.isPresent()).isTrue();
+    assertEquals("Seattle", serviceAreaIds.get().get(0));
+  }
+
+  @Test
+  public void getAddressQuestionWithCorrectionEnabled() {
+    ApplicantData applicantData = new ApplicantData();
+    long programId = 5L;
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+                testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
+            .setAddressCorrectionEnabled(true);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("name")
+            .setDescription("desc")
+            .addQuestion(pqd)
+            .build();
+
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
+    Optional<ApplicantQuestion> addressQuestion = block.getAddressQuestionWithCorrectionEnabled();
+    assertThat(addressQuestion.isPresent()).isTrue();
+    assertThat(addressQuestion.get().isAddressCorrectionEnabled()).isTrue();
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {

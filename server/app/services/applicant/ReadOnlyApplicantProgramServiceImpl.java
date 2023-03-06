@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -25,6 +27,7 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -73,6 +76,16 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public Long getProgramId() {
+    return this.programDefinition.id();
+  }
+
+  @Override
+  public LocalizedStrings getCustomConfirmationMessage() {
+    return this.programDefinition.localizedConfirmationMessage();
+  }
+
+  @Override
   public ImmutableList<String> getStoredFileKeys() {
     return getAllActiveBlocks().stream()
         .filter(Block::isFileUpload)
@@ -83,6 +96,22 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         .map(FileUploadQuestion::getFileKeyValue)
         .flatMap(Optional::stream)
         .collect(ImmutableList.toImmutableList());
+  }
+
+  @Override
+  public boolean isApplicationEligible() {
+    return getAllActiveBlocks().stream().allMatch(block -> isBlockEligible(block.getId()));
+  }
+
+  @Override
+  public boolean isApplicationNotEligible() {
+    return getAllActiveBlocks().stream()
+        .anyMatch(
+            block ->
+                block.getQuestions().stream()
+                    .anyMatch(
+                        question ->
+                            !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
   }
 
   @Override
@@ -128,6 +157,31 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   }
 
   @Override
+  public ImmutableList<ApplicantQuestion> getIneligibleQuestions() {
+    ImmutableList<Block> blocks = getAllActiveBlocks();
+    List<ApplicantQuestion> questionList = new ArrayList<>();
+    for (Block block : blocks) {
+      if (block.getEligibilityDefinition().isPresent()) {
+        ImmutableList<Long> eligibilityQuestions =
+            block.getEligibilityDefinition().get().predicate().getQuestions();
+        eligibilityQuestions.forEach(
+            question -> {
+              try {
+                ApplicantQuestion applicantQuestion = block.getQuestion(question.longValue());
+                if (applicantQuestion.isAnswered()
+                    && !isQuestionEligibleInBlock(block, applicantQuestion)) {
+                  questionList.add(applicantQuestion);
+                }
+              } catch (QuestionNotFoundException e) {
+                throw new RuntimeException(e);
+              }
+            });
+      }
+    }
+    return questionList.stream().distinct().collect(toImmutableList());
+  }
+
+  @Override
   public Optional<Block> getBlock(String blockId) {
     return getAllActiveBlocks().stream()
         .filter((block) -> block.getId().equals(blockId))
@@ -158,13 +212,15 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     return -1;
   }
 
+  /** Returns the first block with an unanswered question or static block. */
   @Override
-  public Optional<Block> getFirstIncompleteBlock() {
+  public Optional<Block> getFirstIncompleteOrStaticBlock() {
     return getInProgressBlocks().stream()
         .filter(block -> !block.isCompletedInProgramWithoutErrors() || block.containsStatic())
         .findFirst();
   }
 
+  /** Returns the first block with an unanswered question. */
   @Override
   public Optional<Block> getFirstIncompleteBlockExcludingStatic() {
     return getInProgressBlocks().stream()
@@ -191,16 +247,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
           continue;
         }
         boolean isAnswered = question.isAnswered();
-        // A block's eligibility can only be on questions in the block, so if the block is
-        // ineligible see if this question is part of that eligibility condition.
-        boolean isEligible =
-            isBlockEligible(block.getId())
-                || !block
-                    .getEligibilityDefinition()
-                    .get()
-                    .predicate()
-                    .getQuestions()
-                    .contains(question.getQuestionDefinition().getId());
+        boolean isEligible = isQuestionEligibleInBlock(block, question);
         String questionText = question.getQuestionText();
         String questionTextForScreenReader = question.getQuestionTextForScreenReader();
         String answerText = question.errorsPresenter().getAnswerString();
@@ -258,6 +305,20 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         emptyBlockIdSuffix,
         Optional.empty(),
         includeBlockIfTrue);
+  }
+
+  /**
+   * True if the {@link ApplicantQuestion} is eligible in the given {@link Block}. If the block is
+   * not eligible, check if the question is part of that eligibility condition.
+   */
+  private boolean isQuestionEligibleInBlock(Block block, ApplicantQuestion question) {
+    return isBlockEligible(block.getId())
+        || !block
+            .getEligibilityDefinition()
+            .get()
+            .predicate()
+            .getQuestions()
+            .contains(question.getQuestionDefinition().getId());
   }
 
   /**

@@ -7,9 +7,12 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import services.Address;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
+import services.geo.ServiceAreaInclusion;
+import services.geo.ServiceAreaInclusionGroup;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -27,6 +30,12 @@ public final class AddressQuestion extends Question {
   private Optional<String> cityValue;
   private Optional<String> stateValue;
   private Optional<String> zipValue;
+  private Optional<String> correctedValue;
+  private Optional<Double> latitudeValue;
+  private Optional<Double> longitudeValue;
+  private Optional<Long> wellKnownIdValue;
+  private Path serviceAreaPath;
+  private Optional<ImmutableList<ServiceAreaInclusion>> serviceAreaValue;
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -164,6 +173,56 @@ public final class AddressQuestion extends Question {
     return zipValue;
   }
 
+  public Optional<String> getCorrectedValue() {
+    if (correctedValue != null) {
+      return correctedValue;
+    }
+
+    correctedValue = applicantQuestion.getApplicantData().readString(getCorrectedPath());
+    return correctedValue;
+  }
+
+  public Optional<Double> getLatitudeValue() {
+    if (latitudeValue != null) {
+      return latitudeValue;
+    }
+
+    latitudeValue = applicantQuestion.getApplicantData().readDouble(getLatitudePath());
+    return latitudeValue;
+  }
+
+  public Optional<Double> getLongitudeValue() {
+    if (longitudeValue != null) {
+      return longitudeValue;
+    }
+
+    longitudeValue = applicantQuestion.getApplicantData().readDouble(getLongitudePath());
+    return longitudeValue;
+  }
+
+  public Optional<Long> getWellKnownIdValue() {
+    if (wellKnownIdValue != null) {
+      return wellKnownIdValue;
+    }
+
+    wellKnownIdValue = applicantQuestion.getApplicantData().readLong(getWellKnownIdPath());
+    return wellKnownIdValue;
+  }
+
+  public Optional<ImmutableList<ServiceAreaInclusion>> getServiceAreaValue() {
+    if (serviceAreaValue != null) {
+      return serviceAreaValue;
+    }
+
+    Optional<String> serviceAreaString =
+        applicantQuestion.getApplicantData().readString(getServiceAreaPath());
+
+    return serviceAreaValue =
+        serviceAreaString.isPresent()
+            ? Optional.of(ServiceAreaInclusionGroup.deserialize(serviceAreaString.get()))
+            : Optional.empty();
+  }
+
   public AddressQuestionDefinition getQuestionDefinition() {
     return (AddressQuestionDefinition) applicantQuestion.getQuestionDefinition();
   }
@@ -188,6 +247,47 @@ public final class AddressQuestion extends Question {
     return applicantQuestion.getContextualizedPath().join(Scalar.ZIP);
   }
 
+  public Path getCorrectedPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.CORRECTED);
+  }
+
+  public Path getLatitudePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LATITUDE);
+  }
+
+  public Path getLongitudePath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.LONGITUDE);
+  }
+
+  public Path getWellKnownIdPath() {
+    return applicantQuestion.getContextualizedPath().join(Scalar.WELL_KNOWN_ID);
+  }
+
+  public Path getServiceAreaPath() {
+    if (serviceAreaPath != null) {
+      return serviceAreaPath;
+    }
+    return serviceAreaPath = applicantQuestion.getContextualizedPath().join(Scalar.SERVICE_AREA);
+  }
+
+  public Address getAddress() {
+    return Address.builder()
+        .setStreet(getStreetValue().orElse(""))
+        .setLine2(getLine2Value().orElse(""))
+        .setCity(getCityValue().orElse(""))
+        .setState(getStateValue().orElse(""))
+        .setZip(getZipValue().orElse(""))
+        .build();
+  }
+
+  /**
+   * Returns true if this question has address correction enabled, and it has not yet been through
+   * the correction process.
+   */
+  public Boolean needsAddressCorrection() {
+    return applicantQuestion.isAddressCorrectionEnabled() && getCorrectedValue().isEmpty();
+  }
+
   @Override
   public String getAnswerString() {
     String displayLine1 = getStreetValue().orElse("");
@@ -210,6 +310,15 @@ public final class AddressQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(
-        getStreetPath(), getLine2Path(), getCityPath(), getStatePath(), getZipPath());
+        getStreetPath(),
+        getLine2Path(),
+        getCityPath(),
+        getStatePath(),
+        getZipPath(),
+        getCorrectedPath(),
+        getLatitudePath(),
+        getLongitudePath(),
+        getWellKnownIdPath(),
+        getServiceAreaPath());
   }
 }

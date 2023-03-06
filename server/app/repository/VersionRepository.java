@@ -1,7 +1,7 @@
 package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableSet.toImmutableSet;
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static java.util.function.Predicate.not;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -26,9 +26,11 @@ import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.program.BlockDefinition;
+import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.predicate.AndNode;
+import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
@@ -276,13 +278,21 @@ public final class VersionRepository {
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
+  /** Returns true if the program is a member of the current draft version. */
   public boolean isDraft(Program program) {
     return isDraftProgram(program.id);
   }
 
+  /** Returns true if the program with the provided id is a member of the current draft version. */
   public boolean isDraftProgram(Long programId) {
     return getDraftVersion().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
+  }
+
+  /** Returns true if the program with the provided id is a member of the current active version. */
+  public boolean isActiveProgram(Long programId) {
+    return getActiveVersion().getPrograms().stream()
+        .anyMatch(activeProgram -> activeProgram.id.equals(programId));
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
@@ -303,6 +313,16 @@ public final class VersionRepository {
       updatedBlock.setVisibilityPredicate(
           PredicateDefinition.create(
               updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action()));
+    }
+    if (block.eligibilityDefinition().isPresent()) {
+      EligibilityDefinition eligibilityDefinition = block.eligibilityDefinition().get();
+      PredicateDefinition oldPredicate = eligibilityDefinition.predicate();
+      PredicateDefinition newPredicate =
+          PredicateDefinition.create(
+              updatePredicateNodeVersions(oldPredicate.rootNode()), oldPredicate.action());
+
+      updatedBlock.setEligibilityDefinition(
+          eligibilityDefinition.toBuilder().setPredicate(newPredicate).build());
     }
     if (block.optionalPredicate().isPresent()) {
       PredicateDefinition oldPredicate = block.optionalPredicate().get();
@@ -325,21 +345,28 @@ public final class VersionRepository {
     switch (node.getType()) {
       case AND:
         AndNode and = node.getAndNode();
-        ImmutableSet<PredicateExpressionNode> updatedAndChildren =
+        ImmutableList<PredicateExpressionNode> updatedAndChildren =
             and.children().stream()
                 .map(this::updatePredicateNodeVersions)
-                .collect(toImmutableSet());
+                .collect(toImmutableList());
         return PredicateExpressionNode.create(AndNode.create(updatedAndChildren));
       case OR:
         OrNode or = node.getOrNode();
-        ImmutableSet<PredicateExpressionNode> updatedOrChildren =
-            or.children().stream().map(this::updatePredicateNodeVersions).collect(toImmutableSet());
+        ImmutableList<PredicateExpressionNode> updatedOrChildren =
+            or.children().stream()
+                .map(this::updatePredicateNodeVersions)
+                .collect(toImmutableList());
         return PredicateExpressionNode.create(OrNode.create(updatedOrChildren));
       case LEAF_OPERATION:
-        LeafOperationExpressionNode leaf = node.getLeafNode();
+        LeafOperationExpressionNode leaf = node.getLeafOperationNode();
         Optional<Question> updated = getLatestVersionOfQuestion(leaf.questionId());
         return PredicateExpressionNode.create(
             leaf.toBuilder().setQuestionId(updated.orElseThrow().id).build());
+      case LEAF_ADDRESS_SERVICE_AREA:
+        LeafAddressServiceAreaExpressionNode leafAddress = node.getLeafAddressNode();
+        Optional<Question> updatedQuestion = getLatestVersionOfQuestion(leafAddress.questionId());
+        return PredicateExpressionNode.create(
+            leafAddress.toBuilder().setQuestionId(updatedQuestion.orElseThrow().id).build());
     }
     // ErrorProne will require the switch handle all types since there isn't a default, we should
     // never get here.

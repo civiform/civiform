@@ -25,7 +25,7 @@ import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class Auth0ProviderTest extends ResetPostgres {
-  private Auth0Provider auth0Provider;
+  private Auth0ClientProvider auth0Provider;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
@@ -54,7 +54,7 @@ public class Auth0ProviderTest extends ResetPostgres {
 
     // Just need some complete adaptor to access methods.
     auth0Provider =
-        new Auth0Provider(
+        new Auth0ClientProvider(
             config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
   }
 

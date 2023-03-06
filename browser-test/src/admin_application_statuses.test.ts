@@ -2,7 +2,6 @@ import {
   AdminPrograms,
   createTestContext,
   dismissModal,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
@@ -13,6 +12,7 @@ import {
   testUserDisplayName,
   extractEmailsForRecipient,
   validateScreenshot,
+  enableFeatureFlag,
 } from './support'
 
 describe('view program statuses', () => {
@@ -75,7 +75,6 @@ describe('view program statuses', () => {
       const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
         ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program, no questions are needed.
       await adminPrograms.addProgram(programWithStatusesName)
@@ -108,7 +107,6 @@ describe('view program statuses', () => {
     beforeEach(async () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant('Guest')
     })
@@ -366,7 +364,6 @@ describe('view program statuses', () => {
         adminProgramStatuses,
       } = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
 
       // Add a program with a single question that is used for asserting downloaded content.
       await adminPrograms.addProgram(programForFilteringName)
@@ -399,7 +396,6 @@ describe('view program statuses', () => {
     beforeEach(async () => {
       const {page} = ctx
       await loginAsProgramAdmin(page)
-      await enableFeatureFlag(page, 'application_status_tracking_enabled')
     })
 
     it('application without status appears in default filter and without statuses filter', async () => {
@@ -531,6 +527,87 @@ describe('view program statuses', () => {
         .innerText()
       expect(applicationText).toContain('Guest')
       expect(applicationText).toContain(favoriteColorAnswer)
+    })
+  })
+
+  describe('correctly shows eligibility', () => {
+    const eligibilityProgramName = 'Test program for eligibility status'
+    const eligibilityQuestionId = 'eligibility-number-q'
+
+    beforeAll(async () => {
+      const {
+        page,
+        adminQuestions,
+        adminPredicates,
+        applicantQuestions,
+        adminPrograms,
+      } = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+      // Create a program without eligibility
+      await adminQuestions.addNumberQuestion({
+        questionName: eligibilityQuestionId,
+      })
+      await adminPrograms.addProgram(eligibilityProgramName)
+      await adminPrograms.editProgramBlock(
+        eligibilityProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(eligibilityProgramName)
+      await logout(page)
+
+      // Before eligibility conditions are added, submit ineligible app
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(eligibilityProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+
+      // Add eligibility conditions to existing program
+      await loginAsAdmin(page)
+      await adminPrograms.createNewVersion(eligibilityProgramName)
+      await adminPrograms.gotoEditDraftProgramPage(eligibilityProgramName)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        eligibilityProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        eligibilityQuestionId,
+        /* action= */ null,
+        'number',
+        'is equal to',
+        '5',
+      )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(eligibilityProgramName)
+      await logout(page)
+
+      // Submit eligible app
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(eligibilityProgramName)
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      await logout(page)
+    })
+
+    it('application list shows eligibility statuses', async () => {
+      const {page, adminPrograms} = ctx
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(eligibilityProgramName)
+      await validateScreenshot(
+        page,
+        'application-view-with-eligibility-statuses',
+      )
     })
   })
 })

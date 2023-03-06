@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -13,16 +12,18 @@ import models.DisplayMode;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
-import play.Environment;
+import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.CiviFormError;
+import services.DeploymentType;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
+import services.program.ProgramType;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -49,13 +50,14 @@ import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the database with test content to develop against. */
-public class DatabaseSeedController extends DevController {
+public class DatabaseSeedController extends Controller {
 
   private final DatabaseSeedTask databaseSeedTask;
   private final DatabaseSeedView view;
   private final Database database;
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final boolean isDevOrStaging;
 
   @Inject
   public DatabaseSeedController(
@@ -63,14 +65,13 @@ public class DatabaseSeedController extends DevController {
       DatabaseSeedView view,
       QuestionService questionService,
       ProgramService programService,
-      Environment environment,
-      Config configuration) {
-    super(environment, configuration);
+      DeploymentType deploymentType) {
     this.databaseSeedTask = checkNotNull(databaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
+    this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
 
   /**
@@ -78,7 +79,7 @@ public class DatabaseSeedController extends DevController {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (!isDevOrStagingEnvironment()) {
+    if (!isDevOrStaging) {
       return notFound();
     }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
@@ -90,7 +91,7 @@ public class DatabaseSeedController extends DevController {
   }
 
   public Result seedCanonicalQuestions() {
-    if (!isDevOrStagingEnvironment()) {
+    if (!isDevOrStaging) {
       return notFound();
     }
 
@@ -102,7 +103,7 @@ public class DatabaseSeedController extends DevController {
 
   public Result seed() {
     // TODO: Check whether test program already exists to prevent error.
-    if (!isDevOrStagingEnvironment()) {
+    if (!isDevOrStaging) {
       return notFound();
     }
     QuestionDefinition canonicalNameQuestion =
@@ -117,7 +118,7 @@ public class DatabaseSeedController extends DevController {
 
   /** Remove all content from the program and question tables. */
   public Result clear() {
-    if (!isDevOrStagingEnvironment()) {
+    if (!isDevOrStaging) {
       return notFound();
     }
     resetTables();
@@ -330,8 +331,11 @@ public class DatabaseSeedController extends DevController {
               "desc",
               displayName,
               "display description",
+              /* defaultConfirmationMessage= */ "",
               "https://github.com/seattle-uat/civiform",
-              DisplayMode.PUBLIC.getValue());
+              DisplayMode.PUBLIC.getValue(),
+              /* programType= */ ProgramType.DEFAULT,
+              /* isIntakeFormFeatureEnabled= */ false);
       if (programDefinitionResult.isError()) {
         throw new Exception(programDefinitionResult.getErrors().toString());
       }

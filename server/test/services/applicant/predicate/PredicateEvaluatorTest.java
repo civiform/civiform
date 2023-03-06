@@ -3,7 +3,6 @@ package services.applicant.predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,7 +85,7 @@ public class PredicateEvaluatorTest {
 
     AndNode andNode =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isTrue();
@@ -106,7 +105,7 @@ public class PredicateEvaluatorTest {
 
     AndNode andNode =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isFalse();
@@ -126,7 +125,7 @@ public class PredicateEvaluatorTest {
 
     OrNode orNode =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(orNode))).isTrue();
@@ -146,7 +145,7 @@ public class PredicateEvaluatorTest {
 
     OrNode orNode =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(orNode))).isFalse();
@@ -170,11 +169,11 @@ public class PredicateEvaluatorTest {
 
     OrNode orNode =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
     AndNode andNode =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(orNode), PredicateExpressionNode.create(zip)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isTrue();
@@ -199,11 +198,11 @@ public class PredicateEvaluatorTest {
 
     OrNode orNode =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
     AndNode andNode =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(orNode), PredicateExpressionNode.create(zip)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isFalse();
@@ -228,11 +227,11 @@ public class PredicateEvaluatorTest {
 
     OrNode orNode =
         OrNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(city), PredicateExpressionNode.create(state)));
     AndNode andNode =
         AndNode.create(
-            ImmutableSet.of(
+            ImmutableList.of(
                 PredicateExpressionNode.create(orNode), PredicateExpressionNode.create(zip)));
 
     assertThat(evaluator.evaluate(PredicateExpressionNode.create(andNode))).isFalse();
