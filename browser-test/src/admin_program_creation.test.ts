@@ -2,7 +2,7 @@ import {
   createTestContext,
   disableFeatureFlag,
   enableFeatureFlag,
-  loginAsAdmin,
+  loginAsAdmin, validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -37,8 +37,30 @@ describe('program creation', () => {
       'program-creation-static-question-with-formatting',
     )
   })
+  it('create program and search for questions', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
 
-  it('create program with enumerator and repeated questions', async () => {
+    await loginAsAdmin(page)
+
+    await adminQuestions.addAddressQuestion({questionName: 'address-w-admin-note', description:'this is a note'})
+
+    const programName = 'search-program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'search program description')
+
+    await adminPrograms.openQuestionBank()
+
+    expect(await page.innerText('id=question-bank-questions')).toContain(
+      'address-w-admin-note',
+    )
+    expect(await page.innerText('id=question-bank-questions')).toContain(
+      'this is a note',
+    )
+
+    await validateScreenshot(page, 'open-question-search')
+  })
+
+    it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
