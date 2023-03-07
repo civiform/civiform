@@ -18,6 +18,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import j2html.tags.specialized.PTag;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
@@ -205,6 +206,12 @@ public final class QuestionBank {
         definition.getQuestionHelpText().isEmpty()
             ? ""
             : definition.getQuestionHelpText().getDefault();
+    // Only show the admin note if it is not empty.
+    PTag adminNote =
+        definition.getDescription().isEmpty()
+            ? p()
+            : p(String.format("Admin note: %s", definition.getDescription()))
+                .withClasses("mt-1", "text-sm");
     DivTag content =
         div()
             .withClasses("ml-4", "grow")
@@ -213,7 +220,8 @@ public final class QuestionBank {
                     .withClasses(ReferenceClasses.ADMIN_QUESTION_TITLE, "font-bold"),
                 p(questionHelpText).withClasses("mt-1", "text-sm", "line-clamp-2"),
                 p(String.format("Admin ID: %s", definition.getName()))
-                    .withClasses("mt-1", "text-sm"));
+                    .withClasses("mt-1", "text-sm"),
+                adminNote);
 
     return questionDiv.with(icon, content, addButton);
   }
