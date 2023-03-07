@@ -4,21 +4,21 @@ import {init as mainInit} from './main'
 class AdminProgramBlockEdit {
   public registerEventListeners() {
     addEventListenerToElements('form.move-block', 'submit', (event: Event) =>
-      this.handleMoveBlock(event),
+      this.handlePageUpdate(event),
     )
 
-    addEventListenerToElements('move-question', 'submit', (event: Event) =>
-      this.handleMoveBlock(event),
+    addEventListenerToElements('form.move-question', 'submit', (event: Event) =>
+      this.handlePageUpdate(event),
     )
 
     addEventListenerToElements(
-      'question-option-toggle',
+      'form.question-option-toggle',
       'submit',
-      (event: Event) => this.handleMoveBlock(event),
+      (event: Event) => this.handlePageUpdate(event),
     )
   }
 
-  private handleMoveBlock(event: Event) {
+  private handlePageUpdate(event: Event) {
     event.preventDefault()
 
     const form = event.target as HTMLFormElement
