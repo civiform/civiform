@@ -1,5 +1,6 @@
 import {addEventListenerToElements} from './util'
 import {init as mainInit} from './main'
+import {init as questionBankInit} from './questionBank'
 
 class AdminProgramBlockEdit {
   public registerEventListeners() {
@@ -34,6 +35,7 @@ class AdminProgramBlockEdit {
           .querySelector('body') as HTMLElement
 
         mainInit()
+        questionBankInit()
         this.registerEventListeners()
       })
       .catch((err) => {
