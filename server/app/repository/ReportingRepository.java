@@ -28,7 +28,11 @@ public final class ReportingRepository {
     this.database = DB.getDefault();
   }
 
-  /** Loads data from the monthly reporting view. */
+  /**
+   * Loads data from the monthly reporting view. Does not include data from current month because
+   * the job to refresh the view is scheduled to run at the beginning of each month. For current
+   * month reporting data use {@code loadThisMonthReportingData}.
+   */
   public ImmutableList<ApplicationSubmissionsStat> loadMonthlyReportingView() {
     return database
         .sqlQuery(
