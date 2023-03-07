@@ -24,9 +24,9 @@ class AdminProgramBlockEdit {
 
         this.registerEventListeners()
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err)
-        alert("An error has occured, please refresh the page and try again.")
+        alert('An error has occured, please refresh the page and try again.')
       })
   }
 }
