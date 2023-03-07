@@ -16,6 +16,7 @@ import * as devIcons from './dev_icons'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
 import * as preview from './preview'
+import * as enumerator from './enumerator'
 
 window.addEventListener('load', () => {
   main.init()
@@ -31,4 +32,5 @@ window.addEventListener('load', () => {
   modal.init()
   questionBank.init()
   preview.init()
+  enumerator.init()
 })

@@ -50,6 +50,13 @@ function addNewEnumeratorField() {
     newField.querySelector('label[for="enumerator-field-template-input"]'),
   )
   labelElement.setAttribute('for', inputElement.id)
+
+  // every time we add a new input, we need to add the index number to the label and button
+  const index = assertNotNull(
+    document.querySelectorAll('.cf-enumerator-field:not(.hidden)'),
+  ).length
+  addIndexToLabelAndButton(newField, index)
+
   const errorsElement = assertNotNull(
     newField.querySelector('#enumerator-field-template-input-errors'),
   )
@@ -84,6 +91,9 @@ function removeEnumeratorField(event: Event) {
     (event.currentTarget as HTMLElement).parentNode,
   ) as HTMLElement
   enumeratorFieldDiv.remove()
+
+  // Need to re-index all enumerator entities when one is removed so labels are consistent
+  repaintAllLabelsAndButtons()
 
   setFocusAfterEnumeratorRemoval()
 }
@@ -121,6 +131,9 @@ function removeExistingEnumeratorField(event: Event) {
 
   // Add the hidden deleted entity input to the page.
   enumeratorFieldDiv.appendChild(deletedEntityInput)
+
+  // Need to re-index all enumerator entities when one is removed so labels are consistent
+  repaintAllLabelsAndButtons()
 
   setFocusAfterEnumeratorRemoval()
 }
@@ -174,14 +187,18 @@ function addEnumeratorListeners() {
   const mutationObserver = new MutationObserver((records: MutationRecord[]) => {
     for (const record of records) {
       for (const newNode of Array.from(record.addedNodes)) {
-        const newInputs = Array.from(
-          (<Element>newNode).querySelectorAll('input'),
-        )
-        newInputs.forEach((newInput) => {
-          newInput.addEventListener('input', () => {
-            maybeToggleEnumeratorAddButton(enumeratorQuestion)
+        // changes to the label and button texts trigger the mutationObserver which results in an error
+        // this if statement protects against that case
+        if ((<Element>newNode).querySelectorAll) {
+          const newInputs = Array.from(
+            (<Element>newNode).querySelectorAll('input'),
+          )
+          newInputs.forEach((newInput) => {
+            newInput.addEventListener('input', () => {
+              maybeToggleEnumeratorAddButton(enumeratorQuestion)
+            })
           })
-        })
+        }
       }
     }
     maybeToggleEnumeratorAddButton(enumeratorQuestion)
@@ -213,4 +230,38 @@ function maybeToggleEnumeratorAddButton(enumeratorQuestion: Element) {
       addButton.disabled = enumeratorInputValues.includes('')
     }
   }
+}
+
+/**
+ * When enumerator entities are removed from the page, we need to repaint all
+ * labels and buttons so the index orders remain correct.
+ */
+function repaintAllLabelsAndButtons() {
+  const enumeratorFields = assertNotNull(
+    document.querySelectorAll('.cf-enumerator-field:not(.hidden)'),
+  )
+  enumeratorFields.forEach((field, index) => {
+    addIndexToLabelAndButton(field, index)
+  })
+}
+
+/**
+ * When enumerator entities are added or removed from the page we need to repaint
+ * the label and button text to update the index
+ * @param {Element} field The element comtaining the button and label to be relabled
+ * @param {number} index The index to add to the button and label
+ */
+function addIndexToLabelAndButton(field: Element, index: number) {
+  const indexString = ` #${index + 1}`
+  const labelBaseText = assertNotNull(
+    document.querySelector('div[data-label-text]'),
+  ).getAttribute('data-label-text')
+  const labelElement = assertNotNull(field.querySelector('label'))
+  labelElement.innerHTML = labelBaseText ? labelBaseText + indexString : ''
+
+  const buttonBaseText = assertNotNull(
+    document.querySelector('div[data-button-text]'),
+  ).getAttribute('data-button-text')
+  const buttonElement = assertNotNull(field.querySelector('button'))
+  buttonElement.innerHTML = buttonBaseText ? buttonBaseText + indexString : ''
 }
