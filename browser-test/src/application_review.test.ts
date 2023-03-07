@@ -257,6 +257,12 @@ describe('Program admin review of submitted applications', () => {
     if (isHermeticTestEnvironment()) {
       await validateScreenshot(page, 'reporting-page')
     }
+
+    await page.click(`text=${programName.replaceAll(' ', '-').toLowerCase()}`)
+
+    if (isHermeticTestEnvironment()) {
+      await validateScreenshot(page, 'program-specific-reporting-page')
+    }
   })
 
   it('program applications listed most recent first', async () => {
