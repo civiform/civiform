@@ -405,6 +405,7 @@ export class AdminPrograms {
     }
   }
 
+  /** Updates the first block of a program to have the provided description and questions. */
   async editProgramBlock(
     programName: string,
     blockDescription = 'screen description',
@@ -523,6 +524,20 @@ export class AdminPrograms {
       '#block-name-input',
       (el) => (el as HTMLInputElement).value,
     )
+  }
+
+  async moveBlockUp(blockName: string) {
+    await this.page.locator("css=div.block-list-item")
+      .filter({ hasText: blockName })
+      .getByTestId("move-up")
+      .click()
+  }
+
+  async moveBlockDown(blockName: string) {
+    await this.page.locator("css=div.block-list-item")
+      .filter({ hasText: blockName })
+      .getByTestId("move-down")
+      .click()
   }
 
   async addProgramRepeatedBlock(

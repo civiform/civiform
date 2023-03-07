@@ -266,6 +266,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       DivTag blockTag =
           div()
               .withClasses(
+                  "block-list-item",
                   "flex",
                   "flex-row",
                   "gap-2",
@@ -332,6 +333,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                     .withAction(moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
                     .withClasses("move-block")
+                    .withData("testid", "move-up")
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
@@ -351,6 +353,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                     .withAction(moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
                     .withClasses("move-block")
+                    .withData("testid", "move-down")
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
                     .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));

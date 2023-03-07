@@ -257,7 +257,7 @@ describe('program creation', () => {
     expect(await addressCorrectionInput.inputValue()).toBe('true')
   })
 
-  it('change questions order within block', async () => {
+  it('change question order within block', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -394,6 +394,24 @@ describe('program creation', () => {
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 2')
     await adminPrograms.gotoEditDraftProgramPage(programName)
+  })
+
+  it('change block order', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Block reorder program'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.addProgramBlock("block 1")
+    await adminPrograms.addProgramBlock("block 2")
+    await adminPrograms.addProgramBlock("block 3")
+
+    await adminPrograms.moveBlockDown("block 1")
+    await adminPrograms.moveBlockUp("block 3")
+
+    await validateScreenshot(page, 'block-reordering')
   })
 
   it('correctly renders delete screen confirmation modal', async () => {
