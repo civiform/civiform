@@ -1,5 +1,6 @@
 package views.admin.reporting;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.table;
@@ -20,6 +21,8 @@ import java.text.DecimalFormat;
 import java.time.Duration;
 import java.util.Optional;
 import javax.inject.Inject;
+import services.DateConverter;
+import services.reporting.ApplicationSubmissionsStat;
 import views.ViewUtils;
 import views.components.Icons;
 
@@ -28,9 +31,11 @@ public class ReportingTableRenderer {
   // Number format used for displaying application counts
   public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###");
   private final boolean useDeterministicStatsForBrowserTest;
+  private final DateConverter dateConverter;
 
   @Inject
-  ReportingTableRenderer(Config config) {
+  ReportingTableRenderer(Config config, DateConverter dateConverter) {
+    this.dateConverter = checkNotNull(dateConverter);
     this.useDeterministicStatsForBrowserTest =
         config.getBoolean("reporting_use_deterministic_stats");
   }
@@ -96,6 +101,14 @@ public class ReportingTableRenderer {
     DivTag tableOuterContainer = div(tableInnerContainer).withClasses("relative rounded-xl");
 
     return content.with(tableOuterContainer);
+  }
+
+  public String getDisplayMonth(ApplicationSubmissionsStat stat) {
+    if (useDeterministicStatsForBrowserTest) {
+      return "MM/YY";
+    }
+
+    return dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get());
   }
 
   /** Represents a column header in a reporting view. */

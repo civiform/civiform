@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
 import play.twirl.api.Content;
-import services.DateConverter;
 import services.reporting.ApplicationSubmissionsStat;
 import services.reporting.ReportingService;
 import views.BaseHtmlView;
@@ -22,16 +21,12 @@ import views.admin.AdminLayoutFactory;
 /** Displays reporting statistics about applications to a specific program. */
 public class AdminReportingShowView extends BaseHtmlView {
   private final AdminLayout layout;
-  private final DateConverter dateConverter;
   private final ReportingTableRenderer reportingTableRenderer;
 
   @Inject
   public AdminReportingShowView(
-      ReportingTableRenderer reportingTableRenderer,
-      AdminLayoutFactory layoutFactory,
-      DateConverter dateConverter) {
+      ReportingTableRenderer reportingTableRenderer, AdminLayoutFactory layoutFactory) {
     this.reportingTableRenderer = checkNotNull(reportingTableRenderer);
-    this.dateConverter = checkNotNull(dateConverter);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
   }
 
@@ -92,7 +87,7 @@ public class AdminReportingShowView extends BaseHtmlView {
                 .map(
                     stat ->
                         tr(
-                            td(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get())),
+                            td(reportingTableRenderer.getDisplayMonth(stat)),
                             td(
                                 ReportingTableRenderer.DECIMAL_FORMAT.format(
                                     stat.applicationCount())),

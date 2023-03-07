@@ -13,7 +13,6 @@ import controllers.admin.AdminReportingController;
 import j2html.tags.specialized.DivTag;
 import modules.MainModule;
 import play.twirl.api.Content;
-import services.DateConverter;
 import services.reporting.ApplicationSubmissionsStat;
 import services.reporting.ReportingService;
 import views.BaseHtmlView;
@@ -27,15 +26,11 @@ public final class AdminReportingIndexView extends BaseHtmlView {
 
   private final AdminLayout layout;
   private final ReportingTableRenderer reportingTableRenderer;
-  private final DateConverter dateConverter;
 
   @Inject
   public AdminReportingIndexView(
-      ReportingTableRenderer reportingTableRenderer,
-      AdminLayoutFactory layoutFactory,
-      DateConverter dateConverter) {
+      ReportingTableRenderer reportingTableRenderer, AdminLayoutFactory layoutFactory) {
     this.reportingTableRenderer = checkNotNull(reportingTableRenderer);
-    this.dateConverter = checkNotNull(dateConverter);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
   }
 
@@ -100,7 +95,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
                 .map(
                     stat ->
                         tr(
-                            td(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get())),
+                            td(reportingTableRenderer.getDisplayMonth(stat)),
                             td(
                                 ReportingTableRenderer.DECIMAL_FORMAT.format(
                                     stat.applicationCount())),

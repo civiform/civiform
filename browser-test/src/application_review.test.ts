@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  isHermeticTestEnvironment,
   loginAsAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
@@ -250,7 +251,12 @@ describe('Program admin review of submitted applications', () => {
     await validateScreenshot(page, 'applications-page')
 
     await page.click('text=Reporting')
-    await validateScreenshot(page, 'reporting-page')
+
+    // The reporting page is not deterministic outside the hermetic testing environment
+    // so don't validate the screenshot for it when running staging probers.
+    if (isHermeticTestEnvironment()) {
+      await validateScreenshot(page, 'reporting-page')
+    }
   })
 
   it('program applications listed most recent first', async () => {
