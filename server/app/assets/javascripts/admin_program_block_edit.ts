@@ -1,4 +1,4 @@
-import {addEventListenerToElements, assertNotNull} from './util'
+import {addEventListenerToElements} from './util'
 
 class AdminProgramBlockEdit {
   public registerEventListeners() {
@@ -23,6 +23,10 @@ class AdminProgramBlockEdit {
           .querySelector('body') as HTMLElement
 
         this.registerEventListeners()
+      })
+      .catch(err => {
+        console.error(err)
+        alert("An error has occured, please refresh the page and try again.")
       })
   }
 }
