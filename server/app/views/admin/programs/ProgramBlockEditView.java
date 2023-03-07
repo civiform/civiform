@@ -644,7 +644,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
       maybeOptionalToggle.ifPresent(ret::with);
       ret.with(
-          this.createMoveQuestionButtonsSection(
+          createMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
               blockDefinition.id(),
@@ -724,7 +724,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 programDefinitionId, blockDefinitionId, questionDefinition.getId())
             .url();
     return form(csrfTag)
-        .withClasses("inline-block", "mx-1", isInvisible ? "invisible" : "")
+        .withClasses("move-question", "inline-block", "mx-1", isInvisible ? "invisible" : "")
         .withMethod(HttpVerbs.POST)
         .withAction(moveAction)
         .with(
@@ -788,6 +788,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withAction(toggleOptionalAction)
+            .withClasses("question-option-toggle")
             .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
   }

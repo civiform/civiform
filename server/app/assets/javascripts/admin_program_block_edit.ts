@@ -1,9 +1,20 @@
 import {addEventListenerToElements} from './util'
+import {init as mainInit} from './main'
 
 class AdminProgramBlockEdit {
   public registerEventListeners() {
     addEventListenerToElements('form.move-block', 'submit', (event: Event) =>
       this.handleMoveBlock(event),
+    )
+
+    addEventListenerToElements('move-question', 'submit', (event: Event) =>
+      this.handleMoveBlock(event),
+    )
+
+    addEventListenerToElements(
+      'question-option-toggle',
+      'submit',
+      (event: Event) => this.handleMoveBlock(event),
     )
   }
 
@@ -22,6 +33,7 @@ class AdminProgramBlockEdit {
           .parseFromString(responseText, 'text/html')
           .querySelector('body') as HTMLElement
 
+        mainInit()
         this.registerEventListeners()
       })
       .catch((err) => {
