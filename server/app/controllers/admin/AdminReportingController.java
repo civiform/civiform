@@ -53,7 +53,21 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result downloadProgramCsv(String programSlug) {
-    return ok();
+    String programName =
+        programService
+            .getActiveProgramDefinitionAsync(programSlug)
+            .toCompletableFuture()
+            .join()
+            .adminName();
+
+    String csv = reportingService.applicationsToProgramByMonthCsv(programName);
+
+    return ok(csv)
+        .as(Http.MimeTypes.BINARY)
+        .withHeader(
+            "Content-Disposition",
+            String.format(
+                "attachment; filename=\"%s\"", String.format("CiviForm_%s.csv", programSlug)));
   }
 
   /** Identifiers for the different data sets available for download. */

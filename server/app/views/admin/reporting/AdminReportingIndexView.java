@@ -3,6 +3,7 @@ package views.admin.reporting;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
 
@@ -48,8 +49,9 @@ public final class AdminReportingIndexView extends BaseHtmlView {
 
     DivTag headerDiv =
         div()
-            .withClasses("flex", "place-content-between", "my-8")
-            .with(h1(title).withClasses("my-4"));
+            .withClasses("my-8")
+            .with(h1(title).withClasses("my-4"))
+            .with(p("Data may be up to an hour delayed."));
 
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 

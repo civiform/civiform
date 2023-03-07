@@ -3,6 +3,7 @@ package views.admin.reporting;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
 
@@ -67,23 +68,18 @@ public class AdminReportingShowView extends BaseHtmlView {
 
     DivTag headerDiv =
         div()
-            .withClasses("flex", "place-content-between", "my-8")
-            .with(h1(title).withClasses("my-4"));
+            .withClasses("my-8")
+            .with(h1(title).withClasses("my-4"))
+            .with(p("Data may be up to an hour delayed."));
 
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
     contentDiv.with(
-        renderProgramMonthlyStats(programSlug, filterStatsForProgram(programName, monthlyStats)));
+        renderProgramMonthlyStats(
+            programSlug, monthlyStats.monthlySubmissionsForProgram(programName)));
 
     HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
-  }
-
-  private ImmutableList<ApplicationSubmissionsStat> filterStatsForProgram(
-      String programName, ReportingService.MonthlyStats monthlyStats) {
-    return monthlyStats.monthlySubmissionsByProgram().stream()
-        .filter(stat -> stat.programName().equals(programName))
-        .collect(ImmutableList.toImmutableList());
   }
 
   private DivTag renderProgramMonthlyStats(

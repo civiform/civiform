@@ -3,6 +3,7 @@ package services.reporting;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.admin.reporting.AdminReportingIndexView.APPLICATION_COUNTS_BY_MONTH_HEADERS;
 import static views.admin.reporting.AdminReportingIndexView.APPLICATION_COUNTS_BY_PROGRAM_HEADERS;
+import static views.admin.reporting.AdminReportingShowView.APPLICATION_COUNTS_FOR_PROGRAM_BY_MONTH_HEADERS;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
@@ -92,6 +93,31 @@ public final class ReportingService {
     return buildCsv(
         getMonthlyStats().totalSubmissionsByProgram(),
         APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
+        (printer, stat) -> {
+          try {
+            printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
+            printer.print(stat.applicationCount());
+            printer.print(
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
+            printer.print(
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds50p()));
+            printer.print(
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds75p()));
+            printer.print(
+                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds99p()));
+
+            printer.println();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        });
+  }
+
+  /** Applications to an individual program by month as a CSV. */
+  public String applicationsToProgramByMonthCsv(String programName) {
+    return buildCsv(
+        getMonthlyStats().monthlySubmissionsForProgram(programName),
+        APPLICATION_COUNTS_FOR_PROGRAM_BY_MONTH_HEADERS,
         (printer, stat) -> {
           try {
             printer.print(stat.programName());
@@ -219,5 +245,12 @@ public final class ReportingService {
     public abstract ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsAggregated();
 
     public abstract ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram();
+
+    public ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsForProgram(
+        String programName) {
+      return monthlySubmissionsByProgram().stream()
+          .filter(stat -> stat.programName().equals(programName))
+          .collect(ImmutableList.toImmutableList());
+    }
   }
 }
