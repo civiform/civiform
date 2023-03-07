@@ -117,6 +117,8 @@ POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKe
 
 # Admin reporting
 GET     /admin/reporting                            controllers.admin.AdminReportingController.index()
+GET     /admin/reporting/:programSlug               controllers.admin.AdminReportingController.show(programSlug: String)
+GET     /admin/reporting/:programSlug/download      controllers.admin.AdminReportingController.downloadProgramCsv(programSlug: String)
 GET     /admin/reporting/download/:dataSetName      controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
 
 # Admin data migrations
