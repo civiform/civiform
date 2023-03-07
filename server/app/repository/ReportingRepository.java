@@ -51,9 +51,8 @@ public final class ReportingRepository {
   }
 
   private Timestamp getFirstOfMonth() {
-    Timestamp firstOfMonth =
-        Timestamp.valueOf(LocalDateTime.now(clock).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1));
-    return firstOfMonth;
+    return Timestamp.valueOf(
+        LocalDateTime.now(clock).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1));
   }
 
   /** Loads application submission reporting data for current month. */
