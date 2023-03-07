@@ -2,11 +2,9 @@
 
 ## Supported Versions
 
-Every merge into `main` triggers a build and pushes a server image to [CiviForm Docker Hub](https://hub.docker.com/repository/docker/civiform/civiform) with a unique snapshot for the build.
+See our [documentation on release versioning](https://docs.civiform.us/it-manual/sre-playbook/upgrading-to-a-new-release).
 
-At the moment, all production deployments are encouraged to deploy at least weekly and keep in regular communication with the development team.
-
-In Q2 2022 we are planning to introduce [SemVer](https://semver.org/) builds with official releases of the server image.
+All production deployments are encouraged to deploy weekly and keep in regular communication with the development team.
 
 ## Reporting a Vulnerability
 
