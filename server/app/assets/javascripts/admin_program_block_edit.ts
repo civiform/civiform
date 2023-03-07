@@ -1,25 +1,28 @@
 import {addEventListenerToElements, assertNotNull} from './util'
 
-class AdminProgramBlockEdit() {
-  registerEventListeners() {
-    addEventListenerToElements('form.move-block', 'submit' (event: Event) =>
-      this.handleMoveBlock(event))
+class AdminProgramBlockEdit {
+  public registerEventListeners() {
+    addEventListenerToElements('form.move-block', 'submit', (event: Event) =>
+      this.handleMoveBlock(event),
+    )
   }
 
-  handleMoveBlock(event: event) {
+  private handleMoveBlock(event: Event) {
     event.preventDefault()
-    event.stopPropagation()
 
     const form = event.target as HTMLFormElement
-    const formData = new FormData(form)
 
     fetch(form.action, {
-      method: "POST",
-      body: new FormData(form)
+      method: 'POST',
+      body: new FormData(form),
     })
-      .then(response => response.text())
-      .then(responseText => {
-        document.body = new DOMParser().parseFromString(responseText, 'text/html').querySelector('body')
+      .then((response) => response.text())
+      .then((responseText) => {
+        document.body = new DOMParser()
+          .parseFromString(responseText, 'text/html')
+          .querySelector('body') as HTMLElement
+
+        this.registerEventListeners()
       })
   }
 }
