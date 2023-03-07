@@ -95,7 +95,7 @@ public final class ReportingService {
         APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
         (printer, stat) -> {
           try {
-            printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
+            printer.print(stat.programName());
             printer.print(stat.applicationCount());
             printer.print(
                 ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
@@ -120,7 +120,7 @@ public final class ReportingService {
         APPLICATION_COUNTS_FOR_PROGRAM_BY_MONTH_HEADERS,
         (printer, stat) -> {
           try {
-            printer.print(stat.programName());
+            printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
             printer.print(stat.applicationCount());
             printer.print(
                 ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));

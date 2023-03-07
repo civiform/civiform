@@ -30,7 +30,13 @@ public final class ReportingRepository {
 
   /** Loads data from the monthly reporting view. */
   public ImmutableList<ApplicationSubmissionsStat> loadMonthlyReportingView() {
-    return database.sqlQuery("SELECT * FROM monthly_submissions_reporting_view").findList().stream()
+    return database
+        .sqlQuery(
+            "SELECT * FROM monthly_submissions_reporting_view\n"
+                + "WHERE monthly_submissions_reporting_view.submit_month < :first_of_month::date")
+        .setParameter("first_of_month", getFirstOfMonth())
+        .findList()
+        .stream()
         .map(
             row ->
                 ApplicationSubmissionsStat.create(
@@ -44,10 +50,15 @@ public final class ReportingRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
-  /** Loads application submission reporting data for current month. */
-  public ImmutableList<ApplicationSubmissionsStat> loadThisMonthReportingData() {
+  private Timestamp getFirstOfMonth() {
     Timestamp firstOfMonth =
         Timestamp.valueOf(LocalDateTime.now(clock).truncatedTo(ChronoUnit.DAYS).withDayOfMonth(1));
+    return firstOfMonth;
+  }
+
+  /** Loads application submission reporting data for current month. */
+  public ImmutableList<ApplicationSubmissionsStat> loadThisMonthReportingData() {
+    Timestamp firstOfMonth = getFirstOfMonth();
 
     return database
         .sqlQuery(
