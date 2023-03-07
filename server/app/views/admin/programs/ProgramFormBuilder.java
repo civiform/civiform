@@ -153,7 +153,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
               .getCheckboxTag()
               .with(
                   span(ViewUtils.makeSvgToolTip(
-                          "Setting a program as ‘pre-screener’ will reconfigure and pin this"
+                          "You can set one program as the ‘pre-screener’. This will pin the"
                               + " program card to the top of the programs and services page while"
                               + " moving other program cards below it.",
                           Icons.INFO))
