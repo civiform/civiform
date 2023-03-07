@@ -404,12 +404,12 @@ describe('program creation', () => {
     const programName = 'Block reorder program'
     await adminPrograms.addProgram(programName)
 
-    await adminPrograms.addProgramBlock("block 1")
-    await adminPrograms.addProgramBlock("block 2")
-    await adminPrograms.addProgramBlock("block 3")
+    await adminPrograms.addProgramBlock('block 1')
+    await adminPrograms.addProgramBlock('block 2')
+    await adminPrograms.addProgramBlock('block 3')
 
-    await adminPrograms.moveBlockDown("block 1")
-    await adminPrograms.moveBlockUp("block 3")
+    await adminPrograms.moveBlockDown('block 1')
+    await adminPrograms.moveBlockUp('block 3')
 
     await validateScreenshot(page, 'block-reordering')
   })

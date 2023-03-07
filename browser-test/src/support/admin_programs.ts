@@ -527,16 +527,18 @@ export class AdminPrograms {
   }
 
   async moveBlockUp(blockName: string) {
-    await this.page.locator("css=div.block-list-item")
-      .filter({ hasText: blockName })
-      .getByTestId("move-up")
+    await this.page
+      .locator('css=div.block-list-item')
+      .filter({hasText: blockName})
+      .getByTestId('move-up')
       .click()
   }
 
   async moveBlockDown(blockName: string) {
-    await this.page.locator("css=div.block-list-item")
-      .filter({ hasText: blockName })
-      .getByTestId("move-down")
+    await this.page
+      .locator('css=div.block-list-item')
+      .filter({hasText: blockName})
+      .getByTestId('move-down')
       .click()
   }
 
