@@ -26,7 +26,8 @@ import services.reporting.ApplicationSubmissionsStat;
 import views.ViewUtils;
 import views.components.Icons;
 
-public class ReportingTableRenderer {
+/** Contains shared rendering logic for reporting tables. */
+public final class ReportingTableRenderer {
 
   // Number format used for displaying application counts
   public static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("###,###,###");
