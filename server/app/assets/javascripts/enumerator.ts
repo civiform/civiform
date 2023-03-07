@@ -189,7 +189,7 @@ function addEnumeratorListeners() {
       for (const newNode of Array.from(record.addedNodes)) {
         // changes to the label and button texts trigger the mutationObserver which results in an error
         // this if statement protects against that case
-        if (typeof (<Element>newNode).querySelectorAll !== 'undefined') {
+        if ((<Element>newNode).querySelectorAll) {
           const newInputs = Array.from(
             (<Element>newNode).querySelectorAll('input'),
           )
