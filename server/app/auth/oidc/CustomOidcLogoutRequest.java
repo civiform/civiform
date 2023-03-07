@@ -63,6 +63,8 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
 
     Map<String, List<String>> params = super.toParameters();
 
+    // Remove post_logout_redirect_uri and replace with custom logic.
+    params.remove("post_logout_redirect_uri");
     if (postLogoutRedirectURI != null && !postLogoutRedirectParam.isEmpty()) {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
