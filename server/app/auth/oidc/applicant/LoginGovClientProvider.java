@@ -99,7 +99,6 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
 
     // Apply logout settings specific to login.gov
     ((CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder())
-        .enableStateGenerator()
         // See https://developers.login.gov/oidc/#logout-request
         .setExtraParams(ImmutableMap.of("client_id", getClientID()));
 
