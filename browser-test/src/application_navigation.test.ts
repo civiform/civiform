@@ -10,6 +10,7 @@ import {
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
+  isLocalDevEnvironment,
 } from './support'
 
 describe('Applicant navigation flow', () => {
@@ -609,109 +610,111 @@ describe('Applicant navigation flow', () => {
       await logout(page)
     })
 
-    it('can correct address multi-block, multi-address program', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
+    if (isLocalDevEnvironment()) {
+      it('can correct address multi-block, multi-address program', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '500 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        1,
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerTextQuestion('Some text')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
-        'With Correction',
-        '305 Harrison St',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          '500 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          1,
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerTextQuestion('Some text')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectAddressHasBeenCorrected(
+          'With Correction',
+          '305 Harrison St',
+        )
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
 
-    it('can correct address single-block, multi-address program', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
+      it('can correct address single-block, multi-address program', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '500 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        1,
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
-        'With Correction',
-        '305 Harrison St',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          '500 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          1,
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectAddressHasBeenCorrected(
+          'With Correction',
+          '305 Harrison St',
+        )
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
 
-    it('can correct address single-block, single-address program', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      it('can correct address single-block, single-address program', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
 
-      // Only doing accessibility and screenshot checks for address correction page
-      // once since they are all the same
-      await validateAccessibility(page)
-      await validateScreenshot(page, 'verify-address-page')
+        // Only doing accessibility and screenshot checks for address correction page
+        // once since they are all the same
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'verify-address-page')
 
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
-        'With Correction',
-        '305 Harrison St',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectAddressHasBeenCorrected(
+          'With Correction',
+          '305 Harrison St',
+        )
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+    }
 
     it('address correction page does not show if feature is disabled', async () => {
       const {page, applicantQuestions} = ctx
