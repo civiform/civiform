@@ -122,20 +122,33 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         }
 
         LogoutRequest logoutRequest =
-            new CustomOidcLogoutRequest(
-                endSessionEndpoint,
-                postLogoutRedirectParam,
-                new URI(targetUrl),
-                extraParams,
-                state);
+            LogoutRequestCreator.createLogoutRequest(
+                endSessionEndpoint, postLogoutRedirectParam, targetUrl, extraParams, state);
 
-        return Optional.of(
-            HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
+        URI uri = addBackFragment(logoutRequest.getEndpointURI());
+
+        return Optional.of(HttpActionHelper.buildRedirectUrlAction(context, uri.toString()));
       } catch (URISyntaxException e) {
         throw new TechnicalException(e);
       }
     }
 
     return Optional.empty();
+  }
+
+  // Default behavior of LogoutRequest.toURI() removes fragment from the URI.
+  // For some usecases (e.g. IDCS on Seattle) they use logout URI that contains
+  // fragment and read it client-side. Here we add fragment back if it was
+  // present in the original logout URI.
+  private URI addBackFragment(URI uri) {
+    if (uri.getRawFragment() != null) {
+      try {
+        uri = new URI(uri + "#" + uri.getRawFragment());
+      } catch (URISyntaxException e) {
+        throw new TechnicalException(e);
+      }
+    }
+
+    return uri;
   }
 }
