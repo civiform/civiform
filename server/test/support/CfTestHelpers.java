@@ -42,7 +42,6 @@ public class CfTestHelpers {
             String.format("http://%s:%d/.well-known/openid-configuration", host, port))
         .put("base_url", String.format("http://localhost:%d", Helpers.testServerPort()))
         .put("auth.oidc_post_logout_param", "post_logout_redirect_uri")
-        .put("auth.oidc_logout_client_id_param", "client_id")
         .put(
             "auth.applicant_oidc_override_logout_url",
             String.format("http://%s:%d/session/end", host, port))
