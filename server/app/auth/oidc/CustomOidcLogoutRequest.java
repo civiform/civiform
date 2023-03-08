@@ -1,22 +1,27 @@
 package auth.oidc;
 
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.pac4j.core.exception.TechnicalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Custom Logout Request that allows for divergence from the [oidc
  * spec](https://openid.net/specs/openid-connect-rpinitiated-1_0.html) if your provider requires it
  * (e.g. Auth0).
  *
- * <p>Does not provide the recommended id_token_hint, since these are not stored by the civiform
- * profile.
+ * <p>Provides the id_token_hint to {@link LogoutRequest} to ensure that the ID provider logs out
+ * the user.
  *
  * <p>Uses the post_logout_redirect_uri parameter by default, but allows overriding to a different
  * value
@@ -24,6 +29,8 @@ import org.pac4j.core.exception.TechnicalException;
  * <p>Allows adding extra custom query parameters to the URL.
  */
 public final class CustomOidcLogoutRequest extends LogoutRequest {
+  private static final Logger logger = LoggerFactory.getLogger(CustomOidcLogoutRequest.class);
+
   /** The optional post-logout redirection query param. */
   private final String postLogoutRedirectParam;
 
@@ -47,13 +54,43 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       final ImmutableMap<String, String> extraParams,
       final State state) {
 
-    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, state);
+    super(uri, getIdToken(extraParams), postLogoutRedirectURI, state);
+    logger.warn("DEBUG LOGOUT: CustomOidcLogoutRequest 1, extraParams={}", extraParams);
+
     this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
+
     if (extraParams == null) {
+      logger.warn("DEBUG LOGOUT: CustomOidcLogoutRequest 2");
       this.extraParams = ImmutableMap.of();
     } else {
+      logger.warn("DEBUG LOGOUT: CustomOidcLogoutRequest 3");
       this.extraParams = extraParams;
+    }
+  }
+
+  private static JWT getIdToken(ImmutableMap<String, String> extraParams) {
+    logger.warn("DEBUG LOGOUT: getIdToken 1");
+
+    if (extraParams == null) {
+      return null;
+    }
+    logger.warn("DEBUG LOGOUT: getIdToken 2");
+
+    String idTokenString = extraParams.get("id_token_hint");
+    if (idTokenString == null) {
+      logger.warn("DEBUG LOGOUT: getIdToken 3");
+      return null;
+    }
+
+    logger.warn("DEBUG LOGOUT: getIdToken 4, idTokenString={}", idTokenString);
+
+    try {
+      logger.warn("DEBUG LOGOUT: getIdToken 5");
+      return SignedJWT.parse(idTokenString);
+    } catch (ParseException e) {
+      logger.warn("DEBUG LOGOUT: getIdToken 6");
+      return null;
     }
   }
 

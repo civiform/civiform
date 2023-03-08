@@ -31,11 +31,11 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* extraParams= */ ImmutableMap.of("clientId", "12345"),
+            /* extraParams= */ ImmutableMap.of("clientId", "12345", "id_token_hint", "MyIdToken"),
             /* state= */ null);
     assertThat(request.toURI().toString())
         .isEqualTo(
-            "https://auth.com/logout?post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F&clientId=12345");
+            "https://auth.com/logout?clientId=12345&post_logout_redirect_uri=https%3A%2F%2Fciviform.com%2F&id_token_hint=MyIdToken");
   }
 
   @Test

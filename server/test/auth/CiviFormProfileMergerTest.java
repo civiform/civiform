@@ -74,6 +74,7 @@ public class CiviFormProfileMergerTest {
         civiFormProfileMerger.mergeProfiles(
             /* applicantInDatabase = */ Optional.empty(),
             /* guestProfile = */ Optional.empty(),
+            /* idToken = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               assertThat(civiFormProfile).isEmpty();
@@ -89,6 +90,7 @@ public class CiviFormProfileMergerTest {
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
             /* guestProfile = */ Optional.empty(),
+            /* idToken = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -105,6 +107,7 @@ public class CiviFormProfileMergerTest {
         civiFormProfileMerger.mergeProfiles(
             /* applicantInDatabase = */ Optional.empty(),
             Optional.of(civiFormProfile),
+            /* idToken = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
@@ -121,6 +124,7 @@ public class CiviFormProfileMergerTest {
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
             Optional.of(civiFormProfile),
+            /* idToken = */ Optional.empty(),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();

@@ -3,9 +3,13 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
+import com.nimbusds.jwt.JWT;
+import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -16,6 +20,9 @@ import repository.DatabaseExecutionContext;
  * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
  */
 public class CiviFormProfileData extends CommonProfile {
+  private static final Logger logger = LoggerFactory.getLogger(CiviFormProfileData.class);
+
+  private Optional<JWT> idToken;
 
   public CiviFormProfileData() {
     super();
@@ -24,6 +31,23 @@ public class CiviFormProfileData extends CommonProfile {
   public CiviFormProfileData(Long accountId) {
     this();
     this.setId(accountId.toString());
+    this.idToken = Optional.empty();
+    logger.warn("DEBUG LOGOUT: CiviFormProfileData 1 param constructor");
+  }
+
+  public CiviFormProfileData(Long accountId, JWT idToken) {
+    this();
+    this.setId(accountId.toString());
+    this.idToken = Optional.of(idToken);
+    logger.warn("DEBUG LOGOUT: CiviFormProfileData 2 param constructor. idToken = {}", idToken);
+  }
+
+  public Optional<JWT> getIdToken() {
+    return idToken;
+  }
+
+  public void setIdToken(JWT idToken) {
+    this.idToken = Optional.of(idToken);
   }
 
   /**

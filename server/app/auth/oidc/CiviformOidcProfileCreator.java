@@ -9,6 +9,7 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.nimbusds.jwt.JWT;
 import java.util.Optional;
 import javax.inject.Provider;
 import models.Applicant;
@@ -19,6 +20,7 @@ import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
@@ -151,11 +153,30 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       return Optional.empty();
     }
 
+    logger.warn("DEBUG LOGOUT: CiviformOidcProfileCreator::create 1");
+
+    JWT idToken = ((OidcCredentials) cred).getIdToken();
+
+    logger.warn(
+        "DEBUG LOGOUT: CiviformOidcProfileCreator::create 2, idToken={}", idToken.serialize());
+
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
+    // This is returning Optional.empty. Isn't the user always non-authenticated at this
+    // point? If so, why do we call this here?
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+    guestProfile.ifPresent(guest -> guest.getProfileData().setIdToken(idToken));
+
+    logger.warn("DEBUG LOGOUT: CiviformOidcProfileCreator::create 3");
+    logger.warn(
+        "DEBUG LOGOUT: CiviformOidcProfileCreator::create profile={}, existingApplicant={},"
+            + " guestProfile={}, ",
+        profile,
+        existingApplicant,
+        guestProfile);
+
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant, guestProfile, Optional.of(idToken), profile, this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting

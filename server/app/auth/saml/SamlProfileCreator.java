@@ -79,7 +79,11 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant,
+        guestProfile,
+        /* idToken = */ Optional.empty(),
+        profile,
+        this::mergeCiviFormProfile);
   }
 
   @VisibleForTesting
