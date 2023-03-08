@@ -967,7 +967,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void
-      submitApplication_allowsIneligibleApplicationToBeSubmittedwhenEligibilityIsNongating() {
+      submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
     createProgramWithNongatingEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());

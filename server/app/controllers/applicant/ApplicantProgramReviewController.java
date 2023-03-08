@@ -89,7 +89,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
               try {
-                if (shouldShowEligibilityToast(request, roApplicantProgramService, programId)) {
+                if (shouldShowNotEligibleBanner(request, roApplicantProgramService, programId)) {
                   notEligibleBanner =
                       Optional.of(
                           new ToastMessage(
@@ -149,7 +149,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
-  private boolean shouldShowEligibilityToast(
+  private boolean shouldShowNotEligibleBanner(
       Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
       throws ProgramNotFoundException {
     if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {

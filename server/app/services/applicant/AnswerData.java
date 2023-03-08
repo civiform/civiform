@@ -59,6 +59,7 @@ public abstract class AnswerData {
    */
   public abstract boolean isEligible();
 
+  /** True if the program's eligibility is set to gate application submission. */
   public abstract boolean eligibilityIsGating();
 
   /** The applicant's response to the question. */
