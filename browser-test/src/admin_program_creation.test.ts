@@ -404,12 +404,12 @@ describe('program creation', () => {
     const programName = 'Block reorder program'
     await adminPrograms.addProgram(programName)
 
-    await adminPrograms.addProgramBlock('block 1')
-    await adminPrograms.addProgramBlock('block 2')
-    await adminPrograms.addProgramBlock('block 3')
+    await adminPrograms.addProgramBlock(programName, 'Screen 1')
+    await adminPrograms.addProgramBlock(programName, 'Screen 2')
+    await adminPrograms.addProgramBlock(programName, 'Screen 3')
 
-    await adminPrograms.moveBlockDown('block 1')
-    await adminPrograms.moveBlockUp('block 3')
+    await adminPrograms.moveBlockDown('Screen 1')
+    await adminPrograms.moveBlockUp('Screen 3')
 
     await validateScreenshot(page, 'block-reordering')
   })
@@ -427,10 +427,15 @@ describe('program creation', () => {
     page: Page,
     expectedQuestions: string[],
   ) {
+    await page.waitForLoadState('networkidle')
+    await page.waitForTimeout(100)
+
     const actualQuestions = await page
       .locator('.cf-program-question')
       .allTextContents()
+
     expect(actualQuestions.length).toEqual(expectedQuestions.length)
+
     for (let i = 0; i < actualQuestions.length; i++) {
       expect(actualQuestions[i]).toContain(expectedQuestions[i])
     }

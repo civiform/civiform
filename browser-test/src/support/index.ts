@@ -241,6 +241,7 @@ export const createTestContext = (clearDb = true): TestContext => {
     if (clearDb) {
       await dropTables(ctx.page)
     }
+
     // resetting context here so that afterAll() functions of current describe()
     // block and beforeAll() functions of the next describe() block have fresh
     // result.page object.

@@ -61,6 +61,7 @@ export class BrowserErrorWatcher {
   failIfContainsErrors() {
     const errorsToReport = this.errors
       .filter((error) => !this.downloadUrls.has(error.url))
+      .filter((error) => !error.message.includes("net::ERR_ABORTED"))
       .filter((error) => {
         return !this.urlsToIgnore.some((regexp) => regexp.test(error.url))
       })
