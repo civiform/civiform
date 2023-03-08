@@ -71,6 +71,28 @@ public class ApplicationEventTest extends ResetPostgres {
   }
 
   @Test
+  public void createStatusEventWithEmptyAccountUpdatesApplicationLatestStatus() {
+    Program program = resourceCreator.insertActiveProgram("test program");
+
+    Application application =
+        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+    assertThat(application.getLatestStatus()).isEmpty();
+
+    new ApplicationEvent(
+            application,
+            Optional.empty(),
+            ApplicationEventDetails.builder()
+                .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+                .setStatusEvent(
+                    StatusEvent.builder().setStatusText("approved").setEmailSent(false).build())
+                .build())
+        .save();
+
+    application.refresh();
+    assertThat(application.getLatestStatus()).isEqualTo(Optional.of("approved"));
+  }
+
+  @Test
   public void eventTriggerUsesLatestStatusEvent() throws Exception {
     Program program = resourceCreator.insertActiveProgram("test program");
 

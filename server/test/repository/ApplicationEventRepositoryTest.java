@@ -51,6 +51,31 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void insertAsync() {
+    Instant startInstant = Instant.now();
+    Program program = resourceCreator.insertActiveProgram("Program");
+    Applicant applicant = resourceCreator.insertApplicant();
+    Application application = resourceCreator.insertActiveApplication(applicant, program);
+
+    ApplicationEventDetails details =
+        ApplicationEventDetails.builder()
+            .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)
+            .setStatusEvent(
+                StatusEvent.builder().setStatusText("Status").setEmailSent(false).build())
+            .build();
+    ApplicationEvent event = new ApplicationEvent(application, Optional.empty(), details);
+    ApplicationEvent insertedEvent = repo.insertAsync(event).toCompletableFuture().join();
+    // Generated values.
+    assertThat(insertedEvent.id).isNotNull();
+    assertThat(insertedEvent.getCreateTime()).isAfter(startInstant);
+    // Pass through values.
+    assertThat(insertedEvent.getApplication()).isEqualTo(application);
+    assertThat(insertedEvent.getCreator()).isEqualTo(Optional.empty());
+    assertThat(insertedEvent.getDetails()).isEqualTo(details);
+    assertThat(insertedEvent.getEventType()).isEqualTo(ApplicationEventDetails.Type.STATUS_CHANGE);
+  }
+
+  @Test
   public void insertMultipleEventsOnApplication() {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");

@@ -76,6 +76,19 @@ public class UserRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void lookupByEmailAddressAsync() {
+    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+
+    assertThat(
+            repo.lookupAccountByEmailAsync(EMAIL)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getAuthorityId())
+        .isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
   public void insertApplicant() {
     Applicant applicant = new Applicant();
     String path = "$.applicant.applicant_date_of_birth";

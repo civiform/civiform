@@ -2027,6 +2027,15 @@ public class ProgramServiceImplTest extends ResetPostgres {
           .setStatusText("Approved")
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
           .setLocalizedEmailBodyText(Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
+          .setDefaultStatus(Optional.of(false))
+          .build();
+
+  private static final StatusDefinitions.Status APPROVED_DEFAULT_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Approved")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setLocalizedEmailBodyText(Optional.of(LocalizedStrings.of(Locale.US, "I'm a US email!")))
+          .setDefaultStatus(Optional.of(true))
           .build();
 
   private static final StatusDefinitions.Status REJECTED_STATUS =
@@ -2035,27 +2044,39 @@ public class ProgramServiceImplTest extends ResetPostgres {
           .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Rejected"))
           .setLocalizedEmailBodyText(
               Optional.of(LocalizedStrings.of(Locale.US, "I'm a US rejection email!")))
+          .setDefaultStatus(Optional.of(false))
+          .build();
+
+  private static final StatusDefinitions.Status REJECTED_DEFAULT_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Rejected")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Rejected"))
+          .setLocalizedEmailBodyText(
+              Optional.of(LocalizedStrings.of(Locale.US, "I'm a US rejection email!")))
+          .setDefaultStatus(Optional.of(true))
           .build();
 
   @Test
   public void appendStatus() throws Exception {
+    // Also tests unsetDefaultStatus
+
     Program program = ProgramBuilder.newDraftProgram().build();
     assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
 
     final ErrorAnd<ProgramDefinition, CiviFormError> firstResult =
-        ps.appendStatus(program.id, APPROVED_STATUS);
+        ps.appendStatus(program.id, APPROVED_DEFAULT_STATUS);
 
     assertThat(firstResult.isError()).isFalse();
     assertThat(firstResult.getResult().statusDefinitions().getStatuses())
-        .containsExactly(APPROVED_STATUS);
+        .containsExactly(APPROVED_DEFAULT_STATUS);
 
     // Ensure that appending to a non-empty list actually appends.
     ErrorAnd<ProgramDefinition, CiviFormError> secondResult =
-        ps.appendStatus(program.id, REJECTED_STATUS);
+        ps.appendStatus(program.id, REJECTED_DEFAULT_STATUS);
 
     assertThat(secondResult.isError()).isFalse();
     assertThat(secondResult.getResult().statusDefinitions().getStatuses())
-        .containsExactly(APPROVED_STATUS, REJECTED_STATUS);
+        .containsExactly(APPROVED_STATUS, REJECTED_DEFAULT_STATUS);
   }
 
   @Test
