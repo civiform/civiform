@@ -360,10 +360,14 @@ public final class ApplicantService {
       long applicantId,
       long programId,
       CiviFormProfile submitterProfile,
-      boolean eligibilityFeatureEnabled) {
+      boolean eligibilityFeatureEnabled,
+      boolean nonGatedEligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+          .thenCompose(
+              ro ->
+                  validateApplicationForSubmission(
+                      ro, eligibilityFeatureEnabled, nonGatedEligibilityFeatureEnabled, programId))
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -375,7 +379,10 @@ public final class ApplicantService {
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(ro -> validateApplicationForSubmission(ro, eligibilityFeatureEnabled))
+        .thenCompose(
+            ro ->
+                validateApplicationForSubmission(
+                    ro, eligibilityFeatureEnabled, nonGatedEligibilityFeatureEnabled, programId))
         .thenCompose(
             v ->
                 submitApplication(
@@ -416,19 +423,36 @@ public final class ApplicantService {
    * <p>An application may be submitted but incomplete if the application view with submit button
    * contains stale data that has changed visibility conditions.
    *
-   * @return a {@link ApplicationOutOfDateException} wrapped in a failed future with a user visible
-   *     message for the issue.
+   * @return a {@link ApplicationOutOfDateException} or {@link ApplicationNotEligibleException}
+   *     wrapped in a failed future with a user visible message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      boolean eligibilityFeatureEnabled) {
+      boolean eligibilityFeatureEnabled,
+      boolean nonGatedEligibilityFeatureEnabled,
+      long programId) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
-    if (eligibilityFeatureEnabled && !roApplicantProgramService.isApplicationEligible()) {
+
+    if (!eligibilityFeatureEnabled) {
+      return CompletableFuture.completedFuture(null);
+    }
+
+    try {
+      if (nonGatedEligibilityFeatureEnabled
+          && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
+        return CompletableFuture.completedFuture(null);
+      }
+    } catch (ProgramNotFoundException e) {
+      return CompletableFuture.completedFuture(null);
+    }
+
+    if (!roApplicantProgramService.isApplicationEligible()) {
       throw new ApplicationNotEligibleException();
     }
+
     return CompletableFuture.completedFuture(null);
   }
 

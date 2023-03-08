@@ -88,17 +88,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
-              if (featureFlags.isProgramEligibilityConditionsEnabled(request)
-                  && roApplicantProgramService.isApplicationNotEligible()) {
-                notEligibleBanner =
-                    Optional.of(
-                        new ToastMessage(
-                            messages.at(
-                                isTrustedIntermediary
-                                    ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                    : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                                roApplicantProgramService.getProgramTitle()),
-                            ALERT));
+              try {
+                if (shouldShowEligibilityToast(request, roApplicantProgramService, programId)) {
+                  notEligibleBanner =
+                      Optional.of(
+                          new ToastMessage(
+                              messages.at(
+                                  isTrustedIntermediary
+                                      ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
+                                      : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                                  roApplicantProgramService.getProgramTitle()),
+                              ALERT));
+                }
+              } catch (ProgramNotFoundException e) {
+                return notFound(e.toString());
               }
               ApplicantProgramSummaryView.Params params =
                   this.generateParamsBuilder(roApplicantProgramService)
@@ -146,6 +149,19 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  private boolean shouldShowEligibilityToast(
+      Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
+      throws ProgramNotFoundException {
+    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
+      return false;
+    }
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    if (featureFlags.isNongatedEligibilityEnabled(request) && !program.eligibilityIsGating()) {
+      return false;
+    }
+    return roApplicantProgramService.isApplicationEligible();
+  }
+
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
@@ -170,7 +186,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 applicantId,
                 programId,
                 submittingProfile,
-                featureFlags.isProgramEligibilityConditionsEnabled(request))
+                featureFlags.isProgramEligibilityConditionsEnabled(request),
+                featureFlags.isNongatedEligibilityEnabled(request))
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService

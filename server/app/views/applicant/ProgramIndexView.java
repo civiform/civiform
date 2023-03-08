@@ -306,8 +306,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardApplicationStatus(
               preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
-    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
-        && cardData.isProgramMaybeEligible().isPresent()) {
+    if (shouldShowEligibilityTag(request, cardData)) {
       programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
     }
     programData.with(title, description);
@@ -365,6 +364,21 @@ public final class ProgramIndexView extends BaseHtmlView {
                     "block", "shrink-0", BaseStyles.BG_SEATTLE_BLUE, "rounded-t-xl", "h-3"))
         .with(programData)
         .with(actionDiv);
+  }
+
+  private boolean shouldShowEligibilityTag(
+      Http.Request request, ApplicantService.ApplicantProgramData cardData) {
+    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
+      return false;
+    }
+    if (!cardData.isProgramMaybeEligible().isPresent()) {
+      return false;
+    }
+    if (cardData.isProgramMaybeEligible().get()) {
+      return true;
+    }
+    return !featureFlags.isNongatedEligibilityEnabled(request)
+        || cardData.program().eligibilityIsGating();
   }
 
   private PTag programCardApplicationStatus(

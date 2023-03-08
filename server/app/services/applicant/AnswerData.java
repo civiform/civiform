@@ -59,6 +59,8 @@ public abstract class AnswerData {
    */
   public abstract boolean isEligible();
 
+  public abstract boolean eligibilityIsGating();
+
   /** The applicant's response to the question. */
   public abstract String answerText();
 
@@ -106,6 +108,8 @@ public abstract class AnswerData {
     public abstract Builder setIsAnswered(boolean isAnswered);
 
     public abstract Builder setIsEligible(boolean isEligible);
+
+    public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
 
     public abstract Builder setAnswerText(String answerText);
 

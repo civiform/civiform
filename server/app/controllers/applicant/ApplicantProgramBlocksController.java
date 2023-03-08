@@ -523,12 +523,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       }
     }
 
-    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
-        && !roApplicantProgramService.isBlockEligible(blockId)) {
-      CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
-      try {
-        ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
-
+    try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      if (shouldRenderIneligibleBlockView(
+          request, roApplicantProgramService, programDefinition, blockId)) {
+        CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
         return supplyAsync(
             () ->
                 ok(
@@ -539,9 +538,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         messagesApi.preferred(request),
                         applicantId,
                         programDefinition)));
-      } catch (ProgramNotFoundException e) {
-        notFound(e.toString());
       }
+    } catch (ProgramNotFoundException e) {
+      notFound(e.toString());
     }
 
     Optional<String> nextBlockIdMaybe =
@@ -567,6 +566,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             redirect(
                 routes.ApplicantProgramBlocksController.edit(
                     applicantId, programId, nextBlockIdMaybe.get())));
+  }
+
+  private boolean shouldRenderIneligibleBlockView(
+      Request request,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      ProgramDefinition programDefinition,
+      String blockId) {
+    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
+      return false;
+    }
+    if (featureFlags.isNongatedEligibilityEnabled(request)
+        && !programDefinition.eligibilityIsGating()) {
+      return false;
+    }
+    return !roApplicantProgramService.isBlockEligible(blockId);
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {
