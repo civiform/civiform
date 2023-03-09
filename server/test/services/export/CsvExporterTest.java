@@ -133,8 +133,6 @@ public class CsvExporterTest extends AbstractExporterTest {
             .createNameQuestion();
     String firstNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
-    String lastNameHeader =
-        CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Jane");
     assertThat(records.get(1).get(firstNameHeader)).isEqualTo("John");
