@@ -3,7 +3,6 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfileData;
-import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.typesafe.config.Config;
@@ -94,7 +93,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
                 endSessionEndpoint,
                 postLogoutRedirectParam,
                 new URI(targetUrl),
-                /* extraParams =*/ ImmutableMap.of(),
                 Optional.of(clientId),
                 state);
 

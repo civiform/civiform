@@ -2,7 +2,6 @@ package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
@@ -18,7 +17,6 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* extraParams= */ ImmutableMap.of(),
             /* clientId = */ Optional.empty(),
             /* state= */ null);
     assertThat(request.toURI().toString())
@@ -27,13 +25,12 @@ public class CustomOidcLogoutRequestTest {
   }
 
   @Test
-  public void toUri_extraParams() throws Exception {
+  public void toUri_withClientId() throws Exception {
     LogoutRequest request =
         new CustomOidcLogoutRequest(
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* extraParams= */ ImmutableMap.of(),
             /* clientId = */ Optional.of("12345"),
             /* state= */ null);
     assertThat(request.toURI().toString())
@@ -48,7 +45,6 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout"),
             "post_logout_redirect_uri",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* extraParams= */ ImmutableMap.of(),
             /* clientId = */ Optional.empty(),
             new State("stateValue"));
     assertThat(request.toURI().toString())
@@ -66,7 +62,6 @@ public class CustomOidcLogoutRequestTest {
             new URI("https://auth.com/logout#fragmentHere"),
             "",
             /* postLogoutRedirectURI= */ new URI("https://civiform.com/"),
-            /* extraParams= */ ImmutableMap.of(),
             /* clientId = */ Optional.empty(),
             /* state= */ null);
     assertThat(request.toURI().toString()).isEqualTo("https://auth.com/logout#fragmentHere");
