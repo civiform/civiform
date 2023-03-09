@@ -22,7 +22,7 @@ if [[ "${HOST_CPU_ARCH}" != "x86_64" ]]; then
     echo " Currently only x86_64 is supported by our prod.Dockerfile."
     echo "----------------------------------------------------------------"
     echo ""
-    exit
+    exit 1
 fi
 
 echo "Building ${SNAPSHOT_TAG}..."
