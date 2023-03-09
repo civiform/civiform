@@ -46,14 +46,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     this.clientId = clientId;
   }
 
-  /** Helper function for retriving values from the application.conf, */
-  private static Optional<String> getConfigurationValue(Config civiformConfiguration, String name) {
-    if (civiformConfiguration.hasPath(name)) {
-      return Optional.ofNullable(civiformConfiguration.getString(name));
-    }
-    return Optional.empty();
-  }
-
   /**
    * Sets param that contains uri that user will be redirected to after they are logged out from the
    * auth provider. In OIDC spec it should be `post_logout_redirect_uri` but some providers override
