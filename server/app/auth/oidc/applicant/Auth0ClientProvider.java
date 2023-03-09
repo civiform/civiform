@@ -2,7 +2,6 @@ package auth.oidc.applicant;
 
 import auth.ProfileFactory;
 import auth.oidc.CiviformOidcLogoutActionBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.net.MalformedURLException;
@@ -54,8 +53,7 @@ public class Auth0ClientProvider extends GenericOidcClientProvider {
 
     // See https://auth0.com/docs/api/authentication#logout
     ((CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder())
-        .setPostLogoutRedirectParam("returnTo")
-        .setExtraParams(ImmutableMap.of("client_id", getClientID()));
+        .setPostLogoutRedirectParam("returnTo");
 
     return client;
   }
