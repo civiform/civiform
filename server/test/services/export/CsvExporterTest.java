@@ -45,7 +45,6 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
-            "Eligibility status",
             "Status",
             "applicant email address (email)",
             "applicant name (first_name)",
@@ -134,10 +133,10 @@ public class CsvExporterTest extends AbstractExporterTest {
     String firstNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     // Applications should appear most recent first.
-    assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Jane");
-    assertThat(records.get(1).get(firstNameHeader)).isEqualTo("John");
-    assertThat(records.get(0).get("Eligibility status")).isEqualTo("Doesn't meet eligibility");
-    assertThat(records.get(1).get("Eligibility status")).isEqualTo("Meets eligibility");
+    assertThat(records.get(0).get(firstNameHeader)).isEqualTo("John");
+    assertThat(records.get(1).get(firstNameHeader)).isEqualTo("Jane");
+    assertThat(records.get(0).get("Eligibility status")).isEqualTo("Meets eligibility");
+    assertThat(records.get(1).get("Eligibility status")).isEqualTo("Doesn't meet eligibility");
   }
 
   @Test
@@ -175,7 +174,6 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
-            "Eligibility status",
             "Status");
   }
 
@@ -239,7 +237,6 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
-            "Eligibility status",
             "Status",
             "applicant name (first_name)",
             "applicant name (middle_name)",
