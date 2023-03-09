@@ -103,6 +103,45 @@ public class CsvExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void programCsv_withEligibility() throws Exception {
+    createFakeQuestions();
+    createFakeProgramWithEligibilityPredicate();
+
+    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
+    CSVParser parser =
+      CSVParser.parse(exporterService.getProgramCsv(fakeProgramWithEligibility.id), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    assertThat(records).hasSize(3);
+    assertThat(parser.getHeaderNames())
+      .containsExactly(
+        "Applicant ID",
+        "Application ID",
+        "Applicant language",
+        "Submit time",
+        "Submitted by",
+        "Eligibility status",
+        "Status",
+        "applicant name (first_name)",
+        "applicant name (middle_name)",
+        "applicant name (last_name)",
+        "applicant favorite color (text)");
+
+    NameQuestion nameApplicantQuestion =
+      getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
+        .createNameQuestion();
+    String firstNameHeader =
+      CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
+    String lastNameHeader =
+      CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
+    // Applications should appear most recent first.
+    assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Jane");
+    assertThat(records.get(1).get(firstNameHeader)).isEqualTo("John");
+    assertThat(records.get(0).get("Eligibility status")).isEqualTo("Doesn't meet eligibility");
+    assertThat(records.get(1).get("Eligibility status")).isEqualTo("Meets eligibility");
+  }
+
+  @Test
   public void createAndSubmitTimes_presentAndInPST() throws Exception {
 
     createFakeQuestions();
