@@ -177,9 +177,9 @@ public class LoginForm extends BaseHtmlView {
 
   private DivTag debugContent() {
     return div()
-        .withClasses("absolute")
+        .withClasses("absolute", "flex", "flex-col")
         .with(
-            p("DEMO MODE. LOGIN AS:").withClasses("text-2xl"),
+            p("DEVELOPMENT MODE TOOLS:").withClasses("text-2xl"),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
@@ -203,7 +203,15 @@ public class LoginForm extends BaseHtmlView {
                 "Trusted Intermediary",
                 routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-                    .url()));
+                    .url()),
+            redirectButton(
+                "feature-flags",
+                "Feature Flags",
+                controllers.dev.routes.FeatureFlagOverrideController.index().url()),
+            redirectButton(
+                "database-seed",
+                "Seed Database",
+                controllers.dev.routes.DatabaseSeedController.index().url()));
   }
 
   private ButtonTag loginButton(Messages messages) {

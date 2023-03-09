@@ -1,0 +1,47 @@
+#! /usr/bin/env bash
+
+# DOC: Creates a python virtual environment for the env-var-docs/ python files (see
+# DOC: env-var-docs/README.md for an explaination of their purpose) and installs
+# DOC: dependencies. A virtual environment is used to explicitly declare python
+# DOC: dependencies and provide a more consistent developer environment.
+# DOC:
+# DOC: Will replace an existing venv directory if called multiple
+# DOC: times (a good way to get back to a known good state).
+
+source bin/lib.sh
+
+python_path="$(which python3)"
+
+if [[ "${python_path}" =~ "env-var-docs/venv/bin/python3" ]]; then
+  echo "ERROR: venv is currently activated, first run 'deactivate' in your shell then re-run this script."
+  exit 1
+fi
+
+if [[ "${python_path}" == "" ]]; then
+  echo "System installation of python 3.10+ is required"
+  exit 1
+fi
+
+python3 - <<EOF
+import sys
+v = sys.version_info
+if v.major >= 3 and v.minor >= 10:
+    pass
+else:
+    exit("System installation of python >= 3.10 is required")
+EOF
+
+if [[ -d env-var-docs/venv ]]; then
+  echo "Found venv directory, removing..."
+  rm -rf env-var-docs/venv
+fi
+
+echo "Creating venv directory..."
+python3 -m venv env-var-docs/venv
+
+echo "Installing dependencies..."
+source env-var-docs/venv/bin/activate
+
+pip install -e 'env-var-docs/parser-package[test]'
+
+echo -e "\nIMPORTANT: To activate the virtual environment in your shell, you MUST run 'source env-var-docs/venv/bin/activate'. To deactivate the environment, run 'deactivate'."

@@ -7,6 +7,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
@@ -19,7 +20,9 @@ import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.BaseHtmlView;
+import views.ViewUtils;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 
@@ -143,10 +146,18 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       formTag.with(
           FieldWithLabel.checkbox()
               .setFieldName("isCommonIntakeForm")
-              .setLabelText("Set program as common intake")
+              .setLabelText("Set program as pre-screener")
+              .addStyleClass("border-none")
               .setValue("true")
               .setChecked(isCommonIntakeForm)
-              .getCheckboxTag());
+              .getCheckboxTag()
+              .with(
+                  span(ViewUtils.makeSvgToolTip(
+                          "You can set one program as the ‘pre-screener’. This will pin the"
+                              + " program card to the top of the programs and services page while"
+                              + " moving other program cards below it.",
+                          Icons.INFO))
+                      .withClass("ml-2")));
     }
     formTag.with(
         submitButton("Save")

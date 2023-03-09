@@ -28,10 +28,13 @@ describe('End to end enumerator test', () => {
     // Click the add button in the preview to ensure we get an entity row and corresponding delete
     // button.
     await page.click('button:text("Add Sample repeated entity type")')
+    // Validate that the field rendered
+    await validateScreenshot(page, 'enumerator-field')
 
     // Now update the text when configuring the question and ensure that
     // the preview values update.
     await page.fill('text=Repeated Entity Type', 'New entity type')
+    await validateScreenshot(page, 'enumerator-type-set')
 
     // Verify question preview has the default values.
     await adminQuestions.expectCommonPreviewValues({
@@ -39,9 +42,9 @@ describe('End to end enumerator test', () => {
       questionHelpText: '',
     })
     await adminQuestions.expectEnumeratorPreviewValues({
-      entityNameInputLabelText: 'New entity type name',
+      entityNameInputLabelText: 'New entity type name #1',
       addEntityButtonText: 'Add New entity type',
-      deleteEntityButtonText: 'Remove New entity type',
+      deleteEntityButtonText: 'Remove New entity type #1',
     })
   })
 
@@ -216,6 +219,27 @@ describe('End to end enumerator test', () => {
     // Click next without adding an enumerator
     await applicantQuestions.clickNext()
     await validateScreenshot(page, 'enumerator-errors')
+  })
+
+  it('Renders the correct indexes for labels and buttons', async () => {
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English', true)
+    await applicantQuestions.applyProgram(programName)
+
+    // Fill in name question
+    await applicantQuestions.answerNameQuestion('Porky', 'Pig')
+    await applicantQuestions.clickNext()
+
+    // Put some things in the enumerator question, they should be numbered in order
+    await applicantQuestions.addEnumeratorAnswer('Bugs')
+    await applicantQuestions.addEnumeratorAnswer('Daffy')
+    await applicantQuestions.addEnumeratorAnswer('Goofy')
+    await validateScreenshot(page, 'enumerator-indexes-with-multiple-fileds')
+
+    // Remove the middle entry, the remaining entries should re-index
+    await applicantQuestions.deleteEnumeratorEntityByIndex(1)
+    await validateScreenshot(page, 'enumerator-indexes-after-removing-field')
   })
 
   it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {

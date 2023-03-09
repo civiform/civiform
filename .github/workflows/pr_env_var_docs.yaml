@@ -1,0 +1,42 @@
+name: pr_env_var_docs
+
+# Cancels in-progress jobs on this pull request when new commits are pushed.
+# This avoids wasted work for old commits.
+concurrency:
+  group: pr-env-var-docs-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+    paths:
+      - 'env-var-docs/**'
+      - 'server/conf/application.conf'
+      - 'server/conf/env-var-docs.json'
+      - '.github/workflows/pr_env_var_docs.yaml'
+
+jobs:
+  run-validations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: bin/env-var-docs-create-venv
+
+      - name: Run tests
+        run: bin/env-var-docs-run-tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          verbose: true
+          files: coverage.xml
+          # We're getting intermittent issues with codecov trying to upload lately
+          # disabling it from failing the entire pipeline for now.
+          fail_ci_if_error: false

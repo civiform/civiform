@@ -81,6 +81,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .with(
                 button()
                     .withId(ADD_ELEMENT_BUTTON_ID)
+                    // need to specify type "button" to avoid default onClick browser behavior
+                    .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
@@ -104,7 +106,16 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         /* isDisabled= */ true,
                         hasErrors,
                         /* elementId= */ Optional.of(ENUMERATOR_FIELD_TEMPLATE_INPUT_ID))
-                    .withId(ENUMERATOR_FIELD_TEMPLATE_ID));
+                    .withId(ENUMERATOR_FIELD_TEMPLATE_ID))
+            .withData(
+                "label-text",
+                messages.at(
+                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                    localizedEntityType))
+            .withData(
+                "button-text",
+                messages.at(
+                    MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(), localizedEntityType));
 
     return enumeratorQuestionFormContent;
   }
@@ -123,6 +134,11 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       boolean isDisabled,
       boolean hasErrors,
       Optional<String> elementId) {
+
+    String indexString = "";
+    if (existingIndex.isPresent()) {
+      indexString = " #" + String.valueOf(existingIndex.get() + 1);
+    }
     FieldWithLabel entityNameInputField =
         FieldWithLabel.input()
             .setFieldName(contextualizedPath.toString())
@@ -130,8 +146,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .setDisabled(isDisabled)
             .setLabelText(
                 messages.at(
-                    MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
-                    localizedEntityType))
+                        MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
+                        localizedEntityType)
+                    + indexString)
             .addReferenceClass(ReferenceClasses.ENTITY_NAME_INPUT);
     if (elementId.isPresent()) {
       entityNameInputField.setId(elementId.get());
@@ -156,7 +173,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                 ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
             .withText(
                 messages.at(
-                    MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(), localizedEntityType));
+                        MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(),
+                        localizedEntityType)
+                    + indexString);
 
     return div()
         .withClasses(StyleUtils.joinStyles(ENUMERATOR_FIELD_CLASSES, extraStyle.orElse("")))

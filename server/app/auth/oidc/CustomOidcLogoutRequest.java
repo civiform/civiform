@@ -6,7 +6,6 @@ import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.pac4j.core.exception.TechnicalException;
@@ -62,14 +61,13 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
   @Override
   public Map<String, List<String>> toParameters() {
 
-    Map<String, List<String>> params = new LinkedHashMap<>();
+    Map<String, List<String>> params = super.toParameters();
 
+    // Remove post_logout_redirect_uri and replace with custom logic.
+    params.remove("post_logout_redirect_uri");
     if (postLogoutRedirectURI != null && !postLogoutRedirectParam.isEmpty()) {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
-    }
-    if (getState() != null) {
-      params.put("state", Collections.singletonList(getState().getValue()));
     }
 
     extraParams.forEach((key, value) -> params.put(key, Collections.singletonList(value)));
