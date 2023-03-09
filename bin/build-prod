@@ -12,6 +12,18 @@ readonly SNAPSHOT_TAG="SNAPSHOT-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}"
 readonly IMAGE="civiform"
 readonly LOCATION="."
 readonly DOCKERFILE="prod.Dockerfile"
+readonly HOST_CPU_ARCH="$(docker info --format='{{.Architecture}}')"
+
+if [[ "${HOST_CPU_ARCH}" != "x86_64" ]]; then
+  echo "----------------------------------------------------------------"
+  echo " WARNING"
+  echo "----------------------------------------------------------------"
+  echo " Detected ${HOST_CPU_ARCH} as host system cpu architecture."
+  echo " Currently only x86_64 is supported by our prod.Dockerfile."
+  echo "----------------------------------------------------------------"
+  echo ""
+  exit 1
+fi
 
 echo "Building ${SNAPSHOT_TAG}..."
 

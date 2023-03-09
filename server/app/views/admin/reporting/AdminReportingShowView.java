@@ -7,6 +7,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
@@ -58,7 +59,14 @@ public class AdminReportingShowView extends BaseHtmlView {
                       + " this amount of time or less."));
 
   public Content render(
-      String programSlug, String programName, ReportingService.MonthlyStats monthlyStats) {
+      CiviFormProfile profile,
+      String programSlug,
+      String programName,
+      ReportingService.MonthlyStats monthlyStats) {
+    if (profile.isProgramAdmin()) {
+      layout.setOnlyProgramAdminType();
+    }
+
     var title = String.format("%s Reporting", programName);
 
     DivTag headerDiv =

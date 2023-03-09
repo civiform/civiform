@@ -7,6 +7,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.td;
 import static j2html.TagCreator.tr;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.AdminReportingController;
@@ -34,7 +35,11 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
   }
 
-  public Content render(ReportingService.MonthlyStats monthlyStats) {
+  public Content render(CiviFormProfile profile, ReportingService.MonthlyStats monthlyStats) {
+    if (profile.isProgramAdmin()) {
+      layout.setOnlyProgramAdminType();
+    }
+
     ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats =
         monthlyStats.monthlySubmissionsAggregated();
     ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram =

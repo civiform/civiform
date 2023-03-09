@@ -1,6 +1,6 @@
 package auth.oidc;
 
-import com.google.common.collect.ImmutableMap;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.pac4j.core.exception.TechnicalException;
 
 /**
@@ -30,9 +31,6 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
   /** The optional post-logout redirection URI. */
   private final URI postLogoutRedirectURI;
 
-  /** Optional extra query params to add to the URL. */
-  private final ImmutableMap<String, String> extraParams;
-
   /**
    * Create new OIDC logout request with a optional redirect url, optional client id, and other
    * params. If the OIDC provider requires the optional state param for logout (see
@@ -44,17 +42,20 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       final URI uri,
       final String postLogoutRedirectParam,
       final URI postLogoutRedirectURI,
-      final ImmutableMap<String, String> extraParams,
+      final Optional<String> clientId,
       final State state) {
 
-    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, state);
+    super(
+        uri,
+        /* idTokenHint = */ null,
+        /* logoutHint = */ null,
+        /* clientID = */ clientId.map(ClientID::new).orElse(null),
+        postLogoutRedirectURI,
+        state,
+        /* uiLocales = */ null);
+
     this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
-    if (extraParams == null) {
-      this.extraParams = ImmutableMap.of();
-    } else {
-      this.extraParams = extraParams;
-    }
   }
 
   /** Returns the URI query parameters for this logout request. */
@@ -69,8 +70,6 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       params.put(
           postLogoutRedirectParam, Collections.singletonList(postLogoutRedirectURI.toString()));
     }
-
-    extraParams.forEach((key, value) -> params.put(key, Collections.singletonList(value)));
 
     return params;
   }
