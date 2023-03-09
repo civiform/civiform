@@ -53,7 +53,7 @@ public class Auth0ClientProvider extends GenericOidcClientProvider {
 
     // See https://auth0.com/docs/api/authentication#logout
     ((CiviformOidcLogoutActionBuilder) client.getLogoutActionBuilder())
-        .setPostLogoutRedirectParam("returnTo");
+        .setPostLogoutRedirectParamOverride("returnTo");
 
     return client;
   }

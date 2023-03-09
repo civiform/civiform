@@ -35,17 +35,13 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
-  private String postLogoutRedirectParam;
+  private Optional<String> postLogoutRedirectParamOverride = Optional.empty();
   private final String clientId;
 
   public CiviformOidcLogoutActionBuilder(
       Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientId) {
     super(oidcConfiguration);
     checkNotNull(civiformConfiguration);
-    // Use `post_logout_redirect_uri` by default according OIDC spec.
-    this.postLogoutRedirectParam =
-        getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param")
-            .orElse("post_logout_redirect_uri");
 
     this.clientId = clientId;
   }
@@ -60,11 +56,11 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
   /**
    * Sets param that contains uri that user will be redirected to after they are logged out from the
-   * auth provider. In OIDC spec it should be `post_logout_redirect_uri` but some providers use
-   * different value.
+   * auth provider. In OIDC spec it should be `post_logout_redirect_uri` but some providers override
+   * it to a different value.
    */
-  public CiviformOidcLogoutActionBuilder setPostLogoutRedirectParam(String param) {
-    this.postLogoutRedirectParam = param;
+  public CiviformOidcLogoutActionBuilder setPostLogoutRedirectParamOverride(String param) {
+    this.postLogoutRedirectParamOverride = Optional.of(param);
     return this;
   }
 
@@ -91,7 +87,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
-                postLogoutRedirectParam,
+                postLogoutRedirectParamOverride.orElse("post_logout_redirect_uri"),
                 new URI(targetUrl),
                 Optional.of(clientId),
                 state);
