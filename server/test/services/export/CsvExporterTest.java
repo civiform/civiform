@@ -45,6 +45,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Eligibility status",
             "Status",
             "applicant email address (email)",
             "applicant name (first_name)",
@@ -136,6 +137,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Eligibility status",
             "Status");
   }
 
@@ -199,6 +201,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Applicant language",
             "Submit time",
             "Submitted by",
+            "Eligibility status",
             "Status",
             "applicant name (first_name)",
             "applicant name (middle_name)",
