@@ -1,6 +1,7 @@
 package auth.oidc;
 
 import com.google.common.collect.ImmutableMap;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import java.net.URI;
@@ -8,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.pac4j.core.exception.TechnicalException;
 
 /**
@@ -45,9 +47,18 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
       final String postLogoutRedirectParam,
       final URI postLogoutRedirectURI,
       final ImmutableMap<String, String> extraParams,
+      final Optional<String> clientId,
       final State state) {
 
-    super(uri, /* idTokenHint */ null, postLogoutRedirectURI, state);
+    super(
+        uri,
+        /* idTokenHint = */ null,
+        /* logoutHint = */ null,
+        /* clientID = */ clientId.map(ClientID::new).orElse(null),
+        postLogoutRedirectURI,
+        state,
+        /* uiLocales = */ null);
+
     this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
     if (extraParams == null) {

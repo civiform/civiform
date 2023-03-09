@@ -37,10 +37,10 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
   private String postLogoutRedirectParam;
-  private ImmutableMap<String, String> extraParams;
+  private final String clientId;
 
   public CiviformOidcLogoutActionBuilder(
-      Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientID) {
+      Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientId) {
     super(oidcConfiguration);
     checkNotNull(civiformConfiguration);
     // Use `post_logout_redirect_uri` by default according OIDC spec.
@@ -48,7 +48,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param")
             .orElse("post_logout_redirect_uri");
 
-    this.extraParams = ImmutableMap.of("client_id", clientID);
+    this.clientId = clientId;
   }
 
   /** Helper function for retriving values from the application.conf, */
@@ -57,15 +57,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       return Optional.ofNullable(civiformConfiguration.getString(name));
     }
     return Optional.empty();
-  }
-
-  /**
-   * Additional url params to add to logout request. Some identity providers require including
-   * client_id for example.
-   */
-  public CiviformOidcLogoutActionBuilder setExtraParams(ImmutableMap<String, String> extraParams) {
-    this.extraParams = extraParams;
-    return this;
   }
 
   /**
@@ -103,7 +94,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
                 endSessionEndpoint,
                 postLogoutRedirectParam,
                 new URI(targetUrl),
-                extraParams,
+                /* extraParams =*/ ImmutableMap.of(),
+                Optional.of(clientId),
                 state);
 
         return Optional.of(
