@@ -277,83 +277,80 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   }
 
   /**
-   * Creates a program that has an eligibility predicate, three applicants, and three
-   * applications. The applications have submission times one month apart starting on 2022-01-01.
+   * Creates a program that has an eligibility predicate, three applicants, and three applications.
+   * The applications have submission times one month apart starting on 2022-01-01.
    */
   protected void createFakeProgramWithEligibilityPredicate() {
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();
 
     PredicateDefinition colorPredicate =
-      PredicateDefinition.create(
-        PredicateExpressionNode.create(
-          LeafOperationExpressionNode.create(
-            colorQuestion.id,
-            Scalar.TEXT,
-            Operator.EQUAL_TO,
-            PredicateValue.of("blue"))),
-        PredicateAction.HIDE_BLOCK);
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("blue"))),
+            PredicateAction.HIDE_BLOCK);
     EligibilityDefinition colorEligibilityDefinition =
-      EligibilityDefinition.builder().setPredicate(colorPredicate).build();
+        EligibilityDefinition.builder().setPredicate(colorPredicate).build();
 
     fakeProgramWithEligibility =
-      ProgramBuilder.newActiveProgram()
-        .withName("Fake Program With Enumerator")
-        .withBlock()
-        .withRequiredQuestions(nameQuestion, colorQuestion)
-        .withEligibilityDefinition(colorEligibilityDefinition)
-        .build();
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake Program With Enumerator")
+            .withBlock()
+            .withRequiredQuestions(nameQuestion, colorQuestion)
+            .withEligibilityDefinition(colorEligibilityDefinition)
+            .build();
 
     // First applicant is not eligible.
     applicantOne = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
-      applicantOne.getApplicantData(),
-      ApplicantData.APPLICANT_PATH.join(
-        nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
-      "Jane",
-      "",
-      "Doe");
+        applicantOne.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Jane",
+        "",
+        "Doe");
     QuestionAnswerer.answerTextQuestion(
-      applicantOne.getApplicantData(),
-      ApplicantData.APPLICANT_PATH.join(
-        colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
-      "coquelicot");
+        applicantOne.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "coquelicot");
     applicantOne.save();
     applicationOne =
-      new Application(applicantOne, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
+        new Application(applicantOne, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
     applicationOne.setApplicantData(applicantOne.getApplicantData());
 
     CfTestHelpers.withMockedInstantNow(
-      "2022-01-01T00:00:00Z", () -> applicationOne.setSubmitTimeToNow());
+        "2022-01-01T00:00:00Z", () -> applicationOne.setSubmitTimeToNow());
     applicationOne.save();
 
     // Second applicant has one household member that has two jobs.
     applicantTwo = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
-      applicantTwo.getApplicantData(),
-      ApplicantData.APPLICANT_PATH.join(
-        nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
-      "John",
-      "",
-      "Doe");
+        applicantTwo.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            nameQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "John",
+        "",
+        "Doe");
     QuestionAnswerer.answerTextQuestion(
-      applicantTwo.getApplicantData(),
-      ApplicantData.APPLICANT_PATH.join(
-        colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
-      "blue");
+        applicantTwo.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(
+            colorQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "blue");
     applicantTwo.save();
     applicationTwo =
-      new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
+        new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.ACTIVE);
     applicationTwo.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
-      "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
+        "2022-02-01T00:00:00Z", () -> applicationTwo.setSubmitTimeToNow());
     applicationTwo.save();
 
     applicationThree =
-      new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.OBSOLETE);
+        new Application(applicantTwo, fakeProgramWithEligibility, LifecycleStage.OBSOLETE);
     applicationThree.setApplicantData(applicantTwo.getApplicantData());
     CfTestHelpers.withMockedInstantNow(
-      "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
+        "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
   }
   /**
