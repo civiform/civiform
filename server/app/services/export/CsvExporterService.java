@@ -138,10 +138,14 @@ public final class CsvExporterService {
     ImmutableList<Application> applications =
         programService.getSubmittedProgramApplications(programId);
     ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
-    return exportCsv(generateDefaultCsvConfig(programId), applications, Optional.of(programDefinition));
+    return exportCsv(
+        generateDefaultCsvConfig(programId), applications, Optional.of(programDefinition));
   }
 
-  private String exportCsv(CsvExportConfig exportConfig, ImmutableList<Application> applications, Optional<ProgramDefinition> currentProgram) {
+  private String exportCsv(
+      CsvExportConfig exportConfig,
+      ImmutableList<Application> applications,
+      Optional<ProgramDefinition> currentProgram) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       try (CsvExporter csvExporter =
@@ -155,7 +159,8 @@ public final class CsvExporterService {
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
         // TODO(#1750): Consider Play's JavaCache over this caching.
         HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
-        boolean shouldCheckEligibility = currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
+        boolean shouldCheckEligibility =
+            currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
         for (Application application : applications) {
           Long programId = application.getProgram().id;
           if (!programDefinitions.containsKey(programId)) {
@@ -171,9 +176,10 @@ public final class CsvExporterService {
               applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 
           Optional<Boolean> optionalEligibilityStatus =
-            shouldCheckEligibility
-              ? applicantService.getOptionalEligibilityStatus(
-              application.getApplicant().getApplicantData(), currentProgram.get()) : Optional.empty();
+              shouldCheckEligibility
+                  ? applicantService.getOptionalEligibilityStatus(
+                      application.getApplicant().getApplicantData(), currentProgram.get())
+                  : Optional.empty();
 
           csvExporter.exportRecord(application, roApplicantService, optionalEligibilityStatus);
         }
@@ -254,7 +260,10 @@ public final class CsvExporterService {
             .setColumnType(ColumnType.SUBMITTER_EMAIL)
             .build());
     columnsBuilder.add(
-      Column.builder().setHeader("Eligibility status").setColumnType(ColumnType.ELIGIBILITY_STATUS).build());
+        Column.builder()
+            .setHeader("Eligibility status")
+            .setColumnType(ColumnType.ELIGIBILITY_STATUS)
+            .build());
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
@@ -336,7 +345,10 @@ public final class CsvExporterService {
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
   public String getDemographicsCsv(TimeFilter filter) {
-    return exportCsv(getDemographicsExporterConfig(), applicantService.getApplications(filter), /* currentProgram= */ Optional.empty());
+    return exportCsv(
+        getDemographicsExporterConfig(),
+        applicantService.getApplications(filter),
+        /* currentProgram= */ Optional.empty());
   }
 
   private CsvExportConfig getDemographicsExporterConfig() {

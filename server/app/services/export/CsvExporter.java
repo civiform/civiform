@@ -10,7 +10,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
-
 import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
@@ -19,7 +18,6 @@ import services.DateConverter;
 import services.Path;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.Column;
-import services.program.ProgramDefinition;
 
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
@@ -55,7 +53,9 @@ public final class CsvExporter implements AutoCloseable {
 
   /** Writes a single {@link Application} record to the CSV. */
   public void exportRecord(
-    Application application, ReadOnlyApplicantProgramService roApplicantService, Optional<Boolean> optionalEligibilityStatus)
+      Application application,
+      ReadOnlyApplicantProgramService roApplicantService,
+      Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
     ImmutableMap<Path, String> answerMap =
         roApplicantService.getSummaryData().stream()
@@ -126,7 +126,8 @@ public final class CsvExporter implements AutoCloseable {
           break;
         case ELIGIBILITY_STATUS:
           if (optionalEligibilityStatus.isPresent()) {
-            String eligibilityText = optionalEligibilityStatus.get() ? "Meets eligibility" : "Does not meet eligibility";
+            String eligibilityText =
+                optionalEligibilityStatus.get() ? "Meets eligibility" : "Does not meet eligibility";
             printer.print(eligibilityText);
           } else {
             printer.print(EMPTY_VALUE);
