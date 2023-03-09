@@ -231,6 +231,11 @@ export class AdminPrograms {
     await this.expectProgramSettingsPage()
   }
 
+  async setProgramEligibilityToNongating(programName: string) {
+    await this.gotoProgramSettingsPage(programName)
+    await this.page.click('#eligibility-toggle')
+  }
+
   async gotoEditDraftProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)

@@ -155,11 +155,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
     if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
       return false;
     }
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-    if (featureFlags.isNongatedEligibilityEnabled(request) && !program.eligibilityIsGating()) {
+    if (featureFlags.isNongatedEligibilityEnabled(request)
+        && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
       return false;
     }
-    return roApplicantProgramService.isApplicationEligible();
+    return !roApplicantProgramService.isApplicationEligible();
   }
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
