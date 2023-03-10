@@ -60,8 +60,8 @@ public abstract class AnswerData {
   public abstract boolean isEligible();
 
   /**
-   * True if the program's eligibility is set to gating. If false, tags that note that the applicant
-   * may not qualify should also be hidden.
+   * True if the program's eligibility is set to gating. If false, eligibility is NOT gating tags
+   * that note that the applicant may not qualify should also be hidden.
    */
   public abstract boolean eligibilityIsGating();
 
