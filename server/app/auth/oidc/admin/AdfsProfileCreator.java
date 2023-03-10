@@ -11,8 +11,6 @@ import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
@@ -21,8 +19,6 @@ import repository.UserRepository;
  * right now.
  */
 public class AdfsProfileCreator extends CiviformOidcProfileCreator {
-  private static final Logger logger = LoggerFactory.getLogger(AdfsProfileCreator.class);
-
   private final String adminGroupName;
   private final String ad_groups_attribute_name;
 
@@ -64,18 +60,8 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private boolean isGlobalAdmin(OidcProfile profile) {
-    List<Object> groups =
-        profile.containsAttribute(this.ad_groups_attribute_name)
-            ? profile.getAttribute(this.ad_groups_attribute_name, List.class)
-            : null;
-
-    if (groups == null) {
-      logger.error("Missing group claim in ADFS OIDC profile.");
-      return false;
-    }
-
+    List<String> groups = AdfsGroupAccessor.getGroups(profile, this.ad_groups_attribute_name);
     return groups.contains(this.adminGroupName);
   }
 
