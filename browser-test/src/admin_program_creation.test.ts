@@ -405,12 +405,16 @@ describe('program creation', () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    // needed for gotoViewActiveProgramPageAndStartEditing
+    await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const programName = 'Test program 5'
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
     await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.publishProgram(programName)
+    await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
   })
 
   it('delete last block and edit', async () => {
