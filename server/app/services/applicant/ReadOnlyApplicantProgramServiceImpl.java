@@ -278,6 +278,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
+                .setEligibilityIsGating(programDefinition.eligibilityIsGating())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setOriginalFileName(originalFileName)

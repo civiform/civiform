@@ -184,7 +184,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // Show that the question makes the application ineligible if it is answered and is a reason the
     // application is ineligible.
-    if (!data.isEligible() && data.isAnswered()) {
+    if (data.eligibilityIsGating() && !data.isEligible() && data.isAnswered()) {
       actionAndTimestampDiv.with(
           div(messages.at(MessageKey.CONTENT_DOES_NOT_QUALIFY.getKeyName()))
               .withClasses(

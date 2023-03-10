@@ -371,6 +371,7 @@ describe('Applicant navigation flow', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -399,6 +400,7 @@ describe('Applicant navigation flow', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and without submitting.
@@ -435,6 +437,7 @@ describe('Applicant navigation flow', () => {
       // Add the partial program.
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await adminPrograms.addProgram(overlappingOneQProgramName)
       await adminPrograms.editProgramBlock(
         overlappingOneQProgramName,
@@ -476,6 +479,7 @@ describe('Applicant navigation flow', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -502,6 +506,109 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.clickSubmit()
       await applicantQuestions.expectIneligiblePage()
+    })
+
+    it('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+
+      // Verify the question is marked ineligible.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+
+      // Answer the other question.
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerEmailQuestion('email@email.com')
+
+      // Submit and expect to be told it's ineligible.
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickSubmit()
+      await applicantQuestions.expectIneligiblePage()
+    })
+
+    it('shows may be eligible with nongating eligibility', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsAdmin(page)
+      await adminPrograms.createNewVersion(fullProgramName)
+      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.publishProgram(fullProgramName)
+      await logout(page)
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application without submitting.
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+
+      // Verify the question is marked eligible
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
+      )
+
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+    })
+
+    it('does not show not eligible with nongating eligibility', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsAdmin(page)
+      await adminPrograms.createNewVersion(fullProgramName)
+      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.publishProgram(fullProgramName)
+      await logout(page)
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application without submitting.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+
+      // Verify that there's no indication of eligibility.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.validateToastMessage('')
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
     })
   })
 

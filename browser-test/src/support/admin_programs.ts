@@ -231,6 +231,16 @@ export class AdminPrograms {
     await this.expectProgramSettingsPage()
   }
 
+  async setProgramEligibilityToNongating(programName: string) {
+    await this.gotoProgramSettingsPage(programName)
+    const nonGatingEligibilityValue = await this.page
+      .locator('input[name=eligibilityIsGating]')
+      .inputValue()
+    if (nonGatingEligibilityValue == 'false') {
+      await this.page.locator('#eligibility-toggle').click()
+    }
+  }
+
   async gotoEditDraftProgramPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
