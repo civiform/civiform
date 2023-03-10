@@ -9,6 +9,7 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.nimbusds.jwt.JWT;
 import java.util.Optional;
 import javax.inject.Provider;
 import models.Applicant;
@@ -122,6 +123,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.setAuthorityId(authorityId).join();
 
+    JWT idToken = oidcProfile.getIdToken();
+    civiformProfile.getProfileData().setIdTokenString(idToken.serialize());
+
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     // Meaning: whatever you signed in with most recently is the role you have.
@@ -154,6 +158,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+    logger.warn("DEBUG: guestProfile = {}", guestProfile);
+    logger.warn(
+        "DEBUG: guestProfile.idToken = {}", guestProfile.get().getProfileData().getIdTokenString());
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }

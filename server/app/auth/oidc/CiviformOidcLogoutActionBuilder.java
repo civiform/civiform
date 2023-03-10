@@ -3,6 +3,7 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfileData;
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.typesafe.config.Config;
@@ -18,6 +19,9 @@ import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
+import org.pac4j.oidc.profile.OidcProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Custom OidcLogoutActionBuilder for CiviFormProfileData (since it extends CommonProfile, not
@@ -34,6 +38,8 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  * <p>Always adds the client_id to the logout request.
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
+  private static final Logger logger =
+      LoggerFactory.getLogger(CiviformOidcLogoutActionBuilder.class);
 
   private String postLogoutRedirectParam;
   private final String clientId;
@@ -82,6 +88,9 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
 
+        JWT idToken = ((OidcProfile) currentProfile).getIdToken();
+        logger.warn("DEBUG: idToken = {}", idToken.serialize());
+
         // Optional state param for logout is only needed by certain OIDC providers, but we
         // always include it since it can help with cross-site forgery attacks.
         // OidcConfiguration comes with a default state generator.
@@ -91,6 +100,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
+                idToken,
                 postLogoutRedirectParam,
                 new URI(targetUrl),
                 Optional.of(clientId),

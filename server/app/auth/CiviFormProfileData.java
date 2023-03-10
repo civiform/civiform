@@ -5,7 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.base.Preconditions;
 import models.Account;
 import models.Applicant;
-import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.oidc.profile.OidcProfile;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -15,7 +15,7 @@ import repository.DatabaseExecutionContext;
  *
  * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
  */
-public class CiviFormProfileData extends CommonProfile {
+public class CiviFormProfileData extends OidcProfile {
 
   public CiviFormProfileData() {
     super();

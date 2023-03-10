@@ -47,6 +47,7 @@ import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.profile.BasicUserProfile;
 import org.pac4j.http.client.direct.DirectBasicAuthClient;
+import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.play.CallbackController;
 import org.pac4j.play.LogoutController;
 import org.pac4j.play.store.PlayCookieSessionStore;
@@ -107,6 +108,7 @@ public class SecurityModule extends AbstractModule {
     // We will need to do this for every class we want to store in the cookie.
     PlayCookieSessionStore.JAVA_SERIALIZER.clearTrustedClasses();
     PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(CiviFormProfileData.class);
+    PlayCookieSessionStore.JAVA_SERIALIZER.addTrustedClass(OidcProfile.class);
 
     // We need to use the secret key to generate the encrypter / decrypter for the
     // session store, so that cookies from version n of the application can be
