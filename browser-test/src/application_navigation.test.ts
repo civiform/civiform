@@ -522,7 +522,7 @@ describe('Applicant navigation flow', () => {
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(fullProgramName)
 
-      // Fill out application and without submitting.
+      // Fill out application without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
 
@@ -532,6 +532,7 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
+
       // Go back to in progress application and submit.
       await applicantQuestions.applyProgram(fullProgramName)
       await applicantQuestions.answerEmailQuestion('test@test.com')
@@ -557,13 +558,15 @@ describe('Applicant navigation flow', () => {
 
       await applicantQuestions.applyProgram(fullProgramName)
 
-      // Fill out application and without submitting.
+      // Fill out application without submitting.
       await applicantQuestions.answerNumberQuestion('1')
       await applicantQuestions.clickNext()
 
-      // Go back to in progress application and submit.
+      // Verify that there's no indication of eligibility.
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+
+      // Go back to in progress application and submit.
       await applicantQuestions.applyProgram(fullProgramName)
       await applicantQuestions.answerEmailQuestion('test@test.com')
       await applicantQuestions.clickNext()
