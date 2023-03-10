@@ -372,10 +372,14 @@ public final class ProgramIndexView extends BaseHtmlView {
    */
   private boolean shouldShowEligibilityTag(
       Http.Request request, ApplicantService.ApplicantProgramData cardData) {
-    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)
-        || !cardData.isProgramMaybeEligible().isPresent()) {
+    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
       return false;
     }
+
+    if (!cardData.isProgramMaybeEligible().isPresent()) {
+      return false;
+    }
+
     return !featureFlags.isNongatedEligibilityEnabled(request)
         || cardData.program().eligibilityIsGating()
         || cardData.isProgramMaybeEligible().get();
