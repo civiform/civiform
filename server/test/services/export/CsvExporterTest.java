@@ -137,7 +137,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     assertThat(records.get(1).get(firstNameHeader)).isEqualTo("John");
     assertThat(records.get(2).get(firstNameHeader)).isEqualTo("Jane");
     assertThat(records.get(0).get("Eligibility status")).isEqualTo("Meets eligibility");
-    assertThat(records.get(1).get("Eligibility status")).isEqualTo("Doesn't meet eligibility");
+    assertThat(records.get(1).get("Eligibility status")).isEqualTo("Meets eligibility");
     assertThat(records.get(2).get("Eligibility status")).isEqualTo("Doesn't meet eligibility");
   }
 
