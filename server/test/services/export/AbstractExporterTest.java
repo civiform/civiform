@@ -324,7 +324,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         "2022-01-01T00:00:00Z", () -> applicationOne.setSubmitTimeToNow());
     applicationOne.save();
 
-    // Second applicant has one household member that has two jobs.
+    // Second applicant is eligible.
     applicantTwo = resourceCreator.insertApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantTwo.getApplicantData(),
