@@ -507,6 +507,40 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
+    it('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+
+      // Verify the question is marked ineligible.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+
+      // Answer the other question.
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerEmailQuestion('email@email.com')
+
+      // Submit and expect to be told it's ineligible.
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickSubmit()
+      await applicantQuestions.expectIneligiblePage()
+    })
+
     it('shows may be eligible with nongating eligibility', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')

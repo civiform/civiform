@@ -149,6 +149,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
   private boolean shouldShowNotEligibleBanner(
       Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
       throws ProgramNotFoundException {

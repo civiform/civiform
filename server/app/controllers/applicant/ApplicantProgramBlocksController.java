@@ -568,6 +568,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantId, programId, nextBlockIdMaybe.get())));
   }
 
+  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
   private boolean shouldRenderIneligibleBlockView(
       Request request,
       ReadOnlyApplicantProgramService roApplicantProgramService,
