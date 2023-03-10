@@ -507,7 +507,41 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectIneligiblePage()
     })
 
-    it('does not show not eligible upon submit with nongating eligibility', async () => {
+    it('shows may be eligible with nongating eligibility', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsAdmin(page)
+      await adminPrograms.createNewVersion(fullProgramName)
+      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.publishProgram(fullProgramName)
+      await logout(page)
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and without submitting.
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+
+      // Verify the question is marked eligible
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
+      )
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+    })
+
+    it('does not show not eligible with nongating eligibility', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await enableFeatureFlag(page, 'nongated_eligibility_enabled')
@@ -529,9 +563,11 @@ describe('Applicant navigation flow', () => {
 
       // Go back to in progress application and submit.
       await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
       await applicantQuestions.applyProgram(fullProgramName)
       await applicantQuestions.answerEmailQuestion('test@test.com')
       await applicantQuestions.clickNext()
+      await applicantQuestions.validateToastMessage('')
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)

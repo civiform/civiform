@@ -366,19 +366,19 @@ public final class ProgramIndexView extends BaseHtmlView {
         .with(actionDiv);
   }
 
+  /**
+   * If eligibility is gating, the eligibility tag should always show when present. If eligibility
+   * is non-gating, the eligibility tag should only show if the user may be eligible.
+   */
   private boolean shouldShowEligibilityTag(
       Http.Request request, ApplicantService.ApplicantProgramData cardData) {
-    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
+    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)
+        || !cardData.isProgramMaybeEligible().isPresent()) {
       return false;
-    }
-    if (!cardData.isProgramMaybeEligible().isPresent()) {
-      return false;
-    }
-    if (cardData.isProgramMaybeEligible().get()) {
-      return true;
     }
     return !featureFlags.isNongatedEligibilityEnabled(request)
-        || cardData.program().eligibilityIsGating();
+        || cardData.program().eligibilityIsGating()
+        || cardData.isProgramMaybeEligible().get();
   }
 
   private PTag programCardApplicationStatus(
