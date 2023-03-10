@@ -87,7 +87,9 @@ public final class CsvExporterService {
     ImmutableList<ProgramDefinition> allProgramVersions =
         programService.getAllProgramDefinitionVersions(programId).stream()
             .collect(ImmutableList.toImmutableList());
-    CsvExportConfig exportConfig = generateDefaultCsvExportConfig(allProgramVersions);
+    ProgramDefinition currentProgram = programService.getProgramDefinition(programId);
+    CsvExportConfig exportConfig =
+        generateDefaultCsvExportConfig(allProgramVersions, currentProgram.hasEligibilityEnabled());
 
     ImmutableList<Application> applications =
         programService
@@ -97,11 +99,12 @@ public final class CsvExporterService {
                 filters)
             .getPageContents();
 
-    return exportCsv(exportConfig, applications);
+    return exportCsv(exportConfig, applications, Optional.of(currentProgram));
   }
 
   private CsvExportConfig generateDefaultCsvExportConfig(
-      ImmutableList<ProgramDefinition> programDefinitions) throws ProgramNotFoundException {
+      ImmutableList<ProgramDefinition> programDefinitions, boolean showEligibilityColumn)
+      throws ProgramNotFoundException {
     Map<Path, AnswerData> answerMap = new HashMap<>();
 
     for (ProgramDefinition programDefinition : programDefinitions) {
@@ -124,7 +127,7 @@ public final class CsvExporterService {
                     .thenComparing(answerData -> answerData.contextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return generateDefaultCsvConfig(answers);
+    return generateDefaultCsvConfig(answers, showEligibilityColumn);
   }
 
   /**
@@ -135,10 +138,17 @@ public final class CsvExporterService {
   public String getProgramCsv(long programId) throws ProgramNotFoundException {
     ImmutableList<Application> applications =
         programService.getSubmittedProgramApplications(programId);
-    return exportCsv(generateDefaultCsvConfig(programId), applications);
+    ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+    return exportCsv(
+        generateDefaultCsvConfig(programId, programDefinition.hasEligibilityEnabled()),
+        applications,
+        Optional.of(programDefinition));
   }
 
-  private String exportCsv(CsvExportConfig exportConfig, ImmutableList<Application> applications) {
+  private String exportCsv(
+      CsvExportConfig exportConfig,
+      ImmutableList<Application> applications,
+      Optional<ProgramDefinition> currentProgram) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       try (CsvExporter csvExporter =
@@ -152,6 +162,8 @@ public final class CsvExporterService {
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
         // TODO(#1750): Consider Play's JavaCache over this caching.
         HashMap<Long, ProgramDefinition> programDefinitions = new HashMap<>();
+        boolean shouldCheckEligibility =
+            currentProgram.isPresent() && currentProgram.get().hasEligibilityEnabled();
         for (Application application : applications) {
           Long programId = application.getProgram().id;
           if (!programDefinitions.containsKey(programId)) {
@@ -165,7 +177,14 @@ public final class CsvExporterService {
 
           ReadOnlyApplicantProgramService roApplicantService =
               applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
-          csvExporter.exportRecord(application, roApplicantService);
+
+          Optional<Boolean> optionalEligibilityStatus =
+              shouldCheckEligibility
+                  ? applicantService.getOptionalEligibilityStatus(
+                      application.getApplicant().getApplicantData(), currentProgram.get())
+                  : Optional.empty();
+
+          csvExporter.exportRecord(application, roApplicantService, optionalEligibilityStatus);
         }
       }
     } catch (IOException e) {
@@ -182,7 +201,7 @@ public final class CsvExporterService {
    * applications. This means if one application had a question repeated for N repeated entities,
    * then there would be N columns for each of that question's scalars.
    */
-  private CsvExportConfig generateDefaultCsvConfig(long programId) {
+  private CsvExportConfig generateDefaultCsvConfig(long programId, boolean showEligibilityColumn) {
     ImmutableList<Application> applications;
 
     try {
@@ -213,14 +232,15 @@ public final class CsvExporterService {
             .sorted(
                 Comparator.comparing(AnswerData::blockId).thenComparing(AnswerData::questionIndex))
             .collect(ImmutableList.toImmutableList());
-    return generateDefaultCsvConfig(answers);
+    return generateDefaultCsvConfig(answers, showEligibilityColumn);
   }
 
   /**
    * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The default
    * config includes all the questions, the application id, and the application submission time.
    */
-  private CsvExportConfig generateDefaultCsvConfig(ImmutableList<AnswerData> answerDataList) {
+  private CsvExportConfig generateDefaultCsvConfig(
+      ImmutableList<AnswerData> answerDataList, boolean showEligibilityColumn) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Default columns
@@ -243,6 +263,13 @@ public final class CsvExporterService {
             .setHeader("Submitted by")
             .setColumnType(ColumnType.SUBMITTER_EMAIL)
             .build());
+    if (showEligibilityColumn) {
+      columnsBuilder.add(
+          Column.builder()
+              .setHeader("Eligibility status")
+              .setColumnType(ColumnType.ELIGIBILITY_STATUS)
+              .build());
+    }
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
@@ -324,7 +351,10 @@ public final class CsvExporterService {
    * A string containing the CSV which maps applicants (opaquely) to the programs they applied to.
    */
   public String getDemographicsCsv(TimeFilter filter) {
-    return exportCsv(getDemographicsExporterConfig(), applicantService.getApplications(filter));
+    return exportCsv(
+        getDemographicsExporterConfig(),
+        applicantService.getApplications(filter),
+        /* currentProgram= */ Optional.empty());
   }
 
   private CsvExportConfig getDemographicsExporterConfig() {
