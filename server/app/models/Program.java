@@ -125,7 +125,7 @@ public class Program extends BaseModel {
 
   public Optional<StatusDefinitions.Status> getDefaultStatus() {
     return this.statusDefinitions.getStatuses().stream()
-        .filter(status -> status.defaultStatus().orElse(false))
+        .filter(StatusDefinitions.Status::computedDefaultStatus)
         .findFirst();
   }
 

@@ -80,6 +80,13 @@ public final class StatusDefinitions {
     @JsonProperty("defaultStatus")
     public abstract Optional<Boolean> defaultStatus();
 
+    // Because statuses created before this feature was released will not
+    // have a defaultStatus field, use this to check if the status is set
+    // as the default status.
+    public boolean computedDefaultStatus() {
+      return defaultStatus().orElse(false);
+    }
+
     public static Builder builder() {
       return new AutoValue_StatusDefinitions_Status.Builder();
     }
