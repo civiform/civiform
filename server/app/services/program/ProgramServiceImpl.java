@@ -586,13 +586,10 @@ public final class ProgramServiceImpl implements ProgramService {
       List<StatusDefinitions.Status> statuses, Optional<String> exceptStatusName) {
     return statuses.stream()
         .<StatusDefinitions.Status>map(
-            status -> {
-              if (exceptStatusName.map(name -> name.equals(status.statusText())).orElse(false)) {
-                return status;
-              } else {
-                return status.toBuilder().setDefaultStatus(Optional.of(false)).build();
-              }
-            })
+            status ->
+                exceptStatusName.map(name -> status.matches(name)).orElse(false)
+                    ? status
+                    : status.toBuilder().setDefaultStatus(Optional.of(false)).build())
         .collect(ImmutableList.toImmutableList());
   }
 

@@ -345,11 +345,19 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             application.id);
     String viewLinkText = "View →";
 
-    String statusString = application.getLatestStatus().orElse("None");
-    statusString +=
-        defaultStatus.isPresent() && statusString.equals(defaultStatus.get().statusText())
-            ? " (default)"
-            : "";
+    String statusString =
+        application
+            .getLatestStatus()
+            .map(
+                s ->
+                    String.format(
+                        "%s%s",
+                        s,
+                        defaultStatus.map(defaultString -> defaultString.matches(s)).orElse(false)
+                            ? " (default)"
+                            : ""))
+            .orElse("None");
+
     DivTag cardContent =
         div()
             .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")

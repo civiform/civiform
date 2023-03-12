@@ -128,9 +128,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     final ProgramStatusesForm programStatusesForm = form.get();
     if (setDefault
         && previousDefaultStatus
-            .map(
-                status ->
-                    !status.statusText().equals(programStatusesForm.getConfiguredStatusText()))
+            .map(status -> !status.matches(programStatusesForm.getConfiguredStatusText()))
             .orElse(true)) {
       toastMessage =
           programStatusesForm.getStatusText() + " has been updated to the default status";

@@ -87,6 +87,10 @@ public final class StatusDefinitions {
       return defaultStatus().orElse(false);
     }
 
+    public boolean matches(String otherStatusString) {
+      return statusText().equals(otherStatusString);
+    }
+
     public static Builder builder() {
       return new AutoValue_StatusDefinitions_Status.Builder();
     }
