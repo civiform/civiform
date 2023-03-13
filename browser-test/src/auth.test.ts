@@ -33,7 +33,7 @@ describe('applicant auth', () => {
     await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'logged-in-guest')
-    expect(await ctx.page.textContent('html')).toContain('Logged in as Guest')
+    expect(await ctx.page.textContent('html')).toContain("You're a guest user")
     expect(await ctx.page.textContent('html')).toContain('Logout')
   })
 
@@ -87,7 +87,7 @@ describe('applicant auth', () => {
     const {page} = ctx
     await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
-    expect(await ctx.page.textContent('html')).toContain('Logged in as Guest')
+    expect(await ctx.page.textContent('html')).toContain("You're a guest user")
 
     await page.click('text=Logout')
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
