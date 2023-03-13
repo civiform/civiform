@@ -138,7 +138,7 @@ public final class FeatureFlags {
    *
    * <p>Returns false if the value is not present.
    */
-  private boolean getFlagEnabled(Request request, String flag) {
+  public boolean getFlagEnabled(Request request, String flag) {
     Optional<Boolean> maybeConfigValue = getFlagEnabledFromConfig(flag);
     if (maybeConfigValue.isEmpty()) {
       return false;
