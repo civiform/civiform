@@ -2,7 +2,7 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.util.Locale;
@@ -12,9 +12,16 @@ import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
 import models.Program;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.UserRepository;
 import services.DeploymentType;
+import services.LocalizedStrings;
+import services.MessageKey;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
@@ -26,30 +33,34 @@ import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
 public final class ProgramAdminApplicationService {
-  @VisibleForTesting
-  static final String STATUS_UPDATE_EMAIL_SUBJECT_FORMAT = "An update on your application %s";
 
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
+  private final UserRepository userRepository;
   private final SimpleEmail emailClient;
   private final String baseUrl;
   private final boolean isStaging;
   private final String stagingApplicantNotificationMailingList;
   private final String stagingTiNotificationMailingList;
+  private final MessagesApi messagesApi;
 
   @Inject
   ProgramAdminApplicationService(
       ApplicantService applicantService,
       ApplicationRepository applicationRepository,
       ApplicationEventRepository eventRepository,
+      UserRepository userRepository,
       Config configuration,
       SimpleEmail emailClient,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      MessagesApi messagesApi) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.userRepository = checkNotNull(userRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
+    this.messagesApi = checkNotNull(messagesApi);
 
     checkNotNull(configuration);
     checkNotNull(deploymentType);
@@ -146,18 +157,17 @@ public final class ProgramAdminApplicationService {
       Optional<String> applicantEmail) {
     String civiformLink = baseUrl;
     Locale locale = applicant.getApplicantData().preferredLocale();
-    // TODO(#3377): Review email content in particular localizing the subject and program name.
+    Messages messages =
+        messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
     String programName = programDef.localizedName().getDefault();
-    // TODO(#3377): Review email content in particular mentioning CiviForm here, and translations.
-    // Note: We knowingly mix the english boilerplate with potentially translated body content
-    // believing something is better than nothing.
     String emailBody =
         String.format(
-            "%s\n\nLog in to CiviForm at %s.",
-            statusDef.localizedEmailBodyText().get().getOrDefault(locale), civiformLink);
+            "%s\n%s",
+            statusDef.localizedEmailBodyText().get().getOrDefault(locale),
+            messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), civiformLink));
     emailClient.send(
         isStaging ? stagingApplicantNotificationMailingList : applicantEmail.get(),
-        String.format(STATUS_UPDATE_EMAIL_SUBJECT_FORMAT, programName),
+        messages.at(MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programName),
         emailBody);
   }
 
@@ -174,15 +184,31 @@ public final class ProgramAdminApplicationService {
                     /* dateQuery= */ Optional.empty(),
                     /* page= */ Optional.of(1))
                 .url();
+    if (!adminSubmitterEmail.isPresent()) {
+      return;
+    }
+
+    Locale locale =
+        userRepository
+            .lookupAccountByEmail(adminSubmitterEmail.get())
+            .flatMap(Account::newestApplicant)
+            .map(Applicant::getApplicantData)
+            .map(ApplicantData::preferredLocale)
+            .orElse(LocalizedStrings.DEFAULT_LOCALE);
+    Messages messages =
+        messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
     String subject =
-        String.format(
-            "An update on the application for program %s on behalf of applicant %d",
-            programName, applicant.id);
+        messages.at(
+            MessageKey.EMAIL_TI_APPLICATION_UPDATE_SUBJECT.getKeyName(), programName, applicant.id);
     String body =
         String.format(
-            "The status for applicant %d on program %s has changed to %s.\n\n"
-                + "Manage your clients at %s.",
-            applicant.id, programName, newStatusText, tiDashLink);
+            "%s\n%s",
+            messages.at(
+                MessageKey.EMAIL_TI_APPLICATION_UPDATE_BODY.getKeyName(),
+                applicant.id,
+                programName,
+                newStatusText),
+            messages.at(MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(), tiDashLink));
 
     emailClient.send(
         isStaging ? stagingTiNotificationMailingList : adminSubmitterEmail.get(), subject, body);

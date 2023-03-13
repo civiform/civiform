@@ -680,11 +680,6 @@ public final class ApplicantService {
               Locale locale = maybeLocale.orElse(LocalizedStrings.DEFAULT_LOCALE);
               if (emailBody.isPresent() && maybeEmail.isPresent()) {
                 String programNameForEmail = programDef.localizedName().getOrDefault(locale);
-                // TODO(#3377): Similar to the code in ProgramAdminApplicationService, we are mixing
-                // english
-                // boilerplate with potentially translated body content. We should probably localize
-                // these
-                // particular strings.
                 Messages messages =
                     messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
                 String message =
