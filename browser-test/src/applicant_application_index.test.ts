@@ -107,8 +107,8 @@ describe('applicant program index page', () => {
   })
 
   it('common intake form enabled but not present', async () => {
-    const {page, applicantQuestions} = ctx
-    enableFeatureFlag(page, 'intake_form_enabled')
+    const {page} = ctx
+    await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsGuest(page)
     await selectApplicantLanguage(
@@ -123,7 +123,7 @@ describe('applicant program index page', () => {
 
   it('shows common intake form when enabled and present', async () => {
     const {page, adminPrograms, applicantQuestions} = ctx
-    enableFeatureFlag(page, 'intake_form_enabled')
+    await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
     const commonIntakeFormProgramName = 'Benefits finder'
