@@ -21,12 +21,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
+import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-import j2html.tags.specialized.H4Tag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
@@ -321,7 +321,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                             applicantId,
                             preferredLocale,
                             buttonTitle,
-                            buttonSrText))));
+                            buttonSrText,
+                            sectionTitle.isPresent()))));
   }
 
   private LiTag programCard(
@@ -331,15 +332,17 @@ public final class ProgramIndexView extends BaseHtmlView {
       Long applicantId,
       Locale preferredLocale,
       MessageKey buttonTitle,
-      MessageKey buttonSrText) {
+      MessageKey buttonSrText,
+      boolean nestedUnderSubheading) {
     ProgramDefinition program = cardData.program();
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    H4Tag title =
-        h4().withId(baseId + "-title")
-            .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-            .withText(program.localizedName().getOrDefault(preferredLocale));
+    ContainerTag title = nestedUnderSubheading ? h4() : h3();
+    title
+        .withId(baseId + "-title")
+        .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+        .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
             program.localizedDescription().getOrDefault(preferredLocale),
