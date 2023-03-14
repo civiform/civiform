@@ -1,10 +1,12 @@
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  validateAccessibility,
   validateScreenshot,
 } from './support'
 
@@ -102,6 +104,60 @@ describe('applicant program index page', () => {
       wantInProgressPrograms: [],
       wantSubmittedPrograms: [],
     })
+  })
+
+  it('common intake form enabled but not present', async () => {
+    const {page} = ctx
+    await enableFeatureFlag(page, 'intake_form_enabled')
+
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    await validateScreenshot(page, 'common-intake-form-not-set')
+    await validateAccessibility(page)
+  })
+
+  it('shows common intake form when enabled and present', async () => {
+    const {page, adminPrograms, applicantQuestions} = ctx
+    await enableFeatureFlag(page, 'intake_form_enabled')
+
+    await loginAsAdmin(page)
+    const commonIntakeFormProgramName = 'Benefits finder'
+    await adminPrograms.addProgram(
+      commonIntakeFormProgramName,
+      'program description',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+    await adminPrograms.publishAllPrograms()
+    await logout(page)
+
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    await applicantQuestions.applyProgram(primaryProgramName)
+    await applicantQuestions.answerTextQuestion('first answer')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.gotoApplicantHomePage()
+
+    await validateScreenshot(page, 'common-intake-form-sections')
+    await applicantQuestions.expectPrograms({
+      wantNotStartedPrograms: [otherProgramName],
+      wantInProgressPrograms: [primaryProgramName],
+      wantSubmittedPrograms: [],
+    })
+    await applicantQuestions.expectCommonIntakeForm(commonIntakeFormProgramName)
+    await validateAccessibility(page)
   })
 
   it('shows previously answered on text for questions that had been answered', async () => {

@@ -259,6 +259,13 @@ export class ApplicantQuestions {
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
   }
 
+  async expectCommonIntakeForm(commonIntakeFormName: string) {
+    const commonIntakeFormSectionNames = await this.programNamesForSection(
+      'Find services',
+    )
+    expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
+  }
+
   private programNamesForSection(sectionName: string): Promise<string[]> {
     const sectionLocator = this.page.locator(
       '.cf-application-program-section',
