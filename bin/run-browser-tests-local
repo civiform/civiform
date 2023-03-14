@@ -8,6 +8,7 @@ source bin/lib.sh
 # image and produce different screenshots.
 export DISABLE_SCREENSHOTS=true
 export BASE_URL=http://localhost:9999
+export LOCALSTACK_URL=http://localhost.localstack.cloud:6645
 
 cd browser-test
 bin/wait_for_server_start_and_run_tests.sh "$@"

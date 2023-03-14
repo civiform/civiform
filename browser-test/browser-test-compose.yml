@@ -25,9 +25,9 @@ services:
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - APPLICANT_REGISTER_URI=http://dev-oidc:3390/
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
-      - BASE_URL=http://civiform:9000
+      - BASE_URL=${BASE_URL:-http://civiform:9000}
       - LOCALSTACK_URL=http://localhost.localstack.cloud:4566
       - CIVIFORM_TIME_ZONE_ID
       - CIVIFORM_ADMIN_REPORTING_UI_ENABLED=true
     command: ~runBrowserTestsServer
-    entrypoint: ./entrypoint.sh
+    entrypoint: ./entrypoint.sh -jvm-debug "0.0.0.0:9457"
