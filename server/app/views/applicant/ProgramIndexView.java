@@ -66,25 +66,17 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final FeatureFlags featureFlags;
   private final ProfileUtils profileUtils;
-  private final Optional<String> maybeLogoUrl;
-  private final String civicEntityFullName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
-      Config config,
       ZoneId zoneId,
       FeatureFlags featureFlags,
       ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
-    this.maybeLogoUrl =
-        checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
-            ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
-            : Optional.empty();
-    this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
     this.zoneId = checkNotNull(zoneId);
   }
 
@@ -127,8 +119,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                 "text-4xl",
                 StyleUtils.responsiveSmall("text-5xl"),
                 "font-semibold",
-                "mb-2",
+                "mt-10",
                 "px-6",
+
                 StyleUtils.responsiveSmall("mb-6"));
 
     DivTag infoLine1Div =
@@ -141,23 +134,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withText(infoTextLine2)
             .withClasses("text-sm", "px-6", "pb-6", StyleUtils.responsiveSmall("text-base"));
 
-    ImgTag logoImg =
-        maybeLogoUrl.isPresent()
-            ? img().withSrc(maybeLogoUrl.get())
-            : this.layout.viewUtils.makeLocalImageTag("Seattle-logo_horizontal_blue-white_small");
-
-    DivTag logoDiv =
-        div()
-            .with(
-                logoImg
-                    .withAlt(civicEntityFullName + " logo")
-                    .attr("aria-hidden", "true")
-                    .withStyle("max-width: 155px; max-height: 40px;"))
-            .withClasses("pt-6", "px-6");
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative")
-        .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative", "flex",
+          "flex-col")
+        .with(programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private H2Tag programSectionTitle(String title) {
