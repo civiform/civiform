@@ -338,11 +338,13 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    ContainerTag title = nestedUnderSubheading ? h4() : h3();
-    title
-        .withId(baseId + "-title")
-        .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
-        .withText(program.localizedName().getOrDefault(preferredLocale));
+    ContainerTag title = nestedUnderSubheading
+            ? h4().withId(baseId + "-title")
+                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+                .withText(program.localizedName().getOrDefault(preferredLocale))
+            : h3().withId(baseId + "-title")
+                .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
+                .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.createLinksAndEscapeText(
             program.localizedDescription().getOrDefault(preferredLocale),
