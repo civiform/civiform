@@ -1325,6 +1325,11 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void relevantProgramsForApplicant() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+        .build();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1366,6 +1371,103 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_noCommonIntakeForm() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isFalse();
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_commonIntakeFormHasCorrectLifecycleStage() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+        .build();
+
+    // No CIF application started.
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent()).isFalse();
+
+    // CIF application in progress.
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .toCompletableFuture()
+        .join();
+    result = subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get()).isEqualTo(LifecycleStage.DRAFT);
+
+    // CIF application submitted.
+    applicationRepository
+        .submitApplication(applicant.id, commonIntakeForm.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    result = subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get()).isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test

@@ -25,6 +25,7 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.H2Tag;
 import j2html.tags.specialized.H4Tag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
@@ -38,6 +39,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.LifecycleStage;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -158,6 +160,10 @@ public final class ProgramIndexView extends BaseHtmlView {
         .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
   }
 
+  private H2Tag programSectionTitle(String title) {
+    return h2().withText(title).withClasses("mb-4", "px-4", "text-xl", "font-semibold");
+  }
+
   private DivTag mainContent(
       Http.Request request,
       Messages messages,
@@ -167,10 +173,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     DivTag content =
         div()
             .withId("main-content")
-            .withClasses("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"))
-            .with(
-                h2().withText(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName()))
-                    .withClasses("mb-4", "px-4", "text-xl", "font-semibold"));
+            .withClasses("mx-auto", "my-4", StyleUtils.responsiveSmall("m-10"));
 
     // The different program card containers should have the same styling, by using the program
     // count of the larger set of programs
@@ -180,12 +183,61 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
+    if (featureFlags.isIntakeFormEnabled(request)
+        && relevantPrograms.commonIntakeForm().isPresent()) {
+      DivTag findBenefitsSection = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
+      findBenefitsSection.with(
+          programSectionTitle(messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName())));
+
+      Optional<LifecycleStage> commonIntakeFormApplicationStatus =
+          relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
+      MessageKey buttonText = MessageKey.BUTTON_START_HERE;
+      MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
+      if (commonIntakeFormApplicationStatus.isPresent()) {
+        switch (commonIntakeFormApplicationStatus.get()) {
+          case ACTIVE:
+            buttonText = MessageKey.BUTTON_EDIT;
+            buttonScreenReaderText = MessageKey.BUTTON_EDIT_COMMON_INTAKE_SR;
+            break;
+          case DRAFT:
+            buttonText = MessageKey.BUTTON_CONTINUE;
+            buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_COMMON_INTAKE_SR;
+            break;
+          default:
+            // Leave button text as is.
+        }
+      }
+      findBenefitsSection.with(
+          programCardsSection(
+                  request,
+                  messages,
+                  Optional.empty(),
+                  cardContainerStyles,
+                  applicantId,
+                  preferredLocale,
+                  ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
+                  buttonText,
+                  buttonScreenReaderText),
+            div().withClass("mb-12"));
+
+      content.with(
+          findBenefitsSection,
+          programSectionTitle(
+              messages.at(
+                  MessageKey.TITLE_ALL_PROGRAMS_SECTION.getKeyName(),
+                  relevantPrograms.inProgress().size()
+                      + relevantPrograms.submitted().size()
+                      + relevantPrograms.unapplied().size())));
+    } else {
+      content.with(programSectionTitle(messages.at(MessageKey.TITLE_PROGRAMS.getKeyName())));
+    }
+
     if (!relevantPrograms.inProgress().isEmpty()) {
       content.with(
           programCardsSection(
               request,
               messages,
-              MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED,
+              Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
               cardContainerStyles,
               applicantId,
               preferredLocale,
@@ -198,7 +250,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardsSection(
               request,
               messages,
-              MessageKey.TITLE_PROGRAMS_SUBMITTED,
+              Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
               cardContainerStyles,
               applicantId,
               preferredLocale,
@@ -211,7 +263,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardsSection(
               request,
               messages,
-              MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED,
+              Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
               cardContainerStyles,
               applicantId,
               preferredLocale,
@@ -240,7 +292,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag programCardsSection(
       Http.Request request,
       Messages messages,
-      MessageKey sectionTitle,
+      Optional<MessageKey> sectionTitle,
       String cardContainerStyles,
       long applicantId,
       Locale preferredLocale,
@@ -248,27 +300,28 @@ public final class ProgramIndexView extends BaseHtmlView {
       MessageKey buttonTitle,
       MessageKey buttonSrText) {
     String sectionHeaderId = Modal.randomModalId();
-    return div()
-        .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
-        .with(
-            h3().withId(sectionHeaderId)
-                .withText(messages.at(sectionTitle.getKeyName()))
-                .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE))
-        .with(
-            ol().attr("aria-labelledby", sectionHeaderId)
-                .withClasses(cardContainerStyles)
-                .with(
-                    each(
-                        cards,
-                        (card) ->
-                            programCard(
-                                request,
-                                messages,
-                                card,
-                                applicantId,
-                                preferredLocale,
-                                buttonTitle,
-                                buttonSrText))));
+    DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
+    if (sectionTitle.isPresent()) {
+      div.with(
+          h3().withId(sectionHeaderId)
+              .withText(messages.at(sectionTitle.get().getKeyName()))
+              .withClasses(ApplicantStyles.PROGRAM_CARDS_SUBTITLE));
+    }
+    return div.with(
+        ol().attr("aria-labelledby", sectionHeaderId)
+            .withClasses(cardContainerStyles)
+            .with(
+                each(
+                    cards,
+                    (card) ->
+                        programCard(
+                            request,
+                            messages,
+                            card,
+                            applicantId,
+                            preferredLocale,
+                            buttonTitle,
+                            buttonSrText))));
   }
 
   private LiTag programCard(

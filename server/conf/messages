@@ -136,6 +136,14 @@ button.edit=Edit
 button.editSr=Edit submitted application to {0}
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startHere=Start here
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
+button.startHereCommonIntakeSr=Start here by filling out {0}
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
+button.editCommonIntakeSr=Edit submitted information for {0}
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
+button.continueCommonIntakeSr=Continue filling out {0}
 
 # Text describing the date the application was last submitted.
 content.submittedDate=Submitted {0}
@@ -156,6 +164,10 @@ link.programDetailsSr=Program details for {0}
 
 # The title of the page for the list of programs.
 title.programs=Programs & services
+# The title for the section in the list of programs that contains the pre-screener.
+title.findServicesSection=Find services that can help you
+# The title for the section in the list of programs that contains all regular, non- pre-screener programs.
+title.allProgramsSection=All programs ({0})
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
