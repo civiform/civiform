@@ -52,7 +52,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
-      "org.mockito" % "mockito-inline" % "5.1.1",
+      "org.mockito" % "mockito-inline" % "5.2.0",
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
