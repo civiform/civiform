@@ -185,43 +185,15 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     if (featureFlags.isIntakeFormEnabled(request)
         && relevantPrograms.commonIntakeForm().isPresent()) {
-      DivTag findBenefitsSection = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
-      findBenefitsSection.with(
-          programSectionTitle(messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName())));
-
-      Optional<LifecycleStage> commonIntakeFormApplicationStatus =
-          relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
-      MessageKey buttonText = MessageKey.BUTTON_START_HERE;
-      MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
-      if (commonIntakeFormApplicationStatus.isPresent()) {
-        switch (commonIntakeFormApplicationStatus.get()) {
-          case ACTIVE:
-            buttonText = MessageKey.BUTTON_EDIT;
-            buttonScreenReaderText = MessageKey.BUTTON_EDIT_COMMON_INTAKE_SR;
-            break;
-          case DRAFT:
-            buttonText = MessageKey.BUTTON_CONTINUE;
-            buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_COMMON_INTAKE_SR;
-            break;
-          default:
-            // Leave button text as is.
-        }
-      }
-      findBenefitsSection.with(
-          programCardsSection(
+      content.with(
+          findServicesSection(
               request,
               messages,
-              Optional.empty(),
+              relevantPrograms,
               cardContainerStyles,
               applicantId,
-              preferredLocale,
-              ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
-              buttonText,
-              buttonScreenReaderText),
-          div().withClass("mb-12"));
-
-      content.with(
-          findBenefitsSection,
+              preferredLocale),
+          div().withClass("mb-12"),
           programSectionTitle(
               messages.at(
                   MessageKey.TITLE_ALL_PROGRAMS_SECTION.getKeyName(),
@@ -273,6 +245,47 @@ public final class ProgramIndexView extends BaseHtmlView {
     }
 
     return div().withClasses("flex", "flex-col", "place-items-center").with(content);
+  }
+
+  private DivTag findServicesSection(
+      Http.Request request,
+      Messages messages,
+      ApplicantService.ApplicationPrograms relevantPrograms,
+      String cardContainerStyles,
+      long applicantId,
+      Locale preferredLocale) {
+    Optional<LifecycleStage> commonIntakeFormApplicationStatus =
+        relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
+    MessageKey buttonText = MessageKey.BUTTON_START_HERE;
+    MessageKey buttonScreenReaderText = MessageKey.BUTTON_START_HERE_COMMON_INTAKE_SR;
+    if (commonIntakeFormApplicationStatus.isPresent()) {
+      switch (commonIntakeFormApplicationStatus.get()) {
+        case ACTIVE:
+          buttonText = MessageKey.BUTTON_EDIT;
+          buttonScreenReaderText = MessageKey.BUTTON_EDIT_COMMON_INTAKE_SR;
+          break;
+        case DRAFT:
+          buttonText = MessageKey.BUTTON_CONTINUE;
+          buttonScreenReaderText = MessageKey.BUTTON_CONTINUE_COMMON_INTAKE_SR;
+          break;
+        default:
+          // Leave button text as is.
+      }
+    }
+    return div()
+        .withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION)
+        .with(programSectionTitle(messages.at(MessageKey.TITLE_FIND_SERVICES_SECTION.getKeyName())))
+        .with(
+            programCardsSection(
+                request,
+                messages,
+                Optional.empty(),
+                cardContainerStyles,
+                applicantId,
+                preferredLocale,
+                ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
+                buttonText,
+                buttonScreenReaderText));
   }
 
   /**
