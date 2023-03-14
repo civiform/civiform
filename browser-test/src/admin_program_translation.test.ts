@@ -5,6 +5,7 @@ import {
   logout,
   selectApplicantLanguage,
   validateScreenshot,
+  validateToastMessage,
 } from './support'
 
 describe('Admin can manage translations', () => {
@@ -371,8 +372,8 @@ describe('Admin can manage translations', () => {
     await applicantQuestions.applyProgram(programName)
 
     // Check that a toast appears warning the program is not fully translated
-    const toastMessages = await page.innerText('#toast-container')
-    expect(toastMessages).toContain(
+    await validateToastMessage(
+      page,
       'Lo sentimos, este programa no está traducido por completo al inglés.',
     )
 

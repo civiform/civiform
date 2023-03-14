@@ -52,12 +52,11 @@ describe('view program statuses', () => {
     })
 
     it('does not show application status in list', async () => {
-      const {page, adminPrograms} = ctx
-      expect(
-        await page.innerText(
-          adminPrograms.selectApplicationCardForApplicant('Guest'),
-        ),
-      ).not.toContain('Status: ')
+      const {adminPrograms} = ctx
+      await adminPrograms.expectApplicationStatusDoesntContain(
+        'Guest',
+        'Status: ',
+      )
     })
 
     it('does not show edit note', async () => {
@@ -115,7 +114,7 @@ describe('view program statuses', () => {
       expect(await ctx.adminPrograms.isStatusSelectorVisible()).toBe(true)
     })
 
-    it('shows default option as placeholder', async () => {
+    it('shows placeholder option', async () => {
       expect(await ctx.adminPrograms.getStatusOption()).toBe(
         'Choose an option:',
       )
@@ -125,14 +124,10 @@ describe('view program statuses', () => {
       await validateScreenshot(ctx.page, 'application-view-with-statuses')
     })
 
-    it('shows default status value in application list if no status is set', async () => {
-      const {page, adminPrograms} = ctx
+    it('shows "None" value in application list if no status is set', async () => {
+      const {adminPrograms} = ctx
       await adminPrograms.viewApplications(programWithStatusesName)
-      expect(
-        await page.innerText(
-          adminPrograms.selectApplicationCardForApplicant('Guest'),
-        ),
-      ).toContain('Status: None')
+      await adminPrograms.expectApplicationHasStatusString('Guest', 'None')
     })
 
     describe('when a status is changed, a confirmation dialog is shown', () => {
@@ -199,21 +194,19 @@ describe('view program statuses', () => {
       })
 
       it('when changing status, the updated application status is reflected in the application list', async () => {
-        const {page, adminPrograms} = ctx
-        expect(
-          await page.innerText(
-            adminPrograms.selectApplicationCardForApplicant('Guest'),
-          ),
-        ).toContain(`Status: ${noEmailStatusName}`)
+        const {adminPrograms} = ctx
+        await adminPrograms.expectApplicationHasStatusString(
+          'Guest',
+          noEmailStatusName,
+        )
         const modal = await adminPrograms.setStatusOptionAndAwaitModal(
           emailStatusName,
         )
         await adminPrograms.confirmStatusUpdateModal(modal)
-        expect(
-          await page.innerText(
-            adminPrograms.selectApplicationCardForApplicant('Guest'),
-          ),
-        ).toContain(`Status: ${emailStatusName}`)
+        await adminPrograms.expectApplicationHasStatusString(
+          'Guest',
+          emailStatusName,
+        )
       })
 
       describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
@@ -345,6 +338,96 @@ describe('view program statuses', () => {
       await adminPrograms.viewApplicationForApplicant('Guest')
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)
+    })
+  })
+
+  describe('with program statuses including a default status', () => {
+    const programWithDefaultStatusName = 'Test program with a default status'
+    const waitingStatus = 'Waiting'
+    const approvedStatus = 'Approved'
+    const emailBody = 'Some email content'
+
+    beforeAll(async () => {
+      const {page, adminPrograms, applicantQuestions, adminProgramStatuses} =
+        ctx
+      await loginAsAdmin(page)
+
+      // Add a program, no questions are needed.
+      await adminPrograms.addProgram(programWithDefaultStatusName)
+      await adminPrograms.gotoDraftProgramManageStatusesPage(
+        programWithDefaultStatusName,
+      )
+      await adminProgramStatuses.createStatus(waitingStatus)
+      await adminProgramStatuses.createStatus(approvedStatus, {
+        emailBody: emailBody,
+      })
+      await adminProgramStatuses.editStatusDefault(
+        waitingStatus,
+        true,
+        adminProgramStatuses.newDefaultStatusMessage(waitingStatus),
+      )
+      await adminPrograms.publishProgram(programWithDefaultStatusName)
+      await adminPrograms.expectActiveProgram(programWithDefaultStatusName)
+      await logout(page)
+
+      // Submit an application as a guest.
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.clickApplyProgramButton(
+        programWithDefaultStatusName,
+      )
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+
+      // Submit an application as the logged in test user.
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.clickApplyProgramButton(
+        programWithDefaultStatusName,
+      )
+      await applicantQuestions.submitFromReviewPage()
+      await logout(page)
+    })
+
+    beforeEach(async () => {
+      const {page, adminPrograms} = ctx
+      await loginAsProgramAdmin(page)
+      await adminPrograms.viewApplications(programWithDefaultStatusName)
+    })
+
+    it('when a default status is set, applications with that status show (default)', async () => {
+      const {page, adminPrograms} = ctx
+      await adminPrograms.expectApplicationHasStatusString(
+        'Guest',
+        `${waitingStatus} (default)`,
+      )
+      await adminPrograms.expectApplicationHasStatusString(
+        testUserDisplayName(),
+        `${waitingStatus} (default)`,
+      )
+
+      // Approve guest application
+      await adminPrograms.viewApplicationForApplicant('Guest')
+      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+        approvedStatus,
+      )
+      expect(await modal.innerText()).toContain(
+        `Status Change: ${waitingStatus} -> ${approvedStatus}`,
+      )
+      await adminPrograms.confirmStatusUpdateModal(modal)
+      expect(await adminPrograms.getStatusOption()).toBe(approvedStatus)
+      await adminPrograms.expectUpdateStatusToast()
+
+      await adminPrograms.expectApplicationStatusDoesntContain(
+        'Guest',
+        '(default)',
+      )
+      await adminPrograms.expectApplicationHasStatusString(
+        testUserDisplayName(),
+        `${waitingStatus} (default)`,
+      )
+
+      await validateScreenshot(page, 'application-view-with-default')
     })
   })
 

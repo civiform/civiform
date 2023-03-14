@@ -564,6 +564,11 @@ const normalizeElements = async (page: Frame | Page) => {
   })
 }
 
+export const validateToastMessage = async (page: Page, value: string) => {
+  const toastMessages = await page.innerText('#toast-container')
+  expect(toastMessages).toContain(value)
+}
+
 type LocalstackSesResponse = {
   messages: LocalstackSesEmail[]
 }
