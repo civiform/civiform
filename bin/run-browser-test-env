@@ -29,6 +29,8 @@ emulators::set_localstack_emulator_vars
 #   1: "$@" - full args array for the script
 #######################################
 function set_args() {
+  # Default for browser tests running in Docker
+  export BASE_URL="http://civiform:9000"
   while [ "${1:-}" != "" ]; do
     case "$1" in
       "--help")
@@ -47,6 +49,9 @@ Options:
 
 --azure Use the Azure emulator (Azurite) for simulating cloud storage for file
         upload and download. Also use localstack, since we need that for SES.
+
+--local Set BASE_URL to http://localhost:9999 to enable running
+        bin/run-browser-tests-local
 EOF
         exit 0
         ;;
@@ -68,6 +73,10 @@ EOF
       "--aws")
         emulators::ensure_only_one_cloud_provider_flag aws
         # Already defaulted to AWS.
+        ;;
+
+      "--local")
+        export BASE_URL="http://localhost:9999"
         ;;
     esac
 

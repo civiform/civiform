@@ -29,7 +29,7 @@ services:
   # container name in their /etc/hosts file for the web brower to load the auth url.
   # EG: 127.0.0.1 dev-oidc
   dev-oidc:
-    image: civiform/oidc-provider
+    image: civiform-oidc-provider
     restart: always
     expose:
       - 3390

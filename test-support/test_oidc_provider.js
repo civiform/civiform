@@ -28,11 +28,17 @@ const configuration = {
         'http://civiform:9000/callback/generic-oidc',
         'http://civiform:9000/callback/AdClient',
         'http://civiform:9000',
+        // Local browser tests
+        'http://localhost:9999/callback/OidcClient',
+        'http://localhost:9999/callback/generic-oidc',
+        'http://localhost:9999/callback/AdClient',
+        'http://localhost:9999',
       ],
       post_logout_redirect_uris: [
         'http://localhost:9000/',
         'http://localhost:19001/',
         'http://civiform:9000/',
+        'http://localhost:9999/',
       ],
     },
     {
@@ -62,11 +68,17 @@ const configuration = {
         'http://civiform:9000/callback/generic-oidc',
         'http://civiform:9000/callback/AdClient',
         'http://civiform:9000',
+        // Local browser tests
+        'http://localhost:9999/callback/OidcClient',
+        'http://localhost:9999/callback/generic-oidc',
+        'http://localhost:9999/callback/AdClient',
+        'http://localhost:9999',
       ],
       post_logout_redirect_uris: [
         'http://localhost:9000/',
         'http://localhost:19001/',
         'http://civiform:9000/',
+        'http://localhost:9999/'
       ],
     },
   ],
