@@ -209,16 +209,16 @@ public final class ProgramIndexView extends BaseHtmlView {
       }
       findBenefitsSection.with(
           programCardsSection(
-                  request,
-                  messages,
-                  Optional.empty(),
-                  cardContainerStyles,
-                  applicantId,
-                  preferredLocale,
-                  ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
-                  buttonText,
-                  buttonScreenReaderText),
-            div().withClass("mb-12"));
+              request,
+              messages,
+              Optional.empty(),
+              cardContainerStyles,
+              applicantId,
+              preferredLocale,
+              ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
+              buttonText,
+              buttonScreenReaderText),
+          div().withClass("mb-12"));
 
       content.with(
           findBenefitsSection,

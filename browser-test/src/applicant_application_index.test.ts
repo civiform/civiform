@@ -6,6 +6,7 @@ import {
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
+  validateAccessibility,
   validateScreenshot,
 } from './support'
 
@@ -106,7 +107,7 @@ describe('applicant program index page', () => {
   })
 
   it('common intake form enabled but not present', async () => {
-      const {page, applicantQuestions} = ctx
+    const {page, applicantQuestions} = ctx
     enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsGuest(page)
@@ -117,7 +118,8 @@ describe('applicant program index page', () => {
     )
 
     await validateScreenshot(page, 'common-intake-form-not-set')
-})
+    await validateAccessibility(page)
+  })
 
   it('shows common intake form when enabled and present', async () => {
     const {page, adminPrograms, applicantQuestions} = ctx
@@ -155,6 +157,7 @@ describe('applicant program index page', () => {
       wantSubmittedPrograms: [],
     })
     await applicantQuestions.expectCommonIntakeForm(commonIntakeFormProgramName)
+    await validateAccessibility(page)
   })
 
   it('shows previously answered on text for questions that had been answered', async () => {

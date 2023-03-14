@@ -1327,9 +1327,9 @@ public class ApplicantServiceTest extends ResetPostgres {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Program commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
-        .withBlock()
-        .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
-        .build();
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1427,9 +1427,9 @@ public class ApplicantServiceTest extends ResetPostgres {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     Program commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
-        .withBlock()
-        .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
-        .build();
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
 
     // No CIF application started.
     ApplicantService.ApplicationPrograms result =
@@ -1439,7 +1439,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied()).isEmpty();
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent()).isFalse();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isFalse();
 
     // CIF application in progress.
     applicationRepository
@@ -1452,8 +1453,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied()).isEmpty();
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get()).isEqualTo(LifecycleStage.DRAFT);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+        .isEqualTo(LifecycleStage.DRAFT);
 
     // CIF application submitted.
     applicationRepository
@@ -1466,8 +1469,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied()).isEmpty();
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get()).isEqualTo(LifecycleStage.ACTIVE);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
