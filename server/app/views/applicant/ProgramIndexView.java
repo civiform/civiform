@@ -338,7 +338,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
 
-    ContainerTag title = nestedUnderSubheading
+    ContainerTag title =
+        nestedUnderSubheading
             ? h4().withId(baseId + "-title")
                 .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
                 .withText(program.localizedName().getOrDefault(preferredLocale))
