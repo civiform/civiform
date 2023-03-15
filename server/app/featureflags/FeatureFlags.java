@@ -43,7 +43,7 @@ public final class FeatureFlags {
   // Common Intake Form flags.
   private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
 
-  //phone number question type
+  // phone number question type
   private static final String PHONE_QUESTION_TYPE_ENABLED = "phone_number_question_type_enabled";
   public static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
 
@@ -110,9 +110,11 @@ public final class FeatureFlags {
   public boolean isIntakeFormEnabled(Request request) {
     return getFlagEnabled(request, INTAKE_FORM_ENABLED);
   }
-public boolean isPhoneQuestionTpeEnabled(Request request) {
-    return  getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
-}
+
+  public boolean isPhoneQuestionTpeEnabled(Request request) {
+    return getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
+  }
+
   public boolean isNongatedEligibilityEnabled(Request request) {
     return getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED);
   }
