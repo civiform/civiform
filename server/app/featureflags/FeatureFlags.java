@@ -111,7 +111,7 @@ public final class FeatureFlags {
     return getFlagEnabled(request, INTAKE_FORM_ENABLED);
   }
 
-  public boolean isPhoneQuestionTpeEnabled(Request request) {
+  public boolean isPhoneQuestionTypeEnabled(Request request) {
     return getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
   }
 
@@ -136,7 +136,7 @@ public final class FeatureFlags {
         INTAKE_FORM_ENABLED,
         isIntakeFormEnabled(request),
         PHONE_QUESTION_TYPE_ENABLED,
-        isPhoneQuestionTpeEnabled(request),
+        isPhoneQuestionTypeEnabled(request),
         NONGATED_ELIGIBILITY_ENABLED,
         isNongatedEligibilityEnabled(request));
   }
