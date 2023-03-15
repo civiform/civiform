@@ -114,7 +114,7 @@ public class FeatureFlagOverrideControllerTest {
     assertEquals("false", Helpers.contentAsString(noFeatureResult));
 
     Result phoneTypeResult =
-        controller.status(fakeRequest().build(), "phone_number_question_type_enabled");
+        controller.status(fakeRequest().build(), "phone_question_type_enabled");
     assertEquals("false", Helpers.contentAsString(phoneTypeResult));
   }
 }

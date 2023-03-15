@@ -44,7 +44,7 @@ public final class FeatureFlags {
   private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
 
   // phone number question type
-  private static final String PHONE_QUESTION_TYPE_ENABLED = "phone_number_question_type_enabled";
+  private static final String PHONE_QUESTION_TYPE_ENABLED = "phone_question_type_enabled";
   public static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
 
   @Inject
