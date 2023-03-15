@@ -206,10 +206,10 @@ title.programSummary=計畫申請摘要
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=根據您的回覆，您可能不符合「{0}」的資格。
+title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。
+title.applicantNotEligibleTi=根據您對下列問題的回覆，您的客戶可能不符合「{0}」的資格。
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
