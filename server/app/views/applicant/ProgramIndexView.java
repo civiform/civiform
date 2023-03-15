@@ -8,7 +8,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
@@ -19,7 +18,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -27,7 +25,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
@@ -70,10 +67,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   @Inject
   public ProgramIndexView(
-      ApplicantLayout layout,
-      ZoneId zoneId,
-      FeatureFlags featureFlags,
-      ProfileUtils profileUtils) {
+      ApplicantLayout layout, ZoneId zoneId, FeatureFlags featureFlags, ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
@@ -121,7 +115,6 @@ public final class ProgramIndexView extends BaseHtmlView {
                 "font-semibold",
                 "mt-10",
                 "px-6",
-
                 StyleUtils.responsiveSmall("mb-6"));
 
     DivTag infoLine1Div =
@@ -136,8 +129,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative", "flex",
-          "flex-col")
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative", "flex", "flex-col")
         .with(programIndexH1, infoLine1Div, infoLine2Div);
   }
 

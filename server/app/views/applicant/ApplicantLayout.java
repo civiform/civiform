@@ -3,13 +3,13 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
-import static j2html.TagCreator.p;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
@@ -206,7 +206,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("brand-id")
             .withLang(Locale.ENGLISH.toLanguageTag())
             .withClasses(ApplicantStyles.CIVIFORM_LOGO, "flex", "flex-wrap", "content-center")
-          .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
+            .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
 
     return aTag;
   }
@@ -237,10 +237,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private DivTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return div(
-        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
-        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-            .withHref(logoutLink)
-            .withClasses(ApplicantStyles.LINK_LOGOUT)).withClasses("pr-8");
+            div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
+            a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+                .withHref(logoutLink)
+                .withClasses(ApplicantStyles.LINK_LOGOUT))
+        .withClasses("pr-8");
   }
 
   protected String renderPageTitleWithBlockProgress(
