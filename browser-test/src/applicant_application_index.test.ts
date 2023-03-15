@@ -160,6 +160,27 @@ describe('applicant program index page', () => {
     await validateAccessibility(page)
   })
 
+  it('shows a different title for the common intake form', async () => {
+    const {page, applicantQuestions} = ctx
+    await enableFeatureFlag(page, 'intake_form_enabled')
+
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    await applicantQuestions.clickApplyProgramButton(primaryProgramName)
+    expect(await page.innerText('h2')).toContain('Program application summary')
+
+    await applicantQuestions.gotoApplicantHomePage()
+    await applicantQuestions.clickApplyProgramButton('Benefits finder')
+    expect(await page.innerText('h2')).toContain(
+      'Benefits pre-screener summary',
+    )
+  })
+
   it('shows previously answered on text for questions that had been answered', async () => {
     const {page, applicantQuestions} = ctx
 

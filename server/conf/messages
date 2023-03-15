@@ -224,6 +224,8 @@ ariaLabel.edit=Edit {0}
 
 # Program Summary Title
 title.programSummary=Program application summary
+# Title of the page where applicants can view a summary of the pre-screener form's questions and their answers.
+title.commonIntakeSummary=Benefits pre-screener summary
 
 #------------------------------------------------------------------------#
 # APPLICANT ELIGIBILITY - text related to applicant eligibility #

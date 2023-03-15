@@ -173,6 +173,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return ApplicantProgramSummaryView.Params.builder()
         .setCompletedBlockCount(completedBlockCount)
         .setProgramTitle(programTitle)
+        .setProgramType(roApplicantProgramService.getProgramType())
         .setSummaryData(summaryData)
         .setTotalBlockCount(totalBlockCount);
   }

@@ -117,6 +117,7 @@ public enum MessageKey {
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
+  TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
   TITLE_CREATE_AN_ACCOUNT("title.createAnAccount"),
   TITLE_FIND_SERVICES_SECTION("title.findServicesSection"),
   TITLE_LOGIN("title.login"),

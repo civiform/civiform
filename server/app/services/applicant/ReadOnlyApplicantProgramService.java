@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import services.LocalizedStrings;
 import services.applicant.question.ApplicantQuestion;
+import services.program.ProgramType;
 
 /** Provides synchronous, read-only behavior relevant to an applicant for a specific program. */
 public interface ReadOnlyApplicantProgramService {
@@ -16,6 +17,9 @@ public interface ReadOnlyApplicantProgramService {
 
   /** Returns the ID of the program. */
   Long getProgramId();
+
+  /** Returns the ProgramType of the program. */
+  ProgramType getProgramType();
 
   /**
    * Returns a custom message for the confirmation screen that renders after an applicant submits an
