@@ -206,10 +206,10 @@ title.programSummary=Buod ng application para sa programa
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}.
+title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}.
+title.applicantNotEligibleTi=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi kwalipikado ang client mo para sa {0}.
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}

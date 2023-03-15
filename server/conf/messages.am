@@ -206,10 +206,10 @@ title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
+title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
+title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ

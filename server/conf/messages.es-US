@@ -209,10 +209,10 @@ title.programSummary=Resumen de la inscripción al programa
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Según tus respuestas, es posible que no califiques para {0}.
+title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=Según tus respuestas, es posible que tu cliente no califique para {0}.
+title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
