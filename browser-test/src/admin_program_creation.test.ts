@@ -484,9 +484,9 @@ describe('program creation', () => {
       'cif',
       'desc',
       'https://usa.gov',
-      /* hidden=*/ false,
+      /* hidden= */ false,
       'admin description',
-      /* isCommonIntake =*/ false,
+      /* isCommonIntake= */ false,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
@@ -505,9 +505,9 @@ describe('program creation', () => {
       'cif',
       'desc',
       'https://usa.gov',
-      /* hidden=*/ false,
+      /* hidden= */ false,
       'admin description',
-      /* isCommonIntake =*/ true,
+      /* isCommonIntake= */ true,
     )
 
     await adminPrograms.gotoEditDraftProgramPage('cif')
