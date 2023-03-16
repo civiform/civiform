@@ -239,8 +239,8 @@ class AdminPredicateConfiguration {
             // Age-related operators should have number input value
             valueInput.setAttribute('type', 'number')
           } else if (operatorValue.toUpperCase() === 'AGE_BETWEEN') {
-            // Between operator should have string input value, so a comma can be added
-            valueInput.setAttribute('type', 'string')
+            // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
+            valueInput.setAttribute('type', 'text')
           } else {
             valueInput.setAttribute('type', 'date')
           }

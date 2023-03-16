@@ -11,17 +11,17 @@ public enum Operator {
       "between",
       "age is between",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.DATE)),
+      ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS)),
   AGE_OLDER_THAN(
       ">",
       "age is older than",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.DATE)),
+      ImmutableSet.of(OperatorRightHandType.LONG)),
   AGE_YOUNGER_THAN(
       "<",
       "age is younger than",
       ImmutableSet.of(ScalarType.DATE),
-      ImmutableSet.of(OperatorRightHandType.DATE)),
+      ImmutableSet.of(OperatorRightHandType.LONG)),
   ANY_OF(
       "anyof",
       "contains any of",
