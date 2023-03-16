@@ -167,13 +167,16 @@ content.description2=Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
 # The title of the page for the list of programs.
 title.programs=Programs & services
+
 # The title for the section in the list of programs that contains the pre-screener form.
 title.findServicesSection=Find services that can help you
+
 # The title for the section in the list of programs that contains all regular, non-pre-screener programs.
 title.allProgramsSection=All programs ({0})
 
