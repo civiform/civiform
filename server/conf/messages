@@ -491,13 +491,13 @@ email.loginToCiviform=Log in to CiviForm at {0}
 email.applicationReceivedSubject=Your application to program {0} is received
 
 # For emails sent out automatically on application submission. This is the rest of the body of the email.
-email.applicationReceivedBody=email.applicationReceivedBody
+email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
 
 # For emails sent out automatically on application submission by a TI.  This is the subject of the email.
-email.tiApplicationSubmittedSubject=email.tiApplicationSubmittedSubject
+email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
 
 # For emails sent out automatically on application submission by a TI.  This is the body of the email.
-email.tiApplicationSubmittedBody=email.tiApplicationSubmittedBody
+email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
 
 # For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
-email.tiManageYourClients=email.tiManageYourClients
+email.tiManageYourClients=Manage your clients at {0}.
