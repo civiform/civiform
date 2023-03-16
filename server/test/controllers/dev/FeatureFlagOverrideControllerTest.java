@@ -1,6 +1,7 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import play.Application;
 import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
+import play.mvc.Result;
 import play.test.Helpers;
 
 public class FeatureFlagOverrideControllerTest {
@@ -95,5 +97,24 @@ public class FeatureFlagOverrideControllerTest {
   private void setupControllerInMode(Mode mode) {
     maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
     controller = maybeApp.get().injector().instanceOf(FeatureFlagOverrideController.class);
+  }
+
+  @Test
+  public void status() {
+    setupControllerInMode(Mode.TEST);
+
+    Result enabledResult =
+        controller.status(fakeRequest().build(), "program_read_only_view_enabled");
+    assertEquals("true", Helpers.contentAsString(enabledResult));
+
+    Result diabledResult = controller.status(fakeRequest().build(), "intake_form_enabled");
+    assertEquals("false", Helpers.contentAsString(diabledResult));
+
+    Result noFeatureResult = controller.status(fakeRequest().build(), "no_flag_by_this_name");
+    assertEquals("false", Helpers.contentAsString(noFeatureResult));
+
+    Result phoneTypeResult =
+        controller.status(fakeRequest().build(), "phone_question_type_enabled");
+    assertEquals("false", Helpers.contentAsString(phoneTypeResult));
   }
 }

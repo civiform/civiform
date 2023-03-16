@@ -13,6 +13,7 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
+import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.RepeatedEntity;
+import services.program.ProgramType;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -40,11 +42,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
+  private final FeatureFlags featureFlags;
 
   @Inject
-  public ApplicantProgramSummaryView(ApplicantLayout layout, DateConverter dateConverter) {
+  public ApplicantProgramSummaryView(
+      ApplicantLayout layout, DateConverter dateConverter, FeatureFlags featureFlags) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /**
@@ -121,7 +126,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .map(ToastMessage::error)
         .ifPresent(bundle::addToastMessages);
 
-    String pageTitle = messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
+    String pageTitle =
+        featureFlags.isIntakeFormEnabled(params.request())
+                && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
+            ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
+            : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
@@ -184,7 +193,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     // Show that the question makes the application ineligible if it is answered and is a reason the
     // application is ineligible.
-    if (!data.isEligible() && data.isAnswered()) {
+    if (data.eligibilityIsGating() && !data.isEligible() && data.isAnswered()) {
       actionAndTimestampDiv.with(
           div(messages.at(MessageKey.CONTENT_DOES_NOT_QUALIFY.getKeyName()))
               .withClasses(
@@ -295,6 +304,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract String programTitle();
 
+    abstract ProgramType programType();
+
     abstract ImmutableList<AnswerData> summaryData();
 
     abstract int totalBlockCount();
@@ -317,6 +328,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setProgramId(long programId);
 
       public abstract Builder setProgramTitle(String programTitle);
+
+      public abstract Builder setProgramType(ProgramType programType);
 
       public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
 

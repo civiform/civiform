@@ -90,6 +90,16 @@ public class ProgramBuilder {
     return new ProgramBuilder(program.id, builder);
   }
 
+  /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
+  public static ProgramBuilder newDraftProgram(ProgramDefinition programDefinition) {
+    VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
+    Program program = new Program(programDefinition, versionRepository.getDraftVersion());
+    program.save();
+    ProgramDefinition.Builder builder =
+        program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
+    return new ProgramBuilder(program.id, builder);
+  }
+
   /**
    * Creates a {@link ProgramBuilder} with a new {@link Program} in active state, with blank
    * description and name.

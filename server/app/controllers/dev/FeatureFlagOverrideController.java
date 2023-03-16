@@ -17,12 +17,14 @@ import views.dev.FeatureFlagView;
  */
 public final class FeatureFlagOverrideController extends Controller {
 
+  private final FeatureFlags featureFlags;
   private final FeatureFlagView featureFlagView;
   private final boolean isDevOrStaging;
 
   @Inject
   public FeatureFlagOverrideController(
-      FeatureFlagView featureFlagView, DeploymentType deploymentType) {
+      FeatureFlags featureFlags, FeatureFlagView featureFlagView, DeploymentType deploymentType) {
+    this.featureFlags = featureFlags;
     this.featureFlagView = featureFlagView;
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
@@ -46,5 +48,10 @@ public final class FeatureFlagOverrideController extends Controller {
     }
     String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
     return redirect(redirectTo).addingToSession(request, flagName, "false");
+  }
+
+  /** Returns the status of a feature flag. */
+  public Result status(Request request, String FlagName) {
+    return ok(featureFlags.getFlagEnabled(request, FlagName) ? "true" : "false");
   }
 }

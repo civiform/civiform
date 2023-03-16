@@ -32,6 +32,7 @@ public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
   private final String civiformImageTag;
+  private final String civiformVersion;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final boolean disableApplicantGuestLogin;
@@ -53,6 +54,7 @@ public class LoginForm extends BaseHtmlView {
     checkNotNull(deploymentType);
 
     this.civiformImageTag = config.getString("civiform_image_tag");
+    this.civiformVersion = config.getString("civiform_version");
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && config.getBoolean("staging_disable_demo_mode_logins");
@@ -89,7 +91,7 @@ public class LoginForm extends BaseHtmlView {
       content.with(
           img()
               .withSrc(maybeLogoUrl.get())
-              .withAlt(civicEntityFullName + "Logo")
+              .withAlt(civicEntityFullName + " Logo")
               .attr("aria-hidden", "true")
               .withClasses("w-1/4", "pt-4"));
     } else {
@@ -168,7 +170,14 @@ public class LoginForm extends BaseHtmlView {
                 "text-base")
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
     if (featureFlags.showCiviformImageTagOnLandingPage(request)) {
-      footer.with(p("CiviForm version: " + civiformImageTag).withClasses("text-gray-600"));
+      // civiformVersion is the version the deployer requests, like "latest" or
+      // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
+      // like "SNAPSHOT-3af8997-1678895722".
+      String version = civiformVersion;
+      if (civiformVersion.equals("") || civiformVersion.equals("latest")) {
+        version = civiformImageTag;
+      }
+      footer.with(p("CiviForm version: " + version).withClasses("text-gray-600"));
     }
     content.with(footer);
 
@@ -177,9 +186,9 @@ public class LoginForm extends BaseHtmlView {
 
   private DivTag debugContent() {
     return div()
-        .withClasses("absolute")
+        .withClasses("absolute", "flex", "flex-col")
         .with(
-            p("DEMO MODE. LOGIN AS:").withClasses("text-2xl"),
+            p("DEVELOPMENT MODE TOOLS:").withClasses("text-2xl"),
             redirectButton(
                 "admin",
                 "CiviForm Admin",
@@ -203,7 +212,15 @@ public class LoginForm extends BaseHtmlView {
                 "Trusted Intermediary",
                 routes.CallbackController.fakeAdmin(
                         FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-                    .url()));
+                    .url()),
+            redirectButton(
+                "feature-flags",
+                "Feature Flags",
+                controllers.dev.routes.FeatureFlagOverrideController.index().url()),
+            redirectButton(
+                "database-seed",
+                "Seed Database",
+                controllers.dev.routes.DatabaseSeedController.index().url()));
   }
 
   private ButtonTag loginButton(Messages messages) {

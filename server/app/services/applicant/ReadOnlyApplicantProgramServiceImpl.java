@@ -25,6 +25,7 @@ import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.exceptions.QuestionNotFoundException;
@@ -78,6 +79,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Long getProgramId() {
     return this.programDefinition.id();
+  }
+
+  @Override
+  public ProgramType getProgramType() {
+    return this.programDefinition.programType();
   }
 
   @Override
@@ -278,6 +284,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
+                .setEligibilityIsGating(programDefinition.eligibilityIsGating())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setOriginalFileName(originalFileName)

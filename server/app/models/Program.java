@@ -97,6 +97,11 @@ public class Program extends BaseModel {
 
   @Constraints.Required private ProgramType programType;
 
+  /**
+   * If true, eligibility conditions should gate application submission for this program. If false,
+   * ineligible applications should still be allowed to be submitted and tags that note that the
+   * applicant may not qualify should be hidden.
+   */
   @Constraints.Required private Boolean eligibilityIsGating;
 
   @ManyToMany(mappedBy = "programs")

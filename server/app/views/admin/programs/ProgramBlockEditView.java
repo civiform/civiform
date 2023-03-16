@@ -37,6 +37,7 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
@@ -172,6 +173,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
                                     featureFlags.isProgramEligibilityConditionsEnabled(request),
+                                    featureFlags.isIntakeFormEnabled(request),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -366,6 +368,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
       boolean isProgramEligibilityConditionsEnabled,
+      boolean isIntakeFormFeatureEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
@@ -388,7 +391,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (isProgramEligibilityConditionsEnabled) {
+    if (isProgramEligibilityConditionsEnabled
+        && !(isIntakeFormFeatureEnabled
+            && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(

@@ -67,6 +67,7 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -765,7 +766,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false)
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -827,7 +829,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             firstProgram.id,
             trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ false)
+            /* eligibilityFeatureEnabled= */ false,
+            /* nonGatedEligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -840,7 +843,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             secondProgram.id,
             trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ false)
+            /* eligibilityFeatureEnabled= */ false,
+            /* nonGatedEligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -872,7 +876,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false)
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -892,7 +897,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false)
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -951,7 +957,123 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ true)
+                        /* eligibilityFeatureEnabled= */ true,
+                        /* nonGatedEligibilityFeatureEnabled= */ true)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationNotEligibleException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void
+      submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getApplicant()).isEqualTo(applicant);
+    assertThat(application.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void submitApplication_respectsEligibilityFeatureFlag() {
+    createProgramWithEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    // Gating eligibility conditions are set but the eligibility feature flag is off, so they should
+    // be ignored.
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getApplicant()).isEqualTo(applicant);
+    assertThat(application.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void submitApplication_respectsNonGatingEligibilityFeatureFlag() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    // Program eligibility is set to non-gating but the non-gating eligibility feature flag is off,
+    // so it should behave as if it's gating.
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ true,
+                        /* nonGatedEligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -1088,7 +1210,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ false)
+                        /* eligibilityFeatureEnabled= */ false,
+                        /* nonGatedEligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -1202,6 +1325,11 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void relevantProgramsForApplicant() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1243,6 +1371,108 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_noCommonIntakeForm() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isFalse();
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_commonIntakeFormHasCorrectLifecycleStage() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    // No CIF application started.
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isFalse();
+
+    // CIF application in progress.
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .toCompletableFuture()
+        .join();
+    result = subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+        .isEqualTo(LifecycleStage.DRAFT);
+
+    // CIF application submitted.
+    applicationRepository
+        .submitApplication(applicant.id, commonIntakeForm.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    result = subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
@@ -1819,6 +2049,37 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     programDefinition =
         ProgramBuilder.newDraftProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(question))
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+  }
+
+  private void createProgramWithNongatingEligibility(NameQuestionDefinition question) {
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("eligible name"))),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram(
+                ProgramDefinition.builder()
+                    .setId(123)
+                    .setAdminName("name")
+                    .setAdminDescription("desc")
+                    .setExternalLink("https://usa.gov")
+                    .setDisplayMode(DisplayMode.PUBLIC)
+                    .setProgramType(ProgramType.DEFAULT)
+                    .setEligibilityIsGating(false)
+                    .setStatusDefinitions(new StatusDefinitions())
+                    .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
             .withEligibilityDefinition(eligibilityDef)
