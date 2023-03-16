@@ -173,8 +173,7 @@ public final class BaseStyles {
           "gap-2",
           "place-items-center");
 
-  private static final String LOGIN_REDIRECT_BUTTON_BASE =
-      StyleUtils.joinStyles("rounded-3xl", "uppercase");
+  private static final String LOGIN_REDIRECT_BUTTON_BASE = StyleUtils.joinStyles("rounded-3xl");
 
   public static final String LOGIN_REDIRECT_BUTTON =
       StyleUtils.joinStyles(
