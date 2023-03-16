@@ -25,6 +25,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
@@ -182,33 +183,28 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ATag branding() {
-    ATag aTag = a().withHref(routes.HomeController.index().url()).withClasses("flex", "flex-row");
+    ImgTag cityImage;
 
     if (maybeLogoUrl.isPresent()) {
-      aTag.with(
-          img()
-              .withSrc(maybeLogoUrl.get())
-              .withAlt(civicEntityFullName + " Logo")
-              .attr("aria-hidden", "true")
-              .withClasses("w-1/6", "py-4"));
+      cityImage = img().withSrc(maybeLogoUrl.get());
     } else {
-      aTag.with(
-          this.layout
-              .viewUtils
-              .makeLocalImageTag("ChiefSeattle_Blue")
-              .withAlt(civicEntityFullName + " Logo")
-              .attr("aria-hidden", "true")
-              .withClasses("w-16", "py-1"));
+      cityImage = this.layout.viewUtils.makeLocalImageTag("ChiefSeattle_Blue");
     }
 
-    aTag.with(
-        div()
-            .withId("brand-id")
-            .withLang(Locale.ENGLISH.toLanguageTag())
-            .withClasses(ApplicantStyles.CIVIFORM_LOGO, "flex", "flex-wrap", "content-center")
-            .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
+    cityImage
+        .withAlt(civicEntityFullName + " Logo")
+        .attr("aria-hidden", "true")
+        .withClasses("w-16", "py-1");
 
-    return aTag;
+    return a().withHref(routes.HomeController.index().url())
+        .withClasses("flex", "flex-row")
+        .with(
+            cityImage,
+            div()
+                .withId("brand-id")
+                .withLang(Locale.ENGLISH.toLanguageTag())
+                .withClasses(ApplicantStyles.CIVIFORM_LOGO, "flex", "flex-wrap", "content-center")
+                .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
   }
 
   private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
