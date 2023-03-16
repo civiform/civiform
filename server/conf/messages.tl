@@ -149,6 +149,9 @@ link.programDetailsSr=Mga detalya ng programa para sa {0}
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
 
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
+
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
 
@@ -189,6 +192,10 @@ link.answer=Sagot
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Sinagutan noong {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Magsimula rito. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -437,3 +444,12 @@ adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang ops
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
 error.notFoundDescription='Bumalik o pumunta sa '
 error.notFoundDescriptionLink=homepage
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=Mag-log in sa CiviForm sa {0}
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=Natanggap na ang iyong aplikasyon sa programang {0}

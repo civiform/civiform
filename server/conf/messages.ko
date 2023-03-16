@@ -153,6 +153,9 @@ title.programs=프로그램 및 서비스
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=진행 중
 
+# For the badge on the program list index denoting the current status of an application
+title.status=상태
+
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=시작 안 함
 
@@ -190,6 +193,10 @@ link.answer=답변
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn={0}에 답변됨
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=여기서 시작합니다. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -437,3 +444,12 @@ adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
 error.notFoundDescription='뒤로 가거나 다음으로 돌아가세요'
 error.notFoundDescriptionLink=홈페이지
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject={0} 프로그램 신청서 접수됨

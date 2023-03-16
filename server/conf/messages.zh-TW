@@ -149,6 +149,9 @@ link.programDetailsSr=「{0}」計畫詳情
 # The title of the page for the list of programs.
 title.programs=計畫與服務
 
+# For the badge on the program list index denoting the current status of an application
+title.status=狀態
+
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=進行中
 
@@ -189,6 +192,10 @@ link.answer=回答問題
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=已於 {0}回答
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=從這裡開始作答。{0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -436,3 +443,12 @@ adminValidation.multiOptionEmpty=多選題不得留空。
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription='請返回上一頁或'
 error.notFoundDescriptionLink=首頁
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=前往 {0} 登入 CiviForm
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書

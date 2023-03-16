@@ -169,6 +169,9 @@ title.findServicesSection=Find services that can help you
 # The title for the section in the list of programs that contains all regular, non-pre-screener programs.
 title.allProgramsSection=All programs ({0})
 
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
+
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
 
@@ -465,3 +468,13 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription='Please go back or return to the '
 error.notFoundDescriptionLink=homepage
+
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=Log in to CiviForm at {0}
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=Your application to program {0} is received

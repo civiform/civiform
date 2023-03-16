@@ -149,6 +149,9 @@ link.programDetailsSr=Chi tiết chương trình {0}
 # The title of the page for the list of programs.
 title.programs=Chương trình và dịch vụ
 
+# For the badge on the program list index denoting the current status of an application
+title.status=Trạng thái
+
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Đang diễn ra
 
@@ -189,6 +192,10 @@ link.answer=Câu trả lời
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Bắt đầu tại đây. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -434,3 +441,12 @@ adminValidation.multiOptionEmpty=Không được để lựa chọn trống tron
 error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
 error.notFoundDescription='Vui lòng quay lại hoặc trở về '
 error.notFoundDescriptionLink=trang chủ
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=Đăng nhập vào CiviForm tại {0}
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn

@@ -133,6 +133,9 @@ title.programs=Barnaamijyada iyo adeegyada
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
 
+# For the badge on the program list index denoting the current status of an application
+title.status=Heerka
+
 # A toast message that displays when an applicant tries to apply to a previously completed program.
 toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
 
@@ -161,6 +164,10 @@ link.answer=Jawaab
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Halkan ka bilow. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -407,3 +414,12 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
