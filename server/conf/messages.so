@@ -457,20 +457,20 @@ error.notFoundDescriptionLink=bogga internatka
 #-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=Codsigaaga barnaamijka {0} waa la helay. Aqoonsiga codsadahaagu waa {1} iyo Aqoonsiga codsigu waa {2}
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=Waxaad soo gudbisay codsiga barnaamijka {0} addoo metelaya codsadaha {1}
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=Codsiga barnaamijka {0} ka codsade ahaan {1} waa la helay, oo Aqoonsiga codsiguna waa {2}.
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.

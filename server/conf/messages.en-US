@@ -460,12 +460,29 @@ error.notFoundDescriptionLink=homepage
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#
-email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
-email.applicationReceivedSubject=Your application to program {0} is received
-email.applicationUpdateSubject=An update on your application {0}
-email.tiApplicationUpdateSubject=An update on the application for program {0} on behalf of applicant {1}
-email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has changed to {2}.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=Log in to Civiform at {0}
-email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Your application to program {0} is received
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
+
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=Manage your clients at {0}.
+
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=An update on your application {0}
+
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=An update on the application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has changed to {2}.

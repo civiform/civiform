@@ -453,20 +453,20 @@ error.notFoundDescriptionLink=homepage
 #-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=Mag-log in sa CiviForm sa {0}
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Natanggap na ang iyong aplikasyon sa programang {0}
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=Natanggap na ang aplikasyon mo sa programang {0}. {1} ang applicant ID mo at {2} ang application ID
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=Nagsumite ka ng aplikasyon para sa programang {0} sa ngalan ng aplikanteng si {1}
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=Natanggap na ang aplikasyon sa programang {0} bilang aplikanteng si {1}, at {2} ang application ID.
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=Pamahalaan ang iyong mga client sa {0}.

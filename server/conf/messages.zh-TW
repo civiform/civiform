@@ -452,20 +452,20 @@ error.notFoundDescriptionLink=首頁
 #-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=前往 {0} 登入 CiviForm
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=我們已收到您的「{0}」計畫申請書。您的申請者 ID 為 {1}，申請 ID 為 {2}
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=您已代替申請者「{1}」提交「{0}」計畫的申請書
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=我們已收到您代替申請者「{1}」提交的「{0}」計畫申請書，申請 ID 為 {2}。
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=如要管理您的客戶，請前往 {0}。
