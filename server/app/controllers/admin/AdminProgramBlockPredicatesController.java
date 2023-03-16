@@ -27,8 +27,8 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
-import views.admin.programs.ProgramBlockPredicateConfigureView;
-import views.admin.programs.ProgramBlockPredicatesEditViewV2;
+import views.admin.programs.ProgramPredicateConfigureView;
+import views.admin.programs.ProgramPredicatesEditViewV2;
 
 /**
  * Controller for admins editing and viewing program predicates for eligibility and visibility
@@ -38,8 +38,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final ProgramBlockPredicatesEditViewV2 predicatesEditViewV2;
-  private final ProgramBlockPredicateConfigureView predicatesConfigureView;
+  private final ProgramPredicatesEditViewV2 predicatesEditViewV2;
+  private final ProgramPredicateConfigureView predicatesConfigureView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
 
@@ -48,8 +48,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       PredicateGenerator predicateGenerator,
       ProgramService programService,
       QuestionService questionService,
-      ProgramBlockPredicatesEditViewV2 predicatesEditViewV2,
-      ProgramBlockPredicateConfigureView predicatesConfigureView,
+      ProgramPredicatesEditViewV2 predicatesEditViewV2,
+      ProgramPredicateConfigureView predicatesConfigureView,
       FormFactory formFactory,
       RequestChecker requestChecker) {
     this.predicateGenerator = checkNotNull(predicateGenerator);
@@ -80,7 +80,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              ProgramBlockPredicatesEditViewV2.ViewType.VISIBILITY));
+              ProgramPredicatesEditViewV2.ViewType.VISIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -108,7 +108,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
               blockDefinition,
               programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(
                   blockDefinitionId),
-              ProgramBlockPredicatesEditViewV2.ViewType.ELIGIBILITY));
+              ProgramPredicatesEditViewV2.ViewType.ELIGIBILITY));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {

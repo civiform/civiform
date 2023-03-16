@@ -23,7 +23,7 @@ import support.TestQuestionBank;
 import views.ViewUtils.ProgramDisplayType;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramBlockBaseViewTest {
+public class ProgramBaseViewTest {
 
   private static final String BLOCK_NAME = "Block_name";
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);
@@ -153,7 +153,7 @@ public class ProgramBlockBaseViewTest {
                 + " equal to 2023-03-03</li></ul></div>");
   }
 
-  private static final class ProgramBlockBaseViewTestChild extends ProgramBlockBaseView {
+  private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {
 
     @Override
     protected ProgramDisplayType getProgramDisplayStatus() {

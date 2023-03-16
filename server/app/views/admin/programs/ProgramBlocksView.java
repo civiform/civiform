@@ -71,10 +71,8 @@ import views.style.StyleUtils;
  *   <li>View and navigate to the visibility criteria
  * </ul>
  *
- * For viewing an active program, it contains the same elements, but without UI elements that can be
- * used for editing. TODO(#4019) Rename this to ProgramBlockView
  */
-public final class ProgramBlockEditView extends ProgramBlockBaseView {
+public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
   private final FeatureFlags featureFlags;
@@ -90,7 +88,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
 
   @Inject
-  public ProgramBlockEditView(
+  public ProgramBlocksView(
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       Config config,
@@ -1101,6 +1099,6 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   }
 
   public interface Factory {
-    ProgramBlockEditView create(ProgramDisplayType type);
+    ProgramBlocksView create(ProgramDisplayType type);
   }
 }
