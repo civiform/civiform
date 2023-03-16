@@ -2,11 +2,14 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.nav;
+import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
@@ -22,6 +25,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
+import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
@@ -51,12 +55,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
 
+  private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
   public final String supportEmail;
+  private final Optional<String> maybeLogoUrl;
+  private final String civicEntityFullName;
+  private final String civicEntityShortName;
 
   @Inject
   public ApplicantLayout(
+      BaseHtmlLayout layout,
       ViewUtils viewUtils,
       Config configuration,
       ProfileUtils profileUtils,
@@ -64,9 +73,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
       FeatureFlags featureFlags,
       DeploymentType deploymentType) {
     super(viewUtils, configuration, featureFlags, deploymentType);
+    this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
+    this.maybeLogoUrl =
+        checkNotNull(configuration).hasPath("whitelabel.small_logo_url")
+            ? Optional.of(configuration.getString("whitelabel.small_logo_url"))
+            : Optional.empty();
+    this.civicEntityFullName = configuration.getString("whitelabel.civic_entity_full_name");
+    this.civicEntityShortName = configuration.getString("whitelabel.civic_entity_short_name");
   }
 
   private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
@@ -119,14 +135,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
-        .withClasses("bg-white", "border-b", "align-middle", "p-4", "grid", "grid-cols-3")
+        .withClasses("bg-white", "border-b", "align-middle", "p-1", "grid", "grid-cols-3")
         .with(branding())
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
             div(
                     getLanguageForm(request, profile, messages),
                     logoutButton(displayUserName, messages))
-                .withClasses("justify-self-end", "flex", "flex-row"));
+                .withClasses("justify-self-end", "items-center", "flex", "flex-row"));
   }
 
   private ContainerTag<?> getLanguageForm(
@@ -167,13 +183,28 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ATag branding() {
+    ImgTag cityImage;
+
+    if (maybeLogoUrl.isPresent()) {
+      cityImage = img().withSrc(maybeLogoUrl.get());
+    } else {
+      cityImage = this.layout.viewUtils.makeLocalImageTag("ChiefSeattle_Blue");
+    }
+
+    cityImage
+        .withAlt(civicEntityFullName + " Logo")
+        .attr("aria-hidden", "true")
+        .withClasses("w-16", "py-1");
+
     return a().withHref(routes.HomeController.index().url())
+        .withClasses("flex", "flex-row")
         .with(
+            cityImage,
             div()
                 .withId("brand-id")
                 .withLang(Locale.ENGLISH.toLanguageTag())
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
-                .withText("CiviForm"));
+                .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
   }
 
   private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
@@ -202,10 +233,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private DivTag logoutButton(String userName, Messages messages) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return div(
-        div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
-        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-            .withHref(logoutLink)
-            .withClasses(ApplicantStyles.LINK_LOGOUT));
+            div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
+            a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+                .withHref(logoutLink)
+                .withClasses(ApplicantStyles.LINK_LOGOUT))
+        .withClasses("pr-8");
   }
 
   protected String renderPageTitleWithBlockProgress(

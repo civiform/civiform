@@ -8,7 +8,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
@@ -19,7 +18,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -27,7 +25,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
@@ -66,25 +63,14 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final FeatureFlags featureFlags;
   private final ProfileUtils profileUtils;
-  private final Optional<String> maybeLogoUrl;
-  private final String civicEntityFullName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
-      ApplicantLayout layout,
-      Config config,
-      ZoneId zoneId,
-      FeatureFlags featureFlags,
-      ProfileUtils profileUtils) {
+      ApplicantLayout layout, ZoneId zoneId, FeatureFlags featureFlags, ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
-    this.maybeLogoUrl =
-        checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
-            ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
-            : Optional.empty();
-    this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
     this.zoneId = checkNotNull(zoneId);
   }
 
@@ -127,7 +113,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 "text-4xl",
                 StyleUtils.responsiveSmall("text-5xl"),
                 "font-semibold",
-                "mb-2",
+                "mt-10",
                 "px-6",
                 StyleUtils.responsiveSmall("mb-6"));
 
@@ -141,23 +127,10 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withText(infoTextLine2)
             .withClasses("text-sm", "px-6", "pb-6", StyleUtils.responsiveSmall("text-base"));
 
-    ImgTag logoImg =
-        maybeLogoUrl.isPresent()
-            ? img().withSrc(maybeLogoUrl.get())
-            : this.layout.viewUtils.makeLocalImageTag("Seattle-logo_horizontal_blue-white_small");
-
-    DivTag logoDiv =
-        div()
-            .with(
-                logoImg
-                    .withAlt(civicEntityFullName + " logo")
-                    .attr("aria-hidden", "true")
-                    .withStyle("max-width: 155px; max-height: 40px;"))
-            .withClasses("pt-6", "px-6");
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative")
-        .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative", "flex", "flex-col")
+        .with(programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private H2Tag programSectionTitle(String title) {
