@@ -471,4 +471,46 @@ describe('program creation', () => {
     )
     expect(await commonIntakeFormInput.isChecked()).toBe(true)
   })
+
+  it('regular program has eligibility conditions', async () => {
+    const {page, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'cif',
+      'desc',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ false,
+    )
+
+    await adminPrograms.gotoEditDraftProgramPage('cif')
+    expect(await page.innerText('main')).toContain('Eligibility')
+  })
+
+  it('common intake form does not have eligibility conditions', async () => {
+    const {page, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'cif',
+      'desc',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+
+    await adminPrograms.gotoEditDraftProgramPage('cif')
+    expect(await page.innerText('main')).not.toContain('Eligibility')
+  })
 })
