@@ -203,7 +203,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             div()
                 .withId("brand-id")
                 .withLang(Locale.ENGLISH.toLanguageTag())
-                .withClasses(ApplicantStyles.CIVIFORM_LOGO, "flex", "flex-wrap", "content-center")
+                .withClasses(ApplicantStyles.CIVIFORM_LOGO)
                 .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
   }
 
