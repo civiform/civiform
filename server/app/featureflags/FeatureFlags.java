@@ -42,10 +42,10 @@ public final class FeatureFlags {
 
   // Common Intake Form flags.
   private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
+  public static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
 
   // phone number question type
   private static final String PHONE_QUESTION_TYPE_ENABLED = "phone_question_type_enabled";
-  public static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
 
   @Inject
   FeatureFlags(Config config) {
@@ -111,12 +111,12 @@ public final class FeatureFlags {
     return getFlagEnabled(request, INTAKE_FORM_ENABLED);
   }
 
-  public boolean isPhoneQuestionTypeEnabled(Request request) {
-    return getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
-  }
-
   public boolean isNongatedEligibilityEnabled(Request request) {
     return getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED);
+  }
+
+  public boolean isPhoneQuestionTypeEnabled(Request request) {
+    return getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
   }
 
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
@@ -135,10 +135,10 @@ public final class FeatureFlags {
         isEsriAddressServiceAreaValidationEnabled(request),
         INTAKE_FORM_ENABLED,
         isIntakeFormEnabled(request),
-        PHONE_QUESTION_TYPE_ENABLED,
-        isPhoneQuestionTypeEnabled(request),
         NONGATED_ELIGIBILITY_ENABLED,
-        isNongatedEligibilityEnabled(request));
+        isNongatedEligibilityEnabled(request),
+        PHONE_QUESTION_TYPE_ENABLED,
+        isPhoneQuestionTypeEnabled(request));
   }
 
   /**
