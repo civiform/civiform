@@ -140,11 +140,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
-    Modal blockDescriptionEditModal = blockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+    Modal blockDescriptionEditModal = renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
-    Modal blockDeleteScreenModal = blockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
+    Modal blockDeleteScreenModal = renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
 
     HtmlBundle htmlBundle =
         layout
@@ -163,9 +163,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             .with(renderEditButton(request, programDefinition)),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
-                            .with(blockOrderPanel(request, programDefinition, blockId))
+                            .with(renderBlockOrderPanel(request, programDefinition, blockId))
                             .with(
-                                blockPanel(
+                                renderBlockPanel(
                                     programDefinition,
                                     blockDefinition,
                                     blockForm,
@@ -183,7 +183,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       htmlBundle
           .addMainContent(
-              questionBankPanel(
+              renderQuestionBankPanel(
                   questions,
                   programDefinition,
                   blockDefinition,
@@ -233,7 +233,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Returns a wrapper panel that contains the list of all blocks and, if the 
    * view shows an editable program, a button to add a new screen,
    */
-  private DivTag blockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
+  private DivTag renderBlockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
@@ -308,7 +308,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .with(p(blockName), p(questionCountText).withClasses("text-sm")));
       if (viewAllowsEditingProgram()) {
         DivTag moveButtons =
-            blockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
+            renderBlockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
         blockTag.with(moveButtons);
       }
       container.with(blockTag);
@@ -331,7 +331,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Creates a set of buttons, which are shown next to each block in the list of blocks.
    * They are used to move a block up or down in the list.
    */
-  private DivTag blockMoveButtons(
+  private DivTag renderBlockMoveButtons(
       Request request,
       long programId,
       ImmutableList<BlockDefinition> blockDefinitions,
@@ -377,7 +377,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Tends to be used to show the details of the currently selected block for
    * viewing or editing.
    */
-  private DivTag blockPanel(
+  private DivTag renderBlockPanel(
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       BlockForm blockForm,
@@ -449,7 +449,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // UI elements for editing are only needed when we view a draft
     if (viewAllowsEditingProgram()) {
       DivTag buttons =
-          blockPanelButtons(
+          renderBlockPanelButtons(
               program,
               blockDefinitionIsEnumerator,
               blockDescriptionModalButton,
@@ -472,7 +472,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  private DivTag blockPanelButtons(
+  private DivTag renderBlockPanelButtons(
       ProgramDefinition program,
       boolean blockDefinitionIsEnumerator,
       ButtonTag blockDescriptionModalButton,
@@ -619,6 +619,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Renders and individual question, including the description and any
    * toggles or tags that should be shown next to the question in the
    * list of questions.
+
    */
   private DivTag renderQuestion(
       InputTag csrfTag,
@@ -662,11 +663,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withClasses("mt-1", "text-sm"));
 
     Optional<FormTag> maybeOptionalToggle =
-        optionalToggle(
+        renderOptionalToggle(
             csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
 
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
-        addressCorrectionEnabledToggle(
+        renderAddressCorrectionEnabledToggle(
             request,
             csrfTag,
             programDefinition,
@@ -680,7 +681,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
       maybeOptionalToggle.ifPresent(ret::with);
       ret.with(
-          this.createMoveQuestionButtonsSection(
+          this.renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
               blockDefinition.id(),
@@ -688,7 +689,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionIndex,
               questionsCount));
       ret.with(
-          deleteQuestionForm(
+          renderDeleteQuestionForm(
               csrfTag,
               programDefinition.id(),
               blockDefinition.id(),
@@ -701,11 +702,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
             addressCorrectionEnabled
                 ? "Address correction: enabled"
                 : "Address correction: disabled";
-        ret.with(makeReadOnlyLabel(label));
+        ret.with(renderReadOnlyLabel(label));
       }
       if (maybeOptionalToggle.isPresent()) {
         String label = isOptional ? "optional question" : "required question";
-        ret.with(makeReadOnlyLabel(label));
+        ret.with(renderReadOnlyLabel(label));
       }
     }
     return ret;
@@ -716,7 +717,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Creates a Divtag that contains an up and a down arrow. Those are displayed
    * next to a question to allow changing the order of questions inside a block.
    */
-  private DivTag createMoveQuestionButtonsSection(
+  private DivTag renderMoveQuestionButtonsSection(
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
@@ -784,7 +785,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Optionally creates a form tag which contains a toggle that allows
    * to specify if a question is optional or mandatory. 
    */
-  private Optional<FormTag> optionalToggle(
+  private Optional<FormTag> renderOptionalToggle(
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
@@ -842,7 +843,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   // Creates label that can be used in the read only view, for example to replace a toggle.
-  private DivTag makeReadOnlyLabel(String label) {
+  private DivTag renderReadOnlyLabel(String label) {
     DivTag ret =
         div()
             .withClasses(
@@ -861,7 +862,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Returns an Optional of a form that contains the toggle which allows
    * enabling address correction for address related questions.
    */
-  private Optional<FormTag> addressCorrectionEnabledToggle(
+  private Optional<FormTag> renderAddressCorrectionEnabledToggle(
       Request request,
       InputTag csrfTag,
       ProgramDefinition programDefinition,
@@ -953,7 +954,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Returns a form that shows the delete button, which is to be shown next
    * to each of the questions in a program block to allow deleting the question.
    */
-  private FormTag deleteQuestionForm(
+  private FormTag renderDeleteQuestionForm(
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
@@ -989,7 +990,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Creates the question panel, which shows all questions the admin can 
    * add to a program.
    */
-  private DivTag questionBankPanel(
+  private DivTag renderQuestionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
       BlockDefinition blockDefinition,
@@ -1022,7 +1023,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Creates a modal, which is shown when the admin clicks the delete button
    * of a block.
    */
-  private Modal blockDeleteModal(
+  private Modal renderBlockDeleteModal(
       InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
 
     FormTag deleteBlockForm =
@@ -1102,7 +1103,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * Creates a Modeal that is used for viewing or editing the Description field
    * of the specified block.
    */
-  private Modal blockDescriptionModal(
+  private Modal renderBlockDescriptionModal(
       InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
