@@ -15,6 +15,7 @@ import com.typesafe.config.Config;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -68,6 +69,7 @@ import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriClientRequestException;
+import services.geo.esri.FakeEsriClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -120,7 +122,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      FakeEsriClient fakeEsriClient,
+			MessagesApi messagesApi) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -141,7 +144,8 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
-    this.esriClient = checkNotNull(esriClient);
+    
+    this.esriClient = checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost()) ? fakeEsriClient : checkNotNull(esriClient);
   }
 
   /** Create a new {@link Applicant}. */
@@ -1472,7 +1476,7 @@ public final class ApplicantService {
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
-
+    // TODO: this shouldn't throw if no suggestions are empty and CF should let the user continue on with the application
     return esriClient
         .getAddressSuggestions(addressQuestion.getAddress())
         .thenApplyAsync(

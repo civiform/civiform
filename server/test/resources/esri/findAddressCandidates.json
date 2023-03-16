@@ -5,24 +5,63 @@
   },
   "candidates": [
     {
-      "address": "380 New York St, Redlands, California, 92373",
+      "address": "Address In Area, Redlands, California, 92373",
       "location": {
-        "x": -117.19479001927878,
-        "y": 34.057264995787875
+        "x": -100,
+        "y": 100
       },
       "score": 100,
       "attributes": {
         "SubAddr": "",
-        "Address": "380 New York St",
+        "Address": "Address In Area",
         "City": "Redlands",
         "RegionAbbr": "CA",
         "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address With No Service Area Features, California, 92373",
+      "location": {
+        "x": -101,
+        "y": 101
       },
-      "extent": {
-        "xmin": -117.19579001927879,
-        "ymin": 34.056264995787878,
-        "xmax": -117.19379001927878,
-        "ymax": 34.058264995787873
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address With No Service Area Features",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address Not In Area, California, 92373",
+      "location": {
+        "x": -102,
+        "y": 102
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address Not In Area",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    },
+    {
+      "address": "Address Causes Service Area Fetch Error, California, 92373",
+      "location": {
+        "x": -103,
+        "y": 103
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address Causes Service Area Fetch Error",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
       }
     }
   ]

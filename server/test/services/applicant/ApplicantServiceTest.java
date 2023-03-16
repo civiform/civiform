@@ -3,15 +3,11 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static play.mvc.Results.ok;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -27,16 +23,12 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.ws.WSClient;
-import play.routing.RoutingDsl;
-import play.server.Server;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
@@ -61,8 +53,6 @@ import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
-import services.geo.esri.EsriClient;
-import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.PathNotInBlockException;
@@ -108,29 +98,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Before
   public void setUp() throws Exception {
-    // configure EsriClient instance for ServiceAreaUpdateResolver which is injected into
-    // ApplicantService
-    Config config = ConfigFactory.load();
-    baseUrl = config.getString("base_url");
-    Clock clock = instanceOf(Clock.class);
-    EsriServiceAreaValidationConfig esriServiceAreaValidationConfig =
-        instanceOf(EsriServiceAreaValidationConfig.class);
-    Server server =
-        Server.forRouter(
-            (components) ->
-                RoutingDsl.fromComponents(components)
-                    .GET("/query")
-                    .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
-                    .build());
-    WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
-    EsriClient esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
-    ServiceAreaUpdateResolver serviceAreaUpdateResolver =
-        instanceOf(ServiceAreaUpdateResolver.class);
-    // set instance of esriClient for ServiceAreaUpdateResolver
-    FieldUtils.writeField(serviceAreaUpdateResolver, "esriClient", esriClient, true);
     subject = instanceOf(ApplicantService.class);
-    // set instance of serviceAreaUpdateResolver for ApplicantService
-    FieldUtils.writeField(subject, "serviceAreaUpdateResolver", serviceAreaUpdateResolver, true);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
@@ -1469,7 +1437,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         ImmutableMap.<String, String>builder()
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-                "555 E 5th St.")
+                "Legit Address")
             .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
             .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
             .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
@@ -1478,10 +1446,10 @@ public class ApplicantServiceTest extends ResetPostgres {
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "47.578374020558954")
+                "100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-122.3360380354971")
+                "-100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")
@@ -1525,7 +1493,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         ImmutableMap.<String, String>builder()
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-                "555 E 5th St.")
+                "Legit Address")
             .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
             .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
             .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
@@ -1534,10 +1502,10 @@ public class ApplicantServiceTest extends ResetPostgres {
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "47.578374020558954")
+                "100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-122.3360380354971")
+                "-100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")
@@ -2835,12 +2803,35 @@ public class ApplicantServiceTest extends ResetPostgres {
         new Block(
             String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
 
+    // update address so values aren't empty
+    ImmutableMap<String, String> updates =
+    ImmutableMap.<String, String>builder()
+        .put(
+            Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+            "Legit Address")
+        .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+        .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+        .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+        .build();
+
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), block.getId(), updates, true)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    Block blockWithUpdatedData =
+        new Block(
+            String.valueOf(blockDefinition.id()), blockDefinition, applicantDataAfter, Optional.empty());
+
     // Act
     AddressSuggestionGroup addressSuggestionGroup =
-        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
+        subject.getAddressSuggestionGroup(blockWithUpdatedData).toCompletableFuture().join();
 
     // Assert
-    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
+    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(4);
   }
 
   @Test

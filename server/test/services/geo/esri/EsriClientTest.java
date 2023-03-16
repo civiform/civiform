@@ -222,7 +222,7 @@ public class EsriClientTest {
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
     assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
-    assertEquals(1, candidates.size());
+    assertEquals(4, candidates.size());
   }
 
   @Test
