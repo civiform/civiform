@@ -44,6 +44,9 @@ public final class FeatureFlags {
   private static final String INTAKE_FORM_ENABLED = "intake_form_enabled";
   public static final String NONGATED_ELIGIBILITY_ENABLED = "nongated_eligibility_enabled";
 
+  // phone number question type
+  private static final String PHONE_QUESTION_TYPE_ENABLED = "phone_question_type_enabled";
+
   @Inject
   FeatureFlags(Config config) {
     this.config = checkNotNull(config);
@@ -112,6 +115,10 @@ public final class FeatureFlags {
     return getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED);
   }
 
+  public boolean isPhoneQuestionTypeEnabled(Request request) {
+    return getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
+  }
+
   public ImmutableMap<String, Boolean> getAllFlags(Request request) {
     return ImmutableMap.of(
         ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
@@ -129,7 +136,9 @@ public final class FeatureFlags {
         INTAKE_FORM_ENABLED,
         isIntakeFormEnabled(request),
         NONGATED_ELIGIBILITY_ENABLED,
-        isNongatedEligibilityEnabled(request));
+        isNongatedEligibilityEnabled(request),
+        PHONE_QUESTION_TYPE_ENABLED,
+        isPhoneQuestionTypeEnabled(request));
   }
 
   /**
