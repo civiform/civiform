@@ -152,6 +152,7 @@ content.description2=Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 

@@ -148,6 +148,7 @@ content.description2=아래에서 신청서를 선택하여 작성을 시작합�
 
 # Link text to read more about a program.
 link.programDetails=프로그램 세부정보
+
 # The same text, read for screen readers.
 link.programDetailsSr={0}의 프로그램 세부정보
 

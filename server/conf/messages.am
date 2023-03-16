@@ -147,6 +147,7 @@ content.description2=ከታች ማመልከቻ በመምረጥ ይጀምሩ።
 
 # Link text to read more about a program.
 link.programDetails=የፕሮግራም ዝርዝሮች
+
 # The same text, read for screen readers.
 link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
 

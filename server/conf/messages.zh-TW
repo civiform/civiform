@@ -147,6 +147,7 @@ content.description2=首先是在下方選擇申請項目。
 
 # Link text to read more about a program.
 link.programDetails=計畫詳情
+
 # The same text, read for screen readers.
 link.programDetailsSr=「{0}」計畫詳情
 

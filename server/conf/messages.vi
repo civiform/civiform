@@ -147,6 +147,7 @@ content.description2=Bắt đầu bằng việc chọn một đơn đăng ký d�
 
 # Link text to read more about a program.
 link.programDetails=Chi tiết chương trình
+
 # The same text, read for screen readers.
 link.programDetailsSr=Chi tiết chương trình {0}
 

@@ -149,6 +149,7 @@ content.description2=Elige una de las solicitudes a continuación para comenzar.
 
 # Link text to read more about a program.
 link.programDetails=Detalles del programa
+
 # The same text, read for screen readers.
 link.programDetailsSr=Detalles del programa para {0}
 

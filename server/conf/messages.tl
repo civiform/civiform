@@ -147,6 +147,7 @@ content.description2=Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
 
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
+
 # The same text, read for screen readers.
 link.programDetailsSr=Mga detalya ng programa para sa {0}
 
