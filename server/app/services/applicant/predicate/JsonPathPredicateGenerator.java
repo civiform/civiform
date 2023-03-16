@@ -105,7 +105,7 @@ public final class JsonPathPredicateGenerator {
    */
   private JsonPathPredicate formatDatePredicate(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
-    if (node.operator().equals("AGE_BETWEEN")) {
+    if (node.operator().toString().equals("AGE_BETWEEN")) {
       // The value of the between questions are comma separated and have brackets, but since this
       // is a string type, we need to remove the brackets then re-split the list.
       ImmutableList<Long> ageRange =
