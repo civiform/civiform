@@ -416,6 +416,13 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
 
 #-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
+error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
+error.notFoundDescriptionLink=bogga internatka
+
+#-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
 # For emails sent out automatically on application submission. This is part of the body of the email.
@@ -423,3 +430,15 @@ email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Codsigaaga barnaamijka {0} waa la helay. Aqoonsiga codsadahaagu waa {1} iyo Aqoonsiga codsigu waa {2}
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=Waxaad soo gudbisay codsiga barnaamijka {0} addoo metelaya codsadaha {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=Codsiga barnaamijka {0} ka codsade ahaan {1} waa la helay, oo Aqoonsiga codsiguna waa {2}.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.

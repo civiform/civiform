@@ -446,7 +446,7 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=We were unable to find the page you tried to visit
-error.notFoundDescription='Please go back or return to the '
+error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
 
 #-------------------------------------------------------#
@@ -457,3 +457,15 @@ email.loginToCiviform=Log in to CiviForm at {0}
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=Your application to program {0} is received
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Manage your clients at {0}.

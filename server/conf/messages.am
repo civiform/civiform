@@ -441,7 +441,7 @@ adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባ�
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
-error.notFoundDescription=«እባክዎ ወደኋላ ይሂዱ ወይም ይመለሱ ወደ »
+error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
 
 #-------------------------------------------------------#
@@ -452,3 +452,15 @@ email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።

@@ -441,7 +441,7 @@ adminValidation.multiOptionEmpty=多選題不得留空。
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=我們找不到你嘗試前往的頁面
-error.notFoundDescription='請返回上一頁或'
+error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
 
 #-------------------------------------------------------#
@@ -452,3 +452,15 @@ email.loginToCiviform=前往 {0} 登入 CiviForm
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=我們已收到您的「{0}」計畫申請書。您的申請者 ID 為 {1}，申請 ID 為 {2}
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=您已代替申請者「{1}」提交「{0}」計畫的申請書
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=我們已收到您代替申請者「{1}」提交的「{0}」計畫申請書，申請 ID 為 {2}。
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=如要管理您的客戶，請前往 {0}。

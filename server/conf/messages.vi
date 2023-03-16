@@ -439,7 +439,7 @@ adminValidation.multiOptionEmpty=Không được để lựa chọn trống tron
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
-error.notFoundDescription='Vui lòng quay lại hoặc trở về '
+error.notFoundDescription=Vui lòng quay lại hoặc chuyển đến {0}
 error.notFoundDescriptionLink=trang chủ
 
 #-------------------------------------------------------#
@@ -450,3 +450,15 @@ email.loginToCiviform=Đăng nhập vào CiviForm tại {0}
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn. Mã người đăng ký của bạn là {1} và mã đơn đăng ký là {2}
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=Bạn đã gửi đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} với tư cách là người đăng ký {1}, và mã đơn đăng ký là {2}.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.

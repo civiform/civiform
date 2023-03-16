@@ -442,7 +442,7 @@ adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang ops
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
-error.notFoundDescription='Bumalik o pumunta sa '
+error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
 
 #-------------------------------------------------------#
@@ -453,3 +453,15 @@ email.loginToCiviform=Mag-log in sa CiviForm sa {0}
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=Natanggap na ang iyong aplikasyon sa programang {0}
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Natanggap na ang aplikasyon mo sa programang {0}. {1} ang applicant ID mo at {2} ang application ID
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=Nagsumite ka ng aplikasyon para sa programang {0} sa ngalan ng aplikanteng si {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=Natanggap na ang aplikasyon sa programang {0} bilang aplikanteng si {1}, at {2} ang application ID.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Pamahalaan ang iyong mga client sa {0}.

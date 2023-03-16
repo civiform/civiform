@@ -444,7 +444,7 @@ adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden t
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
-error.notFoundDescription='Por favor revise la URL o regrese a la '
+error.notFoundDescription=Regresa a {0}
 error.notFoundDescriptionLink=página de inicio
 
 #-------------------------------------------------------#
@@ -455,3 +455,15 @@ email.loginToCiviform=Accede a CiviForm en {0}
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject=Recibimos tu solicitud para el programa {0}
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Recibimos tu solicitud para el programa {0}. Tu ID de solicitante es {1} y el ID de solicitud es {2}
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=Enviaste una solicitud para el programa {0} en nombre del solicitante {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=Recibimos la solicitud al programa {0} para el solicitante {1} y el ID de solicitud es {2}.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Administra tus clientes en {0}.

@@ -442,7 +442,7 @@ adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
-error.notFoundDescription='뒤로 가거나 다음으로 돌아가세요'
+error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
 error.notFoundDescriptionLink=홈페이지
 
 #-------------------------------------------------------#
@@ -453,3 +453,15 @@ email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
 
 # For emails sent out automatically on application submission. This is the subject of the email.
 email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients={0}에서 고객 관리하기
