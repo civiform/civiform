@@ -174,7 +174,7 @@ public class LoginForm extends BaseHtmlView {
       // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
       // like "SNAPSHOT-3af8997-1678895722".
       String version = civiformVersion;
-      if (civiformVersion.equals("latest")) {
+      if (civiformVersion.equals("") || civiformVersion.equals("latest")) {
         version = civiformImageTag;
       }
       footer.with(p("CiviForm version: " + version).withClasses("text-gray-600"));
