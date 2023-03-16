@@ -120,12 +120,16 @@ link.createAccountOrSignIn=Gumawa ng account o magsign-in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Mag-aplay
+
 # The text read for screen readers.
 button.applySr=Mag-aplay sa {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=I-edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 
@@ -143,11 +147,15 @@ content.description2=Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
 
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
+
 # The same text, read for screen readers.
 link.programDetailsSr=Mga detalya ng programa para sa {0}
 
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
@@ -189,6 +197,10 @@ link.answer=Sagot
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Sinagutan noong {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Magsimula rito. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -435,5 +447,26 @@ adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang ops
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
-error.notFoundDescription='Bumalik o pumunta sa '
+error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=Mag-log in sa CiviForm sa {0}
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=Natanggap na ang iyong aplikasyon sa programang {0}
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Natanggap na ang aplikasyon mo sa programang {0}. {1} ang applicant ID mo at {2} ang application ID
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=Nagsumite ka ng aplikasyon para sa programang {0} sa ngalan ng aplikanteng si {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=Natanggap na ang aplikasyon sa programang {0} bilang aplikanteng si {1}, at {2} ang application ID.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Pamahalaan ang iyong mga client sa {0}.

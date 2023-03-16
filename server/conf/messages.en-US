@@ -125,12 +125,16 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+
 # The text read for screen readers.
 button.applySr=Apply to {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Edit submitted application to {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
 
@@ -148,11 +152,15 @@ content.description2=Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
 # The title of the page for the list of programs.
 title.programs=Programs & services
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
@@ -443,5 +451,26 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=We were unable to find the page you tried to visit
-error.notFoundDescription='Please go back or return to the '
+error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# For emails sent out automatically on application submission. This is part of the body of the email.
+email.loginToCiviform=Log in to CiviForm at {0}
+
+# For emails sent out automatically on application submission. This is the subject of the email.
+email.applicationReceivedSubject=Your application to program {0} is received
+
+# For emails sent out automatically on application submission. This is the rest of the body of the email.
+email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
+
+# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
+
+# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+
+# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+email.tiManageYourClients=Manage your clients at {0}.
