@@ -294,8 +294,23 @@ public final class PredicateGenerator {
         return PredicateValue.of(cents.longValue());
 
       case DATE:
-        LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        return PredicateValue.of(localDate);
+        // Age values are inputted as numbers.
+        if (operator.equals(Operator.AGE_OLDER_THAN)
+            || operator.equals(Operator.AGE_YOUNGER_THAN)) {
+          return PredicateValue.of(Long.parseLong(value));
+          // Take the string input with the comma separating the two age values and make a list of
+          // longs.
+        } else if (operator.equals(Operator.AGE_BETWEEN)) {
+          ImmutableList<Long> listOfLongs =
+              Splitter.on(",")
+                  .splitToStream(value)
+                  .map(s -> Long.parseLong(s.trim()))
+                  .collect(ImmutableList.toImmutableList());
+          return PredicateValue.listOfLongs(listOfLongs);
+        } else {
+          LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+          return PredicateValue.of(localDate);
+        }
 
       case SERVICE_AREA:
         if (!LeafAddressServiceAreaExpressionNode.SERVICE_AREA_ID_PATTERN

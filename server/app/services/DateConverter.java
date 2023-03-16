@@ -101,4 +101,13 @@ public final class DateConverter {
 
     return (calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.YEAR);
   }
+
+  /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date. */
+  public static long getDateTimestampFromAge(Long age) {
+    return LocalDate.now(ZoneId.systemDefault())
+        .minusYears(age)
+        .atStartOfDay(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli();
+  }
 }

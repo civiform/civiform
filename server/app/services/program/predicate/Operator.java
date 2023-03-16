@@ -7,6 +7,21 @@ import services.question.types.ScalarType;
 
 /** Represents a JsonPath operator (https://github.com/json-path/JsonPath#filter-operators). */
 public enum Operator {
+  AGE_BETWEEN(
+      "between",
+      "age is between",
+      ImmutableSet.of(ScalarType.DATE),
+      ImmutableSet.of(OperatorRightHandType.DATE)),
+  AGE_OLDER_THAN(
+      ">",
+      "age is older than",
+      ImmutableSet.of(ScalarType.DATE),
+      ImmutableSet.of(OperatorRightHandType.DATE)),
+  AGE_YOUNGER_THAN(
+      "<",
+      "age is younger than",
+      ImmutableSet.of(ScalarType.DATE),
+      ImmutableSet.of(OperatorRightHandType.DATE)),
   ANY_OF(
       "anyof",
       "contains any of",
