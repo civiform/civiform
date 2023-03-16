@@ -717,6 +717,7 @@ public final class ApplicantService {
     ImmutableList.Builder<ApplicantProgramData> inProgressPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> submittedPrograms = ImmutableList.builder();
     ImmutableList.Builder<ApplicantProgramData> unappliedPrograms = ImmutableList.builder();
+    ApplicationPrograms.Builder relevantPrograms = ApplicationPrograms.builder();
 
     Set<String> programNamesWithApplications = Sets.newHashSet();
     mostRecentApplicationsByProgram.forEach(
@@ -736,11 +737,16 @@ public final class ApplicantService {
             ApplicantProgramData.Builder applicantProgramDataBuilder =
                 ApplicantProgramData.builder()
                     .setProgram(programDefinition)
-                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime);
+                    .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
+                    .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.DRAFT));
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getOptionalEligibilityStatus(
                     draftApp.getApplicant().getApplicantData(), programDefinition));
-            inProgressPrograms.add(applicantProgramDataBuilder.build());
+            if (programDefinition.isCommonIntakeForm()) {
+              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+            } else {
+              inProgressPrograms.add(applicantProgramDataBuilder.build());
+            }
             programNamesWithApplications.add(programName);
           } else if (maybeSubmittedApp.isPresent() && activeProgramNames.containsKey(programName)) {
             // When extracting the application status, the definitions associated with the program
@@ -766,9 +772,14 @@ public final class ApplicantService {
                 ApplicantProgramData.builder()
                     .setProgram(programDefinition)
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
-                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus);
+                    .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
+                    .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
 
-            submittedPrograms.add(applicantProgramDataBuilder.build());
+            if (programDefinition.isCommonIntakeForm()) {
+              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+            } else {
+              submittedPrograms.add(applicantProgramDataBuilder.build());
+            }
             programNamesWithApplications.add(programName);
           }
         });
@@ -780,20 +791,23 @@ public final class ApplicantService {
         programName -> {
           ApplicantProgramData.Builder applicantProgramDataBuilder =
               ApplicantProgramData.builder().setProgram(activeProgramNames.get(programName));
+          ProgramDefinition program =
+              findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
 
           if (!mostRecentApplicationsByProgram.isEmpty()) {
             Applicant applicant = applications.stream().findFirst().get().getApplicant();
-            ProgramDefinition program =
-                findProgramWithId(allPrograms, activeProgramNames.get(programName).id());
-
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getOptionalEligibilityStatus(applicant.getApplicantData(), program));
           }
 
-          unappliedPrograms.add(applicantProgramDataBuilder.build());
+          if (program.isCommonIntakeForm()) {
+            relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
+          } else {
+            unappliedPrograms.add(applicantProgramDataBuilder.build());
+          }
         });
 
-    return ApplicationPrograms.builder()
+    return relevantPrograms
         .setInProgress(sortByProgramId(inProgressPrograms.build()))
         .setSubmitted(sortByProgramId(submittedPrograms.build()))
         .setUnapplied(sortByProgramId(unappliedPrograms.build()))
@@ -862,6 +876,12 @@ public final class ApplicantService {
 
     public abstract Optional<StatusDefinitions.Status> latestSubmittedApplicationStatus();
 
+    /**
+     * LifecycleStage of the latest application to this program by this applicant, if an application
+     * exists. ACTIVE if submitted, DRAFT if in progress.
+     */
+    public abstract Optional<LifecycleStage> latestApplicationLifecycleStage();
+
     static Builder builder() {
       return new AutoValue_ApplicantService_ApplicantProgramData.Builder();
     }
@@ -875,6 +895,8 @@ public final class ApplicantService {
       abstract Builder setLatestSubmittedApplicationTime(Optional<Instant> v);
 
       abstract Builder setLatestSubmittedApplicationStatus(Optional<StatusDefinitions.Status> v);
+
+      abstract Builder setLatestApplicationLifecycleStage(Optional<LifecycleStage> v);
 
       abstract ApplicantProgramData build();
     }
@@ -1116,6 +1138,12 @@ public final class ApplicantService {
    */
   @AutoValue
   public abstract static class ApplicationPrograms {
+    /**
+     * Common Intake Form, if it exists, is populated only here and not in inProgress, submitted, or
+     * unapplied regardless of its application status.
+     */
+    public abstract Optional<ApplicantProgramData> commonIntakeForm();
+
     public abstract ImmutableList<ApplicantProgramData> inProgress();
 
     public abstract ImmutableList<ApplicantProgramData> submitted();
@@ -1128,6 +1156,8 @@ public final class ApplicantService {
 
     @AutoValue.Builder
     abstract static class Builder {
+      abstract Builder setCommonIntakeForm(ApplicantProgramData value);
+
       abstract Builder setInProgress(ImmutableList<ApplicantProgramData> value);
 
       abstract Builder setSubmitted(ImmutableList<ApplicantProgramData> value);

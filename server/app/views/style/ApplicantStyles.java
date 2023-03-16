@@ -19,7 +19,13 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BaseStyles.BG_SEATTLE_BLUE, "text-white", "text-center", "w-full");
 
   public static final String CIVIFORM_LOGO =
-      StyleUtils.joinStyles("text-2xl", "opacity-75", StyleUtils.hover("opacity-100"));
+      StyleUtils.joinStyles(
+          "text-3xl",
+          "opacity-75",
+          "flex",
+          "flex-wrap",
+          "content-center",
+          StyleUtils.hover("opacity-100"));
   public static final String LINK_LOGOUT =
       StyleUtils.joinStyles(
           "text-base", "font-bold", "opacity-75", StyleUtils.hover("opacity-100"));

@@ -89,7 +89,7 @@ public class LoginForm extends BaseHtmlView {
       content.with(
           img()
               .withSrc(maybeLogoUrl.get())
-              .withAlt(civicEntityFullName + "Logo")
+              .withAlt(civicEntityFullName + " Logo")
               .attr("aria-hidden", "true")
               .withClasses("w-1/4", "pt-4"));
     } else {

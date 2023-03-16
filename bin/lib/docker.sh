@@ -52,7 +52,7 @@ function docker::compose_browser_test() {
 }
 
 #######################################
-# Runs docker compose with the browser test local development settings.
+# Runs docker compose with the browser test development settings.
 # Arguments:
 #   @: arguments for compose
 #######################################
@@ -61,6 +61,20 @@ function docker::compose_browser_test_dev() {
     -f docker-compose.yml \
     -f browser-test/browser-test-compose.yml \
     -f browser-test/browser-test-compose.dev.yml \
+    "$@"
+}
+
+#######################################
+# Runs docker compose with the browser test local development settings.
+# Arguments:
+#   @: arguments for compose
+#######################################
+function docker::compose_browser_test_dev_local() {
+  docker compose \
+    -f docker-compose.yml \
+    -f browser-test/browser-test-compose.yml \
+    -f browser-test/browser-test-compose.dev.yml \
+    -f browser-test/browser-test-compose.dev_local.yml \
     "$@"
 }
 
