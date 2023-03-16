@@ -120,12 +120,16 @@ link.createAccountOrSignIn=建立或登入帳戶
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=申請
+
 # The text read for screen readers.
 button.applySr=申請「{0}」
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=編輯
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=編輯已提交的「{0}」申請資料
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=繼續申請「{0}」
 

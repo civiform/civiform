@@ -120,12 +120,16 @@ link.createAccountOrSignIn=Gumawa ng account o magsign-in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Mag-aplay
+
 # The text read for screen readers.
 button.applySr=Mag-aplay sa {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=I-edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 

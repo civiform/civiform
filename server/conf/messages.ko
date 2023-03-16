@@ -121,12 +121,16 @@ link.createAccountOrSignIn=계정 만들기 또는 로그인
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=신청
+
 # The text read for screen readers.
 button.applySr={0} 신청
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=편집
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr={0}에 제출된 신청서 편집
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr={0} 신청 계속하기
 

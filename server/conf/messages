@@ -128,20 +128,28 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+
 # The text read for screen readers.
 button.applySr=Apply to {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Edit submitted application to {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
+
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
+
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Start here by filling out {0}
+
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editCommonIntakeSr=Edit submitted information for {0}
+
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continue filling out {0}
 

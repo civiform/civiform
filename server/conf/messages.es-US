@@ -125,10 +125,13 @@ button.apply=Solicitar
 
 # The text read for screen readers.
 button.applySr=Solicitar {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Editar
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Editar la solicitud enviada a {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continuar la solicitud para {0}
 

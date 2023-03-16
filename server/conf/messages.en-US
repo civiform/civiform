@@ -125,12 +125,16 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+
 # The text read for screen readers.
 button.applySr=Apply to {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Edit submitted application to {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
 

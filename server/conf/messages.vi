@@ -120,12 +120,16 @@ link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Đăng ký
+
 # The text read for screen readers.
 button.applySr=Đăng ký {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Chỉnh sửa
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Tiếp tục đăng ký {0}
 
