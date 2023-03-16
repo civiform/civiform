@@ -2805,14 +2805,14 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
-    ImmutableMap.<String, String>builder()
-        .put(
-            Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-            "Legit Address")
-        .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
-        .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
-        .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
-        .build();
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
+                "Legit Address")
+            .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
+            .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
+            .build();
 
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), block.getId(), updates, true)
@@ -2824,7 +2824,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block blockWithUpdatedData =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantDataAfter, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicantDataAfter,
+            Optional.empty());
 
     // Act
     AddressSuggestionGroup addressSuggestionGroup =

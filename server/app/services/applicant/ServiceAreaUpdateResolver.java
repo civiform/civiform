@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
-
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +41,10 @@ final class ServiceAreaUpdateResolver {
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       HttpExecutionContext httpExecutionContext) {
     String baseUrl = checkNotNull(configuration).getString("base_url");
-    this.esriClient = checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost()) ? fakeEsriClient : checkNotNull(esriClient);
+    this.esriClient =
+        checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost())
+            ? fakeEsriClient
+            : checkNotNull(esriClient);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }

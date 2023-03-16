@@ -12,10 +12,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
+import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -144,8 +144,11 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
-    
-    this.esriClient = checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost()) ? fakeEsriClient : checkNotNull(esriClient);
+
+    this.esriClient =
+        checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost())
+            ? fakeEsriClient
+            : checkNotNull(esriClient);
   }
 
   /** Create a new {@link Applicant}. */
@@ -1476,7 +1479,8 @@ public final class ApplicantService {
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
-    // TODO: this shouldn't throw if no suggestions are empty and CF should let the user continue on with the application
+    // TODO: this shouldn't throw if no suggestions are empty and CF should let the user continue on
+    // with the application
     return esriClient
         .getAddressSuggestions(addressQuestion.getAddress())
         .thenApplyAsync(

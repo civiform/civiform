@@ -10,13 +10,11 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-
 import java.io.IOException;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -100,11 +98,8 @@ public class FakeEsriClientTest {
 
   @Test
   public void fetchServiceAreaFeatures() {
-    AddressLocation location = AddressLocation.builder()
-      .setLongitude(-100)
-      .setLatitude(100)
-      .setWellKnownId(4326)
-      .build();
+    AddressLocation location =
+        AddressLocation.builder().setLongitude(-100).setLatitude(100).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
         client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
     assertThat(maybeResp.isPresent()).isTrue();
@@ -118,11 +113,8 @@ public class FakeEsriClientTest {
 
   @Test
   public void fetchServiceAreaFeaturesNoFeatures() {
-    AddressLocation location = AddressLocation.builder()
-      .setLongitude(-101)
-      .setLatitude(101)
-      .setWellKnownId(4326)
-      .build();
+    AddressLocation location =
+        AddressLocation.builder().setLongitude(-101).setLatitude(101).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
         client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
     assertThat(maybeResp.isPresent()).isTrue();
@@ -134,11 +126,8 @@ public class FakeEsriClientTest {
 
   @Test
   public void fetchServiceAreaFeaturesNotInArea() {
-    AddressLocation location = AddressLocation.builder()
-      .setLongitude(-102)
-      .setLatitude(102)
-      .setWellKnownId(4326)
-      .build();
+    AddressLocation location =
+        AddressLocation.builder().setLongitude(-102).setLatitude(102).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
         client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
     assertThat(maybeResp.isPresent()).isTrue();
@@ -151,16 +140,10 @@ public class FakeEsriClientTest {
 
   @Test
   public void fetchServiceAreaFeaturesWithError() {
-    AddressLocation location = AddressLocation.builder()
-      .setLongitude(-103)
-      .setLatitude(103)
-      .setWellKnownId(4326)
-      .build();
+    AddressLocation location =
+        AddressLocation.builder().setLongitude(-103).setLatitude(103).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
-        client
-            .fetchServiceAreaFeatures(location, "/query")
-            .toCompletableFuture()
-            .join();
+        client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
     assertEquals(Optional.empty(), maybeResp);
   }
 }
