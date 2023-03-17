@@ -302,7 +302,8 @@ public final class PredicateGenerator {
           // longs.
         } else if (operator.equals(Operator.AGE_BETWEEN)) {
           ImmutableList<Long> listOfLongs =
-              Splitter.on(",")
+              // Allow splitting on comma or dash.
+              Splitter.onPattern("[-,]")
                   .splitToStream(value)
                   .map(s -> Long.parseLong(s.trim()))
                   .collect(ImmutableList.toImmutableList());

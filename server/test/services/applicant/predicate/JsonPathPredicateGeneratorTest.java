@@ -26,12 +26,15 @@ public class JsonPathPredicateGeneratorTest {
 
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private QuestionDefinition question;
+  private QuestionDefinition dateQuestion;
   private JsonPathPredicateGenerator generator;
 
   @Before
   public void setupGenerator() {
     question = questionBank.applicantAddress().getQuestionDefinition();
-    generator = new JsonPathPredicateGenerator(ImmutableList.of(question), Optional.empty());
+    dateQuestion = questionBank.applicantDate().getQuestionDefinition();
+    generator =
+        new JsonPathPredicateGenerator(ImmutableList.of(question, dateQuestion), Optional.empty());
   }
 
   @Test
@@ -62,6 +65,63 @@ public class JsonPathPredicateGeneratorTest {
 
     ApplicantData data = new ApplicantData();
     data.putString(Path.create("applicant.applicant_address.city"), "Portland");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
+  public void fromLeafNode_generatesCorrectStringForAgeOlderValue() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(18));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1111017600000 > @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2000-01-01");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
+  public void fromLeafNode_evaluatesCorrectlyWhenAgeNotInPredicate() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(100));
+
+    // This person will be 100 sometime in the future, which is why the timestamp is negative.
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(-1476748800000 > @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
+
+    assertThat(data.evalPredicate(predicate)).isFalse();
+  }
+
+  @Test
+  public void fromLeafNode_generatesCorrectStringForBetweenAgeValue() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(),
+            Scalar.DATE,
+            Operator.AGE_BETWEEN,
+            PredicateValue.listOfLongs(ImmutableList.of(1L, 100L)));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create(
+            "$.applicant.applicant_birth_date[?(1647475200000 >= @.date && -1476748800000 <="
+                + " @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
 
     assertThat(data.evalPredicate(predicate)).isTrue();
   }

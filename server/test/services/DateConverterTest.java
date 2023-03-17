@@ -62,4 +62,10 @@ public class DateConverterTest {
     Long timestamp = 1673453292339L;
     assertThat(dateConverter.renderLocalDate(timestamp)).isEqualTo(LocalDate.of(2023, 1, 11));
   }
+
+  @Test
+  public void getDateTimestampFromAge_isCorrect() {
+    assertThat(dateConverter.renderLocalDate(dateConverter.getDateTimestampFromAge(30L)))
+        .isEqualTo(LocalDate.now(ZoneId.systemDefault()).minusYears(30L));
+  }
 }

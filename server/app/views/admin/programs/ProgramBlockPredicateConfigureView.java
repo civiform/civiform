@@ -753,7 +753,9 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                     "hidden",
                     "text-xs",
                     BaseStyles.FORM_LABEL_TEXT_COLOR)
-                .withText("Enter two comma-separated values. For example, \"18,30\"."));
+                .withText(
+                    "Enter two comma-separated or dash-separated values. For example \"18,30\" or"
+                        + " \"18-30\"."));
   }
 
   private static String formatPredicateValue(
