@@ -93,14 +93,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   notEligibleBanner =
                       Optional.of(
                           new ToastMessage(
-                                  messages.at(
-                                      isTrustedIntermediary
-                                          ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                          : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                                      roApplicantProgramService.getProgramTitle()),
-                                  ALERT)
-                              // Don't auto-hide the toast message.
-                              .setDuration(0));
+                              messages.at(
+                                  isTrustedIntermediary
+                                      ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
+                                      : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                                  roApplicantProgramService.getProgramTitle()),
+                              ALERT));
                 }
               } catch (ProgramNotFoundException e) {
                 return notFound(e.toString());
