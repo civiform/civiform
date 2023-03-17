@@ -175,13 +175,21 @@ public final class BaseStyles {
 
   private static final String LOGIN_REDIRECT_BUTTON_BASE = StyleUtils.joinStyles("rounded-3xl");
 
-  public static final String LOGIN_REDIRECT_BUTTON =
+  public static final String LOGIN_REDIRECT_BUTTON_OLD =
       StyleUtils.joinStyles(
           LOGIN_REDIRECT_BUTTON_BASE,
           "bg-blue-800",
           "text-white",
           "w-3/4",
           StyleUtils.responsiveMedium("w-1/3"));
+
+  public static final String LOGIN_REDIRECT_BUTTON_NEW =
+      StyleUtils.joinStyles(
+          LOGIN_REDIRECT_BUTTON_BASE,
+          "bg-blue-800",
+          "text-white",
+          "w-3/4",
+          StyleUtils.responsiveMedium("w-2/5"));
 
   public static final String LOGIN_REDIRECT_BUTTON_SECONDARY =
       StyleUtils.joinStyles(
@@ -193,6 +201,16 @@ public final class BaseStyles {
           "bg-white",
           StyleUtils.hover("bg-blue-100/90"));
 
+  public static final String LOGIN_REDIRECT_BUTTON_SECONDARY_NEW =
+      StyleUtils.joinStyles(
+          LOGIN_REDIRECT_BUTTON_BASE,
+          "border",
+          "border-blue-800",
+          "text-blue-800",
+          "text-base",
+          "bg-white",
+          StyleUtils.responsiveMedium("w-2/5"));
+
   public static final String ADMIN_LOGIN =
       StyleUtils.joinStyles(
           "bg-transparent",
@@ -200,4 +218,15 @@ public final class BaseStyles {
           "underline",
           "font-bold",
           StyleUtils.hover("bg-gray-200", "opacity-90"));
+
+  public static final String ADMIN_LOGIN_NEW =
+      StyleUtils.joinStyles(
+          "bg-transparent",
+          "text-blue-700",
+          "font-semibold",
+          StyleUtils.hover("bg-gray-200", "opacity-90"));
+
+  public static final String GUEST_LOGIN =
+      StyleUtils.joinStyles(
+          "bg-transparent", "text-blue-800", StyleUtils.hover("bg-gray-200", "opacity-90"));
 }

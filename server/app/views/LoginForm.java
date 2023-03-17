@@ -6,9 +6,11 @@ import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.hr;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.strong;
 import static j2html.TagCreator.text;
 
 import auth.AuthIdentityProviderName;
@@ -28,6 +30,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
+import views.components.Icons;
 import views.style.BaseStyles;
 
 /** Renders a page for login. */
@@ -71,10 +74,11 @@ public class LoginForm extends BaseHtmlView {
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
     this.featureFlags = checkNotNull(featureFlags);
-    this.renderCreateAccountButton = config.hasPath("auth.register_uri");
+    this.renderCreateAccountButton = true; // config.hasPath("auth.register_uri");
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
+    // DO NOT MERGE: remove the ! on this flag check.
     if (featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
       return renderNewLoginPage(request, messages);
     } else {
@@ -82,9 +86,37 @@ public class LoginForm extends BaseHtmlView {
     }
   }
 
-  // TODO(#4366): implement new login page.
-  private Content renderNewLoginPage(Http.Request unused1, Messages unused2) {
-    HtmlBundle htmlBundle = this.layout.getBundle();
+  private Content renderNewLoginPage(Http.Request request, Messages messages) {
+    String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
+
+    HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
+
+    DivTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
+
+    content.with(logo());
+
+    content.with(
+        h1().withClasses("flex", "text-4xl", "gap-1", "px-8")
+            .with(span(civicEntityShortName).withClasses("font-bold"))
+            .with(span("CiviForm")));
+
+    // TODO: i18n
+    String resourceHelpText =
+        "A resource to help you find government benefits you may be eligible for in the City"
+            + " of Seattle.";
+    content.with(p(resourceHelpText).withClasses("text-base", "text-center", "px-8", "w-5/6"));
+
+    content.with(primaryLoginSectionNew(messages));
+    content.with(hr().withClasses("w-10/12", "border-gray-300"));
+    content.with(alternativeLoginSectionNew(messages));
+    content.with(adminLoginSectionNew(messages, request));
+
+    htmlBundle.addMainContent(
+        div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content));
+
+    if (isDevOrStaging && !disableDemoModeLogins) {
+      htmlBundle.addMainContent(debugContent());
+    }
 
     return layout.render(htmlBundle);
   }
@@ -103,9 +135,9 @@ public class LoginForm extends BaseHtmlView {
             .with(span(civicEntityShortName).withClasses("font-bold"))
             .with(span("CiviForm")));
 
-    content.with(primaryLoginSection(messages));
-    content.with(alternativeLoginSection(messages));
-    content.with(adminLoginSection(messages, request));
+    content.with(primaryLoginSectionOld(messages));
+    content.with(alternativeLoginSectionOld(messages));
+    content.with(adminLoginSectionOld(messages, request));
 
     htmlBundle.addMainContent(
         div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content));
@@ -134,7 +166,7 @@ public class LoginForm extends BaseHtmlView {
     }
   }
 
-  private DivTag primaryLoginSection(Messages messages) {
+  private DivTag primaryLoginSectionOld(Messages messages) {
     DivTag applicantAccountLogin =
         div()
             .withClasses(
@@ -154,13 +186,50 @@ public class LoginForm extends BaseHtmlView {
     } else {
       String loginMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
-      applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages));
+      applicantAccountLogin.with(p(loginMessage)).with(loginButtonOld(messages));
     }
 
     return applicantAccountLogin;
   }
 
-  private DivTag alternativeLoginSection(Messages messages) {
+  private DivTag primaryLoginSectionNew(Messages messages) {
+    DivTag applicantAccountLogin =
+        div()
+            .withClasses(
+                "flex",
+                "flex-col",
+                "gap-2",
+                "py-6",
+                "px-8",
+                "text-lg",
+                "w-full",
+                "place-items-center");
+
+    // TODO: i18n
+    DivTag tooltip =
+        ViewUtils.makeSvgToolTip(
+            "This is the same account you may use to pay your City of Seattle utility bill. ",
+            Icons.INFO,
+            Optional.of("right-0"));
+
+    if (applicantIdp == AuthIdentityProviderName.DISABLED_APPLICANT) {
+      String loginDisabledMessage =
+          messages.at(MessageKey.CONTENT_LOGIN_DISABLED_PROMPT.getKeyName());
+      applicantAccountLogin.with(p(loginDisabledMessage));
+    } else {
+      // TODO: i18n
+      String loginMessage = "Log in to your City of Seattle account to apply for benefits faster.";
+      applicantAccountLogin
+          .with(
+              div(p(loginMessage).withClasses("mr-2", "text-center", "text-gray-500"), tooltip)
+                  .withClasses("flex", "flex-row"))
+          .with(loginButtonNew(messages));
+    }
+
+    return applicantAccountLogin;
+  }
+
+  private DivTag alternativeLoginSectionOld(Messages messages) {
     DivTag alternativeLoginDiv = div();
 
     DivTag alternativeLoginButtons = div();
@@ -172,7 +241,7 @@ public class LoginForm extends BaseHtmlView {
     }
 
     if (renderCreateAccountButton) {
-      alternativeLoginButtons.with(createAccountButton(messages));
+      alternativeLoginButtons.with(createAccountButtonOld(messages));
     }
     if (!disableApplicantGuestLogin) {
       // Only include 'or' if the create account button was rendered.
@@ -189,7 +258,41 @@ public class LoginForm extends BaseHtmlView {
     return alternativeLoginDiv;
   }
 
-  private DivTag adminLoginSection(Messages messages, Http.Request request) {
+  private DivTag alternativeLoginSectionNew(Messages messages) {
+    DivTag alternativeLoginDiv = div();
+
+    // Render the "Don't have an account?" text and help text if either button will be rendered.
+    if (renderCreateAccountButton || !disableApplicantGuestLogin) {
+      String alternativeMessage =
+          messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
+      // TODO: i18n
+      String alternativeHelpText =
+          "Creating an account saves you time and allows you to apply for many benefits without"
+              + " having to enter the same information again. You can also edit applications and"
+              + " check your application statuses.";
+      alternativeLoginDiv.with(
+          p(strong(alternativeMessage)).withClasses("text-lg", "text-center", "mt-2", "mx-auto"));
+      alternativeLoginDiv.with(
+          p(alternativeHelpText)
+              .withClasses(
+                  "text-lg", "text-center", "mb-2", "w-10/12", "mx-auto", "text-gray-500"));
+    }
+
+    DivTag alternativeLoginButtons = div();
+    if (renderCreateAccountButton) {
+      alternativeLoginButtons.with(createAccountButtonNew(messages));
+    }
+    if (!disableApplicantGuestLogin) {
+      alternativeLoginButtons
+          .with(guestLink(messages))
+          .withClasses("pb-12", "px-8", "flex", "flex-col", "gap-4", "items-center", "text-lg");
+    }
+    alternativeLoginDiv.with(alternativeLoginButtons);
+
+    return alternativeLoginDiv;
+  }
+
+  private DivTag adminLoginSectionOld(Messages messages, Http.Request request) {
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
     DivTag footer =
         div()
@@ -204,7 +307,7 @@ public class LoginForm extends BaseHtmlView {
                 "justify-center",
                 "items-center",
                 "text-base")
-            .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
+            .with(p(adminPrompt).with(text(" ")).with(adminLinkOld(messages)));
 
     if (featureFlags.getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE)) {
       // civiformVersion is the version the deployer requests, like "latest" or
@@ -220,19 +323,71 @@ public class LoginForm extends BaseHtmlView {
     return footer;
   }
 
-  private ButtonTag loginButton(Messages messages) {
+  private DivTag adminLoginSectionNew(Messages messages, Http.Request request) {
+    // TODO: i18n
+    String adminPrompt = "Are you a benefits administrator?";
+    DivTag footer =
+        div()
+            .withClasses(
+                "bg-gray-100",
+                "py-4",
+                "px-8",
+                "w-full",
+                "flex",
+                "flex-col",
+                "gap-2",
+                "justify-center",
+                "items-center",
+                "text-base")
+            .with(
+                p(adminPrompt)
+                    .with(text(" "))
+                    .withClass("text-gray-500")
+                    .with(adminLinkNew(messages)));
+
+    if (featureFlags.getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE)) {
+      // civiformVersion is the version the deployer requests, like "latest" or
+      // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
+      // like "SNAPSHOT-3af8997-1678895722".
+      String version = civiformVersion;
+      if (civiformVersion.equals("") || civiformVersion.equals("latest")) {
+        version = civiformImageTag;
+      }
+      footer.with(p("CiviForm version: " + version).withClasses("text-gray-600"));
+    }
+
+    return footer;
+  }
+
+  private ButtonTag loginButtonOld(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
     return redirectButton(
             applicantIdp.getValue(),
             msg,
             routes.LoginController.applicantLogin(Optional.empty()).url())
-        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_OLD);
   }
 
-  private ButtonTag createAccountButton(Messages messages) {
+  private ButtonTag loginButtonNew(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
+    return redirectButton(
+            applicantIdp.getValue(),
+            msg,
+            routes.LoginController.applicantLogin(Optional.empty()).url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_NEW);
+  }
+
+  private ButtonTag createAccountButtonOld(Messages messages) {
     String msg = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
     return redirectButton("register", msg, routes.LoginController.register().url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
+  }
+
+  private ButtonTag createAccountButtonNew(Messages unused) {
+    // TODO: i18n
+    String msg = "Create an account";
+    return redirectButton("register", msg, routes.LoginController.register().url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY_NEW);
   }
 
   private ButtonTag guestButton(Messages messages) {
@@ -242,11 +397,26 @@ public class LoginForm extends BaseHtmlView {
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private ATag adminLink(Messages messages) {
+  private ATag guestLink(Messages unused) {
+    // TODO: i18n
+    String msg = "or continue as a guest";
+    return a(msg)
+        .withHref(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+        .withClasses(BaseStyles.GUEST_LOGIN);
+  }
+
+  private ATag adminLinkOld(Messages messages) {
     String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
     return a(msg)
         .withHref(routes.LoginController.adminLogin().url())
         .withClasses(BaseStyles.ADMIN_LOGIN);
+  }
+
+  private ATag adminLinkNew(Messages messages) {
+    String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
+    return a(msg)
+        .withHref(routes.LoginController.adminLogin().url())
+        .withClasses(BaseStyles.ADMIN_LOGIN_NEW);
   }
 
   private DivTag debugContent() {
