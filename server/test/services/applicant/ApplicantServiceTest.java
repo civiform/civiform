@@ -2842,4 +2842,112 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Assert
     assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
   }
+
+  @Test
+  public void getApplicantMayBeEligibleStatus() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantData =
+        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicantData, programDefinition).get())
+        .isFalse();
+
+    questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    subject
+        .submitApplication(
+            applicant.id,
+            programDefinition.id(),
+            trustedIntermediaryProfile,
+            /* eligibilityFeatureEnabled= */ true,
+            /* nonGatedEligibilityFeatureEnabled= */ true)
+        .toCompletableFuture()
+        .join();
+    applicantData = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicantData, programDefinition).get())
+        .isTrue();
+  }
+
+  @Test
+  public void getApplicationEligibilityStatus() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    Application ineligibleApplication =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    Application eligibleApplication =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(
+            subject.getApplicationEligibilityStatus(ineligibleApplication, programDefinition).get())
+        .isFalse();
+    assertThat(
+            subject.getApplicationEligibilityStatus(eligibleApplication, programDefinition).get())
+        .isTrue();
+  }
 }
