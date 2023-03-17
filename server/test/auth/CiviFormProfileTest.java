@@ -6,7 +6,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import featureflags.FeatureFlags;
+import featureflags.FeatureFlag;
 import models.Account;
 import models.Applicant;
 import org.junit.Before;
@@ -129,7 +129,7 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
     ImmutableMap<String, String> civiformAdminAllowedMap =
-        ImmutableMap.of(FeatureFlags.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, "true");
+        ImmutableMap.of(FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS.getSymbol(), "true");
     Request civiformAdminAllowedRequest = fakeRequest().session(civiformAdminAllowedMap).build();
 
     assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())

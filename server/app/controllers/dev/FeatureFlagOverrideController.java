@@ -1,5 +1,6 @@
 package controllers.dev;
 
+import featureflags.FeatureFlag;
 import featureflags.FeatureFlags;
 import javax.inject.Inject;
 import play.mvc.Controller;
@@ -52,6 +53,7 @@ public final class FeatureFlagOverrideController extends Controller {
 
   /** Returns the status of a feature flag. */
   public Result status(Request request, String FlagName) {
-    return ok(featureFlags.getFlagEnabled(request, FlagName) ? "true" : "false");
+    return ok(
+        featureFlags.getFlagEnabled(request, FeatureFlag.getBySymbol(FlagName)) ? "true" : "false");
   }
 }

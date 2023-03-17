@@ -10,14 +10,15 @@ import static j2html.TagCreator.td;
 import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
-import com.google.common.collect.ImmutableMap;
 import controllers.dev.routes;
+import featureflags.FeatureFlag;
 import featureflags.FeatureFlags;
 import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
 import j2html.tags.specialized.TdTag;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Map.Entry;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -62,8 +63,7 @@ public class FeatureFlagView extends BaseHtmlView {
                         configureCell(td(Boolean.toString(featureFlags.areOverridesEnabled())))));
 
     // Create per flag view.
-    ImmutableMap<String, Boolean> flags = featureFlags.getAllFlags(request);
-    var sortedKeys = flags.keySet().stream().sorted().collect(Collectors.toUnmodifiableList());
+    Map<FeatureFlag, Boolean> sortedFlags = featureFlags.getAllFlagsSorted(request);
     TableTag flagTable =
         table()
             .withClasses("p-6", "mt-10", "text-left")
@@ -78,17 +78,21 @@ public class FeatureFlagView extends BaseHtmlView {
 
     // For each flag show its config value, session value (if different), the effective value for
     // the user and a control to toggle the value.
-    for (String flagName : sortedKeys) {
-      Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagName).orElse(false);
-      Boolean sessionValue = flags.get(flagName);
+    for (Entry<FeatureFlag, Boolean> flagEntry : sortedFlags.entrySet()) {
+      Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagEntry.getKey()).orElse(false);
+      Boolean sessionValue = flagEntry.getValue();
       Boolean sessionOverrides = !configValue.equals(sessionValue);
       // Only show values that override the system default for clarity.
       String sessionDisplay = sessionOverrides ? sessionValue.toString() : "";
       Tag flagFlipLink =
           sessionValue
-              ? a().withHref(routes.FeatureFlagOverrideController.disable(flagName).url())
+              ? a().withHref(
+                      routes.FeatureFlagOverrideController.disable(flagEntry.getKey().getSymbol())
+                          .url())
                   .withText("disable")
-              : a().withHref(routes.FeatureFlagOverrideController.enable(flagName).url())
+              : a().withHref(
+                      routes.FeatureFlagOverrideController.enable(flagEntry.getKey().getSymbol())
+                          .url())
                   .withText("enable");
       flagFlipLink.withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
 
@@ -103,7 +107,7 @@ public class FeatureFlagView extends BaseHtmlView {
 
       flagTable.with(
           tr().with(
-                  configureCell(td(flagName)),
+                  configureCell(td(flagEntry.getKey().getSymbol())),
                   configureCell(td(configValue.toString())),
                   // If the session value is different highlight that.
                   td(sessionDisplay).withClasses(BaseStyles.TABLE_CELL_STYLES, "font-bold"),
