@@ -124,7 +124,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
                             hasEligibilityEnabled
                                 ? applicantService.getOptionalEligibilityStatus(
-                                    application.getApplicant().getApplicantData(), program)
+                                    application.getApplicantData(), program)
                                 : Optional.empty(),
                             defaultStatus)))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
