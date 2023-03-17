@@ -9,6 +9,7 @@ import {
   selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
   waitForPageJsLoad,
   isLocalDevEnvironment,
 } from './support'
@@ -300,8 +301,8 @@ describe('Applicant navigation flow', () => {
       const submitButton = page.locator('#test-form-submit')!
       await submitButton.click()
 
-      const toastMessages = await page.innerText('#toast-container')
-      expect(toastMessages).toContain(
+      await validateToastMessage(
+        page,
         "There's been an update to the application",
       )
       await validateScreenshot(page, 'program-out-of-date')
@@ -387,7 +388,7 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -466,7 +467,7 @@ describe('Applicant navigation flow', () => {
         /* isEligible= */ false,
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -605,7 +606,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.applyProgram(fullProgramName)
       await applicantQuestions.answerEmailQuestion('test@test.com')
       await applicantQuestions.clickNext()
-      await applicantQuestions.validateToastMessage('')
+      await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)

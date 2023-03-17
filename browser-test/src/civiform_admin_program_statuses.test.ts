@@ -3,8 +3,9 @@ import {
   dismissModal,
   loginAsAdmin,
   validateScreenshot,
+  validateToastMessage,
 } from './support'
-import {waitForAnyModal} from './support/wait'
+import {waitForAnyModal, waitForPageJsLoad} from './support/wait'
 
 describe('modify program statuses', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -260,6 +261,124 @@ describe('modify program statuses', () => {
         statusName: secondStatusName,
         expectEmailExists: false,
       })
+    })
+  })
+
+  describe('default status', () => {
+    const programName = 'Test program default statuses'
+
+    beforeAll(async () => {
+      const {page, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.gotoAdminProgramsPage()
+    })
+
+    beforeEach(async () => {
+      await ctx.adminPrograms.gotoDraftProgramManageStatusesPage(programName)
+    })
+
+    it('creates a new status as default', async () => {
+      const {page, adminProgramStatuses} = ctx
+      const statusName = 'Test Status 1'
+
+      const confirmHandle =
+        await adminProgramStatuses.createStatusWithoutClickingConfirm(
+          statusName,
+        )
+      adminProgramStatuses.acceptDialogWithMessage(
+        adminProgramStatuses.newDefaultStatusMessage(statusName),
+      )
+      await confirmHandle.click()
+
+      await waitForPageJsLoad(page)
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await validateToastMessage(
+        page,
+        adminProgramStatuses.defaultStatusUpdateToastMessage(statusName),
+      )
+      await adminProgramStatuses.expectStatusIsDefault(statusName)
+      await validateScreenshot(page, 'status-list-with-default-status')
+    })
+
+    it('dismissing the confirmation dialog does not create the new status', async () => {
+      const {page, adminProgramStatuses} = ctx
+      const oldDefault = 'Test Status 1'
+      const statusName = 'Test Status 2'
+
+      const confirmHandle =
+        await adminProgramStatuses.createStatusWithoutClickingConfirm(
+          statusName,
+        )
+      adminProgramStatuses.dismissDialogWithMessage(
+        adminProgramStatuses.changeDefaultStatusMessage(oldDefault, statusName),
+      )
+      await confirmHandle.click()
+      await dismissModal(page)
+
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectStatusIsDefault(oldDefault)
+      await validateScreenshot(page, 'status-list-test-1-remains-default')
+    })
+
+    it('creating a new status as default changes default to the new status', async () => {
+      const {page, adminProgramStatuses} = ctx
+      const oldDefault = 'Test Status 1'
+      const statusName = 'Test Status 2'
+
+      const confirmHandle =
+        await adminProgramStatuses.createStatusWithoutClickingConfirm(
+          statusName,
+        )
+      adminProgramStatuses.acceptDialogWithMessage(
+        adminProgramStatuses.changeDefaultStatusMessage(oldDefault, statusName),
+      )
+      await confirmHandle.click()
+
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await validateToastMessage(
+        page,
+        adminProgramStatuses.defaultStatusUpdateToastMessage(statusName),
+      )
+      await adminProgramStatuses.expectStatusIsDefault(statusName)
+      await adminProgramStatuses.expectStatusIsNotDefault(oldDefault)
+      await validateScreenshot(page, 'status-list-test-2-default')
+    })
+
+    it('changes the default status', async () => {
+      const {page, adminProgramStatuses} = ctx
+      const oldDefault = 'Test Status 2'
+      const newDefault = 'Test Status 1'
+
+      await adminProgramStatuses.editStatusDefault(
+        newDefault,
+        true,
+        adminProgramStatuses.changeDefaultStatusMessage(oldDefault, newDefault),
+      )
+
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await validateToastMessage(
+        page,
+        adminProgramStatuses.defaultStatusUpdateToastMessage(newDefault),
+      )
+      await adminProgramStatuses.expectStatusIsDefault(newDefault)
+      await adminProgramStatuses.expectStatusIsNotDefault(oldDefault)
+      await validateScreenshot(page, 'status-list-test-1-as-default-again')
+    })
+
+    it('unsets the default status', async () => {
+      const {page, adminProgramStatuses} = ctx
+      const statusName = 'Test Status 1'
+
+      await page.pause()
+      await page.pause()
+      await page.pause()
+      await adminProgramStatuses.editStatusDefault(statusName, false)
+
+      await adminProgramStatuses.expectProgramManageStatusesPage(programName)
+      await adminProgramStatuses.expectStatusIsNotDefault(statusName)
+      await validateToastMessage(page, 'Status updated')
+      await validateScreenshot(page, 'status-list-unset-default')
     })
   })
 })

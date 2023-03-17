@@ -453,20 +453,20 @@ error.notFoundDescriptionLink=홈페이지
 #-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients={0}에서 고객 관리하기

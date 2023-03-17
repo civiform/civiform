@@ -450,20 +450,20 @@ error.notFoundDescriptionLink=trang chủ
 #-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=Đăng nhập vào CiviForm tại {0}
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn. Mã người đăng ký của bạn là {1} và mã đơn đăng ký là {2}
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=Bạn đã gửi đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} với tư cách là người đăng ký {1}, và mã đơn đăng ký là {2}.
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.

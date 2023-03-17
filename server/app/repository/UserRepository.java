@@ -13,6 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
@@ -61,6 +62,16 @@ public final class UserRepository {
       return Optional.empty();
     }
     return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
+  }
+
+  public CompletionStage<Optional<Account>> lookupAccountByEmailAsync(String emailAddress) {
+    if (emailAddress == null || emailAddress.isEmpty()) {
+      return CompletableFuture.completedStage(Optional.empty());
+    }
+    return supplyAsync(
+        () ->
+            database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty(),
+        executionContext);
   }
 
   /**

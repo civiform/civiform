@@ -452,20 +452,20 @@ error.notFoundDescriptionLink=መነሻ ገጽ
 #-------------------------------------------------------#
 # Email - text specific to emails sent to users         #
 #-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
+# Bottom of the body of the email sent automatically on application submission
 email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።

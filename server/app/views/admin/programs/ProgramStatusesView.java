@@ -6,6 +6,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
@@ -16,6 +17,7 @@ import forms.admin.ProgramStatusesForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
 import j2html.tags.specialized.PTag;
 import java.util.Collection;
 import java.util.Optional;
@@ -41,6 +43,7 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 public final class ProgramStatusesView extends BaseHtmlView {
@@ -264,11 +267,20 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         p().withClasses("mt-1", "text-xs", "flex", "items-center")
                             .with(
                                 Icons.svg(Icons.EMAIL)
-                                    // Tailwind doesn't have classes for 18px so use inline
-                                    // style.
-                                    .withStyle("width: 18px; height: 18px;")
-                                    .withClasses("mr-2", "inline-block"),
+                                    // 4.5 is 18px as defined in tailwind.config.js
+                                    .withClasses("mr-2", "inline-block", "h-4.5", "w-4.5"),
                                 span("Applicant notification email added"))),
+                div().withClass("flex-grow"),
+                div()
+                    .condWith(
+                        status.defaultStatus().isPresent()
+                            && status.defaultStatus().get().equals(true),
+                        p().withClasses("mt-1", "text-xs", "flex", "items-center")
+                            .with(
+                                Icons.svg(Icons.CHECK)
+                                    // 4.5 is 18px as defined in tailwind.config.js
+                                    .withClasses("mr-2", "inline-block", "h-4.5", "w-4.5"),
+                                span("Default status"))),
                 div().withClass("flex-grow"),
                 deleteStatusTriggerButton,
                 editStatusTriggerButton),
@@ -334,11 +346,29 @@ public final class ProgramStatusesView extends BaseHtmlView {
     Messages messages = messagesApi.preferred(request);
     ProgramStatusesForm formData = form.value().get();
 
+    Boolean isCurrentDefault = formData.getDefaultStatus().orElse(false);
+    LabelTag defaultCheckbox =
+        label()
+            .with(
+                input()
+                    .withType("checkbox")
+                    .withName(ProgramStatusesForm.DEFAULT_CHECKBOX_NAME)
+                    .withCondChecked(isCurrentDefault)
+                    .withClasses(BaseStyles.CHECKBOX, "cf-set-default-status-checkbox"),
+                span("Set as default status"));
+    Optional<StatusDefinitions.Status> currentDefaultStatus =
+        program.toProgram().getDefaultStatus();
+    String messagePart =
+        currentDefaultStatus
+            .map(status -> String.format("from %s to ", status.statusText()))
+            .orElse("to ");
     FormTag content =
         form()
             .withMethod("POST")
             .withAction(routes.AdminProgramStatusesController.createOrUpdate(program.id()).url())
-            .withClasses("px-6", "py-2")
+            .withClasses("cf-status-change-form", "px-6", "py-2")
+            .withData("dontshow", isCurrentDefault.toString())
+            .withData("messagepart", messagePart)
             .with(
                 makeCsrfTokenInputTag(request),
                 input()
@@ -369,6 +399,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                 div()
                     .withClasses("flex", "mt-5", "space-x-2")
                     .with(
+                        defaultCheckbox,
                         div().withClass("flex-grow"),
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder(Modal.randomModalId(), content)

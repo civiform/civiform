@@ -1,10 +1,13 @@
 package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.concurrent.CompletionStage;
+import javax.inject.Inject;
 import models.Application;
 import models.ApplicationEvent;
 
@@ -14,9 +17,12 @@ import models.ApplicationEvent;
  */
 public final class ApplicationEventRepository {
   private final Database database;
+  private final DatabaseExecutionContext executionContext;
 
-  public ApplicationEventRepository() {
+  @Inject
+  public ApplicationEventRepository(DatabaseExecutionContext executionContext) {
     this.database = checkNotNull(DB.getDefault());
+    this.executionContext = checkNotNull(executionContext);
   }
 
   /** Insert a new {@link ApplicationEvent} record synchronously. */
@@ -24,6 +30,17 @@ public final class ApplicationEventRepository {
     database.insert(event);
     event.refresh();
     return event;
+  }
+
+  /** Insert a new {@link ApplicationEvent} record asynchronously. */
+  public CompletionStage<ApplicationEvent> insertAsync(ApplicationEvent event) {
+    return supplyAsync(
+        () -> {
+          database.insert(event);
+          event.refresh();
+          return event;
+        },
+        executionContext.current());
   }
 
   /**

@@ -171,6 +171,9 @@ title.activeProgramsUpdated=Not started
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
 
+# Badge on an application that has a status assigned to it
+title.status=Status
+
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
 
@@ -454,23 +457,32 @@ error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
 
-#-------------------------------------------------------#
-# Email - text specific to emails sent to users         #
-#-------------------------------------------------------#
-# For emails sent out automatically on application submission. This is part of the body of the email.
-email.loginToCiviform=Log in to CiviForm at {0}
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Log in to Civiform at {0}
 
-# For emails sent out automatically on application submission. This is the subject of the email.
+# Subject of the email sent automatically on application submission
 email.applicationReceivedSubject=Your application to program {0} is received
 
-# For emails sent out automatically on application submission. This is the rest of the body of the email.
+# Body of the email sent automatically on application submission
 email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
 
-# For emails sent out automatically on application submission by a TI.  This is the subject of the email.
+# Subject of the email sent to the TI on application submission
 email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
 
-# For emails sent out automatically on application submission by a TI.  This is the body of the email.
+# Body of the email sent to the TI on application submission
 email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
 
-# For emails sent out automatically on application submission by a TI.  This is a link at the bottom on where the TI can manage their clients.
+# Link at the bottom of the email sent to the TI on application submission
 email.tiManageYourClients=Manage your clients at {0}.
+
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=An update on your application {0}
+
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=An update on the application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has changed to {2}.
