@@ -191,12 +191,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     }
 
     // Add toast messages
-    request
-        .flash()
-        .get("error")
-        .map(ToastMessage::error)
-        .map(m -> m.setDuration(-1))
-        .ifPresent(htmlBundle::addToastMessages);
+    request.flash().get("error").map(ToastMessage::error).ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);

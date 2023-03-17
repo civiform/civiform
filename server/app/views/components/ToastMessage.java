@@ -24,8 +24,8 @@ public final class ToastMessage {
 
   private String message;
 
-  /** Default duration is 3 seconds. */
-  private int duration = 3000;
+  /** Default duration is to not auto-hide. */
+  private int duration = 0;
 
   private boolean canDismiss = true;
 
