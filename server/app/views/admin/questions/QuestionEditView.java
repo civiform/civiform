@@ -157,7 +157,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     message
         .map(m -> m.setDismissible(true))
-        .map(m -> m.setDuration(ERROR_TOAST_DURATION))
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
