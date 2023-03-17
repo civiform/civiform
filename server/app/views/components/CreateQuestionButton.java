@@ -65,8 +65,7 @@ public final class CreateQuestionButton {
               .with(
                   Icons.questionTypeSvg(type)
                       .withClasses("inline-block", "h-6", "w-6", "mr-1", "text-sm"))
-              .with(
-                  p(type.getLabel()).withClasses("ml-2", "mr-4", "inline", "text-sm", "uppercase"));
+              .with(p(type.getLabel()).withClasses("ml-2", "mr-4", "inline", "text-sm"));
       dropdown.with(linkTag);
     }
     return div().withClasses("relative").with(createNewQuestionButton, dropdown);
