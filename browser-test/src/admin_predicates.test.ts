@@ -10,6 +10,7 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -979,6 +980,12 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickNext()
 
+      await applicantQuestions.clickReview()
+      await validateScreenshot(page, 'review-page-no-ineligible-banner')
+      // There should be no toast in this case
+      await validateToastMessage(page, '')
+      await applicantQuestions.clickContinue()
+
       // Greater than 100.01 is allowed
       await applicantQuestions.answerCurrencyQuestion('100.01')
       await applicantQuestions.clickNext()
@@ -1026,6 +1033,12 @@ describe('create and edit predicates', () => {
       // Validate that ineligible page is accessible.
       await validateAccessibility(page)
       await page.goBack()
+
+      await applicantQuestions.clickReview()
+      await validateScreenshot(page, 'review-page-has-ineligible-banner')
+      await validateToastMessage(page, 'may not qualify')
+      await page.goBack()
+
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
 
