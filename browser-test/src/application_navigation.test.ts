@@ -407,6 +407,8 @@ describe('Applicant navigation flow', () => {
       // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
+      await validateScreenshot(page, 'eligible-toast')
 
       // Verify the question is marked eligible
       await applicantQuestions.gotoApplicantHomePage()
