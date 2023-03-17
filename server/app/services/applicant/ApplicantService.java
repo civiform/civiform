@@ -212,7 +212,7 @@ public final class ApplicantService {
    * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written.
    *
    * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates. Returns with a
-   * CompletableFuture wrapping an exception if the updates cannot be performed.
+   *     CompletableFuture wrapping an exception if the updates cannot be performed.
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId,
