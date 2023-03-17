@@ -2850,6 +2850,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
+    // Applicant's answer is ineligible.
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
     ImmutableMap<String, String> updates =
@@ -2861,13 +2862,13 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-
     ApplicantData applicantData =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(subject.getApplicantMayBeEligibleStatus(applicantData, programDefinition).get())
         .isFalse();
 
+    // Applicant' answer gets changed to an eligible answer.
     questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
     updates =
         ImmutableMap.<String, String>builder()
@@ -2875,15 +2876,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     subject
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
-        .toCompletableFuture()
-        .join();
-    subject
-        .submitApplication(
-            applicant.id,
-            programDefinition.id(),
-            trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ true,
-            /* nonGatedEligibilityFeatureEnabled= */ true)
         .toCompletableFuture()
         .join();
     applicantData = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -2899,6 +2891,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
+    // Application is submitted with an ineligible answer.
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
     ImmutableMap<String, String> updates =
@@ -2910,7 +2903,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-
     Application ineligibleApplication =
         subject
             .submitApplication(
@@ -2922,6 +2914,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
+    // Application is re-submitted with eligible answers.
     questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
     updates =
         ImmutableMap.<String, String>builder()
@@ -2931,7 +2924,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-
     Application eligibleApplication =
         subject
             .submitApplication(
@@ -2943,9 +2935,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
+    // First application still evaluates to ineligible.
     assertThat(
             subject.getApplicationEligibilityStatus(ineligibleApplication, programDefinition).get())
         .isFalse();
+    // Re-submission evaluates to eligible.
     assertThat(
             subject.getApplicationEligibilityStatus(eligibleApplication, programDefinition).get())
         .isTrue();
