@@ -842,10 +842,6 @@ public final class ApplicantService {
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
         getReadOnlyApplicantProgramService(applicantData, programDefinition);
-    System.out.println("*** reemax");
-    System.out.println(roAppProgramService.isApplicationEligible());
-    System.out.println(roAppProgramService.isApplicationNotEligible());
-    System.out.println(applicantData);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
