@@ -211,24 +211,8 @@ public final class ApplicantService {
    *
    * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written.
    *
-   * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates regardless of
-   *     whether they are presisted or not, which may have invalid data with errors associated with
-   *     it. If the service cannot perform the update due to exceptions, they are wrapped in
-   *     `CompletionException`s.
-   *     <p>Below list all possible exceptions:
-   *     <p>
-   *     <ul>
-   *       <li>`ApplicantNotFoundException` - Invalid applicantId is given.
-   *       <li>`IllegalArgumentException` - Invalid paths that collide with reserved keys.
-   *       <li>`PathNotInBlockException` - Specified paths do not point to any scalars defined in
-   *           the block.
-   *       <li>`ProgramBlockNotFoundException` - Invalid combination of programId and blockId is
-   *           given.
-   *       <li>`ProgramNotFoundException` - Specified programId does not correspond to a real
-   *           Program.
-   *       <li>`UnsupportedScalarTypeException` - Specified paths point to an unsupported type of
-   *           scalar.
-   *     </ul>
+   * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates. Returns with a
+   * CompletableFuture wrapping an exception if the updates cannot be performed.
    */
   public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
       long applicantId,
