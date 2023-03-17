@@ -17,7 +17,8 @@ public enum QuestionType {
   NUMBER(false, "Number Field"),
   RADIO_BUTTON(true, "Radio Button"),
   STATIC(false, "Static Text"),
-  TEXT(false, "Text Field");
+  TEXT(false, "Text Field"),
+  PHONE(false, "Phone Field");
 
   private final boolean isMultiOptionType;
   private final String label;

@@ -102,6 +102,8 @@ public enum MessageKey {
   NAME_PLACEHOLDER_MIDDLE("placeholder.middleName"),
   NAME_VALIDATION_FIRST_REQUIRED("validation.firstNameRequired"),
   NAME_VALIDATION_LAST_REQUIRED("validation.lastNameRequired"),
+  PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
+  PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),

@@ -48,6 +48,9 @@ public enum Scalar {
   // Special scalars for Address questions
   SERVICE_AREA("service_area", ScalarType.SERVICE_AREA),
 
+  // Scalars for Phone Question
+  PHONE_NUMBER("phone_number", ScalarType.STRING),
+  COUNTRY_CODE("country_code", ScalarType.STRING),
   // Metadata scalars
   UPDATED_AT("updated at", ScalarType.LONG),
   PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);
@@ -106,6 +109,8 @@ public enum Scalar {
 
   private static final ImmutableSet<Scalar> STATIC_SCALARS = ImmutableSet.of();
 
+  private static final ImmutableSet<Scalar> PHONE_SCALARS =
+      ImmutableSet.of(PHONE_NUMBER, COUNTRY_CODE);
   private static final ImmutableSet<Scalar> METADATA_SCALARS =
       ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
 
@@ -149,6 +154,8 @@ public enum Scalar {
       case STATIC:
         return STATIC_SCALARS;
 
+      case PHONE:
+        return PHONE_SCALARS;
       case ENUMERATOR: // Enumerator Question does not have scalars like the other question types
         // do.
         throw new InvalidQuestionTypeException("Enumeration questions are handled separately.");
