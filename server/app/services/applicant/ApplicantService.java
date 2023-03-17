@@ -1070,6 +1070,10 @@ public final class ApplicantService {
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
 
+    /**
+     * Returns whether an application is eligible for a program, and empty if there are no
+     * eligibility conditions for the program.
+     */
     public abstract Optional<Boolean> isProgramMaybeEligible();
 
     public abstract Optional<Instant> latestSubmittedApplicationTime();

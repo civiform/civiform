@@ -6,6 +6,7 @@ import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
@@ -14,8 +15,12 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import javax.inject.Inject;
+
+import models.Account;
 import models.Applicant;
+import models.Program;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -152,43 +157,57 @@ public final class RedirectController extends CiviFormController {
           badRequest("You are not signed in - you cannot perform this action."));
     }
 
-    CompletionStage<Optional<String>> applicantName = applicantService.getName(applicantId);
-    CompletionStage<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
-        applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
+    CompletableFuture<Optional<String>> applicantName = applicantService.getName(applicantId).toCompletableFuture();
+    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
+        applicantService.getReadOnlyApplicantProgramService(applicantId, programId).toCompletableFuture();
 
-    return applicantName
-        .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpContext.current())
-        .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
-        .thenCombineAsync(
-            roApplicantProgramServiceCompletionStage,
-            (account, roApplicantProgramService) ->
-                ok(
-                    upsellView.render(
-                        request,
-                        redirectTo,
-                        account,
-                        roApplicantProgramService.getApplicantData().preferredLocale(),
-                        roApplicantProgramService.getProgramTitle(),
-                        roApplicantProgramService.getCustomConfirmationMessage(),
-                        applicantName.toCompletableFuture().join(),
-                        applicationId,
-                        messagesApi.preferred(request),
-                        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT)))),
-            httpContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof SecurityException) {
-                  return unauthorized();
-                }
-                if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
-                }
-              }
-              throw new RuntimeException(ex);
-            });
+    CompletableFuture<ImmutableList<ApplicantService.ApplicantProgramData>> eligiblePrograms = applicantName
+      .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+      .thenComposeAsync(v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
+      .thenApplyAsync(relevantPrograms -> Stream.of(
+          relevantPrograms.inProgress(),
+          relevantPrograms.submitted(),
+          relevantPrograms.unapplied())
+          .flatMap(ImmutableList::stream)
+          // Return all programs the user is eligible for, or that have no eligibility conditions.
+          .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
+          .collect(ImmutableList.toImmutableList())
+      );
+
+    CompletableFuture<Account> account = applicantName
+      .thenComposeAsync(
+        v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+        httpContext.current())
+      .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current()).toCompletableFuture();
+
+    return CompletableFuture
+      .allOf(account, roApplicantProgramServiceCompletionStage, eligiblePrograms)
+      .thenApplyAsync(ignored -> ok(
+        upsellView.render(
+          request,
+          redirectTo,
+          account.join(),
+          roApplicantProgramServiceCompletionStage.join().getApplicantData().preferredLocale(),
+          roApplicantProgramServiceCompletionStage.join().getProgramTitle(),
+          roApplicantProgramServiceCompletionStage.join().getCustomConfirmationMessage(),
+          applicantName.toCompletableFuture().join(),
+          eligiblePrograms.join(),
+          applicationId,
+          messagesApi.preferred(request),
+          request.flash().get("banner").map(m -> new ToastMessage(m, ALERT)))),
+        httpContext.current())
+      .exceptionally(
+        ex -> {
+          if (ex instanceof CompletionException) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof SecurityException) {
+              return unauthorized();
+            }
+            if (cause instanceof ProgramNotFoundException) {
+              return notFound(cause.toString());
+            }
+          }
+          throw new RuntimeException(ex);
+        });
   }
 }
