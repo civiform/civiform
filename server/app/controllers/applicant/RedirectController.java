@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Account;
 import models.Applicant;
@@ -166,20 +165,8 @@ public final class RedirectController extends CiviFormController {
         applicantName
             .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
             .thenComposeAsync(
-                v -> applicantService.relevantProgramsForApplicant(applicantId),
-                httpContext.current())
-            // todo move this logic into the application service
-            .thenApplyAsync(
-                relevantPrograms ->
-                    Stream.of(
-                            relevantPrograms.inProgress(),
-                            relevantPrograms.submitted(),
-                            relevantPrograms.unapplied())
-                        .flatMap(ImmutableList::stream)
-                        // Return all programs the user is eligible for, or that have no eligibility
-                        // conditions.
-                        .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
-                        .collect(ImmutableList.toImmutableList()));
+                v -> applicantService.maybeEligibleProgramsForApplicant(applicantId),
+                httpContext.current());
 
     CompletableFuture<Account> account =
         applicantName
