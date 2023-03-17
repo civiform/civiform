@@ -19,6 +19,7 @@ import featureflags.FeatureFlags;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.ImgTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -75,7 +76,22 @@ public class LoginForm extends BaseHtmlView {
     String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
-    htmlBundle.addMainContent(mainContent(request, messages));
+
+    DivTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
+
+    content.with(logo());
+
+    content.with(
+        h1().withClasses("flex", "text-4xl", "gap-1", "px-8")
+            .with(span(civicEntityShortName).withClasses("font-bold"))
+            .with(span("CiviForm")));
+
+    content.with(primaryLoginSection(messages));
+    content.with(alternativeLoginSection(messages));
+    content.with(adminLoginSection(messages, request));
+
+    htmlBundle.addMainContent(
+        div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content));
 
     if (isDevOrStaging && !disableDemoModeLogins) {
       htmlBundle.addMainContent(debugContent());
@@ -84,31 +100,24 @@ public class LoginForm extends BaseHtmlView {
     return layout.render(htmlBundle);
   }
 
-  private DivTag mainContent(Http.Request request, Messages messages) {
-    DivTag content = div().withClasses(BaseStyles.LOGIN_PAGE);
-
+  private ImgTag logo() {
     if (maybeLogoUrl.isPresent()) {
-      content.with(
-          img()
-              .withSrc(maybeLogoUrl.get())
-              .withAlt(civicEntityFullName + " Logo")
-              .attr("aria-hidden", "true")
-              .withClasses("w-1/4", "pt-4"));
+      return img()
+          .withSrc(maybeLogoUrl.get())
+          .withAlt(civicEntityFullName + " Logo")
+          .attr("aria-hidden", "true")
+          .withClasses("w-1/4", "pt-4");
     } else {
-      content.with(
-          this.layout
-              .viewUtils
-              .makeLocalImageTag("ChiefSeattle_Blue")
-              .withAlt(civicEntityFullName + " Logo")
-              .attr("aria-hidden", "true")
-              .withClasses("w-1/4", "pt-4"));
+      return this.layout
+          .viewUtils
+          .makeLocalImageTag("ChiefSeattle_Blue")
+          .withAlt(civicEntityFullName + " Logo")
+          .attr("aria-hidden", "true")
+          .withClasses("w-1/4", "pt-4");
     }
+  }
 
-    content.with(
-        h1().withClasses("flex", "text-4xl", "gap-1", "px-8")
-            .with(span(civicEntityShortName).withClasses("font-bold"))
-            .with(span("CiviForm")));
-
+  private DivTag primaryLoginSection(Messages messages) {
     DivTag applicantAccountLogin =
         div()
             .withClasses(
@@ -124,19 +133,25 @@ public class LoginForm extends BaseHtmlView {
     if (applicantIdp == AuthIdentityProviderName.DISABLED_APPLICANT) {
       String loginDisabledMessage =
           messages.at(MessageKey.CONTENT_LOGIN_DISABLED_PROMPT.getKeyName());
-      content.with(applicantAccountLogin.with(p(loginDisabledMessage)));
+      applicantAccountLogin.with(p(loginDisabledMessage));
     } else {
       String loginMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
-      content.with(applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages)));
+      applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages));
     }
+
+    return applicantAccountLogin;
+  }
+
+  private DivTag alternativeLoginSection(Messages messages) {
+    DivTag alternativeLoginDiv = div();
 
     DivTag alternativeLoginButtons = div();
     // Render the "Don't have an account?" text if either button will be rendered.
     if (renderCreateAccountButton || !disableApplicantGuestLogin) {
       String alternativeMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
-      content.with(p(alternativeMessage).withClasses("text-lg"));
+      alternativeLoginDiv.with(p(alternativeMessage).withClasses("text-lg", "text-center", "mb-2"));
     }
 
     if (renderCreateAccountButton) {
@@ -152,8 +167,12 @@ public class LoginForm extends BaseHtmlView {
           .with(guestButton(messages))
           .withClasses("pb-12", "px-8", "flex", "gap-4", "items-center", "text-lg");
     }
-    content.with(alternativeLoginButtons);
+    alternativeLoginDiv.with(alternativeLoginButtons);
 
+    return alternativeLoginDiv;
+  }
+
+  private DivTag adminLoginSection(Messages messages, Http.Request request) {
     String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT.getKeyName());
     DivTag footer =
         div()
@@ -169,6 +188,7 @@ public class LoginForm extends BaseHtmlView {
                 "items-center",
                 "text-base")
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
+
     if (featureFlags.showCiviformImageTagOnLandingPage(request)) {
       // civiformVersion is the version the deployer requests, like "latest" or
       // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
@@ -179,9 +199,37 @@ public class LoginForm extends BaseHtmlView {
       }
       footer.with(p("CiviForm version: " + version).withClasses("text-gray-600"));
     }
-    content.with(footer);
 
-    return div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content);
+    return footer;
+  }
+
+  private ButtonTag loginButton(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
+    return redirectButton(
+            applicantIdp.getValue(),
+            msg,
+            routes.LoginController.applicantLogin(Optional.empty()).url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
+  }
+
+  private ButtonTag createAccountButton(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
+    return redirectButton("register", msg, routes.LoginController.register().url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
+  }
+
+  private ButtonTag guestButton(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_LOGIN_GUEST.getKeyName());
+    return redirectButton(
+            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
+  }
+
+  private ATag adminLink(Messages messages) {
+    String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
+    return a(msg)
+        .withHref(routes.LoginController.adminLogin().url())
+        .withClasses(BaseStyles.ADMIN_LOGIN);
   }
 
   private DivTag debugContent() {
@@ -221,34 +269,5 @@ public class LoginForm extends BaseHtmlView {
                 "database-seed",
                 "Seed Database",
                 controllers.dev.routes.DatabaseSeedController.index().url()));
-  }
-
-  private ButtonTag loginButton(Messages messages) {
-    String msg = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
-    return redirectButton(
-            applicantIdp.getValue(),
-            msg,
-            routes.LoginController.applicantLogin(Optional.empty()).url())
-        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON);
-  }
-
-  private ButtonTag createAccountButton(Messages messages) {
-    String msg = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
-    return redirectButton("register", msg, routes.LoginController.register().url())
-        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
-  }
-
-  private ButtonTag guestButton(Messages messages) {
-    String msg = messages.at(MessageKey.BUTTON_LOGIN_GUEST.getKeyName());
-    return redirectButton(
-            "guest", msg, routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-        .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
-  }
-
-  private ATag adminLink(Messages messages) {
-    String msg = messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName());
-    return a(msg)
-        .withHref(routes.LoginController.adminLogin().url())
-        .withClasses(BaseStyles.ADMIN_LOGIN);
   }
 }
