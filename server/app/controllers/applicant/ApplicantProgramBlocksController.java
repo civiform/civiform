@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static views.components.ToastMessage.ToastType.SUCCESS;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -14,6 +15,7 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.geo.AddressSuggestionJsonSerializer;
 import featureflags.FeatureFlags;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +33,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -52,6 +55,7 @@ import views.applicant.AddressCorrectionBlockView;
 import views.applicant.ApplicantProgramBlockEditView;
 import views.applicant.ApplicantProgramBlockEditViewFactory;
 import views.applicant.IneligibleBlockView;
+import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
@@ -275,6 +279,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
+    Optional<ToastMessage> flashSuccessBanner =
+        request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
+
     return applicantStage
         .thenComposeAsync(
             v -> checkApplicantAuthorization(profileUtils, request, applicantId),
@@ -290,16 +297,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 Optional<String> applicantName = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
-                        buildApplicationBaseViewParams(
-                            request,
-                            applicantId,
-                            programId,
-                            blockId,
-                            inReview,
-                            roApplicantProgramService,
-                            block.get(),
-                            applicantName,
-                            ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)));
+                        applicationBaseViewParamsBuilder(
+                                request,
+                                applicantId,
+                                programId,
+                                blockId,
+                                inReview,
+                                roApplicantProgramService,
+                                block.get(),
+                                applicantName,
+                                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+                            .setBannerMessage(flashSuccessBanner)
+                            .build()));
               } else {
                 return notFound();
               }
@@ -523,11 +532,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       }
     }
 
+    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
+
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(
           request, roApplicantProgramService, programDefinition, blockId)) {
-        CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
         return supplyAsync(
             () ->
                 ok(
@@ -543,6 +553,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       notFound(e.toString());
     }
 
+    Map<String, String> flashingMap = new HashMap<>();
+    if (featureFlags.isProgramEligibilityConditionsEnabled()
+        && roApplicantProgramService.blockHasEligibilityPredicate(blockId)
+        && roApplicantProgramService.isBlockEligible(blockId)) {
+      flashingMap.put(
+          "success-banner",
+          messagesApi
+              .preferred(request)
+              .at(
+                  submittingProfile.isTrustedIntermediary()
+                      ? MessageKey.TOAST_MAY_QUALIFY_TI.getKeyName()
+                      : MessageKey.TOAST_MAY_QUALIFY.getKeyName(),
+                  roApplicantProgramService.getProgramTitle()));
+    }
+
     Optional<String> nextBlockIdMaybe =
         inReview
             ? roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().map(Block::getId)
@@ -550,22 +575,26 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     // No next block so go to the program review page.
     if (nextBlockIdMaybe.isEmpty()) {
       return supplyAsync(
-          () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
+          () ->
+              redirect(routes.ApplicantProgramReviewController.review(applicantId, programId))
+                  .flashing(flashingMap));
     }
 
     if (inReview) {
       return supplyAsync(
           () ->
               redirect(
-                  routes.ApplicantProgramBlocksController.review(
-                      applicantId, programId, nextBlockIdMaybe.get())));
+                      routes.ApplicantProgramBlocksController.review(
+                          applicantId, programId, nextBlockIdMaybe.get()))
+                  .flashing(flashingMap));
     }
 
     return supplyAsync(
         () ->
             redirect(
-                routes.ApplicantProgramBlocksController.edit(
-                    applicantId, programId, nextBlockIdMaybe.get())));
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicantId, programId, nextBlockIdMaybe.get()))
+                .flashing(flashingMap));
   }
 
   /** Returns true if eligibility is gating and the block is ineligible, false otherwise. */
@@ -590,7 +619,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
-  private ApplicationBaseView.Params buildApplicationBaseViewParams(
+  private ApplicationBaseView.Params.Builder applicationBaseViewParamsBuilder(
       Request request,
       long applicantId,
       long programId,
@@ -614,7 +643,29 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
-        .setErrorDisplayMode(errorDisplayMode)
+        .setErrorDisplayMode(errorDisplayMode);
+  }
+
+  private ApplicationBaseView.Params buildApplicationBaseViewParams(
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Block block,
+      Optional<String> applicantName,
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
+    return applicationBaseViewParamsBuilder(
+            request,
+            applicantId,
+            programId,
+            blockId,
+            inReview,
+            roApplicantProgramService,
+            block,
+            applicantName,
+            errorDisplayMode)
         .build();
   }
 
