@@ -69,6 +69,11 @@ export class TIDashboard {
     await waitForPageJsLoad(this.page)
   }
 
+  async dismissToast() {
+    await this.page.locator('#toast-container div:text("x")').click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain(
       'your client may not qualify',
