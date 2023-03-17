@@ -9,7 +9,8 @@ import {
   selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
-  validateScreenshot, validateToastMessage,
+  validateScreenshot,
+  validateToastMessage,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -980,10 +981,7 @@ describe('create and edit predicates', () => {
       await applicantQuestions.clickNext()
 
       await applicantQuestions.clickReview()
-      await validateScreenshot(
-        page,
-        'review-page-no-ineligible-banner',
-      )
+      await validateScreenshot(page, 'review-page-no-ineligible-banner')
       // There should be no toast in this case
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
@@ -1036,11 +1034,8 @@ describe('create and edit predicates', () => {
       await validateAccessibility(page)
       await page.goBack()
 
-      await applicantQuestions.clickReview();
-      await validateScreenshot(
-        page,
-        'review-page-has-ineligible-banner',
-      )
+      await applicantQuestions.clickReview()
+      await validateScreenshot(page, 'review-page-has-ineligible-banner')
       await validateToastMessage(page, 'may not qualify')
       await page.goBack()
 
