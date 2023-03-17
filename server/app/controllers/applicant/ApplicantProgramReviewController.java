@@ -162,7 +162,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
       return false;
     }
-    return !roApplicantProgramService.isApplicationEligible();
+    return roApplicantProgramService.isApplicationNotEligible();
   }
 
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
