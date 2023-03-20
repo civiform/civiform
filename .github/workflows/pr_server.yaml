@@ -8,8 +8,6 @@ concurrency:
 
 on:
   pull_request:
-    branches:
-      - 'main'
     paths:
       - 'server/**'
       - 'bin/**'
