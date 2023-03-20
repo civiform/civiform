@@ -141,6 +141,8 @@ public enum MessageKey {
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_MAY_NOT_QUALIFY("toast.mayNotQualify"),
   TOAST_MAY_NOT_QUALIFY_TI("toast.mayNotQualifyTi"),
+  TOAST_MAY_QUALIFY("toast.mayQualify"),
+  TOAST_MAY_QUALIFY_TI("toast.mayQualifyTi"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired");
