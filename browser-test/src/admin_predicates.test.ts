@@ -1048,10 +1048,10 @@ describe('create and edit predicates', () => {
 
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
-      await validateToastMessage(page, 'may qualify')
 
-      // We should now be on the summary page
-      await validateScreenshot(page, 'summary-page-eligible-banner')
+      // We should now be on the summary page and no banner should show.
+      await validateScreenshot(page, 'summary-page-no-eligible-banner')
+      await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
     })
   })
