@@ -833,13 +833,27 @@ public final class ApplicantService {
   }
 
   /**
-   * Returns whether an application is maybe eligible for a program, and empty if there are no
-   * eligibility conditions for the program.
+   * Returns whether an applicant is maybe eligible for a program based on their latest answers, and
+   * empty if there are no eligibility conditions for the program.
    */
-  public Optional<Boolean> getOptionalEligibilityStatus(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+  public Optional<Boolean> getApplicantMayBeEligibleStatus(
+      Applicant applicant, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(applicantData, programDefinition);
+        getReadOnlyApplicantProgramService(applicant.getApplicantData(), programDefinition);
+    return programDefinition.hasEligibilityEnabled()
+        ? Optional.of(!roAppProgramService.isApplicationNotEligible())
+        : Optional.empty();
+  }
+
+  /**
+   * Returns whether or not an application is eligible for a program. This uses the answers at the
+   * time of the application rather than the applicant's latest answer to a question. Returns empty
+   * if there are no eligibility conditions for the program.
+   */
+  public Optional<Boolean> getApplicationEligibilityStatus(
+      Application application, ProgramDefinition programDefinition) {
+    ReadOnlyApplicantProgramService roAppProgramService =
+        getReadOnlyApplicantProgramService(application, programDefinition);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
@@ -909,8 +923,7 @@ public final class ApplicantService {
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.DRAFT));
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligibilityStatus(
-                    draftApp.getApplicant().getApplicantData(), programDefinition));
+                getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
             } else {
@@ -966,7 +979,7 @@ public final class ApplicantService {
           if (!mostRecentApplicationsByProgram.isEmpty()) {
             Applicant applicant = applications.stream().findFirst().get().getApplicant();
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getOptionalEligibilityStatus(applicant.getApplicantData(), program));
+                getApplicantMayBeEligibleStatus(applicant, program));
           }
 
           if (program.isCommonIntakeForm()) {

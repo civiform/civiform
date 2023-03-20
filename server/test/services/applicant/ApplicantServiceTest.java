@@ -2842,4 +2842,105 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Assert
     assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
   }
+
+  @Test
+  public void getApplicantMayBeEligibleStatus() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Applicant's answer is ineligible.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    applicant = userRepository.lookupApplicantSync(applicant.id).get();
+
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
+        .isFalse();
+
+    // Applicant' answer gets changed to an eligible answer.
+    questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    applicant = userRepository.lookupApplicantSync(applicant.id).get();
+
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
+        .isTrue();
+  }
+
+  @Test
+  public void getApplicationEligibilityStatus() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Application is submitted with an ineligible answer.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    Application ineligibleApplication =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Application is re-submitted with eligible answers.
+    questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    Application eligibleApplication =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // First application still evaluates to ineligible.
+    assertThat(
+            subject.getApplicationEligibilityStatus(ineligibleApplication, programDefinition).get())
+        .isFalse();
+    // Re-submission evaluates to eligible.
+    assertThat(
+            subject.getApplicationEligibilityStatus(eligibleApplication, programDefinition).get())
+        .isTrue();
+  }
 }
