@@ -576,8 +576,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (nextBlockIdMaybe.isEmpty()) {
       return supplyAsync(
           () ->
-              redirect(routes.ApplicantProgramReviewController.review(applicantId, programId))
-                  .flashing(flashingMap));
+              redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
     }
 
     if (inReview) {
