@@ -1012,6 +1012,8 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
       await applicantQuestions.clickNext()
+      await validateScreenshot(page, 'toast-message-may-qualify')
+      await validateToastMessage(page, 'may qualify')
 
       // "blue" or "green" are allowed.
       await applicantQuestions.answerTextQuestion('red')
@@ -1022,6 +1024,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // 42 is allowed.
       await applicantQuestions.answerNumberQuestion('1')
@@ -1032,6 +1035,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // 123 or 456 are allowed.
       await applicantQuestions.answerNumberQuestion('11111')
@@ -1042,10 +1046,10 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       await applicantQuestions.clickReview()
       await validateScreenshot(page, 'review-page-no-ineligible-banner')
-      // There should be no toast in this case
       await validateToastMessage(page, '')
       await applicantQuestions.clickContinue()
 
@@ -1060,6 +1064,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // Earlier than 2021-01-01 is allowed
       await applicantQuestions.answerDateQuestion('2021-01-01')
@@ -1070,6 +1075,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2020-12-31')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // On or later than 2023-01-01 is allowed
       await applicantQuestions.answerDateQuestion('2022-12-31')
@@ -1080,6 +1086,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2023-01-01')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // Age greater than 90 is allowed
       await applicantQuestions.answerDateQuestion('2022-12-31')
@@ -1135,7 +1142,9 @@ describe('create and edit predicates', () => {
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
 
-      // We should now be on the summary page
+      // We should now be on the summary page and no banner should show.
+      await validateScreenshot(page, 'summary-page-no-eligible-banner')
+      await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
     })
   })
