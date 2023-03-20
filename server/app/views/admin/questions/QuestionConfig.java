@@ -70,6 +70,8 @@ public final class QuestionConfig {
       case TEXT:
         return Optional.of(
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
+      case PHONE:
+        return Optional.of(config.addPhoneConfig().getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
@@ -85,6 +87,11 @@ public final class QuestionConfig {
       default:
         return Optional.empty();
     }
+  }
+
+  private QuestionConfig addPhoneConfig() {
+    content.with(new DivTag().withText("This supports only US and CA phone numbers. If you need other international numbers, Please use Text type questions"));
+    return this;
   }
 
   private QuestionConfig addAddressQuestionConfig(AddressQuestionForm addressQuestionForm) {

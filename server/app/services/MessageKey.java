@@ -104,6 +104,12 @@ public enum MessageKey {
   NAME_VALIDATION_LAST_REQUIRED("validation.lastNameRequired"),
   PHONE_VALIDATION_NUMBER_REQUIRED("validation.phoneNumberRequired"),
   PHONE_VALIDATION_COUNTRY_CODE_REQUIRED("validation.phoneCountryCodeRequired"),
+  PHONE_VALIDATION_NON_NUMBER_VALUE("validation.phoneNumberMustContainNumbersOnly"),
+  PHONE_VALIDATION_INVALID_PHONE_NUMBER("validation.invalidPhoneNumberProvided"),
+  PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY("validation.phoneMustBeLocalToCountry"),
+  PHONE_LABEL_COUNTRY_CODE("label.countryCode"),
+  PHONE_LABEL_PHONE_NUMBER("label.phoneNumber"),
+
   NUMBER_VALIDATION_TOO_BIG("validation.numberTooBig"),
   NUMBER_VALIDATION_TOO_SMALL("validation.numberTooSmall"),
   NUMBER_VALIDATION_NON_INTEGER("validation.numberNonInteger"),

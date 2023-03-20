@@ -65,6 +65,8 @@ public final class ApplicantQuestionRendererFactory {
         return new StaticContentQuestionRenderer(question);
       case TEXT:
         return new TextQuestionRenderer(question);
+      case PHONE:
+        return new PhoneQuestionRenderer(question);
       default:
         throw new UnsupportedOperationException(
             "Unrecognized question type: " + question.getType());

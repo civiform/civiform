@@ -112,6 +112,7 @@ public final class QuestionTranslationView extends TranslationFormView {
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
+      case PHONE:
       default:
         return Optional.empty();
     }

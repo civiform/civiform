@@ -4,11 +4,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
+
+import com.google.i18n.phonenumbers.Phonenumber;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionType;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import views.applicant.ApplicantLayout;
 
 
 /**
@@ -20,6 +27,8 @@ public final class PhoneQuestion extends Question {
 
   private Optional<String> phoneNumberValue;
   private Optional<String> countryCodeValue;
+  private static final Logger logger = LoggerFactory.getLogger(PhoneQuestion.class);
+
 
   PhoneQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -47,6 +56,28 @@ public final class PhoneQuestion extends Question {
     if (getPhoneNumberValue().isEmpty()) {
       return ImmutableSet.of(
           ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_REQUIRED));
+    }
+    if(getCountryCodeValue().isEmpty()){
+      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED));
+    }
+    PhoneNumberUtil util = PhoneNumberUtil.getInstance();
+    try{
+      Phonenumber.PhoneNumber phonenumber = util.parse(getPhoneNumberValue().get(),getCountryCodeValue().get());
+      if(!util.isValidNumber(phonenumber))
+      {
+        return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_INVALID_PHONE_NUMBER));
+      }
+      if(!util.isValidNumberForRegion(phonenumber,getCountryCodeValue().get()))
+      {
+        return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY));
+      }
+    }
+    catch (NumberParseException e)
+    {
+      return ImmutableSet.of(
+        ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NON_NUMBER_VALUE));
     }
 
     return ImmutableSet.of();
@@ -93,6 +124,14 @@ public final class PhoneQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getPhoneNumberValue().orElse("") + getCountryCodeValue().orElse("");
+    PhoneNumberUtil util = PhoneNumberUtil.getInstance();
+    try{
+      return util.parse(getPhoneNumberValue().orElse(""),getCountryCodeValue().orElse("")).toString();
+    }
+    catch (NumberParseException e)
+    {
+      logger.error("Unable to retrieve or parse phone number "+ getPhoneNumberValue().orElse("") + "for country_code " + getCountryCodeValue().orElse(""));
+    }
+    return "-";
   }
 }

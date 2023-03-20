@@ -91,6 +91,8 @@ lazy val root = (project in file("."))
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
+      // Phone number formatting and validation dependency
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.4",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.2",
@@ -103,9 +105,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.5",
-      // Phone number formatting and validation dependency
-     "com.googlecode.libphonenumber" % "libphonenumber" % "3.1"
+      "ch.qos.logback" % "logback-classic" % "1.4.5"
 
     ),
     javacOptions ++= Seq(
