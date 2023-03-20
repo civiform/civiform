@@ -54,6 +54,6 @@ public final class FeatureFlagOverrideController extends Controller {
   /** Returns the status of a feature flag. */
   public Result status(Request request, String FlagName) {
     return ok(
-        featureFlags.getFlagEnabled(request, FeatureFlag.getBySymbol(FlagName)) ? "true" : "false");
+        featureFlags.getFlagEnabled(request, FeatureFlag.getByName(FlagName)) ? "true" : "false");
   }
 }

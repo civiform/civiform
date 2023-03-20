@@ -87,11 +87,11 @@ public class FeatureFlagView extends BaseHtmlView {
       Tag flagFlipLink =
           sessionValue
               ? a().withHref(
-                      routes.FeatureFlagOverrideController.disable(flagEntry.getKey().getSymbol())
+                      routes.FeatureFlagOverrideController.disable(flagEntry.getKey().toString())
                           .url())
                   .withText("disable")
               : a().withHref(
-                      routes.FeatureFlagOverrideController.enable(flagEntry.getKey().getSymbol())
+                      routes.FeatureFlagOverrideController.enable(flagEntry.getKey().toString())
                           .url())
                   .withText("enable");
       flagFlipLink.withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
@@ -107,7 +107,7 @@ public class FeatureFlagView extends BaseHtmlView {
 
       flagTable.with(
           tr().with(
-                  configureCell(td(flagEntry.getKey().getSymbol())),
+                  configureCell(td(flagEntry.getKey().toString())),
                   configureCell(td(configValue.toString())),
                   // If the session value is different highlight that.
                   td(sessionDisplay).withClasses(BaseStyles.TABLE_CELL_STYLES, "font-bold"),

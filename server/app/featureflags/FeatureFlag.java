@@ -1,58 +1,52 @@
 package featureflags;
 
-import com.google.common.base.CaseFormat;
-
+/**
+ * An enum to represent feature flags used in CiviForm.
+ *
+ * <p>Never use the name() method outside this class.
+ *
+ * <p>The built-in Enum name() method returns the exact enum name the enum is defined as in
+ * UPPER_CAMEL_CASE. Therefore, it is imperative that we use the overriden toString() method to
+ * ensure that the lower_camel_case version of the flag is returned.
+ *
+ * <p>For example, a FeatureFlag with value MY_FLAG will appear in configuration as "my_flag".
+ */
 public enum FeatureFlag {
   // Main control for any feature flags working.
-  FEATURE_FLAG_OVERRIDES_ENABLED("feature_flag_overrides_enabled"),
+  FEATURE_FLAG_OVERRIDES_ENABLED,
 
   // Long lived feature flags.
-  ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS("allow_civiform_admin_access_programs"),
-  ADMIN_REPORTING_UI_ENABLED("admin_reporting_ui_enabled"),
-  SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE("show_civiform_image_tag_on_landing_page"),
+  ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
+  ADMIN_REPORTING_UI_ENABLED,
+  SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE,
 
   // Launch Flags, these will eventually be removed.
-  PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED("program_eligibility_conditions_enabled"),
-  PROGRAM_READ_ONLY_VIEW_ENABLED("program_read_only_view_enabled"),
+  PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
+  PROGRAM_READ_ONLY_VIEW_ENABLED,
 
   // Address correction and verifcation flags
-  ESRI_ADDRESS_CORRECTION_ENABLED("esri_address_correction_enabled"),
-  ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED("esri_address_service_area_validation_enabled"),
+  ESRI_ADDRESS_CORRECTION_ENABLED,
+  ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED,
 
   // Common Intake Form flags.
-  INTAKE_FORM_ENABLED("intake_form_enabled"),
-  NONGATED_ELIGIBILITY_ENABLED("nongated_eligibility_enabled"),
+  INTAKE_FORM_ENABLED,
+  NONGATED_ELIGIBILITY_ENABLED,
 
   // Phone number question type.
-  PHONE_QUESTION_TYPE_ENABLED("phone_question_type_enabled");
+  PHONE_QUESTION_TYPE_ENABLED;
 
-  private final String symbol;
-
-  FeatureFlag(String symbol) {
-    if (!symbolValid(symbol)) {
-      throw new RuntimeException(
-          "Symbol must be the lower_underscore version of its UPPER_UNDERSCORE enum name.");
-    }
-
-    this.symbol = symbol;
-  }
-
-  private boolean symbolValid(String symbolParam) {
-    String upperUnderscoreName =
-        CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_UNDERSCORE, name());
-    return symbolParam.equals(upperUnderscoreName);
-  }
-
-  public String getSymbol() {
-    return symbol;
-  }
-
-  public static FeatureFlag getBySymbol(String symbol) {
+  public static FeatureFlag getByName(String name) {
     for (FeatureFlag flag : values()) {
-      if (symbol.equals(flag.getSymbol())) {
+      if (name.equalsIgnoreCase(flag.name())) {
         return flag;
       }
     }
     throw new RuntimeException("No flag found");
+  }
+
+  /** Returns a configuration-friendly version of the flag value in lower_camel_case. */
+  @Override
+  public String toString() {
+    return name().toLowerCase();
   }
 }

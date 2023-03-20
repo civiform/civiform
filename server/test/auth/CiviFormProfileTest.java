@@ -129,7 +129,7 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
     ImmutableMap<String, String> civiformAdminAllowedMap =
-        ImmutableMap.of(FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS.getSymbol(), "true");
+        ImmutableMap.of(FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS.toString(), "true");
     Request civiformAdminAllowedRequest = fakeRequest().session(civiformAdminAllowedMap).build();
 
     assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())

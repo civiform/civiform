@@ -14,24 +14,24 @@ import org.junit.Test;
 public class FeatureFlagsTest {
   private static final Config overridesEnabledConfig =
       ConfigFactory.parseMap(
-          ImmutableMap.of(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.getSymbol(), "true"));
+          ImmutableMap.of(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString(), "true"));
 
   private static final Map<String, String> allFeaturesDisabledMap =
       Arrays.stream(FeatureFlag.values())
           .filter(
               flag ->
-                  !flag.getSymbol().equals(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.getSymbol()))
-          .collect(Collectors.toMap(FeatureFlag::getSymbol, unused -> "false"));
+                  !flag.toString().equals(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString()))
+          .collect(Collectors.toMap(flag -> flag.toString(), unused -> "false"));
 
   private static final Map<String, String> allFeaturesEnabledMap =
       Arrays.stream(FeatureFlag.values())
           .filter(
               flag ->
-                  !flag.getSymbol().equals(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.getSymbol()))
-          .collect(Collectors.toMap(FeatureFlag::getSymbol, unused -> "true"));
+                  !flag.toString().equals(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString()))
+          .collect(Collectors.toMap(flag -> flag.toString(), unused -> "true"));
   private static final Map<String, String> allFeaturesAndOverridesEnabledMap =
       Arrays.stream(FeatureFlag.values())
-          .collect(Collectors.toMap(FeatureFlag::getSymbol, unused -> "true"));
+          .collect(Collectors.toMap(flag -> flag.toString(), unused -> "true"));
 
   @Test
   public void isEnabled_withNoConfig_withNoOverride_isNotEnabled() {

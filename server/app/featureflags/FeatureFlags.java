@@ -38,8 +38,8 @@ public final class FeatureFlags {
   }
 
   public boolean areOverridesEnabled() {
-    return config.hasPath(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.getSymbol())
-        && config.getBoolean(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.getSymbol());
+    return config.hasPath(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString())
+        && config.getBoolean(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString());
   }
 
   /**
@@ -55,13 +55,13 @@ public final class FeatureFlags {
   /** If the Eligibility Conditions feature is enabled in the system configuration. */
   // TODO(#4437): remove and have clients call getFlagEnabled directly.
   public boolean isProgramEligibilityConditionsEnabled() {
-    return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED.getSymbol());
+    return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED.toString());
   }
 
   /** If the reporting view in the admin UI is enabled */
   // TODO(#4437): remove and have clients call getFlagEnabled directly.
   public boolean isAdminReportingUiEnabled() {
-    return config.getBoolean(ADMIN_REPORTING_UI_ENABLED.getSymbol());
+    return config.getBoolean(ADMIN_REPORTING_UI_ENABLED.toString());
   }
 
   // TODO(#4437): remove and have clients call getFlagEnabled directly.
@@ -83,7 +83,7 @@ public final class FeatureFlags {
   // only way to view a program is to start editing it.
   // TODO(#4437): remove and have clients call getFlagEnabled directly.
   public boolean isReadOnlyProgramViewEnabled() {
-    return config.getBoolean(PROGRAM_READ_ONLY_VIEW_ENABLED.getSymbol());
+    return config.getBoolean(PROGRAM_READ_ONLY_VIEW_ENABLED.toString());
   }
 
   // TODO(#4437): remove and have clients call getFlagEnabled directly.
@@ -117,7 +117,7 @@ public final class FeatureFlags {
   }
 
   public Map<FeatureFlag, Boolean> getAllFlagsSorted(Request request) {
-    Map<FeatureFlag, Boolean> map = new TreeMap<>(Comparator.comparing(FeatureFlag::getSymbol));
+    Map<FeatureFlag, Boolean> map = new TreeMap<>(Comparator.comparing(FeatureFlag::toString));
 
     for (FeatureFlag flag : FeatureFlag.values()) {
       map.put(flag, getFlagEnabled(request, flag));
@@ -144,10 +144,9 @@ public final class FeatureFlags {
     }
 
     Optional<Boolean> sessionValue =
-        request.session().get(flag.getSymbol()).map(Boolean::parseBoolean);
+        request.session().get(flag.toString()).map(Boolean::parseBoolean);
     if (sessionValue.isPresent()) {
-      logger.warn(
-          "Returning override ({}) for feature flag: {}", sessionValue.get(), flag.getSymbol());
+      logger.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), flag);
       return sessionValue.get();
     }
     return configValue;
@@ -155,10 +154,10 @@ public final class FeatureFlags {
 
   /** Returns the current setting for {@code flag} from {@link Config} if present. */
   public Optional<Boolean> getFlagEnabledFromConfig(FeatureFlag flag) {
-    if (!config.hasPath(flag.getSymbol())) {
-      logger.warn("Feature flag requested for unconfigured flag: {}", flag.getSymbol());
+    if (!config.hasPath(flag.toString())) {
+      logger.warn("Feature flag requested for unconfigured flag: {}", flag);
       return Optional.empty();
     }
-    return Optional.of(config.getBoolean(flag.getSymbol()));
+    return Optional.of(config.getBoolean(flag.toString()));
   }
 }
