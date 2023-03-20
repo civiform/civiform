@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
-import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +23,6 @@ import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
-import services.geo.esri.FakeEsriClient;
 
 /** Contains methods for resolving {@link ServiceAreaUpdate}s to update applicant data. */
 final class ServiceAreaUpdateResolver {
@@ -35,16 +32,10 @@ final class ServiceAreaUpdateResolver {
 
   @Inject
   public ServiceAreaUpdateResolver(
-      Config configuration,
       EsriClient esriClient,
-      FakeEsriClient fakeEsriClient,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       HttpExecutionContext httpExecutionContext) {
-    String baseUrl = checkNotNull(configuration).getString("base_url");
-    this.esriClient =
-        checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost())
-            ? fakeEsriClient
-            : checkNotNull(esriClient);
+    this.esriClient = checkNotNull(esriClient);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }

@@ -33,44 +33,44 @@ import services.geo.AddressSuggestionGroup;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
 
-public class EsriClientTest {
+public class RealEsriClientTest {
   private Config config;
   EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private EsriServiceAreaValidationOption esriServiceAreaValidationOption;
   private AddressLocation location;
   private Server server;
   private WSClient ws;
-  private EsriClient client;
+  private RealEsriClient client;
 
   // setup for no canidates in response
   private Server serverNoCandidates;
   private WSClient wsNoCandidates;
-  private EsriClient clientNoCandidates;
+  private RealEsriClient clientNoCandidates;
 
   // setup for internal server error returned from response
   private Server serverError;
   private WSClient wsError;
-  private EsriClient clientError;
+  private RealEsriClient clientError;
 
   // setup for service area validation
   private Server serverValidation;
   private WSClient wsValidation;
-  private EsriClient clientValidation;
+  private RealEsriClient clientValidation;
 
   // setup for service area validation with error returned from response
   private Server serverValidationError;
   private WSClient wsValidationError;
-  private EsriClient clientValidationError;
+  private RealEsriClient clientValidationError;
 
   // setup for service area validation with service area not in response features
   private Server serverValidationNotIncluded;
   private WSClient wsValidationNotIncluded;
-  private EsriClient clientValidationNotIncluded;
+  private RealEsriClient clientValidationNotIncluded;
 
   // setup for service area validation with no features in response
   private Server serverValidationNoFeatures;
   private WSClient wsValidationNoFeatures;
-  private EsriClient clientValidationNoFeatures;
+  private RealEsriClient clientValidationNoFeatures;
 
   @Before
   // setup Servers to return mock data from JSON files
@@ -100,7 +100,7 @@ public class EsriClientTest {
                     .routingTo(request -> ok().sendResource("esri/findAddressCandidates.json"))
                     .build());
     ws = play.test.WSTestClient.newClient(server.httpPort());
-    client = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
+    client = new RealEsriClient(config, clock, esriServiceAreaValidationConfig, ws);
     // overwrite to not include base URL so it uses the mock service
     client.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -116,7 +116,7 @@ public class EsriClientTest {
     wsNoCandidates = play.test.WSTestClient.newClient(serverNoCandidates.httpPort());
 
     clientNoCandidates =
-        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsNoCandidates);
+        new RealEsriClient(config, clock, esriServiceAreaValidationConfig, wsNoCandidates);
     // overwrite to not include base URL so it uses the mock service
     clientNoCandidates.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -131,7 +131,7 @@ public class EsriClientTest {
                     .build());
     wsError = play.test.WSTestClient.newClient(serverError.httpPort());
 
-    clientError = new EsriClient(config, clock, esriServiceAreaValidationConfig, wsError);
+    clientError = new RealEsriClient(config, clock, esriServiceAreaValidationConfig, wsError);
     // overwrite to not include base URL so it uses the mock service
     clientError.ESRI_FIND_ADDRESS_CANDIDATES_URL = Optional.of("/findAddressCandidates");
 
@@ -145,7 +145,8 @@ public class EsriClientTest {
                     .build());
     wsValidation = play.test.WSTestClient.newClient(serverValidation.httpPort());
 
-    clientValidation = new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidation);
+    clientValidation =
+        new RealEsriClient(config, clock, esriServiceAreaValidationConfig, wsValidation);
 
     // create a server for service area validation with error returned
     serverValidationError =
@@ -159,7 +160,7 @@ public class EsriClientTest {
     wsValidationError = play.test.WSTestClient.newClient(serverValidationError.httpPort());
 
     clientValidationError =
-        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationError);
+        new RealEsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationError);
 
     // create a server for service area validation with service area not in response
     serverValidationNotIncluded =
@@ -174,7 +175,7 @@ public class EsriClientTest {
         play.test.WSTestClient.newClient(serverValidationNotIncluded.httpPort());
 
     clientValidationNotIncluded =
-        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationNotIncluded);
+        new RealEsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationNotIncluded);
 
     // create a server for service area validation with no features in response
     serverValidationNoFeatures =
@@ -189,7 +190,7 @@ public class EsriClientTest {
         play.test.WSTestClient.newClient(serverValidationNoFeatures.httpPort());
 
     clientValidationNoFeatures =
-        new EsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationNoFeatures);
+        new RealEsriClient(config, clock, esriServiceAreaValidationConfig, wsValidationNoFeatures);
   }
 
   @After
@@ -263,7 +264,7 @@ public class EsriClientTest {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
-    assertEquals("380 New York St", street);
+    assertEquals("Address In Area", street);
   }
 
   @Test

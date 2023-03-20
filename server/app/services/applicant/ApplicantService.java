@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import java.net.URI;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -69,7 +68,6 @@ import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
 import services.geo.esri.EsriClientRequestException;
-import services.geo.esri.FakeEsriClient;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -122,8 +120,7 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      FakeEsriClient fakeEsriClient,
-			MessagesApi messagesApi) {
+      MessagesApi messagesApi) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -144,11 +141,7 @@ public final class ApplicantService {
         checkNotNull(configuration).getString("staging_ti_notification_mailing_list");
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
-
-    this.esriClient =
-        checkNotNull(fakeEsriClient).canEnable(URI.create(baseUrl).getHost())
-            ? fakeEsriClient
-            : checkNotNull(esriClient);
+    this.esriClient = checkNotNull(esriClient);
   }
 
   /** Create a new {@link Applicant}. */

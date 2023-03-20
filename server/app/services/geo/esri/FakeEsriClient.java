@@ -2,8 +2,6 @@ package services.geo.esri;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,7 +13,6 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
-import play.libs.ws.WSClient;
 import services.AddressField;
 import services.geo.AddressLocation;
 
@@ -30,24 +27,30 @@ public class FakeEsriClient extends EsriClient {
   private JsonNode serviceAreaFeatures;
   private JsonNode serviceAreaNoFeatures;
   private JsonNode serviceAreaNotInArea;
-  private final ImmutableSet<String> acceptedHosts;
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public FakeEsriClient(
-      Config configuration,
-      Clock clock,
-      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      WSClient ws) {
-    super(configuration, clock, esriServiceAreaValidationConfig, ws);
-    acceptedHosts = ImmutableSet.of("localhost", "civiform");
+      Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+    super(clock, esriServiceAreaValidationConfig);
   }
 
-  public boolean canEnable(String host) {
-    return acceptedHosts.stream()
-        .anyMatch(acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
-  }
-
+  /**
+   * Returns address suggestions based on the provided address json.
+   *
+   * <p>The address key in the provided address json is used to determine which suggestions to
+   * return. The other fields do not matter.
+   *
+   * <ul>
+   *   <li>"Legit Address" – this value will provide three suggestions for tesing service area
+   *       validation: "Address In Area", "Address With No Service Area Features" and "Address Not
+   *       In Area"
+   *   <li>"Bogus Address" – use this value for testing address that won't return any suggestions
+   *   <li>"Error Address" – use this value to test what would happen if the external Esri service
+   *       were to return a non 200 status. The end result is the same as "Bogus Address"
+   *   <li>any other address will have the same effect as Bogus and Error
+   * </ul>
+   */
   @Override
   CompletionStage<Optional<JsonNode>> fetchAddressSuggestions(ObjectNode addressJson) {
     String address = addressJson.findPath(AddressField.STREET.getValue()).textValue();
@@ -99,7 +102,7 @@ public class FakeEsriClient extends EsriClient {
     Optional<JsonNode> maybeJson = Optional.empty();
     File resource;
     FileInputStream inputStream;
-    System.out.println("latitude = " + latitude);
+
     switch (latitude) {
       case "100.0":
         if (serviceAreaFeatures != null) {

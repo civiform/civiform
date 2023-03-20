@@ -10,25 +10,18 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.io.IOException;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
-import play.libs.ws.WSClient;
-import play.routing.RoutingDsl;
-import play.server.Server;
 import services.geo.AddressLocation;
 
 public class FakeEsriClientTest {
   private Config config;
   private EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-  private Server server;
-  private WSClient ws;
   private FakeEsriClient client;
 
   @Before
@@ -37,29 +30,7 @@ public class FakeEsriClientTest {
     Clock clock = Clock.system(ZoneId.of("America/Los_Angeles"));
     config = ConfigFactory.load();
     esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(config);
-    server = Server.forRouter((components) -> RoutingDsl.fromComponents(components).build());
-    ws = play.test.WSTestClient.newClient(server.httpPort());
-    client = new FakeEsriClient(config, clock, esriServiceAreaValidationConfig, ws);
-  }
-
-  @After
-  public void tearDown() throws IOException {
-    try {
-      ws.close();
-    } finally {
-      server.stop();
-    }
-  }
-
-  @Test
-  public void canEnableTrue() {
-    assertEquals(true, client.canEnable("localhost:9000"));
-    assertEquals(true, client.canEnable("civiform:9000"));
-  }
-
-  @Test
-  public void canEnableFalse() {
-    assertEquals(false, client.canEnable("civiformstage.seattle.gov"));
+    client = new FakeEsriClient(clock, esriServiceAreaValidationConfig);
   }
 
   @Test
