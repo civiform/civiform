@@ -120,12 +120,16 @@ link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=አመልክት
+
 # The text read for screen readers.
 button.applySr=ወደ {0} አመልክት
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=አርትዕ
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=ወደ {0} ማመልከትን ቀጥል
 
@@ -143,11 +147,15 @@ content.description2=ከታች ማመልከቻ በመምረጥ ይጀምሩ።
 
 # Link text to read more about a program.
 link.programDetails=የፕሮግራም ዝርዝሮች
+
 # The same text, read for screen readers.
 link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
 
 # The title of the page for the list of programs.
 title.programs=ፕሮግራሞች እና አገልግሎቶች
+
+# For the badge on the program list index denoting the current status of an application
+title.status=ሁኔታ
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=በሂደት ላይ
@@ -189,6 +197,10 @@ link.answer=መልስ
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=እዚህ ይጀምሩ። {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -434,5 +446,26 @@ adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባ�
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
-error.notFoundDescription=«እባክዎ ወደኋላ ይሂዱ ወይም ይመለሱ ወደ »
+error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።

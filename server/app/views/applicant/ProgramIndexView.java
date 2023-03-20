@@ -349,7 +349,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
-              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+              messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
     if (shouldShowEligibilityTag(request, cardData)) {
       programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
@@ -431,11 +431,26 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private PTag programCardApplicationStatus(
-      Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses("border", "rounded-lg", "px-2", "py-1", "mb-4", "bg-blue-100")
+      Messages messages, Locale preferredLocale, StatusDefinitions.Status status) {
+    return p().withClasses(
+            "border",
+            "rounded-full",
+            "px-2",
+            "py-1",
+            "mb-4",
+            "gap-x-2",
+            "inline-block",
+            "w-auto",
+            "bg-blue-100")
         .with(
-            span(status.localizedStatusText().getOrDefault(preferredLocale))
-                .withClasses("text-xs", "font-medium"));
+            Icons.svg(Icons.INFO)
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_SEATTLE_BLUE),
+            span(String.format(
+                    "%s: %s",
+                    messages.at(MessageKey.TITLE_STATUS.getKeyName()),
+                    status.localizedStatusText().getOrDefault(preferredLocale)))
+                .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_SEATTLE_BLUE));
   }
 
   private PTag eligibilityTag(Http.Request request, Messages messages, boolean isEligible) {
@@ -447,6 +462,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
     Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
     String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
+    String textColor = isEligible ? BaseStyles.TEXT_CIVIFORM_GREEN : "text-black";
     String tagClass =
         isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
     String tagText =
@@ -464,10 +480,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             color)
         .with(
             Icons.svg(icon)
-                .withClasses("inline-block")
-                // Can't set 18px using Tailwind CSS classes.
-                .withStyle("width: 18px; height: 18px;"),
-            span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium"));
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
+            span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium", textColor));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {

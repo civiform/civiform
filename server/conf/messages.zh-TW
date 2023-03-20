@@ -120,12 +120,16 @@ link.createAccountOrSignIn=建立或登入帳戶
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=申請
+
 # The text read for screen readers.
 button.applySr=申請「{0}」
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=編輯
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=編輯已提交的「{0}」申請資料
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=繼續申請「{0}」
 
@@ -143,11 +147,15 @@ content.description2=首先是在下方選擇申請項目。
 
 # Link text to read more about a program.
 link.programDetails=計畫詳情
+
 # The same text, read for screen readers.
 link.programDetailsSr=「{0}」計畫詳情
 
 # The title of the page for the list of programs.
 title.programs=計畫與服務
+
+# For the badge on the program list index denoting the current status of an application
+title.status=狀態
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=進行中
@@ -189,6 +197,10 @@ link.answer=回答問題
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=已於 {0}回答
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=從這裡開始作答。{0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -434,5 +446,26 @@ adminValidation.multiOptionEmpty=多選題不得留空。
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=我們找不到你嘗試前往的頁面
-error.notFoundDescription='請返回上一頁或'
+error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=前往 {0} 登入 CiviForm
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=我們已收到您的「{0}」計畫申請書。您的申請者 ID 為 {1}，申請 ID 為 {2}
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=您已代替申請者「{1}」提交「{0}」計畫的申請書
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=我們已收到您代替申請者「{1}」提交的「{0}」計畫申請書，申請 ID 為 {2}。
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=如要管理您的客戶，請前往 {0}。

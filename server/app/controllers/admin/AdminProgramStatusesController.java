@@ -74,6 +74,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = service.getProgramDefinition(programId);
     int previousStatusCount = program.statusDefinitions().getStatuses().size();
+    Optional<StatusDefinitions.Status> previousDefaultStatus =
+        program.toProgram().getDefaultStatus();
 
     Form<ProgramStatusesForm> form =
         formFactory
@@ -86,9 +88,28 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // form values.
       return ok(statusesView.render(request, program, Optional.of(form)));
     }
+    // Because we need to look directly at the value sent (or absent) in the form data
+    // itself to determine if a checkbox is checked, we need to calculate this here
+    // before passing the value into createOrEditStatusFromFormData. If the checkbox
+    // is not checked, no value is sent. If it is checked, "on" is sent for the value.
+    Optional<String> maybeSetDefault =
+        Optional.ofNullable(form.rawData().get(ProgramStatusesForm.DEFAULT_CHECKBOX_NAME));
+    final boolean setDefault;
+    if (maybeSetDefault.map(String::isBlank).orElse(true)) {
+      // Empty (box was not checked) or blank
+      setDefault = false;
+    } else if (maybeSetDefault.get().equals("on")) {
+      setDefault = true;
+    } else {
+      return badRequest(
+          String.format(
+              "%s value is invalid: %s",
+              ProgramStatusesForm.DEFAULT_CHECKBOX_NAME, maybeSetDefault.get()));
+    }
+
     final ErrorAnd<ProgramDefinition, CiviFormError> mutateResult;
     try {
-      mutateResult = createOrEditStatusFromFormData(program, form.get());
+      mutateResult = createOrEditStatusFromFormData(program, form.get(), setDefault);
     } catch (DuplicateStatusException e) {
       // Redirecting to the index view would re-render the statuses and lose
       // any form values / errors. Instead, re-render the view at this URL
@@ -103,11 +124,20 @@ public final class AdminProgramStatusesController extends CiviFormController {
     }
     boolean isUpdate =
         previousStatusCount == mutateResult.getResult().statusDefinitions().getStatuses().size();
-    return redirect(indexUrl).flashing("success", isUpdate ? "Status updated" : "Status created");
+    String toastMessage = isUpdate ? "Status updated" : "Status created";
+    final ProgramStatusesForm programStatusesForm = form.get();
+    if (setDefault
+        && previousDefaultStatus
+            .map(status -> !status.matches(programStatusesForm.getConfiguredStatusText()))
+            .orElse(true)) {
+      toastMessage =
+          programStatusesForm.getStatusText() + " has been updated to the default status";
+    }
+    return redirect(indexUrl).flashing("success", toastMessage);
   }
 
   private ErrorAnd<ProgramDefinition, CiviFormError> createOrEditStatusFromFormData(
-      ProgramDefinition program, ProgramStatusesForm formData)
+      ProgramDefinition program, ProgramStatusesForm formData, boolean setDefault)
       throws ProgramNotFoundException, DuplicateStatusException {
     // An empty "configuredStatusText" parameter indicates that a new
     // status should be created.
@@ -115,7 +145,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
       StatusDefinitions.Status.Builder newStatusBuilder =
           StatusDefinitions.Status.builder()
               .setStatusText(formData.getStatusText())
-              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(formData.getStatusText()));
+              .setLocalizedStatusText(LocalizedStrings.withDefaultValue(formData.getStatusText()))
+              .setDefaultStatus(Optional.of(setDefault));
       if (!formData.getEmailBody().isBlank()) {
         newStatusBuilder =
             newStatusBuilder.setLocalizedEmailBodyText(
@@ -123,6 +154,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       }
       return service.appendStatus(program.id(), newStatusBuilder.build());
     }
+
     return service.editStatus(
         program.id(),
         formData.getConfiguredStatusText(),
@@ -134,7 +166,8 @@ public final class AdminProgramStatusesController extends CiviFormController {
                       existingStatus
                           .localizedStatusText()
                           .updateTranslation(
-                              LocalizedStrings.DEFAULT_LOCALE, formData.getStatusText()));
+                              LocalizedStrings.DEFAULT_LOCALE, formData.getStatusText()))
+                  .setDefaultStatus(Optional.of(setDefault));
           if (!formData.getEmailBody().isBlank()) {
             // Only carry forward translated content if a non-empty email body
             // has been provided. Any other translations will be lost when

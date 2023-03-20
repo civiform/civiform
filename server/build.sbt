@@ -33,8 +33,8 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.24",
-      "software.amazon.awssdk" % "ses" % "2.20.24",
+      "software.amazon.awssdk" % "s3" % "2.20.26",
+      "software.amazon.awssdk" % "ses" % "2.20.26",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.8.1",
@@ -103,7 +103,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.5"
+      "ch.qos.logback" % "logback-classic" % "1.4.6"
     ),
     javacOptions ++= Seq(
       "-encoding",

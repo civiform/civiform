@@ -125,12 +125,16 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+
 # The text read for screen readers.
 button.applySr=Apply to {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Edit submitted application to {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
 
@@ -148,11 +152,15 @@ content.description2=Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
 # The title of the page for the list of programs.
 title.programs=Programs & services
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
@@ -162,6 +170,9 @@ title.activeProgramsUpdated=Not started
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
+
+# Badge on an application that has a status assigned to it
+title.status=Status
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
@@ -443,5 +454,35 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=We were unable to find the page you tried to visit
-error.notFoundDescription='Please go back or return to the '
+error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Log in to Civiform at {0}
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Your application to program {0} is received
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Manage your clients at {0}.
+
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=An update on your application {0}
+
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=An update on the application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has changed to {2}.

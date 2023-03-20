@@ -34,6 +34,12 @@ validation.isRequired=Su''aashan ayaa loo baahan yahay.
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
+
 # Message displayed below "Choose File" button to say that on the phone users can use their camera.
 content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 
@@ -63,6 +69,9 @@ button.createAccount=Akoon samayso
 # The text on the button for guests to log in to their session.
 button.guestLogin=Ku sii wad marti ahaan
 
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=Gelitaanka koontada hadda waa la xidhay
+
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Wax kale miyaad raadinaysay?
 
@@ -72,6 +81,9 @@ link.adminLogin=Admin login
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
 #--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
+input.fileAlreadyUploaded=Faylka la soo geliyay: {0}
 
 # The text on the button an applicant clicks to delete an uploaded file.
 button.deleteFile=Tirtir
@@ -109,8 +121,21 @@ link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Codso
+
 # The text read for screen readers.
 button.applySr=Ka Codso {0}
+
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=Tifatir
+
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
+
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=U sii wad codsiga ila {0}
+
+# Text describing the date the application was last submitted.
+content.submittedDate=La gudbiyay {0}
 
 # "Get benefits" floating text
 content.benefits=Hel faa''iidooyin
@@ -132,6 +157,18 @@ title.programs=Barnaamijyada iyo adeegyada
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Heerka
+
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=Socda hadda
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=Lama bilaabin
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=La gudbiyay
 
 # A toast message that displays when an applicant tries to apply to a previously completed program.
 toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
@@ -161,6 +198,10 @@ link.answer=Jawaab
 
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Halkan ka bilow. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -246,8 +287,6 @@ title.createAnAccount=Akoon samee ama gal oo sign in garee
 
 # A message urging users to create an account to save their data.
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
-
-
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -407,3 +446,31 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
+error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
+error.notFoundDescriptionLink=bogga internatka
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Codsigaaga barnaamijka {0} waa la helay. Aqoonsiga codsadahaagu waa {1} iyo Aqoonsiga codsigu waa {2}
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=Waxaad soo gudbisay codsiga barnaamijka {0} addoo metelaya codsadaha {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=Codsiga barnaamijka {0} ka codsade ahaan {1} waa la helay, oo Aqoonsiga codsiguna waa {2}.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.

@@ -25,11 +25,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
+import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
@@ -65,13 +70,13 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
               LocalizedStrings.create(
                   ImmutableMap.of(
                       Locale.US, "With translations",
-                      Locale.FRENCH, "With translations (French)")))
+                      Locale.KOREA, "With translations (Korean)")))
           .setLocalizedEmailBodyText(
               Optional.of(
                   LocalizedStrings.create(
                       ImmutableMap.of(
                           Locale.US, "A translatable email body",
-                          Locale.FRENCH, "A translatable email body (French)"))))
+                          Locale.KOREA, "A translatable email body (Korean)"))))
           .build();
 
   private static final ImmutableList<StatusDefinitions.Status> ORIGINAL_STATUSES =
@@ -172,15 +177,18 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     Instant start = Instant.now();
     String userEmail = "user@email.com";
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(UserRepository.class),
             instanceOf(Config.class),
             simpleEmail,
-            instanceOf(DeploymentType.class));
+            instanceOf(DeploymentType.class),
+            messagesApi);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -200,13 +208,15 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     service.setStatus(application, event, account);
 
+    Messages messages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
+
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
             eq(
-                String.format(
-                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
-                    programDisplayName)),
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
 
@@ -218,24 +228,27 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent().get().statusText())
         .isEqualTo(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText());
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isTrue();
-    assertThat(gotEvent.getCreator()).isEqualTo(account);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(account));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 
   @Test
   public void setStatus_sendsEmail_nonDefaultLocale() throws Exception {
-    Locale userLocale = Locale.FRENCH;
+    Locale userLocale = Locale.KOREA;
     String userEmail = "user@email.com";
     String programDisplayName = "Some Program";
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(UserRepository.class),
             instanceOf(Config.class),
             simpleEmail,
-            instanceOf(DeploymentType.class));
+            instanceOf(DeploymentType.class),
+            messagesApi);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -243,7 +256,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .buildDefinition();
     Account account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
-    // Set the user to French.
+    // Set the user to Korean.
     applicant.getApplicantData().setPreferredLocale(userLocale);
     applicant.save();
     Application application =
@@ -258,13 +271,15 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     service.setStatus(application, event, account);
 
+    Messages messages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(userLocale.toLanguageTag())));
+
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
             eq(
-                String.format(
-                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
-                    programDisplayName)),
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_MULTI_LANGUAGE_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
@@ -274,15 +289,18 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     String userEmail = "user@email.com";
     String tiEmail = "ti@email.com";
     SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
     String programDisplayName = "Some Program";
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(UserRepository.class),
             instanceOf(Config.class),
             simpleEmail,
-            instanceOf(DeploymentType.class));
+            instanceOf(DeploymentType.class),
+            messagesApi);
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -303,18 +321,98 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
 
     service.setStatus(application, event, account);
 
+    Messages messages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
+
     verify(simpleEmail, times(1))
         .send(
             eq(tiEmail),
-            Mockito.contains("An update on the application for program"),
-            Mockito.contains("has changed to " + STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText()));
+            eq(
+                messages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_SUBJECT.getKeyName(),
+                    programDisplayName,
+                    applicant.id)),
+            Mockito.contains(
+                messages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_BODY.getKeyName(),
+                    applicant.id,
+                    programDisplayName,
+                    STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())));
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
             eq(
-                String.format(
-                    ProgramAdminApplicationService.STATUS_UPDATE_EMAIL_SUBJECT_FORMAT,
-                    programDisplayName)),
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
+            Mockito.contains(
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
+  }
+
+  @Test
+  public void setStatus_tiApplicant_sendsEmail_nonDefaultLocale() throws Exception {
+    String userEmail = "user@email.com";
+    String tiEmail = "ti-ko@email.com";
+    SimpleEmail simpleEmail = Mockito.mock(SimpleEmail.class);
+    MessagesApi messagesApi = instanceOf(MessagesApi.class);
+    String programDisplayName = "Some Program";
+    service =
+        new ProgramAdminApplicationService(
+            instanceOf(ApplicantService.class),
+            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationEventRepository.class),
+            instanceOf(UserRepository.class),
+            instanceOf(Config.class),
+            simpleEmail,
+            instanceOf(DeploymentType.class),
+            messagesApi);
+
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
+            .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
+            .buildDefinition();
+    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
+    Applicant tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
+    tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
+    tiApplicant.save();
+    Application application =
+        Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
+            .setSubmitTimeToNow()
+            .setSubmitterEmail(tiEmail);
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    service.setStatus(application, event, account);
+
+    Messages enMessages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.US.toLanguageTag())));
+    Messages koMessages =
+        messagesApi.preferred(ImmutableList.of(Lang.forCode(Locale.KOREA.toLanguageTag())));
+
+    verify(simpleEmail, times(1))
+        .send(
+            eq(tiEmail),
+            eq(
+                koMessages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_SUBJECT.getKeyName(),
+                    programDisplayName,
+                    applicant.id)),
+            Mockito.contains(
+                koMessages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_BODY.getKeyName(),
+                    applicant.id,
+                    programDisplayName,
+                    STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())));
+    verify(simpleEmail, times(1))
+        .send(
+            eq(userEmail),
+            eq(
+                enMessages.at(
+                    MessageKey.EMAIL_APPLICATION_UPDATE_SUBJECT.getKeyName(), programDisplayName)),
             Mockito.contains(
                 STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
   }
@@ -403,9 +501,11 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
+            instanceOf(UserRepository.class),
             instanceOf(Config.class),
             simpleEmail,
-            instanceOf(DeploymentType.class));
+            instanceOf(DeploymentType.class),
+            instanceOf(MessagesApi.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram("some-program")
@@ -432,7 +532,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().statusEvent()).isPresent();
     assertThat(gotEvent.getDetails().statusEvent().get().statusText()).isEqualTo(status);
     assertThat(gotEvent.getDetails().statusEvent().get().emailSent()).isFalse();
-    assertThat(gotEvent.getCreator()).isEqualTo(account);
+    assertThat(gotEvent.getCreator()).isEqualTo(Optional.of(account));
     assertThat(gotEvent.getCreateTime()).isAfter(start);
   }
 }
