@@ -687,6 +687,7 @@ describe('view program statuses', () => {
       const {page, adminPrograms} = ctx
       await loginAsProgramAdmin(page)
       await adminPrograms.viewApplications(eligibilityProgramName)
+      await adminPrograms.viewApplicationForApplicant('Guest')
       await validateScreenshot(
         page,
         'application-view-with-eligibility-statuses',
