@@ -1,6 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
@@ -189,7 +190,7 @@ public class LoginForm extends BaseHtmlView {
                 "text-base")
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
 
-    if (featureFlags.showCiviformImageTagOnLandingPage(request)) {
+    if (featureFlags.getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE)) {
       // civiformVersion is the version the deployer requests, like "latest" or
       // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
       // like "SNAPSHOT-3af8997-1678895722".

@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -142,7 +143,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setLabelText("Program note for administrative use only*")
             .setValue(adminDescription)
             .getTextareaTag());
-    if (featureFlags.isIntakeFormEnabled(request)) {
+    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
       formTag.with(
           FieldWithLabel.checkbox()
               .setFieldName("isCommonIntakeForm")
