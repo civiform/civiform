@@ -1,5 +1,6 @@
 package auth;
 
+import static featureflags.FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
@@ -236,7 +237,7 @@ public class CiviFormProfile {
         .thenApply(
             account -> {
               if (account.getGlobalAdmin()
-                  && featureFlags.allowCiviformAdminAccessPrograms(request)) {
+                  && featureFlags.getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS)) {
                 return null;
               }
               if (account.getAdministeredProgramNames().stream()

@@ -1,6 +1,9 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -156,7 +159,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (featureFlags.isIntakeFormEnabled(request)
+    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
         && relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
@@ -417,7 +420,7 @@ public final class ProgramIndexView extends BaseHtmlView {
    */
   private boolean shouldShowEligibilityTag(
       Http.Request request, ApplicantService.ApplicantProgramData cardData) {
-    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
+    if (!featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)) {
       return false;
     }
 
@@ -425,7 +428,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       return false;
     }
 
-    return !featureFlags.isNongatedEligibilityEnabled(request)
+    return !featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
         || cardData.program().eligibilityIsGating()
         || cardData.isProgramMaybeEligible().get();
   }
