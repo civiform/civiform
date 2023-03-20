@@ -575,8 +575,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     // No next block so go to the program review page.
     if (nextBlockIdMaybe.isEmpty()) {
       return supplyAsync(
-          () ->
-              redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
+          () -> redirect(routes.ApplicantProgramReviewController.review(applicantId, programId)));
     }
 
     if (inReview) {
