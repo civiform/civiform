@@ -330,6 +330,7 @@ public final class AdminApplicationController extends CiviFormController {
             answers,
             program.statusDefinitions(),
             noteMaybe,
+            program.hasEligibilityEnabled(),
             request));
   }
 
