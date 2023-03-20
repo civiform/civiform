@@ -12,11 +12,10 @@ import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static featureflags.FeatureFlag.PROGRAM_READ_ONLY_VIEW_ENABLED;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,24 +46,24 @@ public final class FeatureFlags {
    *
    * <p>Allows for overrides set in {@code request}.
    */
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isProgramEligibilityConditionsEnabled(Request request) {
     return getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED);
   }
 
   /** If the Eligibility Conditions feature is enabled in the system configuration. */
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isProgramEligibilityConditionsEnabled() {
     return config.getBoolean(PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED.toString());
   }
 
   /** If the reporting view in the admin UI is enabled */
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isAdminReportingUiEnabled() {
     return config.getBoolean(ADMIN_REPORTING_UI_ENABLED.toString());
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean allowCiviformAdminAccessPrograms(Request request) {
     return getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS);
   }
@@ -74,56 +73,57 @@ public final class FeatureFlags {
    *
    * <p>Allows for overrides set in {@code request}.
    */
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean showCiviformImageTagOnLandingPage(Request request) {
     return getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE);
   }
 
   // If the UI can show a read only view of a program. Without this flag the
   // only way to view a program is to start editing it.
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isReadOnlyProgramViewEnabled() {
     return config.getBoolean(PROGRAM_READ_ONLY_VIEW_ENABLED.toString());
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isReadOnlyProgramViewEnabled(Request request) {
     return getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED);
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isEsriAddressCorrectionEnabled(Request request) {
     return getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isEsriAddressServiceAreaValidationEnabled(Request request) {
     return getFlagEnabled(request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED);
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isIntakeFormEnabled(Request request) {
     return getFlagEnabled(request, INTAKE_FORM_ENABLED);
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isNongatedEligibilityEnabled(Request request) {
     return getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED);
   }
 
-  // TODO(#4437): remove and have clients call getFlagEnabled directly.
+  // TODO(#4447): remove and have clients call getFlagEnabled directly.
   public boolean isPhoneQuestionTypeEnabled(Request request) {
     return getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED);
   }
 
-  public Map<FeatureFlag, Boolean> getAllFlagsSorted(Request request) {
-    Map<FeatureFlag, Boolean> map = new TreeMap<>(Comparator.comparing(FeatureFlag::toString));
+  public ImmutableSortedMap<FeatureFlag, Boolean> getAllFlagsSorted(Request request) {
+    ImmutableSortedMap.Builder<FeatureFlag, Boolean> map =
+        ImmutableSortedMap.orderedBy(Comparator.comparing(FeatureFlag::toString));
 
     for (FeatureFlag flag : FeatureFlag.values()) {
       map.put(flag, getFlagEnabled(request, flag));
     }
 
-    return map;
+    return map.build();
   }
 
   /**

@@ -35,6 +35,11 @@ public enum FeatureFlag {
   // Phone number question type.
   PHONE_QUESTION_TYPE_ENABLED;
 
+  /**
+   * Returns a {@link FeatureFlag} for the given name. Matches based on the first matching flag,
+   * case-insensitive. Therefore, it doesn't matter whether the parameter is UPPER_CAMEL_CASE or
+   * lower_camel_case.
+   */
   public static FeatureFlag getByName(String name) {
     for (FeatureFlag flag : values()) {
       if (name.equalsIgnoreCase(flag.name())) {
