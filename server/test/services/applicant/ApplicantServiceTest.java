@@ -2862,10 +2862,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    applicant = userRepository.lookupApplicantSync(applicant.id).get();
 
-    assertThat(subject.getApplicantMayBeEligibleStatus(applicantData, programDefinition).get())
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
         .isFalse();
 
     // Applicant' answer gets changed to an eligible answer.
@@ -2878,9 +2877,9 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    applicantData = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    applicant = userRepository.lookupApplicantSync(applicant.id).get();
 
-    assertThat(subject.getApplicantMayBeEligibleStatus(applicantData, programDefinition).get())
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
         .isTrue();
   }
 

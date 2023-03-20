@@ -839,9 +839,9 @@ public final class ApplicantService {
    * empty if there are no eligibility conditions for the program.
    */
   public Optional<Boolean> getApplicantMayBeEligibleStatus(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+      Applicant applicant, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(applicantData, programDefinition);
+        getReadOnlyApplicantProgramService(applicant.getApplicantData(), programDefinition);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
@@ -925,8 +925,7 @@ public final class ApplicantService {
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.DRAFT));
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getApplicantMayBeEligibleStatus(
-                    draftApp.getApplicant().getApplicantData(), programDefinition));
+                getApplicantMayBeEligibleStatus(draftApp.getApplicant(), programDefinition));
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
             } else {
@@ -982,7 +981,7 @@ public final class ApplicantService {
           if (!mostRecentApplicationsByProgram.isEmpty()) {
             Applicant applicant = applications.stream().findFirst().get().getApplicant();
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
-                getApplicantMayBeEligibleStatus(applicant.getApplicantData(), program));
+                getApplicantMayBeEligibleStatus(applicant, program));
           }
 
           if (program.isCommonIntakeForm()) {
