@@ -33,7 +33,10 @@ public enum FeatureFlag {
   NONGATED_ELIGIBILITY_ENABLED,
 
   // Phone number question type.
-  PHONE_QUESTION_TYPE_ENABLED;
+  PHONE_QUESTION_TYPE_ENABLED,
+
+  // New login form
+  NEW_LOGIN_FORM_ENABLED;
 
   /**
    * Returns a {@link FeatureFlag} for the given name. Matches based on the first matching flag,
