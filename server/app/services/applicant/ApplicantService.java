@@ -223,10 +223,8 @@ public final class ApplicantService {
    *
    * <p>Updates are atomic i.e. if any of them fail validation, none of them will be written.
    *
-   * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates regardless of
-   *     whether they are presisted or not, which may have invalid data with errors associated with
-   *     it. If the service cannot perform the update due to exceptions, they are wrapped in
-   *     `CompletionException`s.
+   * @return a {@link ReadOnlyApplicantProgramService} that reflects the updates. If the service
+   *     cannot perform the update due to exceptions, they are wrapped in `CompletionException`s.
    *     <p>Below list all possible exceptions:
    *     <p>
    *     <ul>
