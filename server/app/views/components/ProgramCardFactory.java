@@ -1,6 +1,7 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -172,7 +173,7 @@ public final class ProgramCardFactory {
 
   private boolean shouldShowCommonIntakeFormIndicator(
       Request request, ProgramDefinition displayProgram) {
-    return featureFlags.isIntakeFormEnabled(request)
+    return featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
         && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
   }
 
