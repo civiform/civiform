@@ -1,7 +1,6 @@
 package featureflags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.ADMIN_REPORTING_UI_ENABLED;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
@@ -27,15 +26,9 @@ public final class FeatureFlags {
     this.config = checkNotNull(config);
   }
 
-  public boolean areOverridesEnabled() {
+  public boolean overridesEnabled() {
     return config.hasPath(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString())
         && config.getBoolean(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString());
-  }
-
-  /** If the reporting view in the admin UI is enabled */
-  // TODO(MichaelZetune): remove and have clients call getFlagEnabled directly.
-  public boolean isAdminReportingUiEnabled() {
-    return config.getBoolean(ADMIN_REPORTING_UI_ENABLED.toString());
   }
 
   public ImmutableSortedMap<FeatureFlag, Boolean> getAllFlagsSorted(Request request) {
@@ -51,7 +44,8 @@ public final class FeatureFlags {
 
   /**
    * Returns the current setting for {@code flag} from {@link Config} if present, allowing for an
-   * overriden value from the session cookie.
+   * overriden value from the session cookie. If overrides are disabled or request is null, does not
+   * check for overrides in the session.
    *
    * <p>Returns false if the value is not present.
    */
@@ -62,7 +56,7 @@ public final class FeatureFlags {
     }
     Boolean configValue = maybeConfigValue.get();
 
-    if (!areOverridesEnabled()) {
+    if (!overridesEnabled() || request == null) {
       return configValue;
     }
 

@@ -1,5 +1,6 @@
 package views.admin;
 
+import static featureflags.FeatureFlag.ADMIN_REPORTING_UI_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
@@ -145,7 +146,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     // Once feature flag is removed for reporting the program admin nav will include
     // links for programs and reporting.
     if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)
-        && !getFeatureFlags().isAdminReportingUiEnabled()) {
+        && !getFeatureFlags().getFlagEnabled(/* request=*/ null, ADMIN_REPORTING_UI_ENABLED)) {
       return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
     }
 
@@ -157,7 +158,10 @@ public final class AdminLayout extends BaseHtmlLayout {
           .with(questionsHeaderLink)
           .with(intermediariesHeaderLink)
           .with(apiKeysHeaderLink)
-          .with(getFeatureFlags().isAdminReportingUiEnabled() ? reportingHeaderLink : null);
+          .with(
+              getFeatureFlags().getFlagEnabled(/* request=*/ null, ADMIN_REPORTING_UI_ENABLED)
+                  ? reportingHeaderLink
+                  : null);
     }
 
     return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
