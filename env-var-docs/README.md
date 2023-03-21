@@ -38,6 +38,14 @@ server is deployed.
   repository](https://github.com/civiform/docs/tree/main/docs/it-manual/sre-playbook/server-environment-variables).
   Runs as a part of our release automation.
 
+### Running locally
+
+To run check_vars_documented.py and run_regex_tests.py locally:
+
+1. First ensure a python virtual environment (venv) is created to run the
+   scripts in: `bin/env-var-docs-create-venv`.
+1. Run `bin/env-var-docs-check-vars`.
+
 ## Developer setup
 
 ### TL;DR
