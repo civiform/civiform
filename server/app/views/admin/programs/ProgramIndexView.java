@@ -1,6 +1,9 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_READ_ONLY_VIEW_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -140,9 +143,9 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
     } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -342,7 +345,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+        if (featureFlags.getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED)) {
           activeRowExtraActions.add(
               renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         } else {
@@ -350,7 +353,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+      if (featureFlags.getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED)) {
         activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
@@ -477,8 +480,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<ButtonTag> maybeRenderSettingsLink(
       Http.Request request, ProgramDefinition program) {
-    if (!(featureFlags.isProgramEligibilityConditionsEnabled(request)
-        && featureFlags.isNongatedEligibilityEnabled(request))) {
+    if (!(featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)
+        && featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))) {
       return Optional.empty();
     }
     String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();

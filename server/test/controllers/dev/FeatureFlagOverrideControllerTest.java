@@ -2,6 +2,7 @@ package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -110,7 +111,14 @@ public class FeatureFlagOverrideControllerTest {
     Result diabledResult = controller.status(fakeRequest().build(), "intake_form_enabled");
     assertEquals("false", Helpers.contentAsString(diabledResult));
 
-    Result noFeatureResult = controller.status(fakeRequest().build(), "no_flag_by_this_name");
-    assertEquals("false", Helpers.contentAsString(noFeatureResult));
+    assertThrows(
+        RuntimeException.class,
+        () -> {
+          controller.status(fakeRequest().build(), "no_flag_by_this_name");
+        });
+
+    Result phoneTypeResult =
+        controller.status(fakeRequest().build(), "phone_question_type_enabled");
+    assertEquals("false", Helpers.contentAsString(phoneTypeResult));
   }
 }

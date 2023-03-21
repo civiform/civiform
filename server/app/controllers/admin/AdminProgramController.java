@@ -1,6 +1,8 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -110,7 +112,7 @@ public final class AdminProgramController extends CiviFormController {
             program.getExternalLink(),
             program.getDisplayMode(),
             program.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-            featureFlags.isIntakeFormEnabled(request));
+            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(newOneView.render(request, program, Optional.of(message)));
@@ -186,7 +188,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            featureFlags.isIntakeFormEnabled(request));
+            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
       return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
@@ -215,7 +217,7 @@ public final class AdminProgramController extends CiviFormController {
       programService.setEligibilityIsGating(
           programId,
           programSettingsForm.getEligibilityIsGating(),
-          featureFlags.isNongatedEligibilityEnabled(request));
+          featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED));
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     }

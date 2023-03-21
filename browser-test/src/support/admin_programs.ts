@@ -66,6 +66,28 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description)
   }
 
+  async expectApplicationHasStatusString(
+    applicant: string,
+    statusString: string,
+  ) {
+    expect(
+      await this.page.innerText(
+        this.selectApplicationCardForApplicant(applicant),
+      ),
+    ).toContain(`Status: ${statusString}`)
+  }
+
+  async expectApplicationStatusDoesntContain(
+    applicant: string,
+    statusString: string,
+  ) {
+    expect(
+      await this.page.innerText(
+        this.selectApplicationCardForApplicant(applicant),
+      ),
+    ).not.toContain(statusString)
+  }
+
   /**
    * Creates program with given name. At the end of this method the current
    * page is going to be block edit page.

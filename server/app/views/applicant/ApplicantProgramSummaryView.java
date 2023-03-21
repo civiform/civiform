@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
@@ -127,7 +128,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        featureFlags.isIntakeFormEnabled(params.request())
+        featureFlags.getFlagEnabled(params.request(), INTAKE_FORM_ENABLED)
                 && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());

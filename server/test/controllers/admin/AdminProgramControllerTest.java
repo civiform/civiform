@@ -8,7 +8,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
-import featureflags.FeatureFlags;
+import featureflags.FeatureFlag;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import models.DisplayMode;
@@ -305,7 +305,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder request =
         Helpers.fakeRequest()
-            .session(FeatureFlags.NONGATED_ELIGIBILITY_ENABLED, "true")
+            .session(FeatureFlag.NONGATED_ELIGIBILITY_ENABLED.toString(), "true")
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 
@@ -325,7 +325,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder request =
         Helpers.fakeRequest()
-            .session(FeatureFlags.NONGATED_ELIGIBILITY_ENABLED, "false")
+            .session(FeatureFlag.NONGATED_ELIGIBILITY_ENABLED.toString(), "false")
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 

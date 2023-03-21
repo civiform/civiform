@@ -1,6 +1,10 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
@@ -175,8 +179,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    featureFlags.isProgramEligibilityConditionsEnabled(request),
-                                    featureFlags.isIntakeFormEnabled(request),
+                                    featureFlags.getFlagEnabled(
+                                        request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED),
+                                    featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -194,12 +199,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     // Add toast messages
-    request
-        .flash()
-        .get("error")
-        .map(ToastMessage::error)
-        .map(m -> m.setDuration(-1))
-        .ifPresent(htmlBundle::addToastMessages);
+    request.flash().get("error").map(ToastMessage::error).ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
@@ -412,8 +412,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (isProgramEligibilityConditionsEnabled
-        && (!isIntakeFormFeatureEnabled
-            || !program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
+        && !(isIntakeFormFeatureEnabled
+            && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
@@ -583,7 +583,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
     DivTag emptyPredicateDiv;
-    if (featureFlags.isNongatedEligibilityEnabled(request)) {
+    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
       ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
       if (program.eligibilityIsGating()) {
         emptyPredicateContentBuilder.add(
@@ -878,7 +878,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     String toolTipText =
         "Enabling address correction will check the resident's address to ensure it is accurate.";
-    if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
+    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
       toolTipText +=
           " To use this feature, you will need to have your IT manager configure the GIS service.";
     }
@@ -938,7 +938,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withCondOnsubmit(
-                !featureFlags.isEsriAddressCorrectionEnabled(request) || questionIsUsedInPredicate,
+                !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
+                    || questionIsUsedInPredicate,
                 "return false;")
             .withCondOnsubmit(addressCorrectionEnabledQuestionAlreadyExists, "return false;")
             .withAction(toggleAddressCorrectionAction)

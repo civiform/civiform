@@ -1,6 +1,9 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -8,7 +11,6 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.h4;
-import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
@@ -19,7 +21,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -27,7 +28,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.H2Tag;
-import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LiTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
@@ -66,25 +66,14 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final FeatureFlags featureFlags;
   private final ProfileUtils profileUtils;
-  private final Optional<String> maybeLogoUrl;
-  private final String civicEntityFullName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
-      ApplicantLayout layout,
-      Config config,
-      ZoneId zoneId,
-      FeatureFlags featureFlags,
-      ProfileUtils profileUtils) {
+      ApplicantLayout layout, ZoneId zoneId, FeatureFlags featureFlags, ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
-    this.maybeLogoUrl =
-        checkNotNull(config).hasPath("whitelabel.logo_with_name_url")
-            ? Optional.of(config.getString("whitelabel.logo_with_name_url"))
-            : Optional.empty();
-    this.civicEntityFullName = checkNotNull(config).getString("whitelabel.civic_entity_full_name");
     this.zoneId = checkNotNull(zoneId);
   }
 
@@ -127,7 +116,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 "text-4xl",
                 StyleUtils.responsiveSmall("text-5xl"),
                 "font-semibold",
-                "mb-2",
+                "mt-10",
                 "px-6",
                 StyleUtils.responsiveSmall("mb-6"));
 
@@ -141,23 +130,10 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withText(infoTextLine2)
             .withClasses("text-sm", "px-6", "pb-6", StyleUtils.responsiveSmall("text-base"));
 
-    ImgTag logoImg =
-        maybeLogoUrl.isPresent()
-            ? img().withSrc(maybeLogoUrl.get())
-            : this.layout.viewUtils.makeLocalImageTag("Seattle-logo_horizontal_blue-white_small");
-
-    DivTag logoDiv =
-        div()
-            .with(
-                logoImg
-                    .withAlt(civicEntityFullName + " logo")
-                    .attr("aria-hidden", "true")
-                    .withStyle("max-width: 155px; max-height: 40px;"))
-            .withClasses("pt-6", "px-6");
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative")
-        .with(logoDiv, programIndexH1, infoLine1Div, infoLine2Div);
+        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative", "flex", "flex-col")
+        .with(programIndexH1, infoLine1Div, infoLine2Div);
   }
 
   private H2Tag programSectionTitle(String title) {
@@ -183,7 +159,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (featureFlags.isIntakeFormEnabled(request)
+    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
         && relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
@@ -376,7 +352,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (cardData.latestSubmittedApplicationStatus().isPresent()) {
       programData.with(
           programCardApplicationStatus(
-              preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
+              messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
     if (shouldShowEligibilityTag(request, cardData)) {
       programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
@@ -444,7 +420,7 @@ public final class ProgramIndexView extends BaseHtmlView {
    */
   private boolean shouldShowEligibilityTag(
       Http.Request request, ApplicantService.ApplicantProgramData cardData) {
-    if (!featureFlags.isProgramEligibilityConditionsEnabled(request)) {
+    if (!featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)) {
       return false;
     }
 
@@ -452,17 +428,32 @@ public final class ProgramIndexView extends BaseHtmlView {
       return false;
     }
 
-    return !featureFlags.isNongatedEligibilityEnabled(request)
+    return !featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
         || cardData.program().eligibilityIsGating()
         || cardData.isProgramMaybeEligible().get();
   }
 
   private PTag programCardApplicationStatus(
-      Locale preferredLocale, StatusDefinitions.Status status) {
-    return p().withClasses("border", "rounded-lg", "px-2", "py-1", "mb-4", "bg-blue-100")
+      Messages messages, Locale preferredLocale, StatusDefinitions.Status status) {
+    return p().withClasses(
+            "border",
+            "rounded-full",
+            "px-2",
+            "py-1",
+            "mb-4",
+            "gap-x-2",
+            "inline-block",
+            "w-auto",
+            "bg-blue-100")
         .with(
-            span(status.localizedStatusText().getOrDefault(preferredLocale))
-                .withClasses("text-xs", "font-medium"));
+            Icons.svg(Icons.INFO)
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5", BaseStyles.TEXT_SEATTLE_BLUE),
+            span(String.format(
+                    "%s: %s",
+                    messages.at(MessageKey.TITLE_STATUS.getKeyName()),
+                    status.localizedStatusText().getOrDefault(preferredLocale)))
+                .withClasses("p-2", "text-xs", "font-medium", BaseStyles.TEXT_SEATTLE_BLUE));
   }
 
   private PTag eligibilityTag(Http.Request request, Messages messages, boolean isEligible) {
@@ -474,6 +465,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         isTrustedIntermediary ? MessageKey.TAG_MAY_NOT_QUALIFY_TI : MessageKey.TAG_MAY_NOT_QUALIFY;
     Icons icon = isEligible ? Icons.CHECK_CIRCLE : Icons.INFO;
     String color = isEligible ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT : "bg-gray-200";
+    String textColor = isEligible ? BaseStyles.TEXT_CIVIFORM_GREEN : "text-black";
     String tagClass =
         isEligible ? ReferenceClasses.ELIGIBLE_TAG : ReferenceClasses.NOT_ELIGIBLE_TAG;
     String tagText =
@@ -491,10 +483,9 @@ public final class ProgramIndexView extends BaseHtmlView {
             color)
         .with(
             Icons.svg(icon)
-                .withClasses("inline-block")
-                // Can't set 18px using Tailwind CSS classes.
-                .withStyle("width: 18px; height: 18px;"),
-            span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium"));
+                // 4.5 is 18px as defined in tailwind.config.js
+                .withClasses("inline-block", "h-4.5", "w-4.5", textColor),
+            span(messages.at(tagText)).withClasses("p-2", "text-xs", "font-medium", textColor));
   }
 
   private DivTag programCardSubmittedDate(Messages messages, Instant submittedDate) {

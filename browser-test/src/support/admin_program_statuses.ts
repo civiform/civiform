@@ -36,6 +36,22 @@ export class AdminProgramStatuses {
     }
   }
 
+  async expectStatusIsDefault(statusName: string) {
+    const statusLocator = this.page.locator(
+      this.programStatusItemSelector(statusName),
+    )
+    expect(await statusLocator.isVisible()).toEqual(true)
+    expect(await statusLocator.innerText()).toContain('Default status')
+  }
+
+  async expectStatusIsNotDefault(statusName: string) {
+    const statusLocator = this.page.locator(
+      this.programStatusItemSelector(statusName),
+    )
+    expect(await statusLocator.isVisible()).toEqual(true)
+    expect(await statusLocator.innerText()).not.toContain('Default status')
+  }
+
   async expectStatusNotExists(statusName: string) {
     const statusLocator = this.page.locator(
       this.programStatusItemSelector(statusName),
@@ -61,6 +77,75 @@ export class AdminProgramStatuses {
       statusName,
       emailBody,
     })
+    await waitForPageJsLoad(this.page)
+  }
+
+  async createStatusWithoutClickingConfirm(statusName: string) {
+    await this.page.click('button:has-text("Create a new status")')
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain('Create a new status')
+    const statusFieldHandle = (await modal.$('text="Status name (required)"'))!
+    await statusFieldHandle.fill(statusName)
+    const defaultCheckboxHandle = (await modal.$(
+      'input[name="defaultStatusCheckbox"]',
+    ))!
+    await defaultCheckboxHandle.check()
+    return (await modal.$('button:has-text("Confirm")'))!
+  }
+
+  acceptDialogWithMessage(message?: string, dialogType = 'confirm') {
+    this.page.once('dialog', (dialog) => {
+      void dialog.accept()
+      expect(dialog.type()).toEqual(dialogType)
+      if (message) {
+        expect(dialog.message()).toEqual(message)
+      }
+    })
+  }
+
+  dismissDialogWithMessage(message: string, dialogType = 'confirm') {
+    this.page.once('dialog', (dialog) => {
+      void dialog.dismiss()
+      expect(dialog.type()).toEqual(dialogType)
+      expect(dialog.message()).toEqual(message)
+    })
+  }
+
+  newDefaultStatusMessage(statusName: string) {
+    return `The default status will be updated to ${statusName}. Are you sure?`
+  }
+
+  changeDefaultStatusMessage(oldDefault: string, newDefault: string) {
+    return `The default status will be updated from ${oldDefault} to ${newDefault}. Are you sure?`
+  }
+
+  defaultStatusUpdateToastMessage(statusName: string) {
+    return `${statusName} has been updated to the default status`
+  }
+
+  async editStatusDefault(
+    statusName: string,
+    defaultChecked: boolean,
+    dialogMessage?: string,
+  ) {
+    await this.page.click(
+      this.programStatusItemSelector(statusName) + ' button:has-text("Edit")',
+    )
+    const modal = await waitForAnyModal(this.page)
+    expect(await modal.innerText()).toContain('Edit this status')
+    const defaultCheckboxHandle = (await modal.$(
+      'input[name="defaultStatusCheckbox"]',
+    ))!
+    if (defaultChecked) {
+      await defaultCheckboxHandle.check()
+    } else {
+      await defaultCheckboxHandle.uncheck()
+    }
+    const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
+    if (defaultChecked) {
+      this.acceptDialogWithMessage(dialogMessage)
+    }
+    await confirmHandle.click()
     await waitForPageJsLoad(this.page)
   }
 
