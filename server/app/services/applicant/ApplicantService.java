@@ -1472,7 +1472,8 @@ public final class ApplicantService {
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
-    // TODO: this shouldn't throw if no suggestions are empty and CF should let the user continue on
+    // TODO:Issue #4441 - this shouldn't throw if no suggestions are empty and CF should let the
+    // user continue on
     // with the application
     return esriClient
         .getAddressSuggestions(addressQuestion.getAddress())
