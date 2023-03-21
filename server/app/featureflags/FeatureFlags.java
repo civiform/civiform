@@ -44,24 +44,37 @@ public final class FeatureFlags {
 
   /**
    * Returns the current setting for {@code flag} from {@link Config} if present, allowing for an
-   * overriden value from the session cookie. If overrides are disabled or request is null, does not
-   * check for overrides in the session.
+   * overriden value from the session cookie.
    *
-   * <p>Returns false if the value is not present.
+   * <p>Returns false if the flag is not present in the config.
    */
   public boolean getFlagEnabled(Request request, FeatureFlag flag) {
+    return getFlagEnabled(Optional.of(request), flag);
+  }
+
+  /**
+   * Returns the current setting for {@code flag} from {@link Config} if present. Does *not* allow
+   * for an overriden value. This should be used rarely.
+   *
+   * <p>Returns false if the flag is not present in the config.
+   */
+  public boolean getFlagEnabledNoSessionOverrides(FeatureFlag flag) {
+    return getFlagEnabled(Optional.empty(), flag);
+  }
+
+  private boolean getFlagEnabled(Optional<Request> request, FeatureFlag flag) {
     Optional<Boolean> maybeConfigValue = getFlagEnabledFromConfig(flag);
     if (maybeConfigValue.isEmpty()) {
       return false;
     }
     Boolean configValue = maybeConfigValue.get();
 
-    if (!overridesEnabled() || request == null) {
+    if (!overridesEnabled() || request.isEmpty()) {
       return configValue;
     }
 
     Optional<Boolean> sessionValue =
-        request.session().get(flag.toString()).map(Boolean::parseBoolean);
+        request.get().session().get(flag.toString()).map(Boolean::parseBoolean);
     if (sessionValue.isPresent()) {
       logger.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), flag);
       return sessionValue.get();
