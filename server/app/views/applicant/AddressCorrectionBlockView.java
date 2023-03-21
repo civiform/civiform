@@ -6,6 +6,7 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.a;
 
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
@@ -34,7 +35,7 @@ import views.components.LinkElement;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
-/** Renders a page indicating the applicant is not eligible for a program. */
+/** Renders a page asking the applicant to confirm their address from a list of corrected addresses. */ 
 public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final int MAX_SUGGESTIONS_TO_DISPLAY = 3;
@@ -220,5 +221,18 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
+  }
+
+  @Override
+  protected ATag renderPreviousButton(Params params) {
+    String redirectUrl =
+          routes.ApplicantProgramBlocksController.previous(
+                  params.applicantId(), params.programId(), params.blockIndex(), params.inReview())
+              .url();
+   
+    return a().withHref(redirectUrl)
+        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
+        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
+        .withId("cf-block-previous");
   }
 }
