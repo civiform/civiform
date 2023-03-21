@@ -63,9 +63,8 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /**
- * Renders a page for an admin to view or edit the configuration for a program, 
- * including a list of all blocks to select from and a detailed view of the
- * selected program.
+ * Renders a page for an admin to view or edit the configuration for a program, including a list of
+ * all blocks to select from and a detailed view of the selected program.
  *
  * <p>For editing drafts this contains elements to:
  *
@@ -75,10 +74,8 @@ import views.style.StyleUtils;
  *   <li>View, add, delete and reorder questions
  *   <li>View and navigate to the visibility criteria
  * </ul>
- * 
- * The read only version contains mostly the same elements, but without any of 
- * the edit controls.
  *
+ * The read only version contains mostly the same elements, but without any of the edit controls.
  */
 public final class ProgramBlocksView extends ProgramBaseView {
 
@@ -106,7 +103,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
     this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
     this.programDisplayType = programViewType;
   }
-
 
   public Content render(
       Request request,
@@ -144,11 +140,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     String blockUpdateAction =
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
-    Modal blockDescriptionEditModal = renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
+    Modal blockDescriptionEditModal =
+        renderBlockDescriptionModal(csrfTag, blockForm, blockUpdateAction);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
-    Modal blockDeleteScreenModal = renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
+    Modal blockDeleteScreenModal =
+        renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
 
     HtmlBundle htmlBundle =
         layout
@@ -230,10 +228,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns a wrapper panel that contains the list of all blocks and, if the 
-   * view shows an editable program, a button to add a new screen,
+   * Returns a wrapper panel that contains the list of all blocks and, if the view shows an editable
+   * program, a button to add a new screen,
    */
-  private DivTag renderBlockOrderPanel(Request request, ProgramDefinition program, long focusedBlockId) {
+  private DivTag renderBlockOrderPanel(
+      Request request, ProgramDefinition program, long focusedBlockId) {
     DivTag ret = div().withClasses("shadow-lg", "pt-6", "w-2/12", "border-r", "border-gray-200");
     ret.with(
         renderBlockList(
@@ -254,9 +253,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return ret;
   }
 
-   /**
-   * Returns a Panel that shows all Blocks of the given program. In an editable view
-   * it also adds a button that allows to add a new screen and controls to change the order.
+  /**
+   * Returns a Panel that shows all Blocks of the given program. In an editable view it also adds a
+   * button that allows to add a new screen and controls to change the order.
    */
   private DivTag renderBlockList(
       Request request,
@@ -308,7 +307,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   .with(p(blockName), p(questionCountText).withClasses("text-sm")));
       if (viewAllowsEditingProgram()) {
         DivTag moveButtons =
-            renderBlockMoveButtons(request, programDefinition.id(), blockDefinitions, blockDefinition);
+            renderBlockMoveButtons(
+                request, programDefinition.id(), blockDefinitions, blockDefinition);
         blockTag.with(moveButtons);
       }
       container.with(blockTag);
@@ -328,8 +328,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Creates a set of buttons, which are shown next to each block in the list of blocks.
-   * They are used to move a block up or down in the list.
+   * Creates a set of buttons, which are shown next to each block in the list of blocks. They are
+   * used to move a block up or down in the list.
    */
   private DivTag renderBlockMoveButtons(
       Request request,
@@ -373,9 +373,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns the Div that contains all details about the specified block.
-   * Tends to be used to show the details of the currently selected block for
-   * viewing or editing.
+   * Returns the Div that contains all details about the specified block. Tends to be used to show
+   * the details of the currently selected block for viewing or editing.
    */
   private DivTag renderBlockPanel(
       ProgramDefinition program,
@@ -512,8 +511,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Creates the UI that is used too display or edit the visibility setting of a specified
-   * question.
+   * Creates the UI that is used too display or edit the visibility setting of a specified question.
    */
   private DivTag renderVisibilityPredicate(
       long programId,
@@ -616,10 +614,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Renders and individual question, including the description and any
-   * toggles or tags that should be shown next to the question in the
-   * list of questions.
-
+   * Renders and individual question, including the description and any toggles or tags that should
+   * be shown next to the question in the list of questions.
    */
   private DivTag renderQuestion(
       InputTag csrfTag,
@@ -712,10 +708,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return ret;
   }
 
-
   /**
-   * Creates a Divtag that contains an up and a down arrow. Those are displayed
-   * next to a question to allow changing the order of questions inside a block.
+   * Creates a Divtag that contains an up and a down arrow. Those are displayed next to a question
+   * to allow changing the order of questions inside a block.
    */
   private DivTag renderMoveQuestionButtonsSection(
       InputTag csrfTag,
@@ -748,8 +743,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns a form tag containing one up or down button (used for ordering
-   * questions inside a program block).
+   * Returns a form tag containing one up or down button (used for ordering questions inside a
+   * program block).
    */
   private FormTag createMoveQuestionButton(
       InputTag csrfTag,
@@ -782,8 +777,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Optionally creates a form tag which contains a toggle that allows
-   * to specify if a question is optional or mandatory. 
+   * Optionally creates a form tag which contains a toggle that allows to specify if a question is
+   * optional or mandatory.
    */
   private Optional<FormTag> renderOptionalToggle(
       InputTag csrfTag,
@@ -859,8 +854,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns an Optional of a form that contains the toggle which allows
-   * enabling address correction for address related questions.
+   * Returns an Optional of a form that contains the toggle which allows enabling address correction
+   * for address related questions.
    */
   private Optional<FormTag> renderAddressCorrectionEnabledToggle(
       Request request,
@@ -952,8 +947,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns a form that shows the delete button, which is to be shown next
-   * to each of the questions in a program block to allow deleting the question.
+   * Returns a form that shows the delete button, which is to be shown next to each of the questions
+   * in a program block to allow deleting the question.
    */
   private FormTag renderDeleteQuestionForm(
       InputTag csrfTag,
@@ -987,10 +982,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .with(removeButton);
   }
 
-  /**
-   * Creates the question panel, which shows all questions the admin can 
-   * add to a program.
-   */
+  /** Creates the question panel, which shows all questions the admin can add to a program. */
   private DivTag renderQuestionBankPanel(
       ImmutableList<QuestionDefinition> questionDefinitions,
       ProgramDefinition program,
@@ -1020,10 +1012,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return qb.getContainer(questionBankVisibility);
   }
 
-  /**
-   * Creates a modal, which is shown when the admin clicks the delete button
-   * of a block.
-   */
+  /** Creates a modal, which is shown when the admin clicks the delete button of a block. */
   private Modal renderBlockDeleteModal(
       InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
 
@@ -1101,8 +1090,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Creates a Modeal that is used for viewing or editing the Description field
-   * of the specified block.
+   * Creates a Modeal that is used for viewing or editing the Description field of the specified
+   * block.
    */
   private Modal renderBlockDescriptionModal(
       InputTag csrfTag, BlockForm blockForm, String blockUpdateAction) {
@@ -1148,17 +1137,17 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns if the currently displayed program is a draft or not. This is used to 
-   * identify if the view should be editable or not.
+   * Returns if the currently displayed program is a draft or not. This is used to identify if the
+   * view should be editable or not.
    */
   private boolean viewAllowsEditingProgram() {
     return programDisplayType.equals(DRAFT);
   }
 
   /**
-   * Creates the Edit button shown at the top of the page. For a read only view it starts 
-   * changes to an edit view. For an editable view it leads to the page that allows editing
-   * the Program description and details.
+   * Creates the Edit button shown at the top of the page. For a read only view it starts changes to
+   * an edit view. For an editable view it leads to the page that allows editing the Program
+   * description and details.
    */
   private ButtonTag renderEditButton(Request request, ProgramDefinition programDefinition) {
     if (viewAllowsEditingProgram()) {
@@ -1172,9 +1161,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
   }
 
-  /**
-   * Indicates if this view is showing a draft or published program.
-   */
+  /** Indicates if this view is showing a draft or published program. */
   @Override
   protected ProgramDisplayType getProgramDisplayStatus() {
     return programDisplayType;
