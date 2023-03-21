@@ -561,7 +561,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Map<String, String> flashingMap = new HashMap<>();
-    if (featureFlags.isProgramEligibilityConditionsEnabled(request)
+    if (featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)
         && roApplicantProgramService.blockHasEligibilityPredicate(blockId)
         && roApplicantProgramService.isBlockEligible(blockId)) {
       flashingMap.put(
