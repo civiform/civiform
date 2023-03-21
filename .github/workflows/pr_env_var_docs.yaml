@@ -12,8 +12,9 @@ on:
       - 'main'
     paths:
       - 'env-var-docs/**'
-      - 'server/conf/application.conf'
       - 'server/conf/env-var-docs.json'
+      - 'server/conf/application.conf'
+      - 'server/conf/helper/*.conf'
       - '.github/workflows/pr_env_var_docs.yaml'
 
 jobs:
