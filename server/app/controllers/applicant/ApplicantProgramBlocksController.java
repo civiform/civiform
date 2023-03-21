@@ -346,7 +346,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
-    return applicantStage
+    return applicantStagez
         .thenComposeAsync(
             v -> checkApplicantAuthorization(profileUtils, request, applicantId),
             httpExecutionContext.current())
