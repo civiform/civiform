@@ -412,8 +412,10 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    // removing the first screen of a draft resulted in an error when a user would go to to edit the draft
     await adminPrograms.gotoEditDraftProgramPage(programName)
     await adminPrograms.publishProgram(programName)
+    // removing the first screen of a program without drafts, caused an error when a user went to edit the program
     await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
   })
 
