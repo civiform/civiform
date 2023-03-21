@@ -66,12 +66,12 @@ akka {
 }"""
 
         self.vars_1 = """
-mykey = ${?MY_VAR} # Some var
-myotherkey = ${? MY_OTHER_VAR   }"""
+my_var_1 = ${?MY_VAR_1} # Some var
+my_var_2 = ${? MY_VAR_2   }"""
 
         self.vars_2 = """
-somekey = ${?SOME_VAR}
-someotherkey = ${?SOME_OTHER_VAR}"""
+my_var_3 = ${?MY_VAR_3}
+my_var_4 = ${?MY_VAR_4}"""
 
         self.blank_imports_no_vars = 'include "no_vars"'
         self.blank_imports_vars_1 = 'include "vars_1"'
@@ -86,12 +86,12 @@ someotherkey = ${?SOME_OTHER_VAR}"""
 include "vars_1"
 include "vars_2"
 
-extrakey = ${?EXTRA_VAR}
-extrakey2 = ${?EXTRA_VAR2}"""
+my_var_5 = ${?MY_VAR_5}
+my_var_6 = ${?MY_VAR_6}"""
 
-        self.vars_1_set = set(["MY_VAR", "MY_OTHER_VAR"])
-        self.vars_2_set = set(["SOME_VAR", "SOME_OTHER_VAR"])
-        self.vars_3_set = set(["EXTRA_VAR", "EXTRA_VAR2"])
+        self.vars_1_set = set(["MY_VAR_1", "MY_VAR_2"])
+        self.vars_2_set = set(["MY_VAR_3", "MY_VAR_4"])
+        self.vars_3_set = set(["MY_VAR_5", "MY_VAR_6"])
 
         self.conf_dir = tempfile.TemporaryDirectory()
         for n in ["no_vars", "vars_1", "vars_2", "blank_imports_no_vars",
