@@ -75,6 +75,31 @@ class TestMain(unittest.TestCase):
     def setUp(self):
         os.environ = {}
 
+    def test_invalid_regex_test(self):
+        docs = """
+        {
+            "MY_VAR": {
+                "description": "A var.",
+                "type": "string",
+                "regex": ".*",
+                "regex_tests": [
+                    { "valz": "Oops", "should_match": true }
+                ]
+            }
+        }
+        """
+        with tempfile.NamedTemporaryFile(mode='w') as envvar:
+            envvar.write(docs)
+            envvar.flush()
+            os.environ["ENV_VAR_DOCS_PATH"] = envvar.name
+            os.environ["LOCAL_OUTPUT"] = True
+
+            stderr = io.StringIO()
+            with self.assertRaises(SystemExit), contextlib.redirect_stderr(
+                    stderr):
+                main()
+            self.assertIn(f"{envvar.name} is invalid:", stderr.getvalue())
+
     def test_failing_tests(self):
         docs = """
         {
@@ -110,6 +135,33 @@ class TestMain(unittest.TestCase):
                 "regex_tests": [
                     { "val": "will you be my match?", "should_match": true }
                 ]
+            }
+        }
+        """
+        with tempfile.NamedTemporaryFile(mode='w') as envvar:
+            envvar.write(docs)
+            envvar.flush()
+            os.environ["ENV_VAR_DOCS_PATH"] = envvar.name
+            os.environ["LOCAL_OUTPUT"] = True
+
+            # Test that main does not exit.
+            main()
+
+    def test_with_group(self):
+        docs = """
+        {
+            "A group": {
+                "group_description": "A group",
+                "members": {
+                    "MY_VAR": {
+                        "description": "A var.",
+                        "type": "string",
+                        "regex": ".*",
+                        "regex_tests": [
+                            { "val": "will you be my match?", "should_match": true }
+                        ]
+                    }
+                }
             }
         }
         """

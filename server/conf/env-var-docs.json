@@ -373,7 +373,11 @@
     "type": "string"
   },
   "CIVIFORM_IMAGE_TAG": {
-    "description": "The tag of the docker image this server is running inside.  Is added as a HTML meta tag with name 'civiform-build-tag'.  If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page.",
+    "description": "The tag of the docker image this server is running inside. Is added as a HTML meta tag with name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.",
+    "type": "string"
+  },
+  "CIVIFORM_VERSION": {
+    "description": "The release version of CiviForm. For example: v1.18.0. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a value other than the empty string or 'latest'.",
     "type": "string"
   },
   "Observability": {
@@ -473,6 +477,14 @@
       },
       "STAGING_DISABLE_APPLICANT_GUEST_LOGIN": {
         "description": "If this is a staging deployment and this variable is set to true, the 'CONTINUE AS GUEST' button is not shown on the login page.",
+        "type": "bool"
+      },
+      "PHONE_QUESTION_TYPE_ENABLED": {
+        "description": "Enables the phone number question type.",
+        "type": "bool"
+      },
+      "NEW_LOGIN_FORM_ENABLED": {
+        "description": "Enables the new login form page.",
         "type": "bool"
       }
     }
