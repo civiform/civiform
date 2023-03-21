@@ -28,6 +28,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 import views.components.ToastMessage;
 
@@ -42,6 +43,7 @@ public final class RedirectController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
+  private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
   private final LanguageUtils languageUtils;
 
@@ -52,6 +54,7 @@ public final class RedirectController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
+      ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
       LanguageUtils languageUtils) {
     this.httpContext = checkNotNull(httpContext);
@@ -59,6 +62,7 @@ public final class RedirectController extends CiviFormController {
     this.profileUtils = checkNotNull(profileUtils);
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
+    this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.languageUtils = checkNotNull(languageUtils);
   }
@@ -153,10 +157,27 @@ public final class RedirectController extends CiviFormController {
       return CompletableFuture.completedFuture(
           badRequest("You are not signed in - you cannot perform this action."));
     }
+    // if it's the common intake form, then render than use that version of the upsell view
+    // otherwise, use the normal one.
+
+    CompletableFuture<Boolean> isCommonIntake =
+        programService
+            .getActiveProgramDefinitionAsync(programId)
+            .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
+            .toCompletableFuture();
 
     CompletableFuture<Optional<String>> applicantName =
         applicantService.getName(applicantId).toCompletableFuture();
-    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
+
+    CompletableFuture<Account> account =
+        applicantName
+            .thenComposeAsync(
+                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+                httpContext.current())
+            .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
+            .toCompletableFuture();
+
+    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
         applicantService
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
@@ -168,36 +189,46 @@ public final class RedirectController extends CiviFormController {
                 v -> applicantService.maybeEligibleProgramsForApplicant(applicantId),
                 httpContext.current());
 
-    CompletableFuture<Account> account =
-        applicantName
-            .thenComposeAsync(
-                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-                httpContext.current())
-            .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
-            .toCompletableFuture();
-
+    // todo we don't need to make this call to eligibleprograms but we can just return immediately
+    // if common intake is false!
     return CompletableFuture.allOf(
-            account, roApplicantProgramServiceCompletionStage, eligiblePrograms)
+            isCommonIntake, account, roApplicantProgramService, eligiblePrograms)
+        //      .thenComposeAsync(ignored -> {
+        //        if (isCommonIntake.join()) {
+        //
+        //        }
+        //        return CompletableFuture.completedFuture(Optional.empty());
+        //    })
         .thenApplyAsync(
-            ignored ->
-                ok(
-                    upsellView.render(
+            ignored -> {
+              Optional<ToastMessage> toastMessage =
+                  request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+
+              if (isCommonIntake.join()) {
+                return ok(
+                    cifUpsellView.render(
                         request,
                         redirectTo,
                         account.join(),
-                        roApplicantProgramServiceCompletionStage
-                            .join()
-                            .getApplicantData()
-                            .preferredLocale(),
-                        roApplicantProgramServiceCompletionStage.join().getProgramTitle(),
-                        roApplicantProgramServiceCompletionStage
-                            .join()
-                            .getCustomConfirmationMessage(),
                         applicantName.toCompletableFuture().join(),
                         eligiblePrograms.join(),
-                        applicationId,
                         messagesApi.preferred(request),
-                        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT)))),
+                        toastMessage));
+              }
+
+              return ok(
+                  upsellView.render(
+                      request,
+                      redirectTo,
+                      account.join(),
+                      roApplicantProgramService.join().getApplicantData().preferredLocale(),
+                      roApplicantProgramService.join().getProgramTitle(),
+                      roApplicantProgramService.join().getCustomConfirmationMessage(),
+                      applicantName.toCompletableFuture().join(),
+                      applicationId,
+                      messagesApi.preferred(request),
+                      toastMessage));
+            },
             httpContext.current())
         .exceptionally(
             ex -> {
@@ -212,5 +243,45 @@ public final class RedirectController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+
+    //    return CompletableFuture.allOf(
+    //            account, roApplicantProgramService, eligiblePrograms, isCommonIntake)
+    //        .thenApplyAsync(
+    //            ignored ->
+    //                ,
+    //            )
+
   }
+
+  //  private Result renderUpsell(
+  //    Http.Request request,
+  //    String redirectTo,
+  //    CompletableFuture<Account> account,
+  //    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService,
+  //    CompletableFuture<Optional<String>> applicantName,
+  //    long applicationId,
+  //    Messages preferred,
+  //    Optional<> banner) {
+  //    return ok(
+  //      upsellView.render(
+  //        request,
+  //        redirectTo,
+  //        account.join(),
+  //        roApplicantProgramService
+  //          .join()
+  //          .getApplicantData()
+  //          .preferredLocale(),
+  //        roApplicantProgramService.join().getProgramTitle(),
+  //        roApplicantProgramService
+  //          .join()
+  //          .getCustomConfirmationMessage(),
+  //        applicantName.toCompletableFuture().join(),
+  //        applicationId,
+  //        messagesApi.preferred(request),
+  //        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT))));
+  //  }
+  //
+  //  CompletionStage<Result> renderCifUpsell() {
+  ////    return CompletionStage<Result> new Result();
+  //  }
 }
