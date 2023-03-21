@@ -1,7 +1,6 @@
 package featureflags;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.ADMIN_REPORTING_UI_ENABLED;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
@@ -27,15 +26,9 @@ public final class FeatureFlags {
     this.config = checkNotNull(config);
   }
 
-  public boolean areOverridesEnabled() {
+  public boolean overridesEnabled() {
     return config.hasPath(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString())
         && config.getBoolean(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString());
-  }
-
-  /** If the reporting view in the admin UI is enabled */
-  // TODO(MichaelZetune): remove and have clients call getFlagEnabled directly.
-  public boolean isAdminReportingUiEnabled() {
-    return config.getBoolean(ADMIN_REPORTING_UI_ENABLED.toString());
   }
 
   public ImmutableSortedMap<FeatureFlag, Boolean> getAllFlagsSorted(Request request) {
@@ -53,21 +46,35 @@ public final class FeatureFlags {
    * Returns the current setting for {@code flag} from {@link Config} if present, allowing for an
    * overriden value from the session cookie.
    *
-   * <p>Returns false if the value is not present.
+   * <p>Returns false if the flag is not present in the config.
    */
   public boolean getFlagEnabled(Request request, FeatureFlag flag) {
+    return getFlagEnabled(Optional.of(request), flag);
+  }
+
+  /**
+   * Returns the current setting for {@code flag} from {@link Config} if present. Does *not* allow
+   * for an overriden value. This should be used rarely.
+   *
+   * <p>Returns false if the flag is not present in the config.
+   */
+  public boolean getFlagEnabledNoSessionOverrides(FeatureFlag flag) {
+    return getFlagEnabled(Optional.empty(), flag);
+  }
+
+  private boolean getFlagEnabled(Optional<Request> request, FeatureFlag flag) {
     Optional<Boolean> maybeConfigValue = getFlagEnabledFromConfig(flag);
     if (maybeConfigValue.isEmpty()) {
       return false;
     }
     Boolean configValue = maybeConfigValue.get();
 
-    if (!areOverridesEnabled()) {
+    if (!overridesEnabled() || request.isEmpty()) {
       return configValue;
     }
 
     Optional<Boolean> sessionValue =
-        request.session().get(flag.toString()).map(Boolean::parseBoolean);
+        request.get().session().get(flag.toString()).map(Boolean::parseBoolean);
     if (sessionValue.isPresent()) {
       logger.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), flag);
       return sessionValue.get();

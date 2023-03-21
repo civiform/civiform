@@ -60,7 +60,7 @@ public class FeatureFlagView extends BaseHtmlView {
                         configureCell(td(Boolean.toString(isDevOrStagingEnvironment)))),
                 tr().with(
                         configureCell(td("Configuration: ")),
-                        configureCell(td(Boolean.toString(featureFlags.areOverridesEnabled())))));
+                        configureCell(td(Boolean.toString(featureFlags.overridesEnabled())))));
 
     // Create per flag view.
     Map<FeatureFlag, Boolean> sortedFlags = featureFlags.getAllFlagsSorted(request);
