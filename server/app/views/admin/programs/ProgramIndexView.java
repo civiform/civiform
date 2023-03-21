@@ -484,6 +484,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         && featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))) {
       return Optional.empty();
     }
+    if (program.isCommonIntakeForm()) {
+      return Optional.empty();
+    }
     String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Settings", Icons.SETTINGS)

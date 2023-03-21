@@ -186,6 +186,8 @@ export class AdminPrograms {
     return this.programCardSelector(programName, lifecycle) + ' ' + selector
   }
 
+  async programSettingsLinkInDropdownIsVisible(programName: string) {}
+
   async gotoDraftProgramManageStatusesPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
