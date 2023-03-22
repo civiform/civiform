@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
@@ -227,14 +226,9 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
 
   @Override
   protected ATag renderPreviousButton(Params params) {
-    String redirectUrl =
-        routes.ApplicantProgramBlocksController.previous(
-                params.applicantId(), params.programId(), params.blockIndex(), params.inReview())
-            .url();
-
-    return a().withHref(redirectUrl)
-        .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
-        .withId("cf-block-previous");
+    // Set the block index to the next block, so that the renderPreviousButton
+    // method will render the correct block.
+    Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+    return super.renderPreviousButton(newParams);
   }
 }
