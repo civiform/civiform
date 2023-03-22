@@ -75,9 +75,9 @@ public abstract class EsriClient {
         .thenApply(
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
-                this.logger.error(
-                    "RealEsriClient.fetchAddressSuggestions JSON response is empty. Called by"
-                        + " RealEsriClient.getAddressSuggestions. Address = {}",
+                logger.error(
+                    "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
+                        + " EsriClient.getAddressSuggestions. Address = {}",
                     address);
                 return Optional.empty();
               }
@@ -158,7 +158,7 @@ public abstract class EsriClient {
 
     if (!esriServiceAreaValidationConfig.isConfigurationValid()) {
       logger.error(
-          "Error calling RealEsriClient.getServiceAreaInclusionGroups. Error:"
+          "Error calling EsriClient.getServiceAreaInclusionGroups. Error:"
               + " EsriServiceAreaValidationConfig.getImmutableMap() returned empty.");
       serviceAreaInclusionBuilder
           .setServiceAreaId(esriServiceAreaValidationOption.getId())
@@ -177,8 +177,8 @@ public abstract class EsriClient {
             (maybeJson) -> {
               if (maybeJson.isEmpty()) {
                 logger.error(
-                    "RealEsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
-                        + " RealEsriClient.isAddressLocationInServiceArea."
+                    "EsriClient.fetchServiceAreaFeatures JSON response is empty. Called by"
+                        + " EsriClient.isAddressLocationInServiceArea."
                         + " EsriServiceAreaValidationOption = {}. AddressLocation = {}",
                     esriServiceAreaValidationOption,
                     location);
