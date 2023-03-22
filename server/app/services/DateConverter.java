@@ -103,8 +103,8 @@ public final class DateConverter {
   }
 
   /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date. */
-  public static long getDateTimestampFromAge(Long age) {
-    return LocalDate.now(ZoneId.systemDefault())
+  public long getDateTimestampFromAge(Long age) {
+    return LocalDate.now(zoneId)
         .minusYears(age)
         .atStartOfDay(ZoneId.systemDefault())
         .toInstant()

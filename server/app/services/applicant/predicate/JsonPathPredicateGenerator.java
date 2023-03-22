@@ -1,5 +1,6 @@
 package services.applicant.predicate;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.base.Splitter;
@@ -23,6 +24,7 @@ import services.question.types.QuestionDefinition;
 /** Generates {@link JsonPathPredicate}s based on the current applicant filling out the program. */
 public final class JsonPathPredicateGenerator {
 
+  private final DateConverter dateConverter;
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final Optional<RepeatedEntity> currentRepeatedContext;
 
@@ -34,12 +36,18 @@ public final class JsonPathPredicateGenerator {
    * we are currently on, as well as find the target question used in the predicate.
    */
   public JsonPathPredicateGenerator(
+      DateConverter dateConverter,
       ImmutableList<QuestionDefinition> programQuestions,
       Optional<RepeatedEntity> currentRepeatedContext) {
+    this.dateConverter = checkNotNull(dateConverter);
     this.questionsById =
-        programQuestions.stream().collect(toImmutableMap(QuestionDefinition::getId, q -> q));
-    this.currentRepeatedContext = currentRepeatedContext;
+        checkNotNull(programQuestions).stream()
+            .collect(toImmutableMap(QuestionDefinition::getId, q -> q));
+    this.currentRepeatedContext = checkNotNull(currentRepeatedContext);
   }
+
+  public static final ImmutableList<Operator> AGE_OPERATORS =
+      ImmutableList.of(Operator.AGE_BETWEEN, Operator.AGE_OLDER_THAN, Operator.AGE_YOUNGER_THAN);
 
   /**
    * Formats a {@link LeafOperationExpressionNode} in JsonPath format: {@code path[?(expression)]}
@@ -48,9 +56,10 @@ public final class JsonPathPredicateGenerator {
    */
   public JsonPathPredicate fromLeafNode(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
-    if (node.operator().toString().toUpperCase().startsWith("AGE")) {
+    if (AGE_OPERATORS.contains(node.operator())) {
       return formatDatePredicate(node);
     }
+
     return JsonPathPredicate.create(
         String.format(
             "%s[?(@.%s %s %s)]",
@@ -105,7 +114,7 @@ public final class JsonPathPredicateGenerator {
    */
   private JsonPathPredicate formatDatePredicate(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
-    if (node.operator().toString().equals("AGE_BETWEEN")) {
+    if (node.operator().equals(Operator.AGE_BETWEEN)) {
       // The value of the between questions are comma separated and have brackets, but since this
       // is a string type, we need to remove the brackets then re-split the list.
       ImmutableList<Long> ageRange =
@@ -121,8 +130,8 @@ public final class JsonPathPredicateGenerator {
           String.format(
               "%s[?(%2$s >= @.%4$s && %3$s <= @.%4$s)]",
               getPath(node).predicateFormat(),
-              DateConverter.getDateTimestampFromAge(ageRange.get(0)),
-              DateConverter.getDateTimestampFromAge(ageRange.get(1)),
+              dateConverter.getDateTimestampFromAge(ageRange.get(0)),
+              dateConverter.getDateTimestampFromAge(ageRange.get(1)),
               node.scalar().name().toLowerCase()));
     } else {
       // Check that the age timestamp is greater or less than the date value.
@@ -130,7 +139,7 @@ public final class JsonPathPredicateGenerator {
           String.format(
               "%s[?(%s %s @.%s)]",
               getPath(node).predicateFormat(),
-              DateConverter.getDateTimestampFromAge(Long.parseLong(node.comparedValue().value())),
+              dateConverter.getDateTimestampFromAge(Long.parseLong(node.comparedValue().value())),
               node.operator().toJsonPathOperator(),
               node.scalar().name().toLowerCase()));
     }

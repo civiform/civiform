@@ -267,6 +267,9 @@ public final class PredicateGenerator {
         : PredicateDefinition.PredicateFormat.SINGLE_QUESTION;
   }
 
+  private static final String AGE_RANGE_ERROR_MESSAGE =
+      "Invalid age range: %s. Age range value must be two integers separated by - or ,";
+
   /**
    * Parses the given value based on the given scalar type and operator. For example, if the scalar
    * is of type LONG and the operator is of type ANY_OF, the value will be parsed as a list of
@@ -301,12 +304,25 @@ public final class PredicateGenerator {
           // Take the string input with the comma separating the two age values and make a list of
           // longs.
         } else if (operator.equals(Operator.AGE_BETWEEN)) {
-          ImmutableList<Long> listOfLongs =
-              // Allow splitting on comma or dash.
-              Splitter.onPattern("[-,]")
-                  .splitToStream(value)
-                  .map(s -> Long.parseLong(s.trim()))
-                  .collect(ImmutableList.toImmutableList());
+          ImmutableList<Long> listOfLongs;
+
+          try {
+            listOfLongs =
+                // Allow splitting on comma or dash.
+                Splitter.onPattern("[-,]")
+                    .splitToStream(value)
+                    .map(String::trim)
+                    .map(Long::parseLong)
+                    .sorted()
+                    .collect(ImmutableList.toImmutableList());
+          } catch (NumberFormatException e) {
+            throw new BadRequestException(String.format(AGE_RANGE_ERROR_MESSAGE, value));
+          }
+
+          if (listOfLongs.size() != 2) {
+            throw new BadRequestException(String.format(AGE_RANGE_ERROR_MESSAGE, value));
+          }
+
           return PredicateValue.listOfLongs(listOfLongs);
         } else {
           LocalDate localDate = LocalDate.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));

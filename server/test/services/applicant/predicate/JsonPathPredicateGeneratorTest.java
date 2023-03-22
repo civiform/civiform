@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
+import java.time.ZoneId;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import services.DateConverter;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
@@ -34,7 +37,10 @@ public class JsonPathPredicateGeneratorTest {
     question = questionBank.applicantAddress().getQuestionDefinition();
     dateQuestion = questionBank.applicantDate().getQuestionDefinition();
     generator =
-        new JsonPathPredicateGenerator(ImmutableList.of(question, dateQuestion), Optional.empty());
+        new JsonPathPredicateGenerator(
+            new DateConverter(ZoneId.of("America/Los_Angeles")),
+            ImmutableList.of(question, dateQuestion),
+            Optional.empty());
   }
 
   @Test
@@ -76,7 +82,7 @@ public class JsonPathPredicateGeneratorTest {
             dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(18));
 
     JsonPathPredicate predicate =
-        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1111017600000 > @.date)]");
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1111449600000 > @.date)]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
 
@@ -94,9 +100,9 @@ public class JsonPathPredicateGeneratorTest {
 
     // This person will be 100 sometime in the future, which is why the timestamp is negative.
     JsonPathPredicate predicate =
-        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(-1476748800000 > @.date)]");
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(-1476316800000 > @.date)]");
 
-    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+    assertThat(generator.fromLeafNode(node).pathPredicate()).isEqualTo(predicate.pathPredicate());
 
     ApplicantData data = new ApplicantData();
     data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
@@ -115,7 +121,7 @@ public class JsonPathPredicateGeneratorTest {
 
     JsonPathPredicate predicate =
         JsonPathPredicate.create(
-            "$.applicant.applicant_birth_date[?(1647475200000 >= @.date && -1476748800000 <="
+            "$.applicant.applicant_birth_date[?(1647907200000 >= @.date && -1476316800000 <="
                 + " @.date)]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
@@ -176,7 +182,9 @@ public class JsonPathPredicateGeneratorTest {
     // The block repeated entity context is the one for the repeated name question.
     generator =
         new JsonPathPredicateGenerator(
-            ImmutableList.of(enumerator, repeatedQuestion), repeatedEntity);
+            Mockito.mock(DateConverter.class),
+            ImmutableList.of(enumerator, repeatedQuestion),
+            repeatedEntity);
 
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
@@ -218,7 +226,9 @@ public class JsonPathPredicateGeneratorTest {
 
     generator =
         new JsonPathPredicateGenerator(
-            ImmutableList.of(enumerator, siblingQuestion), repeatedEntity);
+            Mockito.mock(DateConverter.class),
+            ImmutableList.of(enumerator, siblingQuestion),
+            repeatedEntity);
 
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
@@ -277,6 +287,7 @@ public class JsonPathPredicateGeneratorTest {
 
     generator =
         new JsonPathPredicateGenerator(
+            Mockito.mock(DateConverter.class),
             ImmutableList.of(topLevelEnumerator, nestedEnumerator, targetQuestion, currentQuestion),
             currentContext);
 
@@ -323,7 +334,9 @@ public class JsonPathPredicateGeneratorTest {
 
     generator =
         new JsonPathPredicateGenerator(
-            ImmutableList.of(targetQuestion, currentQuestion), currentContext);
+            Mockito.mock(DateConverter.class),
+            ImmutableList.of(targetQuestion, currentQuestion),
+            currentContext);
 
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
