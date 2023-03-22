@@ -8,12 +8,22 @@ set -o pipefail
 git config --global --add safe.directory /code
 cd /code
 
+diffbase="origin/main"
+while getopts d: flag; do
+  case "${flag}" in
+    d)
+      diffbase="${OPTARG}"
+      ;;
+  esac
+done
+echo "Using diffbase ${diffbase}"
+
 # Gets the list of file paths for files that are tracked by git and have
 # changes relative to the main branch.
 function get_tracked_modified_files() {
   # Exclude deleted files:
   # https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB82308203
-  git diff --diff-filter=d --name-only origin/main
+  git diff --diff-filter=d --name-only ${diffbase}
 }
 
 # Gets the list of file paths for files that are not tracked by git and are
