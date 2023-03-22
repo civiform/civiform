@@ -212,7 +212,7 @@ public final class RedirectController extends CiviFormController {
                         redirectTo,
                         account.join(),
                         applicantName.join(),
-                        maybeEligiblePrograms.orElseGet(ImmutableList::<ApplicantProgramData>of),
+                        maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
                         toastMessage));
               }

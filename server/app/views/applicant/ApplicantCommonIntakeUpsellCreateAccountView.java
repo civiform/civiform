@@ -51,7 +51,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView
   private DivTag eligibleProgramsSection(
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Locale preferredLocale) {
-    DivTag eligibleProgramsDiv = div();
+    var eligibleProgramsDiv = div();
 
     if (eligiblePrograms.isEmpty()) {
       return eligibleProgramsDiv.with(
@@ -73,7 +73,8 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView
                     div(
                         h3().withClasses("text-black", "font-bold")
                             .withText(ep.program().localizedName().getOrDefault(preferredLocale)),
-                        p().withText(
+                        p().withClasses("mb-4")
+                           .withText(
                                 ep.program()
                                     .localizedDescription()
                                     .getOrDefault(preferredLocale))))),

@@ -9,8 +9,6 @@ import static j2html.TagCreator.section;
 import com.google.common.base.Strings;
 import controllers.routes;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
 import models.Account;
 import play.i18n.Messages;
@@ -50,13 +48,13 @@ public abstract class UpsellCreateAccountBaseView extends BaseHtmlView {
 
     HtmlBundle bundle = layout.getBundle().setTitle(title);
 
-    DivTag content =
+    var content =
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"))
             .with(confirmationBodyContent);
 
-    SectionTag createAccountSection =
+    var createAccountSection =
         section()
             .with(
                 h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
