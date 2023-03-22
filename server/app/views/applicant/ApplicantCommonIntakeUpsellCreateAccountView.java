@@ -16,6 +16,8 @@ import controllers.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
+
+import j2html.tags.specialized.SectionTag;
 import models.Account;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -62,56 +64,19 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                 eligibleProgramsSection(eligiblePrograms, messages.lang().toLocale())
                     .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"));
 
-    DivTag createAccountSection =
-        div()
-            .with(
-                h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
-                    .withClasses("mb-4", "font-bold"))
-            .with(
-                div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
-                    .withClasses("mb-4"))
-            .with(
-                div()
-                    .withClasses(
-                        "flex", "flex-col", "gap-4", StyleUtils.responsiveMedium("flex-row"))
-                    // Empty div to push buttons to the right on desktop.
-                    .with(div().withClasses("flex-grow"))
-                    .with(
-                        redirectButton(
-                                "another-program",
-                                messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
-                                redirectTo)
-                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
-                    .with(
-                        redirectButton(
-                                "all-done",
-                                messages.at(MessageKey.LINK_ALL_DONE.getKeyName()),
-                                org.pac4j.play.routes.LogoutController.logout().url())
-                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
-                    .with(
-                        redirectButton(
-                                "sign-in",
-                                messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()),
-                                routes.LoginController.applicantLogin(Optional.of(redirectTo))
-                                    .url())
-                            .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
-
-    // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
-    if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {
-      content.with(createAccountSection);
-    } else {
-      content.with(
-          new LinkElement()
-              .setHref(redirectTo)
-              .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
-              .asAnchorText());
-    }
+    content.with(addCreateAccountSection(redirectTo, account, messages));
 
     bannerMessage.ifPresent(bundle::addToastMessages);
 
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION).addMainContent(content);
 
     return layout.renderWithNav(request, applicantName, messages, bundle);
+  }
+
+  private SectionTag addCreateAccountSection(String redirectTo, Account account, Messages messages) {
+
+
+
   }
 
   private DivTag eligibleProgramsSection(
