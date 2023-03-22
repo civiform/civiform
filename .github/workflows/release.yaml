@@ -31,3 +31,12 @@ jobs:
 
       - name: Run bin/create-release
         run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
+
+      - name: Run bin/env-var-docs-generate-markdown
+        env:
+          LOCAL_OUTPUT: false
+          RELEASE_VERSION: ${{ github.event.inputs.release_number }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_AUTOMATION_BOT_ACCESS_TOKEN_TODO }}
+          TARGET_REPO: civiform/docs
+          TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
+        run: bin/env-var-docs-generate-markdown

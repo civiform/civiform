@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# DOC: Runs env-var-docs/generate_markdown.py.
+# DOC:
+# DOC: Writes generated markdown to stdout by default. To enable submitting to
+# DOC: the docs repository, set LOCAL_OUTPUT=false and provide values for
+# DOC: RELEASE_VERSION, GITHUB_ACCESS_TOKEN, TARGET_REPO, and TARGET_PATH.
+
+source bin/lib.sh
+
+if [[ ! -d env-var-docs/venv ]]; then
+  echo "ERROR: venv directory does not exist. First run 'bin/env-var-docs-create-venv' then run this script."
+  exit 1
+fi
+
+source env-var-docs/venv/bin/activate
+
+local_output=${LOCAL_OUTPUT:-true}
+export LOCAL_OUTPUT=${local_output}
+export ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json
+
+echo "Running env-var-docs/generate_markdown.py with LOCAL_OUTPUT=${LOCAL_OUTPUT}..."
+python env-var-docs/generate_markdown.py
