@@ -36,10 +36,10 @@ class TestMakeConfig(unittest.TestCase):
         os.environ["ENV_VAR_DOCS_PATH"] = "some/file"
 
         stderr = io.StringIO()
-        with self.assertRaises(SystemExit), contextlib.redirect_stderr(
-                stderr):
+        with self.assertRaises(SystemExit), contextlib.redirect_stderr(stderr):
             make_config()
-        self.assertTrue("'some/file' does not point to a file" in stderr.getvalue())
+        self.assertTrue(
+            "'some/file' does not point to a file" in stderr.getvalue())
 
     def test_local_mode_config_returned(self):
         with tempfile.NamedTemporaryFile() as envvar:
@@ -64,7 +64,9 @@ class TestMakeConfig(unittest.TestCase):
             with self.assertRaises(SystemExit), contextlib.redirect_stderr(
                     stderr):
                 make_config()
-            self.assertTrue("RELEASE_VERSION must be present in the environment variables" in stderr.getvalue())
+            self.assertTrue(
+                "RELEASE_VERSION must be present in the environment variables"
+                in stderr.getvalue())
 
     def test_github_mode_absolute_path(self):
         with tempfile.NamedTemporaryFile() as envvar:
@@ -79,7 +81,6 @@ class TestMakeConfig(unittest.TestCase):
                     stderr):
                 make_config()
             self.assertTrue("must be a relative path" in stderr.getvalue())
-
 
     def test_github_mode_config_returned(self):
         with tempfile.NamedTemporaryFile() as envvar:
