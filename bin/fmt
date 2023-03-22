@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # DOC: Autoformat Java and TypeScript source files. Usually good to run before committing.
-# 
+#
 # Run with -d <diffbase: branch or commit> flag to customize the diffbase. By default, the
 # diffbase is origin/main
 # Example usage:
