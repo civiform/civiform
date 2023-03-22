@@ -77,6 +77,6 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
 
   @Override
   public QuestionType getQuestionType() {
-    return QuestionType.NAME;
+    return QuestionType.PHONE;
   }
 }

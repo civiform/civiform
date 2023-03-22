@@ -15,7 +15,6 @@ import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionType;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import views.applicant.ApplicantLayout;
 
 
 /**
@@ -36,7 +35,7 @@ public final class PhoneQuestion extends Question {
 
   @Override
   protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.NAME);
+    return ImmutableSet.of(QuestionType.PHONE);
   }
 
   @Override
@@ -126,7 +125,8 @@ public final class PhoneQuestion extends Question {
   public String getAnswerString() {
     PhoneNumberUtil util = PhoneNumberUtil.getInstance();
     try{
-      return util.parse(getPhoneNumberValue().orElse(""),getCountryCodeValue().orElse("")).toString();
+      Phonenumber.PhoneNumber phoneNumber =  util.parse(getPhoneNumberValue().orElse(""),getCountryCodeValue().orElse(""));
+      return util.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     }
     catch (NumberParseException e)
     {

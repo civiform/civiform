@@ -17,6 +17,7 @@ import * as modal from './modal'
 import * as questionBank from './questionBank'
 import * as preview from './preview'
 import * as enumerator from './enumerator'
+import * as phoneNumber from './phone'
 
 window.addEventListener('load', () => {
   main.init()
@@ -33,4 +34,5 @@ window.addEventListener('load', () => {
   questionBank.init()
   preview.init()
   enumerator.init()
+  phoneNumber.init()
 })

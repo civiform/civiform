@@ -4,22 +4,7 @@ import play.data.FormFactory;
 import play.mvc.Http.Request;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CheckboxQuestionDefinition;
-import services.question.types.CurrencyQuestionDefinition;
-import services.question.types.DateQuestionDefinition;
-import services.question.types.DropdownQuestionDefinition;
-import services.question.types.EmailQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.IdQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
-import services.question.types.StaticContentQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.*;
 
 /** This class helps create question forms for various question types. */
 public final class QuestionFormBuilder {
@@ -55,6 +40,8 @@ public final class QuestionFormBuilder {
         return formFactory.form(StaticContentQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
         return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
+      case PHONE:
+        return formFactory.form(PhoneQuestionForm.class).bindFromRequest(request).get();
       default:
         throw new InvalidQuestionTypeException(questionType.toString());
     }
@@ -91,6 +78,8 @@ public final class QuestionFormBuilder {
         return new StaticContentQuestionForm();
       case TEXT:
         return new TextQuestionForm();
+      case PHONE:
+        return new PhoneQuestionForm();
       default:
         throw new UnsupportedQuestionTypeException(questionType);
     }
@@ -128,6 +117,8 @@ public final class QuestionFormBuilder {
         return new StaticContentQuestionForm((StaticContentQuestionDefinition) questionDefinition);
       case TEXT:
         return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
+      case PHONE:
+        return new PhoneQuestionForm((PhoneQuestionDefinition) questionDefinition);
       default:
         throw new InvalidQuestionTypeException(questionType.toString());
     }

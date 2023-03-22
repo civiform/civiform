@@ -14,6 +14,7 @@ import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidati
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
+import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates;
 
 /** Provides helper functions to build a QuestionDefinition. */
 public final class QuestionDefinitionBuilder {
@@ -311,7 +312,20 @@ public final class QuestionDefinitionBuilder {
             questionHelpText,
             textValidationPredicates,
             lastModifiedTime);
-
+      case PHONE:
+        PhoneValidationPredicates phoneValidationPredicates = PhoneValidationPredicates.create();
+        if (!validationPredicatesString.isEmpty()) {
+          phoneValidationPredicates = PhoneValidationPredicates.parse(validationPredicatesString);
+        }
+        return new PhoneQuestionDefinition(
+        id,
+          name,
+          enumeratorId,
+          description,
+          questionText,
+          questionHelpText,
+          phoneValidationPredicates,
+          lastModifiedTime);
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

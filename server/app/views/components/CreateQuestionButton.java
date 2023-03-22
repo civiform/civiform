@@ -11,14 +11,16 @@ import j2html.tags.specialized.DivTag;
 import services.question.types.QuestionType;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
+import feature
 
 /**
  * Contains a helper method to render the create question button with it's corresponding dropdown.
  */
 public final class CreateQuestionButton {
+
   /** Renders the "Create new question" button with a dropdown for each question type. */
   public static DivTag renderCreateQuestionButton(
-      String questionCreateRedirectUrl, boolean isPrimaryButton) {
+    String questionCreateRedirectUrl, boolean isPrimaryButton, boolean phoneQuestionTypeEnabled) {
     String parentId = "create-question-button";
     String dropdownId = parentId + "-dropdown";
     ButtonTag createNewQuestionButton =
@@ -48,6 +50,10 @@ public final class CreateQuestionButton {
                 "hidden");
 
     for (QuestionType type : QuestionType.values()) {
+      if(!phoneQuestionTypeEnabled && type == QuestionType.PHONE)
+      {
+        continue;
+      }
       String typeString = type.toString().toLowerCase();
       String link =
           controllers.admin.routes.AdminQuestionController.newOne(

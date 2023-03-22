@@ -3,12 +3,17 @@ package services.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.jayway.jsonpath.DocumentContext;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+
+import services.applicant.question.PhoneQuestion;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
@@ -186,6 +191,20 @@ public final class JsonExporter {
 
             break;
           }
+        case PHONE:
+        {
+          PhoneQuestion phoneQuestion = answerData.applicantQuestion().createPhoneQuestion();
+          Path path = phoneQuestion.getPhoneNumberPath().asApplicationPath();
+
+          if(phoneQuestion.getPhoneNumberValue().isPresent() && phoneQuestion.getCountryCodeValue().isPresent())
+          {
+            String formattedPhone = getFormattedPhoneNumber(phoneQuestion.getPhoneNumberValue().get(),phoneQuestion.getCountryCodeValue().get());
+            jsonApplication.putString(path,formattedPhone);
+          } else {
+            jsonApplication.putNull(path);
+          }
+          break;
+        }
         default:
           {
             for (Map.Entry<Path, String> answer :
@@ -205,5 +224,16 @@ public final class JsonExporter {
 
   private DocumentContext makeEmptyJsonObject() {
     return JsonPathProvider.getJsonPath().parse("{}");
+  }
+
+  public String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
+    PhoneNumberUtil util = PhoneNumberUtil.getInstance();
+    try {
+      Phonenumber.PhoneNumber phoneNumber = util.parse(phoneNumberValue, countryCode);
+      return util.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+    } catch (NumberParseException e) {
+      throw new RuntimeException(e);
+    }
+
   }
 }

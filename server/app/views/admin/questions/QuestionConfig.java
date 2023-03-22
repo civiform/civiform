@@ -5,13 +5,7 @@ import static j2html.TagCreator.div;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import forms.AddressQuestionForm;
-import forms.EnumeratorQuestionForm;
-import forms.IdQuestionForm;
-import forms.MultiOptionQuestionForm;
-import forms.NumberQuestionForm;
-import forms.QuestionForm;
-import forms.TextQuestionForm;
+import forms.*;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -71,7 +65,8 @@ public final class QuestionConfig {
         return Optional.of(
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
       case PHONE:
-        return Optional.of(config.addPhoneConfig().getContainer());
+        return  Optional.of(
+          config.addPhoneConfig().getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(

@@ -49,7 +49,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
             messages,
             validationErrors.getOrDefault(
               phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
-          .addReferenceClass(ReferenceClasses.PHONE_COUNTRY_CODE);
+          .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
     FieldWithLabel phoneField =
       FieldWithLabel.input()
         .setPlaceholderText("(xxx) xxx-xxxx")
@@ -61,7 +61,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
           validationErrors.getOrDefault(phoneQuestion.getPhoneNumberPath(), ImmutableSet.of()))
         .setAriaDescribedByIds(ariaDescribedByIds)
         .setScreenReaderText(question.getQuestionTextForScreenReader())
-        .addReferenceClass(ReferenceClasses.PHONE_NUMBER);
+        .setId(ReferenceClasses.PHONE_NUMBER);
 
     if (!validationErrors.isEmpty()) {
       countryCodeField.forceAriaInvalid();

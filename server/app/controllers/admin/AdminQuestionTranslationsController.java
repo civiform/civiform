@@ -180,6 +180,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       case NAME: // fallthrough intended
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
+      case PHONE: // fallthrough intended
       default:
         return formFactory.form(QuestionTranslationForm.class).bindFromRequest(request).get();
     }

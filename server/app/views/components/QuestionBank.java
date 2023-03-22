@@ -159,7 +159,7 @@ public final class QuestionBank {
                                 div().withClass("flex-grow"),
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false)))));
+                                    /* isPrimaryButton= */ false, layout.getFeatureFlags().isPhoneQuestionTypeEnabled(request))))));
 
     ImmutableList<QuestionDefinition> questions =
         filterQuestions()

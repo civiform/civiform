@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -59,15 +60,17 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public QuestionsListView(
-      AdminLayoutFactory layoutFactory,
-      TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+    AdminLayoutFactory layoutFactory,
+    TranslationLocales translationLocales,
+    ViewUtils viewUtils, FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** Renders a page with a list view of all questions. */
@@ -110,7 +113,8 @@ public final class QuestionsListView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url(),
-                            /* isPrimaryButton= */ true)),
+                            /* isPrimaryButton= */ true,
+                          /* phoneQuestionTypeEnabled= */ layout.getFeatureFlags().isPhoneQuestionTypeEnabled(request))),
                 filterDiv,
                 div()
                     .withClasses("mt-10", "flex")
