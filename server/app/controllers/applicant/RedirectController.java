@@ -24,6 +24,8 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicantService.ApplicantProgramData;
+import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -136,9 +138,9 @@ public final class RedirectController extends CiviFormController {
     return applicantService
         .relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
-            (ApplicantService.ApplicationPrograms relevantPrograms) ->
+            (ApplicationPrograms relevantPrograms) ->
                 relevantPrograms.inProgress().stream()
-                    .map(ApplicantService.ApplicantProgramData::program)
+                    .map(ApplicantProgramData::program)
                     .filter(program -> program.slug().equals(programSlug))
                     .findFirst(),
             httpContext.current());
@@ -157,9 +159,7 @@ public final class RedirectController extends CiviFormController {
       return CompletableFuture.completedFuture(
           badRequest("You are not signed in - you cannot perform this action."));
     }
-    // if it's the common intake form, then render than use that version of the upsell view
-    // otherwise, use the normal one.
-
+    
     CompletableFuture<Boolean> isCommonIntake =
         programService
             .getActiveProgramDefinitionAsync(programId)
@@ -182,25 +182,26 @@ public final class RedirectController extends CiviFormController {
             .getReadOnlyApplicantProgramService(applicantId, programId)
             .toCompletableFuture();
 
-    CompletableFuture<ImmutableList<ApplicantService.ApplicantProgramData>> eligiblePrograms =
-        applicantName
-            .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
-            .thenComposeAsync(
-                v -> applicantService.maybeEligibleProgramsForApplicant(applicantId),
-                httpContext.current());
-
-    // todo we don't need to make this call to eligibleprograms but we can just return immediately
-    // if common intake is false!
-    return CompletableFuture.allOf(
-            isCommonIntake, account, roApplicantProgramService, eligiblePrograms)
-        //      .thenComposeAsync(ignored -> {
-        //        if (isCommonIntake.join()) {
-        //
-        //        }
-        //        return CompletableFuture.completedFuture(Optional.empty());
-        //    })
-        .thenApplyAsync(
+    return CompletableFuture.allOf(isCommonIntake, account, roApplicantProgramService)
+        .thenComposeAsync(
             ignored -> {
+              if (!isCommonIntake.join()) {
+                // If this isn't the common intake form, we don't need to make the
+                // call to get the applicant's eligible programs.
+                Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
+                return CompletableFuture.completedFuture(result);
+              }
+
+              return applicantName
+                  .thenComposeAsync(
+                      v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+                  .thenComposeAsync(
+                      v -> applicantService.maybeEligibleProgramsForApplicant(applicantId),
+                      httpContext.current())
+                  .thenApplyAsync(Optional::of);
+            })
+        .thenApplyAsync(
+            maybeEligiblePrograms -> {
               Optional<ToastMessage> toastMessage =
                   request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
 
@@ -210,8 +211,8 @@ public final class RedirectController extends CiviFormController {
                         request,
                         redirectTo,
                         account.join(),
-                        applicantName.toCompletableFuture().join(),
-                        eligiblePrograms.join(),
+                        applicantName.join(),
+                        maybeEligiblePrograms.orElseGet(ImmutableList::<ApplicantProgramData>of),
                         messagesApi.preferred(request),
                         toastMessage));
               }
@@ -224,7 +225,7 @@ public final class RedirectController extends CiviFormController {
                       roApplicantProgramService.join().getApplicantData().preferredLocale(),
                       roApplicantProgramService.join().getProgramTitle(),
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
-                      applicantName.toCompletableFuture().join(),
+                      applicantName.join(),
                       applicationId,
                       messagesApi.preferred(request),
                       toastMessage));
@@ -243,45 +244,5 @@ public final class RedirectController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
-
-    //    return CompletableFuture.allOf(
-    //            account, roApplicantProgramService, eligiblePrograms, isCommonIntake)
-    //        .thenApplyAsync(
-    //            ignored ->
-    //                ,
-    //            )
-
   }
-
-  //  private Result renderUpsell(
-  //    Http.Request request,
-  //    String redirectTo,
-  //    CompletableFuture<Account> account,
-  //    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService,
-  //    CompletableFuture<Optional<String>> applicantName,
-  //    long applicationId,
-  //    Messages preferred,
-  //    Optional<> banner) {
-  //    return ok(
-  //      upsellView.render(
-  //        request,
-  //        redirectTo,
-  //        account.join(),
-  //        roApplicantProgramService
-  //          .join()
-  //          .getApplicantData()
-  //          .preferredLocale(),
-  //        roApplicantProgramService.join().getProgramTitle(),
-  //        roApplicantProgramService
-  //          .join()
-  //          .getCustomConfirmationMessage(),
-  //        applicantName.toCompletableFuture().join(),
-  //        applicationId,
-  //        messagesApi.preferred(request),
-  //        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT))));
-  //  }
-  //
-  //  CompletionStage<Result> renderCifUpsell() {
-  ////    return CompletionStage<Result> new Result();
-  //  }
 }

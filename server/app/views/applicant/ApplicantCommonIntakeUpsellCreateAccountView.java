@@ -49,7 +49,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
-//  String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
+    //  String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
     String title = "Benefits you may qualify for";
 
     HtmlBundle bundle = layout.getBundle().setTitle(title);
