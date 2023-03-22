@@ -56,6 +56,8 @@ public class ApplicationBaseView extends BaseHtmlView {
       return new AutoValue_ApplicationBaseView_Params.Builder();
     }
 
+    public abstract Builder toBuilder();
+
     public abstract boolean inReview();
 
     public abstract Http.Request request();

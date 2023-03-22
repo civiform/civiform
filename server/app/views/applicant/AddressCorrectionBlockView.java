@@ -34,7 +34,9 @@ import views.components.LinkElement;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
-/** Renders a page indicating the applicant is not eligible for a program. */
+/**
+ * Renders a page asking the applicant to confirm their address from a list of corrected addresses.
+ */
 public final class AddressCorrectionBlockView extends ApplicationBaseView {
   private static final String BLOCK_FORM_ID = "cf-block-form";
   private static final int MAX_SUGGESTIONS_TO_DISPLAY = 3;
@@ -220,5 +222,13 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
         .withId("cf-block-submit");
+  }
+
+  @Override
+  protected ATag renderPreviousButton(Params params) {
+    // Set the block index to the next block, so that the renderPreviousButton
+    // method will render the correct block.
+    Params newParams = params.toBuilder().setBlockIndex(params.blockIndex() + 1).build();
+    return super.renderPreviousButton(newParams);
   }
 }
