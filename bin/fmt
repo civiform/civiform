@@ -1,14 +1,15 @@
 #! /usr/bin/env bash
 
 # DOC: Autoformat Java and TypeScript source files. Usually good to run before committing.
+# 
 # Run with -d <diffbase: branch or commit> flag to customize the diffbase. By default, the
-# diffbase is origin/main.
-# e.g.:
-#   Diff against your local main branch:
-#   bin/fmt -d main
+# diffbase is origin/main
+# Example usage:
+#   * Diff against your local main branch:
+#     bin/fmt -d main
 #
-#   Diff against a specific commit:
-#   bin/fmt -d 191b1d30c369d9971ed2bddb9438ea571f300ab8
+#   * Diff against a specific commit:
+#     bin/fmt -d 191b1d30c369d9971ed2bddb9438ea571f300ab8
 
 source bin/lib.sh
 docker::set_project_name_dev
