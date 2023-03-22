@@ -10,6 +10,12 @@
 #
 #   * Diff against a specific commit:
 #     bin/fmt -d 191b1d30c369d9971ed2bddb9438ea571f300ab8
+#
+#   * Diff against the current commit:
+#     bin/fmt -d HEAD
+#
+#   * Diff against the previous commit:
+#     bin/fmt -d HEAD^
 
 source bin/lib.sh
 docker::set_project_name_dev
