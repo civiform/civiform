@@ -394,6 +394,10 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain('Verify address')
   }
 
+  async expectAddressPage() {
+    expect(await this.page.innerText('legend')).toContain('With Correction')
+  }
+
   async expectAddressHasBeenCorrected(
     questionText: string,
     answerText: string,
