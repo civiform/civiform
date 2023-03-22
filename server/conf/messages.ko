@@ -28,6 +28,10 @@ label.languageSr=언어 선택
 # Message with user's name to show who you are logged in as.
 header.userName={0}(으)로 로그인됨
 
+# Message for guest users, to avoid showing "Logged in as Guest" when they are
+# really not logged in.
+header.guestIndicator=UPDATE ME
+
 # Error message to answer a required question
 validation.isRequired=이 질문은 필수입니다.
 

@@ -29,6 +29,10 @@ label.languageSr=Pumili ng wika
 # Message with user's name to show who you are logged in as.
 header.userName=Nakalog-in bilang {0}
 
+# Message for guest users, to avoid showing "Logged in as Guest" when they are
+# really not logged in.
+header.guestIndicator=UPDATE ME
+
 # Error message to answer a required question
 validation.isRequired=Ang tanong na ito ay kinakailangan.
 

@@ -31,6 +31,10 @@ label.languageSr=Elegir un idioma
 # Message with user's name to show who you are logged in as.
 header.userName=Accediste como {0}
 
+# Message for guest users, to avoid showing "Logged in as Guest" when they are
+# really not logged in.
+header.guestIndicator=UPDATE ME
+
 # Error message to answer a required question
 validation.isRequired=Esta pregunta es obligatoria.
 

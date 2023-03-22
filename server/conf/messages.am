@@ -28,6 +28,10 @@ label.languageSr=ቋንቋ ይምረጡ
 # Message with user's name to show who you are logged in as.
 header.userName=እንደ {0} ሆነው ገብተዋል
 
+# Message for guest users, to avoid showing "Logged in as Guest" when they are
+# really not logged in.
+header.guestIndicator=UPDATE ME
+
 # Error message to answer a required question
 validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 

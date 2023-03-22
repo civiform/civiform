@@ -231,9 +231,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private DivTag logoutButton(String userName, Messages messages) {
+    String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
+
+    String loggedInAsMessage;
+    if (userName.equals(guestUserName)) {
+      loggedInAsMessage = messages.at(MessageKey.GUEST_INDICATOR.getKeyName());
+    } else {
+      loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), userName);
+    }
+
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
     return div(
-            div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
+            div(loggedInAsMessage).withClasses("text-sm"),
             a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
                 .withHref(logoutLink)
                 .withClasses(ApplicantStyles.LINK_LOGOUT))
