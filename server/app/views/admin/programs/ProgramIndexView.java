@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlag;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -461,8 +462,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* selectedApplicationUri= */ Optional.empty())
               .url();
 
+      String buttonText =
+          featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
+                  && activeProgram.isCommonIntakeForm()
+              ? "Forms"
+              : "Applications";
       ButtonTag button =
-          makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
+          makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET)
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
       return Optional.of(asRedirectElement(button, editLink));
     }
