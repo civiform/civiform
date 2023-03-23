@@ -1736,6 +1736,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly(Optional.empty());
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.allPrograms())
+        .containsExactlyInAnyOrder(
+            result.commonIntakeForm().get(),
+            result.inProgress().get(0),
+            result.submitted().get(0),
+            result.unapplied().get(0));
   }
 
   @Test
@@ -1783,6 +1789,9 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
     assertThat(result.commonIntakeForm().isPresent()).isFalse();
+    assertThat(result.allPrograms())
+        .containsExactlyInAnyOrder(
+            result.inProgress().get(0), result.submitted().get(0), result.unapplied().get(0));
   }
 
   @Test

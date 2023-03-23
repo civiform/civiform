@@ -1367,6 +1367,20 @@ public final class ApplicantService {
 
       abstract ApplicationPrograms build();
     }
+
+    /** Returns all relevant programs for the applicant. */
+    public ImmutableList<ApplicantProgramData> allPrograms() {
+      ImmutableList.Builder<ApplicantProgramData> allPrograms =
+          new ImmutableList.Builder<ApplicantProgramData>();
+
+      if (commonIntakeForm().isPresent()) {
+        allPrograms.add(commonIntakeForm().get());
+      }
+      allPrograms.addAll(inProgress());
+      allPrograms.addAll(submitted());
+      allPrograms.addAll(unapplied());
+      return allPrograms.build();
+    }
   }
 
   /**
