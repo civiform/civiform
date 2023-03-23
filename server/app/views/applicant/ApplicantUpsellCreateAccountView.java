@@ -19,7 +19,6 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -100,10 +99,14 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       content.with(createAccountSection);
     } else {
       content.with(
-          new LinkElement()
-              .setHref(redirectTo)
-              .setText(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
-              .asAnchorText());
+          div()
+              .withClasses("flex", "flex-row", "justify-end")
+              .with(
+                  redirectButton(
+                          "another-program",
+                          messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
+                          redirectTo)
+                      .withClasses(ApplicantStyles.BUTTON_PROGRAM_APPLY_TO_ANOTHER)));
     }
 
     bannerMessage.ifPresent(bundle::addToastMessages);
