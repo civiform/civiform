@@ -100,7 +100,6 @@ public final class ApplicantProgramsController extends CiviFormController {
             relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =
                   relevantPrograms.allPrograms().stream()
-                      .filter(applicantProgramData -> applicantProgramData != null)
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();
