@@ -9,6 +9,8 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlag;
+import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.List;
@@ -34,13 +36,18 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public ProgramAdministratorProgramListView(
-      AdminLayoutFactory layoutFactory, Config config, ProgramCardFactory programCardFactory) {
+      AdminLayoutFactory layoutFactory,
+      Config config,
+      ProgramCardFactory programCardFactory,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public Content render(
@@ -63,7 +70,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 each(
                     programs.getActivePrograms().stream()
                         .filter(program -> authorizedPrograms.contains(program.adminName()))
-                        .map(this::buildCardData)
+                        .map(p -> buildCardData(request, p))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
                         .map(cardData -> programCardFactory.renderCard(request, cardData))));
 
@@ -71,7 +78,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ProgramCardFactory.ProgramCardData buildCardData(ProgramDefinition activeProgram) {
+  private ProgramCardFactory.ProgramCardData buildCardData(
+      Request request, ProgramDefinition activeProgram) {
     return ProgramCardFactory.ProgramCardData.builder()
         .setActiveProgram(
             Optional.of(
@@ -80,13 +88,13 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                     .setRowActions(
                         ImmutableList.of(
                             renderShareLink(activeProgram),
-                            renderViewApplicationsLink(activeProgram)))
+                            renderViewApplicationsLink(request, activeProgram)))
                     .setExtraRowActions(ImmutableList.of())
                     .build()))
         .build();
   }
 
-  private ButtonTag renderViewApplicationsLink(ProgramDefinition activeProgram) {
+  private ButtonTag renderViewApplicationsLink(Request request, ProgramDefinition activeProgram) {
     String viewApplicationsLink =
         routes.AdminApplicationController.index(
                 activeProgram.id(),
@@ -97,8 +105,14 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
                 /* applicationStatus= */ Optional.empty(),
                 /* selectedApplicationUri= */ Optional.empty())
             .url();
+
+    String buttonText =
+        featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
+                && activeProgram.isCommonIntakeForm()
+            ? "Forms"
+            : "Applications";
     ButtonTag button =
-        makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
+        makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET)
             .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
     return asRedirectElement(button, viewApplicationsLink);
   }
