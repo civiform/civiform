@@ -20,7 +20,7 @@ import services.geo.AddressLocation;
  * Provides overide methods for {@link EsriClient} to illiminate the need for calling the external
  * Esri services for dev and testing.
  */
-public class FakeEsriClient extends EsriClient {
+public final class FakeEsriClient extends EsriClient {
   private String jsonResources = System.getProperty("user.dir") + "/test/resources/esri/";
   private JsonNode addressCandidates;
   private JsonNode noAddressCandidates;

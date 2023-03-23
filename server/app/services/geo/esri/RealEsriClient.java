@@ -34,7 +34,7 @@ import services.geo.AddressLocation;
  *     href="https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm">Query
  *     (Map Service/Layer)</a>
  */
-public class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
+public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
   private static final String ESRI_CONTENT_TYPE = "application/json";
