@@ -79,7 +79,7 @@ public class LoginForm extends BaseHtmlView {
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
     // DO NOT MERGE: remove the ! on this flag check.
-    if (!featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
+    if (featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
       return renderNewLoginPage(request, messages);
     } else {
       return renderOldLoginPage(request, messages);
@@ -101,7 +101,7 @@ public class LoginForm extends BaseHtmlView {
             .with(span("CiviForm")));
 
     String resourceHelpText =
-        messages.at(MessageKey.CIVIFORM_EXPLANATION.getKeyName(), civicEntityFullName);
+        messages.at(MessageKey.CIVIFORM_EXPLANATION.getKeyName(), civicEntityShortName);
     content.with(p(resourceHelpText).withClasses("text-base", "text-center", "px-8", "w-5/6"));
 
     content.with(primaryLoginSectionNew(messages));
