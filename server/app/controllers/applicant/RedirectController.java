@@ -214,6 +214,10 @@ public final class RedirectController extends CiviFormController {
                         applicantName.join(),
                         applicantId,
                         programId,
+                        profileUtils
+                            .currentUserProfile(request)
+                            .orElseThrow()
+                            .isTrustedIntermediary(),
                         maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
                         toastMessage));

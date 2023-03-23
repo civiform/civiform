@@ -55,6 +55,12 @@ public enum MessageKey {
   CONTENT_CIVIFORM_DESCRIPTION("content.description"),
   CONTENT_CONFIRMED("content.confirmed"),
   CONTENT_DOES_NOT_QUALIFY("content.doesNotQualify"),
+  CONTENT_COMMON_INTAKE_CONFIRMATION("content.commonIntakeConfirmation"),
+  CONTENT_COMMON_INTAKE_CONFIRMATION_TI("content.commonIntakeConfirmationTi"),
+  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS("content.commonIntakeNoMatchingPrograms"),
+  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
+  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(
+      "content.commonIntakeNoMatchingProgramsNextStep"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_LOGIN_PROMPT("content.loginPrompt"),
@@ -130,8 +136,8 @@ public enum MessageKey {
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_ALL_PROGRAMS_SECTION("title.allProgramsSection"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
-
   TITLE_COMMON_INTAKE_CONFIRMATION("title.commonIntakeConfirmation"),
+  TITLE_COMMON_INTAKE_CONFIRMATION_TI("title.commonIntakeConfirmationTi"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
   TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),
