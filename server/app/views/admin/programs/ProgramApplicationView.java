@@ -215,7 +215,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         div("Answered on " + date).withClasses(ReferenceClasses.BT_DATE));
     if (hasEligibilityEnabled) {
       String eligibilityText =
-          answerData.isEligible() ? "Meets eligibility" : "Does not meet eligibility";
+          answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
       eligibilityAndTimestampDiv.with(div(eligibilityText));
     }
     return div()
