@@ -19,7 +19,7 @@ button.logout=Đăng xuất
 footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
 
 # Placeholder message when an applicant clicked the "Continue as Guest".
-# This should be consistent with button.guestLogin.
+# This should be consistent with button.guestLoginguestLogin.
 guest=Khách
 
 # Label read by screen readers for the language dropdown shown in the page header.
@@ -68,14 +68,29 @@ button.createAccount=Tạo tài khoản
 # The text on the button for guests to log in to their session.
 button.guestLogin=Tiếp tục với tư cách khách
 
+# The text near the bottom of the login page for users to continue as a guest.
+button.guestLogin2=UPDATE ME
+
 # Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
 content.loginDisabledPrompt=Tính năng đăng nhập vào tài khoản đang bị vô hiệu hóa
 
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Bạn muốn thực hiện thao tác khác?
 
+# The words leading up to the admin login anchor
+content.adminLoginPrompt2=UPDATE ME
+
 # The text on the anchor for admins to log in to their session.
 link.adminLogin=Đăng nhập với tư cách quản trị viên
+
+# An explanation of the site at the top of the login page.
+content.civiformExplanation=UPDATE ME {0}
+
+# A CTA to log in to the entity's identity provider.
+content.loginCta=UPDATE ME {0}
+
+# An explanation of the benefits of creating an account
+content.createAccountExplanation=UPDATE ME
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #

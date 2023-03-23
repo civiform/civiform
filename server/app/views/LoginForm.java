@@ -79,7 +79,7 @@ public class LoginForm extends BaseHtmlView {
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
     // DO NOT MERGE: remove the ! on this flag check.
-    if (featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
+    if (!featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
       return renderNewLoginPage(request, messages);
     } else {
       return renderOldLoginPage(request, messages);
@@ -100,10 +100,8 @@ public class LoginForm extends BaseHtmlView {
             .with(span(civicEntityShortName).withClasses("font-bold"))
             .with(span("CiviForm")));
 
-    // TODO: i18n
     String resourceHelpText =
-        "A resource to help you find government benefits you may be eligible for in the City"
-            + " of Seattle.";
+        messages.at(MessageKey.CIVIFORM_EXPLANATION.getKeyName(), civicEntityFullName);
     content.with(p(resourceHelpText).withClasses("text-base", "text-center", "px-8", "w-5/6"));
 
     content.with(primaryLoginSectionNew(messages));
@@ -217,8 +215,7 @@ public class LoginForm extends BaseHtmlView {
           messages.at(MessageKey.CONTENT_LOGIN_DISABLED_PROMPT.getKeyName());
       applicantAccountLogin.with(p(loginDisabledMessage));
     } else {
-      // TODO: i18n
-      String loginMessage = "Log in to your City of Seattle account to apply for benefits faster.";
+      String loginMessage = messages.at(MessageKey.LOGIN_CTA.getKeyName(), civicEntityFullName);
       applicantAccountLogin
           .with(
               div(p(loginMessage).withClasses("mr-2", "text-center", "text-gray-500"), tooltip)
@@ -265,11 +262,7 @@ public class LoginForm extends BaseHtmlView {
     if (renderCreateAccountButton || !disableApplicantGuestLogin) {
       String alternativeMessage =
           messages.at(MessageKey.CONTENT_LOGIN_PROMPT_ALTERNATIVE.getKeyName());
-      // TODO: i18n
-      String alternativeHelpText =
-          "Creating an account saves you time and allows you to apply for many benefits without"
-              + " having to enter the same information again. You can also edit applications and"
-              + " check your application statuses.";
+      String alternativeHelpText = messages.at(MessageKey.CREATE_ACCOUNT_EXPLANATION.getKeyName());
       alternativeLoginDiv.with(
           p(strong(alternativeMessage)).withClasses("text-lg", "text-center", "mt-2", "mx-auto"));
       alternativeLoginDiv.with(
@@ -324,8 +317,7 @@ public class LoginForm extends BaseHtmlView {
   }
 
   private DivTag adminLoginSectionNew(Messages messages, Http.Request request) {
-    // TODO: i18n
-    String adminPrompt = "Are you a benefits administrator?";
+    String adminPrompt = messages.at(MessageKey.CONTENT_ADMIN_LOGIN_PROMPT2.getKeyName());
     DivTag footer =
         div()
             .withClasses(
@@ -383,9 +375,8 @@ public class LoginForm extends BaseHtmlView {
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private ButtonTag createAccountButtonNew(Messages unused) {
-    // TODO: i18n
-    String msg = "Create an account";
+  private ButtonTag createAccountButtonNew(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
     return redirectButton("register", msg, routes.LoginController.register().url())
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY_NEW);
   }
@@ -397,9 +388,8 @@ public class LoginForm extends BaseHtmlView {
         .withClasses(BaseStyles.LOGIN_REDIRECT_BUTTON_SECONDARY);
   }
 
-  private ATag guestLink(Messages unused) {
-    // TODO: i18n
-    String msg = "or continue as a guest";
+  private ATag guestLink(Messages messages) {
+    String msg = messages.at(MessageKey.BUTTON_LOGIN_GUEST2.getKeyName());
     return a(msg)
         .withHref(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
         .withClasses(BaseStyles.GUEST_LOGIN);

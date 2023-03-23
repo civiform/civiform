@@ -68,14 +68,29 @@ button.createAccount=Gumawa ng account
 # The text on the button for guests to log in to their session.
 button.guestLogin=Magpatuloy bilang panauhin
 
+# The text near the bottom of the login page for users to continue as a guest.
+button.guestLogin2=UPDATE ME
+
 # Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
 content.loginDisabledPrompt=Kasalukuyang naka-disable ang pag-log in sa account
 
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Naghahanap ng iba?
 
+# The words leading up to the admin login anchor
+content.adminLoginPrompt2=UPDATE ME
+
 # The text on the anchor for admins to log in to their session.
 link.adminLogin=Admin login
+
+# An explanation of the site at the top of the login page.
+content.civiformExplanation=UPDATE ME {0}
+
+# A CTA to log in to the entity's identity provider.
+content.loginCta=UPDATE ME {0}
+
+# An explanation of the benefits of creating an account
+content.createAccountExplanation=UPDATE ME
 
 #--------------------------------------------------------------------------#
 # PROGRAM FORM - contains text shown when filling out an application form. #
