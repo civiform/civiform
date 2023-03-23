@@ -55,6 +55,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
+              // todo don't include this first button if there were eligible programs.
                 redirectButton(
                         "go-back-and-edit",
                         messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
@@ -70,18 +71,12 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                     .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
                 redirectButton(
                         "sign-in",
+                        // todo avaleske split this into create account and log in buttons
                         messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()),
                         controllers.routes.LoginController.applicantLogin(Optional.of(redirectTo))
                             .url())
                     .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION))
             : ImmutableList.of(
-                redirectButton(
-                        "go-back-and-edit",
-                        messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
-                        controllers.applicant.routes.ApplicantProgramReviewController.review(
-                                applicantId, programId)
-                            .url())
-                    .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
                 redirectButton(
                         "apply-to-programs",
                         messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),

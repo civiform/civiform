@@ -327,6 +327,30 @@ content.loginModalPrompt=You are not logged in to an account. Without an account
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account
 
+# Title on the page after applicant has successfully filled out the common intake form.
+title.commonIntakeConfirmation=Benefits you may qualify for
+
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
+title.commonIntakeConfirmationTi=Benefits your client may qualify for
+
+# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmation=You may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''. Or to view additional benefit programs you can visit the {0}
+
+# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmationTi=Your client may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''. Or to view additional benefit programs you can visit the {0}
+
+# A message explaining that there were no programs the applicant is currently eligible for.
+content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.
+
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for.
+content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.
+
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
+content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+
+# A button prompting users to apply to programs.
+button.applyToPrograms=Apply to programs
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
