@@ -828,8 +828,18 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     boolean questionIsUsedInPredicate =
         programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
 
+    boolean addressCorrectionEnabledQuestionAlreadyExists =
+        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
+
     String toolTipText =
-        "Enabling address correction will check the resident's address to ensure it is accurate.";
+        "Enabling 'address correction' will check the resident's address to ensure it is accurate.";
+
+    toolTipText +=
+        addressCorrectionEnabledQuestionAlreadyExists
+            ? " This screen already contains a question with address correction enabled. This"
+                + " feature can only be enabled once per screen."
+            : " You can select one address question to correct per screen.";
+
     if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
       toolTipText +=
           " To use this feature, you will need to have your IT manager configure the GIS service.";
@@ -838,14 +848,6 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       toolTipText +=
           " Questions used in visibility or eligibility conditions must have address correction"
               + " enabled.";
-    }
-
-    boolean addressCorrectionEnabledQuestionAlreadyExists =
-        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
-    if (addressCorrectionEnabledQuestionAlreadyExists) {
-      toolTipText +=
-          " This screen already contains a question with address correction enabled. This feature"
-              + " can only be enabled once per screen.";
     }
 
     ButtonTag addressCorrectionButton =
@@ -881,7 +883,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.HELP)));
+            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO)));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
