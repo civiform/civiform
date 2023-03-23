@@ -8,6 +8,8 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -23,6 +25,7 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -98,6 +101,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Before
   public void setUp() throws Exception {
+    Config config = ConfigFactory.load();
+    baseUrl = config.getString("base_url");
     subject = instanceOf(ApplicantService.class);
     questionService = instanceOf(QuestionService.class);
     userRepository = instanceOf(UserRepository.class);
