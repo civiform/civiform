@@ -73,20 +73,20 @@ public abstract class UpsellCreateAccountBaseView extends BaseHtmlView {
                                 "another-program",
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
                                 redirectTo)
-                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
                     .with(
                         redirectButton(
                                 "all-done",
                                 messages.at(MessageKey.LINK_ALL_DONE.getKeyName()),
                                 org.pac4j.play.routes.LogoutController.logout().url())
-                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
                     .with(
                         redirectButton(
                                 "sign-in",
                                 messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()),
                                 routes.LoginController.applicantLogin(Optional.of(redirectTo))
                                     .url())
-                            .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
+                            .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION)));
 
     // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
     if (Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty()) {

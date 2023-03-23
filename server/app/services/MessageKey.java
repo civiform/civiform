@@ -24,6 +24,7 @@ public enum MessageKey {
   ARIA_LABEL_ANSWER("ariaLabel.answer"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BUTTON_APPLY("button.apply"),
+  BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
   BUTTON_APPLY_SR("button.applySr"),
   BUTTON_CHOOSE_FILE("button.chooseFile"),
   BUTTON_CONTINUE("button.continue"),
@@ -129,6 +130,8 @@ public enum MessageKey {
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),
   TITLE_ALL_PROGRAMS_SECTION("title.allProgramsSection"),
   TITLE_APPLICATION_CONFIRMATION("title.applicationConfirmation"),
+
+  TITLE_COMMON_INTAKE_CONFIRMATION("title.commonIntakeConfirmation"),
   TITLE_APPLICATION_NOT_ELIGIBLE("title.applicantNotEligible"),
   TITLE_APPLICATION_NOT_ELIGIBLE_TI("title.applicantNotEligibleTi"),
   TITLE_COMMON_INTAKE_SUMMARY("title.commonIntakeSummary"),

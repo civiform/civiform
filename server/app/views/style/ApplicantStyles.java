@@ -146,9 +146,9 @@ public final class ApplicantStyles {
           "font-normal",
           "justify-self-end",
           "self-center");
-  public static final String BUTTON_CREATE_ACCOUNT =
+  public static final String BUTTON_UPSELL_PRIMARY_ACTION =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
-  public static final String BUTTON_NOT_RIGHT_NOW =
+  public static final String BUTTON_UPSELL_SECONDARY_ACTION =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
   public static final String BUTTON_UPLOAD =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
