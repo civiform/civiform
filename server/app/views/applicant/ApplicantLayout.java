@@ -95,11 +95,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     DivTag supportLink =
         div()
+            .withClasses("flex", "flex-row")
             .with(
-                text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
-                text(" "),
-                emailAction)
-            .withClasses("mx-auto", "max-w-screen-sm", "w-5/6");
+                div()
+                    .withText(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName()))
+                    .with(text(" "), emailAction)
+                    .withClasses("mx-auto"));
 
     bundle.addFooterContent(supportLink);
 
