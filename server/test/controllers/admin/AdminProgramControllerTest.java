@@ -213,7 +213,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     // Redirect is to the blocks edit page.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(newDraft.get().id, 1).url());
+        .hasValue(
+            controllers.admin.routes.AdminProgramBlocksController.index(newDraft.get().id).url());
   }
 
   @Test
@@ -230,7 +231,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     // Redirect is to the blocks edit page.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramBlocksController.edit(draftProgram.id, 1).url());
+        .hasValue(
+            controllers.admin.routes.AdminProgramBlocksController.index(draftProgram.id).url());
 
     Program updatedDraft =
         programRepository.lookupProgram(draftProgram.id).toCompletableFuture().join().get();

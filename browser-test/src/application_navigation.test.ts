@@ -849,6 +849,30 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickSubmit()
       await logout(page)
     })
+
+    it('clicking previous on address correction page takes you back to address entry page', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage()
+
+      await applicantQuestions.clickPrevious()
+      await applicantQuestions.expectAddressPage()
+
+      await logout(page)
+    })
   })
 
   // TODO: Add tests for "next" navigation

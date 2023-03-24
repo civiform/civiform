@@ -1,6 +1,7 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.NEW_LOGIN_FORM_ENABLED;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -74,6 +75,21 @@ public class LoginForm extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
+    if (featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
+      return renderNewLoginPage(request, messages);
+    } else {
+      return renderOldLoginPage(request, messages);
+    }
+  }
+
+  // TODO(#4366): implement new login page.
+  private Content renderNewLoginPage(Http.Request unused1, Messages unused2) {
+    HtmlBundle htmlBundle = this.layout.getBundle();
+
+    return layout.render(htmlBundle);
+  }
+
+  private Content renderOldLoginPage(Http.Request request, Messages messages) {
     String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);

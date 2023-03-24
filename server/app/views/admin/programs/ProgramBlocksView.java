@@ -597,7 +597,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     + " minimum requirements."));
       }
       emptyPredicateContentBuilder
-          .add(text(" You can change this in "))
+          .add(text(" You can change this in the "))
           .add(
               a().withText("program settings.")
                   .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())

@@ -8,12 +8,22 @@ set -o pipefail
 git config --global --add safe.directory /code
 cd /code
 
+diffbase="origin/main"
+while getopts d: flag; do
+  case "${flag}" in
+    d)
+      diffbase="${OPTARG}"
+      ;;
+  esac
+done
+echo "Using diffbase ${diffbase}"
+
 # Gets the list of file paths for files that are tracked by git and have
 # changes relative to the main branch.
 function get_tracked_modified_files() {
   # Exclude deleted files:
   # https://git-scm.com/docs/git-diff#Documentation/git-diff.txt---diff-filterACDMRTUXB82308203
-  git diff --diff-filter=d --name-only origin/main
+  git diff --diff-filter=d --name-only ${diffbase}
 }
 
 # Gets the list of file paths for files that are not tracked by git and are
@@ -29,11 +39,11 @@ function get_modified_java_files() {
   ) | grep -E ".+\.java$"
 }
 
-function get_modified_ts_files() {
+function get_modified_ts_and_json_files() {
   (
     get_tracked_modified_files
     get_untracked_files
-  ) | grep -E ".+\.ts$"
+  ) | grep -E ".+\.(ts|json)$"
 }
 
 function get_modified_python_files() {
@@ -51,8 +61,8 @@ else
   echo 'Done formatting java'
 fi
 
-if [[ -z $(get_modified_ts_files) ]]; then
-  echo 'No modified TypeScript files found'
+if [[ -z $(get_modified_ts_and_json_files) ]]; then
+  echo 'No modified TypeScript or JSON files found'
 else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory

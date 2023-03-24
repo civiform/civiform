@@ -157,9 +157,7 @@ public final class AdminProgramController extends CiviFormController {
         // Make a new draft from the provided id.
         idToEdit = programService.newDraftOf(programId).id();
       }
-      return redirect(
-          controllers.admin.routes.AdminProgramBlocksController.edit(
-              idToEdit, /* blockDefinitionId = */ 1));
+      return redirect(controllers.admin.routes.AdminProgramBlocksController.index(idToEdit).url());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
     } catch (Exception e) {

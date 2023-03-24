@@ -405,12 +405,18 @@ describe('program creation', () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    // needed for gotoViewActiveProgramPageAndStartEditing
+    await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const programName = 'Test program 5'
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    // removing the first screen of a draft resulted in an error when a user would go to to edit the draft
     await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.publishProgram(programName)
+    // removing the first screen of a program without drafts, caused an error when a user went to edit the program
+    await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
   })
 
   it('delete last block and edit', async () => {
