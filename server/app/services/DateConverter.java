@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.inject.Inject;
 import java.sql.Timestamp;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -16,6 +17,7 @@ import java.util.TimeZone;
 /** Utility class for converting dates between different formats. */
 public final class DateConverter {
 
+  private final Clock clock;
   private final ZoneId zoneId;
   private static final DateTimeFormatter DATE_TIME_FORMATTER_WITH_SLASH =
       DateTimeFormatter.ofPattern("yyyy/MM/dd");
@@ -23,8 +25,9 @@ public final class DateConverter {
       DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
   @Inject
-  public DateConverter(ZoneId zoneId) {
-    this.zoneId = checkNotNull(zoneId);
+  public DateConverter(Clock clock) {
+    this.clock = checkNotNull(clock);
+    this.zoneId = checkNotNull(clock.getZone());
   }
 
   /**
@@ -104,10 +107,6 @@ public final class DateConverter {
 
   /** Gets the {@link Long} timestamp from an age, by subtracting the age from today's date. */
   public long getDateTimestampFromAge(Long age) {
-    return LocalDate.now(zoneId)
-        .minusYears(age)
-        .atStartOfDay(ZoneId.systemDefault())
-        .toInstant()
-        .toEpochMilli();
+    return LocalDate.now(clock).minusYears(age).atStartOfDay(zoneId).toInstant().toEpochMilli();
   }
 }

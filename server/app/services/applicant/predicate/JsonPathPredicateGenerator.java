@@ -123,8 +123,10 @@ public final class JsonPathPredicateGenerator {
                   node.comparedValue()
                       .value()
                       .substring(1, node.comparedValue().value().length() - 1))
-              .map(s -> Long.parseLong(s.trim()))
+              .map(String::trim)
+              .map(Long::parseLong)
               .collect(ImmutableList.toImmutableList());
+
       // Check that the date value is between the two age timestamps.
       return JsonPathPredicate.create(
           String.format(

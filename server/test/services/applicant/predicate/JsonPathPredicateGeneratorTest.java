@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
 import org.junit.Before;
@@ -27,6 +29,7 @@ import support.TestQuestionBank;
 
 public class JsonPathPredicateGeneratorTest {
 
+  private Clock clock = Clock.fixed(Instant.parse("2032-03-23T10:15:30.00Z"), ZoneId.of("UTC"));
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private QuestionDefinition question;
   private QuestionDefinition dateQuestion;
@@ -38,9 +41,7 @@ public class JsonPathPredicateGeneratorTest {
     dateQuestion = questionBank.applicantDate().getQuestionDefinition();
     generator =
         new JsonPathPredicateGenerator(
-            new DateConverter(ZoneId.of("America/Los_Angeles")),
-            ImmutableList.of(question, dateQuestion),
-            Optional.empty());
+            new DateConverter(clock), ImmutableList.of(question, dateQuestion), Optional.empty());
   }
 
   @Test
@@ -82,7 +83,7 @@ public class JsonPathPredicateGeneratorTest {
             dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(18));
 
     JsonPathPredicate predicate =
-        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1111449600000 > @.date)]");
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1395532800000 > @.date)]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
 
@@ -100,7 +101,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // This person will be 100 sometime in the future, which is why the timestamp is negative.
     JsonPathPredicate predicate =
-        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(-1476316800000 > @.date)]");
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(-1192147200000 > @.date)]");
 
     assertThat(generator.fromLeafNode(node).pathPredicate()).isEqualTo(predicate.pathPredicate());
 
@@ -121,7 +122,7 @@ public class JsonPathPredicateGeneratorTest {
 
     JsonPathPredicate predicate =
         JsonPathPredicate.create(
-            "$.applicant.applicant_birth_date[?(1647907200000 >= @.date && -1476316800000 <="
+            "$.applicant.applicant_birth_date[?(1931990400000 >= @.date && -1192147200000 <="
                 + " @.date)]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);

@@ -3,6 +3,7 @@ package services;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertThrows;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -11,7 +12,8 @@ import org.junit.Test;
 
 public class DateConverterTest {
 
-  private final DateConverter dateConverter = new DateConverter(ZoneId.of("UTC"));
+  private Clock clock = Clock.fixed(Instant.parse("2022-12-07T10:15:30.00Z"), ZoneId.of("UTC"));
+  private DateConverter dateConverter = new DateConverter(clock);
 
   @Test
   public void workingWith_Iso8601_dates() {
@@ -66,6 +68,6 @@ public class DateConverterTest {
   @Test
   public void getDateTimestampFromAge_isCorrect() {
     assertThat(dateConverter.renderLocalDate(dateConverter.getDateTimestampFromAge(30L)))
-        .isEqualTo(LocalDate.now(ZoneId.systemDefault()).minusYears(30L));
+        .isEqualTo(LocalDate.now(clock).minusYears(30L));
   }
 }
