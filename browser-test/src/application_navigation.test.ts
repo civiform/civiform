@@ -283,6 +283,16 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-guest')
+
+      // Click the "Apply to another program" button while a guest, which triggers
+      // a modal to prompt the guest to login or create an account. Note that
+      // in this screenshot, the mouse ends up hovering on top of the first
+      // button in the new modal that appears, which is why it is highlighted.
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await validateScreenshot(
+        page,
+        'program-submission-guest-login-prompt-modal',
+      )
     })
 
     it('verify program submission page for logged in user', async () => {

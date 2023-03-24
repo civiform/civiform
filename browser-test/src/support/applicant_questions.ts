@@ -188,6 +188,10 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickApplyToAnotherProgramButton() {
+    await this.page.click('button:has-text("Apply to another program")')
+  }
+
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
