@@ -17,6 +17,8 @@ import services.MessageKey;
 import services.applicant.ApplicantService;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.Icons;
+import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
@@ -121,11 +123,21 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
     var eligibleProgramsDiv = div();
 
     if (eligiblePrograms.isEmpty()) {
+      var moreLink = new LinkElement()
+        .setStyles("underline")
+        .setText(messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName()))
+        .setHref("https://access.arkansas.gov/Learn/Home")
+        .opensInNewTab()
+        .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+        .asAnchorText()
+        .attr("aria-label",
+          messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName().toLowerCase()));
+
       return eligibleProgramsDiv.with(
           p(isTrustedIntermediary
-                  ? messages.at(
-                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI.getKeyName())
-                  : messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS.getKeyName()))
+                  ? rawHtml(messages.at(
+                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI.getKeyName(), moreLink))
+                  : rawHtml(messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS.getKeyName(), moreLink)))
               .withClasses("mb-4"),
           p(messages.at(
                   MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP.getKeyName()))
