@@ -1,11 +1,13 @@
 package views.components;
 
 import static j2html.TagCreator.div;
+import static views.BaseHtmlView.button;
 
 import com.google.auto.value.AutoValue;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import java.util.Optional;
 import java.util.UUID;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -21,14 +23,15 @@ public abstract class Modal {
 
   public abstract String modalTitle();
 
-  public abstract ButtonTag triggerButtonContent();
+  public abstract Optional<ButtonTag> triggerButtonContent();
 
   public abstract Width width();
 
   public abstract boolean displayOnLoad();
 
   private static Modal.Builder builder() {
-    return new AutoValue_Modal.Builder();
+    // Set some defaults before the user sets their own values.
+    return new AutoValue_Modal.Builder().setWidth(Width.DEFAULT).setDisplayOnLoad(false);
   }
 
   public static Builder builder(String modalId, ContainerTag<?> content) {
@@ -97,7 +100,11 @@ public abstract class Modal {
 
   public ButtonTag getButton() {
     String triggerButtonId = getTriggerButtonId();
-    return triggerButtonContent().withId(triggerButtonId);
+    if (triggerButtonContent().isPresent()) {
+      return triggerButtonContent().get().withId(triggerButtonId);
+    } else {
+      return button(triggerButtonId, modalTitle());
+    }
   }
 
   public String getTriggerButtonId() {
