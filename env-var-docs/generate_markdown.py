@@ -62,7 +62,9 @@ def make_config() -> Config:
             repo = os.environ["TARGET_REPO"]
             path = os.environ["TARGET_PATH"]
             if path[0:1] == "/":
-                errorexit("f{path} must be a relative path starting from the repository root.")
+                errorexit(
+                    "f{path} must be a relative path starting from the repository root."
+                )
         except KeyError as e:
             errorexit(
                 f"Either LOCAL_OUTPUT=true must be set or {e.args[0]} must be present in the environment variables"
