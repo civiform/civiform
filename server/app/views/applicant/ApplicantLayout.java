@@ -98,8 +98,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withClasses("flex", "flex-row")
             .with(
                 div()
-                    .withText(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName()))
-                    .with(text(" "), emailAction)
+                    .with(
+                        text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
+                        text(" "),
+                        emailAction)
                     .withClasses("mx-auto"));
 
     bundle.addFooterContent(supportLink);
