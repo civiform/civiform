@@ -54,37 +54,43 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
     boolean shouldUpsell =
         Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty();
 
-    ImmutableList<DomContent> actionButtons =
-        shouldUpsell
-            ? ImmutableList.of(
-              // todo don't include this first button if there were eligible programs.
-                redirectButton(
-                        "go-back-and-edit",
-                        messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
-                        controllers.applicant.routes.ApplicantProgramReviewController.review(
-                                applicantId, programId)
-                            .url())
-                    .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
-                redirectButton(
-                        "apply-to-programs",
-                        messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-                        controllers.applicant.routes.ApplicantProgramsController.index(applicantId)
-                            .url())
-                    .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
-                redirectButton(
-                        "sign-in",
-                        // todo avaleske split this into create account and log in buttons
-                        messages.at(MessageKey.LINK_CREATE_ACCOUNT_OR_SIGN_IN.getKeyName()),
-                        controllers.routes.LoginController.applicantLogin(Optional.of(redirectTo))
-                            .url())
-                    .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION))
-            : ImmutableList.of(
-                redirectButton(
-                        "apply-to-programs",
-                        messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-                        controllers.applicant.routes.ApplicantProgramsController.index(applicantId)
-                            .url())
-                    .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION));
+    var actionButtonsBuilder = ImmutableList.<DomContent>builder();
+    if (shouldUpsell && eligiblePrograms.isEmpty()) {
+      actionButtonsBuilder.add(
+          redirectButton(
+                  "go-back-and-edit",
+                  messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
+                  controllers.applicant.routes.ApplicantProgramReviewController.review(
+                          applicantId, programId)
+                      .url())
+              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION));
+    }
+
+    if (shouldUpsell) {
+      actionButtonsBuilder.add(
+          redirectButton(
+                  "apply-to-programs",
+                  messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
+                  controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
+              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
+          redirectButton(
+                  "sign-in",
+                  messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
+                  controllers.routes.LoginController.applicantLogin(Optional.of(redirectTo)).url())
+              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
+          redirectButton(
+                  "sign-up",
+                  messages.at(MessageKey.BUTTON_CREATE_AN_ACCOUNT.getKeyName()),
+                  controllers.routes.LoginController.register().url())
+              .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION));
+    } else {
+      actionButtonsBuilder.add(
+          redirectButton(
+                  "apply-to-programs",
+                  messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
+                  controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
+              .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION));
+    }
 
     var content =
         div()
@@ -109,7 +115,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                                 StyleUtils.responsiveMedium("flex-row"))
                             // Empty div to push buttons to the right on desktop.
                             .with(div().withClasses("flex-grow"))
-                            .with(actionButtons)));
+                            .with(actionButtonsBuilder.build())));
 
     bannerMessage.ifPresent(bundle::addToastMessages);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION).addMainContent(content);
@@ -123,21 +129,33 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
     var eligibleProgramsDiv = div();
 
     if (eligiblePrograms.isEmpty()) {
-      var moreLink = new LinkElement()
-        .setStyles("underline")
-        .setText(messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName()))
-        .setHref("https://access.arkansas.gov/Learn/Home")
-        .opensInNewTab()
-        .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
-        .asAnchorText()
-        .attr("aria-label",
-          messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName().toLowerCase()));
+      var moreLink =
+          new LinkElement()
+              .setStyles("underline")
+              .setText(
+                  messages.at(
+                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName()))
+              .setHref("https://access.arkansas.gov/Learn/Home")
+              .opensInNewTab()
+              .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
+              .asAnchorText()
+              .attr(
+                  "aria-label",
+                  messages.at(
+                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT
+                          .getKeyName()
+                          .toLowerCase()));
 
       return eligibleProgramsDiv.with(
           p(isTrustedIntermediary
-                  ? rawHtml(messages.at(
-                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI.getKeyName(), moreLink))
-                  : rawHtml(messages.at(MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS.getKeyName(), moreLink)))
+                  ? rawHtml(
+                      messages.at(
+                          MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI.getKeyName(),
+                          moreLink))
+                  : rawHtml(
+                      messages.at(
+                          MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS.getKeyName(),
+                          moreLink)))
               .withClasses("mb-4"),
           p(messages.at(
                   MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP.getKeyName()))

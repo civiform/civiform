@@ -67,6 +67,9 @@ title.login=Login
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Please log in with your {0} account
 
+# The text on the button an applicant clicks to create an account.
+button.createAnAccount=Create an account
+
 # The text on the button an applicant clicks to log in to their session.
 button.login=Log in
 
@@ -319,7 +322,7 @@ content.confirmed=Thank you for applying to {0}.  Your application has been rece
 title.createAnAccount=Create an account or sign in
 
 # A message urging users to create an account to save their data.
-content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+content.pleaseCreateAccount=If you sign into an account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.

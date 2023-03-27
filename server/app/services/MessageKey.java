@@ -37,6 +37,7 @@ public enum MessageKey {
   BUTTON_EDIT_COMMON_INTAKE_SR("button.editCommonIntakeSr"),
   BUTTON_GO_BACK_AND_EDIT("button.goBackAndEdit"),
   BUTTON_LOGIN("button.login"),
+  BUTTON_CREATE_AN_ACCOUNT("button.createAnAccount"),
   BUTTON_LOGIN_GUEST("button.guestLogin"),
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT_SCREEN("button.nextScreen"),
@@ -59,7 +60,8 @@ public enum MessageKey {
   CONTENT_COMMON_INTAKE_CONFIRMATION_TI("content.commonIntakeConfirmationTi"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS("content.commonIntakeNoMatchingPrograms"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
-  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT("content.commonIntakeNoMatchingProgramsLinkText"),
+  CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT(
+      "content.commonIntakeNoMatchingProgramsLinkText"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(
       "content.commonIntakeNoMatchingProgramsNextStep"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
