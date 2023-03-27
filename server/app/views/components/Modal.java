@@ -43,10 +43,6 @@ public abstract class Modal {
 
     public abstract Builder setModalId(String modalId);
 
-    public abstract String modalTitle();
-
-    abstract String modalId();
-
     public abstract Builder setContent(ContainerTag<?> content);
 
     public abstract Builder setModalTitle(String modalTitle);
@@ -57,12 +53,20 @@ public abstract class Modal {
 
     public abstract Builder setDisplayOnLoad(boolean value);
 
+    // Effectively private (here and below). Java does not allow private abstract methods.
+    abstract String modalTitle();
+
+    abstract String modalId();
+
+    // This is the build method that AutoValue will generate an implementation for.
     abstract Modal autoBuild();
 
     // In the client-facing build() method, we set the modal title to the modal ID if it is not
     // already set.
     public Modal build() {
-      setModalTitle(modalTitle() != null ? modalTitle() : modalId());
+      if (modalTitle() == null) {
+        setModalTitle(modalId());
+      }
       return autoBuild();
     }
   }
