@@ -91,19 +91,25 @@ def main():
 
     # If file exists, update it, if not, create it.
     path = f"{config.repo_path}/{config.version}.md"
-    msg = f"Adds server environment variable documentation for {config.version}"
     try:
         file = repo.get_contents(path)
         if isinstance(file, list):
             errorexit(
                 f"{file_path} returns multiple files in the repo, aborting")
 
-        res = repo.update_file(path, msg, markdown, file.sha)
-    except github.GithubException.UnknownObjectException:
-        res = repo.create_file(path, msg, markdown, branch="main")
+        res = repo.update_file(
+            path,
+            f"Updates {config.version} server environment variable documentation",
+            markdown, file.sha)
+    except github.UnknownObjectException:
+        res = repo.create_file(
+            path,
+            f"Adds {config.version} server environment variable documentation",
+            markdown,
+            branch="main")
 
     print(
-        f"https://github.com/blob/main/{config.repo}/{path} updated in commit {res['commit']}"
+        f"https://github.com/{config.repo}/blob/main/{path} updated in commit {res['commit']}"
     )
 
 

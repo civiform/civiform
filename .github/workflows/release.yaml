@@ -32,11 +32,23 @@ jobs:
       - name: Run bin/create-release
         run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
 
+  document_server_environment_variables:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: bin/env-var-docs-create-venv
+
       - name: Run bin/env-var-docs-generate-markdown
         env:
           LOCAL_OUTPUT: false
           RELEASE_VERSION: ${{ github.event.inputs.release_number }}
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_AUTOMATION_BOT_ACCESS_TOKEN_TODO }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN }}
           TARGET_REPO: civiform/docs
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
         run: bin/env-var-docs-generate-markdown
