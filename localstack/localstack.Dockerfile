@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM localstack/localstack
+FROM localstack/localstack:1.4.0
 
 # Localstack tries to connect to the host specified
 # by success_redirect_url upon successful upload of
@@ -11,6 +11,7 @@ FROM localstack/localstack
 # requests localhost:9000 requests to civiform:9000
 # (accessible from Docker's internal networking).
 # See https://github.com/seattle-uat/civiform/issues/2639.
+RUN apt-get update --assume-yes
 RUN apt-get install nginx --assume-yes
 
 COPY localstack.nginx.conf /etc/nginx/conf.d/
