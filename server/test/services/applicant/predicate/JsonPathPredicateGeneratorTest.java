@@ -29,7 +29,7 @@ import support.TestQuestionBank;
 
 public class JsonPathPredicateGeneratorTest {
 
-  private Clock clock = Clock.fixed(Instant.parse("2032-03-23T10:15:30.00Z"), ZoneId.of("UTC"));
+  private Clock clock = Clock.fixed(Instant.parse("2030-01-01T00:00:00.00Z"), ZoneId.of("UTC"));
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private QuestionDefinition question;
   private QuestionDefinition dateQuestion;
@@ -83,30 +83,49 @@ public class JsonPathPredicateGeneratorTest {
             dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(18));
 
     JsonPathPredicate predicate =
-        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1395532800000 > @.date)]");
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1325376000000 >= @.date)]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
 
     ApplicantData data = new ApplicantData();
-    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2000-01-01");
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2012-01-01");
 
     assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
+  public void fromLeafNode_generatesCorrectStringForAgeYoungerValue() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(), Scalar.DATE, Operator.AGE_YOUNGER_THAN, PredicateValue.of(18));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1325376000000 < @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2012-01-02");
+    assertThat(data.evalPredicate(predicate)).isTrue();
+
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2012-01-01");
+    assertThat(data.evalPredicate(predicate)).isFalse();
   }
 
   @Test
   public void fromLeafNode_evaluatesCorrectlyWhenAgeNotInPredicate() throws Exception {
     LeafOperationExpressionNode node =
         LeafOperationExpressionNode.create(
-            dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(100));
+            dateQuestion.getId(), Scalar.DATE, Operator.AGE_OLDER_THAN, PredicateValue.of(18));
 
     // This person will be 100 sometime in the future, which is why the timestamp is negative.
     JsonPathPredicate predicate =
-        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(-1192147200000 > @.date)]");
+        JsonPathPredicate.create("$.applicant.applicant_birth_date[?(1325376000000 >= @.date)]");
 
     assertThat(generator.fromLeafNode(node).pathPredicate()).isEqualTo(predicate.pathPredicate());
 
     ApplicantData data = new ApplicantData();
-    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-02");
 
     assertThat(data.evalPredicate(predicate)).isFalse();
   }
@@ -122,7 +141,7 @@ public class JsonPathPredicateGeneratorTest {
 
     JsonPathPredicate predicate =
         JsonPathPredicate.create(
-            "$.applicant.applicant_birth_date[?(1931990400000 >= @.date && -1192147200000 <="
+            "$.applicant.applicant_birth_date[?(1861920000000 >= @.date && -1262304000000 <="
                 + " @.date)]");
 
     assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);

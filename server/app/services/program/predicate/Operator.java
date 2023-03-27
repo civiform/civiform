@@ -13,7 +13,7 @@ public enum Operator {
       ImmutableSet.of(ScalarType.DATE),
       ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS)),
   AGE_OLDER_THAN(
-      ">",
+      ">=",
       "age is older than",
       ImmutableSet.of(ScalarType.DATE),
       ImmutableSet.of(OperatorRightHandType.LONG)),

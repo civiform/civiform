@@ -57,7 +57,7 @@ public final class JsonPathPredicateGenerator {
   public JsonPathPredicate fromLeafNode(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
     if (AGE_OPERATORS.contains(node.operator())) {
-      return formatDatePredicate(node);
+      return formatAgePredicate(node);
     }
 
     return JsonPathPredicate.create(
@@ -112,38 +112,42 @@ public final class JsonPathPredicateGenerator {
    * <p>Between example: \$.applicant.date_of_birth[?(795225600000 >= @.date && @.date <=
    * 732153600000)]
    */
-  private JsonPathPredicate formatDatePredicate(LeafOperationExpressionNode node)
+  private JsonPathPredicate formatAgePredicate(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
-    if (node.operator().equals(Operator.AGE_BETWEEN)) {
-      // The value of the between questions are comma separated and have brackets, but since this
-      // is a string type, we need to remove the brackets then re-split the list.
-      ImmutableList<Long> ageRange =
-          Splitter.on(",")
-              .splitToStream(
-                  node.comparedValue()
-                      .value()
-                      .substring(1, node.comparedValue().value().length() - 1))
-              .map(String::trim)
-              .map(Long::parseLong)
-              .collect(ImmutableList.toImmutableList());
+    switch (node.operator()) {
+      case AGE_BETWEEN:
+        // The value of the between questions are comma separated and have brackets, but since this
+        // is a string type, we need to remove the brackets then re-split the list.
+        ImmutableList<Long> ageRange =
+            Splitter.on(",")
+                .splitToStream(
+                    node.comparedValue()
+                        .value()
+                        .substring(1, node.comparedValue().value().length() - 1))
+                .map(String::trim)
+                .map(Long::parseLong)
+                .collect(ImmutableList.toImmutableList());
 
-      // Check that the date value is between the two age timestamps.
-      return JsonPathPredicate.create(
-          String.format(
-              "%s[?(%2$s >= @.%4$s && %3$s <= @.%4$s)]",
-              getPath(node).predicateFormat(),
-              dateConverter.getDateTimestampFromAge(ageRange.get(0)),
-              dateConverter.getDateTimestampFromAge(ageRange.get(1)),
-              node.scalar().name().toLowerCase()));
-    } else {
-      // Check that the age timestamp is greater or less than the date value.
-      return JsonPathPredicate.create(
-          String.format(
-              "%s[?(%s %s @.%s)]",
-              getPath(node).predicateFormat(),
-              dateConverter.getDateTimestampFromAge(Long.parseLong(node.comparedValue().value())),
-              node.operator().toJsonPathOperator(),
-              node.scalar().name().toLowerCase()));
+        // Check that the date value is between the two age timestamps.
+        return JsonPathPredicate.create(
+            String.format(
+                "%s[?(%2$s >= @.%4$s && %3$s <= @.%4$s)]",
+                getPath(node).predicateFormat(),
+                dateConverter.getDateTimestampFromAge(ageRange.get(0)),
+                dateConverter.getDateTimestampFromAge(ageRange.get(1)),
+                node.scalar().name().toLowerCase()));
+      case AGE_OLDER_THAN:
+      case AGE_YOUNGER_THAN:
+        return JsonPathPredicate.create(
+            String.format(
+                "%s[?(%s %s @.%s)]",
+                getPath(node).predicateFormat(),
+                dateConverter.getDateTimestampFromAge(Long.parseLong(node.comparedValue().value())),
+                node.operator().toJsonPathOperator(),
+                node.scalar().name().toLowerCase()));
+      default:
+        throw new InvalidPredicateException(
+            String.format("Expecting an age predicate but instead received %s", node.operator()));
     }
   }
 
