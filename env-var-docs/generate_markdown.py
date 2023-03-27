@@ -1,4 +1,5 @@
-"""Generates markdown from an environment variable documentation file and write it to a github repository.
+"""Generates markdown from an environment variable documentation file and
+writes it to a github repository.
 
 Requires the following variables to be present in the environment:
     ENV_VAR_DOCS_PATH: the path to env-var-docs.json.
@@ -61,7 +62,7 @@ def make_config() -> Config:
             repo = os.environ["TARGET_REPO"]
             path = os.environ["TARGET_PATH"]
             if path[0:1] == "/":
-                errorexit("f{path} must be a relative path")
+                errorexit("f{path} must be a relative path starting from the repository root.")
         except KeyError as e:
             errorexit(
                 f"Either LOCAL_OUTPUT=true must be set or {e.args[0]} must be present in the environment variables"
@@ -111,7 +112,6 @@ def generate_markdown(
 
     def append_node_to_out(node: env_var_docs.parser.Node):
         nonlocal out  # Need to declare out nonlocal otherwise it gets shadowed.
-        out += f"{'#' * node.level} {node.name}\n\n"
 
         group = None
         if isinstance(node.details, env_var_docs.parser.Group):
@@ -120,6 +120,10 @@ def generate_markdown(
         if isinstance(node.details, env_var_docs.parser.Variable):
             var = node.details
 
+        # Write title.
+        out += f"{'#' * node.level} {node.name}\n\n"
+
+        # Write description.
         desc = ""
         if group is not None:
             desc = group.group_description
@@ -129,6 +133,7 @@ def generate_markdown(
                 desc += " **Required**."
         out += (desc + "\n\n")
 
+        # Write Variable validation rules.
         if var is not None:
             out += f"- Type: {var.type}\n"
             if var.values is not None:
