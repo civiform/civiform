@@ -5,6 +5,7 @@ import {
   disableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
+  loginAsTestUser,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -252,7 +253,7 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'program-review')
     })
 
-    it('verify program submission page', async () => {
+    it('verify program submission page for guest', async () => {
       const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
@@ -278,7 +279,36 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program submission page.
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission')
+      await validateScreenshot(page, 'program-submission-guest')
+    })
+
+    it('verify program submission page for logged in user', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(programName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // Verify we are on program submission page.
+      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-submission-logged-in')
     })
 
     it('shows error with incomplete submission', async () => {
