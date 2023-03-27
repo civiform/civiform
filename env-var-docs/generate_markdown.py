@@ -3,9 +3,9 @@
 Requires the following variables to be present in the environment:
     ENV_VAR_DOCS_PATH: the path to env-var-docs.json.
 
-If LOCAL_OUTPUT is set, markdown will be written to stdout instead of GitHub.
+If LOCAL_OUTPUT equals "true", markdown will be written to stdout instead of GitHub.
 
-If LOCAL_OUTPUT is not set, the following variables must be set:
+If LOCAL_OUTPUT does not equal "true", the following variables must be set:
     RELEASE_VERSION: CiviForm version being released. 
     GITHUB_ACCESS_TOKEN: personal access token to call github API with.
     TARGET_REPO: the target github repository in 'owner/repo-name' format.
@@ -52,7 +52,9 @@ def make_config() -> Config:
         errorexit(f"'{docs}' does not point to a file")
 
     local = (os.environ.get("LOCAL_OUTPUT", "false") == "true")
-    if not local:
+    if local:
+        version = token = repo = path = ""
+    else:
         try:
             version = os.environ["RELEASE_VERSION"]
             token = os.environ["GITHUB_ACCESS_TOKEN"]
@@ -64,8 +66,6 @@ def make_config() -> Config:
             errorexit(
                 f"Either LOCAL_OUTPUT=true must be set or {e.args[0]} must be present in the environment variables"
             )
-    else:
-        version = token = repo = path = ""
 
     return Config(docs, version, local, token, repo, path)
 
@@ -109,7 +109,7 @@ def generate_markdown(
 ) -> tuple[str | None, list[env_var_docs.parser.NodeParseError]]:
     out = ""
 
-    def output(node: env_var_docs.parser.Node):
+    def append_node_to_out(node: env_var_docs.parser.Node):
         nonlocal out  # Need to declare out nonlocal otherwise it gets shadowed.
         out += f"{'#' * node.level} {node.name}\n\n"
 
@@ -144,7 +144,7 @@ def generate_markdown(
                     out += f"   - `{test.val}` {msg}.\n"
             out += "\n"
 
-    errors = env_var_docs.parser.visit(docs_file, output)
+    errors = env_var_docs.parser.visit(docs_file, append_node_to_out)
     if len(errors) != 0:
         return None, errors
 
