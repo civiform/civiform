@@ -34,6 +34,7 @@ import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import support.ProgramBuilder;
+import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
 public class RedirectControllerTest extends WithMockedProfiles {
@@ -118,6 +119,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             instanceOf(ApplicantUpsellCreateAccountView.class),
+          instanceOf(ApplicantCommonIntakeUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
             languageUtils);
     Result result =
@@ -146,6 +148,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             instanceOf(ApplicantUpsellCreateAccountView.class),
+            instanceOf(ApplicantCommonIntakeUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
             languageUtils);
     Result result =
