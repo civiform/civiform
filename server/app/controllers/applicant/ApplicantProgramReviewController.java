@@ -206,13 +206,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (v) -> {
               Application application = submitAppFuture.join();
               Long applicationId = application.id;
-              // todo avaleske this is where we'd change the redirect
               Call endOfProgramSubmission =
                   routes.RedirectController.considerRegister(
                       applicantId,
                       programId,
                       applicationId,
-                      // todo avaleske also this is the only place it's used
                       routes.ApplicantProgramsController.index(applicantId).url());
               return found(endOfProgramSubmission);
             },
