@@ -17,7 +17,6 @@ public enum FeatureFlag {
 
   // Long lived feature flags.
   ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
-  ADMIN_REPORTING_UI_ENABLED,
   SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE,
 
   // Launch Flags, these will eventually be removed.
