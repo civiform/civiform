@@ -334,11 +334,12 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 form()
                     .withAction(moveUpFormAction)
                     .withMethod(HttpVerbs.POST)
-                    .withClasses("move-block")
-                    .withData("testid", "move-up")
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                    .with(
+                        submitButton("^")
+                            .withData("testid", "move-up")
+                            .withClasses("move-block", AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
         routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
@@ -354,11 +355,12 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 form()
                     .withAction(moveDownFormAction)
                     .withMethod(HttpVerbs.POST)
-                    .withClasses("move-block")
-                    .withData("testid", "move-down")
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                    .with(
+                        submitButton("^")
+                            .withData("testid", "move-down")
+                            .withClasses("move-block", AdminStyles.MOVE_BLOCK_BUTTON)));
     return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
   }
 
