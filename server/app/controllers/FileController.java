@@ -18,9 +18,6 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.cloud.StorageClient;
-import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
-import services.program.ProgramService;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
 public class FileController extends CiviFormController {
@@ -94,8 +91,8 @@ public class FileController extends CiviFormController {
 
   /**
    * Asserts the caller has permission to view the file specified by {@code fileKey} and redirects
-   * them to a presigned access URL to get the file from cloud storage. It checks
-   * access permission using the stored file's {@link auth.StoredFileAcls}.
+   * them to a presigned access URL to get the file from cloud storage. It checks access permission
+   * using the stored file's {@link auth.StoredFileAcls}.
    */
   private Result adminShowInternal(Request request, String fileKey) {
     String decodedFileKey = URLDecoder.decode(fileKey, StandardCharsets.UTF_8);
@@ -110,8 +107,8 @@ public class FileController extends CiviFormController {
     Account adminAccount =
         profileUtils.currentUserProfile(request).orElseThrow().getAccount().join();
 
-    return maybeFile.get().getAcls().hasProgramReadPermission(adminAccount) ?
-      redirect(storageClient.getPresignedUrlString(decodedFileKey)) :
-      unauthorized();
+    return maybeFile.get().getAcls().hasProgramReadPermission(adminAccount)
+        ? redirect(storageClient.getPresignedUrlString(decodedFileKey))
+        : unauthorized();
   }
 }
