@@ -23,7 +23,7 @@ public enum FeatureFlag {
   PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
   PROGRAM_READ_ONLY_VIEW_ENABLED,
 
-  // Address correction and verifcation flags
+  // Address correction and verification flags
   ESRI_ADDRESS_CORRECTION_ENABLED,
   ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED,
 

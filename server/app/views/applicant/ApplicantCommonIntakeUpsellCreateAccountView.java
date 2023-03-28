@@ -7,7 +7,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
 import models.Account;
 import play.i18n.Messages;
@@ -21,6 +21,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
+import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /** Renders a confirmation page after application submission, for the common intake form. */
@@ -122,11 +123,11 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
     return layout.renderWithNav(request, applicantName, messages, bundle);
   }
 
-  private DivTag eligibleProgramsSection(
+  private SectionTag eligibleProgramsSection(
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
       boolean isTrustedIntermediary) {
-    var eligibleProgramsDiv = div();
+    var eligibleProgramsSection = section();
 
     if (eligiblePrograms.isEmpty()) {
       var moreLink =
@@ -146,7 +147,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                           .getKeyName()
                           .toLowerCase()));
 
-      return eligibleProgramsDiv.with(
+      return eligibleProgramsSection.with(
           p(isTrustedIntermediary
                   ? rawHtml(
                       messages.at(
@@ -162,14 +163,14 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
               .withClasses("mb-4"));
     }
 
-    return eligibleProgramsDiv.with(
+    return eligibleProgramsSection.with(
         section(
             each(
                 eligiblePrograms,
                 ep ->
                     div(
                         h3(ep.program().localizedName().getOrDefault(messages.lang().toLocale()))
-                            .withClasses("text-black", "font-bold"),
+                            .withClasses("text-black", "font-bold", ReferenceClasses.APPLICANT_CIF_ELIGIBLE_PROGRAM_NAME),
                         p(ep.program()
                                 .localizedDescription()
                                 .getOrDefault(messages.lang().toLocale()))

@@ -370,6 +370,27 @@ export class ApplicantQuestions {
     )
   }
 
+  async expectCommonIntakeReviewPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'Benefits pre-screener summary',
+    )
+  }
+
+  async expectCommonIntakeConfirmationPage(wantUpsell: boolean, wantTrustedIntermediary: boolean, wantEligiblePrograms: string[]) {
+    if (wantTrustedIntermediary) {
+      expect(await this.page.innerText('h1')).toContain('Benefits your client may qualify for')
+    } else {
+      expect(await this.page.innerText('h1')).toContain('Benefits you may qualify for')
+    }
+
+    const upsellLocator = this.page.locator(':text("Create an account or sign in")')
+    if (wantUpsell) {
+      expect(await upsellLocator.count()).toEqual(1)
+    } else {
+      expect(await upsellLocator.count()).toEqual(0)
+    }
+  }
+
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
