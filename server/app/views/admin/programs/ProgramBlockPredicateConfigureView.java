@@ -745,7 +745,17 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
                     "hidden",
                     "text-xs",
                     BaseStyles.FORM_LABEL_TEXT_COLOR)
-                .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."));
+                .withText("Enter a list of comma-separated values. For example, \"v1,v2,v3\"."))
+        .with(
+            div("Enter two comma-separated or dash-separated values. For example \"18,30\" or"
+                    + " \"18-30\". The condition will become true on the applicant's birthday"
+                    + " for the first age, and will become false on the applicant's birthday"
+                    + " for the second age.")
+                .withClasses(
+                    ReferenceClasses.PREDICATE_VALUE_BETWEEN_HELP_TEXT,
+                    "hidden",
+                    "text-xs",
+                    BaseStyles.FORM_LABEL_TEXT_COLOR));
   }
 
   private static String formatPredicateValue(
