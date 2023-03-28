@@ -169,8 +169,9 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                 eligiblePrograms,
                 ep ->
                     div(
-                        h3(ep.program().localizedName().getOrDefault(messages.lang().toLocale()))
+                        h2(ep.program().localizedName().getOrDefault(messages.lang().toLocale()))
                             .withClasses(
+                                "text-lg",
                                 "text-black",
                                 "font-bold",
                                 ReferenceClasses.APPLICANT_CIF_ELIGIBLE_PROGRAM_NAME),

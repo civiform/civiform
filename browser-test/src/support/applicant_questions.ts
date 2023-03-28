@@ -399,6 +399,15 @@ export class ApplicantQuestions {
     } else {
       expect(await upsellLocator.count()).toEqual(0)
     }
+
+    const programLocator = this.page.locator('.cf-applicant-cif-eligible-program-name')
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
   }
 
   async expectIneligiblePage() {
