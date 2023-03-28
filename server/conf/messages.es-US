@@ -6,271 +6,150 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
-
+adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+ariaLabel.answer=Responder {0}
+ariaLabel.begin=Comienza aquí. {0}
+ariaLabel.edit=Editar {0}
+banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
+button.addEntity=Agregar {0}
+button.apply=Solicitar
+button.applySr=Solicitar {0}
+button.chooseFile=Elegir archivo
+button.continue=Continuar
+button.continueSr=Continuar la solicitud para {0}
+button.createAccount=Crear cuenta
+button.deleteFile=Borrar
+button.edit=Editar
+button.editAddress=Editar dirección
+button.editSr=Editar la solicitud enviada a {0}
+button.goBackAndEdit=Volver y editar
+button.guestLogin=Continuar como invitado
+button.keepFile=Continuar
+button.login=Acceder
+button.logout=Salir
+button.nextScreen=Guardar y continuar
+button.previousScreen=Anterior
+button.removeEntity=Quitar {0}
+button.review=Revisar
+button.saveAndConfirm=Guardar y confirmar
+button.skipFileUpload=Omitir
+button.submit=Enviar
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-
-button.logout=Salir
-
+button.viewAllPrograms=Ver todos los programas
+content.addressEntered=Dirección ingresada:
+content.addressEnteredWithQuestionName=Se ingresó {0}:
+content.adminLoginPrompt=¿Estás buscando otra cosa?
+content.alternativeLoginPrompt=¿No tienes una cuenta?
+content.benefits=Obtén beneficios
+content.cannotCheckEligibility=Estamos trabajando para resolver este problema lo más rápido posible. Vuelve a intentarlo más tarde.
+content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
+content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de la solicitud es {1}.
+content.description1=CiviForm te permite reutilizar la información para solicitar varios beneficios a la vez.
+content.description2=Elige una de las solicitudes a continuación para comenzar.
+content.doesNotQualify=No califica
+content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
+content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
+content.loginDisabledPrompt=Se inhabilitó el acceso a la cuenta por el momento
+content.loginPrompt=Accede con tu cuenta {0}
+content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
+content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
+content.notEligible=No apto
+content.or=o
+content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
+content.previouslyAnsweredOn=Ya se respondió el {0}
+content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
+content.submittedDate=Enviada el {0}
+content.suggestedAddress=Dirección sugerida:
+content.suggestedAddresses=Direcciones sugeridas:
+dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
+email.applicationReceivedBody=Recibimos tu solicitud para el programa {0}. Tu ID de solicitante es {1} y el ID de solicitud es {2}
+email.applicationReceivedSubject=Recibimos tu solicitud para el programa {0}
+email.loginToCiviform=Accede a CiviForm en {0}
+email.tiApplicationSubmittedBody=Recibimos la solicitud al programa {0} para el solicitante {1} y el ID de solicitud es {2}.
+email.tiApplicationSubmittedSubject=Enviaste una solicitud para el programa {0} en nombre del solicitante {1}
+email.tiManageYourClients=Administra tus clientes en {0}.
+error.notFoundDescription=Regresa a {0}
+error.notFoundDescriptionLink=página de inicio
+error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
 footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
 guest=Invitado
-
-label.languageSr=Elegir un idioma
-
 header.userName=Accediste como {0}
-
-validation.isRequired=Esta pregunta es obligatoria.
-
-validation.invalidInput=Ingresa una entrada válida.
-
-validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
-
-content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
-
-content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
-
-title.login=Acceso
-
-content.loginPrompt=Accede con tu cuenta {0}
-
-button.login=Acceder
-
-content.alternativeLoginPrompt=¿No tienes una cuenta?
-
-content.or=o
-
-button.createAccount=Crear cuenta
-
-button.guestLogin=Continuar como invitado
-
-content.loginDisabledPrompt=Se inhabilitó el acceso a la cuenta por el momento
-
-content.adminLoginPrompt=¿Estás buscando otra cosa?
-link.adminLogin=Acceso de administrador
-
 input.fileAlreadyUploaded=Archivo subido: {0}
-
-button.deleteFile=Borrar
-
-button.keepFile=Continuar
-
-button.nextScreen=Guardar y continuar
-
-button.previousScreen=Anterior
-
-button.review=Revisar
-
-button.skipFileUpload=Omitir
-
-toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo al inglés.
-
-link.allDone=Listo
-
-link.applyToAnotherProgram=Solicitar otro programa
-
-link.createAccountOrSignIn=Crear una cuenta o acceder
-
-button.apply=Solicitar
-
-button.applySr=Solicitar {0}
-
-button.edit=Editar
-
-button.editSr=Editar la solicitud enviada a {0}
-
-button.continueSr=Continuar la solicitud para {0}
-
-content.submittedDate=Enviada el {0}
-
-content.benefits=Obtén beneficios
-
-content.description1=CiviForm te permite reutilizar la información para solicitar varios beneficios a la vez.
-
-content.description2=Elige una de las solicitudes a continuación para comenzar.
-
-link.programDetails=Detalles del programa
-
-link.programDetailsSr=Detalles del programa para {0}
-
-title.programs=Programas y servicios
-
-title.status=Estado
-
-title.inProgressProgramsUpdated=En curso
-
-title.activeProgramsUpdated=Sin comenzar
-
-title.submittedPrograms=Enviados
-
-toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
-
-toast.programCompleted=Ya se completó la solicitud.
-
-button.submit=Enviar
-
-button.continue=Continuar
-
-toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
-
-content.notEligible=No apto
-
-content.doesNotQualify=No califica
-
-link.edit=Editar
-link.answer=Responder
-
-content.previouslyAnsweredOn=Ya se respondió el {0}
-
-ariaLabel.begin=Comienza aquí. {0}
-
-ariaLabel.edit=Editar {0}
-
-ariaLabel.answer=Responder {0}
-
-title.programSummary=Resumen de la inscripción al programa
-
-title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
-
-title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
-
-content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
-
-content.changeAnswersForEligibility=Puedes regresar a la página anterior para editar tus respuestas. También puedes inscribirte en otro programa.
-
-button.goBackAndEdit=Volver y editar
-
-toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
-
-toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
-
-tag.mayQualify=Es posible que califiques
-
-tag.mayQualifyTi=Es posible que tu cliente califique
-
-tag.mayNotQualify=Es posible que no califiques
-
-tag.mayNotQualifyTi=Es posible que tu cliente no califique
-
-title.cannotCheckEligibility=Por el momento, no podemos revisar tu elegibilidad para {0}.
-
-title.cannotCheckEligibilityTi=Por el momento, no podemos revisar la elegibilidad de tu cliente para {0}.
-
-content.cannotCheckEligibility=Estamos trabajando para resolver este problema lo más rápido posible. Vuelve a intentarlo más tarde.
-
-button.viewAllPrograms=Ver todos los programas
-
-toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}. Si cambió la información, puedes editar tus respuestas y continuar con la inscripción.
-
-toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
-
-banner.errorSavingApplication=Se produjo un error cuando se guardaba la inscripción
-
-title.applicationConfirmation=Confirmación de la solicitud
-
-content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de la solicitud es {1}.
-
-title.createAnAccount=Crea una cuenta o accede
-
-content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
-
 label.addressLine2=Departamento, suite, etc. (opcional)
 label.city=Ciudad
-label.state=Estado
-label.selectState=Selecciona un estado
-label.street=Dirección
-label.zipcode=Código postal
-
-
-validation.streetRequired=Ingresa un nombre y un número de calle válidos.
-validation.cityRequired=Ingresa una ciudad.
-validation.currencyMisformatted=La moneda debe tener uno de estos formatos: 1000 1,000 1000.30 1,000.30
-validation.stateRequired=Ingresa un estado.
-validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
-validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
-
-title.verifyAddress=Verifica la dirección
-
-content.foundSimilarAddress=No pudimos verificar la dirección que proporcionaste, pero encontramos resultados similares.
-
-content.addressEntered=Dirección ingresada:
-
-content.addressEnteredWithQuestionName=Se ingresó {0}:
-
-content.suggestedAddress=Dirección sugerida:
-
-content.suggestedAddresses=Direcciones sugeridas:
-
-button.editAddress=Editar dirección
-
-button.saveAndConfirm=Guardar y confirmar
-
-title.noValidAddress=No se encontró ninguna dirección válida
-
-content.noValidAddress=No pudimos verificar la dirección que proporcionaste. Para continuar, edita la dirección
-
-placeholder.noDropdownSelection=Elige una opción:
-
-
-validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
-
-button.addEntity=Agregar {0}
-
-button.removeEntity=Quitar {0}
-
-dialog.confirmDelete=¿Confirmas que quieres quitar esta {0}? Se guardará este cambio cuando hagas clic en "Siguiente" y se perderán todos los datos asociados con esta {0}.
-
-validation.entityNameRequired=Ingresa un valor para cada línea.
-
-validation.duplicateEntityName=Ingresa un valor único para cada línea.
-
-placeholder.entityName=Nombre de {0}
-
-validation.fileRequired=Elige un archivo.
-
-button.chooseFile=Elegir archivo
-
-validation.idTooLong=Debe tener menos de {0} caracteres.
-validation.idTooShort=Debe tener más de {0} caracteres.
-
-validation.tooFewSelections=Elige al menos {0} opción.
-validation.tooManySelections=Elige menos de {0} opciones.
-
 label.firstName=Nombre
+label.languageSr=Elegir un idioma
 label.lastName=Apellido
 label.middleName=Segundo nombre
-
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+label.selectState=Selecciona un estado
+label.state=Estado
+label.street=Dirección
+label.zipcode=Código postal
+link.adminLogin=Acceso de administrador
+link.allDone=Listo
+link.answer=Responder
+link.applyToAnotherProgram=Solicitar otro programa
+link.createAccountOrSignIn=Crear una cuenta o acceder
+link.edit=Editar
+link.programDetails=Detalles del programa
+link.programDetailsSr=Detalles del programa para {0}
+placeholder.entityName=Nombre de {0}
 placeholder.firstName=Nombre
 placeholder.lastName=Apellido
 placeholder.middleName=Segundo nombre
-
+placeholder.noDropdownSelection=Elige una opción:
+tag.mayNotQualify=Es posible que no califiques
+tag.mayNotQualifyTi=Es posible que tu cliente no califique
+tag.mayQualify=Es posible que califiques
+tag.mayQualifyTi=Es posible que tu cliente califique
+title.activeProgramsUpdated=Sin comenzar
+title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
+title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
+title.applicationConfirmation=Confirmación de la solicitud
+title.cannotCheckEligibility=Por el momento, no podemos revisar tu elegibilidad para {0}.
+title.cannotCheckEligibilityTi=Por el momento, no podemos revisar la elegibilidad de tu cliente para {0}.
+title.createAnAccount=Crea una cuenta o accede
+title.inProgressProgramsUpdated=En curso
+title.login=Acceso
+title.noValidAddress=No se encontró ninguna dirección válida
+title.programSummary=Resumen de la inscripción al programa
+title.programs=Programas y servicios
+title.status=Estado
+title.submittedPrograms=Enviados
+title.verifyAddress=Verifica la dirección
+toast.applicationOutOfDate=Se actualizó la aplicación; revisa y responde las preguntas para proceder
+toast.applicationSaved=Solicitud guardada con éxito: ID de la solicitud {0}
+toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo al inglés.
+toast.mayNotQualify=Según tus respuestas, es posible que no califiques para {0}. Si cambió la información, puedes editar tus respuestas y continuar con la inscripción.
+toast.mayNotQualifyTi=Según tus respuestas, es posible que tu cliente no califique para {0}. Si cambió la información de tu cliente, puedes editar las respuestas y continuar con la inscripción.
+toast.mayQualify=Según tus respuestas, es posible que califiques para {0}. Para continuar, completa la inscripción.
+toast.mayQualifyTi=Según tus respuestas, es posible que tu cliente califique para {0}. Para continuar, completa la inscripción.
+toast.programCompleted=Ya se completó la solicitud.
+validation.cityRequired=Ingresa una ciudad.
+validation.currencyMisformatted=La moneda debe tener uno de estos formatos: 1000 1,000 1000.30 1,000.30
+validation.dateMisformatted=Ingresa una fecha en el formato AAAA/MM/DD.
+validation.duplicateEntityName=Ingresa un valor único para cada línea.
+validation.entityNameRequired=Ingresa un valor para cada línea.
+validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
+validation.fileRequired=Elige un archivo.
 validation.firstNameRequired=Ingresa tu nombre.
+validation.idTooLong=Debe tener menos de {0} caracteres.
+validation.idTooShort=Debe tener más de {0} caracteres.
+validation.invalidInput=Ingresa una entrada válida.
+validation.invalidZipcode=Ingresa un código postal válido de 5 dígitos.
+validation.isRequired=Esta pregunta es obligatoria.
 validation.lastNameRequired=Ingresa tu apellido.
-
-validation.numberTooBig=El número debe ser menor que {0}.
-validation.numberTooSmall=El número debe ser mayor que {0}.
+validation.noPoBox=Ingresa una dirección válida. No aceptamos apartados postales.
 validation.numberNonInteger=El número debe ser positivo y entero y solo puede contener caracteres numéricos entre 0 y 9.
 validation.numberRequired=Solo debe contener números.
-
+validation.numberTooBig=El número debe ser menor que {0}.
+validation.numberTooSmall=El número debe ser mayor que {0}.
+validation.stateRequired=Ingresa un estado.
+validation.streetRequired=Ingresa un nombre y un número de calle válidos.
 validation.textTooLong=Debe tener menos de {0} caracteres.
 validation.textTooShort=Debe tener más de {0} caracteres.
-
-adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
-
-error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
-error.notFoundDescription=Regresa a {0}
-error.notFoundDescriptionLink=página de inicio
-
-email.loginToCiviform=Accede a CiviForm en {0}
-
-email.applicationReceivedSubject=Recibimos tu solicitud para el programa {0}
-
-email.applicationReceivedBody=Recibimos tu solicitud para el programa {0}. Tu ID de solicitante es {1} y el ID de solicitud es {2}
-
-email.tiApplicationSubmittedSubject=Enviaste una solicitud para el programa {0} en nombre del solicitante {1}
-
-email.tiApplicationSubmittedBody=Recibimos la solicitud al programa {0} para el solicitante {1} y el ID de solicitud es {2}.
-
-email.tiManageYourClients=Administra tus clientes en {0}.
+validation.tooFewSelections=Elige al menos {0} opción.
+validation.tooManySelections=Elige menos de {0} opciones.

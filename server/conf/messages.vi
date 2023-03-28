@@ -6,268 +6,150 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
-
+adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
+ariaLabel.answer=Câu trả lời {0}
+ariaLabel.begin=Bắt đầu tại đây. {0}
+ariaLabel.edit=Chỉnh sửa {0}
+banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
+button.addEntity=Thêm {0}
+button.apply=Đăng ký
+button.applySr=Đăng ký {0}
+button.chooseFile=Chọn tệp
+button.continue=Tiếp tục
+button.continueSr=Tiếp tục đăng ký {0}
+button.createAccount=Tạo tài khoản
+button.deleteFile=Xoá
+button.edit=Chỉnh sửa
+button.editAddress=Chỉnh sửa địa chỉ
+button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
+button.goBackAndEdit=Quay lại và chỉnh sửa
+button.guestLogin=Tiếp tục với tư cách khách
+button.keepFile=Tiếp tục
+button.login=Đăng nhập
+button.logout=Đăng xuất
+button.nextScreen=Lưu và tiếp tục
+button.previousScreen=Trước
+button.removeEntity=Xoá {0}
+button.review=Xem lại
+button.saveAndConfirm=Lưu và xác nhận
+button.skipFileUpload=Bỏ qua
+button.submit=Gửi
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-
-button.logout=Đăng xuất
-
-footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
-
-guest=Khách
-
-label.languageSr=Chọn một ngôn ngữ
-
-header.userName=Đã đăng nhập bằng {0}
-
-validation.isRequired=Đây là câu hỏi bắt buộc.
-
-validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
-
-validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
-
-content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
-
-content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
-
-title.login=Đăng nhập
-
-content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
-
-button.login=Đăng nhập
-
-content.alternativeLoginPrompt=Bạn không có tài khoản?
-
-content.or=hoặc
-
-button.createAccount=Tạo tài khoản
-
-button.guestLogin=Tiếp tục với tư cách khách
-
-content.loginDisabledPrompt=Tính năng đăng nhập vào tài khoản đang bị vô hiệu hóa
-
-content.adminLoginPrompt=Bạn muốn thực hiện thao tác khác?
-
-link.adminLogin=Đăng nhập với tư cách quản trị viên
-
-input.fileAlreadyUploaded=Tệp đã tải lên: {0}
-
-button.deleteFile=Xoá
-
-button.keepFile=Tiếp tục
-
-button.nextScreen=Lưu và tiếp tục
-
-button.previousScreen=Trước
-
-button.review=Xem lại
-
-button.skipFileUpload=Bỏ qua
-
-toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hết sang tiếng Việt.
-
-link.allDone=Tôi đã hoàn thành
-
-link.applyToAnotherProgram=Đăng ký một chương trình khác
-
-link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
-
-button.apply=Đăng ký
-
-button.applySr=Đăng ký {0}
-
-button.edit=Chỉnh sửa
-
-button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
-
-button.continueSr=Tiếp tục đăng ký {0}
-
-content.submittedDate=Đã gửi {0}
-
-content.benefits=Nhận quyền lợi
-
-content.description1=CiviForm cho phép bạn đăng ký nhận nhiều quyền lợi trong một lần nhờ việc tái sử dụng thông tin.
-
-content.description2=Bắt đầu bằng việc chọn một đơn đăng ký dưới đây.
-
-link.programDetails=Chi tiết chương trình
-
-link.programDetailsSr=Chi tiết chương trình {0}
-
-title.programs=Chương trình và dịch vụ
-
-title.status=Trạng thái
-
-title.inProgressProgramsUpdated=Đang diễn ra
-
-title.activeProgramsUpdated=Chưa bắt đầu
-
-title.submittedPrograms=Đã gửi
-
-toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
-
-toast.programCompleted=Đăng ký thành công.
-
-button.submit=Gửi
-
-button.continue=Tiếp tục
-
-toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
-
-content.notEligible=Không đủ điều kiện
-
-content.doesNotQualify=Không đủ tiêu chuẩn
-
-link.edit=Chỉnh sửa
-link.answer=Câu trả lời
-
-content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
-
-ariaLabel.begin=Bắt đầu tại đây. {0}
-
-ariaLabel.edit=Chỉnh sửa {0}
-
-ariaLabel.answer=Câu trả lời {0}
-
-title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
-
-title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
-
-title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn cho các câu hỏi sau, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
-
-content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
-
-content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
-
-button.goBackAndEdit=Quay lại và chỉnh sửa
-
-toast.mayQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
-
-toast.mayQualify=Dựa trên câu trả lời của bạn, bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
-
-tag.mayQualify=Bạn có thể đủ tiêu chuẩn
-
-tag.mayQualifyTi=Khách hàng của bạn có thể đủ tiêu chuẩn
-
-tag.mayNotQualify=Bạn có thể không đủ tiêu chuẩn
-
-tag.mayNotQualifyTi=Khách hàng của bạn có thể không đủ tiêu chuẩn
-
-title.cannotCheckEligibility=Hiện tại, chúng tôi không thể kiểm tra xem bạn có đủ điều kiện tham gia {0} hay không.
-
-title.cannotCheckEligibilityTi=Hiện tại, chúng tôi không thể kiểm tra xem khách hàng của bạn có đủ điều kiện tham gia {0} hay không.
-
-content.cannotCheckEligibility=Chúng tôi đang nỗ lực để nhanh chóng khắc phục sự cố này. Hãy thử lại sau.
-
 button.viewAllPrograms=Xem tất cả chương trình
-
-toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
-
-toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
-
-banner.errorSavingApplication=Lỗi khi lưu đơn đăng ký
-
-title.applicationConfirmation=Xác nhận đơn đăng ký
-
+content.addressEntered=Địa chỉ đã nhập:
+content.addressEnteredWithQuestionName={0} đã nhập:
+content.adminLoginPrompt=Bạn muốn thực hiện thao tác khác?
+content.alternativeLoginPrompt=Bạn không có tài khoản?
+content.benefits=Nhận quyền lợi
+content.cannotCheckEligibility=Chúng tôi đang nỗ lực để nhanh chóng khắc phục sự cố này. Hãy thử lại sau.
+content.changeAnswersForEligibility=Bạn có thể quay lại trang trước để chỉnh sửa câu trả lời của mình. Hoặc đăng ký tham gia một chương trình khác.
 content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã nhận được đơn đăng ký của bạn và mã đơn đăng ký là {1}.
-
-title.createAnAccount=Tạo tài khoản hoặc đăng nhập
-
+content.description1=CiviForm cho phép bạn đăng ký nhận nhiều quyền lợi trong một lần nhờ việc tái sử dụng thông tin.
+content.description2=Bắt đầu bằng việc chọn một đơn đăng ký dưới đây.
+content.doesNotQualify=Không đủ tiêu chuẩn
+content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
+content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
+content.loginDisabledPrompt=Tính năng đăng nhập vào tài khoản đang bị vô hiệu hóa
+content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
+content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
+content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
+content.notEligible=Không đủ điều kiện
+content.or=hoặc
 content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
-
+content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
+content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
+content.submittedDate=Đã gửi {0}
+content.suggestedAddress=Địa chỉ được đề xuất:
+content.suggestedAddresses=Các địa chỉ được đề xuất:
+dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng tôi sẽ lưu thay đổi khi bạn nhấp "Tiếp tục" và tất cả dữ liệu liên quan đến {0} này sẽ bị mất.
+email.applicationReceivedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn. Mã người đăng ký của bạn là {1} và mã đơn đăng ký là {2}
+email.applicationReceivedSubject=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn
+email.loginToCiviform=Đăng nhập vào CiviForm tại {0}
+email.tiApplicationSubmittedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} với tư cách là người đăng ký {1}, và mã đơn đăng ký là {2}.
+email.tiApplicationSubmittedSubject=Bạn đã gửi đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
+email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.
+error.notFoundDescription=Vui lòng quay lại hoặc chuyển đến {0}
+error.notFoundDescriptionLink=trang chủ
+error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
+footer.supportLinkDescription=Để được hỗ trợ kỹ thuật, hãy liên hệ
+guest=Khách
+header.userName=Đã đăng nhập bằng {0}
+input.fileAlreadyUploaded=Tệp đã tải lên: {0}
 label.addressLine2=Căn hộ, phòng, v.v. (không bắt buộc)
 label.city=Thành phố
-label.state=Tiểu bang
-label.selectState=Chọn tiểu bang
-label.street=Địa chỉ
-label.zipcode=Mã bưu chính
-
-validation.streetRequired=Vui lòng nhập số nhà và tên đường hợp lệ.
-validation.cityRequired=Vui lòng nhập tên thành phố.
-validation.currencyMisformatted=Giá trị tiền tệ phải theo một trong những định dạng sau: 1000 1,000 1000.30 1,000.30
-validation.stateRequired=Vui lòng nhập tên tiểu bang.
-validation.invalidZipcode=Vui lòng nhập mã bưu chính hợp lệ gồm 5 chữ số.
-validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi không chấp nhận hộp thư bưu điện.
-
-title.verifyAddress=Xác minh địa chỉ
-
-content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp nhưng đã tìm thấy địa chỉ tương tự.
-
-content.addressEntered=Địa chỉ đã nhập:
-
-content.addressEnteredWithQuestionName={0} đã nhập:
-
-content.suggestedAddress=Địa chỉ được đề xuất:
-
-content.suggestedAddresses=Các địa chỉ được đề xuất:
-
-button.editAddress=Chỉnh sửa địa chỉ
-
-button.saveAndConfirm=Lưu và xác nhận
-
-title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
-
-content.noValidAddress=Chúng tôi không thể xác minh địa chỉ do bạn cung cấp. Vui lòng chỉnh sửa địa chỉ của bạn để tiếp tục.
-
-placeholder.noDropdownSelection=Chọn một phương án:
-
-validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
-
-button.addEntity=Thêm {0}
-
-button.removeEntity=Xoá {0}
-
-dialog.confirmDelete=Bạn có chắc chắn muốn xoá {0} này không? Chúng tôi sẽ lưu thay đổi khi bạn nhấp "Tiếp tục" và tất cả dữ liệu liên quan đến {0} này sẽ bị mất.
-
-validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
-validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
-
-placeholder.entityName=Tên {0}
-
-validation.fileRequired=Vui lòng chọn một tệp.
-
-button.chooseFile=Chọn tệp
-
-validation.idTooLong=Chỉ được dài tối đa {0} ký tự.
-validation.idTooShort=Phải có ít nhất {0} ký tự.
-validation.numberRequired=Chỉ được chứa chữ số.
-
-validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
-validation.tooManySelections=Vui lòng chọn ít hơn {0}.
-
 label.firstName=Tên
+label.languageSr=Chọn một ngôn ngữ
 label.lastName=Họ
 label.middleName=Tên đệm
-
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+label.selectState=Chọn tiểu bang
+label.state=Tiểu bang
+label.street=Địa chỉ
+label.zipcode=Mã bưu chính
+link.adminLogin=Đăng nhập với tư cách quản trị viên
+link.allDone=Tôi đã hoàn thành
+link.answer=Câu trả lời
+link.applyToAnotherProgram=Đăng ký một chương trình khác
+link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
+link.edit=Chỉnh sửa
+link.programDetails=Chi tiết chương trình
+link.programDetailsSr=Chi tiết chương trình {0}
+placeholder.entityName=Tên {0}
 placeholder.firstName=Tên
 placeholder.lastName=Họ
 placeholder.middleName=Tên đệm
+placeholder.noDropdownSelection=Chọn một phương án:
+tag.mayNotQualify=Bạn có thể không đủ tiêu chuẩn
+tag.mayNotQualifyTi=Khách hàng của bạn có thể không đủ tiêu chuẩn
+tag.mayQualify=Bạn có thể đủ tiêu chuẩn
+tag.mayQualifyTi=Khách hàng của bạn có thể đủ tiêu chuẩn
+title.activeProgramsUpdated=Chưa bắt đầu
+title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
+title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn cho các câu hỏi sau, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
+title.applicationConfirmation=Xác nhận đơn đăng ký
+title.cannotCheckEligibility=Hiện tại, chúng tôi không thể kiểm tra xem bạn có đủ điều kiện tham gia {0} hay không.
+title.cannotCheckEligibilityTi=Hiện tại, chúng tôi không thể kiểm tra xem khách hàng của bạn có đủ điều kiện tham gia {0} hay không.
+title.createAnAccount=Tạo tài khoản hoặc đăng nhập
+title.inProgressProgramsUpdated=Đang diễn ra
+title.login=Đăng nhập
+title.noValidAddress=Không tìm thấy địa chỉ hợp lệ
+title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
+title.programs=Chương trình và dịch vụ
+title.status=Trạng thái
+title.submittedPrograms=Đã gửi
+title.verifyAddress=Xác minh địa chỉ
+toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
+toast.applicationSaved=Đã lưu thành công đơn đăng ký: mã đơn đăng ký {0}
+toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hết sang tiếng Việt.
+toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
+toast.mayNotQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của khách hàng của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
+toast.mayQualify=Dựa trên câu trả lời của bạn, bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
+toast.mayQualifyTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể đủ tiêu chuẩn tham gia {0}. Để tiếp tục, hãy tiếp tục điền vào đơn đăng ký.
+toast.programCompleted=Đăng ký thành công.
+validation.cityRequired=Vui lòng nhập tên thành phố.
+validation.currencyMisformatted=Giá trị tiền tệ phải theo một trong những định dạng sau: 1000 1,000 1000.30 1,000.30
+validation.dateMisformatted=Vui lòng nhập ngày ở định dạng YYYY/MM/DD.
+validation.duplicateEntityName=Vui lòng nhập một giá trị riêng biệt cho mỗi dòng.
+validation.entityNameRequired=Vui lòng nhập một giá trị cho mỗi dòng.
+validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
+validation.fileRequired=Vui lòng chọn một tệp.
 validation.firstNameRequired=Vui lòng nhập tên của bạn.
+validation.idTooLong=Chỉ được dài tối đa {0} ký tự.
+validation.idTooShort=Phải có ít nhất {0} ký tự.
+validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
+validation.invalidZipcode=Vui lòng nhập mã bưu chính hợp lệ gồm 5 chữ số.
+validation.isRequired=Đây là câu hỏi bắt buộc.
 validation.lastNameRequired=Vui lòng nhập họ của bạn.
-
+validation.noPoBox=Vui lòng nhập một địa chỉ hợp lệ. Chúng tôi không chấp nhận hộp thư bưu điện.
+validation.numberNonInteger=Phải là số nguyên dương và chỉ có thể chứa ký tự chữ số từ 0-9.
+validation.numberRequired=Chỉ được chứa chữ số.
 validation.numberTooBig=Không được lớn hơn {0}.
 validation.numberTooSmall=Không được nhỏ hơn {0}.
-validation.numberNonInteger=Phải là số nguyên dương và chỉ có thể chứa ký tự chữ số từ 0-9.
-
+validation.stateRequired=Vui lòng nhập tên tiểu bang.
+validation.streetRequired=Vui lòng nhập số nhà và tên đường hợp lệ.
 validation.textTooLong=Chỉ được dài tối đa {0} ký tự.
 validation.textTooShort=Phải có ít nhất {0} ký tự.
-
-adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
-
-error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
-error.notFoundDescription=Vui lòng quay lại hoặc chuyển đến {0}
-error.notFoundDescriptionLink=trang chủ
-
-email.loginToCiviform=Đăng nhập vào CiviForm tại {0}
-
-email.applicationReceivedSubject=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn
-
-email.applicationReceivedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn. Mã người đăng ký của bạn là {1} và mã đơn đăng ký là {2}
-
-email.tiApplicationSubmittedSubject=Bạn đã gửi đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
-
-email.tiApplicationSubmittedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} với tư cách là người đăng ký {1}, và mã đơn đăng ký là {2}.
-
-email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.
+validation.tooFewSelections=Vui lòng chọn ít nhất {0}.
+validation.tooManySelections=Vui lòng chọn ít hơn {0}.

@@ -6,270 +6,151 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
 
+adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
+ariaLabel.answer={0}에 답변
+ariaLabel.begin=여기서 시작합니다. {0}
+ariaLabel.edit={0} 편집
+banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
+button.addEntity={0} 추가
+button.apply=신청
+button.applySr={0} 신청
+button.chooseFile=파일 선택
+button.continue=계속
+button.continueSr={0} 신청 계속하기
+button.createAccount=계정 만들기
+button.deleteFile=삭제
+button.edit=편집
+button.editAddress=주소 수정
+button.editSr={0}에 제출된 신청서 편집
+button.goBackAndEdit=돌아가서 수정
+button.guestLogin=게스트로 계속
+button.keepFile=계속
+button.login=로그인
+button.logout=로그아웃
+button.nextScreen=저장 후 다음으로 이동
+button.previousScreen=이전
+button.removeEntity={0} 삭제
+button.review=검토
+button.saveAndConfirm=저장 및 확인
+button.skipFileUpload=건너뛰기
+button.submit=제출
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-
-button.logout=로그아웃
-
-footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
-
-guest=게스트
-
-label.languageSr=언어 선택
-
-header.userName={0}(으)로 로그인됨
-
-validation.isRequired=이 질문은 필수입니다.
-
-validation.invalidInput=유효한 내용을 입력하세요.
-
-validation.errorAnnouncementSr=양식에 오류가 있습니다.
-
-content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
-
-content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
-
-title.login=로그인
-
-content.loginPrompt={0} 계정으로 로그인하세요.
-
-button.login=로그인
-
-content.alternativeLoginPrompt=계정이 없나요?
-
-content.or=또는
-
-button.createAccount=계정 만들기
-
-button.guestLogin=게스트로 계속
-
-content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
-
-content.adminLoginPrompt=다른 내용을 찾고 있나요?
-
-link.adminLogin=관리자 로그인
-
-input.fileAlreadyUploaded=업로드된 파일: {0}
-
-button.deleteFile=삭제
-
-button.keepFile=계속
-
-button.nextScreen=저장 후 다음으로 이동
-
-button.previousScreen=이전
-
-button.review=검토
-
-button.skipFileUpload=건너뛰기
-
-toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
-
-link.allDone=모두 완료했습니다
-
-link.applyToAnotherProgram=다른 프로그램 신청
-
-link.createAccountOrSignIn=계정 만들기 또는 로그인
-
-button.apply=신청
-
-button.applySr={0} 신청
-
-button.edit=편집
-
-button.editSr={0}에 제출된 신청서 편집
-
-button.continueSr={0} 신청 계속하기
-
-content.submittedDate=제출 날짜: {0}
-
-content.benefits=혜택 받기
-
-content.description1=CiviForm을 통해 정보를 재사용하여 다양한 혜택을 한 번에 신청할 수 있습니다.
-
-content.description2=아래에서 신청서를 선택하여 작성을 시작합니다.
-
-link.programDetails=프로그램 세부정보
-
-link.programDetailsSr={0}의 프로그램 세부정보
-
-title.programs=프로그램 및 서비스
-
-title.inProgressProgramsUpdated=진행 중
-
-title.status=상태
-
-title.activeProgramsUpdated=시작 안 함
-
-title.submittedPrograms=제출됨
-
-toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
-
-toast.programCompleted=신청서가 이미 작성되어 있습니다.
-
-button.submit=제출
-
-button.continue=계속
-
-toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
-
-content.notEligible=제출을 위해 확인 필요
-
-content.doesNotQualify=자격요건을 충족하지 않음
-
-link.edit=편집
-link.answer=답변
-
-content.previouslyAnsweredOn={0}에 답변됨
-
-ariaLabel.begin=여기서 시작합니다. {0}
-
-ariaLabel.edit={0} 편집
-
-ariaLabel.answer={0}에 답변
-
-title.programSummary=프로그램 신청 요약
-
-title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
-
-title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
-
-content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
-
-content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
-
-button.goBackAndEdit=돌아가서 수정
-
-toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
-
-toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
-
-tag.mayQualify=자격요건을 충족할 수 있음
-
-tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
-
-tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
-
-tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
-
-title.cannotCheckEligibility=현재 {0}에 대한 귀하의 자격을 확인할 수 없습니다.
-
-title.cannotCheckEligibilityTi=현재 {0}에 대한 클라이언트의 자격을 확인할 수 없습니다.
-
-content.cannotCheckEligibility=이 문제를 신속히 해결하기 위해 노력하는 중입니다. 잠시 후 다시 시도해 주세요.
-
 button.viewAllPrograms=모든 프로그램 보기
-
-toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-
-toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-
-banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
-
-title.applicationConfirmation=애플리케이션 확인
-
+content.addressEntered=입력된 주소:
+content.addressEnteredWithQuestionName=입력된 {0}:
+content.adminLoginPrompt=다른 내용을 찾고 있나요?
+content.alternativeLoginPrompt=계정이 없나요?
+content.benefits=혜택 받기
+content.cannotCheckEligibility=이 문제를 신속히 해결하기 위해 노력하는 중입니다. 잠시 후 다시 시도해 주세요.
+content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
 content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수했으며 신청 ID는 {1}입니다.
-
-title.createAnAccount=계정 만들기 또는 로그인
-
+content.description1=CiviForm을 통해 정보를 재사용하여 다양한 혜택을 한 번에 신청할 수 있습니다.
+content.description2=아래에서 신청서를 선택하여 작성을 시작합니다.
+content.doesNotQualify=자격요건을 충족하지 않음
+content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
+content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
+content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
+content.loginPrompt={0} 계정으로 로그인하세요.
+content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
+content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
+content.notEligible=제출을 위해 확인 필요
+content.or=또는
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
-
+content.previouslyAnsweredOn={0}에 답변됨
+content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
+content.submittedDate=제출 날짜: {0}
+content.suggestedAddress=추천 주소:
+content.suggestedAddresses=추천 주소:
+dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
+email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
+email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
+email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
+email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
+email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
+email.tiManageYourClients={0}에서 고객 관리하기
+error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
+error.notFoundDescriptionLink=홈페이지
+error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
+footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
+guest=게스트
+header.userName={0}(으)로 로그인됨
+input.fileAlreadyUploaded=업로드된 파일: {0}
 label.addressLine2=아파트 등(선택사항)
 label.city=시/군/구
-label.state=주/도
-label.selectState=주 선택
-label.street=주소
-label.zipcode=우편번호
-
-validation.streetRequired=유효한 도로명과 번호를 입력하세요.
-validation.cityRequired=시/군/구를 입력하세요.
-validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
-validation.stateRequired=시/도를 입력하세요.
-validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
-validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
-
-title.verifyAddress=주소 확인
-
-content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
-
-content.addressEntered=입력된 주소:
-
-content.addressEnteredWithQuestionName=입력된 {0}:
-
-content.suggestedAddress=추천 주소:
-
-content.suggestedAddresses=추천 주소:
-
-button.editAddress=주소 수정
-
-button.saveAndConfirm=저장 및 확인
-
-title.noValidAddress=유효한 주소를 찾을 수 없습니다
-
-content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
-
-placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
-
-validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
-
-button.addEntity={0} 추가
-
-button.removeEntity={0} 삭제
-
-dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
-
-validation.entityNameRequired=각 줄에 값을 입력하세요.
-
-validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
-
-placeholder.entityName={0} 이름
-
-validation.fileRequired=파일을 선택하세요.
-
-button.chooseFile=파일 선택
-
-validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
-validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
-validation.numberRequired=숫자만 포함해야 합니다.
-
-validation.tooFewSelections={0}개 이상 선택하세요.
-validation.tooManySelections={0}개보다 적게 선택하세요.
-
 label.firstName=이름
+label.languageSr=언어 선택
 label.lastName=성
 label.middleName=중간 이름
-
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+label.selectState=주 선택
+label.state=주/도
+label.street=주소
+label.zipcode=우편번호
+link.adminLogin=관리자 로그인
+link.allDone=모두 완료했습니다
+link.answer=답변
+link.applyToAnotherProgram=다른 프로그램 신청
+link.createAccountOrSignIn=계정 만들기 또는 로그인
+link.edit=편집
+link.programDetails=프로그램 세부정보
+link.programDetailsSr={0}의 프로그램 세부정보
+placeholder.entityName={0} 이름
 placeholder.firstName=이름
 placeholder.lastName=성
 placeholder.middleName=중간 이름
-
+placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
+tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
+tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
+tag.mayQualify=자격요건을 충족할 수 있음
+tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
+title.activeProgramsUpdated=시작 안 함
+title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
+title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
+title.applicationConfirmation=애플리케이션 확인
+title.cannotCheckEligibility=현재 {0}에 대한 귀하의 자격을 확인할 수 없습니다.
+title.cannotCheckEligibilityTi=현재 {0}에 대한 클라이언트의 자격을 확인할 수 없습니다.
+title.createAnAccount=계정 만들기 또는 로그인
+title.inProgressProgramsUpdated=진행 중
+title.login=로그인
+title.noValidAddress=유효한 주소를 찾을 수 없습니다
+title.programSummary=프로그램 신청 요약
+title.programs=프로그램 및 서비스
+title.status=상태
+title.submittedPrograms=제출됨
+title.verifyAddress=주소 확인
+toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
+toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
+toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
+toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
+toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
+toast.programCompleted=신청서가 이미 작성되어 있습니다.
+validation.cityRequired=시/군/구를 입력하세요.
+validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
+validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
+validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
+validation.entityNameRequired=각 줄에 값을 입력하세요.
+validation.errorAnnouncementSr=양식에 오류가 있습니다.
+validation.fileRequired=파일을 선택하세요.
 validation.firstNameRequired=이름을 입력하세요.
+validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
+validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
+validation.invalidInput=유효한 내용을 입력하세요.
+validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
+validation.isRequired=이 질문은 필수입니다.
 validation.lastNameRequired=성을 입력하세요.
-
+validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
+validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
+validation.numberRequired=숫자만 포함해야 합니다.
 validation.numberTooBig=최댓값은 {0}입니다.
 validation.numberTooSmall=최솟값은 {0}입니다.
-validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
-
+validation.stateRequired=시/도를 입력하세요.
+validation.streetRequired=유효한 도로명과 번호를 입력하세요.
 validation.textTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
 validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
-
-adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
-
-error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
-error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
-error.notFoundDescriptionLink=홈페이지
-
-email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
-
-email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
-
-email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
-
-email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
-
-email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
-
-email.tiManageYourClients={0}에서 고객 관리하기
+validation.tooFewSelections={0}개 이상 선택하세요.
+validation.tooManySelections={0}개보다 적게 선택하세요.

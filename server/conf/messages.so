@@ -5,274 +5,153 @@
 # To type an apostrophe in a message, please type two. Example: can't -> can''t
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
+
+adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+ariaLabel.answer=Jawaab {0}
+ariaLabel.begin=Halkan ka bilow. {0}
+ariaLabel.edit=Wax ka beddel {0}
+banner.errorSavingApplication=Khalad ayaa ka imaaday kadib kaydinta codsiga
+button.addEntity=Ku dar {0}
+button.apply=Codso
+button.applySr=Ka Codso {0}
+button.chooseFile=Dooro Fayl
+button.continue=Sii wad
+button.continueSr=U sii wad codsiga ila {0}
+button.createAccount=Akoon samayso
+button.deleteFile=Tirtir
+button.edit=Tifatir
+button.editAddress=Wax ka beddel cinwaanka
+button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
+button.goBackAndEdit=Dib u noqo oo wax ka beddel
+button.guestLogin=Ku sii wad marti ahaan
+button.keepFile=Sii wad
+button.login=Halkan ka gal
 # The text on the button an applicant clicks to log out of their session.
 button.logout=ka bixida
-
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
-
+button.nextScreen=Tan Xiga
+button.previousScreen=Hore
+button.removeEntity=Ka saar {0}
+button.review=Dib u eeg
+button.saveAndConfirm=Kaydi oo xaqiiji
+button.skipFileUpload=Ka bood
+button.submit=Gudbi
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-
-footer.supportLinkDescription=Taageero farsamo, la xidhiidh
-
+button.viewAllPrograms=Arag barnaamijyada oo dhan
+content.addressEntered=Cinwaanka waa la geliyay:
+content.addressEnteredWithQuestionName={0} la geliyay:
+content.adminLoginPrompt=Wax kale miyaad raadinaysay?
+content.alternativeLoginPrompt=Akoon ma lihid?
+content.benefits=Hel faa''iidooyin
+content.cannotCheckEligibility=Waxaanu ka shaqaynaynaa hagaajinta dhibkan si degdeg ah. Isku day mar kale wakhti dambe.
+content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
+content.confirmed= Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
+content.description1=CiviForm wuxuu kuu ogolaanayaa inaad codsato faa''iidooyin badan hal mar adiga oo dib u isticmaalaya macluumaadka.
+content.description2=Ku bilow doorashada codsiga hoos.
+content.doesNotQualify=Uma qalmo
+content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
+content.foundSimilarAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay, laakiin waxaanu helnay shay la mid ah.
+content.loginDisabledPrompt=Gelitaanka koontada hadda waa la xidhay
+content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
+content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
+content.noValidAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay. Fadlan wax ka beddel cinwaankaada si aad horay ugu sii socoto.
+content.notEligible=Uma Qalmo
+content.or=ama
+content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
+content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
+content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
+content.submittedDate=La gudbiyay {0}
+content.suggestedAddress=Cinwaanka la soo jeediyay:
+content.suggestedAddresses=Cinwaanada la soo jeediyay:
+dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
+email.applicationReceivedBody=Codsigaaga barnaamijka {0} waa la helay. Aqoonsiga codsadahaagu waa {1} iyo Aqoonsiga codsigu waa {2}
+email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
+email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
+email.tiApplicationSubmittedBody=Codsiga barnaamijka {0} ka codsade ahaan {1} waa la helay, oo Aqoonsiga codsiguna waa {2}.
+email.tiApplicationSubmittedSubject=Waxaad soo gudbisay codsiga barnaamijka {0} addoo metelaya codsadaha {1}
+email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.
+error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
+error.notFoundDescriptionLink=bogga internatka
+error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
+footer.supportLinkDescription=Taageero farsamo, la xidhiidh\
 # TODO(#1918): Translate.
 guest=Guest
-
-label.languageSr=Dooro luqad
-
 header.userName=U soo gal sidii {0}
-
-validation.isRequired=Su''aashan ayaa loo baahan yahay.
-
-validation.invalidInput=Fadlan geli qiimaha sadar kasta.
-
-validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
-
-content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
-
-content.mobileFileUploadHelp=Telefoonkaaga? “Choose File” sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
-
-title.login=Soo gal
-
-content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
-
-button.login=Halkan ka gal
-
-content.alternativeLoginPrompt=Akoon ma lihid?
-
-content.or=ama
-
-button.createAccount=Akoon samayso
-
-button.guestLogin=Ku sii wad marti ahaan
-
-content.loginDisabledPrompt=Gelitaanka koontada hadda waa la xidhay
-
-content.adminLoginPrompt=Wax kale miyaad raadinaysay?
-
-link.adminLogin=Admin login
-
 input.fileAlreadyUploaded=Faylka la soo geliyay: {0}
-
-button.deleteFile=Tirtir
-
-button.keepFile=Sii wad
-
-button.nextScreen=Tan Xiga
-
-button.previousScreen=Hore
-
-button.review=Dib u eeg
-
-button.skipFileUpload=Ka bood
-
-toast.localeNotSupported=Waan ka xunnahay, barnaamijkan si buuxda looguma turjuman luqadda aad doorbidayso.
-
-link.allDone=Waan dhameeyay
-
-link.applyToAnotherProgram=Codso barnaamij kale
-
-link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
-
-button.apply=Codso
-
-button.applySr=Ka Codso {0}
-
-button.edit=Tifatir
-
-button.editSr=Wax ka beddel codsiga loo gudbiyay {0}
-
-button.continueSr=U sii wad codsiga ila {0}
-
-content.submittedDate=La gudbiyay {0}
-
-content.benefits=Hel faa''iidooyin
-
-content.description1=CiviForm wuxuu kuu ogolaanayaa inaad codsato faa''iidooyin badan hal mar adiga oo dib u isticmaalaya macluumaadka.
-
-content.description2=Ku bilow doorashada codsiga hoos.
-
-link.programDetails=Faahfaahinta barnaamijka
-
-link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
-
-title.programs=Barnaamijyada iyo adeegyada
-
-toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
-
-title.status=Heerka
-
-title.inProgressProgramsUpdated=Socda hadda
-
-title.activeProgramsUpdated=Lama bilaabin
-
-title.submittedPrograms=La gudbiyay
-
-toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
-
-button.submit=Gudbi
-
-button.continue=Sii wad
-
-toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
-
-content.notEligible=Uma Qalmo
-
-content.doesNotQualify=Uma qalmo
-
-link.edit=Wax ka beddel
-link.answer=Jawaab
-
-content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
-
-ariaLabel.begin=Halkan ka bilow. {0}
-
-ariaLabel.edit=Wax ka beddel {0}
-
-ariaLabel.answer=Jawaab {0}
-
-title.programSummary=Soo koobida barnaamijka codsiga
-
-title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
-
-title.applicantNotEligibleTi=Iyaddoo ku salaysan jawaabahaaga su'aalaha soo socda, macmiilkaagu waxa laga yaabaa inuusan u qalmin {0}.
-
-content.eligibilityCriteria=Heerka qiimaynta u qalmida fadlan tixraac {0}
-
-content.changeAnswersForEligibility=Waxaad ku soo laaban kartaa boggii hore si aad wax uuga bedesho jawaabahaaga. Ama codso barnaamij kale.
-
-button.goBackAndEdit=Dib u noqo oo wax ka beddel
-
-toast.mayQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inuu u qalmo {0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
-
-toast.mayQualify=Iyada oo ku saleysan jawaabahaaga, waxaad u qalmi kartaa{0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
-
-tag.mayQualify=Waxa dhici karta inaad u qalanto
-
-tag.mayQualifyTi=Macmiilkaaga waxa dhici karta inuu u qalmo
-
-tag.mayNotQualify=Waxa dhici karta inaanad u qalmin
-
-tag.mayNotQualifyTi=Macmiilkaaga waxa dhici karta inuusan u qalmin
-
-title.cannotCheckEligibility=Wakhtigan, ma awoodno hubinta u qalmidaada {0}.
-
-title.cannotCheckEligibilityTi=Wakhtigan, ma awoodno hubinta u qalmida macmiilkaaga {0}.
-
-content.cannotCheckEligibility=Waxaanu ka shaqaynaynaa hagaajinta dhibkan si degdeg ah. Isku day mar kale wakhti dambe.
-
-button.viewAllPrograms=Arag barnaamijyada oo dhan
-
-toast.mayNotQualify=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta inaanad u qalmin {0}. Haddi imacluumaadkaagu uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
-
-toast.mayNotQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inaanu u qalmin {0}. Haddi imacluumaadka macmiilku uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
-
-banner.errorSavingApplication=Khalad ayaa ka imaaday kadib kaydinta codsiga
-
-title.applicationConfirmation=AXaqiijinta codsiga
-
-content.confirmed= Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsigaagii waa la helay, ID gaaga waa {1}.
-
-title.createAnAccount=Akoon samee ama gal oo sign in garee
-
-content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
-
 label.addressLine2=Dabaqa, qolal, iwm. (ikhtiyaar)
 label.city=Magaalada
-label.state=Gobolka
-label.selectState=Dooro Gobolka
-label.street=Cinwaan
-label.zipcode=Siib Koodhka
-
-validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.
-validation.cityRequired=Fadlan magaalada gali.
-validation.currencyMisformatted=Lacagtu waa inay noqotaa mid ka mid ah qaababka soo socda: 1000 1,000 1000.30 1,000.30
-validation.stateRequired=Fadlan geli gobolka.
-validation.invalidZipcode=Fadlan geli sib koodhka shanta lambarka ah oo saxsan.
-validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (PO BOX).
-
-title.verifyAddress=Xaqiiji cinwaanka
-
-content.foundSimilarAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay, laakiin waxaanu helnay shay la mid ah.
-
-content.addressEntered=Cinwaanka waa la geliyay:
-
-content.addressEnteredWithQuestionName={0} la geliyay:
-
-content.suggestedAddress=Cinwaanka la soo jeediyay:
-
-content.suggestedAddresses=Cinwaanada la soo jeediyay:
-
-button.editAddress=Wax ka beddel cinwaanka
-
-button.saveAndConfirm=Kaydi oo xaqiiji
-
-title.noValidAddress=Lama helin cinwaan ansax ah
-
-content.noValidAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay. Fadlan wax ka beddel cinwaankaada si aad horay ugu sii socoto.
-
-placeholder.noDropdownSelection=Dooro ikhtiyaar:
-
-
-validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
-
-button.addEntity=Ku dar {0}
-
-button.removeEntity=Ka saar {0}
-
-dialog.confirmDelete=Ma hubtaa inaad doonayso inaad tan saarto {0}? Isbeddelkan waa la keydin doonaa ka dib markaad gujiso ''Kan XIga'' oo dhammaan xogta la xiriirta tan waa lumin doonaa.
-
-validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
-
-validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
-
-placeholder.entityName=Naanaysta {0}
-
-validation.fileRequired=Fadlan dooro fayl.
-
-button.chooseFile=Dooro Fayl
-
-validation.idTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
-
-validation.idTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
-validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
-
-validation.tooFewSelections=Fadlan dooro ugu yaraan {0}.
-validation.tooManySelections=Fadlan dooro wax ka yar {0}
-
 label.firstName=Magaca hore
+label.languageSr=Dooro luqad
 label.lastName=Magaca dambe
 label.middleName=Magaca dhexe
-
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+label.selectState=Dooro Gobolka
+label.state=Gobolka
+label.street=Cinwaan
+label.zipcode=Siib Koodhka
+link.adminLogin=Admin login
+link.allDone=Waan dhameeyay
+link.answer=Jawaab
+link.applyToAnotherProgram=Codso barnaamij kale
+link.createAccountOrSignIn=Akoon samee ama gal oo sign in garee
+link.edit=Wax ka beddel
+link.programDetails=Faahfaahinta barnaamijka
+link.programDetailsSr=Faahfaahinta barnaamijka ee {0}
+placeholder.entityName=Naanaysta {0}
 placeholder.firstName=Magaca hore
 placeholder.lastName=Magaca dambe
 placeholder.middleName=Magaca dhexe
-
+placeholder.noDropdownSelection=Dooro ikhtiyaar:
+tag.mayNotQualify=Waxa dhici karta inaanad u qalmin
+tag.mayNotQualifyTi=Macmiilkaaga waxa dhici karta inuusan u qalmin
+tag.mayQualify=Waxa dhici karta inaad u qalanto
+tag.mayQualifyTi=Macmiilkaaga waxa dhici karta inuu u qalmo
+title.activeProgramsUpdated=Lama bilaabin
+title.applicantNotEligible=Iyaddoo ku salaysan jawaabaha su'aalaha soo socda, waxa dhici karta inaanad u qalmin {0}.
+title.applicantNotEligibleTi=Iyaddoo ku salaysan jawaabahaaga su'aalaha soo socda, macmiilkaagu waxa laga yaabaa inuusan u qalmin {0}.
+title.applicationConfirmation=AXaqiijinta codsiga
+title.cannotCheckEligibility=Wakhtigan, ma awoodno hubinta u qalmidaada {0}.
+title.cannotCheckEligibilityTi=Wakhtigan, ma awoodno hubinta u qalmida macmiilkaaga {0}.
+title.createAnAccount=Akoon samee ama gal oo sign in garee
+title.inProgressProgramsUpdated=Socda hadda
+title.login=Soo gal
+title.noValidAddress=Lama helin cinwaan ansax ah
+title.programSummary=Soo koobida barnaamijka codsiga
+title.programs=Barnaamijyada iyo adeegyada
+title.status=Heerka
+title.submittedPrograms=La gudbiyay
+title.verifyAddress=Xaqiiji cinwaanka
+toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
+toast.applicationSaved=Codsiga si guul leh loo keydiyay: ID codsiga {0}
+toast.localeNotSupported=Waan ka xunnahay, barnaamijkan si buuxda looguma turjuman luqadda aad doorbidayso.
+toast.mayNotQualify=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta inaanad u qalmin {0}. Haddi imacluumaadkaagu uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
+toast.mayNotQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inaanu u qalmin {0}. Haddi imacluumaadka macmiilku uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
+toast.mayQualify=Iyada oo ku saleysan jawaabahaaga, waxaad u qalmi kartaa{0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
+toast.mayQualifyTi=Iyaddoo ku salaysan jawaabahaaga, macmiilkaagu waxa dhici karta inuu u qalmo {0}. Si aad horay ugu sii socoto, sii wad buuxinta codsiga.
+toast.programCompleted=Codsiga mar hore ayaa la dhammaystiray.
+validation.cityRequired=Fadlan magaalada gali.
+validation.currencyMisformatted=Lacagtu waa inay noqotaa mid ka mid ah qaababka soo socda: 1000 1,000 1000.30 1,000.30
+validation.dateMisformatted=Please enter a date in the format YYYY/MM/DD.
+validation.duplicateEntityName=Fadlan geli qiime u gaar ah sadar kasta.
+validation.entityNameRequired=Fadlan geli qiimaha sadar kasta.
+validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
+validation.fileRequired=Fadlan dooro fayl.
 validation.firstNameRequired=Fadlan gali magacaga koowaad.
+validation.idTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
+validation.idTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
+validation.invalidInput=Fadlan geli qiimaha sadar kasta.
+validation.invalidZipcode=Fadlan geli sib koodhka shanta lambarka ah oo saxsan.
+validation.isRequired=Su''aashan ayaa loo baahan yahay.
 validation.lastNameRequired=Fadlan geli magacaaga dambe.
-
+validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (PO BOX).
+validation.numberNonInteger=Fadlan geli qiimaha sadar kasta.
+validation.numberRequired=Waa in ay ka koobnaadaan tirooyin oo kaliya.
 validation.numberTooBig=Waa inuu noqdaa ugu badnaan {0}.
 validation.numberTooSmall=Waa inuu ahaadaa ugu yaraan {0}.
-validation.numberNonInteger=Fadlan geli qiimaha sadar kasta.
-
+validation.stateRequired=Fadlan geli gobolka.
+validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.
 validation.textTooLong=Waa in uu ka kooban yahay ugu badnaan {0} xaraf.
 validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
-
-adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
-
-error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
-error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
-error.notFoundDescriptionLink=bogga internatka
-
-email.loginToCiviform=Ka soo gal CiviForm-ka xaga {0}
-
-email.applicationReceivedSubject=Codsigaaga barnaamijka {0} waa la helay
-
-email.applicationReceivedBody=Codsigaaga barnaamijka {0} waa la helay. Aqoonsiga codsadahaagu waa {1} iyo Aqoonsiga codsigu waa {2}
-
-email.tiApplicationSubmittedSubject=Waxaad soo gudbisay codsiga barnaamijka {0} addoo metelaya codsadaha {1}
-
-email.tiApplicationSubmittedBody=Codsiga barnaamijka {0} ka codsade ahaan {1} waa la helay, oo Aqoonsiga codsiguna waa {2}.
-
-email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.
+validation.tooFewSelections=Fadlan dooro ugu yaraan {0}.
+validation.tooManySelections=Fadlan dooro wax ka yar {0}

@@ -6,270 +6,150 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
-
+adminValidation.multiOptionEmpty=多選題不得留空。
+ariaLabel.answer=回答以下問題：{0}
+ariaLabel.begin=從這裡開始作答。{0}
+ariaLabel.edit=編輯「{0}」
+banner.errorSavingApplication=儲存申請書時發生錯誤
+button.addEntity=新增「{0}」
+button.apply=申請
+button.applySr=申請「{0}」
+button.chooseFile=選擇檔案
+button.continue=繼續
+button.continueSr=繼續申請「{0}」
+button.createAccount=建立帳戶
+button.deleteFile=刪除
+button.edit=編輯
+button.editAddress=編輯地址
+button.editSr=編輯已提交的「{0}」申請資料
+button.goBackAndEdit=返回並編輯
+button.guestLogin=繼續以訪客身分使用
+button.keepFile=繼續
+button.login=登入
+button.logout=登出
+button.nextScreen=儲存並繼續
+button.previousScreen=上一個畫面
+button.removeEntity=移除「{0}」
+button.review=檢查
+button.saveAndConfirm=儲存並確認
+button.skipFileUpload=略過
+button.submit=提交
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-
-button.logout=登出
-
-footer.supportLinkDescription=如需技術支援，請洽詢
-
-guest=訪客
-
-label.languageSr=選擇語言
-
-header.userName=目前登入身分：{0}
-
-validation.isRequired=這是必答問題。
-
-validation.invalidInput=請輸入有效內容。
-
-validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
-
-content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
-
-content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
-
-title.login=登錄
-
-content.loginPrompt=請使用「{0}」帳戶登入
-
-button.login=登入
-
-content.alternativeLoginPrompt=還沒有帳戶嗎？
-
-content.or=或
-
-button.createAccount=建立帳戶
-
-button.guestLogin=繼續以訪客身分使用
-
-content.loginDisabledPrompt=目前無法登入帳戶
-
-content.adminLoginPrompt=需要其他協助嗎？
-
-link.adminLogin=管理員登入
-
-input.fileAlreadyUploaded=已上傳檔案：{0}
-
-button.deleteFile=刪除
-
-button.keepFile=繼續
-
-button.nextScreen=儲存並繼續
-
-button.previousScreen=上一個畫面
-
-button.review=檢查
-
-button.skipFileUpload=略過
-
-toast.localeNotSupported=很抱歉，本計畫未提供完整翻譯版。
-
-link.allDone=我完成了
-
-link.applyToAnotherProgram=申請其他計畫
-
-link.createAccountOrSignIn=建立或登入帳戶
-
-button.apply=申請
-
-button.applySr=申請「{0}」
-
-button.edit=編輯
-
-button.editSr=編輯已提交的「{0}」申請資料
-
-button.continueSr=繼續申請「{0}」
-
-content.submittedDate=提交於 {0}
-
-content.benefits=取得福利
-
-content.description1=CiviForm 支援重複使用相同資訊一次申請多項福利。
-
-content.description2=首先是在下方選擇申請項目。
-
-link.programDetails=計畫詳情
-
-link.programDetailsSr=「{0}」計畫詳情
-
-title.programs=計畫與服務
-
-title.status=狀態
-
-title.inProgressProgramsUpdated=進行中
-
-title.activeProgramsUpdated=未開始
-
-title.submittedPrograms=已提交
-
-toast.applicationSaved=申請資料儲存成功：申請編號 {0}
-
-toast.programCompleted=已完成申請。
-
-button.submit=提交
-
-button.continue=繼續
-
-toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
-
-content.notEligible=不符合資格
-
-content.doesNotQualify=不符合資格
-
-link.edit=編輯
-link.answer=回答問題
-
-content.previouslyAnsweredOn=已於 {0}回答
-
-ariaLabel.begin=從這裡開始作答。{0}
-
-ariaLabel.edit=編輯「{0}」
-
-ariaLabel.answer=回答以下問題：{0}
-
-title.programSummary=計畫申請摘要
-
-title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
-
-title.applicantNotEligibleTi=根據您對下列問題的回覆，您的客戶可能不符合「{0}」的資格。
-
-content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
-
-content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
-
-button.goBackAndEdit=返回並編輯
-
-toast.mayQualifyTi=根據您的回覆，您的客戶可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
-
-toast.mayQualify=根據您的回覆，您可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
-
-tag.mayQualify=您可能符合資格
-
-tag.mayQualifyTi=您的客戶可能符合資格
-
-tag.mayNotQualify=您可能不符合資格
-
-tag.mayNotQualifyTi=您的客戶可能不符合資格
-
-title.cannotCheckEligibility=我們目前無法判斷您是否符合「{0}」的資格。
-
-title.cannotCheckEligibilityTi=我們目前無法判斷您的客戶是否符合「{0}」的資格。
-
-content.cannotCheckEligibility=我們會盡力在短時間內修正這個問題，請稍後再試。
-
 button.viewAllPrograms=查看所有計畫
-
-toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
-
-toast.mayNotQualifyTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
-
-banner.errorSavingApplication=儲存申請書時發生錯誤
-
-title.applicationConfirmation=申請確認
-
+content.addressEntered=您輸入的地址：
+content.addressEnteredWithQuestionName=您輸入的{0}：
+content.adminLoginPrompt=需要其他協助嗎？
+content.alternativeLoginPrompt=還沒有帳戶嗎？
+content.benefits=取得福利
+content.cannotCheckEligibility=我們會盡力在短時間內修正這個問題，請稍後再試。
+content.changeAnswersForEligibility=您可以返回上一頁編輯回答，也可以申請其他計畫。
 content.confirmed=感謝你申請「{0}」。我們已收到相關申請資料，申請編號為 {1}。
-
-title.createAnAccount=建立或登入帳戶
-
+content.description1=CiviForm 支援重複使用相同資訊一次申請多項福利。
+content.description2=首先是在下方選擇申請項目。
+content.doesNotQualify=不符合資格
+content.eligibilityCriteria=如要瞭解資格條件，請參閱：{0}
+content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
+content.loginDisabledPrompt=目前無法登入帳戶
+content.loginPrompt=請使用「{0}」帳戶登入
+content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
+content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
+content.notEligible=不符合資格
+content.or=或
 content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你的資訊，你之後隨時能使用這些資訊提出其他申請。如果你還沒有帳戶，可以在登入頁面註冊。已經輸入的資料並不會遺失。
-
+content.previouslyAnsweredOn=已於 {0}回答
+content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
+content.submittedDate=提交於 {0}
+content.suggestedAddress=建議的地址：
+content.suggestedAddresses=建議的地址：
+dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
+email.applicationReceivedBody=我們已收到您的「{0}」計畫申請書。您的申請者 ID 為 {1}，申請 ID 為 {2}
+email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書
+email.loginToCiviform=前往 {0} 登入 CiviForm
+email.tiApplicationSubmittedBody=我們已收到您代替申請者「{1}」提交的「{0}」計畫申請書，申請 ID 為 {2}。
+email.tiApplicationSubmittedSubject=您已代替申請者「{1}」提交「{0}」計畫的申請書
+email.tiManageYourClients=如要管理您的客戶，請前往 {0}。
+error.notFoundDescription=請回到上一個頁面或返回 {0}
+error.notFoundDescriptionLink=首頁
+error.notFoundTitle=我們找不到你嘗試前往的頁面
+footer.supportLinkDescription=如需技術支援，請洽詢
+guest=訪客
+header.userName=目前登入身分：{0}
+input.fileAlreadyUploaded=已上傳檔案：{0}
 label.addressLine2=公寓、套房等 (選填)
 label.city=城市
-label.state=州
-label.selectState=請選取州
-label.street=地址
-label.zipcode=郵遞區號
-
-validation.streetRequired=請輸入有效的街道名稱和號碼。
-validation.cityRequired=請輸入城市。
-validation.currencyMisformatted=請使用下列其中一種貨幣格式：1000 1,000 1000.30 1,000.30
-validation.stateRequired=請輸入州別。
-validation.invalidZipcode=請輸入有效的 5 位數郵遞區號。
-validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
-
-title.verifyAddress=驗證地址
-
-content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了類似的地址。
-
-content.addressEntered=您輸入的地址：
-
-content.addressEnteredWithQuestionName=您輸入的{0}：
-
-content.suggestedAddress=建議的地址：
-
-content.suggestedAddresses=建議的地址：
-
-button.editAddress=編輯地址
-
-button.saveAndConfirm=儲存並確認
-
-title.noValidAddress=找不到有效的網址
-
-content.noValidAddress=我們無法驗證您提供的地址。如要繼續操作，請編輯地址。
-
-placeholder.noDropdownSelection=選擇一個選項：
-
-validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
-
-button.addEntity=新增「{0}」
-
-button.removeEntity=移除「{0}」
-
-dialog.confirmDelete=確定要移除此「{0}」嗎？點選「下一步」後，系統就會儲存變更並移除與此「{0}」相關的所有資料。
-
-validation.entityNameRequired=請每行輸入一個值。
-
-validation.duplicateEntityName=每行輸入的值不可重複。
-
-placeholder.entityName=「{0}」名稱
-
-validation.fileRequired=請選取檔案。
-
-button.chooseFile=選擇檔案
-
-validation.idTooLong=長度不可超過 {0} 個字元。
-validation.idTooShort=長度不可少於 {0} 個字元。
-validation.numberRequired=只能輸入數字。
-
-validation.tooFewSelections=請至少選取 {0} 項。
-validation.tooManySelections=最多只能選取 {0} 項。
-
 label.firstName=名字
+label.languageSr=選擇語言
 label.lastName=姓氏
 label.middleName=中間名
-
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+label.selectState=請選取州
+label.state=州
+label.street=地址
+label.zipcode=郵遞區號
+link.adminLogin=管理員登入
+link.allDone=我完成了
+link.answer=回答問題
+link.applyToAnotherProgram=申請其他計畫
+link.createAccountOrSignIn=建立或登入帳戶
+link.edit=編輯
+link.programDetails=計畫詳情
+link.programDetailsSr=「{0}」計畫詳情
+placeholder.entityName=「{0}」名稱
 placeholder.firstName=名字
 placeholder.lastName=姓氏
 placeholder.middleName=中間名
-
+placeholder.noDropdownSelection=選擇一個選項：
+tag.mayNotQualify=您可能不符合資格
+tag.mayNotQualifyTi=您的客戶可能不符合資格
+tag.mayQualify=您可能符合資格
+tag.mayQualifyTi=您的客戶可能符合資格
+title.activeProgramsUpdated=未開始
+title.applicantNotEligible=根據您對下列問題的回覆，您可能不符合「{0}」的資格。
+title.applicantNotEligibleTi=根據您對下列問題的回覆，您的客戶可能不符合「{0}」的資格。
+title.applicationConfirmation=申請確認
+title.cannotCheckEligibility=我們目前無法判斷您是否符合「{0}」的資格。
+title.cannotCheckEligibilityTi=我們目前無法判斷您的客戶是否符合「{0}」的資格。
+title.createAnAccount=建立或登入帳戶
+title.inProgressProgramsUpdated=進行中
+title.login=登錄
+title.noValidAddress=找不到有效的網址
+title.programSummary=計畫申請摘要
+title.programs=計畫與服務
+title.status=狀態
+title.submittedPrograms=已提交
+title.verifyAddress=驗證地址
+toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
+toast.applicationSaved=申請資料儲存成功：申請編號 {0}
+toast.localeNotSupported=很抱歉，本計畫未提供完整翻譯版。
+toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
+toast.mayNotQualifyTi=根據您的回覆，您的客戶可能不符合「{0}」的資格。如果客戶的資訊有所變更，您可以編輯回答並繼續進行申請流程。
+toast.mayQualify=根據您的回覆，您可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
+toast.mayQualifyTi=根據您的回覆，您的客戶可能符合「{0}」的資格。如要繼續申請，請填妥申請書。
+toast.programCompleted=已完成申請。
+validation.cityRequired=請輸入城市。
+validation.currencyMisformatted=請使用下列其中一種貨幣格式：1000 1,000 1000.30 1,000.30
+validation.dateMisformatted=日期格式必須為 YYYY/MM/DD。
+validation.duplicateEntityName=每行輸入的值不可重複。
+validation.entityNameRequired=請每行輸入一個值。
+validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
+validation.fileRequired=請選取檔案。
 validation.firstNameRequired=請輸入名字。
+validation.idTooLong=長度不可超過 {0} 個字元。
+validation.idTooShort=長度不可少於 {0} 個字元。
+validation.invalidInput=請輸入有效內容。
+validation.invalidZipcode=請輸入有效的 5 位數郵遞區號。
+validation.isRequired=這是必答問題。
 validation.lastNameRequired=請輸入姓氏。
-
+validation.noPoBox=請輸入有效地址，切勿提供郵政信箱。
+validation.numberNonInteger=數字必須為正整數，而且只含 0 到 9 的數值字元。
+validation.numberRequired=只能輸入數字。
 validation.numberTooBig=數字不得大於 {0}。
 validation.numberTooSmall=數字不得小於 {0}。
-validation.numberNonInteger=數字必須為正整數，而且只含 0 到 9 的數值字元。
-
+validation.stateRequired=請輸入州別。
+validation.streetRequired=請輸入有效的街道名稱和號碼。
 validation.textTooLong=長度不可超過 {0} 個字元。
 validation.textTooShort=長度不可少於 {0} 個字元。
-
-adminValidation.multiOptionEmpty=多選題不得留空。
-
-error.notFoundTitle=我們找不到你嘗試前往的頁面
-error.notFoundDescription=請回到上一個頁面或返回 {0}
-error.notFoundDescriptionLink=首頁
-
-email.loginToCiviform=前往 {0} 登入 CiviForm
-
-email.applicationReceivedSubject=我們已收到您的「{0}」計畫申請書
-
-email.applicationReceivedBody=我們已收到您的「{0}」計畫申請書。您的申請者 ID 為 {1}，申請 ID 為 {2}
-
-email.tiApplicationSubmittedSubject=您已代替申請者「{1}」提交「{0}」計畫的申請書
-
-email.tiApplicationSubmittedBody=我們已收到您代替申請者「{1}」提交的「{0}」計畫申請書，申請 ID 為 {2}。
-
-email.tiManageYourClients=如要管理您的客戶，請前往 {0}。
+validation.tooFewSelections=請至少選取 {0} 項。
+validation.tooManySelections=最多只能選取 {0} 項。

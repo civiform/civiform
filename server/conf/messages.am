@@ -6,270 +6,150 @@
 # https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
 # ------------------------------------------------------------------------------- #
 
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
-
+adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
+ariaLabel.answer=መልስ {0}
+ariaLabel.begin=እዚህ ይጀምሩ። {0}
+ariaLabel.edit={0}ን አርትዕ
+banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
+button.addEntity={0}ን አክል
+button.apply=አመልክት
+button.applySr=ወደ {0} አመልክት
+button.chooseFile=ፋይል ይምረጡ
+button.continue=ቀጥል
+button.continueSr=ወደ {0} ማመልከትን ቀጥል
+button.createAccount=መለያ ፍጠር
+button.deleteFile=ሰርዝ
+button.edit=አርትዕ
+button.editAddress=አድራሻን አርትዕ ያድርጉ
+button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
+button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
+button.guestLogin=እንደ እንግዳ ቀጥል
+button.keepFile=ቀጥል
+button.login=ግባ
+button.logout=ውጣ
+button.nextScreen=አስቀምጥ እና ቀጣይ
+button.previousScreen=ቀዳሚ
+button.removeEntity={0}ን አስወግድ
+button.review=ገምግም
+button.saveAndConfirm=ያስቀምጡ እና ያረጋግጡ
+button.skipFileUpload=ዝለል
+button.submit=አስገባ
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-
-button.logout=ውጣ
-
-footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
-
-guest=እንግዳ
-
-label.languageSr=ቋንቋ ይምረጡ
-
-header.userName=እንደ {0} ሆነው ገብተዋል
-
-validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
-
-validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
-
-validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
-
-content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
-
-content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
-
-title.login=ግባ
-
-content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
-
-button.login=ግባ
-
-content.alternativeLoginPrompt=መለያ የለዎትም?
-
-content.or=ወይም
-
-button.createAccount=መለያ ፍጠር
-
-button.guestLogin=እንደ እንግዳ ቀጥል
-
-content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
-
-content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
-
-link.adminLogin=የአስተዳዳሪ መግቢያ
-
-input.fileAlreadyUploaded=የተሰቀለ ፋይል፦ {0}
-
-button.deleteFile=ሰርዝ
-
-button.keepFile=ቀጥል
-
-button.nextScreen=አስቀምጥ እና ቀጣይ
-
-button.previousScreen=ቀዳሚ
-
-button.review=ገምግም
-
-button.skipFileUpload=ዝለል
-
-toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ ወደ እንግሊዝኛ አልተተረጎመም።
-
-link.allDone=ሁሉንም ጨርሼያለሁ
-
-link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
-
-link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
-
-button.apply=አመልክት
-
-button.applySr=ወደ {0} አመልክት
-
-button.edit=አርትዕ
-
-button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
-
-button.continueSr=ወደ {0} ማመልከትን ቀጥል
-
-content.submittedDate={0} ገብቷል
-
-content.benefits=ጥቅማጥቅሞችን ያግኙ
-
-content.description1=CiviForm መረጃን እንደገና በመጠቀም በአንድ ጊዜ ለበርካታ ጥቅማጥቅሞች እንዲያመለክቱ ያስችለዎታል።
-
-content.description2=ከታች ማመልከቻ በመምረጥ ይጀምሩ።
-
-link.programDetails=የፕሮግራም ዝርዝሮች
-
-link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
-
-title.programs=ፕሮግራሞች እና አገልግሎቶች
-
-title.status=ሁኔታ
-
-title.inProgressProgramsUpdated=በሂደት ላይ
-
-title.activeProgramsUpdated=ያልተጀመሩ
-
-title.submittedPrograms=የገቡ
-
-toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
-
-toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
-
-button.submit=አስገባ
-
-button.continue=ቀጥል
-
-toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
-
-content.notEligible=ብቁ አይደለም
-
-content.doesNotQualify=ብቁ አይደለም
-
-link.edit=አርትዕ
-link.answer=መልስ
-
-content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
-
-ariaLabel.begin=እዚህ ይጀምሩ። {0}
-
-ariaLabel.edit={0}ን አርትዕ
-
-ariaLabel.answer=መልስ {0}
-
-title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
-
-title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
-
-title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
-
-content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
-
-content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
-
-button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
-
-toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
-
-toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
-
-tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
-
-tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
-
-tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
-
-tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
-
-title.cannotCheckEligibility=በዚህ ጊዜ ለ{0} የእርስዎን ብቁነት ማረጋገጥ አንችልም።
-
-title.cannotCheckEligibilityTi=በዚህ ጊዜ ለ{0} የደንበኛዎን ብቁነት ማረጋገጥ አንችልም።
-
-content.cannotCheckEligibility=ይህን ችግር በፍጥነት ለማስተካከል እየሰራን ነው። በኋላ ላይ እንደገና ይሞክሩ።
-
 button.viewAllPrograms=ሁሉንም ፕሮግራሞች ይመልከቱ
-
-toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
-
-toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
-
-banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
-
-title.applicationConfirmation=የማመልከቻ ማረጋገጫ
-
+content.addressEntered=የገባ አድራሻ፦
+content.addressEnteredWithQuestionName={0} ገብቷል፦
+content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
+content.alternativeLoginPrompt=መለያ የለዎትም?
+content.benefits=ጥቅማጥቅሞችን ያግኙ
+content.cannotCheckEligibility=ይህን ችግር በፍጥነት ለማስተካከል እየሰራን ነው። በኋላ ላይ እንደገና ይሞክሩ።
+content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
 content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማመልከቻዎ ደርሷል፣ እና የማመልከቻ መታወቂያዎ {1} ነው።
-
-title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
-
+content.description1=CiviForm መረጃን እንደገና በመጠቀም በአንድ ጊዜ ለበርካታ ጥቅማጥቅሞች እንዲያመለክቱ ያስችለዎታል።
+content.description2=ከታች ማመልከቻ በመምረጥ ይጀምሩ።
+content.doesNotQualify=ብቁ አይደለም
+content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
+content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
+content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
+content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
+content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
+content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
+content.notEligible=ብቁ አይደለም
+content.or=ወይም
 content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
-
+content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
+content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
+content.submittedDate={0} ገብቷል
+content.suggestedAddress=የተጠቆመው አድራሻ፦
+content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
+dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
+email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
+email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
+email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
+email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
+email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
+email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።
+error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
+error.notFoundDescriptionLink=መነሻ ገጽ
+error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
+footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
+guest=እንግዳ
+header.userName=እንደ {0} ሆነው ገብተዋል
+input.fileAlreadyUploaded=የተሰቀለ ፋይል፦ {0}
 label.addressLine2=አፓርታማ፣ ጥቅል፣ ወዘተ (አማራጭ)
 label.city=ከተማ
-label.state=ግዛት
-label.selectState=ክልል ይምረጡ
-label.street=አድራሻ
-label.zipcode=ዚፕ ኮድ
-
-validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
-validation.cityRequired=እባክዎ ከተማ ያስገቡ።
-validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
-validation.stateRequired=እባክዎ ክልል ያስገቡ።
-validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
-validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
-
-title.verifyAddress=አድራሻን ያረጋግጡ
-
-content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
-
-content.addressEntered=የገባ አድራሻ፦
-
-content.addressEnteredWithQuestionName={0} ገብቷል፦
-
-content.suggestedAddress=የተጠቆመው አድራሻ፦
-
-content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
-
-button.editAddress=አድራሻን አርትዕ ያድርጉ
-
-button.saveAndConfirm=ያስቀምጡ እና ያረጋግጡ
-
-title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
-
-content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
-
-placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ፡-
-
-validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
-
-button.addEntity={0}ን አክል
-
-button.removeEntity={0}ን አስወግድ
-
-dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
-
-validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
-
-validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
-
-placeholder.entityName={0} ስም
-
-validation.fileRequired=እባክዎ ፋይል ይምረጡ።
-
-button.chooseFile=ፋይል ይምረጡ
-
-validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
-validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
-validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
-
-validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
-validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
-
 label.firstName=መጠሪያ ስም
+label.languageSr=ቋንቋ ይምረጡ
 label.lastName=የአያት ስም
 label.middleName=የአባት ስም
-
+label.selectState=ክልል ይምረጡ
+label.state=ግዛት
+label.street=አድራሻ
+label.zipcode=ዚፕ ኮድ
+link.adminLogin=የአስተዳዳሪ መግቢያ
+link.allDone=ሁሉንም ጨርሼያለሁ
+link.answer=መልስ
+link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
+link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
+link.edit=አርትዕ
+link.programDetails=የፕሮግራም ዝርዝሮች
+link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+placeholder.entityName={0} ስም
 placeholder.firstName=መጠሪያ ስም
 placeholder.lastName=የአያት ስም
 placeholder.middleName=የአባት ስም
-
+placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ፡-
+tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
+tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
+tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
+tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
+title.activeProgramsUpdated=ያልተጀመሩ
+title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
+title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
+title.applicationConfirmation=የማመልከቻ ማረጋገጫ
+title.cannotCheckEligibility=በዚህ ጊዜ ለ{0} የእርስዎን ብቁነት ማረጋገጥ አንችልም።
+title.cannotCheckEligibilityTi=በዚህ ጊዜ ለ{0} የደንበኛዎን ብቁነት ማረጋገጥ አንችልም።
+title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
+title.inProgressProgramsUpdated=በሂደት ላይ
+title.login=ግባ
+title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
+title.programs=ፕሮግራሞች እና አገልግሎቶች
+title.status=ሁኔታ
+title.submittedPrograms=የገቡ
+title.verifyAddress=አድራሻን ያረጋግጡ
+toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
+toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
+toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ ወደ እንግሊዝኛ አልተተረጎመም።
+toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
+toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
+toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
+validation.cityRequired=እባክዎ ከተማ ያስገቡ።
+validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
+validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
+validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
+validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
+validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
+validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 validation.firstNameRequired=እባክዎ የመጠሪያ ስምዎን ያስገቡ።
+validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
+validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
+validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
+validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
+validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ።
-
+validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
+validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
+validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
 validation.numberTooBig=ቢበዛ {0} መሆን አለበት።
 validation.numberTooSmall=ቢያንስ {0} መሆን አለበት።
-validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
-
+validation.stateRequired=እባክዎ ክልል ያስገቡ።
+validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
 validation.textTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
 validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
-
-adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
-
-error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
-error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
-error.notFoundDescriptionLink=መነሻ ገጽ
-
-email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
-
-email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
-
-email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
-
-email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
-
-email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
-
-email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።
+validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
+validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
