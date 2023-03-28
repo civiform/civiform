@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import services.applicant.ReadOnlyApplicantProgramServiceImpl;
+import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -33,15 +34,18 @@ public final class StoredFileAclMigrationTask implements Runnable {
   private final Database database;
   private final ProgramService programService;
   private final StoredFileRepository storedFileRepository;
+  private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StoredFileAclMigrationTask.class);
 
   @Inject
   public StoredFileAclMigrationTask(
+      JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicationRepository applicationRepository,
       Config configuration,
       ProgramService programService,
       StoredFileRepository storedFileRepository) {
+    this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.database = DB.getDefault();
@@ -88,7 +92,10 @@ public final class StoredFileAclMigrationTask implements Runnable {
 
     var service =
         new ReadOnlyApplicantProgramServiceImpl(
-            application.getApplicantData(), programDefinition, baseUrl);
+            jsonPathPredicateGeneratorFactory,
+            application.getApplicantData(),
+            programDefinition,
+            baseUrl);
 
     List<StoredFile> files =
         storedFileRepository.lookupFiles(service.getStoredFileKeys()).toCompletableFuture().join();

@@ -56,6 +56,7 @@ import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.ProgramBlockNotFoundException;
+import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
@@ -91,6 +92,7 @@ public final class ApplicantService {
   private final ApplicationRepository applicationRepository;
   private final UserRepository userRepository;
   private final StoredFileRepository storedFileRepository;
+  private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
   private final ProgramService programService;
   private final SimpleEmail amazonSESClient;
@@ -112,6 +114,7 @@ public final class ApplicantService {
       UserRepository userRepository,
       VersionRepository versionRepository,
       StoredFileRepository storedFileRepository,
+      JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ProgramService programService,
       SimpleEmail amazonSESClient,
       Clock clock,
@@ -126,6 +129,7 @@ public final class ApplicantService {
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
+    this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
@@ -172,7 +176,10 @@ public final class ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
 
               return new ReadOnlyApplicantProgramServiceImpl(
-                  applicant.getApplicantData(), programDefinition, baseUrl);
+                  jsonPathPredicateGeneratorFactory,
+                  applicant.getApplicantData(),
+                  programDefinition,
+                  baseUrl);
             },
             httpExecutionContext.current());
   }
@@ -183,6 +190,7 @@ public final class ApplicantService {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramServiceImpl(
+              jsonPathPredicateGeneratorFactory,
               application.getApplicantData(),
               programService.getProgramDefinition(application.getProgram().id),
               baseUrl));
@@ -195,13 +203,17 @@ public final class ApplicantService {
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       Application application, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
-        application.getApplicantData(), programDefinition, baseUrl);
+        jsonPathPredicateGeneratorFactory,
+        application.getApplicantData(),
+        programDefinition,
+        baseUrl);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
   private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
-    return new ReadOnlyApplicantProgramServiceImpl(applicantData, programDefinition, baseUrl);
+    return new ReadOnlyApplicantProgramServiceImpl(
+        jsonPathPredicateGeneratorFactory, applicantData, programDefinition, baseUrl);
   }
 
   /**
@@ -280,7 +292,10 @@ public final class ApplicantService {
               ProgramDefinition programDefinition = programDefinitionCompletableFuture.join();
               ReadOnlyApplicantProgramService readOnlyApplicantProgramServiceBeforeUpdate =
                   new ReadOnlyApplicantProgramServiceImpl(
-                      applicant.getApplicantData(), programDefinition, baseUrl);
+                      jsonPathPredicateGeneratorFactory,
+                      applicant.getApplicantData(),
+                      programDefinition,
+                      baseUrl);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -345,7 +360,11 @@ public final class ApplicantService {
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
         new ReadOnlyApplicantProgramServiceImpl(
-            applicant.getApplicantData(), programDefinition, baseUrl, failedUpdates);
+            jsonPathPredicateGeneratorFactory,
+            applicant.getApplicantData(),
+            programDefinition,
+            baseUrl,
+            failedUpdates);
 
     Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
