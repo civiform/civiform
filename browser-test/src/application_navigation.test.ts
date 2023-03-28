@@ -283,7 +283,6 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // Verify we are on program submission page.
-      // todo avaleske move this to expectConfirmation
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-guest')
@@ -356,7 +355,7 @@ describe('Applicant navigation flow', () => {
     })
   })
 
-  fdescribe('navigation with common intake', () => {
+  describe('navigation with common intake', () => {
     // Create two programs, one is common intake
     const commonIntakeProgramName = 'Test Common Intake Form Program'
     const secondProgramName = 'Test Regular Program with Eligibility Conditions'

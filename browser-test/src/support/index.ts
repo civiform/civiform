@@ -193,10 +193,6 @@ export const createTestContext = (clearDb = true): TestContext => {
     if (browserContext != null) {
       try {
         if (!DISABLE_BROWSER_ERROR_WATCHER) {
-          // todo avaleske remove next line before submitting
-          ctx.browserErrorWatcher.ignoreErrorsFromUrl(
-            new RegExp('civiform.us/favicon.png'),
-          )
           ctx.browserErrorWatcher.failIfContainsErrors()
         }
       } finally {
