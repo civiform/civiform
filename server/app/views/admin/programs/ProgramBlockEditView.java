@@ -185,7 +185,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  QuestionBank.shouldShowQuestionBank(request)))
+                  QuestionBank.shouldShowQuestionBank(request),
+                layout.getFeatureFlags().isPhoneQuestionTypeEnabled(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -932,11 +933,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
   }
 
   private DivTag questionBankPanel(
-      ImmutableList<QuestionDefinition> questionDefinitions,
-      ProgramDefinition program,
-      BlockDefinition blockDefinition,
-      InputTag csrfTag,
-      QuestionBank.Visibility questionBankVisibility) {
+    ImmutableList<QuestionDefinition> questionDefinitions,
+    ProgramDefinition program,
+    BlockDefinition blockDefinition,
+    InputTag csrfTag,
+    QuestionBank.Visibility questionBankVisibility, boolean phoneQuestionTypeEnabled) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -957,7 +958,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build());
-    return qb.getContainer(questionBankVisibility);
+    return qb.getContainer(questionBankVisibility,phoneQuestionTypeEnabled);
   }
 
   private Modal blockDeleteModal(

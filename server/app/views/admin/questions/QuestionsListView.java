@@ -60,17 +60,15 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
-  private final FeatureFlags featureFlags;
 
   @Inject
   public QuestionsListView(
     AdminLayoutFactory layoutFactory,
     TranslationLocales translationLocales,
-    ViewUtils viewUtils, FeatureFlags featureFlags) {
+    ViewUtils viewUtils) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
-    this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.viewUtils = checkNotNull(viewUtils);;
   }
 
   /** Renders a page with a list view of all questions. */

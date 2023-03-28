@@ -57,7 +57,7 @@ public final class QuestionBank {
     this.params = checkNotNull(params);
   }
 
-  public DivTag getContainer(QuestionBank.Visibility questionBankVisibility) {
+  public DivTag getContainer(QuestionBank.Visibility questionBankVisibility, boolean phoneQuestionTypeEnabled) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
@@ -81,10 +81,10 @@ public final class QuestionBank {
                     "transition-opacity",
                     ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON,
                     ReferenceClasses.QUESTION_BANK_GLASSPANE))
-        .with(questionBankPanel());
+        .with(questionBankPanel(phoneQuestionTypeEnabled));
   }
 
-  private FormTag questionBankPanel() {
+  private FormTag questionBankPanel(boolean phoneQuestionTypeEnabled) {
     FormTag questionForm =
         form()
             .withMethod(HttpVerbs.POST)
@@ -159,7 +159,7 @@ public final class QuestionBank {
                                 div().withClass("flex-grow"),
                                 CreateQuestionButton.renderCreateQuestionButton(
                                     params.questionCreateRedirectUrl(),
-                                    /* isPrimaryButton= */ false, layout.getFeatureFlags().isPhoneQuestionTypeEnabled(request))))));
+                                    /* isPrimaryButton= */ false, phoneQuestionTypeEnabled)))));
 
     ImmutableList<QuestionDefinition> questions =
         filterQuestions()
