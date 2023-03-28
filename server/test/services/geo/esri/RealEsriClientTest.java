@@ -257,9 +257,9 @@ public class RealEsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<Optional<AddressSuggestionGroup>> group = client.getAddressSuggestions(address);
+    CompletionStage<AddressSuggestionGroup> group = client.getAddressSuggestions(address);
     ImmutableList<AddressSuggestion> suggestions =
-        group.toCompletableFuture().join().get().getAddressSuggestions();
+        group.toCompletableFuture().join().getAddressSuggestions();
     // first item is guaranteed to be here since the response is taken from  JSON file
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
@@ -278,8 +278,8 @@ public class RealEsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<Optional<AddressSuggestionGroup>> group = client.getAddressSuggestions(address);
-    Address originalAddress = group.toCompletableFuture().join().get().getOriginalAddress();
+    CompletionStage<AddressSuggestionGroup> group = client.getAddressSuggestions(address);
+    Address originalAddress = group.toCompletableFuture().join().getOriginalAddress();
 
     assertEquals(address.getStreet(), originalAddress.getStreet());
     assertEquals(address.getLine2(), originalAddress.getLine2());
@@ -299,10 +299,10 @@ public class RealEsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<Optional<AddressSuggestionGroup>> group =
+    CompletionStage<AddressSuggestionGroup> group =
         clientNoCandidates.getAddressSuggestions(address);
     ImmutableList<AddressSuggestion> suggestions =
-        group.toCompletableFuture().join().get().getAddressSuggestions();
+        group.toCompletableFuture().join().getAddressSuggestions();
     assertEquals(0, suggestions.size());
   }
 
@@ -317,9 +317,9 @@ public class RealEsriClientTest {
             .setZip("92373")
             .build();
 
-    CompletionStage<Optional<AddressSuggestionGroup>> group =
+    CompletionStage<AddressSuggestionGroup> group =
         clientError.getAddressSuggestions(address);
-    assertEquals(Optional.empty(), group.toCompletableFuture().join());
+    assertEquals(0, group.toCompletableFuture().join().getAddressSuggestions().size());
   }
 
   @Test
