@@ -861,7 +861,7 @@ describe('Applicant navigation flow', () => {
         await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
-  
+
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
           '305 Harrison',
@@ -872,10 +872,10 @@ describe('Applicant navigation flow', () => {
         )
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage()
-  
+
         await applicantQuestions.clickPrevious()
         await applicantQuestions.expectAddressPage()
-  
+
         await logout(page)
       })
     }
