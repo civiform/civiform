@@ -127,7 +127,7 @@ public final class CsvExporter implements AutoCloseable {
         case ELIGIBILITY_STATUS:
           if (optionalEligibilityStatus.isPresent()) {
             String eligibilityText =
-                optionalEligibilityStatus.get() ? "Meets eligibility" : "Does not meet eligibility";
+                optionalEligibilityStatus.get() ? "Meets eligibility" : "Doesn't meet eligibility";
             printer.print(eligibilityText);
           } else {
             printer.print(EMPTY_VALUE);
