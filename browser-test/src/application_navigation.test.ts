@@ -356,15 +356,15 @@ describe('Applicant navigation flow', () => {
 
   fdescribe('navigation with common intake', () => {
     // Create two programs, one is common intake
-    const commonIntakeProgramName = 'Test Common Intake Form Program';
-    const secondProgramName = 'Test Regular Program with Eligibility Conditions';
-    const eligibilityQuestionId = 'nav-predicate-number-q';
-    const secondProgramCorrectAnswer = '5';
+    const commonIntakeProgramName = 'Test Common Intake Form Program'
+    const secondProgramName = 'Test Regular Program with Eligibility Conditions'
+    const eligibilityQuestionId = 'nav-predicate-number-q'
+    const secondProgramCorrectAnswer = '5'
 
     // TODO (avaleske): if we can just do this once before all, and then use different users, that'd save time.
-    beforeEach(async() => {
-      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx;
-      await loginAsAdmin(page);
+    beforeEach(async () => {
+      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+      await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await enableFeatureFlag(page, 'intake_form_enabled')
       await enableFeatureFlag(page, 'nongated_eligibility_enabled')
@@ -420,10 +420,10 @@ describe('Applicant navigation flow', () => {
         secondProgramCorrectAnswer,
       )
 
-      await adminPrograms.publishAllPrograms();
+      await adminPrograms.publishAllPrograms()
     })
 
-    afterEach(async() => {
+    afterEach(async () => {
       const {page} = ctx
       await dropTables(page)
     })
@@ -449,10 +449,14 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectCommonIntakeConfirmationPage(
         /* wantUpsell */ false,
         /* wantTrustedIntermediary */ false,
-        /* wantEligiblePrograms */ []);
+        /* wantEligiblePrograms */ [],
+      )
 
-      await page.pause();
-      await validateScreenshot(page, 'cif-ineligible-signed-in-confirmation-page')
+      await page.pause()
+      await validateScreenshot(
+        page,
+        'cif-ineligible-signed-in-confirmation-page',
+      )
       await validateAccessibility(page)
     })
 
@@ -462,7 +466,7 @@ describe('Applicant navigation flow', () => {
       await enableFeatureFlag(page, 'intake_form_enabled')
       await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
-      await page.pause();
+      await page.pause()
 
       await loginAsTestUser(page)
       await selectApplicantLanguage(page, 'English')
@@ -481,13 +485,14 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectCommonIntakeConfirmationPage(
         /* wantUpsell */ false,
         /* wantTrustedIntermediary */ false,
-        /* wantEligiblePrograms */ [secondProgramName]);
+        /* wantEligiblePrograms */ [secondProgramName],
+      )
 
-      await page.pause();
+      await page.pause()
       await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
       await validateAccessibility(page)
     })
-  });
+  })
 
   describe('navigation with eligibility conditions', () => {
     // Create a program with 2 questions and an eligibility condition.

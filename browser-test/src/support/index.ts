@@ -194,7 +194,9 @@ export const createTestContext = (clearDb = true): TestContext => {
       try {
         if (!DISABLE_BROWSER_ERROR_WATCHER) {
           // todo avaleske remove next line before submitting
-          ctx.browserErrorWatcher.ignoreErrorsFromUrl(new RegExp('civiform\.us/favicon\.png'))
+          ctx.browserErrorWatcher.ignoreErrorsFromUrl(
+            new RegExp('civiform.us/favicon.png'),
+          )
           ctx.browserErrorWatcher.failIfContainsErrors()
         }
       } finally {
@@ -319,7 +321,6 @@ export const setLangEsUS = async (page: Page) => {
 export const loginAsTestUser = async (
   page: Page,
   loginButton = 'button:has-text("Log in")',
-
 ) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:

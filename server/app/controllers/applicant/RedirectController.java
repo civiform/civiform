@@ -159,7 +159,7 @@ public final class RedirectController extends CiviFormController {
       return CompletableFuture.completedFuture(
           badRequest("You are not signed in - you cannot perform this action."));
     }
-    
+
     CompletableFuture<Boolean> isCommonIntake =
         programService
             .getActiveProgramDefinitionAsync(programId)

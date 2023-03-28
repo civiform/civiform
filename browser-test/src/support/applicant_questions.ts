@@ -376,14 +376,24 @@ export class ApplicantQuestions {
     )
   }
 
-  async expectCommonIntakeConfirmationPage(wantUpsell: boolean, wantTrustedIntermediary: boolean, wantEligiblePrograms: string[]) {
+  async expectCommonIntakeConfirmationPage(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
     if (wantTrustedIntermediary) {
-      expect(await this.page.innerText('h1')).toContain('Benefits your client may qualify for')
+      expect(await this.page.innerText('h1')).toContain(
+        'Benefits your client may qualify for',
+      )
     } else {
-      expect(await this.page.innerText('h1')).toContain('Benefits you may qualify for')
+      expect(await this.page.innerText('h1')).toContain(
+        'Benefits you may qualify for',
+      )
     }
 
-    const upsellLocator = this.page.locator(':text("Create an account or sign in")')
+    const upsellLocator = this.page.locator(
+      ':text("Create an account or sign in")',
+    )
     if (wantUpsell) {
       expect(await upsellLocator.count()).toEqual(1)
     } else {

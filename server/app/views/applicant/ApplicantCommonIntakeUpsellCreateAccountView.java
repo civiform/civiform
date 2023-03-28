@@ -170,7 +170,10 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                 ep ->
                     div(
                         h3(ep.program().localizedName().getOrDefault(messages.lang().toLocale()))
-                            .withClasses("text-black", "font-bold", ReferenceClasses.APPLICANT_CIF_ELIGIBLE_PROGRAM_NAME),
+                            .withClasses(
+                                "text-black",
+                                "font-bold",
+                                ReferenceClasses.APPLICANT_CIF_ELIGIBLE_PROGRAM_NAME),
                         p(ep.program()
                                 .localizedDescription()
                                 .getOrDefault(messages.lang().toLocale()))
