@@ -32,21 +32,8 @@ public class MessagesTest {
   // we do *not* expect translations to be present. This is useful for keys that
   // are checked into the primary language file but for which
   // we are waiting for translations for.
-  //
-  // TODO(#4505): remove keys that are checked in with 3/16 batch.
-  private static final ImmutableSet<String> IGNORE_LIST =
-      ImmutableSet.of(
-          "button.editCommonIntakeSr",
-          "button.startHere",
-          "button.startHereCommonIntakeSr",
-          "button.continueCommonIntakeSr",
-          "content.mustMeetRequirementsTi",
-          "title.allProgramsSection",
-          "title.commonIntakeSummary",
-          "email.applicationUpdateSubject",
-          "email.tiApplicationUpdateBody",
-          "email.tiApplicationUpdateSubject",
-          "title.findServicesSection");
+  private static final Set<String> IGNORE_LIST =
+      Set.of("content.mustMeetRequirementsTi");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
