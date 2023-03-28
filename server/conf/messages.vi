@@ -120,12 +120,16 @@ link.createAccountOrSignIn=Tạo tài khoản hoặc đăng nhập
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Đăng ký
+
 # The text read for screen readers.
 button.applySr=Đăng ký {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Chỉnh sửa
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Chỉnh sửa đơn đăng ký đã gửi cho {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Tiếp tục đăng ký {0}
 
@@ -143,11 +147,15 @@ content.description2=Bắt đầu bằng việc chọn một đơn đăng ký d�
 
 # Link text to read more about a program.
 link.programDetails=Chi tiết chương trình
+
 # The same text, read for screen readers.
 link.programDetailsSr=Chi tiết chương trình {0}
 
 # The title of the page for the list of programs.
 title.programs=Chương trình và dịch vụ
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Trạng thái
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Đang diễn ra
@@ -190,6 +198,10 @@ link.answer=Câu trả lời
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
 
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Bắt đầu tại đây. {0}
+
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Chỉnh sửa {0}
@@ -206,10 +218,10 @@ title.programSummary=Tóm tắt dữ liệu đăng ký tham gia chương trình
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}.
+title.applicantNotEligible=Dựa trên câu trả lời của bạn cho các câu hỏi sau, bạn có thể không đủ tiêu chuẩn tham gia {0}.
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
+title.applicantNotEligibleTi=Dựa trên câu trả lời của bạn cho các câu hỏi sau, khách hàng của bạn có thể không đủ tiêu chuẩn tham gia {0}.
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Để biết điều kiện tham gia, vui lòng tham khảo {0}
@@ -432,5 +444,26 @@ adminValidation.multiOptionEmpty=Không được để lựa chọn trống tron
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
-error.notFoundDescription='Vui lòng quay lại hoặc trở về '
+error.notFoundDescription=Vui lòng quay lại hoặc chuyển đến {0}
 error.notFoundDescriptionLink=trang chủ
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Đăng nhập vào CiviForm tại {0}
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} của bạn. Mã người đăng ký của bạn là {1} và mã đơn đăng ký là {2}
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=Bạn đã gửi đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=Chúng tôi đã nhận được đơn đăng ký tham gia chương trình {0} với tư cách là người đăng ký {1}, và mã đơn đăng ký là {2}.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.

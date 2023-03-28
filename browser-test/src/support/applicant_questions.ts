@@ -172,11 +172,6 @@ export class ApplicantQuestions {
     await this.page.waitForSelector(`${element}[value="${value}"]`)
   }
 
-  async validateToastMessage(value: string) {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain(value)
-  }
-
   async applyProgram(programName: string) {
     // User clicks the apply button on an application card. It takes them to the application info page.
     await this.clickApplyProgramButton(programName)
@@ -257,6 +252,13 @@ export class ApplicantQuestions {
     expect(gotNotStartedProgramNames).toEqual(wantNotStartedPrograms)
     expect(gotInProgressProgramNames).toEqual(wantInProgressPrograms)
     expect(gotSubmittedProgramNames).toEqual(wantSubmittedPrograms)
+  }
+
+  async expectCommonIntakeForm(commonIntakeFormName: string) {
+    const commonIntakeFormSectionNames = await this.programNamesForSection(
+      'Find services',
+    )
+    expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
   private programNamesForSection(sectionName: string): Promise<string[]> {
@@ -390,6 +392,10 @@ export class ApplicantQuestions {
 
   async expectVerifyAddressPage() {
     expect(await this.page.innerText('h2')).toContain('Verify address')
+  }
+
+  async expectAddressPage() {
+    expect(await this.page.innerText('legend')).toContain('With Correction')
   }
 
   async expectAddressHasBeenCorrected(

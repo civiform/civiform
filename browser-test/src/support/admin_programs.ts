@@ -66,6 +66,28 @@ export class AdminPrograms {
     expect(tableInnerText).toContain(description)
   }
 
+  async expectApplicationHasStatusString(
+    applicant: string,
+    statusString: string,
+  ) {
+    expect(
+      await this.page.innerText(
+        this.selectApplicationCardForApplicant(applicant),
+      ),
+    ).toContain(`Status: ${statusString}`)
+  }
+
+  async expectApplicationStatusDoesntContain(
+    applicant: string,
+    statusString: string,
+  ) {
+    expect(
+      await this.page.innerText(
+        this.selectApplicationCardForApplicant(applicant),
+      ),
+    ).not.toContain(statusString)
+  }
+
   /**
    * Creates program with given name. At the end of this method the current
    * page is going to be block edit page.
@@ -229,6 +251,16 @@ export class AdminPrograms {
 
     await waitForPageJsLoad(this.page)
     await this.expectProgramSettingsPage()
+  }
+
+  async setProgramEligibilityToNongating(programName: string) {
+    await this.gotoProgramSettingsPage(programName)
+    const nonGatingEligibilityValue = await this.page
+      .locator('input[name=eligibilityIsGating]')
+      .inputValue()
+    if (nonGatingEligibilityValue == 'false') {
+      await this.page.locator('#eligibility-toggle').click()
+    }
   }
 
   async gotoEditDraftProgramPage(programName: string) {

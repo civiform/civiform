@@ -121,12 +121,16 @@ link.createAccountOrSignIn=계정 만들기 또는 로그인
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=신청
+
 # The text read for screen readers.
 button.applySr={0} 신청
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=편집
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr={0}에 제출된 신청서 편집
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr={0} 신청 계속하기
 
@@ -144,6 +148,7 @@ content.description2=아래에서 신청서를 선택하여 작성을 시작합�
 
 # Link text to read more about a program.
 link.programDetails=프로그램 세부정보
+
 # The same text, read for screen readers.
 link.programDetailsSr={0}의 프로그램 세부정보
 
@@ -152,6 +157,9 @@ title.programs=프로그램 및 서비스
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=진행 중
+
+# For the badge on the program list index denoting the current status of an application
+title.status=상태
 
 # Subtitle for the list of programs for which the applicant has no draft applications
 title.activeProgramsUpdated=시작 안 함
@@ -191,6 +199,10 @@ link.answer=답변
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn={0}에 답변됨
 
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=여기서 시작합니다. {0}
+
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit={0} 편집
@@ -207,10 +219,10 @@ title.programSummary=프로그램 신청 요약
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다.
+title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다.
+title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
@@ -435,5 +447,26 @@ adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
-error.notFoundDescription='뒤로 가거나 다음으로 돌아가세요'
+error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
 error.notFoundDescriptionLink=홈페이지
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients={0}에서 고객 관리하기

@@ -5,11 +5,14 @@ import {
   disableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
+  loginAsTestUser,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
   waitForPageJsLoad,
+  isLocalDevEnvironment,
 } from './support'
 
 describe('Applicant navigation flow', () => {
@@ -250,7 +253,7 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'program-review')
     })
 
-    it('verify program submission page', async () => {
+    it('verify program submission page for guest', async () => {
       const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
@@ -276,7 +279,36 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program submission page.
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission')
+      await validateScreenshot(page, 'program-submission-guest')
+    })
+
+    it('verify program submission page for logged in user', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(programName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // Verify we are on program submission page.
+      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-submission-logged-in')
     })
 
     it('shows error with incomplete submission', async () => {
@@ -299,8 +331,8 @@ describe('Applicant navigation flow', () => {
       const submitButton = page.locator('#test-form-submit')!
       await submitButton.click()
 
-      const toastMessages = await page.innerText('#toast-container')
-      expect(toastMessages).toContain(
+      await validateToastMessage(
+        page,
         "There's been an update to the application",
       )
       await validateScreenshot(page, 'program-out-of-date')
@@ -370,6 +402,7 @@ describe('Applicant navigation flow', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -385,7 +418,7 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -398,11 +431,14 @@ describe('Applicant navigation flow', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
+      await validateScreenshot(page, 'eligible-toast')
 
       // Verify the question is marked eligible
       await applicantQuestions.gotoApplicantHomePage()
@@ -434,6 +470,7 @@ describe('Applicant navigation flow', () => {
       // Add the partial program.
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await adminPrograms.addProgram(overlappingOneQProgramName)
       await adminPrograms.editProgramBlock(
         overlappingOneQProgramName,
@@ -462,7 +499,7 @@ describe('Applicant navigation flow', () => {
         /* isEligible= */ false,
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -475,6 +512,7 @@ describe('Applicant navigation flow', () => {
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -501,6 +539,109 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.clickSubmit()
       await applicantQuestions.expectIneligiblePage()
+    })
+
+    it('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+
+      // Verify the question is marked ineligible.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ false,
+      )
+      await applicantQuestions.clickApplyProgramButton(fullProgramName)
+      await applicantQuestions.expectQuestionIsNotEligible(
+        AdminQuestions.NUMBER_QUESTION_TEXT,
+      )
+
+      // Answer the other question.
+      await applicantQuestions.clickContinue()
+      await applicantQuestions.answerEmailQuestion('email@email.com')
+
+      // Submit and expect to be told it's ineligible.
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickSubmit()
+      await applicantQuestions.expectIneligiblePage()
+    })
+
+    it('shows may be eligible with nongating eligibility', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsAdmin(page)
+      await adminPrograms.createNewVersion(fullProgramName)
+      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.publishProgram(fullProgramName)
+      await logout(page)
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application without submitting.
+      await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.clickNext()
+
+      // Verify the question is marked eligible
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
+      )
+
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+    })
+
+    it('does not show not eligible with nongating eligibility', async () => {
+      const {page, adminPrograms, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsAdmin(page)
+      await adminPrograms.createNewVersion(fullProgramName)
+      await adminPrograms.setProgramEligibilityToNongating(fullProgramName)
+      await adminPrograms.publishProgram(fullProgramName)
+      await logout(page)
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(fullProgramName)
+
+      // Fill out application without submitting.
+      await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.clickNext()
+
+      // Verify that there's no indication of eligibility.
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
+
+      // Go back to in progress application and submit.
+      await applicantQuestions.applyProgram(fullProgramName)
+      await applicantQuestions.answerEmailQuestion('test@test.com')
+      await applicantQuestions.clickNext()
+      await validateToastMessage(page, '')
+      await applicantQuestions.submitFromReviewPage()
+      await applicantQuestions.gotoApplicantHomePage()
+      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
     })
   })
 
@@ -609,109 +750,111 @@ describe('Applicant navigation flow', () => {
       await logout(page)
     })
 
-    it('can correct address multi-block, multi-address program', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
+    if (isLocalDevEnvironment()) {
+      it('can correct address multi-block, multi-address program', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '500 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        1,
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.answerTextQuestion('Some text')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
-        'With Correction',
-        '305 Harrison St',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          '500 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          1,
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.answerTextQuestion('Some text')
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectAddressHasBeenCorrected(
+          'With Correction',
+          '305 Harrison St',
+        )
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
 
-    it('can correct address single-block, multi-address program', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
+      it('can correct address single-block, multi-address program', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '500 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        0,
-      )
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-        1,
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
-        'With Correction',
-        '305 Harrison St',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          '500 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          0,
+        )
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+          1,
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectAddressHasBeenCorrected(
+          'With Correction',
+          '305 Harrison St',
+        )
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
 
-    it('can correct address single-block, single-address program', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+      it('can correct address single-block, single-address program', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          '305 Harrison',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
 
-      // Only doing accessibility and screenshot checks for address correction page
-      // once since they are all the same
-      await validateAccessibility(page)
-      await validateScreenshot(page, 'verify-address-page')
+        // Only doing accessibility and screenshot checks for address correction page
+        // once since they are all the same
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'verify-address-page')
 
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectAddressHasBeenCorrected(
-        'With Correction',
-        '305 Harrison St',
-      )
-      await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectAddressHasBeenCorrected(
+          'With Correction',
+          '305 Harrison St',
+        )
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+    }
 
     it('address correction page does not show if feature is disabled', async () => {
       const {page, applicantQuestions} = ctx
@@ -734,6 +877,30 @@ describe('Applicant navigation flow', () => {
         '305 Harrison',
       )
       await applicantQuestions.clickSubmit()
+      await logout(page)
+    })
+
+    it('clicking previous on address correction page takes you back to address entry page', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'esri_address_correction_enabled')
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerAddressQuestion(
+        '305 Harrison',
+        '',
+        'Seattle',
+        'WA',
+        '98109',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectVerifyAddressPage()
+
+      await applicantQuestions.clickPrevious()
+      await applicantQuestions.expectAddressPage()
+
       await logout(page)
     })
   })

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
+import services.applicant.predicate.JsonPathPredicateGeneratorFactory;
 import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
@@ -25,6 +26,7 @@ import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.exceptions.QuestionNotFoundException;
@@ -44,19 +46,30 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private final ProgramDefinition programDefinition;
   private final String baseUrl;
+  private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
 
   public ReadOnlyApplicantProgramServiceImpl(
-      ApplicantData applicantData, ProgramDefinition programDefinition, String baseUrl) {
-    this(applicantData, programDefinition, baseUrl, /* failedUpdates= */ ImmutableMap.of());
+      JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
+      ApplicantData applicantData,
+      ProgramDefinition programDefinition,
+      String baseUrl) {
+    this(
+        jsonPathPredicateGeneratorFactory,
+        applicantData,
+        programDefinition,
+        baseUrl,
+        /* failedUpdates= */ ImmutableMap.of());
   }
 
   protected ReadOnlyApplicantProgramServiceImpl(
+      JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
       String baseUrl,
       ImmutableMap<Path, String> failedUpdates) {
+    this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
     this.applicantData.setFailedUpdates(failedUpdates);
@@ -78,6 +91,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   @Override
   public Long getProgramId() {
     return this.programDefinition.id();
+  }
+
+  @Override
+  public ProgramType getProgramType() {
+    return this.programDefinition.programType();
   }
 
   @Override
@@ -112,6 +130,14 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                     .anyMatch(
                         question ->
                             !isQuestionEligibleInBlock(block, question) && question.isAnswered()));
+  }
+
+  @Override
+  public boolean blockHasEligibilityPredicate(String blockId) {
+    Block block = getBlock(blockId).get();
+    Optional<PredicateDefinition> predicate =
+        block.getEligibilityDefinition().map(EligibilityDefinition::predicate);
+    return !predicate.isEmpty();
   }
 
   @Override
@@ -278,6 +304,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setQuestionTextForScreenReader(questionTextForScreenReader)
                 .setIsAnswered(isAnswered)
                 .setIsEligible(isEligible)
+                .setEligibilityIsGating(programDefinition.eligibilityIsGating())
                 .setAnswerText(answerText)
                 .setEncodedFileKey(encodedFileKey)
                 .setOriginalFileName(originalFileName)
@@ -413,7 +440,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
 
   private boolean evaluatePredicate(Block block, PredicateDefinition predicate) {
     JsonPathPredicateGenerator predicateGenerator =
-        new JsonPathPredicateGenerator(
+        jsonPathPredicateGeneratorFactory.create(
             this.programDefinition.streamQuestionDefinitions().collect(toImmutableList()),
             block.getRepeatedEntity());
     return new PredicateEvaluator(this.applicantData, predicateGenerator)

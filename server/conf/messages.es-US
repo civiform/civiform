@@ -125,10 +125,13 @@ button.apply=Solicitar
 
 # The text read for screen readers.
 button.applySr=Solicitar {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Editar
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Editar la solicitud enviada a {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continuar la solicitud para {0}
 
@@ -146,11 +149,15 @@ content.description2=Elige una de las solicitudes a continuación para comenzar.
 
 # Link text to read more about a program.
 link.programDetails=Detalles del programa
+
 # The same text, read for screen readers.
 link.programDetailsSr=Detalles del programa para {0}
 
 # The title of the page for the list of programs.
 title.programs=Programas y servicios
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Estado
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=En curso
@@ -193,6 +200,10 @@ link.answer=Responder
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Ya se respondió el {0}
 
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Comienza aquí. {0}
+
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Editar {0}
@@ -209,10 +220,10 @@ title.programSummary=Resumen de la inscripción al programa
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Según tus respuestas, es posible que no califiques para {0}.
+title.applicantNotEligible=Según tus respuestas a las siguientes preguntas, es posible que no califiques para {0}.
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=Según tus respuestas, es posible que tu cliente no califique para {0}.
+title.applicantNotEligibleTi=Según tus respuestas a las siguientes preguntas, es posible que tu cliente no califique para {0}.
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Si quieres consultar los criterios de elegibilidad, visita {0}
@@ -437,5 +448,26 @@ adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden t
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
-error.notFoundDescription='Por favor revise la URL o regrese a la '
+error.notFoundDescription=Regresa a {0}
 error.notFoundDescriptionLink=página de inicio
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Accede a CiviForm en {0}
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Recibimos tu solicitud para el programa {0}
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Recibimos tu solicitud para el programa {0}. Tu ID de solicitante es {1} y el ID de solicitud es {2}
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=Enviaste una solicitud para el programa {0} en nombre del solicitante {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=Recibimos la solicitud al programa {0} para el solicitante {1} y el ID de solicitud es {2}.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Administra tus clientes en {0}.

@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import services.DateConverter;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
@@ -33,7 +35,9 @@ public class PredicateEvaluatorTest {
   public void setupEvaluator() {
     applicantData = new ApplicantData();
     applicantQuestion = new ApplicantQuestion(addressQuestion, applicantData, Optional.empty());
-    generator = new JsonPathPredicateGenerator(ImmutableList.of(addressQuestion), Optional.empty());
+    generator =
+        new JsonPathPredicateGenerator(
+            Mockito.mock(DateConverter.class), ImmutableList.of(addressQuestion), Optional.empty());
     evaluator = new PredicateEvaluator(applicantData, generator);
   }
 

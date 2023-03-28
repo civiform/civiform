@@ -120,12 +120,16 @@ link.createAccountOrSignIn=Gumawa ng account o magsign-in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Mag-aplay
+
 # The text read for screen readers.
 button.applySr=Mag-aplay sa {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=I-edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=I-edit ang isinumiteng aplikasyon sa {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 
@@ -143,11 +147,15 @@ content.description2=Magsimula sa pamamagitan ng pagpili ng aplikasyon sa ibaba.
 
 # Link text to read more about a program.
 link.programDetails=Mga detalya ng programa
+
 # The same text, read for screen readers.
 link.programDetailsSr=Mga detalya ng programa para sa {0}
 
 # The title of the page for the list of programs.
 title.programs=Mga programa at mga serbisyo
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=Kasalukuyang ginagawa
@@ -190,6 +198,10 @@ link.answer=Sagot
 # The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
 content.previouslyAnsweredOn=Sinagutan noong {0}
 
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=Magsimula rito. {0}
+
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=I-edit {0}
@@ -206,10 +218,10 @@ title.programSummary=Buod ng application para sa programa
 #------------------------------------------------------------------------#
 
 # Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
-title.applicantNotEligible=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}.
+title.applicantNotEligible=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi ka kwalipikado para sa {0}.
 
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client's behalf. This text includes the program name.
-title.applicantNotEligibleTi=Batay sa iyong mga tugon, posibleng hindi kwalipikado ang kliyente mo para sa {0}.
+title.applicantNotEligibleTi=Batay sa iyong mga sagot sa mga sumusunod na tanong, posibleng hindi kwalipikado ang client mo para sa {0}.
 
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=Para sa mga pamantayan sa pagiging kwalipikado, sumangguni sa {0}
@@ -435,5 +447,26 @@ adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang ops
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
-error.notFoundDescription='Bumalik o pumunta sa '
+error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
+
+#-------------------------------------------------------#
+# Email - text specific to emails sent to users         #
+#-------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Mag-log in sa CiviForm sa {0}
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Natanggap na ang iyong aplikasyon sa programang {0}
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Natanggap na ang aplikasyon mo sa programang {0}. {1} ang applicant ID mo at {2} ang application ID
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=Nagsumite ka ng aplikasyon para sa programang {0} sa ngalan ng aplikanteng si {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=Natanggap na ang aplikasyon sa programang {0} bilang aplikanteng si {1}, at {2} ang application ID.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Pamahalaan ang iyong mga client sa {0}.

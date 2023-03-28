@@ -12,11 +12,13 @@ import * as adminApplications from './admin_applications'
 import * as adminPredicates from './admin_predicate_configuration'
 import * as adminProgramBlockEdit from './admin_program_block_edit'
 import * as adminPrograms from './admin_programs'
+import * as adminProgramStatusesView from './admin_program_statuses_view'
 import * as adminValidation from './admin_validation'
 import * as devIcons from './dev_icons'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
 import * as preview from './preview'
+import * as enumerator from './enumerator'
 
 window.addEventListener('load', () => {
   main.init()
@@ -28,9 +30,11 @@ window.addEventListener('load', () => {
   adminPredicates.init()
   adminProgramBlockEdit.init()
   adminPrograms.init()
+  adminProgramStatusesView.init()
   adminValidation.init()
   devIcons.init()
   modal.init()
   questionBank.init()
   preview.init()
+  enumerator.init()
 })

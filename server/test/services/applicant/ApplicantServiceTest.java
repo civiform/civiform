@@ -8,6 +8,7 @@ import static play.mvc.Results.ok;
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.time.Clock;
@@ -30,6 +31,9 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import play.i18n.Lang;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.libs.ws.WSClient;
 import play.routing.RoutingDsl;
 import play.server.Server;
@@ -39,6 +43,7 @@ import repository.UserRepository;
 import repository.VersionRepository;
 import services.Address;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -51,6 +56,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.cloud.aws.SimpleEmail;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -67,6 +73,7 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramServiceImpl;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -95,12 +102,16 @@ public class ApplicantServiceTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private CiviFormProfile trustedIntermediaryProfile;
   private ProgramService programService;
+  private String baseUrl;
+  private SimpleEmail amazonSESClient;
+  private MessagesApi messagesApi;
 
   @Before
   public void setUp() throws Exception {
     // configure EsriClient instance for ServiceAreaUpdateResolver which is injected into
     // ApplicantService
     Config config = ConfigFactory.load();
+    baseUrl = config.getString("base_url");
     Clock clock = instanceOf(Clock.class);
     EsriServiceAreaValidationConfig esriServiceAreaValidationConfig =
         instanceOf(EsriServiceAreaValidationConfig.class);
@@ -133,8 +144,26 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);
     Mockito.when(trustedIntermediaryProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(account));
+    Mockito.when(trustedIntermediaryProfile.getEmailAddress())
+        .thenReturn(CompletableFuture.completedFuture("test@example.com"));
     programService = instanceOf(ProgramServiceImpl.class);
+
+    amazonSESClient = Mockito.mock(SimpleEmail.class);
+    FieldUtils.writeField(subject, "amazonSESClient", amazonSESClient, true);
+
+    messagesApi = instanceOf(MessagesApi.class);
   }
+
+  private static final StatusDefinitions.Status APPROVED_STATUS =
+      StatusDefinitions.Status.builder()
+          .setStatusText("Approved")
+          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
+          .setLocalizedEmailBodyText(
+              Optional.of(
+                  LocalizedStrings.of(
+                      Locale.US, "I'm a US email!",
+                      Locale.KOREA, "I'm a KOREAN email!")))
+          .build();
 
   @Test
   public void stageAndUpdateIfValid_emptySetOfUpdates_leavesQuestionsUnansweredAndUpdatesMetadata()
@@ -422,18 +451,24 @@ public class ApplicantServiceTest extends ResetPostgres {
         .contains(programDefinition.id());
   }
 
+  public ImmutableMap<String, String> applicationUpdates() {
+    return applicationUpdates("Alice", "Doe");
+  }
+
+  public ImmutableMap<String, String> applicationUpdates(String first, String last) {
+    return ImmutableMap.<String, String>builder()
+        .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), first)
+        .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), last)
+        .build();
+  }
+
   @Test
   public void stageAndUpdateIfValid_withUpdates_isOk() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
-    ImmutableMap<String, String> updates =
-        ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
-            .build();
-
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
         .toCompletableFuture()
         .join();
 
@@ -447,14 +482,9 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void stageAndUpdateIfValid_updatesMetadataForQuestionOnce() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
-    ImmutableMap<String, String> updates =
-        ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
-            .build();
-
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
         .toCompletableFuture()
         .join();
 
@@ -749,13 +779,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
-    ImmutableMap<String, String> updates =
-        ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
-            .build();
+
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
         .toCompletableFuture()
         .join();
 
@@ -765,7 +792,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false)
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -827,7 +855,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             firstProgram.id,
             trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ false)
+            /* eligibilityFeatureEnabled= */ false,
+            /* nonGatedEligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -840,7 +869,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             secondProgram.id,
             trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ false)
+            /* eligibilityFeatureEnabled= */ false,
+            /* nonGatedEligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -856,13 +886,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
-    ImmutableMap<String, String> updates =
-        ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Alice")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Doe")
-            .build();
+
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
         .toCompletableFuture()
         .join();
 
@@ -872,17 +899,14 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false)
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
-    updates =
-        ImmutableMap.<String, String>builder()
-            .put(Path.create("applicant.name").join(Scalar.FIRST_NAME).toString(), "Bob")
-            .put(Path.create("applicant.name").join(Scalar.LAST_NAME).toString(), "Elisa")
-            .build();
     subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates("Bob", "Elisa"), false)
         .toCompletableFuture()
         .join();
 
@@ -892,7 +916,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false)
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -908,6 +933,350 @@ public class ApplicantServiceTest extends ResetPostgres {
         .isEqualTo(programDefinition.id());
     assertThat(newApplication.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     assertThat(newApplication.getApplicantData().asJsonString()).contains("Bob", "Elisa");
+  }
+
+  @Test
+  public void submitApplication_setsStatusToDefault() {
+    StatusDefinitions.Status status =
+        APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
+    createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled */ false)
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    assertThat(application.getLatestStatus().get()).isEqualTo("Approved");
+    assertThat(application.getApplicationEvents().size()).isEqualTo(1);
+    ApplicationEvent event = application.getApplicationEvents().get(0);
+    assertThat(event.getEventType().name()).isEqualTo("STATUS_CHANGE");
+    assertThat(event.getDetails().statusEvent()).isNotEmpty();
+    assertThat(event.getDetails().statusEvent().get().statusText()).isEqualTo("Approved");
+    assertThat(event.getDetails().statusEvent().get().emailSent()).isEqualTo(true);
+  }
+
+  @Test
+  public void submitApplication_sendsEmailsWithoutDefaultStatus() {
+    Account admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    admin.addAdministeredProgram(programDefinition);
+    admin.save();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccountWithEmail("user1@example.com"));
+    applicant.save();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled */ false)
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    Messages messages = getMessages(Locale.US);
+    String programName = programDefinition.adminName();
+
+    // Program admin email
+    Mockito.verify(amazonSESClient)
+        .send(
+            ImmutableList.of("admin@example.com"),
+            String.format("New application %d submitted", application.id),
+            String.format(
+                "Applicant %d submitted a new application %d to program %s.\n"
+                    + "View the application at %s.",
+                applicant.id,
+                application.id,
+                programName,
+                baseUrl
+                    + String.format(
+                        "/admin/programs/%d/applications/%d",
+                        programDefinition.id(), application.id)));
+    // TI email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "test@example.com",
+            messages.at(
+                MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_SUBJECT.getKeyName(),
+                programName,
+                applicant.id),
+            String.format(
+                "%s\n%s",
+                messages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
+                    programName,
+                    applicant.id,
+                    application.id),
+                messages.at(
+                    MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(),
+                    baseUrl + "/admin/tiDash?page=1")));
+
+    // Applicant email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "user1@example.com",
+            messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
+            String.format(
+                "%s\n%s",
+                messages.at(
+                    MessageKey.EMAIL_APPLICATION_RECEIVED_BODY.getKeyName(),
+                    programName,
+                    applicant.id,
+                    application.id),
+                messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl)));
+  }
+
+  @Test
+  public void submitApplication_sendsEmailsWithDefaultStatus() {
+    StatusDefinitions.Status status =
+        APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
+    createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
+
+    Account admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    admin.addAdministeredProgram(programDefinition);
+    admin.save();
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccountWithEmail("user1@example.com"));
+    applicant.save();
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled */ false)
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    Messages messages = getMessages(Locale.US);
+    String programName = programDefinition.adminName();
+
+    // Program admin email
+    Mockito.verify(amazonSESClient)
+        .send(
+            ImmutableList.of("admin@example.com"),
+            String.format("New application %d submitted", application.id),
+            String.format(
+                "Applicant %d submitted a new application %d to program %s.\n"
+                    + "View the application at %s.",
+                applicant.id,
+                application.id,
+                programName,
+                baseUrl
+                    + String.format(
+                        "/admin/programs/%d/applications/%d",
+                        programDefinition.id(), application.id)));
+    // TI email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "test@example.com",
+            messages.at(
+                MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_SUBJECT.getKeyName(),
+                programName,
+                applicant.id),
+            String.format(
+                "%s\n%s",
+                messages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
+                    programName,
+                    applicant.id,
+                    application.id),
+                messages.at(
+                    MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(),
+                    baseUrl + "/admin/tiDash?page=1")));
+
+    // Applicant email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "user1@example.com",
+            messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
+            "I'm a US email!\n"
+                + messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
+  }
+
+  @Test
+  public void submitApplication_sendsLocalizedTIEmail() {
+    StatusDefinitions.Status status =
+        APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
+    createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
+
+    Account tiAccount = resourceCreator.insertAccountWithEmail("ti@example.com");
+    Applicant tiApplicant = subject.createApplicant().toCompletableFuture().join();
+    tiApplicant.setAccount(tiAccount);
+    tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
+    tiApplicant.save();
+    Mockito.when(trustedIntermediaryProfile.getAccount())
+        .thenReturn(CompletableFuture.completedFuture(tiAccount));
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccountWithEmail("user2@example.com"));
+    applicant.save();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled */ false)
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    Messages koMessages = getMessages(Locale.KOREA);
+    Messages enMessages = getMessages(Locale.US);
+    String programName = programDefinition.adminName();
+
+    // TI email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "ti@example.com",
+            koMessages.at(
+                MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_SUBJECT.getKeyName(),
+                programName,
+                applicant.id),
+            String.format(
+                "%s\n%s",
+                koMessages.at(
+                    MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
+                    programName,
+                    applicant.id,
+                    application.id),
+                koMessages.at(
+                    MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(),
+                    baseUrl + "/admin/tiDash?page=1")));
+
+    // Applicant email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "user2@example.com",
+            enMessages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
+            "I'm a US email!\n"
+                + enMessages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
+  }
+
+  @Test
+  public void submitApplication_sendsLocalizedDefaultStatusEmail() {
+    StatusDefinitions.Status status =
+        APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
+    createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
+
+    CiviFormProfile applicantProfile = Mockito.mock(CiviFormProfile.class);
+    Account account = resourceCreator.insertAccountWithEmail("user3@example.com");
+    Mockito.when(applicantProfile.isTrustedIntermediary()).thenReturn(false);
+    Mockito.when(applicantProfile.getAccount())
+        .thenReturn(CompletableFuture.completedFuture(account));
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(account);
+    applicant.getApplicantData().setPreferredLocale(Locale.KOREA);
+    applicant.save();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                applicantProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled */ false)
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    Messages messages = getMessages(Locale.KOREA);
+    String programName = programDefinition.adminName();
+
+    // Applicant email
+    Mockito.verify(amazonSESClient)
+        .send(
+            "user3@example.com",
+            messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName),
+            "I'm a KOREAN email!\n"
+                + messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
+  }
+
+  @Test
+  public void submitApplication_doesNotChangeStatusWhenNoDefaultStatus() {
+    StatusDefinitions.Status status =
+        StatusDefinitions.Status.builder()
+            .setStatusText("Waiting")
+            .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Waiting"))
+            .setDefaultStatus(Optional.of(false))
+            .build();
+    createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
+
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id, programDefinition.id(), "1", applicationUpdates(), false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled */ false)
+            .toCompletableFuture()
+            .join();
+    application.refresh();
+
+    assertThat(application.getLatestStatus()).isEmpty();
+    assertThat(application.getApplicationEvents().size()).isEqualTo(0);
   }
 
   @Test
@@ -951,7 +1320,123 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ true)
+                        /* eligibilityFeatureEnabled= */ true,
+                        /* nonGatedEligibilityFeatureEnabled= */ true)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationNotEligibleException.class)
+        .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void
+      submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getApplicant()).isEqualTo(applicant);
+    assertThat(application.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void submitApplication_respectsEligibilityFeatureFlag() {
+    createProgramWithEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    // Gating eligibility conditions are set but the eligibility feature flag is off, so they should
+    // be ignored.
+    Application application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ false,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getApplicant()).isEqualTo(applicant);
+    assertThat(application.getProgram().getProgramDefinition().id())
+        .isEqualTo(programDefinition.id());
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void submitApplication_respectsNonGatingEligibilityFeatureFlag() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // First name is matched for eligibility.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+
+    // Program eligibility is set to non-gating but the non-gating eligibility feature flag is off,
+    // so it should behave as if it's gating.
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        /* eligibilityFeatureEnabled= */ true,
+                        /* nonGatedEligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -1088,7 +1573,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ false)
+                        /* eligibilityFeatureEnabled= */ false,
+                        /* nonGatedEligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -1202,6 +1688,11 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void relevantProgramsForApplicant() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1243,6 +1734,117 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.allPrograms())
+        .containsExactlyInAnyOrder(
+            result.commonIntakeForm().get(),
+            result.inProgress().get(0),
+            result.submitted().get(0),
+            result.unapplied().get(0));
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_noCommonIntakeForm() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program programForDraft =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program programForSubmitted =
+        ProgramBuilder.newActiveProgram("program_for_submitted")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+    Program programForUnapplied =
+        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraft.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    assertThat(result.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(programForDraft.id);
+    assertThat(
+            result.inProgress().stream()
+                .map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .containsExactly(programForSubmitted.id);
+    assertThat(
+            result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programForUnapplied.id);
+    assertThat(
+            result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
+        .containsExactly(Optional.empty());
+    assertThat(result.commonIntakeForm().isPresent()).isFalse();
+    assertThat(result.allPrograms())
+        .containsExactlyInAnyOrder(
+            result.inProgress().get(0), result.submitted().get(0), result.unapplied().get(0));
+  }
+
+  @Test
+  public void relevantProgramsForApplicant_commonIntakeFormHasCorrectLifecycleStage() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
+            .build();
+
+    // No CIF application started.
+    ApplicantService.ApplicationPrograms result =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isFalse();
+
+    // CIF application in progress.
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .toCompletableFuture()
+        .join();
+    result = subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+        .isEqualTo(LifecycleStage.DRAFT);
+
+    // CIF application submitted.
+    applicationRepository
+        .submitApplication(applicant.id, commonIntakeForm.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    result = subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    assertThat(result.inProgress()).isEmpty();
+    assertThat(result.submitted()).isEmpty();
+    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.commonIntakeForm().isPresent()).isTrue();
+    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
+        .isTrue();
+    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
+        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
@@ -1646,17 +2248,6 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly(programDefinition.id());
   }
 
-  private static final StatusDefinitions.Status APPROVED_STATUS =
-      StatusDefinitions.Status.builder()
-          .setStatusText("Approved")
-          .setLocalizedStatusText(LocalizedStrings.of(Locale.US, "Approved"))
-          .setLocalizedEmailBodyText(
-              Optional.of(
-                  LocalizedStrings.of(
-                      Locale.US, "I'm a US email!",
-                      Locale.FRENCH, "I'm a FRENCH email!")))
-          .build();
-
   @Test
   public void relevantProgramsForApplicant_withApplicationStatus() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
@@ -1744,7 +2335,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setEmailSent(false)
                     .build())
             .build();
-    ApplicationEvent event = new ApplicationEvent(application, actorAccount, details);
+    ApplicationEvent event = new ApplicationEvent(application, Optional.of(actorAccount), details);
     event.save();
     application.refresh();
   }
@@ -1772,6 +2363,15 @@ public class ApplicantServiceTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("test program", "desc")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.copyOf(questions))
+            .buildDefinition();
+  }
+
+  private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
+    programDefinition =
+        ProgramBuilder.newDraftProgram("test program", "desc")
+            .withStatusDefinitions(statuses)
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
   }
 
@@ -1823,6 +2423,41 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
+  }
+
+  private void createProgramWithNongatingEligibility(NameQuestionDefinition question) {
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of("eligible name"))),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    programDefinition =
+        ProgramBuilder.newDraftProgram(
+                ProgramDefinition.builder()
+                    .setId(123)
+                    .setAdminName("name")
+                    .setAdminDescription("desc")
+                    .setExternalLink("https://usa.gov")
+                    .setDisplayMode(DisplayMode.PUBLIC)
+                    .setProgramType(ProgramType.DEFAULT)
+                    .setEligibilityIsGating(false)
+                    .setStatusDefinitions(new StatusDefinitions())
+                    .build())
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(question))
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+  }
+
+  private Messages getMessages(Locale locale) {
+    return messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
   }
 
   @Test
@@ -2215,5 +2850,106 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Assert
     assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
+  }
+
+  @Test
+  public void getApplicantMayBeEligibleStatus() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Applicant's answer is ineligible.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    applicant = userRepository.lookupApplicantSync(applicant.id).get();
+
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
+        .isFalse();
+
+    // Applicant' answer gets changed to an eligible answer.
+    questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    applicant = userRepository.lookupApplicantSync(applicant.id).get();
+
+    assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
+        .isTrue();
+  }
+
+  @Test
+  public void getApplicationEligibilityStatus() {
+    createProgramWithNongatingEligibility(questionDefinition);
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Application is submitted with an ineligible answer.
+    Path questionPath =
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
+            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    Application ineligibleApplication =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // Application is re-submitted with eligible answers.
+    questionPath = ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+    updates =
+        ImmutableMap.<String, String>builder()
+            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "eligible name")
+            .build();
+    subject
+        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
+        .toCompletableFuture()
+        .join();
+    Application eligibleApplication =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                /* eligibilityFeatureEnabled= */ true,
+                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    // First application still evaluates to ineligible.
+    assertThat(
+            subject.getApplicationEligibilityStatus(ineligibleApplication, programDefinition).get())
+        .isFalse();
+    // Re-submission evaluates to eligible.
+    assertThat(
+            subject.getApplicationEligibilityStatus(eligibleApplication, programDefinition).get())
+        .isTrue();
   }
 }

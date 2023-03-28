@@ -19,7 +19,13 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BaseStyles.BG_SEATTLE_BLUE, "text-white", "text-center", "w-full");
 
   public static final String CIVIFORM_LOGO =
-      StyleUtils.joinStyles("text-2xl", "opacity-75", StyleUtils.hover("opacity-100"));
+      StyleUtils.joinStyles(
+          "text-3xl",
+          "opacity-75",
+          "flex",
+          "flex-wrap",
+          "content-center",
+          StyleUtils.hover("opacity-100"));
   public static final String LINK_LOGOUT =
       StyleUtils.joinStyles(
           "text-base", "font-bold", "opacity-75", StyleUtils.hover("opacity-100"));
@@ -91,9 +97,9 @@ public final class ApplicantStyles {
           StyleUtils.hover("bg-blue-700"),
           StyleUtils.disabled("bg-gray-200", "text-gray-400"));
 
-  /** Base styles for semibold, upper case buttons with a solid background. */
-  private static final String BUTTON_BASE_SOLID_UPPERCASE =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID, "uppercase", "font-semibold", "px-8");
+  /** Base styles for semibold buttons with a solid background. */
+  private static final String BUTTON_BASE_SOLID_SEMIBOLD =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID, "font-semibold", "px-8");
 
   /** Base styles for buttons with a transparent background and an outline. */
   private static final String BUTTON_BASE_OUTLINE =
@@ -105,23 +111,25 @@ public final class ApplicantStyles {
           BaseStyles.BORDER_SEATTLE_BLUE,
           StyleUtils.hover("bg-blue-100"));
 
-  private static final String BUTTON_BASE_OUTLINE_UPPERCASE =
-      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE, "uppercase", "font-semibold", "px-8");
+  private static final String BUTTON_BASE_OUTLINE_SEMIBOLD =
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE, "font-semibold", "px-8");
 
   public static final String BUTTON_SELECT_LANGUAGE =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base", "mx-auto");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base", "mx-auto");
   public static final String BUTTON_PROGRAM_APPLY =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-sm", "mx-auto");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-sm", "mx-auto");
+  public static final String BUTTON_PROGRAM_APPLY_TO_ANOTHER =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-sm");
   public static final String BUTTON_TI_DASHBOARD =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-xl");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-xl");
   public static final String BUTTON_BLOCK_NEXT =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
   public static final String BUTTON_BLOCK_PREVIOUS =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
   public static final String BUTTON_REVIEW =
-      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
   public static final String BUTTON_SUBMIT_APPLICATION =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base", "mx-auto");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base", "mx-auto");
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID, "text-base", "normal-case", "font-normal", "px-4");
   public static final String BUTTON_ENUMERATOR_REMOVE_ENTITY =
@@ -133,9 +141,9 @@ public final class ApplicantStyles {
           "justify-self-end",
           "self-center");
   public static final String BUTTON_CREATE_ACCOUNT =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_UPPERCASE, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
   public static final String BUTTON_NOT_RIGHT_NOW =
-      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
   public static final String BUTTON_UPLOAD =
-      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_UPPERCASE, "text-base");
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
 }

@@ -116,11 +116,10 @@ POST    /admin/apiKeys                              controllers.admin.AdminApiKe
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
 # Admin reporting
-GET     /admin/reporting                            controllers.admin.AdminReportingController.index()
+GET     /admin/reporting                            controllers.admin.AdminReportingController.index(request: Request)
+GET     /admin/reporting/:programSlug               controllers.admin.AdminReportingController.show(request: Request, programSlug: String)
+GET     /admin/reporting/:programSlug/download      controllers.admin.AdminReportingController.downloadProgramCsv(programSlug: String)
 GET     /admin/reporting/download/:dataSetName      controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
-
-# Admin data migrations
-GET     /admin/migrateStoredFileAcls                controllers.admin.DataMigrationsController.migrateStoredFileAcls()
 
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey             controllers.FileController.acledAdminShow(request: Request, fileKey: String)
@@ -201,6 +200,7 @@ POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.
 GET     /dev/feature                  controllers.dev.FeatureFlagOverrideController.index(request: Request)
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
+GET     /dev/feature/:flag/status      controllers.dev.FeatureFlagOverrideController.status(request: Request, flag: String)
 
 ## Prometheus metrics export
 GET         /metrics          controllers.monitoring.MetricsController.getMetrics()

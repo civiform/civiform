@@ -1,6 +1,10 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
@@ -37,6 +41,7 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
@@ -171,7 +176,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    featureFlags.isProgramEligibilityConditionsEnabled(request),
+                                    featureFlags.getFlagEnabled(
+                                        request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED),
+                                    featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -189,12 +196,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     }
 
     // Add toast messages
-    request
-        .flash()
-        .get("error")
-        .map(ToastMessage::error)
-        .map(m -> m.setDuration(-1))
-        .ifPresent(htmlBundle::addToastMessages);
+    request.flash().get("error").map(ToastMessage::error).ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
@@ -371,6 +373,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
       boolean isProgramEligibilityConditionsEnabled,
+      boolean isIntakeFormFeatureEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
     // enumerator question from the block.
@@ -393,7 +396,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
             allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (isProgramEligibilityConditionsEnabled) {
+    if (isProgramEligibilityConditionsEnabled
+        && !(isIntakeFormFeatureEnabled
+            && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(
@@ -555,7 +560,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
   private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
     DivTag emptyPredicateDiv;
-    if (featureFlags.isNongatedEligibilityEnabled(request)) {
+    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
       ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
       if (program.eligibilityIsGating()) {
         emptyPredicateContentBuilder.add(
@@ -571,7 +576,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                     + " minimum requirements."));
       }
       emptyPredicateContentBuilder
-          .add(text(" You can change this in "))
+          .add(text(" You can change this in the "))
           .add(
               a().withText("program settings.")
                   .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
@@ -828,7 +833,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
     String toolTipText =
         "Enabling address correction will check the resident's address to ensure it is accurate.";
-    if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
+    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
       toolTipText +=
           " To use this feature, you will need to have your IT manager configure the GIS service.";
     }
@@ -888,7 +893,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withCondOnsubmit(
-                !featureFlags.isEsriAddressCorrectionEnabled(request) || questionIsUsedInPredicate,
+                !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
+                    || questionIsUsedInPredicate,
                 "return false;")
             .withCondOnsubmit(addressCorrectionEnabledQuestionAlreadyExists, "return false;")
             .withAction(toggleAddressCorrectionAction)

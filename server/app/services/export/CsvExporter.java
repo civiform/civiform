@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
@@ -52,7 +53,9 @@ public final class CsvExporter implements AutoCloseable {
 
   /** Writes a single {@link Application} record to the CSV. */
   public void exportRecord(
-      Application application, ReadOnlyApplicantProgramService roApplicantService)
+      Application application,
+      ReadOnlyApplicantProgramService roApplicantService,
+      Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
     ImmutableMap<Path, String> answerMap =
         roApplicantService.getSummaryData().stream()
@@ -120,6 +123,15 @@ public final class CsvExporter implements AutoCloseable {
           }
           // We still hash the empty value.
           printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
+          break;
+        case ELIGIBILITY_STATUS:
+          if (optionalEligibilityStatus.isPresent()) {
+            String eligibilityText =
+                optionalEligibilityStatus.get() ? "Meets eligibility" : "Doesn't meet eligibility";
+            printer.print(eligibilityText);
+          } else {
+            printer.print(EMPTY_VALUE);
+          }
           break;
         case STATUS_TEXT:
           printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));

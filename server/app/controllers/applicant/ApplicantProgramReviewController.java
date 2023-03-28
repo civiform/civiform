@@ -1,7 +1,10 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static views.components.ToastMessage.ToastType.ALERT;
+import static views.components.ToastMessage.ToastType.SUCCESS;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -77,6 +80,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     Optional<ToastMessage> flashBanner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+    Optional<ToastMessage> flashSuccessBanner =
+        request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
     CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
 
     return applicantStage
@@ -88,23 +93,27 @@ public class ApplicantProgramReviewController extends CiviFormController {
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
-              if (featureFlags.isProgramEligibilityConditionsEnabled(request)
-                  && roApplicantProgramService.isApplicationNotEligible()) {
-                notEligibleBanner =
-                    Optional.of(
-                        new ToastMessage(
-                            messages.at(
-                                isTrustedIntermediary
-                                    ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
-                                    : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                                roApplicantProgramService.getProgramTitle()),
-                            ALERT));
+              try {
+                if (shouldShowNotEligibleBanner(request, roApplicantProgramService, programId)) {
+                  notEligibleBanner =
+                      Optional.of(
+                          new ToastMessage(
+                              messages.at(
+                                  isTrustedIntermediary
+                                      ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
+                                      : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
+                                  roApplicantProgramService.getProgramTitle()),
+                              ALERT));
+                }
+              } catch (ProgramNotFoundException e) {
+                return notFound(e.toString());
               }
               ApplicantProgramSummaryView.Params params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
-                      .setBannerMessages(ImmutableList.of(flashBanner, notEligibleBanner))
+                      .setBannerMessages(
+                          ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
                       .setMessages(messages)
                       .setProgramId(programId)
                       .setRequest(request)
@@ -146,6 +155,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
+  private boolean shouldShowNotEligibleBanner(
+      Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
+      throws ProgramNotFoundException {
+    if (!featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)) {
+      return false;
+    }
+    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
+        && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
+      return false;
+    }
+    return roApplicantProgramService.isApplicationNotEligible();
+  }
+
   private ApplicantProgramSummaryView.Params.Builder generateParamsBuilder(
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     ImmutableList<AnswerData> summaryData = roApplicantProgramService.getSummaryData();
@@ -156,6 +179,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return ApplicantProgramSummaryView.Params.builder()
         .setCompletedBlockCount(completedBlockCount)
         .setProgramTitle(programTitle)
+        .setProgramType(roApplicantProgramService.getProgramType())
         .setSummaryData(summaryData)
         .setTotalBlockCount(totalBlockCount);
   }
@@ -170,7 +194,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 applicantId,
                 programId,
                 submittingProfile,
-                featureFlags.isProgramEligibilityConditionsEnabled(request))
+                featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED),
+                featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService

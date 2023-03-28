@@ -33,15 +33,15 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.6",
-      "software.amazon.awssdk" % "ses" % "2.20.6",
+      "software.amazon.awssdk" % "s3" % "2.20.28",
+      "software.amazon.awssdk" % "ses" % "2.20.28",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.8.0",
-      "com.azure" % "azure-storage-blob" % "12.20.3",
+      "com.azure" % "azure-identity" % "1.8.1",
+      "com.azure" % "azure-storage-blob" % "12.21.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.5.4",
+      "org.postgresql" % "postgresql" % "42.6.0",
       "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Metrics collection and export for Prometheus
@@ -52,7 +52,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
-      "org.mockito" % "mockito-inline" % "5.1.1",
+      "org.mockito" % "mockito-inline" % "5.2.0",
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
@@ -103,7 +103,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.5"
+      "ch.qos.logback" % "logback-classic" % "1.4.6"
     ),
     javacOptions ++= Seq(
       "-encoding",

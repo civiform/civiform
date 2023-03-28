@@ -63,7 +63,7 @@ public class ReportingServiceTest extends ResetPostgres {
     assertThat(records.get(0).toList())
         .containsExactly("11/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
-        .containsExactly("12/2020", "8", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+        .containsExactly("12/2020", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.size()).isEqualTo(2);
 
     parser =
@@ -81,9 +81,29 @@ public class ReportingServiceTest extends ResetPostgres {
 
     records = parser.getRecords();
     assertThat(records.get(0).toList())
-        .containsExactly("Fake Program B", "6", "00:03:45", "00:04:43", "00:05:41", "00:06:37");
+        .containsExactly("Fake Program B", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
     assertThat(records.get(1).toList())
-        .containsExactly("Fake Program A", "6", "00:07:05", "00:08:36", "00:10:08", "00:11:36");
+        .containsExactly("Fake Program A", "4", "00:05:25", "00:06:40", "00:07:55", "00:09:07");
+    assertThat(records.size()).isEqualTo(2);
+
+    parser =
+        CSVParser.parse(
+            service.applicationsToProgramByMonthCsv("Fake Program B"),
+            CSVFormat.DEFAULT.builder().setHeader().build());
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Month",
+            "Submissions",
+            "Time to complete (p25)",
+            "Median time to complete",
+            "Time to complete (p75)",
+            "Time to complete (p99)");
+
+    records = parser.getRecords();
+    assertThat(records.get(0).toList())
+        .containsExactly("11/2020", "2", "00:10:25", "00:12:30", "00:14:35", "00:16:35");
+    assertThat(records.get(1).toList())
+        .containsExactly("12/2020", "2", "00:00:25", "00:00:50", "00:01:15", "00:01:39");
     assertThat(records.size()).isEqualTo(2);
   }
 

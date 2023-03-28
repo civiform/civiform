@@ -3,7 +3,6 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfileData;
-import com.google.common.collect.ImmutableMap;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.typesafe.config.Config;
@@ -17,7 +16,6 @@ import org.pac4j.core.exception.http.RedirectionAction;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
-import org.pac4j.core.util.generator.ValueGenerator;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 
@@ -33,31 +31,23 @@ import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
  * <p>Uses the post_logout_redirect_uri parameter by default, but allows overriding to a different
  * value using the auth.oidc_post_logout_param config variable
  *
- * <p>If the oidc_logout_client_id_param config variable is set, also adds the client_id to the
- * logout request.
+ * <p>Always adds the client_id to the logout request.
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
   private String postLogoutRedirectParam;
-  private ImmutableMap<String, String> extraParams;
-  private Optional<ValueGenerator> stateGenerator = Optional.empty();
+  private final String clientId;
 
   public CiviformOidcLogoutActionBuilder(
-      Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientID) {
+      Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientId) {
     super(oidcConfiguration);
     checkNotNull(civiformConfiguration);
     // Use `post_logout_redirect_uri` by default according OIDC spec.
     this.postLogoutRedirectParam =
         getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param")
             .orElse("post_logout_redirect_uri");
-    Optional<String> clientIdParam =
-        getConfigurationValue(civiformConfiguration, "auth.oidc_logout_client_id_param");
 
-    if (clientIdParam.isPresent()) {
-      this.extraParams = ImmutableMap.of(clientIdParam.get(), clientID);
-    } else {
-      this.extraParams = ImmutableMap.of();
-    }
+    this.clientId = clientId;
   }
 
   /** Helper function for retriving values from the application.conf, */
@@ -66,30 +56,6 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
       return Optional.ofNullable(civiformConfiguration.getString(name));
     }
     return Optional.empty();
-  }
-
-  public Optional<ValueGenerator> getStateGenerator() {
-    return stateGenerator;
-  }
-
-  /**
-   * If the OIDC provider requires the optional state param for logout (see
-   * https://openid.net/specs/openid-connect-rpinitiated-1_0.html), set a state generator here. Note
-   * that the state is not saved and validated by the client, so it does not achive the goal of
-   * "maintain state between the logout request and the callback" as specified by the spec.
-   */
-  public CiviformOidcLogoutActionBuilder setStateGenerator(final ValueGenerator stateGenerator) {
-    this.stateGenerator = Optional.of(stateGenerator);
-    return this;
-  }
-
-  /**
-   * Additional url params to add to logout request. Some identity providers require including
-   * client_id for example.
-   */
-  public CiviformOidcLogoutActionBuilder setExtraParams(ImmutableMap<String, String> extraParams) {
-    this.extraParams = extraParams;
-    return this;
   }
 
   /**
@@ -115,18 +81,19 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof CiviFormProfileData) {
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
-        // Optional state param for logout is only needed by certain OIDC providers.
-        State state = null;
-        if (getStateGenerator().isPresent()) {
-          state = new State(getStateGenerator().get().generateValue(context, sessionStore));
-        }
+
+        // Optional state param for logout is only needed by certain OIDC providers, but we
+        // always include it since it can help with cross-site forgery attacks.
+        // OidcConfiguration comes with a default state generator.
+        State state =
+            new State(configuration.getStateGenerator().generateValue(context, sessionStore));
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
                 postLogoutRedirectParam,
                 new URI(targetUrl),
-                extraParams,
+                Optional.of(clientId),
                 state);
 
         return Optional.of(

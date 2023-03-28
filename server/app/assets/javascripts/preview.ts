@@ -344,8 +344,9 @@ class PreviewController {
 
   private static setAllMatchingElements(selector: string, text: string) {
     const matchingElements = document.querySelectorAll(selector)
-    Array.from(matchingElements).forEach(function (matchingElement) {
-      ;(<HTMLElement>matchingElement).textContent = text
+    Array.from(matchingElements).forEach(function (matchingElement, index) {
+      ;(<HTMLElement>matchingElement).textContent =
+        text + ' #' + (index + 1).toString()
     })
   }
 

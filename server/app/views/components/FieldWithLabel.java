@@ -69,6 +69,7 @@ public class FieldWithLabel {
   private boolean checked = false;
   private boolean disabled = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
+  protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
   private final ImmutableSet.Builder<String> attributesSetBuilder = ImmutableSet.builder();
 
@@ -123,6 +124,12 @@ public class FieldWithLabel {
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
+    return this;
+  }
+
+  /** Add a class for styling the label. */
+  public FieldWithLabel addStyleClass(String styleClass) {
+    styleClassesBuilder.add(styleClass);
     return this;
   }
 
@@ -554,6 +561,7 @@ public class FieldWithLabel {
     return label()
         .withClasses(
             StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
+            StyleUtils.joinStyles(styleClassesBuilder.build().toArray(new String[0])),
             BaseStyles.CHECKBOX_LABEL,
             BaseStyles.FORM_FIELD_MARGIN_BOTTOM,
             labelText.isEmpty() ? "w-min" : "")

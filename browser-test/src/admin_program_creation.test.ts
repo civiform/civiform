@@ -38,6 +38,35 @@ describe('program creation', () => {
     )
   })
 
+  it('create program and search for questions', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    await adminQuestions.addAddressQuestion({
+      questionName: 'address-w-admin-note',
+      description: 'this is a note',
+    })
+
+    const programName = 'search-program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(
+      programName,
+      'search program description',
+    )
+
+    await adminPrograms.openQuestionBank()
+
+    expect(await page.innerText('id=question-bank-questions')).toContain(
+      'address-w-admin-note',
+    )
+    expect(await page.innerText('id=question-bank-questions')).toContain(
+      'this is a note',
+    )
+
+    await validateScreenshot(page, 'open-question-search')
+  })
+
   it('create program with enumerator and repeated questions', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
@@ -376,12 +405,18 @@ describe('program creation', () => {
     const {page, adminPrograms} = ctx
 
     await loginAsAdmin(page)
+    // needed for gotoViewActiveProgramPageAndStartEditing
+    await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const programName = 'Test program 5'
     await adminPrograms.addProgram(programName)
     await adminPrograms.addProgramBlock(programName)
     await adminPrograms.removeProgramBlock(programName, 'Screen 1')
+    // removing the first screen of a draft resulted in an error when a user would go to to edit the draft
     await adminPrograms.gotoEditDraftProgramPage(programName)
+    await adminPrograms.publishProgram(programName)
+    // removing the first screen of a program without drafts, caused an error when a user went to edit the program
+    await adminPrograms.gotoViewActiveProgramPageAndStartEditing(programName)
   })
 
   it('delete last block and edit', async () => {
@@ -464,5 +499,47 @@ describe('program creation', () => {
       'program-description-page-with-intake-form-true',
     )
     expect(await commonIntakeFormInput.isChecked()).toBe(true)
+  })
+
+  it('regular program has eligibility conditions', async () => {
+    const {page, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'cif',
+      'desc',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ false,
+    )
+
+    await adminPrograms.gotoEditDraftProgramPage('cif')
+    expect(await page.innerText('main')).toContain('Eligibility')
+  })
+
+  it('common intake form does not have eligibility conditions', async () => {
+    const {page, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+
+    await loginAsAdmin(page)
+
+    await adminPrograms.addProgram(
+      'cif',
+      'desc',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+
+    await adminPrograms.gotoEditDraftProgramPage('cif')
+    expect(await page.innerText('main')).not.toContain('Eligibility')
   })
 })

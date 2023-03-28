@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+
+# DOC: Runs env-var-docs/{check_vars_documented,run_regex_tests}.py.
+
+source bin/lib.sh
+
+if [[ ! -d env-var-docs/venv ]]; then
+  echo "ERROR: venv directory does not exist. First run 'bin/env-var-docs-create-venv' then run this script."
+  exit 1
+fi
+
+source env-var-docs/venv/bin/activate
+
+export APPLICATION_CONF_PATH=server/conf/application.conf
+export ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json
+
+echo "Running env-var-docs/check_vars_documented.py..."
+python env-var-docs/check_vars_documented.py
+
+echo "Running env-var-docs/run_regex_tests.py..."
+python env-var-docs/run_regex_tests.py

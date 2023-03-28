@@ -56,6 +56,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
       // Add error message to title for screen reader users.
       errorMessage = " — " + params.messages().at(MessageKey.ERROR_ANNOUNCEMENT_SR.getKeyName());
     }
+
     HtmlBundle bundle =
         layout
             .getBundle()
@@ -68,6 +69,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
                 blockDiv)
             .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
+
+    params.bannerMessage().ifPresent(bundle::addToastMessages);
 
     if (!params.preferredLanguageSupported()) {
       bundle.addMainContent(
