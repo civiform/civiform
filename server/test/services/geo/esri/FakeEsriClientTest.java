@@ -1,6 +1,7 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -65,6 +66,14 @@ public class FakeEsriClientTest {
     Optional<JsonNode> maybeResp =
         client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     assertEquals(Optional.empty(), maybeResp);
+  }
+
+  @Test
+  public void fetchAddressSuggestionsInvalidAddress() throws Exception {
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "oops");
+    assertThatThrownBy(() -> client.fetchAddressSuggestions(addressJson))
+        .isInstanceOf(InvalidFakeAddressException.class);
   }
 
   @Test

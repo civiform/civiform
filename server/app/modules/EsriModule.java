@@ -15,12 +15,12 @@ import services.geo.esri.EsriClient;
  * Configures the class used for the Esri client. When running in a dev or CI environment, the fake
  * client is used to simulate responses from an Esri service.
  */
-public class EsriModule extends AbstractModule {
+public final class EsriModule extends AbstractModule {
   private static final String FAKE_ESRI_CLIENT_CLASS_NAME = "services.geo.esri.FakeEsriClient";
   private static final String REAL_ESRI_CLIENT_CLASS_NAME = "services.geo.esri.RealEsriClient";
   private static final ImmutableSet<String> ACCEPTED_HOSTS =
       ImmutableSet.of("localhost", "civiform");
-  private static final Logger logger = LoggerFactory.getLogger(EsriModule.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EsriModule.class);
 
   private final Environment environment;
   private final Config config;
@@ -39,7 +39,7 @@ public class EsriModule extends AbstractModule {
                 acceptedHost -> host.equals(acceptedHost) || host.startsWith(acceptedHost + ":"));
     String className =
         useFakeEsriClient ? FAKE_ESRI_CLIENT_CLASS_NAME : REAL_ESRI_CLIENT_CLASS_NAME;
-    logger.info(String.format("Using %s class for Esri client", className));
+    LOGGER.info(String.format("Using %s class for Esri client", className));
     try {
       Class<? extends EsriClient> bindingClass =
           environment.classLoader().loadClass(className).asSubclass(EsriClient.class);

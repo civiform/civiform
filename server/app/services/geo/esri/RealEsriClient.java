@@ -47,7 +47,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   @VisibleForTesting Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
   private int ESRI_EXTERNAL_CALL_TRIES;
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public RealEsriClient(
@@ -74,7 +74,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     responsePromise.handle(
         (result, error) -> {
           if (error != null || result.getStatus() != 200) {
-            logger.error(
+            LOGGER.error(
                 "Esri API error: {}", error != null ? error.toString() : result.getStatusText());
             if (retries > 0) {
               return tryRequest(request, retryCount.decrementAndGet());
