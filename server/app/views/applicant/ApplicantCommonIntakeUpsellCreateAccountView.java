@@ -113,9 +113,8 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                                 "flex",
                                 "flex-col",
                                 "gap-4",
+                                "justify-end",
                                 StyleUtils.responsiveMedium("flex-row"))
-                            // Empty div to push buttons to the right on desktop.
-                            .with(div().withClasses("flex-grow"))
                             .with(actionButtonsBuilder.build())));
 
     bannerMessage.ifPresent(bundle::addToastMessages);
