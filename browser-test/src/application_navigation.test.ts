@@ -17,7 +17,6 @@ import {
   waitForPageJsLoad,
   isLocalDevEnvironment,
 } from './support'
-import {BASE_URL} from "./support/config";
 
 describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -451,7 +450,10 @@ describe('Applicant navigation flow', () => {
         /* wantEligiblePrograms */ [],
       )
 
-      await validateScreenshot(page, 'cif-ineligible-signed-in-confirmation-page')
+      await validateScreenshot(
+        page,
+        'cif-ineligible-signed-in-confirmation-page',
+      )
       await validateAccessibility(page)
     })
 
