@@ -55,7 +55,7 @@ validation.errorAnnouncementSr=There are errors in the form. Please fix before c
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 
 # Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=On your phone? “Choose File” also allows you to use your phone camera to upload documents.
+content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -300,7 +300,7 @@ title.cannotCheckEligibility=At this time, we are unable to check your eligibili
 title.cannotCheckEligibilityTi=At this time, we are unable to check your client''s eligibility for the {0}.
 
 # Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=We’re working to fix this issue quickly. Try again at a later time.
+content.cannotCheckEligibility=We're working to fix this issue quickly. Try again at a later time.
 
 # Button that allows an applicant to view all programs.
 button.viewAllPrograms=View all programs
