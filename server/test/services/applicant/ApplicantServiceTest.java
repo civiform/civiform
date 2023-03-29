@@ -1896,6 +1896,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withEligibilityDefinition(eligibilityDef)
             .build();
 
+    Question q = new Question(questionDefinition);
+    q.refresh();
+    versionRepository.getActiveVersion().addQuestion(q).save();
+
     applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraft.id)
         .toCompletableFuture()
@@ -2260,6 +2264,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
+    originalProgram.getVersions().stream()
+        .findAny()
+        .orElseThrow()
+        .addQuestion(testQuestionBank.applicantFavoriteColor())
+        .save();
 
     Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application submittedApplication =
