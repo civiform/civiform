@@ -991,13 +991,12 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       deleteBlockForm
           .withId("block-delete-form")
           .with(
-              div(h1("Are you sure you want to delete this screen?")
-                      .withClasses("text-base", "mb-2"))
-                  .withClasses("mx-4"),
+              div(
+                  h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                  .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     } else {
       // If there are questions, eligibility conditions, or visibility conditions on this screen,
       // print the appropriate message.
@@ -1015,15 +1014,13 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                      h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
-                          .withClasses("text-base", "mb-2"),
-                      h1("Are you sure you want to delete this screen?")
-                          .withClasses("text-base", "mb-2"))
-                  .withClasses("mx-4"),
+                  h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
+                      .withClasses("text-base", "mb-2"),
+                  h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                  .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     }
 
     ButtonTag deleteScreenButton =

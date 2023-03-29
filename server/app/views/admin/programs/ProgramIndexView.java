@@ -218,7 +218,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag publishAllModalContent =
         div()
-            .withClasses("p-6", "flex-row", "space-y-6")
+            .withClasses("flex-row", "space-y-6")
             .with(
                 p("Please be aware that due to the nature of shared questions and versioning,"
                         + " all questions and programs will need to be published together.")

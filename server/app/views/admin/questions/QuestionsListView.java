@@ -473,7 +473,7 @@ public final class QuestionsListView extends BaseHtmlView {
       return Optional.empty();
     }
 
-    DivTag referencingProgramModalContent = div().withClasses("p-6", "flex-row", "space-y-6");
+    DivTag referencingProgramModalContent = div().withClasses("flex-row", "space-y-6");
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }

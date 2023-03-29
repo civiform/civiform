@@ -291,7 +291,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       Http.Request request, ProgramDefinition program, String toDeleteStatusText) {
     DivTag content =
         div()
-            .withClasses("px-6", "py-2")
+            .withClasses("py-2")
             .with(
                 p(
                     "Warning: This will also remove any translated content for the status and"
@@ -368,7 +368,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
         form()
             .withMethod("POST")
             .withAction(routes.AdminProgramStatusesController.createOrUpdate(program.id()).url())
-            .withClasses("cf-status-change-form", "px-6", "py-2")
+            .withClasses("cf-status-change-form", "py-2")
             .withData("dontshow", isCurrentDefault.toString())
             .withData("messagepart", messagePart)
             .with(
