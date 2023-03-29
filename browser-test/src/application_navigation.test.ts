@@ -473,9 +473,9 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickSubmit()
 
       await applicantQuestions.expectCommonIntakeConfirmationPage(
-        /* wantUpsell */ false,
-        /* wantTrustedIntermediary */ false,
-        /* wantEligiblePrograms */ [secondProgramName],
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
       )
 
       await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
