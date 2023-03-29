@@ -88,7 +88,10 @@ public interface ProgramService {
    *     the applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
-   * @param programType ProgramType for this Program.
+   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
+   *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
+   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
+   *     draft of it if necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
@@ -105,6 +108,25 @@ public interface ProgramService {
       Boolean isIntakeFormFeatureEnabled);
 
   /**
+   * Checks if the provided data is valid for a new program. Does not actually create the program.
+   *
+   * @param adminName a name for this program for internal use by admins - this is immutable once
+   *     set
+   * @param adminDescription the description of this program - visible only to admins
+   * @param displayName a name for this program
+   * @param displayDescription the description of what the program provides
+   * @param externalLink A link to an external page containing additional program details
+   * @param displayMode The display mode for the program
+   * @return a set of errors representing any issues with the provided data.
+   */
+  ImmutableSet<CiviFormError> validateProgramDataForCreate(
+      String adminName,
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode);
+  /**
    * Update a program's mutable fields: admin description, display name and description for
    * applicants.
    *
@@ -118,7 +140,10 @@ public interface ProgramService {
    *     applicant submits their application
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
-   * @param programType ProgramType for this program
+   * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
+   *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
+   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
+   *     draft of it if necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake for feature is enabled.
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
@@ -136,6 +161,23 @@ public interface ProgramService {
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException;
+
+  /**
+   * Checks if the provided data would be valid to update an existing program with. Does not
+   * actually update any programs.
+   *
+   * @param adminDescription the description of this program - visible only to admins
+   * @param displayName a name for this program
+   * @param displayDescription the description of what the program provides
+   * @param externalLink A link to an external page containing additional program details
+   * @param displayMode The display mode for the program
+   */
+  ImmutableSet<CiviFormError> validateProgramDataForUpdate(
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode);
 
   /**
    * Add or update a localization of the program's publicly-visible display name and description.
@@ -514,4 +556,10 @@ public interface ProgramService {
   ProgramDefinition setEligibilityIsGating(
       long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
       throws ProgramNotFoundException;
+
+  /*
+   * Looks at the most recent version of each program and returns the program marked as the
+   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   */
+  Optional<ProgramDefinition> getCommonIntakeForm();
 }

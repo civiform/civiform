@@ -478,6 +478,34 @@ describe('program creation', () => {
     expect(await commonIntakeFormInput.isChecked()).toBe(true)
   })
 
+  it('correctly renders common intake form change confirmation modal', async () => {
+    const {page, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await loginAsAdmin(page)
+
+    const commonIntakeFormProgramName = 'Benefits finder'
+    await adminPrograms.addProgram(
+      commonIntakeFormProgramName,
+      'program description',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.clickCommonIntakeFormToggle()
+    await this.page.click('#program-update-button')
+    expect(await page.isVisible(
+      page.selector('#confirm-common-intake-change')
+    )).toBe(true)
+    await validateScreenshot(page, 'confirm-common-intake-change-modal')
+  })
+
   it('regular program has eligibility conditions', async () => {
     const {page, adminPrograms} = ctx
 

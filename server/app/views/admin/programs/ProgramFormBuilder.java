@@ -14,6 +14,7 @@ import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import models.DisplayMode;
 import modules.MainModule;
@@ -24,6 +25,8 @@ import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.Modal;
+import views.components.Modal.Width;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 
@@ -84,7 +87,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String displayMode,
       Boolean isCommonIntakeForm,
       boolean editExistingProgram) {
-    FormTag formTag = form().withMethod("POST");
+    FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
         h2("Visible to applicants").withClasses("py-2"),
@@ -144,26 +147,39 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(adminDescription)
             .getTextareaTag());
     if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
-      formTag.with(
-          FieldWithLabel.checkbox()
-              .setFieldName("isCommonIntakeForm")
-              .setLabelText("Set program as pre-screener")
-              .addStyleClass("border-none")
-              .setValue("true")
-              .setChecked(isCommonIntakeForm)
-              .getCheckboxTag()
-              .with(
-                  span(ViewUtils.makeSvgToolTip(
-                          "You can set one program as the ‘pre-screener’. This will pin the"
-                              + " program card to the top of the programs and services page while"
-                              + " moving other program cards below it.",
-                          Icons.INFO))
-                      .withClass("ml-2")));
+      formTag
+          .with(
+              FieldWithLabel.checkbox()
+                  .setId("common-intake-checkbox")
+                  .setFieldName("isCommonIntakeForm")
+                  .setLabelText("Set program as pre-screener")
+                  .addStyleClass("border-none")
+                  .setValue("true")
+                  .setChecked(isCommonIntakeForm)
+                  .getCheckboxTag()
+                  .with(
+                      span(ViewUtils.makeSvgToolTip(
+                              "You can set one program as the ‘pre-screener’. This will pin the"
+                                  + " program card to the top of the programs and services page"
+                                  + " while moving other program cards below it.",
+                              Icons.INFO))
+                          .withClass("ml-2")))
+          .with(
+              // Hidden checkbox used to signal whether or not the user has confirmed they want to
+              // change which program is marked as the common intake form.
+              FieldWithLabel.checkbox()
+                  .setId("confirmed-change-common-intake-checkbox")
+                  .setFieldName("confirmedChangeCommonIntakeForm")
+                  .setValue("false")
+                  .setChecked(false)
+                  .addStyleClass("hidden")
+                  .getCheckboxTag());
     }
     formTag.with(
         submitButton("Save")
             .withId("program-update-button")
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
+
     return formTag;
   }
 
@@ -190,5 +206,26 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 + " a dash between each word*")
         .setValue(adminName)
         .getInputTag();
+  }
+
+  protected Modal buildConfirmCommonIntakeChangeModal(String existingCommonIntakeFormDisplayName) {
+    DivTag content =
+        div()
+            .withClasses("pl-6", "pr-6", "flex-row", "space-y-6")
+            .with(
+                p("The pre-screener will be updated from ")
+                    .with(span(existingCommonIntakeFormDisplayName).withClass("font-bold"))
+                    .withText(" to the current program."))
+            .with(p("Would you like to confirm the change?"))
+            .with(
+                submitButton("Confirm")
+                    .withForm("program-details-form")
+                    .withId("confirm-common-intake-change-button")
+                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer"));
+    return Modal.builder("confirm-common-intake-change", content)
+        .setModalTitle("Confirm pre-screener change?")
+        .setDisplayOnLoad(true)
+        .setWidth(Width.THIRD)
+        .build();
   }
 }

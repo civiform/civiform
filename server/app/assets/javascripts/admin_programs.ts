@@ -4,6 +4,21 @@ class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
 
+  static attachConfirmCommonIntakeChangeListener() {
+    document
+      .querySelector('#confirm-common-intake-change-button')
+      ?.addEventListener('click', () => {
+        const confirmationCheckbox = <HTMLInputElement>(
+          document.querySelector('#confirmed-change-common-intake-checkbox')
+        )
+        if (!confirmationCheckbox) {
+          return
+        }
+        confirmationCheckbox.value = 'true'
+        confirmationCheckbox.checked = true
+      })
+  }
+
   static attachCopyProgramLinkListeners() {
     const withCopyableProgramLink = Array.from(
       document.querySelectorAll(
@@ -67,4 +82,5 @@ class AdminPrograms {
 
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
+  AdminPrograms.attachConfirmCommonIntakeChangeListener()
 }

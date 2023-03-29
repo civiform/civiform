@@ -17,6 +17,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.ToastMessage;
 
 /** Renders a page for editing the name and description of a program. */
@@ -29,41 +30,69 @@ public final class ProgramEditView extends ProgramFormBuilder {
     super(configuration, featureFlags);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
-
-  public Content render(Request request, ProgramDefinition program) {
-    FormTag formTag =
-        buildProgramForm(request, program, /* editExistingProgram = */ true)
-            .with(makeCsrfTokenInputTag(request))
-            .with(buildManageQuestionLink(program.id()))
-            .withAction(controllers.admin.routes.AdminProgramController.update(program.id()).url());
-
-    String title = String.format("Edit program: %s", program.localizedName().getDefault());
-
-    HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
-
-    return layout.renderCentered(htmlBundle);
+  /** Renders the edit form. Fields are pre-populated based on the content of existingProgram. */
+  public Content render(Request request, ProgramDefinition existingProgram) {
+    return render(request, existingProgram, Optional.empty(), Optional.empty(), Optional.empty());
   }
 
+  /**
+   * Renders the edit form with a toast containing the content of ToastMessage. Fields are
+   * pre-populated based on the content of programForm.
+   */
   public Content render(
       Request request,
       ProgramDefinition existingProgram,
-      ProgramForm program,
-      Optional<ToastMessage> message) {
-    FormTag formTag =
-        buildProgramForm(request, program, /* editExistingProgram = */ true)
-            .with(makeCsrfTokenInputTag(request))
-            .with(buildManageQuestionLink(existingProgram.id()))
-            .withAction(
-                controllers.admin.routes.AdminProgramController.update(existingProgram.id()).url());
+      ProgramForm programForm,
+      ToastMessage message) {
+    return render(
+        request, existingProgram, Optional.of(programForm), Optional.of(message), Optional.empty());
+  }
 
+  /**
+   * Renders the edit form with a modal that confirms whether or not the user wants to change which
+   * program is set to be the common intake form. Fields are pre-populated based on the content of
+   * programForm.
+   */
+  public Content renderChangeCommonIntakeConfirmation(
+      Request request,
+      ProgramDefinition existingProgram,
+      ProgramForm programForm,
+      String existingCommonIntakeFormDisplayName) {
+    return render(
+        request,
+        existingProgram,
+        Optional.of(programForm),
+        Optional.empty(),
+        Optional.of(buildConfirmCommonIntakeChangeModal(existingCommonIntakeFormDisplayName)));
+  }
+
+  private Content render(
+      Request request,
+      ProgramDefinition existingProgram,
+      Optional<ProgramForm> programForm,
+      Optional<ToastMessage> toastMessage,
+      Optional<Modal> modal) {
     String title = String.format("Edit program: %s", existingProgram.localizedName().getDefault());
 
+    FormTag formTag =
+        programForm.isPresent()
+            ? buildProgramForm(request, programForm.get(), /* editExistingProgram = */ true)
+            : buildProgramForm(request, existingProgram, /* editExistingProgram= */ true);
+
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), formTag);
-
-    message.ifPresent(htmlBundle::addToastMessages);
-
+        layout
+            .getBundle()
+            .setTitle(title)
+            .addMainContent(
+                renderHeader(title),
+                formTag
+                    .with(makeCsrfTokenInputTag(request))
+                    .with(buildManageQuestionLink(existingProgram.id()))
+                    .withAction(
+                        controllers.admin.routes.AdminProgramController.update(existingProgram.id())
+                            .url()));
+    toastMessage.ifPresent(htmlBundle::addToastMessages);
+    modal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);
   }
 

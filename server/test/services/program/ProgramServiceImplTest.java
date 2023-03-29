@@ -11,6 +11,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.BadRequestException;
 import forms.BlockForm;
 import io.ebean.DB;
@@ -158,7 +159,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
-        .containsExactly(
+        .containsExactlyInAnyOrder(
             CiviFormError.of("A public display name for the program is required"),
             CiviFormError.of("A public description for the program is required"),
             CiviFormError.of("A program URL is required"),
@@ -300,32 +301,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void createProgram_allowsSettingCommonIntakeFormWhenNoneExists() {
-    // No common intake form in the most recent version of any program, although some programs
-    // were previously marked as common intake.
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
-        .build();
-    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
-    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
-
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.createProgramDefinition(
-            "name-one",
-            "description",
-            "display name",
-            "display description",
-            "",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
-    assertThat(result.hasResult()).isTrue();
-    assertThat(result.isError()).isFalse();
-    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-  }
-
-  @Test
   public void createProgram_allowsSettingDefaultProgram() {
     ps.createProgramDefinition(
         "name-one",
@@ -355,7 +330,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void createProgram_protectsAgainstSettingMultipleCommonIntakeForms() {
+  public void createProgram_clearsExistingCommonIntakeForm() {
     ps.createProgramDefinition(
         "name-one",
         "description",
@@ -366,6 +341,11 @@ public class ProgramServiceImplTest extends ResetPostgres {
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
         /* isIntakeFormFeatureEnabled= */ true);
+
+    Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
+    assertThat(commonIntakeForm).isPresent();
+    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
+
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
             "name-two",
@@ -377,11 +357,99 @@ public class ProgramServiceImplTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
             /* isIntakeFormFeatureEnabled= */ true);
-    assertThat(result.hasResult()).isFalse();
-    assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors())
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+
+    commonIntakeForm = ps.getCommonIntakeForm();
+    assertThat(commonIntakeForm).isPresent();
+    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-two");
+    Optional<ProgramDefinition> oldCommonIntake =
+        ps.getActiveAndDraftPrograms().getDraftProgramDefinition("name-one");
+    assertThat(oldCommonIntake).isPresent();
+    assertThat(oldCommonIntake.get().programType()).isEqualTo(ProgramType.DEFAULT);
+  }
+
+  @Test
+  public void validateProgramDataForCreate_returnsErrors() {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate("", "", "", "", "", DisplayMode.PUBLIC.getValue());
+
+    assertThat(result)
+        .containsExactlyInAnyOrder(
+            CiviFormError.of("A public display name for the program is required"),
+            CiviFormError.of("A public description for the program is required"),
+            CiviFormError.of("A program URL is required"),
+            CiviFormError.of("A program note is required"));
+  }
+
+  @Test
+  @Parameters({"name with spaces", "DiFfErEnT-cAsEs", "special-characters-$#@"})
+  public void validateProgramDataForCreate_requiresSlug(String adminName) {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            adminName,
+            "description",
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue());
+
+    assertThat(result)
         .containsExactly(
-            CiviFormError.of("A program set as the Common Intake Form already exists"));
+            CiviFormError.of(
+                "A program URL may only contain lowercase letters, numbers, and dashes"));
+  }
+
+  @Test
+  public void validateProgramDataForCreate_protectsAgainstProgramSlugCollisions() {
+    // Two programs with names that are different but slugify to same value.
+    // To simulate this state, we first create a program with a slugified name, then manually
+    // update the Program entity in order to add a name value that slugifies to the same value.
+    ProgramDefinition originalProgramDefinition =
+        ps.createProgramDefinition(
+                "name-one",
+                "description",
+                "display name",
+                "display description",
+                "",
+                "https://usa.gov",
+                DisplayMode.PUBLIC.getValue(),
+                ProgramType.DEFAULT,
+                /* isIntakeFormFeatureEnabled= */ false)
+            .getResult();
+    // Program name here is missing the extra space
+    // so that the names are different but the resulting
+    // slug is the same.
+    Program updatedProgram =
+        originalProgramDefinition.toBuilder().setAdminName("name    one").build().toProgram();
+    updatedProgram.update();
+    assertThat(updatedProgram.getProgramDefinition().adminName()).isEqualTo("name    one");
+
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name-one",
+            "description",
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue());
+    assertThat(result)
+        .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
+  }
+
+  @Test
+  public void validateProgramDataForCreate_returnsNoErrorsForValidData() {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name-two",
+            "description",
+            "display name",
+            "display description",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue());
+
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -575,17 +643,23 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_allowsSettingProgramAsCommonIntakeFormWhenNoneExists()
-      throws Exception {
-    // No common intake form in the most recent version of any program, although some programs
-    // were previously marked as common intake.
-    ProgramBuilder.newObsoleteProgram("one")
-        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
-        .build();
-    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
-    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
+  public void updateProgram_clearsExistingCommonIntakeForm() throws Exception {
+    ps.createProgramDefinition(
+        "name-one",
+        "description",
+        "display name",
+        "display description",
+        "",
+        "https://usa.gov",
+        DisplayMode.PUBLIC.getValue(),
+        ProgramType.COMMON_INTAKE_FORM,
+        /* isIntakeFormFeatureEnabled= */ true);
 
-    ProgramDefinition program = ProgramBuilder.newDraftProgram("three").buildDefinition();
+    Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
+    assertThat(commonIntakeForm).isPresent();
+    assertThat(commonIntakeForm.get().adminName()).isEqualTo("name-one");
+
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
             program.id(),
@@ -602,41 +676,13 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-  }
-
-  @Test
-  public void updateProgram_protectsAgainstSettingMultipleCommonIntakeForms() throws Exception {
-    ps.createProgramDefinition(
-        "name-one",
-        "description",
-        "display name",
-        "display description",
-        "",
-        "https://usa.gov",
-        DisplayMode.PUBLIC.getValue(),
-        ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true);
-
-    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
-
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateProgramDefinition(
-            program.id(),
-            Locale.US,
-            "a",
-            "a",
-            "a",
-            "",
-            "https://usa.gov",
-            DisplayMode.PUBLIC.getValue(),
-            ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
-
-    assertThat(result.hasResult()).isFalse();
-    assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors())
-        .containsExactly(
-            CiviFormError.of("A program set as the Common Intake Form already exists"));
+    commonIntakeForm = ps.getCommonIntakeForm();
+    assertThat(commonIntakeForm).isPresent();
+    assertThat(commonIntakeForm.get().adminName()).isEqualTo(program.adminName());
+    Optional<ProgramDefinition> oldCommonIntake =
+        ps.getActiveAndDraftPrograms().getDraftProgramDefinition("name-one");
+    assertThat(oldCommonIntake).isPresent();
+    assertThat(oldCommonIntake.get().programType()).isEqualTo(ProgramType.DEFAULT);
   }
 
   @Test
@@ -2451,5 +2497,41 @@ public class ProgramServiceImplTest extends ResetPostgres {
             /* gating= */ false,
             /* isNongatedEligibilityFeatureEnabled= */ false);
     assertThat(result.eligibilityIsGating()).isTrue();
+  }
+
+  @Test
+  public void getCommonIntakeForm_ignoresObsoletePrograms() {
+    // No common intake form in the most recent version of any program, although some programs
+    // were previously marked as common intake.
+    ProgramBuilder.newObsoleteProgram("one")
+        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.DEFAULT).build();
+
+    assertThat(ps.getCommonIntakeForm()).isNotPresent();
+  }
+
+  @Test
+  public void getCommonIntakeForm_activeCommonIntake() {
+    ProgramBuilder.newObsoleteProgram("one")
+        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+
+    assertThat(ps.getCommonIntakeForm()).isPresent();
+    assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+  }
+
+  @Test
+  public void getCommonIntakeForm_draftCommonIntake() {
+    ProgramBuilder.newObsoleteProgram("one")
+        .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+        .build();
+    ProgramBuilder.newActiveProgram("two").withProgramType(ProgramType.DEFAULT).build();
+    ProgramBuilder.newDraftProgram("two").withProgramType(ProgramType.COMMON_INTAKE_FORM).build();
+
+    assertThat(ps.getCommonIntakeForm()).isPresent();
+    assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
   }
 }

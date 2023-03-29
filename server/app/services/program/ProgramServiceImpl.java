@@ -60,8 +60,8 @@ public final class ProgramServiceImpl implements ProgramService {
   private static final String MISSING_ADMIN_NAME_MSG = "A program URL is required";
   private static final String INVALID_ADMIN_NAME_MSG =
       "A program URL may only contain lowercase letters, numbers, and dashes";
-  private static final String DUPLICATE_INTAKE_FORM_MSG =
-      "A program set as the Common Intake Form already exists";
+  private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
+      "A program link must begin with 'http://' or 'https://'";
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
@@ -185,6 +185,27 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableSet<CiviFormError> validateProgramDataForCreate(
+      String adminName,
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode) {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder =
+        validateProgramData(
+            adminDescription, displayName, displayDescription, externalLink, displayMode);
+    if (adminName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
+    } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
+      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
+    } else if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
+    }
+    return errorsBuilder.build();
+  }
+
+  @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
       String adminName,
       String adminDescription,
@@ -195,39 +216,14 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled) {
-
-    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-
-    if (defaultDisplayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
-    }
-    if (defaultDisplayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    }
-    if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
-    } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
-    } else if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
-    }
-    if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
-    }
-    if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
-    }
-    if (!isValidAbsoluteLink(externalLink)) {
-      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
-    }
-    if (isIntakeFormFeatureEnabled) {
-      if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
-        errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
-      }
-    } else {
-      programType = ProgramType.DEFAULT;
-    }
-    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+    ImmutableSet<CiviFormError> errors =
+        validateProgramDataForCreate(
+            adminName,
+            adminDescription,
+            defaultDisplayName,
+            defaultDisplayDescription,
+            externalLink,
+            displayMode);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -238,6 +234,14 @@ public final class ProgramServiceImpl implements ProgramService {
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
     }
+
+    if (!isIntakeFormFeatureEnabled) {
+      programType = ProgramType.DEFAULT;
+    }
+    if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
+      clearCommonIntakeForm();
+    }
+
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
     Program program =
         new Program(
@@ -256,6 +260,18 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode) {
+    return validateProgramData(
+            adminDescription, displayName, displayDescription, externalLink, displayMode)
+        .build();
+  }
+
+  @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
       long programId,
       Locale locale,
@@ -269,36 +285,22 @@ public final class ProgramServiceImpl implements ProgramService {
       Boolean isIntakeFormFeatureEnabled)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    if (displayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
-    }
-    if (displayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    }
-    if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
-    }
-    if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
-    }
-    if (!isValidAbsoluteLink(externalLink)) {
-      errorsBuilder.add(CiviFormError.of("A program link must begin with 'http://' or 'https://'"));
-    }
-    if (isIntakeFormFeatureEnabled) {
-      if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
-        Optional<ProgramDefinition> commonIntake = getCommonIntakeForm();
-        if (commonIntake.isPresent()
-            && !programDefinition.adminName().equals(commonIntake.get().adminName())) {
-          errorsBuilder.add(CiviFormError.of(DUPLICATE_INTAKE_FORM_MSG));
-        }
-      }
-    } else {
-      programType = ProgramType.DEFAULT;
-    }
-    ImmutableSet<CiviFormError> errors = errorsBuilder.build();
+    ImmutableSet<CiviFormError> errors =
+        validateProgramDataForUpdate(
+            adminDescription, displayName, displayDescription, externalLink, displayMode);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
+    }
+
+    if (!isIntakeFormFeatureEnabled) {
+      programType = ProgramType.DEFAULT;
+    }
+    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)) {
+      Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
+      if (maybeCommonIntakeForm.isPresent()
+          && !programDefinition.adminName().equals(maybeCommonIntakeForm.get().adminName())) {
+        clearCommonIntakeForm();
+      }
     }
 
     LocalizedStrings newConfirmationMessageTranslations =
@@ -1096,6 +1098,13 @@ public final class ProgramServiceImpl implements ProgramService {
         .getProgramDefinition();
   }
 
+  @Override
+  public Optional<ProgramDefinition> getCommonIntakeForm() {
+    return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+        .filter(p -> p.isCommonIntakeForm())
+        .findFirst();
+  }
+
   /** Removes eligibility predicates from all blocks in this program. */
   private ProgramDefinition removeAllEligibilityPredicates(ProgramDefinition programDefinition)
       throws ProgramNotFoundException {
@@ -1227,13 +1236,49 @@ public final class ProgramServiceImpl implements ProgramService {
     return pqd.loadCompletely(programDefinitionId, questionDefinition);
   }
 
-  /*
-   * Looks at the most recent version of each program and returns the program marked as the
-   * common intake form if it exists. The most recent version may be in the draft or active stage.
+  /**
+   * Clears the common intake form if it exists.
+   *
+   * <p>If there is a program among the most recent versions of all programs marked as the common
+   * intake form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
+   * necessary.
    */
-  private Optional<ProgramDefinition> getCommonIntakeForm() {
-    return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(p -> p.isCommonIntakeForm())
-        .findFirst();
+  private void clearCommonIntakeForm() {
+    Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
+    ProgramDefinition draftCommonIntakeProgramDefinition =
+        programRepository
+            .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
+            .getProgramDefinition();
+    Program commonIntakeProgram =
+        draftCommonIntakeProgramDefinition.toBuilder()
+            .setProgramType(ProgramType.DEFAULT)
+            .build()
+            .toProgram();
+    programRepository.updateProgramSync(commonIntakeProgram);
+  }
+
+  private ImmutableSet.Builder<CiviFormError> validateProgramData(
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode) {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    if (displayName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
+    }
+    if (displayDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
+    }
+    if (displayMode.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
+    }
+    if (adminDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
+    }
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
+    }
+    return errorsBuilder;
   }
 }
