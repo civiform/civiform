@@ -324,7 +324,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                                 /* ignoreFilters= */ Optional.empty())
                                             .url())
                                     .withType("submit"))));
-    return Modal.builder(modalId, modalContent)
+    return Modal.builder()
+        .setModalId(modalId)
+        .setContent(modalContent)
         .setModalTitle("Download application data")
         .setTriggerButtonContent(
             makeSvgTextButton("Download", Icons.DOWNLOAD)

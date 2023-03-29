@@ -312,7 +312,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                                 submitButton("Delete")
                                     .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
 
-    return Modal.builder(Modal.randomModalId(), content)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(content)
         .setModalTitle("Delete this status")
         .build();
   }
@@ -402,7 +404,9 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         defaultCheckbox,
                         div().withClass("flex-grow"),
                         submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder(Modal.randomModalId(), content)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(content)
         .setModalTitle(
             formData.getConfiguredStatusText().isEmpty()
                 ? "Create a new status"

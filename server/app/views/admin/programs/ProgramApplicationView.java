@@ -303,7 +303,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                 submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder(Modal.randomModalId(), modalContent)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(modalContent)
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
         .setWidth(Width.THREE_FOURTHS)
@@ -376,7 +378,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
         button("")
             .withClasses("hidden")
             .withData("status-update-confirm-for-status", status.statusText());
-    return Modal.builder(Modal.randomModalId(), modalContent)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(modalContent)
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)

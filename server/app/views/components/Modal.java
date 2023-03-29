@@ -29,22 +29,21 @@ public abstract class Modal {
 
   public abstract boolean displayOnLoad();
 
-  private static Modal.Builder builder() {
+  public static Modal.RequiredModalId builder() {
     // Set some defaults before the user sets their own values.
     return new AutoValue_Modal.Builder().setWidth(Width.DEFAULT).setDisplayOnLoad(false);
   }
 
-  public static Builder builder(String modalId, ContainerTag<?> content) {
-    return builder().setModalId(modalId).setContent(content);
+  public interface RequiredModalId {
+    RequiredContent setModalId(String modalId);
+  }
+
+  public interface RequiredContent {
+    Builder setContent(ContainerTag<?> content);
   }
 
   @AutoValue.Builder
-  public abstract static class Builder {
-
-    public abstract Builder setModalId(String modalId);
-
-    public abstract Builder setContent(ContainerTag<?> content);
-
+  public abstract static class Builder implements RequiredModalId, RequiredContent {
     public abstract Builder setModalTitle(String modalTitle);
 
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);

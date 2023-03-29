@@ -1030,7 +1030,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
 
-    return Modal.builder("block-delete-modal", deleteBlockForm)
+    return Modal.builder()
+        .setModalId("block-delete-modal")
+        .setContent(deleteBlockForm)
         .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
         .setWidth(Modal.Width.THIRD)
@@ -1069,7 +1071,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return Modal.builder("block-description-modal", blockDescriptionForm)
+    return Modal.builder()
+        .setModalId("block-description-modal")
+        .setContent(blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonContent(editScreenButton)
         .setWidth(Modal.Width.THIRD)
