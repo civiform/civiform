@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.7.0",
+      "com.jayway.jsonpath" % "json-path" % "2.8.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.2",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
