@@ -8,7 +8,7 @@ import math
 import subprocess
 import sys
 
-BATCH_COUNT = 4
+BATCH_COUNT = 10
 
 
 def bad_batch_number_input(batch_num_input):
