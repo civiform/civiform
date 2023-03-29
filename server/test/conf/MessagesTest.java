@@ -55,28 +55,9 @@ public class MessagesTest {
 
     // Checks that the language file contains exactly the same message keys as the
     // primary language file.
-    //
-    // TODO(#4520): Modify this to ensure the keys are the same, not just that all
-    //  keys in primary file exist in foreign language files. Currently this is not possible,
-    //  even with IGNORE_LIST, because there are keys that are present in some but not all
-    //  of the non-primary language files.
-    TreeSet<String> keysInPrimaryFileCopy = new TreeSet<>(keysInPrimaryFile);
-    keysInPrimaryFileCopy.removeAll(keysInForeignLangFile);
-    assertThat(keysInPrimaryFileCopy)
-        .withFailMessage(
-            "%s found in primary language file but not in %s. Add these keys to %s or to the"
-                + " ignore list in %s to resolve this issue.",
-            keysInPrimaryFileCopy, otherLanguageFile, otherLanguageFile, getClass().getName())
-        .isEmpty();
-
-    TreeSet<String> keysInForeignLangFileCopy = new TreeSet<>(keysInForeignLangFile);
-    keysInForeignLangFileCopy.removeAll(keysInPrimaryFile);
-    assertThat(keysInForeignLangFileCopy)
-      .withFailMessage(
-        "%s found in %s file but not in primary language file. Add these keys to primary language file or to the"
-          + " ignore list in %s to resolve this issue.",
-        keysInForeignLangFileCopy, otherLanguageFile, getClass().getName())
-      .isEmpty();
+    assertThat(keysInPrimaryFile)
+        .withFailMessage(errorMessage(keysInPrimaryFile, keysInForeignLangFile, otherLanguageFile))
+        .containsExactlyElementsOf(keysInForeignLangFile);
   }
 
   /**
@@ -105,5 +86,34 @@ public class MessagesTest {
           .map(Path::toString)
           .toArray(String[]::new);
     }
+  }
+
+  private String errorMessage(
+      TreeSet<String> primaryLangKeys, TreeSet<String> foreignLangKeys, String otherLanguageFile) {
+    StringBuilder stringBuilder = new StringBuilder();
+
+    TreeSet<String> keysInPrimaryFileCopy = new TreeSet<>(primaryLangKeys);
+    keysInPrimaryFileCopy.removeAll(foreignLangKeys);
+    if (!keysInPrimaryFileCopy.isEmpty()) {
+      stringBuilder.append(
+          String.format(
+              "%s found in primary language file but not in %s. Add these keys to %s or to the"
+                  + " ignore list in %s to resolve this issue.",
+              keysInPrimaryFileCopy, otherLanguageFile, otherLanguageFile, getClass().getName()));
+    }
+
+    stringBuilder.append("\n\n");
+
+    TreeSet<String> keysInForeignLangFileCopy = new TreeSet<>(foreignLangKeys);
+    keysInForeignLangFileCopy.removeAll(primaryLangKeys);
+    if (!keysInForeignLangFileCopy.isEmpty()) {
+      stringBuilder.append(
+          String.format(
+              "%s found in %s file but not in primary language file. Add these keys to primary"
+                  + " language file or to the ignore list in %s to resolve this issue.",
+              keysInForeignLangFileCopy, otherLanguageFile, getClass().getName()));
+    }
+
+    return stringBuilder.toString();
   }
 }
