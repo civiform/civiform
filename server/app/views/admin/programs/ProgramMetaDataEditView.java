@@ -20,11 +20,11 @@ import views.components.LinkElement;
 import views.components.ToastMessage;
 
 /** Renders a page for editing the name and description of a program. */
-public final class ProgramDescriptionEditView extends ProgramFormBuilder {
+public final class ProgramMetaDataEditViewtends ProgramFormBuilder {
   private final AdminLayout layout;
 
   @Inject
-  public ProgramDescriptionEditView(
+  public ProgramMetaDataEditView(
       AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
     super(configuration, featureFlags);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
