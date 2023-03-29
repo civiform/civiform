@@ -450,10 +450,6 @@
         "description": "Enables the [program eligibility](https://github.com/civiform/civiform/issues/3744) feature.",
         "type": "bool"
       },
-      "CIVIFORM_ADMIN_REPORTING_UI_ENABLED": {
-        "description": "Enables the [in-app reporting feature](https://docs.google.com/document/d/1iXb58tt6j7CczPKyW18p0fUqv6SCVpoZqhqM84BKoYM/edit#heading=h.3c4zscx27v6u).",
-        "type": "bool"
-      },
       "FEATURE_FLAG_OVERRIDES_ENABLED": {
         "description": "Allows feature flags to be overridden via request cookies. Is used by browswer tests. Should only be enabled in test and staging deployments.",
         "type": "bool"

@@ -49,7 +49,7 @@ public class PredicateGeneratorTest extends ResetPostgres {
   }
 
   @Test
-  public void generatePredicateDefinition_singleQuestion_singleValue() throws Exception {
+  public void generatePredicateDefinition_singleQuestion_singleValue_ageRange() throws Exception {
     DynamicForm form =
         buildForm(
             ImmutableMap.of(
@@ -58,10 +58,10 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
                 "DATE",
                 String.format("question-%d-operator", testQuestionBank.applicantDate().id),
-                "IS_BEFORE",
+                "AGE_BETWEEN",
                 String.format(
                     "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
-                "2023-01-01"));
+                "14,18"));
 
     PredicateDefinition predicateDefinition =
         predicateGenerator.generatePredicateDefinition(
@@ -78,9 +78,80 @@ public class PredicateGeneratorTest extends ResetPostgres {
                 LeafOperationExpressionNode.builder()
                     .setQuestionId(testQuestionBank.applicantDate().id)
                     .setScalar(Scalar.DATE)
-                    .setOperator(Operator.IS_BEFORE)
-                    .setComparedValue(CfTestHelpers.stringToPredicateDate("2023-01-01"))
+                    .setOperator(Operator.AGE_BETWEEN)
+                    .setComparedValue(
+                        PredicateGenerator.parsePredicateValue(
+                            Scalar.DATE, Operator.AGE_BETWEEN, "14,18", null))
                     .build()));
+  }
+
+  @Test
+  public void generatePredicateDefinition_singleQuestion_singleValue_ageRange_invalidRange_throws()
+      throws Exception {
+    DynamicForm form2 =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "AGE_BETWEEN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "14 18"));
+
+    assertThatThrownBy(
+            () ->
+                predicateGenerator.generatePredicateDefinition(
+                    programDefinition, form2, readOnlyQuestionService))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage(
+            "Invalid age range: 14 18. Age range value must be two integers separated by - or ,");
+
+    DynamicForm form3 =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "AGE_BETWEEN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "14-eighteen"));
+
+    assertThatThrownBy(
+            () ->
+                predicateGenerator.generatePredicateDefinition(
+                    programDefinition, form3, readOnlyQuestionService))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage(
+            "Invalid age range: 14-eighteen. Age range value must be two integers separated by -"
+                + " or ,");
+
+    DynamicForm form4 =
+        buildForm(
+            ImmutableMap.of(
+                "predicateAction",
+                "HIDE_BLOCK",
+                String.format("question-%d-scalar", testQuestionBank.applicantDate().id),
+                "DATE",
+                String.format("question-%d-operator", testQuestionBank.applicantDate().id),
+                "AGE_BETWEEN",
+                String.format(
+                    "group-1-question-%d-predicateValue", testQuestionBank.applicantDate().id),
+                "14,18,24"));
+
+    assertThatThrownBy(
+            () ->
+                predicateGenerator.generatePredicateDefinition(
+                    programDefinition, form4, readOnlyQuestionService))
+        .isInstanceOf(BadRequestException.class)
+        .hasMessage(
+            "Invalid age range: 14,18,24. Age range value must be two integers separated by - or"
+                + " ,");
   }
 
   @Test

@@ -5,12 +5,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
@@ -101,11 +99,7 @@ public final class ApplicantProgramsController extends CiviFormController {
         .thenApplyAsync(
             relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =
-                  Stream.of(
-                          relevantPrograms.inProgress(),
-                          relevantPrograms.submitted(),
-                          relevantPrograms.unapplied())
-                      .flatMap(ImmutableList::stream)
+                  relevantPrograms.allPrograms().stream()
                       .map(ApplicantProgramData::program)
                       .filter(program -> program.id() == programId)
                       .findFirst();

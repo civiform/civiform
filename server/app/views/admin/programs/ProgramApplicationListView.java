@@ -383,7 +383,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     .with(
                         span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
                                 ? "Meets eligibility"
-                                : "Does not meet eligibility")
+                                : "Doesn't meet eligibility")
                             .withClass("font-semibold")))
             .with(
                 div()
