@@ -602,9 +602,9 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickSubmit()
 
       await applicantQuestions.expectCommonIntakeConfirmationPage(
-        /* wantUpsell */ false,
-        /* wantTrustedIntermediary */ true,
-        /* wantEligiblePrograms */ [secondProgramName],
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ true,
+        /* wantEligiblePrograms= */ [secondProgramName],
       )
 
       await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
