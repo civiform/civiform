@@ -1,7 +1,13 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.section;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.each;
+import static j2html.TagCreator.p;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
