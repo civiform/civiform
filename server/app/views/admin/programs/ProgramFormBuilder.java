@@ -222,7 +222,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withForm("program-details-form")
                     .withId("confirm-common-intake-change-button")
                     .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer"));
-    return Modal.builder("confirm-common-intake-change", content)
+    return Modal.builder()
+        .setModalId("confirm-common-intake-change")
+        .setContent(content)
         .setModalTitle("Confirm pre-screener change?")
         .setDisplayOnLoad(true)
         .setWidth(Width.THIRD)
