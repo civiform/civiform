@@ -1,7 +1,6 @@
 package conf;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.FileInputStream;
@@ -32,8 +31,8 @@ public class MessagesTest {
   // we do *not* expect translations to be present. This is useful for keys that
   // are checked into the primary language file but for which
   // we are waiting for translations for.
-  private static final Set<String> IGNORE_LIST =
-      Set.of("content.mustMeetRequirementsTi");
+  private static final ImmutableSet<String> IGNORE_LIST =
+      ImmutableSet.of("content.mustMeetRequirementsTi");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
