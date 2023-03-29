@@ -1098,8 +1098,11 @@ public final class ApplicantService {
     public abstract ProgramDefinition program();
 
     /**
-     * Returns whether an application is eligible for a program, and empty if there are no
-     * eligibility conditions for the program.
+     * Returns whether an applicant is potentially eligible for a program based only on the
+     * questions they've answered, and empty if there are no eligibility conditions for the program.
+     *
+     * <p>If an applicant has not finished an application, only the questions they've answered are
+     * used to determine if they might be eligible.
      */
     public abstract Optional<Boolean> isProgramMaybeEligible();
 
