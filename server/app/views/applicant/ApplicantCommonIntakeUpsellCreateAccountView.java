@@ -27,7 +27,7 @@ import views.style.StyleUtils;
 /** Renders a confirmation page after application submission, for the common intake form. */
 public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtmlView {
 
-  ApplicantLayout layout;
+  private final ApplicantLayout layout;
 
   @Inject
   public ApplicantCommonIntakeUpsellCreateAccountView(ApplicantLayout layout) {
