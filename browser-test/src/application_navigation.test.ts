@@ -362,6 +362,11 @@ describe('Applicant navigation flow', () => {
     const eligibilityQuestionId = 'nav-predicate-number-q'
     const secondProgramCorrectAnswer = '5'
 
+    beforeAll(async () => {
+      const {page} = ctx
+      await dropTables(page)
+    })
+
     // TODO(#4509): Once we can create different test users, change this to
     // beforeAll and use different users for each test, instead of wiping the
     // db after each test.
