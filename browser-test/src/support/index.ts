@@ -263,7 +263,7 @@ export const gotoEndpoint = async (page: Page, endpoint = '') => {
 }
 
 export const logout = async (page: Page) => {
-  await page.click('text=Logout')
+  await page.click('#logout-button')
   // If the user logged in through OIDC previously - during logout they are
   // redirected to dev-oidc:PORT/session/end page. There they need to confirm
   // logout.

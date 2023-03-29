@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
@@ -144,13 +145,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(
             div(
                     getLanguageForm(request, profile, messages),
-                    logoutButton(displayUserName, messages))
-                .withClasses("justify-self-end", "items-center", "flex", "flex-row"));
+                    authDisplaySection(displayUserName, messages))
+                .withClasses("justify-self-end", "flex", "flex-row"));
   }
 
   private ContainerTag<?> getLanguageForm(
       Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
-    ContainerTag<?> languageForm = div();
+    ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
+
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
 
@@ -172,17 +174,22 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .renderDropdown(preferredLanguage)
                 .attr("onchange", "this.form.submit()")
                 .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
-        languageForm =
-            form()
-                .withAction(updateLanguageAction)
-                .withMethod(Http.HttpVerbs.POST)
-                .with(csrfInput)
-                .with(redirectInput)
-                .with(languageDropdown)
-                .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden());
+        languageFormDiv =
+            languageFormDiv.with(
+                form()
+                    .withAction(updateLanguageAction)
+                    .withMethod(Http.HttpVerbs.POST)
+                    .with(csrfInput)
+                    .with(redirectInput)
+                    .with(languageDropdown)
+                    .with(
+                        TagCreator.button()
+                            .withId("cf-update-lang")
+                            .withType("submit")
+                            .isHidden()));
       }
     }
-    return languageForm;
+    return languageFormDiv;
   }
 
   private ATag branding() {
@@ -233,14 +240,51 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div();
   }
 
-  private DivTag logoutButton(String userName, Messages messages) {
-    String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-    return div(
-            div(messages.at(MessageKey.USER_NAME.getKeyName(), userName)).withClasses("text-sm"),
-            a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-                .withHref(logoutLink)
-                .withClasses(ApplicantStyles.LINK_LOGOUT))
-        .withClasses("pr-8");
+  /**
+   * Shows authentication status and a button to take actions.
+   *
+   * <p>If the user is a guest, we show a "Log in" and a "Create an account" button. If they are
+   * logged in, we show a "Logout" button.
+   */
+  private DivTag authDisplaySection(String userName, Messages messages) {
+    DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
+
+    String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
+
+    if (userName.equals(guestUserName)) {
+      String loggedInAsMessage = messages.at(MessageKey.GUEST_INDICATOR.getKeyName());
+      String endSessionMessage = messages.at(MessageKey.END_SESSION.getKeyName());
+      // Ending a guest session is equivalent to "logging out" the guest.
+      String endSessionLink = org.pac4j.play.routes.LogoutController.logout().url();
+      String logInMessage = messages.at(MessageKey.BUTTON_LOGIN.getKeyName());
+      String logInLink = routes.LoginController.applicantLogin(Optional.empty()).url();
+      String createAnAccountMessage = messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName());
+      String createAnAccountLink = routes.LoginController.register().url();
+
+      return outsideDiv.with(
+          div(
+              span(loggedInAsMessage).withClasses("text-sm"),
+              text(" "),
+              a(endSessionMessage)
+                  .withHref(endSessionLink)
+                  .withClasses(ApplicantStyles.LINK)
+                  .withId("logout-button"),
+              br(),
+              a(logInMessage).withHref(logInLink).withClasses(ApplicantStyles.LINK),
+              text("  |  "),
+              a(createAnAccountMessage)
+                  .withHref(createAnAccountLink)
+                  .withClasses(ApplicantStyles.LINK)));
+    } else {
+      String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), userName);
+      String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
+      return outsideDiv.with(
+          div(loggedInAsMessage).withClasses("text-sm"),
+          a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+              .withId("logout-button")
+              .withHref(logoutLink)
+              .withClasses(ApplicantStyles.LINK));
+    }
   }
 
   protected String renderPageTitleWithBlockProgress(
