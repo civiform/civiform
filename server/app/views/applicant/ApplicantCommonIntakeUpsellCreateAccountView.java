@@ -141,6 +141,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
               .setText(
                   messages.at(
                       MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName()))
+              // TODO(#4483): When available, use the new Admin Settings UI for this link href.
               .setHref("https://access.arkansas.gov/Learn/Home")
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
