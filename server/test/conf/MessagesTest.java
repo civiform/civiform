@@ -10,16 +10,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  * Tests that the messages files are in sync. Reads in the keys from the primary language file,
  * `messages`, and ensures the keys are in sync with the `messages.*` files.
  */
+@RunWith(JUnitParamsRunner.class)
 public class MessagesTest {
 
   // The file path of the primary language file.
@@ -53,7 +56,8 @@ public class MessagesTest {
   }
 
   @Test
-  public void messages_keysInPrimaryFileInAllOtherFiles() throws Exception {
+  @Parameters(method = "otherLanguageFiles")
+  public void messages_keysInPrimaryFileInAllOtherFiles(String otherLanguageFile) throws Exception {
     TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE);
     // Pretend that the keys in IGNORE_LIST are not in the primary message
     // file. These may be keys for features in development, for example. Keys
@@ -61,25 +65,23 @@ public class MessagesTest {
     // and are merged.
     keysInPrimaryFile.removeAll(IGNORE_LIST);
 
-    for (String file : otherLanguageFiles()) {
-      TreeSet<String> keysInForeignLangFile = keysInFile(file);
+    TreeSet<String> keysInForeignLangFile = keysInFile(otherLanguageFile);
 
-      // Checks that the language file contains exactly the same message keys as the
-      // primary language file.
-      //
-      // TODO(#4520): Modify this to ensure the keys are the same, not just that all
-      //  keys in primary file exist in foreign language files. Currently this is not possible,
-      //  even with IGNORE_LIST, because there are keys that are present in some but not all
-      //  of the non-primary language files.
-      TreeSet<String> keysInPrimaryFileCopy = new TreeSet<>(keysInPrimaryFile);
-      keysInPrimaryFileCopy.removeAll(keysInForeignLangFile);
-      assertThat(keysInPrimaryFileCopy)
-          .withFailMessage(
-              "%s found in primary language file but not in %s. Add these keys to %s or to the"
-                  + " ignore list in %s to resolve this issue.",
-              keysInPrimaryFileCopy, file, file, getClass().getName())
-          .isEmpty();
-    }
+    // Checks that the language file contains exactly the same message keys as the
+    // primary language file.
+    //
+    // TODO(#4520): Modify this to ensure the keys are the same, not just that all
+    //  keys in primary file exist in foreign language files. Currently this is not possible,
+    //  even with IGNORE_LIST, because there are keys that are present in some but not all
+    //  of the non-primary language files.
+    TreeSet<String> keysInPrimaryFileCopy = new TreeSet<>(keysInPrimaryFile);
+    keysInPrimaryFileCopy.removeAll(keysInForeignLangFile);
+    assertThat(keysInPrimaryFileCopy)
+        .withFailMessage(
+            "%s found in primary language file but not in %s. Add these keys to %s or to the"
+                + " ignore list in %s to resolve this issue.",
+            keysInPrimaryFileCopy, otherLanguageFile, otherLanguageFile, getClass().getName())
+        .isEmpty();
   }
 
   /**
@@ -99,14 +101,14 @@ public class MessagesTest {
   }
 
   // The file paths of all non-primary language files, including `en-US`.
-  private static Set<String> otherLanguageFiles() throws Exception {
+  private static String[] otherLanguageFiles() throws Exception {
     try (Stream<Path> stream = Files.list(Paths.get("conf/"))) {
       return stream
           .filter(path -> path.getFileName().toString().matches("messages.*"))
           // Exclude primary language file.
           .filter(path -> !path.getFileName().toString().equals("messages"))
           .map(Path::toString)
-          .collect(Collectors.toSet());
+          .toArray(String[]::new);
     }
   }
 }
