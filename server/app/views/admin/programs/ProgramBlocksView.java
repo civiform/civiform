@@ -254,7 +254,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns a Panel that shows all Blocks of the given program. In an editable view it also adds a
+   * Returns a panel that shows all Blocks of the given program. In an editable view it also adds a
    * button that allows to add a new screen and controls to change the order.
    */
   private DivTag renderBlockList(
@@ -511,7 +511,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Creates the UI that is used too display or edit the visibility setting of a specified question.
+   * Creates the UI that is used to display or edit the visibility setting of a specified block.
    */
   private DivTag renderVisibilityPredicate(
       long programId,
@@ -545,8 +545,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Creates the UI that is used too display or edit the eligibility setting of a specified
-   * question.
+   * Creates the UI that is used to display or edit the eligibility setting of a specified block.
    */
   private DivTag renderEligibilityPredicate(
       ProgramDefinition program,
@@ -614,7 +613,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Renders and individual question, including the description and any toggles or tags that should
+   * Renders an individual question, including the description and any toggles or tags that should
    * be shown next to the question in the list of questions.
    */
   private DivTag renderQuestion(
@@ -837,7 +836,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .with(optionalButton));
   }
 
-  // Creates label that can be used in the read only view, for example to replace a toggle.
+  /**
+   * Creates label that can be used in the read only view, for example to replace a toggle.
+   **/
   private DivTag renderReadOnlyLabel(String label) {
     DivTag ret =
         div()
@@ -1012,7 +1013,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return qb.getContainer(questionBankVisibility);
   }
 
-  /** Creates a modal, which is shown when the admin clicks the delete button of a block. */
+  /** 
+   * Creates a modal, which allows the admin to confirm that they want to delete
+   * a block. 
+   **/
   private Modal renderBlockDeleteModal(
       InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
 
@@ -1090,7 +1094,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Creates a Modeal that is used for viewing or editing the Description field of the specified
+   * Creates a Modal that is used for viewing or editing the Description field of the specified
    * block.
    */
   private Modal renderBlockDescriptionModal(
@@ -1137,17 +1141,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Returns if the currently displayed program is a draft or not. This is used to identify if the
-   * view should be editable or not.
+   * Returns if this view is editable or not.
+   * A view is editable only if it represents a draft.
    */
   private boolean viewAllowsEditingProgram() {
     return programDisplayType.equals(DRAFT);
   }
 
   /**
-   * Creates the Edit button shown at the top of the page. For a read only view it starts changes to
-   * an edit view. For an editable view it leads to the page that allows editing the Program
-   * description and details.
+   * Creates the Edit button shown at the top of the page. For a read only view it redirects to an
+   * editable view.
    */
   private ButtonTag renderEditButton(Request request, ProgramDefinition programDefinition) {
     if (viewAllowsEditingProgram()) {
