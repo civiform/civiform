@@ -873,7 +873,8 @@ public final class ApplicantService {
                     // Return all programs the user is eligible for, or that have no eligibility
                     // conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
-                    .collect(ImmutableList.toImmutableList()));
+                    .collect(ImmutableList.toImmutableList()),
+            httpExecutionContext.current());
   }
 
   /**
