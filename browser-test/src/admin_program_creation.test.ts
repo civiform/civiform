@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {dismissModal, waitForAnyModal} from './support/wait'
 import {Page} from 'playwright'
 
 describe('program creation', () => {
@@ -476,6 +477,9 @@ describe('program creation', () => {
       'program-description-page-with-intake-form-true',
     )
     expect(await commonIntakeFormInput.isChecked()).toBe(true)
+    await page.click('#program-update-button')
+    await waitForPageJsLoad(page)
+    await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
   it('correctly renders common intake form change confirmation modal', async () => {
@@ -499,11 +503,31 @@ describe('program creation', () => {
 
     await adminPrograms.goToProgramDescriptionPage(programName)
     await adminPrograms.clickCommonIntakeFormToggle()
-    await this.page.click('#program-update-button')
-    expect(await page.isVisible(
-      page.selector('#confirm-common-intake-change')
-    )).toBe(true)
-    await validateScreenshot(page, 'confirm-common-intake-change-modal')
+    await page.fill('#program-external-link-input', 'badlink')
+    await page.click('#program-update-button')
+
+    // Error messages get displayed before the confirmation modal.
+    const toastMessages = await page.innerText('#toast-container')
+    expect(toastMessages).toContain('program link')
+
+    await page.fill('#program-external-link-input', 'https://example.com')
+    await page.click('#program-update-button')
+
+    let modal = await waitForAnyModal(page)
+    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    await validateScreenshot(page, 'confirm-common-intake-change-modal', {
+      fullPage: false,
+    })
+
+    // Modal gets re-rendered if needed.
+    await dismissModal(page)
+    await page.click('#program-update-button')
+    modal = await waitForAnyModal(page)
+    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+
+    await page.click('#confirm-common-intake-change-button')
+    await waitForPageJsLoad(page)
+    await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
   it('regular program has eligibility conditions', async () => {
