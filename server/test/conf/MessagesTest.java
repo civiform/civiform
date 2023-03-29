@@ -68,6 +68,15 @@ public class MessagesTest {
                 + " ignore list in %s to resolve this issue.",
             keysInPrimaryFileCopy, otherLanguageFile, otherLanguageFile, getClass().getName())
         .isEmpty();
+
+    TreeSet<String> keysInForeignLangFileCopy = new TreeSet<>(keysInForeignLangFile);
+    keysInForeignLangFileCopy.removeAll(keysInPrimaryFile);
+    assertThat(keysInForeignLangFileCopy)
+      .withFailMessage(
+        "%s found in %s file but not in primary language file. Add these keys to primary language file or to the"
+          + " ignore list in %s to resolve this issue.",
+        keysInForeignLangFileCopy, otherLanguageFile, getClass().getName())
+      .isEmpty();
   }
 
   /**
