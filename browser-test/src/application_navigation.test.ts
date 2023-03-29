@@ -525,9 +525,9 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickSubmit()
 
       await applicantQuestions.expectCommonIntakeConfirmationPage(
-        /* wantUpsell */ true,
-        /* wantTrustedIntermediary */ false,
-        /* wantEligiblePrograms */ [secondProgramName],
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
       )
 
       await validateScreenshot(page, 'cif-eligible-guest-confirmation-page')
