@@ -82,6 +82,7 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
+import support.QuestionAnswerer;
 import views.applicant.AddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
@@ -89,6 +90,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   private ApplicantService subject;
   private QuestionService questionService;
   private NameQuestionDefinition questionDefinition;
+  private NameQuestionDefinition questionDefinition2;
   private ProgramDefinition programDefinition;
   private UserRepository userRepository;
   private ApplicationRepository applicationRepository;
@@ -2172,7 +2174,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
         .toCompletableFuture()
         .join();
-    // We want to ensure ordering is occuring by submit time, NOT by application ID.
+    // We want to ensure ordering is occurring by submit time, NOT by application ID.
     // Simulate a bad state where the first submission (lower database ID) has a later
     // submit time.
     firstSubmitted.refresh();
@@ -2306,6 +2308,120 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied()).isEmpty();
   }
 
+  // assert that it doesn't include the common intake form
+  // assert that it includes partially matching in progress applications
+  // assert that it includes partially matching submitted applications
+  // assert that it includes partially matching unapplied applications
+  // assert that it doesn't include ineligible programs
+  // assert that it includes programs without eligibility conditions from each phase
+
+  @Test
+  public void maybeEligibleProgramsForApplicant_includesPartiallyEligiblePrograms() {
+    // Set up applicant and questions
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    EligibilityDefinition q1EligibilityDefinition =
+        createEligibilityDefinition(questionDefinition, "Taylor");
+    EligibilityDefinition q2EligibilityDefinition =
+        createEligibilityDefinition(questionDefinition2, "Sza");
+    QuestionAnswerer.answerNameQuestion(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment()),
+        "Taylor",
+        "Allison",
+        "Swift");
+
+    // Set up draft program
+    var programForDraftApp =
+        ProgramBuilder.newActiveProgram("program_for_draft_app")
+            .withBlock()
+            .withRequiredQuestionDefinitions(
+                ImmutableList.of(questionDefinition, questionDefinition2))
+            .withEligibilityDefinition(q1EligibilityDefinition)
+            .withEligibilityDefinition(q2EligibilityDefinition)
+            .build();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, programForDraftApp.id)
+        .toCompletableFuture()
+        .join();
+
+    // Set up submitted program
+    var programForSubmittedApp =
+        ProgramBuilder.newActiveProgram("program_for_submitted_app")
+            .withBlock()
+            .withRequiredQuestionDefinitions(
+                ImmutableList.of(questionDefinition, questionDefinition2))
+            .withEligibilityDefinition(q1EligibilityDefinition)
+            .withEligibilityDefinition(q2EligibilityDefinition)
+            .build();
+    applicationRepository
+        .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    // Set up unapplied program
+    var programForUnappliedApp =
+        ProgramBuilder.newActiveProgram("program_for_unapplied_app")
+            .withBlock()
+            .withRequiredQuestionDefinitions(
+                ImmutableList.of(questionDefinition, questionDefinition2))
+            .withEligibilityDefinition(q1EligibilityDefinition)
+            .withEligibilityDefinition(q2EligibilityDefinition)
+            .build();
+
+    // Fetch results
+    var result =
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    // Asset results contained expected program IDs
+    var matchingProgramIds =
+        result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
+    assertThat(matchingProgramIds).contains(programForDraftApp.id);
+    assertThat(matchingProgramIds).contains(programForSubmittedApp.id);
+    assertThat(matchingProgramIds).contains(programForUnappliedApp.id);
+  }
+
+  @Test
+  public void maybeEligibleProgramsForApplicant_doesNotIncludeIneligiblePrograms() {
+    assertThat(true).isFalse();
+    // have a matching and non-matching question response
+  }
+
+  @Test
+  public void maybeEligibleProgramsForApplicant_doesNotIncludeCommonIntake() {
+    // Set up applicant and questions
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    QuestionAnswerer.answerNameQuestion(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment()),
+        "Taylor",
+        "Allison",
+        "Swift");
+
+    Program commonIntakeForm =
+        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
+            .withBlock()
+            .withRequiredQuestionDefinition(questionDefinition)
+            .build();
+
+    // Fetch results
+    var result =
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    var matchingProgramIds =
+        result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
+    assertThat(matchingProgramIds).doesNotContain(commonIntakeForm.id);
+  }
+
+  @Test
+  public void maybeEligibleProgramsForApplicant_includesProgramsWithoutEligibilityConditions() {
+    assertThat(true).isFalse();
+  }
+
+  @Test
+  public void maybeEligibleProgramsForApplicant_includesProgramsWithNoAnsweredQuestions() {
+    assertThat(true).isFalse();
+  }
+
   private static void addStatusEvent(
       Application application, StatusDefinitions.Status status, Account actorAccount) {
     ApplicationEventDetails details =
@@ -2333,6 +2449,17 @@ public class ApplicantServiceTest extends ResetPostgres {
                         "description",
                         LocalizedStrings.of(Locale.US, "question?"),
                         LocalizedStrings.of(Locale.US, "help text")))
+                .getResult();
+    questionDefinition2 =
+        (NameQuestionDefinition)
+            questionService
+                .create(
+                    new NameQuestionDefinition(
+                        "name_two",
+                        Optional.empty(),
+                        "description_two",
+                        LocalizedStrings.of(Locale.US, "question_two?"),
+                        LocalizedStrings.of(Locale.US, "help text_two")))
                 .getResult();
   }
 
@@ -2364,11 +2491,15 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withOptionalQuestion(question)
             .buildDefinition();
   }
+
   /**
-   * Makes an eligibility definition with a {@link NameQuestionDefinition} and an eligibility
-   * condition that the question's {@link Scalar.FIRST_NAME} be "eligible name"
+   * @param question Question to use for eligibility definition
+   * @param eligibleFirstName Value to use as the eligible answer
+   * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
+   *     condition requiring the question's {@link Scalar.FIRST_NAME} be the provided value.
    */
-  private EligibilityDefinition createEligibilityDefinition(NameQuestionDefinition question) {
+  private EligibilityDefinition createEligibilityDefinition(
+      NameQuestionDefinition question, String eligibleFirstName) {
     return EligibilityDefinition.builder()
         .setPredicate(
             PredicateDefinition.create(
@@ -2377,9 +2508,18 @@ public class ApplicantServiceTest extends ResetPostgres {
                         question.getId(),
                         Scalar.FIRST_NAME,
                         Operator.EQUAL_TO,
-                        PredicateValue.of("eligible name"))),
+                        PredicateValue.of(eligibleFirstName))),
                 PredicateAction.ELIGIBLE_BLOCK))
         .build();
+  }
+
+  /**
+   * @param question Question to use for eligibility definition
+   * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
+   *     condition requiring the question's {@link Scalar.FIRST_NAME} be "eligible name".
+   */
+  private EligibilityDefinition createEligibilityDefinition(NameQuestionDefinition question) {
+    return createEligibilityDefinition(question, "eligible name");
   }
 
   /**
