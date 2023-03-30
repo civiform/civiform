@@ -1,4 +1,4 @@
-from generate_markdown import make_config, generate_markdown
+from generate_markdown import make_config, generate_markdown, new_summary
 import contextlib
 import io
 import os
@@ -287,6 +287,186 @@ class TestGenerateMarkdown(unittest.TestCase):
             got, gotErrors = generate_markdown(f)
             self.assertEqual(gotErrors, [])
             self.assertEqual(got, textwrap.dedent(expected))
+
+
+class TestNewSummary(unittest.TestCase):
+
+    def test_no_parent_in_list(self):
+        summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        """)
+        paths = ["docs/path1"]
+        got = new_summary(summary, paths)
+        self.assertEqual(got, summary)
+
+    def test_same_links(self):
+        summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+          * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+          * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md"
+        ]
+        got = new_summary(summary, paths)
+        self.assertEqual(got, summary)
+
+    def test_same_links_with_content_after(self):
+        summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+          * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+          * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+        * [Link2](link2)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md"
+        ]
+        got = new_summary(summary, paths)
+        self.assertEqual(got, summary)
+
+    def test_new_links_already_sorted(self):
+        old_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+          * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+        """)
+        want_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+          * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+          * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md"
+        ]
+        got = new_summary(old_summary, paths)
+        self.assertEqual(got, want_summary)
+
+    def test_new_links_not_sorted(self):
+        old_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+          * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+        """)
+        want_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+        * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+          * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+          * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md"
+        ]
+        got = new_summary(old_summary, paths)
+        self.assertEqual(got, want_summary)
+
+    def test_parent_list_indented(self):
+        old_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+          * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+            * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+            * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+        """)
+        want_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+          * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+            * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+            * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+            * [v3.0.0](it-manual/sre-playbook/server-environment-variables/v3.0.0.md)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v3.0.0.md"
+        ]
+        got = new_summary(old_summary, paths)
+        self.assertEqual(got, want_summary)
+
+    def test_parent_list_indented_with_content_at_same_indent_after(self):
+        old_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+          * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+            * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+            * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+          * [Link](link)
+            * [Sub link](link/sublink)
+        """)
+        want_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+          * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+            * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+            * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+            * [v3.0.0](it-manual/sre-playbook/server-environment-variables/v3.0.0.md)
+          * [Link](link)
+            * [Sub link](link/sublink)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v3.0.0.md"
+        ]
+        got = new_summary(old_summary, paths)
+        self.assertEqual(got, want_summary)
+
+    def test_parent_list_indented_with_content_at_less_indent_after(self):
+        old_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+          * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+            * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+            * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+
+        * [Link](link)
+          * [Sub link](link/sublink)
+        """)
+        want_summary = textwrap.dedent(
+            """\
+        * [Link](link)
+          * [Sub link](link/sublink)
+          * [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)
+            * [v1.0.0](it-manual/sre-playbook/server-environment-variables/v1.0.0.md)
+            * [v2.0.0](it-manual/sre-playbook/server-environment-variables/v2.0.0.md)
+            * [v3.0.0](it-manual/sre-playbook/server-environment-variables/v3.0.0.md)
+
+        * [Link](link)
+          * [Sub link](link/sublink)
+        """)
+        paths = [
+            "docs/it-manual/sre-playbook/server-environment-variables/v2.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v1.0.0.md",
+            "docs/it-manual/sre-playbook/server-environment-variables/v3.0.0.md"
+        ]
+        got = new_summary(old_summary, paths)
+        self.assertEqual(got, want_summary)
 
 
 if __name__ == "__main__":

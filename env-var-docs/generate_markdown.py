@@ -20,6 +20,8 @@ import github
 import os
 import sys
 import typing
+import urllib
+import re
 
 
 def errorexit(msg):
@@ -86,7 +88,7 @@ def main():
         print(markdown)
         exit()
 
-    gh = github.Github(config.access_token)
+    gh = github.Github()
     repo = gh.get_repo(config.repo)
 
     # If file exists, update it, if not, create it.
@@ -94,23 +96,47 @@ def main():
     try:
         file = repo.get_contents(path)
         if isinstance(file, list):
-            errorexit(
-                f"{file_path} returns multiple files in the repo, aborting")
+            errorexit(f"{path} returns multiple files in the repo, aborting")
+
+        if file.decoded_content.decode() == markdown:
+            print(f"{path} already exists and does not need to be updated.")
+            return
 
         res = repo.update_file(
             path,
             f"Updates {config.version} server environment variable documentation",
             markdown, file.sha)
+        print(
+            f"https://github.com/{config.repo}/blob/main/{path} updated in commit {res['commit']}"
+        )
     except github.UnknownObjectException:
         res = repo.create_file(
             path,
             f"Adds {config.version} server environment variable documentation",
             markdown,
             branch="main")
+        print(
+            f"https://github.com/{config.repo}/blob/main/{path} created in commit {res['commit']}"
+        )
 
-    print(
-        f"https://github.com/{config.repo}/blob/main/{path} updated in commit {res['commit']}"
-    )
+        # Update SUMMARY.md with a link to the new file. First, get all versioned docs files in the repo.
+        docs_paths = []
+        res = repo.get_contents(config.repo_path)
+        for f in res:
+            if f.name != "README.md":
+                docs_paths.append(f.path)
+
+        summary_file = repo.get_contents("docs/SUMMARY.md")
+        new_contents = new_summary(
+            summary_file.decoded_content.decode(), docs_paths)
+
+        res = repo.update_file(
+            summary_file.path,
+            f"Adds {config.version} server environment variable documentation link to SUMMARY",
+            new_contents, summary_file.sha)
+        print(
+            f"https://github.com/{config.repo}/blob/main/docs/SUMMARY.md updated in commit {res['commit']}"
+        )
 
 
 def generate_markdown(
@@ -162,6 +188,55 @@ def generate_markdown(
         return None, errors
 
     return out, []
+
+
+def new_summary(current_summary: str, docs_paths: list[str]) -> str:
+    """In SUMMARY.md we have a '[CiviForm server environment variables]' list
+    item that has sublist items for each versioned environment variable
+    documentation markdown files. This function updates the sublist items to
+    match docs_file_paths.
+    """
+
+    def format_docs_links(indent_level: int, docs_paths: list[str]) -> str:
+        docs_paths.sort()
+        out = ""
+        for p in docs_paths:
+            indent = " " * indent_level
+            name = os.path.basename(p).removesuffix(".md")
+            link = p.removeprefix(
+                "docs/"
+            )  # gitbook root is in docs/ directory of civiform/docs repo.
+            out += f"{indent}  * [{name}]({link})\n"
+        return out
+
+    out = ""
+    skip_line = False
+    indent_level = None
+    for line in current_summary.splitlines(keepends=True):
+        # Once we get to the docs parent list item:
+        #
+        # 1. note the indent level of the parent list item.
+        # 2. add the parent list item and updated sub list items to out.
+        # 3. keep looping over lines in current_summary, do not add line to out
+        #    until we get to a list item that has the less than or equal to the
+        #    indent level of the parent list item.
+        if line.find(
+                "* [CiviForm server environment variables](it-manual/sre-playbook/server-environment-variables)"
+        ) != -1:
+            skip_line = True
+            indent_level = line.find("*")
+            out += line
+            out += format_docs_links(indent_level, docs_paths)
+            continue
+
+        if skip_line:
+            if indent_level is not None and line.find("*") <= indent_level:
+                skip_line = False
+                out += line
+        else:
+            out += line
+
+    return out
 
 
 if __name__ == "__main__":

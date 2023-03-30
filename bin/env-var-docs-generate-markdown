@@ -15,9 +15,12 @@ fi
 
 source env-var-docs/venv/bin/activate
 
+# Provide overridable defaults.
 local_output=${LOCAL_OUTPUT:-true}
 export LOCAL_OUTPUT=${local_output}
-export ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json
+
+docs_path=${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}
+export ENV_VAR_DOCS_PATH=${docs_path}
 
 echo "Running env-var-docs/generate_markdown.py with LOCAL_OUTPUT=${LOCAL_OUTPUT}..."
 python env-var-docs/generate_markdown.py
