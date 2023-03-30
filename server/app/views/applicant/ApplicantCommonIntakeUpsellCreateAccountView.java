@@ -115,7 +115,9 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
                         shouldUpsell,
                         h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
                             .withClasses("mb-4", "font-bold"),
-                        div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
+                        div(messages.at(
+                                MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(),
+                                configuration.getString("whitelabel.civic_entity_full_name")))
                             .withClasses("mb-4"))
                     .with(
                         div()
