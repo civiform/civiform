@@ -14,14 +14,12 @@ If LOCAL_OUTPUT does not equal "true", the following variables must be set:
 """
 
 import dataclasses
-import env_var_docs.parser
 import env_var_docs.errors_formatter
+import env_var_docs.parser
 import github
 import os
 import sys
 import typing
-import urllib
-import re
 
 
 def errorexit(msg):
