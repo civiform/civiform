@@ -192,9 +192,10 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode) {
-    ImmutableSet.Builder<CiviFormError> errorsBuilder =
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    errorsBuilder.addAll(
         validateProgramData(
-            adminDescription, displayName, displayDescription, externalLink, displayMode);
+            adminDescription, displayName, displayDescription, externalLink, displayMode));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -1257,7 +1258,7 @@ public final class ProgramServiceImpl implements ProgramService {
     programRepository.updateProgramSync(commonIntakeProgram);
   }
 
-  private ImmutableSet.Builder<CiviFormError> validateProgramData(
+  private ImmutableSet<CiviFormError> validateProgramData(
       String adminDescription,
       String displayName,
       String displayDescription,
@@ -1279,6 +1280,6 @@ public final class ProgramServiceImpl implements ProgramService {
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
     }
-    return errorsBuilder;
+    return errorsBuilder.build();
   }
 }
