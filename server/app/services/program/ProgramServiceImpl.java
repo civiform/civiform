@@ -304,6 +304,11 @@ public final class ProgramServiceImpl implements ProgramService {
     LocalizedStrings newConfirmationMessageTranslations =
         maybeClearConfirmationMessageTranslations(programDefinition, locale, confirmationMessage);
 
+    if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
+        && !programDefinition.isCommonIntakeForm()) {
+      programDefinition = removeAllEligibilityPredicates(programDefinition);
+    }
+
     Program program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
@@ -319,6 +324,7 @@ public final class ProgramServiceImpl implements ProgramService {
             .setProgramType(programType)
             .build()
             .toProgram();
+
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(
                 programRepository.updateProgramSync(program).getProgramDefinition())
@@ -828,8 +834,12 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramDefinition setBlockEligibilityDefinition(
       long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          IllegalPredicateOrderingException {
+          IllegalPredicateOrderingException, EligibilityNotValidForProgramTypeException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
+      throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
+    }
 
     BlockDefinition blockDefinition =
         programDefinition.getBlockDefinition(blockDefinitionId).toBuilder()
@@ -862,6 +872,10 @@ public final class ProgramServiceImpl implements ProgramService {
     } catch (IllegalPredicateOrderingException e) {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    } catch (EligibilityNotValidForProgramTypeException e) {
+      // Removing eligibility predicates should always be valid.
+      throw new RuntimeException(
+          "Unexpected error: removing this predicate is not allowed for this ProgramType", e);
     }
   }
 
@@ -1080,6 +1094,20 @@ public final class ProgramServiceImpl implements ProgramService {
     return programRepository
         .updateProgramSync(programDefinition.toProgram())
         .getProgramDefinition();
+  }
+
+  /** Removes eligibility predicates from all blocks in this program. */
+  private ProgramDefinition removeAllEligibilityPredicates(ProgramDefinition programDefinition)
+      throws ProgramNotFoundException {
+    try {
+      return updateProgramDefinitionWithBlockDefinitions(
+          programDefinition,
+          programDefinition.blockDefinitions().stream()
+              .map(block -> block.toBuilder().setEligibilityDefinition(Optional.empty()).build())
+              .collect(ImmutableList.toImmutableList()));
+    } catch (IllegalPredicateOrderingException e) {
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
   }
 
   private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(

@@ -307,11 +307,13 @@ public interface ProgramService {
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
    * @throws IllegalPredicateOrderingException if this predicate cannot be added to this block
+   * @throws EligibilityNotValidForProgramTypeException if this predicate cannot be added to this
+   *     ProgramType
    */
   ProgramDefinition setBlockEligibilityDefinition(
       long programId, long blockDefinitionId, Optional<EligibilityDefinition> eligibility)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
-          IllegalPredicateOrderingException;
+          IllegalPredicateOrderingException, EligibilityNotValidForProgramTypeException;
 
   /**
    * Remove the visibility {@link PredicateDefinition} for a block.
