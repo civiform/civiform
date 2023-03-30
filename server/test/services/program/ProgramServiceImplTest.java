@@ -703,7 +703,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void updateProgram_clearsEligibilityCondtionsWhenSettingCommonIntakeForm()
+  public void updateProgram_clearsEligibilityConditionsWhenSettingCommonIntakeForm()
       throws Exception {
     QuestionDefinition question = nameQuestion;
     EligibilityDefinition eligibility =
@@ -720,6 +720,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             .build();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
             .withBlock()
             .withEligibilityDefinition(eligibility)
             .buildDefinition();
@@ -740,12 +742,13 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
-    assertThat(result.getResult().getBlockCount()).isEqualTo(1);
-    assertThat(result.getResult().getLastBlockDefinition().eligibilityDefinition()).isNotPresent();
+    assertThat(result.getResult().getBlockCount()).isEqualTo(2);
+    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().eligibilityDefinition()).isNotPresent();
+    assertThat(result.getResult().getBlockDefinitionByIndex(1).get().eligibilityDefinition()).isNotPresent();
   }
 
   @Test
-  public void updateProgram_doesNotClearEligibilityCondtionsForDefaultProgram() throws Exception {
+  public void updateProgram_doesNotClearEligibilityConditionsForDefaultProgram() throws Exception {
     QuestionDefinition question = nameQuestion;
     EligibilityDefinition eligibility =
         EligibilityDefinition.builder()
@@ -1403,7 +1406,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void setBlockEligibilityDefinition_throwsEligibilityNotValideForProgramTypeException()
+  public void setBlockEligibilityDefinition_throwsEligibilityNotValidForProgramTypeException()
       throws Exception {
     QuestionDefinition question = nameQuestion;
     EligibilityDefinition eligibility =

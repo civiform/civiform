@@ -306,7 +306,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM)
         && !programDefinition.isCommonIntakeForm()) {
-      programDefinition = removeAllBlockEligibilityPredicates(programDefinition);
+      programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
 
     Program program =
@@ -873,6 +873,7 @@ public final class ProgramServiceImpl implements ProgramService {
       // Removing a predicate should never invalidate another.
       throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
     } catch (EligibilityNotValidForProgramTypeException e) {
+      // Removing eligibility predicates should always be valid.
       throw new RuntimeException(
           "Unexpected error: removing this predicate is not allowed for this ProgramType");
     }
@@ -1095,7 +1096,8 @@ public final class ProgramServiceImpl implements ProgramService {
         .getProgramDefinition();
   }
 
-  private ProgramDefinition removeAllBlockEligibilityPredicates(ProgramDefinition programDefinition)
+  /** Removes eligibility predicates from all blocks in this program. */
+  private ProgramDefinition removeAllEligibilityPredicates(ProgramDefinition programDefinition)
       throws ProgramNotFoundException {
     try {
       return updateProgramDefinitionWithBlockDefinitions(
@@ -1104,7 +1106,7 @@ public final class ProgramServiceImpl implements ProgramService {
               .map(block -> block.toBuilder().setEligibilityDefinition(Optional.empty()).build())
               .collect(ImmutableList.toImmutableList()));
     } catch (IllegalPredicateOrderingException e) {
-      return programDefinition;
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
     }
   }
 
