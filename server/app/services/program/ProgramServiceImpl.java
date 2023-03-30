@@ -1101,7 +1101,7 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   public Optional<ProgramDefinition> getCommonIntakeForm() {
     return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(p -> p.isCommonIntakeForm())
+        .filter(ProgramDefinition::isCommonIntakeForm)
         .findFirst();
   }
 
