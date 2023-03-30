@@ -168,12 +168,6 @@ content.benefits=Get benefits
 # Long form description of the CiviForm site shown to the applicant.
 content.description=CiviForm helps you find benefits you may be eligible for in {0}. Get started by choosing an application below.
 
-# Long form description of the CiviForm site shown to the applicant. Line 1.
-content.description1=CiviForm lets you apply for many benefits at once by reusing information.
-
-# Long form description of the CiviForm site shown to the applicant. Line 2.
-content.description2=Get started by choosing an application below.
-
 # Link text to read more about a program.
 link.programDetails=Program details
 
