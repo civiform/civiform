@@ -3,7 +3,8 @@ package views.style;
 /** Styles for applicant pages. */
 public final class ApplicantStyles {
   public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
-  public static final String BODY = StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full");
+  public static final String BODY =
+      StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full", "flex", "flex-col");
 
   public static final String MAIN_APPLICANT_INFO =
       StyleUtils.joinStyles("w-5/6", "max-w-screen-sm", "mx-auto", "my-8");
