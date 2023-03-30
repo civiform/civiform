@@ -838,7 +838,7 @@ public final class ProgramServiceImpl implements ProgramService {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
 
     if (programDefinition.isCommonIntakeForm() && eligibility.isPresent()) {
-      throw new EligibilityNotValidForProgramTypeException();
+      throw new EligibilityNotValidForProgramTypeException(programDefinition.programType());
     }
 
     BlockDefinition blockDefinition =
@@ -875,7 +875,7 @@ public final class ProgramServiceImpl implements ProgramService {
     } catch (EligibilityNotValidForProgramTypeException e) {
       // Removing eligibility predicates should always be valid.
       throw new RuntimeException(
-          "Unexpected error: removing this predicate is not allowed for this ProgramType");
+          "Unexpected error: removing this predicate is not allowed for this ProgramType", e);
     }
   }
 

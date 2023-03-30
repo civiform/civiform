@@ -6,7 +6,9 @@ package services.program;
  */
 public class EligibilityNotValidForProgramTypeException extends Exception {
 
-  public EligibilityNotValidForProgramTypeException() {
-    super("Eligibility conditions cannot be set for this ProgramType.");
+  public EligibilityNotValidForProgramTypeException(ProgramType programType) {
+    super(
+        String.format(
+            "Eligibility conditions cannot be set for ProgramType %s", programType.toString()));
   }
 }

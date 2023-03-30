@@ -1432,7 +1432,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     assertThatExceptionOfType(EligibilityNotValidForProgramTypeException.class)
         .isThrownBy(
-            () -> ps.setBlockEligibilityDefinition(program.id(), 1L, Optional.of(eligibility)));
+            () -> ps.setBlockEligibilityDefinition(program.id(), 1L, Optional.of(eligibility)))
+        .withMessage("Eligibility conditions cannot be set for ProgramType COMMON_INTAKE_FORM");
   }
 
   @Test
