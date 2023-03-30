@@ -144,10 +144,13 @@ describe('Applicant navigation flow', () => {
       const {page} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
+
+      // Begin waiting for the popup before clicking the link, otherwise
+      // the popup may fire before the wait is registered, causing the test to flake.
+      const popupPromise = page.waitForEvent('popup')
       await page.click(
         `.cf-application-card:has-text("${programName}") >> text='Program details'`,
       )
-      const popupPromise = page.waitForEvent('popup')
       const popup = await popupPromise
       const popupURL = await popup.evaluate('location.href')
 
