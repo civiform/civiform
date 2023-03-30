@@ -703,6 +703,89 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void updateProgram_clearsEligibilityCondtionsWhenSettingCommonIntakeForm()
+      throws Exception {
+    QuestionDefinition question = nameQuestion;
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
+            .buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            program.id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.COMMON_INTAKE_FORM,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(result.getResult().getBlockCount()).isEqualTo(1);
+    assertThat(result.getResult().getLastBlockDefinition().eligibilityDefinition()).isNotPresent();
+  }
+
+  @Test
+  public void updateProgram_doesNotClearEligibilityCondtionsForDefaultProgram() throws Exception {
+    QuestionDefinition question = nameQuestion;
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withEligibilityDefinition(eligibility)
+            .buildDefinition();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            program.id(),
+            Locale.US,
+            "a",
+            "a",
+            "a",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            /* isIntakeFormFeatureEnabled= */ true);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.isError()).isFalse();
+    assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
+    assertThat(result.getResult().getBlockCount()).isEqualTo(1);
+    assertThat(result.getResult().getLastBlockDefinition().eligibilityDefinition()).isPresent();
+  }
+
+  @Test
   public void getProgramDefinition_throwsWhenProgramNotFound() {
     assertThatThrownBy(() -> ps.getProgramDefinition(1L))
         .isInstanceOf(ProgramNotFoundException.class)
@@ -1271,6 +1354,80 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThatExceptionOfType(IllegalPredicateOrderingException.class)
         .isThrownBy(() -> ps.setBlockVisibilityPredicate(program.id(), 2L, Optional.of(predicate)))
         .withMessage("This action would invalidate a block condition");
+  }
+
+  @Test
+  public void setBlockEligibilityDefinition_updatesBlock() throws Exception {
+    Question question = testQuestionBank.applicantAddress();
+    Program program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(question)
+            .withBlock()
+            .build();
+
+    var cityPredicate =
+        PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+                question.id, Scalar.CITY, Operator.EQUAL_TO, PredicateValue.of("")));
+    var statePredicate =
+        PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+                question.id, Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("")));
+    var zipPredicate =
+        PredicateExpressionNode.create(
+            LeafOperationExpressionNode.create(
+                question.id, Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("")));
+    // Exercise all node types.
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                OrNode.create(
+                    ImmutableList.of(
+                        cityPredicate,
+                        PredicateExpressionNode.create(
+                            AndNode.create(ImmutableList.of(statePredicate, zipPredicate)))))),
+            PredicateAction.HIDE_BLOCK);
+
+    ps.setBlockEligibilityDefinition(
+        program.id,
+        2L,
+        Optional.of(EligibilityDefinition.builder().setPredicate(predicate).build()));
+
+    ProgramDefinition found = ps.getProgramDefinition(program.id);
+
+    // Verify serialization and deserialization.
+    assertThat(found.blockDefinitions().get(1).eligibilityDefinition()).isPresent();
+    assertThat(found.blockDefinitions().get(1).eligibilityDefinition().get().predicate())
+        .isEqualTo(predicate);
+  }
+
+  @Test
+  public void setBlockEligibilityDefinition_throwsEligibilityNotValideForProgramTypeException()
+      throws Exception {
+    QuestionDefinition question = nameQuestion;
+    EligibilityDefinition eligibility =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafOperationExpressionNode.create(
+                            question.getId(),
+                            Scalar.FIRST_NAME,
+                            Operator.EQUAL_TO,
+                            PredicateValue.of(""))),
+                    PredicateAction.HIDE_BLOCK))
+            .build();
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram()
+            .withProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .buildDefinition();
+
+    assertThatExceptionOfType(EligibilityNotValidForProgramTypeException.class)
+        .isThrownBy(
+            () -> ps.setBlockEligibilityDefinition(program.id(), 1L, Optional.of(eligibility)));
   }
 
   @Test
