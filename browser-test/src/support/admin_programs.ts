@@ -479,6 +479,10 @@ export class AdminPrograms {
   }
 
   async openQuestionBank() {
+    // The question bank page can be rendered client-side with event listeners attached
+    // immediately following an initial page paint. This wait is to allow time for the
+    // event listeners to bind before firing the click event.
+    await this.page.waitForTimeout(100)
     await this.page.click('button:has-text("Add a question")')
     await this.waitForQuestionBankAnimationToFinish()
   }
