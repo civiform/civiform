@@ -126,6 +126,7 @@ public interface ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode);
+
   /**
    * Update a program's mutable fields: admin description, display name and description for
    * applicants.
