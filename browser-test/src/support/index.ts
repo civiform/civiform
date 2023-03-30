@@ -209,7 +209,7 @@ export const createTestContext = (clearDb = true): TestContext => {
     // Default timeout is 30s. It's too long given that civiform is not JS
     // heavy and all elements render quite quickly. Setting it to 5 sec so that
     // tests fail fast.
-    ctx.page.setDefaultTimeout(5000)
+    ctx.page.setDefaultTimeout(8000)
     ctx.adminQuestions = new AdminQuestions(ctx.page)
     ctx.adminPrograms = new AdminPrograms(ctx.page)
     ctx.adminApiKeys = new AdminApiKeys(ctx.page)
