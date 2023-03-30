@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionStage;
 import models.Question;
 import models.QuestionTag;
 import models.Version;
+import play.cache.SyncCacheApi;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -35,13 +36,16 @@ public final class QuestionService {
 
   private final QuestionRepository questionRepository;
   private final Provider<VersionRepository> versionRepositoryProvider;
+  private final SyncCacheApi syncCacheApi;
 
   @Inject
   public QuestionService(
       QuestionRepository questionRepository,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      SyncCacheApi syncCacheApi) {
     this.questionRepository = checkNotNull(questionRepository);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.syncCacheApi = checkNotNull(syncCacheApi);
   }
 
   /**
@@ -96,7 +100,10 @@ public final class QuestionService {
   }
 
   private ReadOnlyQuestionService readOnlyQuestionService() {
-    return new ReadOnlyCurrentQuestionServiceImpl(versionRepositoryProvider.get());
+    return syncCacheApi.getOrElseUpdate(
+      "read-only-question-service-for-current-version",
+      () -> new ReadOnlyCurrentQuestionServiceImpl(versionRepositoryProvider.get())
+    );
   }
 
   /**

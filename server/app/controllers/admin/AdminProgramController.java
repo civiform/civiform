@@ -12,6 +12,8 @@ import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import forms.ProgramSettingsForm;
+
+import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Program;
@@ -82,13 +84,19 @@ public final class AdminProgramController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
+    var start = Instant.now();
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-    return ok(
+    var result = ok(
         listView.render(
             programService.getActiveAndDraftPrograms(),
             questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
             request,
             profileMaybe));
+
+    System.out.println("!!!!!!!!!!!!!!!!!!render time!!!!!!!!!!!!!!!!!!!!!!!!!");
+    System.out.println(Instant.now().toEpochMilli() - start.toEpochMilli());
+    System.out.println("!!!!!!!!!!!!!!!!!!render time!!!!!!!!!!!!!!!!!!!!!!!!!");
+    return result;
   }
 
   /** Returns an HTML page containing a form to create a new program in the draft version. */
