@@ -743,8 +743,10 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
     assertThat(result.getResult().getBlockCount()).isEqualTo(2);
-    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().eligibilityDefinition()).isNotPresent();
-    assertThat(result.getResult().getBlockDefinitionByIndex(1).get().eligibilityDefinition()).isNotPresent();
+    assertThat(result.getResult().getBlockDefinitionByIndex(0).get().eligibilityDefinition())
+        .isNotPresent();
+    assertThat(result.getResult().getBlockDefinitionByIndex(1).get().eligibilityDefinition())
+        .isNotPresent();
   }
 
   @Test
