@@ -211,7 +211,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   protected Modal buildConfirmCommonIntakeChangeModal(String existingCommonIntakeFormDisplayName) {
     DivTag content =
         div()
-            .withClasses("pl-6", "pr-6", "flex-row", "space-y-6")
+            .withClasses("flex-row", "space-y-6")
             .with(
                 p("The pre-screener will be updated from ")
                     .with(span(existingCommonIntakeFormDisplayName).withClass("font-bold"))

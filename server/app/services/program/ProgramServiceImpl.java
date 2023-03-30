@@ -268,8 +268,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String externalLink,
       String displayMode) {
     return validateProgramData(
-            adminDescription, displayName, displayDescription, externalLink, displayMode)
-        .build();
+        adminDescription, displayName, displayDescription, externalLink, displayMode);
   }
 
   @Override
@@ -1246,6 +1245,9 @@ public final class ProgramServiceImpl implements ProgramService {
    */
   private void clearCommonIntakeForm() {
     Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
+    if (!maybeCommonIntakeForm.isPresent()) {
+      return;
+    }
     ProgramDefinition draftCommonIntakeProgramDefinition =
         programRepository
             .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
