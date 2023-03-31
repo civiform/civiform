@@ -218,10 +218,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withText(" to the current program."))
             .with(p("Would you like to confirm the change?"))
             .with(
-                submitButton("Confirm")
-                    .withForm("program-details-form")
-                    .withId("confirm-common-intake-change-button")
-                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer"));
+                div()
+                    .withClasses("flex")
+                    .with(div().withClasses("flex-grow"))
+                    .with(
+                        submitButton("Confirm")
+                            .withForm("program-details-form")
+                            .withId("confirm-common-intake-change-button")
+                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer")));
     return Modal.builder()
         .setModalId("confirm-common-intake-change")
         .setContent(content)
