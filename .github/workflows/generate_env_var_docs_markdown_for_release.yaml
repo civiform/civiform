@@ -42,7 +42,7 @@ jobs:
           LOCAL_OUTPUT: false
           ENV_VAR_DOCS_PATH: ${{ github.workspace }}/civiform-release/server/conf/env-var-docs.json
           RELEASE_VERSION: ${{ inputs.release_number }}
-          GITHUB_ACCESS_TOKEN: ${{ secrets.AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}
           TARGET_REPO: civiform/docs
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
         run: |
