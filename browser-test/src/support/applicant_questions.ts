@@ -390,8 +390,9 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
-  async expectVerifyAddressPage() {
-    expect(await this.page.innerText('h2')).toContain('Verify address')
+  async expectVerifyAddressPage(validAddress: boolean) {
+    const header = validAddress ? 'Verify address' : 'No valid address found'
+    expect(await this.page.innerText('h2')).toContain(header)
   }
 
   async expectAddressPage() {
