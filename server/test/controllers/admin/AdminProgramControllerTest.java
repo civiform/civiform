@@ -164,6 +164,152 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() {
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "false")));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("A public display name for the program is required");
+  }
+
+  @Test
+  public void create_promptsUserToConfirmCommonIntakeChange() {
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "External program name",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "false")));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+  }
+
+  @Test
+  public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-name",
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        "External program name",
+                        "localizedDisplayDescription",
+                        "External program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "false")));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    long programId =
+        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
+
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    assertThat(contentAsString(redirectResult)).contains("External program name");
+    assertThat(contentAsString(redirectResult)).contains("External program description");
+  }
+
+  @Test
+  public void create_allowsChangingCommonIntakeAfterConfirming() {
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+
+    String adminName = "internal-program-name";
+    String programName = "External program name";
+    String programDescription = "External program description";
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        adminName,
+                        "adminDescription",
+                        "Internal program description",
+                        "localizedDisplayName",
+                        programName,
+                        "localizedDisplayDescription",
+                        programDescription,
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "true")));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Optional<Program> newProgram = versionRepository.getDraftVersion().getProgramByName(adminName);
+    assertThat(newProgram).isPresent();
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
+
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    assertThat(contentAsString(redirectResult)).contains(programName);
+    assertThat(contentAsString(redirectResult)).contains(programDescription);
+  }
+
+  @Test
   public void edit_withInvalidProgram_throwsProgramNotFoundException() {
     Request request = Helpers.fakeRequest().build();
 
@@ -298,6 +444,150 @@ public class AdminProgramControllerTest extends ResetPostgres {
         .contains(
             "Create new program", "New external program name", "New external program description");
     assertThat(contentAsString(redirectResult)).doesNotContain("Existing one", "old description");
+  }
+
+  @Test
+  public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminDescription",
+                        "New internal program description",
+                        "localizedDisplayName",
+                        "",
+                        "localizedDisplayDescription",
+                        "New external program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "false")));
+
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("A public display name for the program is required");
+  }
+
+  @Test
+  public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminDescription",
+                        "New internal program description",
+                        "localizedDisplayName",
+                        "New external program name",
+                        "localizedDisplayDescription",
+                        "New external program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "false")));
+
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("confirm-common-intake-change");
+  }
+
+  @Test
+  public void update_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminDescription",
+                        "New internal program description",
+                        "localizedDisplayName",
+                        "New external program name",
+                        "localizedDisplayDescription",
+                        "New external program description",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "false")));
+
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    long programId =
+        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
+
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    assertThat(contentAsString(redirectResult)).contains("New external program name");
+  }
+
+  @Test
+  public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
+    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
+
+    String newProgramName = "External program name";
+    String newProgramDescription = "External program description";
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminDescription",
+                        "New internal program description",
+                        "localizedDisplayName",
+                        newProgramName,
+                        "localizedDisplayDescription",
+                        newProgramDescription,
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.PUBLIC.getValue(),
+                        "isCommonIntakeForm",
+                        "true",
+                        "confirmedChangeCommonIntakeForm",
+                        "true")));
+
+    Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    Optional<Program> newProgram =
+        versionRepository.getDraftVersion().getProgramByName("Existing One");
+    assertThat(newProgram).isPresent();
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
+
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    assertThat(contentAsString(redirectResult)).contains(newProgramName);
+    assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
   }
 
   @Test
