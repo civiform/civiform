@@ -19,6 +19,7 @@ import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.components.Icons;
 import views.style.AdminStyles;
+import views.style.StyleUtils;
 
 abstract class ProgramBlockBaseView extends BaseHtmlView {
 
@@ -44,7 +45,19 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
       String blockName,
       PredicateDefinition predicateDefinition,
       ImmutableList<QuestionDefinition> questionDefinitions) {
-    DivTag container = div();
+    DivTag container =
+        div()
+            .withClasses(
+                "my-2",
+                "border",
+                "border-gray-200",
+                "px-4",
+                "py-4",
+                "flex",
+                "flex-grow",
+                "gap-4",
+                "items-center",
+                StyleUtils.hover("text-gray-800", "bg-gray-100"));
 
     if (predicateDefinition
         .predicateFormat()

@@ -405,7 +405,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   request));
     }
 
-    DivTag programQuestions = div();
+    DivTag programQuestions =
+        div()
+            .withClasses("my-4")
+            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
+
     IntStream.range(0, blockQuestions.size())
         .forEach(
             index -> {
@@ -497,17 +501,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       Optional<PredicateDefinition> predicate,
       String blockName,
       ImmutableList<QuestionDefinition> questions) {
-    DivTag currentBlockStatus =
-        predicate.isEmpty()
-            ? div("This screen is always shown.")
-            : renderExistingPredicate(blockName, predicate.get(), questions);
-
     DivTag div =
         div()
             .withClasses("my-4")
-            .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
-
+            .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"));
+    if (predicate.isEmpty()) {
+      DivTag currentBlockStatus = div("This screen is always shown.");
+      div.with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
+    } else {
+      div.with(renderExistingPredicate(blockName, predicate.get(), questions));
+    }
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
@@ -529,16 +532,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       String blockName,
       ImmutableList<QuestionDefinition> questions,
       Request request) {
-    DivTag currentBlockStatus =
-        predicate.isEmpty()
-            ? renderEmptyEligibilityPredicate(program, request)
-            : renderExistingPredicate(blockName, predicate.get().predicate(), questions);
     DivTag div =
         div()
             .withClasses("my-4")
-            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
-
+            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"));
+    if (predicate.isEmpty()) {
+      div.with(
+          renderEmptyEligibilityPredicate(program, request).withClasses("text-lg", "max-w-prose"));
+    } else {
+      div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
+    }
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
