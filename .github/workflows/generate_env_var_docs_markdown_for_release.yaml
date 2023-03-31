@@ -37,9 +37,6 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: civiform-main/bin/env-var-docs-create-venv
-
       - name: Run bin/env-var-docs-generate-markdown
         env:
           LOCAL_OUTPUT: false
@@ -50,4 +47,5 @@ jobs:
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
         run: |
           cd civiform-main # must run bin scripts from repo root.
+          bin/env-var-docs-create-venv
           bin/env-var-docs-generate-markdown
