@@ -7,11 +7,13 @@ on:
       release_number:
         description: 'The release number to generate/update env var docs markdown for, v1.2.3 for example. IMPORTANT: the release number must already be a tag in this repo.'
         required: true
+        type: string
   workflow_call:
     inputs:
       release_number:
         description: 'The release number to generate/update env var docs markdown for, v1.2.3 for example. IMPORTANT: the release number must already be a tag in this repo.'
         required: true
+        type: string
     secrets:
       AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN:
         required: true
@@ -35,15 +37,15 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
-        run: civiform-main/bin/env-var-docs-create-venv
-
       - name: Run bin/env-var-docs-generate-markdown
         env:
           LOCAL_OUTPUT: false
-          ENV_VAR_DOCS_PATH: civiform-release/server/conf/env-var-docs.json
+          ENV_VAR_DOCS_PATH: ${{ github.workspace }}/civiform-release/server/conf/env-var-docs.json
           RELEASE_VERSION: ${{ inputs.release_number }}
-          GITHUB_ACCESS_TOKEN: ${{ secrets.AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN }}
+          GITHUB_ACCESS_TOKEN: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}
           TARGET_REPO: civiform/docs
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
-        run: civiform-main/bin/env-var-docs-generate-markdown
+        run: |
+          cd civiform-main # must run bin scripts from repo root.
+          bin/env-var-docs-create-venv
+          bin/env-var-docs-generate-markdown

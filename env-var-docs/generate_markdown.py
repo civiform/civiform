@@ -86,7 +86,7 @@ def main():
         print(markdown)
         exit()
 
-    gh = github.Github()
+    gh = github.Github(config.access_token)
     repo = gh.get_repo(config.repo)
 
     # If file exists, update it, if not, create it.
