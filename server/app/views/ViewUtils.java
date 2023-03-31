@@ -89,14 +89,6 @@ public final class ViewUtils {
             span(buttonText).withClass("text-left"));
   }
 
-  public static ButtonTag makeSvgButton(Icons icon) {
-    return button()
-        .with(
-            Icons.svg(icon)
-                // 4.5 is 18px as defined in tailwind.config.js
-                .withClasses("inline-block", "h-4.5", "w-4.5"));
-  }
-
   /**
    * Used to indicate if a view that shows information about a program is displaying a draft (and
    * thus is editable) or an active program (not editable). Values here match the database statuses

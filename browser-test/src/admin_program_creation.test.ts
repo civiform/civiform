@@ -64,7 +64,7 @@ describe('program creation', () => {
       'this is a note',
     )
 
-    await validateScreenshot(page, 'open-question-search')
+    await validateScreenshot(page, 'open-question-search', {fullPage: false})
   })
 
   it('create program with enumerator and repeated questions', async () => {
@@ -338,7 +338,7 @@ describe('program creation', () => {
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty')
+    await validateScreenshot(page, 'question-bank-empty', {fullPage: false})
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -352,7 +352,9 @@ describe('program creation', () => {
       helpText: 'Question help text',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
-    await validateScreenshot(page, 'question-bank-with-created-question')
+    await validateScreenshot(page, 'question-bank-with-created-question', {
+      fullPage: false,
+    })
 
     await adminPrograms.expectSuccessToast(`question ${questionName} created`)
     await adminPrograms.expectProgramBlockEditPage(programName)
@@ -437,7 +439,9 @@ describe('program creation', () => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
-    await validateScreenshot(page, 'delete-screen-confirmation-modal')
+    await validateScreenshot(page, 'delete-screen-confirmation-modal', {
+      fullPage: false,
+    })
   })
 
   async function expectQuestionsOrderWithinBlock(

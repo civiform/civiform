@@ -53,8 +53,6 @@ abstract class ProgramBlockBaseView extends BaseHtmlView {
                 "border-gray-200",
                 "px-4",
                 "py-4",
-                "flex",
-                "flex-grow",
                 "gap-4",
                 "items-center",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
