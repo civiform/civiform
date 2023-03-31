@@ -7,11 +7,13 @@ on:
       release_number:
         description: 'The release number to generate/update env var docs markdown for, v1.2.3 for example. IMPORTANT: the release number must already be a tag in this repo.'
         required: true
+        type: string
   workflow_call:
     inputs:
       release_number:
         description: 'The release number to generate/update env var docs markdown for, v1.2.3 for example. IMPORTANT: the release number must already be a tag in this repo.'
         required: true
+        type: string
     secrets:
       AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN:
         required: true
