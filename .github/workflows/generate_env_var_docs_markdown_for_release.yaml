@@ -43,9 +43,11 @@ jobs:
       - name: Run bin/env-var-docs-generate-markdown
         env:
           LOCAL_OUTPUT: false
-          ENV_VAR_DOCS_PATH: civiform-release/server/conf/env-var-docs.json
+          ENV_VAR_DOCS_PATH: ${{ github.workspace }}/civiform-release/server/conf/env-var-docs.json
           RELEASE_VERSION: ${{ inputs.release_number }}
           GITHUB_ACCESS_TOKEN: ${{ secrets.AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN }}
           TARGET_REPO: civiform/docs
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
-        run: civiform-main/bin/env-var-docs-generate-markdown
+        run: |
+          cd civiform-main # must run bin scripts from repo root.
+          bin/env-var-docs-generate-markdown
