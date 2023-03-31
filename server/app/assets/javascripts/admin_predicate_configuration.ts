@@ -111,6 +111,25 @@ class AdminPredicateConfiguration {
       }
     }
 
+    const betweenHelpText = document.querySelectorAll(
+      `#predicate-config-value-row-container [data-question-id="${questionId}"] .cf-predicate-value-between-help-text`,
+    )
+
+    // The between help text div is present for inputs that allow specifying
+    // two number values in a single text input. It won't be present
+    // for other input types.
+    if (betweenHelpText != null) {
+      const shouldShowBetweenOperatorHelpText =
+        selectedOperatorValue.toUpperCase() !== 'AGE_BETWEEN'
+
+      for (const commaSeparatedHelpText of Array.from(betweenHelpText)) {
+        commaSeparatedHelpText.classList.toggle(
+          'hidden',
+          shouldShowBetweenOperatorHelpText,
+        )
+      }
+    }
+
     // Update the value field to reflect the new Operator selection.
     const scalarDropdown = this.getElementWithQuestionId(
       '.cf-scalar-select',
@@ -213,7 +232,18 @@ class AdminPredicateConfiguration {
           }
           break
         case 'DATE':
-          valueInput.setAttribute('type', 'date')
+          if (
+            operatorValue.toUpperCase() === 'AGE_OLDER_THAN' ||
+            operatorValue.toUpperCase() === 'AGE_YOUNGER_THAN'
+          ) {
+            // Age-related operators should have number input value
+            valueInput.setAttribute('type', 'number')
+          } else if (operatorValue.toUpperCase() === 'AGE_BETWEEN') {
+            // BETWEEN operates on lists of longs, which must be entered as a comma-separated list
+            valueInput.setAttribute('type', 'text')
+          } else {
+            valueInput.setAttribute('type', 'date')
+          }
           break
         default:
           valueInput.setAttribute('type', 'text')

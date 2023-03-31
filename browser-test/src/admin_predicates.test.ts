@@ -10,6 +10,7 @@ import {
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
 } from './support'
 
 describe('create and edit predicates', () => {
@@ -366,6 +367,15 @@ describe('create and edit predicates', () => {
       })
       await adminQuestions.addDateQuestion({
         questionName: 'predicate-date-on-or-after',
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: 'predicate-date-age-older-than',
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: 'predicate-date-age-younger-than',
+      })
+      await adminQuestions.addDateQuestion({
+        questionName: 'predicate-date-age-between',
       })
       await adminQuestions.addCheckboxQuestion({
         questionName: 'both sides are lists',
@@ -815,6 +825,21 @@ describe('create and edit predicates', () => {
         'on or after date question',
         ['predicate-date-on-or-after'],
       )
+      await adminPrograms.addProgramBlock(
+        programName,
+        'date question age is older than',
+        ['predicate-date-age-older-than'],
+      )
+      await adminPrograms.addProgramBlock(
+        programName,
+        'date question age is younger than',
+        ['predicate-date-age-younger-than'],
+      )
+      await adminPrograms.addProgramBlock(
+        programName,
+        'date question age is between',
+        ['predicate-date-age-between'],
+      )
       await adminPrograms.addProgramBlock(programName, 'two lists', [
         'both sides are lists',
       ])
@@ -910,10 +935,49 @@ describe('create and edit predicates', () => {
         '2023-01-01',
       )
 
-      // Lists of strings on both sides (multi-option question checkbox)
+      // Date predicate age is greater than
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 8',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-date-age-older-than',
+        /* action= */ null,
+        'date',
+        'age is older than',
+        '90',
+      )
+
+      // Date predicate age is less than
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 9',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-date-age-younger-than',
+        /* action= */ null,
+        'date',
+        'age is younger than',
+        '50',
+      )
+
+      // Date predicate age is between
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 10',
+      )
+      await adminPredicates.addPredicate(
+        'predicate-date-age-between',
+        /* action= */ null,
+        'date',
+        'age is between',
+        '1,90',
+      )
+
+      // Lists of strings on both sides (multi-option question checkbox)
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        programName,
+        'Screen 11',
       )
       await adminPredicates.addPredicate(
         'both sides are lists',
@@ -948,6 +1012,8 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNameQuestion('show', 'next', 'screen')
       await applicantQuestions.clickNext()
+      await validateScreenshot(page, 'toast-message-may-qualify')
+      await validateToastMessage(page, 'may qualify')
 
       // "blue" or "green" are allowed.
       await applicantQuestions.answerTextQuestion('red')
@@ -958,6 +1024,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerTextQuestion('blue')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // 42 is allowed.
       await applicantQuestions.answerNumberQuestion('1')
@@ -968,6 +1035,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('42')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // 123 or 456 are allowed.
       await applicantQuestions.answerNumberQuestion('11111')
@@ -978,6 +1046,12 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerNumberQuestion('123')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
+
+      await applicantQuestions.clickReview()
+      await validateScreenshot(page, 'review-page-no-ineligible-banner')
+      await validateToastMessage(page, '')
+      await applicantQuestions.clickContinue()
 
       // Greater than 100.01 is allowed
       await applicantQuestions.answerCurrencyQuestion('100.01')
@@ -990,6 +1064,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerCurrencyQuestion('100.02')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // Earlier than 2021-01-01 is allowed
       await applicantQuestions.answerDateQuestion('2021-01-01')
@@ -1000,6 +1075,7 @@ describe('create and edit predicates', () => {
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2020-12-31')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
 
       // On or later than 2023-01-01 is allowed
       await applicantQuestions.answerDateQuestion('2022-12-31')
@@ -1009,6 +1085,37 @@ describe('create and edit predicates', () => {
       await applicantQuestions.expectIneligibleQuestionsCount(1)
       await page.goBack()
       await applicantQuestions.answerDateQuestion('2023-01-01')
+      await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
+
+      // Age greater than 90 is allowed
+      await applicantQuestions.answerDateQuestion('2022-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('date question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('1930-01-01')
+      await applicantQuestions.clickNext()
+
+      // Age less than 50 is allowed
+      await applicantQuestions.answerDateQuestion('1930-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('date question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2022-01-01')
+      await applicantQuestions.clickNext()
+
+      // Age between 1 and 90 is allowed
+      await applicantQuestions.answerDateQuestion('1920-12-31')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectIneligiblePage()
+      await applicantQuestions.expectIneligibleQuestion('date question text')
+      await applicantQuestions.expectIneligibleQuestionsCount(1)
+      await page.goBack()
+      await applicantQuestions.answerDateQuestion('2000-01-01')
       await applicantQuestions.clickNext()
 
       // "dog" or "cat" are allowed.
@@ -1026,10 +1133,18 @@ describe('create and edit predicates', () => {
       // Validate that ineligible page is accessible.
       await validateAccessibility(page)
       await page.goBack()
+
+      await applicantQuestions.clickReview()
+      await validateScreenshot(page, 'review-page-has-ineligible-banner')
+      await validateToastMessage(page, 'may not qualify')
+      await page.goBack()
+
       await applicantQuestions.answerCheckboxQuestion(['cat'])
       await applicantQuestions.clickNext()
 
-      // We should now be on the summary page
+      // We should now be on the summary page and no banner should show.
+      await validateScreenshot(page, 'summary-page-no-eligible-banner')
+      await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
     })
   })

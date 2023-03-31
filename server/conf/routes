@@ -121,9 +121,6 @@ GET     /admin/reporting/:programSlug               controllers.admin.AdminRepor
 GET     /admin/reporting/:programSlug/download      controllers.admin.AdminReportingController.downloadProgramCsv(programSlug: String)
 GET     /admin/reporting/download/:dataSetName      controllers.admin.AdminReportingController.downloadCsv(dataSetName: String)
 
-# Admin data migrations
-GET     /admin/migrateStoredFileAcls                controllers.admin.DataMigrationsController.migrateStoredFileAcls()
-
 # Controller for admins and applicants to access applicants' uploaded files
 GET     /admin/applicant-files/:fileKey             controllers.FileController.acledAdminShow(request: Request, fileKey: String)
 GET     /admin/programs/:programId/files/:fileKey   controllers.FileController.adminShow(request: Request, programId: Long, fileKey: String)

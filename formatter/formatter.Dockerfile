@@ -50,8 +50,7 @@ WORKDIR $SERVER_DIR
 RUN npm install
 
 
-ENTRYPOINT ["/bin/bash"]
-CMD ["/code/formatter/fmt"]
+ENTRYPOINT ["/code/formatter/fmt"]
 
 VOLUME ["/code/browser-test/node_modules"]
 VOLUME ["/code/server/node_modules"]

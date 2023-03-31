@@ -30,6 +30,12 @@ public final class SelectWithLabel extends FieldWithLabel {
     return this;
   }
 
+  @Override
+  public SelectWithLabel addStyleClass(String styleClass) {
+    super.addStyleClass(styleClass);
+    return this;
+  }
+
   /** Sets the options associated with the select element. */
   public SelectWithLabel setOptions(ImmutableList<OptionValue> options) {
     this.optionGroups =

@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.7.0",
+      "com.jayway.jsonpath" % "json-path" % "2.8.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.2",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
@@ -33,15 +33,15 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.24",
-      "software.amazon.awssdk" % "ses" % "2.20.24",
+      "software.amazon.awssdk" % "s3" % "2.20.35",
+      "software.amazon.awssdk" % "ses" % "2.20.35",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.8.1",
-      "com.azure" % "azure-storage-blob" % "12.21.0",
+      "com.azure" % "azure-storage-blob" % "12.21.1",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.5.4",
+      "org.postgresql" % "postgresql" % "42.6.0",
       "com.h2database" % "h2" % "2.1.214" % Test,
 
       // Metrics collection and export for Prometheus
@@ -105,8 +105,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.5"
-
+      "ch.qos.logback" % "logback-classic" % "1.4.6"
     ),
     javacOptions ++= Seq(
       "-encoding",

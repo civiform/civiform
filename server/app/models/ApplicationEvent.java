@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -31,12 +32,15 @@ public final class ApplicationEvent extends BaseModel {
   /**
    * Creates a representation of a single event happening to an Application.
    *
+   * <p>The only time that 'creator' should ever be empty is when CiviForm is automatically
+   * injecting an event, such as setting the status of an application to the default status.
+   *
    * @param creator the Account that created the event.
    */
   public ApplicationEvent(
-      Application application, Account creator, ApplicationEventDetails details) {
+      Application application, Optional<Account> creator, ApplicationEventDetails details) {
     this.application = checkNotNull(application);
-    this.creator = checkNotNull(creator);
+    this.creator = checkNotNull(creator).orElse(null);
     this.details = checkNotNull(details);
     this.eventType = details.eventType();
   }
@@ -59,8 +63,8 @@ public final class ApplicationEvent extends BaseModel {
     return this;
   }
 
-  public Account getCreator() {
-    return creator;
+  public Optional<Account> getCreator() {
+    return Optional.ofNullable(creator);
   }
 
   public ApplicationEvent setCreator(Account creator) {

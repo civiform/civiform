@@ -1,6 +1,7 @@
 package views.admin.questions;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
@@ -60,15 +61,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public QuestionsListView(
     AdminLayoutFactory layoutFactory,
     TranslationLocales translationLocales,
-    ViewUtils viewUtils) {
+    ViewUtils viewUtils, FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
-    this.viewUtils = checkNotNull(viewUtils);;
+    this.viewUtils = checkNotNull(viewUtils);
+    this.featureFlags = checkNotNull(featureFlags);
+    ;
   }
 
   /** Renders a page with a list view of all questions. */
@@ -112,7 +116,7 @@ public final class QuestionsListView extends BaseHtmlView {
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url(),
                             /* isPrimaryButton= */ true,
-                          /* phoneQuestionTypeEnabled= */ layout.getFeatureFlags().isPhoneQuestionTypeEnabled(request))),
+                          /* phoneQuestionTypeEnabled= */ featureFlags.getFlagEnabled(request,PHONE_QUESTION_TYPE_ENABLED))),
                 filterDiv,
                 div()
                     .withClasses("mt-10", "flex")
@@ -508,7 +512,9 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withClass("text-sm"));
 
     return Optional.of(
-        Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
+        Modal.builder()
+            .setModalId(Modal.randomModalId())
+            .setContent(referencingProgramModalContent)
             .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
             .build());
@@ -647,7 +653,9 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
 
     Modal modal =
-        Modal.builder("discard-confirmation-modal", discardConfirmationDiv)
+        Modal.builder()
+            .setModalId("discard-confirmation-modal")
+            .setContent(discardConfirmationDiv)
             .setModalTitle("Discard draft?")
             .setTriggerButtonContent(discardMenuButton)
             .setWidth(Width.FOURTH)

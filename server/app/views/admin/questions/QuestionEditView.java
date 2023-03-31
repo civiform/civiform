@@ -57,9 +57,6 @@ public final class QuestionEditView extends BaseHtmlView {
   private static final String QUESTION_NAME_FIELD = "questionName";
   private static final String QUESTION_ENUMERATOR_FIELD = "enumeratorId";
 
-  // Setting a value of 0 causes the toast to be displayed indefinitely.
-  private static final int ERROR_TOAST_DURATION = 0;
-
   @Inject
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
@@ -110,7 +107,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     message
         .map(m -> m.setDismissible(true))
-        .map(m -> m.setDuration(ERROR_TOAST_DURATION))
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
@@ -161,7 +157,6 @@ public final class QuestionEditView extends BaseHtmlView {
 
     message
         .map(m -> m.setDismissible(true))
-        .map(m -> m.setDuration(ERROR_TOAST_DURATION))
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 

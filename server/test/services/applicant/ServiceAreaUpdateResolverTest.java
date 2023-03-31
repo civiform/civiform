@@ -2,28 +2,18 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Results.ok;
 
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
-import play.libs.ws.WSClient;
-import play.routing.RoutingDsl;
-import play.server.Server;
 import repository.ResetPostgres;
 import services.Path;
 import services.applicant.question.Scalar;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
-import services.geo.esri.EsriClient;
-import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -48,23 +38,7 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
 
   @Before
   public void setUp() throws Exception {
-    // configure EsriClient instance for ServiceAreaUpdateResolver
-    Config config = ConfigFactory.load();
-    Clock clock = instanceOf(Clock.class);
-    EsriServiceAreaValidationConfig esriServiceAreaValidationConfig =
-        instanceOf(EsriServiceAreaValidationConfig.class);
-    Server server =
-        Server.forRouter(
-            (components) ->
-                RoutingDsl.fromComponents(components)
-                    .GET("/query")
-                    .routingTo(request -> ok().sendResource("esri/serviceAreaFeatures.json"))
-                    .build());
-    WSClient ws = play.test.WSTestClient.newClient(server.httpPort());
-    EsriClient esriClient = new EsriClient(config, clock, esriServiceAreaValidationConfig, ws);
     serviceAreaUpdateResolver = instanceOf(ServiceAreaUpdateResolver.class);
-    // set instance of esriClient for ServiceAreaUpdateResolver
-    FieldUtils.writeField(serviceAreaUpdateResolver, "esriClient", esriClient, true);
 
     applicantData = new ApplicantData();
     pqd =
@@ -108,10 +82,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "47.578374020558954")
+                "100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-122.3360380354971")
+                "-100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")
@@ -234,10 +208,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "47.578374020558954")
+                "101.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-122.3360380354971")
+                "-101.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")
@@ -287,10 +261,10 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
                 CorrectedAddressState.CORRECTED.getSerializationFormat())
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LATITUDE).toString(),
-                "47.578374020558954")
+                "100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.LONGITUDE).toString(),
-                "-122.3360380354971")
+                "-100.0")
             .put(
                 Path.create("applicant.applicant_address").join(Scalar.WELL_KNOWN_ID).toString(),
                 "4326")

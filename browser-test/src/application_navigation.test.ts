@@ -5,10 +5,12 @@ import {
   disableFeatureFlag,
   loginAsAdmin,
   loginAsGuest,
+  loginAsTestUser,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
   waitForPageJsLoad,
   isLocalDevEnvironment,
 } from './support'
@@ -251,7 +253,7 @@ describe('Applicant navigation flow', () => {
       await validateScreenshot(page, 'program-review')
     })
 
-    it('verify program submission page', async () => {
+    it('verify program submission page for guest', async () => {
       const {page, applicantQuestions} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
@@ -277,7 +279,36 @@ describe('Applicant navigation flow', () => {
       // Verify we are on program submission page.
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
-      await validateScreenshot(page, 'program-submission')
+      await validateScreenshot(page, 'program-submission-guest')
+    })
+
+    it('verify program submission page for logged in user', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.applyProgram(programName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // Verify we are on program submission page.
+      expect(await page.innerText('h1')).toContain('Application confirmation')
+      await validateAccessibility(page)
+      await validateScreenshot(page, 'program-submission-logged-in')
     })
 
     it('shows error with incomplete submission', async () => {
@@ -300,8 +331,8 @@ describe('Applicant navigation flow', () => {
       const submitButton = page.locator('#test-form-submit')!
       await submitButton.click()
 
-      const toastMessages = await page.innerText('#toast-container')
-      expect(toastMessages).toContain(
+      await validateToastMessage(
+        page,
         "There's been an update to the application",
       )
       await validateScreenshot(page, 'program-out-of-date')
@@ -387,7 +418,7 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -406,6 +437,8 @@ describe('Applicant navigation flow', () => {
       // Fill out application and without submitting.
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
+      await validateScreenshot(page, 'eligible-toast')
 
       // Verify the question is marked eligible
       await applicantQuestions.gotoApplicantHomePage()
@@ -466,7 +499,7 @@ describe('Applicant navigation flow', () => {
         /* isEligible= */ false,
       )
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
@@ -605,7 +638,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.applyProgram(fullProgramName)
       await applicantQuestions.answerEmailQuestion('test@test.com')
       await applicantQuestions.clickNext()
-      await applicantQuestions.validateToastMessage('')
+      await validateToastMessage(page, '')
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
       await applicantQuestions.seeNoEligibilityTags(fullProgramName)
@@ -716,7 +749,6 @@ describe('Applicant navigation flow', () => {
       // Log out admin
       await logout(page)
     })
-
     if (isLocalDevEnvironment()) {
       it('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
@@ -735,7 +767,7 @@ describe('Applicant navigation flow', () => {
           0,
         )
         await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
+          'Legit Address',
           '',
           'Seattle',
           'WA',
@@ -749,7 +781,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
-          '305 Harrison St',
+          'Address In Area',
         )
         await applicantQuestions.clickSubmit()
         await logout(page)
@@ -772,7 +804,7 @@ describe('Applicant navigation flow', () => {
           0,
         )
         await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
+          'Legit Address',
           '',
           'Seattle',
           'WA',
@@ -784,7 +816,7 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
-          '305 Harrison St',
+          'Address In Area',
         )
         await applicantQuestions.clickSubmit()
         await logout(page)
@@ -799,7 +831,7 @@ describe('Applicant navigation flow', () => {
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
+          'Legit Address',
           '',
           'Seattle',
           'WA',
@@ -816,9 +848,32 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
-          '305 Harrison St',
+          'Address In Area',
         )
         await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+      it('clicking previous on address correction page takes you back to address entry page', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage()
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectAddressPage()
+
         await logout(page)
       })
     }

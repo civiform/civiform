@@ -7,6 +7,7 @@ import {
   waitForPageJsLoad,
   selectApplicantLanguage,
   validateScreenshot,
+  validateToastMessage,
   logout,
   AdminQuestions,
 } from './support'
@@ -120,7 +121,7 @@ describe('Trusted intermediaries', () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
     expect(await page.innerText('#ti-dashboard-link')).toContain(
-      'VIEW AND ADD CLIENTS',
+      'View and Add Clients',
     )
   })
 
@@ -214,16 +215,19 @@ describe('Trusted intermediaries', () => {
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
       // Verify the summary page shows the ineligible toast and the correct question is marked ineligible.
-      await applicantQuestions.validateToastMessage('may not qualify')
+      await validateToastMessage(page, 'may not qualify')
       await applicantQuestions.expectQuestionIsNotEligible(
         AdminQuestions.NUMBER_QUESTION_TEXT,
       )
       await validateScreenshot(page, 'application-summary-page-not-eligible-ti')
 
-      // Change answer to one that passes eligibility and verify 'may qualify' tag appears on home page
+      // Change answer to one that passes eligibility and verify 'may qualify' tag appears on home page and as a toast.
       await applicantQuestions.clickEdit()
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.clickNext()
+      await validateToastMessage(page, 'may qualify')
+      await validateScreenshot(page, 'eligible-toast')
+      await tiDashboard.dismissToast()
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnApplicantDashboard()
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)

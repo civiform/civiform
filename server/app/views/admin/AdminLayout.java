@@ -142,13 +142,6 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
 
-    // Once feature flag is removed for reporting the program admin nav will include
-    // links for programs and reporting.
-    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)
-        && !getFeatureFlags().isAdminReportingUiEnabled()) {
-      return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
-    }
-
     if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
       adminHeader.with(programsHeaderLink).with(reportingHeaderLink);
     } else {
@@ -157,7 +150,7 @@ public final class AdminLayout extends BaseHtmlLayout {
           .with(questionsHeaderLink)
           .with(intermediariesHeaderLink)
           .with(apiKeysHeaderLink)
-          .with(getFeatureFlags().isAdminReportingUiEnabled() ? reportingHeaderLink : null);
+          .with(reportingHeaderLink);
     }
 
     return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));

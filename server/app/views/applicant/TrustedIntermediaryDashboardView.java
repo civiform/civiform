@@ -269,7 +269,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withType("date")
                         .withValue(currentDob),
                     makeCsrfTokenInputTag(request),
-                    submitButton("Update DOB").withClasses("uppercase", "text-xs", "ml-3")));
+                    submitButton("Update DOB").withClasses("text-xs", "ml-3")));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

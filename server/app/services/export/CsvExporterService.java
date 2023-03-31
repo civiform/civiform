@@ -180,8 +180,7 @@ public final class CsvExporterService {
 
           Optional<Boolean> optionalEligibilityStatus =
               shouldCheckEligibility
-                  ? applicantService.getOptionalEligibilityStatus(
-                      application.getApplicant().getApplicantData(), currentProgram.get())
+                  ? applicantService.getApplicationEligibilityStatus(application, programDefinition)
                   : Optional.empty();
 
           csvExporter.exportRecord(application, roApplicantService, optionalEligibilityStatus);

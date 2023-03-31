@@ -13,6 +13,7 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.Block;
 import services.cloud.StorageClient;
+import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.ApplicantStyles;
 
@@ -55,6 +56,8 @@ public class ApplicationBaseView extends BaseHtmlView {
       return new AutoValue_ApplicationBaseView_Params.Builder();
     }
 
+    public abstract Builder toBuilder();
+
     public abstract boolean inReview();
 
     public abstract Http.Request request();
@@ -82,6 +85,8 @@ public class ApplicationBaseView extends BaseHtmlView {
     public abstract Optional<String> applicantName();
 
     public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
+
+    public abstract Optional<ToastMessage> bannerMessage();
 
     @AutoValue.Builder
     public abstract static class Builder {
@@ -111,6 +116,8 @@ public class ApplicationBaseView extends BaseHtmlView {
 
       public abstract Builder setErrorDisplayMode(
           ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
+
+      public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
 
       public abstract Builder setApplicantName(Optional<String> applicantName);
 

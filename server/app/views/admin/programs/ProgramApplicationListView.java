@@ -36,6 +36,7 @@ import services.PaginationResult;
 import services.UrlUtils;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -90,6 +91,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
+    Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
 
     DivTag applicationListDiv =
         div()
@@ -121,9 +123,10 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                             application,
                             /* displayStatus= */ allPossibleProgramApplicationStatuses.size() > 0,
                             hasEligibilityEnabled
-                                ? applicantService.getOptionalEligibilityStatus(
-                                    application.getApplicant().getApplicantData(), program)
-                                : Optional.empty())))
+                                ? applicantService.getApplicationEligibilityStatus(
+                                    application, program)
+                                : Optional.empty(),
+                            defaultStatus)))
             .withClasses("mt-6", StyleUtils.responsiveLarge("mt-12"), "mb-16", "ml-6", "mr-2");
 
     DivTag applicationShowDiv =
@@ -321,7 +324,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                                 /* ignoreFilters= */ Optional.empty())
                                             .url())
                                     .withType("submit"))));
-    return Modal.builder(modalId, modalContent)
+    return Modal.builder()
+        .setModalId(modalId)
+        .setContent(modalContent)
         .setModalTitle("Download application data")
         .setTriggerButtonContent(
             makeSvgTextButton("Download", Icons.DOWNLOAD)
@@ -331,13 +336,29 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationListItem(
-      Application application, boolean displayStatus, Optional<Boolean> maybeEligibilityStatus) {
+      Application application,
+      boolean displayStatus,
+      Optional<Boolean> maybeEligibilityStatus,
+      Optional<StatusDefinitions.Status> defaultStatus) {
     String applicantNameWithApplicationId =
         String.format(
             "%s (%d)",
             applicantUtils.getApplicantNameEnUs(application.getApplicantData().getApplicantName()),
             application.id);
     String viewLinkText = "View →";
+
+    String statusString =
+        application
+            .getLatestStatus()
+            .map(
+                s ->
+                    String.format(
+                        "%s%s",
+                        s,
+                        defaultStatus.map(defaultString -> defaultString.matches(s)).orElse(false)
+                            ? " (default)"
+                            : ""))
+            .orElse("None");
 
     DivTag cardContent =
         div()
@@ -357,17 +378,14 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .condWith(
                 displayStatus,
                 p().withClasses("text-sm", "text-gray-700")
-                    .with(
-                        span("Status: "),
-                        span(application.getLatestStatus().orElse("None"))
-                            .withClass("font-semibold")))
+                    .with(span("Status: "), span(statusString).withClass("font-semibold")))
             .condWith(
                 maybeEligibilityStatus.isPresent(),
                 p().withClasses("text-sm", "text-gray-700")
                     .with(
                         span(maybeEligibilityStatus.isPresent() && maybeEligibilityStatus.get()
                                 ? "Meets eligibility"
-                                : "Does not meet eligibility")
+                                : "Doesn't meet eligibility")
                             .withClass("font-semibold")))
             .with(
                 div()

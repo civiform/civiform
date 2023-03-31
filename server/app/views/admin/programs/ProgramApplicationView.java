@@ -83,6 +83,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       ImmutableList<AnswerData> answers,
       StatusDefinitions statusDefinitions,
       Optional<String> noteMaybe,
+      Boolean hasEligibilityEnabled,
       Http.Request request) {
     String title = "Program Application View";
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
@@ -139,7 +140,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 each(
                     blocks,
-                    block -> renderApplicationBlock(programId, block, blockToAnswers.get(block))))
+                    block ->
+                        renderApplicationBlock(
+                            programId, block, blockToAnswers.get(block), hasEligibilityEnabled)))
             .with(each(statusUpdateConfirmationModals, Modal::getButton));
 
     HtmlBundle htmlBundle =
@@ -172,7 +175,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private DivTag renderApplicationBlock(
-      long programId, Block block, Collection<AnswerData> answers) {
+      long programId, Block block, Collection<AnswerData> answers, boolean hasEligibilityEnabled) {
     DivTag topContent =
         div()
             .withClasses("flex")
@@ -182,7 +185,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(p(block.getDescription()).withClasses("text-gray-700", "italic"));
 
     DivTag mainContent =
-        div().withClasses("w-full").with(each(answers, answer -> renderAnswer(programId, answer)));
+        div()
+            .withClasses("w-full")
+            .with(each(answers, answer -> renderAnswer(programId, answer, hasEligibilityEnabled)));
 
     DivTag innerDiv =
         div(topContent, mainContent)
@@ -192,7 +197,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
-  private DivTag renderAnswer(long programId, AnswerData answerData) {
+  private DivTag renderAnswer(
+      long programId, AnswerData answerData, boolean hasEligibilityEnabled) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
@@ -202,6 +208,15 @@ public final class ProgramApplicationView extends BaseHtmlView {
       answerContent = div(a(answerData.answerText()).withHref(fileLink));
     } else {
       answerContent = div(answerData.answerText().replace("\n", "; "));
+    }
+    DivTag eligibilityAndTimestampDiv =
+        div().withClasses("flex-auto", "text-right", "font-light", "text-xs");
+    eligibilityAndTimestampDiv.with(
+        div("Answered on " + date).withClasses(ReferenceClasses.BT_DATE));
+    if (hasEligibilityEnabled) {
+      String eligibilityText =
+          answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+      eligibilityAndTimestampDiv.with(div(eligibilityText));
     }
     return div()
         .withClasses("flex")
@@ -214,10 +229,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .with(p().withClasses("w-8"))
         .with(answerContent.withClasses("text-gray-700", "text-base", "line-clamp-3"))
         .with(p().withClasses("flex-grow"))
-        .with(
-            div("Answered on " + date)
-                .withClasses(
-                    ReferenceClasses.BT_DATE, "flex-auto", "text-right", "font-light", "text-xs"));
+        .with(eligibilityAndTimestampDiv);
   }
 
   private DivTag renderStatusOptionsSelector(
@@ -291,7 +303,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                 submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder(Modal.randomModalId(), modalContent)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(modalContent)
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
         .setWidth(Width.THREE_FOURTHS)
@@ -364,7 +378,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
         button("")
             .withClasses("hidden")
             .withData("status-update-confirm-for-status", status.statusText());
-    return Modal.builder(Modal.randomModalId(), modalContent)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(modalContent)
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)

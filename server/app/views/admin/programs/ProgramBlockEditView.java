@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.*;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
@@ -172,8 +173,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    featureFlags.isProgramEligibilityConditionsEnabled(request),
-                                    featureFlags.isIntakeFormEnabled(request),
+                                    featureFlags.getFlagEnabled(
+                                        request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED),
+                                    featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -186,18 +188,13 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   blockDefinition,
                   csrfTag,
                   QuestionBank.shouldShowQuestionBank(request),
-                layout.getFeatureFlags().isPhoneQuestionTypeEnabled(request)))
+                featureFlags.getFlagEnabled(request,PHONE_QUESTION_TYPE_ENABLED)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
 
     // Add toast messages
-    request
-        .flash()
-        .get("error")
-        .map(ToastMessage::error)
-        .map(m -> m.setDuration(-1))
-        .ifPresent(htmlBundle::addToastMessages);
+    request.flash().get("error").map(ToastMessage::error).ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
@@ -556,7 +553,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
   private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
     DivTag emptyPredicateDiv;
-    if (featureFlags.isNongatedEligibilityEnabled(request)) {
+    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
       ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
       if (program.eligibilityIsGating()) {
         emptyPredicateContentBuilder.add(
@@ -572,7 +569,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                     + " minimum requirements."));
       }
       emptyPredicateContentBuilder
-          .add(text(" You can change this in "))
+          .add(text(" You can change this in the "))
           .add(
               a().withText("program settings.")
                   .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
@@ -828,7 +825,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
     String toolTipText =
         "Enabling address correction will check the resident's address to ensure it is accurate.";
-    if (!featureFlags.isEsriAddressCorrectionEnabled(request)) {
+    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
       toolTipText +=
           " To use this feature, you will need to have your IT manager configure the GIS service.";
     }
@@ -888,7 +885,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         form(csrfTag)
             .withMethod(HttpVerbs.POST)
             .withCondOnsubmit(
-                !featureFlags.isEsriAddressCorrectionEnabled(request) || questionIsUsedInPredicate,
+                !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
+                    || questionIsUsedInPredicate,
                 "return false;")
             .withCondOnsubmit(addressCorrectionEnabledQuestionAlreadyExists, "return false;")
             .withAction(toggleAddressCorrectionAction)
@@ -1030,7 +1028,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
         ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
 
-    return Modal.builder("block-delete-modal", deleteBlockForm)
+    return Modal.builder()
+        .setModalId("block-delete-modal")
+        .setContent(deleteBlockForm)
         .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
         .setWidth(Modal.Width.THIRD)
@@ -1069,7 +1069,9 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return Modal.builder("block-description-modal", blockDescriptionForm)
+    return Modal.builder()
+        .setModalId("block-description-modal")
+        .setContent(blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonContent(editScreenButton)
         .setWidth(Modal.Width.THIRD)

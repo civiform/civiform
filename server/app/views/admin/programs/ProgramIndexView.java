@@ -1,6 +1,9 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_READ_ONLY_VIEW_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -19,6 +22,7 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
+import featureflags.FeatureFlag;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -140,9 +144,9 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
     } else if (flash.get("success").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
+      htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     }
 
     return layout.renderCentered(htmlBundle);
@@ -186,7 +190,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
                             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6")
                             .withType("submit")));
-    return Modal.builder(modalId, downloadDemographicCsvModalContent)
+    return Modal.builder()
+        .setModalId(modalId)
+        .setContent(downloadDemographicCsvModalContent)
         .setModalTitle(downloadActionText)
         .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD))
         .build();
@@ -254,7 +260,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "my-2");
     Modal publishAllModal =
-        Modal.builder("publish-all-programs-modal", publishAllModalContent)
+        Modal.builder()
+            .setModalId("publish-all-programs-modal")
+            .setContent(publishAllModalContent)
             .setModalTitle("All draft programs will be published")
             .setTriggerButtonContent(publishAllButton)
             .build();
@@ -342,7 +350,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+        if (featureFlags.getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED)) {
           activeRowExtraActions.add(
               renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         } else {
@@ -350,7 +358,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         }
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      if (featureFlags.isReadOnlyProgramViewEnabled(request)) {
+      if (featureFlags.getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED)) {
         activeRowActions.add(renderViewLink(activeProgram.get(), request));
       }
       activeRowActions.add(renderShareLink(activeProgram.get()));
@@ -458,8 +466,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                   /* selectedApplicationUri= */ Optional.empty())
               .url();
 
+      String buttonText =
+          featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
+                  && activeProgram.isCommonIntakeForm()
+              ? "Forms"
+              : "Applications";
       ButtonTag button =
-          makeSvgTextButton("Applications", Icons.TEXT_SNIPPET)
+          makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET)
               .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
       return Optional.of(asRedirectElement(button, editLink));
     }
@@ -477,8 +490,11 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<ButtonTag> maybeRenderSettingsLink(
       Http.Request request, ProgramDefinition program) {
-    if (!(featureFlags.isProgramEligibilityConditionsEnabled(request)
-        && featureFlags.isNongatedEligibilityEnabled(request))) {
+    if (!(featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)
+        && featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))) {
+      return Optional.empty();
+    }
+    if (program.isCommonIntakeForm()) {
       return Optional.empty();
     }
     String linkDestination = routes.AdminProgramController.editProgramSettings(program.id()).url();

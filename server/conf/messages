@@ -33,6 +33,12 @@ guest=Guest
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Choose a language
 
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
+header.endSession=End session
+
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
+header.guestIndicator=You''re a guest user
+
 # Message with user's name to show who you are logged in as.
 header.userName=Logged in as {0}
 
@@ -49,7 +55,7 @@ validation.errorAnnouncementSr=There are errors in the form. Please fix before c
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 
 # Message displayed below "Choose File" button to say that on the phone users can use their camera.
-content.mobileFileUploadHelp=On your phone? “Choose File” also allows you to use your phone camera to upload documents.
+content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -128,20 +134,28 @@ link.createAccountOrSignIn=Create account or sign in
 
 # The text on the button an applicant clicks to apply to a specific program.
 button.apply=Apply
+
 # The text read for screen readers.
 button.applySr=Apply to {0}
+
 # The text on the button an applicant clicks to edit the application for a specific program.
 button.edit=Edit
+
 # The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
 button.editSr=Edit submitted application to {0}
+
 # The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
 button.continueSr=Continue application to {0}
+
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
+
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Start here by filling out {0}
+
 # The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
 button.editCommonIntakeSr=Edit submitted information for {0}
+
 # The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
 button.continueCommonIntakeSr=Continue filling out {0}
 
@@ -151,23 +165,26 @@ content.submittedDate=Submitted {0}
 # "Get benefits" floating text
 content.benefits=Get benefits
 
-# Long form description of the CiviForm site shown to the applicant. Line 1.
-content.description1=CiviForm lets you apply for many benefits at once by reusing information.
-
-# Long form description of the CiviForm site shown to the applicant. Line 2.
-content.description2=Get started by choosing an application below.
+# Long form description of the CiviForm site shown to the applicant.
+content.description=CiviForm helps you find benefits you may be eligible for in {0}. Get started by choosing an application below.
 
 # Link text to read more about a program.
 link.programDetails=Program details
+
 # The same text, read for screen readers.
 link.programDetailsSr=Program details for {0}
 
 # The title of the page for the list of programs.
 title.programs=Programs & services
+
 # The title for the section in the list of programs that contains the pre-screener form.
 title.findServicesSection=Find services that can help you
+
 # The title for the section in the list of programs that contains all regular, non-pre-screener programs.
 title.allProgramsSection=All programs ({0})
+
+# For the badge on the program list index denoting the current status of an application
+title.status=Status
 
 # Subtitle for the list of programs with draft applications
 title.inProgressProgramsUpdated=In progress
@@ -177,6 +194,9 @@ title.activeProgramsUpdated=Not started
 
 # Subtitle for the list of programs for which the applicant has already submitted an application
 title.submittedPrograms=Submitted
+
+# Badge on an application that has a status assigned to it
+title.status=Status
 
 # A toast message that displays when an applicant submits an application.
 toast.applicationSaved=Successfully saved application: application ID {0}
@@ -274,7 +294,7 @@ title.cannotCheckEligibility=At this time, we are unable to check your eligibili
 title.cannotCheckEligibilityTi=At this time, we are unable to check your client''s eligibility for the {0}.
 
 # Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=We’re working to fix this issue quickly. Try again at a later time.
+content.cannotCheckEligibility=We're working to fix this issue quickly. Try again at a later time.
 
 # Button that allows an applicant to view all programs.
 button.viewAllPrograms=View all programs
@@ -361,6 +381,17 @@ content.noValidAddress=We could not verify the address that you provided. Please
 # Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=Choose an option:
 
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
+label.countryCode=Country
+label.phoneNumber=Enter Phone number
+validation.phoneNumberRequired=Phone number is required
+validation.phoneCountryCodeRequired=Country must be selected
+validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters
+validation.invalidPhoneNumberProvided=This number is invalid
+validation.phoneMustBeLocalToCountry=The phone you have provided does not belong to the country
 
 #----------------------------------------------------------------------------------------------------------#
 # DATE QUESTION - text shown when answering a question where a user must select date. #
@@ -463,5 +494,35 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 # 404 PAGE ERROR - error messages displayed on 404 page #
 #-------------------------------------------------------#
 error.notFoundTitle=We were unable to find the page you tried to visit
-error.notFoundDescription='Please go back or return to the '
+error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=Log in to Civiform at {0}
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=Your application to program {0} is received
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=Your application to program {0} has been received. Your applicant ID is {1} and the application ID is {2}
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=You submitted an application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=The application to program {0} as applicant {1} has been received, and the application ID is {2}.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=Manage your clients at {0}.
+
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=An update on your application {0}
+
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=An update on the application for program {0} on behalf of applicant {1}
+
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=The status for applicant {0} on program {1} has changed to {2}.

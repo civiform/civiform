@@ -4,169 +4,140 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import junitparams.JUnitParamsRunner;
+import junitparams.NamedParameters;
+import junitparams.Parameters;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import play.mvc.Http.Request;
 
+@RunWith(JUnitParamsRunner.class)
 public class FeatureFlagsTest {
 
-  private static final Config overridesEnabledConfig =
-      ConfigFactory.parseMap(ImmutableMap.of("feature_flag_overrides_enabled", "true"));
-  private static final Config everythingEnabledConfig =
-      ConfigFactory.parseMap(
-          ImmutableMap.of(
-              "feature_flag_overrides_enabled",
-              "true",
-              FeatureFlags.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
-              "true",
-              FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-              "true",
-              FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-              "true"));
+  private static final List<FeatureFlag> ALL_FEATURE_FLAGS =
+      Arrays.stream(FeatureFlag.values())
+          // Exclude the override flag because it is not a true feature.
+          .filter(flag -> flag != FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED)
+          .collect(Collectors.toList());
 
-  private static final Config featuresEnabledConfig =
-      ConfigFactory.parseMap(
-          ImmutableMap.of(
-              FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-              "true",
-              FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-              "true"));
-  private static final Map<String, String> allFeaturesEnabledMap =
-      Map.of(
-          FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "true",
-          FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-          "true");
-  private static final Request allFeaturesEnabledRequest =
-      fakeRequest().session(allFeaturesEnabledMap).build();
+  // When unit test methods specify this named parameter, they will set their
+  // FeatureFlag parameter to every possible value except
+  // FEATURE_FLAG_OVERRIDES_ENABLED.
+  private static final String ALL_FEATURE_FLAGS_LIST = "allFlagsExceptOverrideList";
 
-  private static final Map<String, String> allFeaturesDisabledMap =
-      Map.of(
-          FeatureFlags.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-          "false",
-          FeatureFlags.PROGRAM_READ_ONLY_VIEW_ENABLED,
-          "false");
-  private static final Config featuresDisabledConfig =
-      ConfigFactory.parseMap(allFeaturesDisabledMap);
-  private static final Request allFeaturesDisabledRequest =
-      fakeRequest().session(allFeaturesDisabledMap).build();
+  @NamedParameters(ALL_FEATURE_FLAGS_LIST)
+  private static List<FeatureFlag> allFeatureFlagsList() {
+    return ALL_FEATURE_FLAGS;
+  }
 
-  @Test
-  public void isEnabled_withNoConfig_withNoOverride_isNotEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
+  /** Helper method to test the FeatureFlags::getFlagEnabled method based on specific situations. */
+  private static boolean testGetFlagEnabled(
+      boolean configHasFlagsEnabled,
+      boolean configHasOverridesEnabled,
+      boolean requestHasFlagOverrides,
+      FeatureFlag flag) {
+    ImmutableMap.Builder<String, String> configMap = ImmutableMap.builder();
+    if (configHasFlagsEnabled) {
+      ALL_FEATURE_FLAGS.forEach(featureFlag -> configMap.put(featureFlag.toString(), "true"));
+    }
+    if (configHasOverridesEnabled) {
+      configMap.put(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString(), "true");
+    }
+    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.parseMap(configMap.build()));
 
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
+    Request request;
+    if (requestHasFlagOverrides) {
+      request =
+          fakeRequest()
+              .session(
+                  ALL_FEATURE_FLAGS.stream()
+                      .collect(Collectors.toMap(FeatureFlag::toString, unused -> "true")))
+              .build();
+    } else {
+      request = fakeRequest().build();
+    }
+
+    return featureFlags.getFlagEnabled(request, flag);
   }
 
   @Test
-  public void isEnabled_withOverridesDisabled_withOverride_isNotEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
-
-    // Overrides only apply if the config is present.
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
+  @Parameters(named = ALL_FEATURE_FLAGS_LIST)
+  public void isEnabled_correctly(FeatureFlag flag) {
+    // The flag isn't mentioned anywhere, so it should be false.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ false,
+                /*configHasOverridesEnabled=*/ false,
+                /*requestHasFlagOverrides=*/ false,
+                flag))
         .isFalse();
-  }
 
-  @Test
-  public void isEnabled_withFeatureDisabled_withNoOverride_isDisables() {
-    FeatureFlags featureFlags = new FeatureFlags(featuresDisabledConfig);
-
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isFalse();
-  }
-
-  @Test
-  public void isEnabled_withFeatureEnabled_withNoOverride_isEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
-
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(fakeRequest().build())).isTrue();
-  }
-
-  @Test
-  public void isEnabled_withFeatureUnset_withOverridesEnabled_withOverride_isNotEnabled() {
-    // A flag not in the config can not be overriden.
-    FeatureFlags featureFlags = new FeatureFlags(overridesEnabledConfig);
-
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
-        .isFalse();
-  }
-
-  @Test
-  public void isEnabled_withFeatureEnabled_withOverridesDisabled_withDisabledOverride_isEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
-
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesDisabledRequest))
+    // The flag is set to true in the config, so it should be true.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ true,
+                /*configHasOverridesEnabled=*/ false,
+                /*requestHasFlagOverrides=*/ false,
+                flag))
         .isTrue();
-  }
 
-  @Test
-  public void isEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideFalse_isNotEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
-
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesDisabledRequest))
+    // The flag is not set in the config despite overrides being set, so it should be false.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ false,
+                /*configHasOverridesEnabled=*/ true,
+                /*requestHasFlagOverrides=*/ false,
+                flag))
         .isFalse();
-  }
 
-  @Test
-  public void isEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
-    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
+    // The request overrides the flag to true, but overrides are disabled.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ false,
+                /*configHasOverridesEnabled=*/ false,
+                /*requestHasFlagOverrides=*/ true,
+                flag))
+        .isFalse();
 
-    assertThat(featureFlags.isProgramEligibilityConditionsEnabled(allFeaturesEnabledRequest))
+    // The request overrides the flag to true, and overrides are enabled.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ true,
+                /*configHasOverridesEnabled=*/ true,
+                /*requestHasFlagOverrides=*/ false,
+                flag))
         .isTrue();
-  }
 
-  @Test
-  public void programReadOnlyViewEnabled_withNoConfig_withNoOverride_isNotEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(fakeRequest().build())).isFalse();
-  }
+    // The config set the flag to true. The request does as well, but overrides are
+    // disabled so this is a no-op.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ true,
+                /*configHasOverridesEnabled=*/ false,
+                /*requestHasFlagOverrides=*/ true,
+                flag))
+        .isTrue();
 
-  @Test
-  public void programReadOnlyViewEnabled_withOverridesDisabled_withOverride_isNotEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(ConfigFactory.empty());
-    // Overrides only apply if the config is present.
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
-  }
-
-  @Test
-  public void programReadOnlyViewEnabled_withFeatureEnabled_withNoOverride_isEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(fakeRequest().build())).isTrue();
-  }
-
-  @Test
-  public void
-      programReadOnlyViewEnabled_withFeatureUnset_withOverridesEnabled_withOverride_isNotEnabled() {
     // A flag not in the config can not be overriden.
-    FeatureFlags featureFlags = new FeatureFlags(overridesEnabledConfig);
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isFalse();
-  }
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ false,
+                /*configHasOverridesEnabled=*/ true,
+                /*requestHasFlagOverrides=*/ true,
+                flag))
+        .isFalse();
 
-  @Test
-  public void
-      programReadOnlyViewEnabled_withFeatureEnabled_withOverridesDisabled_withDisabledOverride_isEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(featuresEnabledConfig);
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isTrue();
-  }
-
-  @Test
-  public void
-      programReadOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideFalse_isNotEnabled() {
-    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesDisabledRequest)).isFalse();
-  }
-
-  @Test
-  public void
-      programReadOnlyViewEnabled_withFeatureEnabled_withOverridesEnabled_withOverrideTrue_isTrue() {
-    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
-    assertThat(featureFlags.isReadOnlyProgramViewEnabled(allFeaturesEnabledRequest)).isTrue();
-  }
-
-  @Test
-  public void allowCiviformAdminAccessPrograms_isTrue() {
-    FeatureFlags featureFlags = new FeatureFlags(everythingEnabledConfig);
-    assertThat(featureFlags.allowCiviformAdminAccessPrograms(fakeRequest().build())).isTrue();
+    // The config set the flag to true. The request does as well, and overrides are enabled.
+    assertThat(
+            testGetFlagEnabled(
+                /*configHasFlagsEnabled=*/ true,
+                /*configHasOverridesEnabled=*/ true,
+                /*requestHasFlagOverrides=*/ true,
+                flag))
+        .isTrue();
   }
 }

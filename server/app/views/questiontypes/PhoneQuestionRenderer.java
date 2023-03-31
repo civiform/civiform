@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.OptionTag;
 import play.i18n.Messages;
 import services.MessageKey;
 import services.Path;
@@ -14,7 +15,7 @@ import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.style.ReferenceClasses;
 
-import static j2html.TagCreator.div;
+import static j2html.TagCreator.*;
 
 public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
   PhoneQuestionRenderer(ApplicantQuestion question) {
@@ -32,9 +33,21 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     PhoneQuestion phoneQuestion = question.createPhoneQuestion();
 
     Messages messages = params.messages();
+  /*  OptionTag optionTagUS = option("US").withValue("US");
+    OptionTag optionTagCA = option("CA").withValue("CA");
+
+    /*DivTag countryCodeField = new DivTag().with(
+      select()
+      .withId("cf-country-selector")
+      .with(optionTagCA)
+      .with(optionTagUS)
+        .withName(phoneQuestion.getCountryCodePath().toString())
+        .setFi
+      . );*/
+
     SelectWithLabel countryCodeField =
       (SelectWithLabel)
-        new SelectWithLabel()
+        new SelectWithLabel().addStyleClass("py-15")
           .setFieldName(phoneQuestion.getCountryCodePath().toString())
           .setValue(phoneQuestion.getCountryCodeValue().orElse(""))
           .setLabelText(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
@@ -69,7 +82,9 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
     }
 
-   return div().with(countryCodeField.getSelectTag(), phoneField.getInputTag());
+   return div()
+      .withClasses("grid", "grid-cols-2", "gap-3")
+      .with(countryCodeField.getSelectTag(), phoneField.getInputTag());
   }
 
   private static ImmutableList<SelectWithLabel.OptionValue> countryOptions() {

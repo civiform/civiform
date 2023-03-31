@@ -125,25 +125,32 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
       ImmutableList<ProgramDefinition> programDefinitions) {
-    return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            roQuestionService ->
-                programDefinitions.stream()
-                    .map(
-                        programDefinition -> {
-                          try {
-                            return syncProgramDefinitionQuestions(
-                                programDefinition, roQuestionService);
-                          } catch (QuestionNotFoundException e) {
-                            throw new RuntimeException(
-                                String.format(
-                                    "Question not found for Program %s", programDefinition.id()),
-                                e);
-                          }
-                        })
-                    .collect(ImmutableList.toImmutableList()),
-            httpExecutionContext.current());
+
+    /* TEMP BUG FIX
+     * Because some of the programs are not in the active version,
+     * and we need to sync the questions for each program to calculate
+     * eligibility state, we must sync each program with a version it
+     * is associated with. This diverges from previous behavior where
+     * we did not need to sync the programs because the contents of their
+     * questions was not needed in the index view.
+     */
+    return CompletableFuture.completedFuture(
+        programDefinitions.stream()
+            .map(
+                programDef -> {
+                  Program p = programDef.toProgram();
+                  p.refresh();
+                  Version v = p.getVersions().stream().findAny().orElseThrow();
+                  try {
+                    return syncProgramDefinitionQuestions(
+                        programDef, questionService.getReadOnlyVersionedQuestionService(v));
+                    /* END TEMP BUG FIX */
+                  } catch (QuestionNotFoundException e) {
+                    throw new RuntimeException(
+                        String.format("Question not found for Program %s", programDef.id()), e);
+                  }
+                })
+            .collect(ImmutableList.toImmutableList()));
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
@@ -560,11 +567,18 @@ public final class ProgramServiceImpl implements ProgramService {
         .isPresent()) {
       throw new DuplicateStatusException(status.statusText());
     }
+    ImmutableList<StatusDefinitions.Status> currentStatuses =
+        program.statusDefinitions().getStatuses();
+    ImmutableList<StatusDefinitions.Status> updatedStatuses =
+        status.defaultStatus().orElse(false)
+            ? unsetDefaultStatus(currentStatuses, Optional.empty())
+            : currentStatuses;
+
     program
         .statusDefinitions()
         .setStatuses(
             ImmutableList.<StatusDefinitions.Status>builder()
-                .addAll(program.statusDefinitions().getStatuses())
+                .addAll(updatedStatuses)
                 .add(status)
                 .build());
 
@@ -573,6 +587,17 @@ public final class ProgramServiceImpl implements ProgramService {
                 programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
             .toCompletableFuture()
             .join());
+  }
+
+  private ImmutableList<StatusDefinitions.Status> unsetDefaultStatus(
+      List<StatusDefinitions.Status> statuses, Optional<String> exceptStatusName) {
+    return statuses.stream()
+        .<StatusDefinitions.Status>map(
+            status ->
+                exceptStatusName.map(name -> status.matches(name)).orElse(false)
+                    ? status
+                    : status.toBuilder().setDefaultStatus(Optional.of(false)).build())
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override
@@ -601,8 +626,14 @@ public final class ProgramServiceImpl implements ProgramService {
         && statusNameToIndex.containsKey(editedStatus.statusText())) {
       throw new DuplicateStatusException(editedStatus.statusText());
     }
+
     statusesCopy.set(statusNameToIndex.get(toReplaceStatusName), editedStatus);
-    program.statusDefinitions().setStatuses(ImmutableList.copyOf(statusesCopy));
+    ImmutableList<StatusDefinitions.Status> updatedStatuses =
+        editedStatus.defaultStatus().orElse(false)
+            ? unsetDefaultStatus(statusesCopy, Optional.of(editedStatus.statusText()))
+            : ImmutableList.copyOf(statusesCopy);
+
+    program.statusDefinitions().setStatuses(updatedStatuses);
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(

@@ -57,7 +57,7 @@ public final class QuestionBank {
     this.params = checkNotNull(params);
   }
 
-  public DivTag getContainer(QuestionBank.Visibility questionBankVisibility, boolean phoneQuestionTypeEnabled) {
+  public DivTag getContainer(Visibility questionBankVisibility, boolean phoneQuestionTypeEnabled) {
     return div()
         .withId(ReferenceClasses.QUESTION_BANK_CONTAINER)
         // For explanation of why we need two different hidden classes see
