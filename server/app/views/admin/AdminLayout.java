@@ -153,7 +153,8 @@ public final class AdminLayout extends BaseHtmlLayout {
           .with(reportingHeaderLink);
     }
 
-    return adminHeader.with(headerLink("Logout", logoutLink, "float-right"));
+    return adminHeader.with(
+        headerLink("Logout", logoutLink, "float-right").withId("logout-button"));
   }
 
   private ATag headerLink(String text, String href, String... styles) {

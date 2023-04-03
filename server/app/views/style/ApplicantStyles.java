@@ -27,9 +27,14 @@ public final class ApplicantStyles {
           "flex-wrap",
           "content-center",
           StyleUtils.hover("opacity-100"));
-  public static final String LINK_LOGOUT =
+  public static final String LINK =
       StyleUtils.joinStyles(
-          "text-base", "font-bold", "opacity-75", StyleUtils.hover("opacity-100"));
+          "text-sm",
+          "text-blue-900",
+          "font-bold",
+          "opacity-75",
+          "underline",
+          StyleUtils.hover("opacity-100"));
 
   public static final String PROGRAM_APPLICATION_TITLE =
       StyleUtils.joinStyles("text-3xl", "text-black", "font-bold", "mt-8", "mb-4");
