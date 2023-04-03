@@ -343,16 +343,10 @@ public final class AddressQuestion extends Question {
     BiFunction<Path, Optional<String>, Boolean> checkIfChanged =
         (path, value) -> !Objects.equals(formData.get(path.toString()), value.orElse(""));
 
-    boolean hasChangesStreet = checkIfChanged.apply(getStreetPath(), getStreetValue());
-    boolean hasChangesLine2 = checkIfChanged.apply(getLine2Path(), getLine2Value());
-    boolean hasChangesCity = checkIfChanged.apply(getCityPath(), getCityValue());
-    boolean hasChangesState = checkIfChanged.apply(getStatePath(), getStateValue());
-    boolean hasChangesZip = checkIfChanged.apply(getZipPath(), getZipValue());
-
-    return hasChangesStreet
-        || hasChangesLine2
-        || hasChangesCity
-        || hasChangesState
-        || hasChangesZip;
+    return checkIfChanged.apply(getStreetPath(), getStreetValue())
+      || checkIfChanged.apply(getLine2Path(), getLine2Value())
+      || checkIfChanged.apply(getCityPath(), getCityValue())
+      || checkIfChanged.apply(getStatePath(), getStateValue())
+      || checkIfChanged.apply(getZipPath(), getZipValue());
   }
 }

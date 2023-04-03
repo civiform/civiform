@@ -1544,20 +1544,22 @@ public final class ApplicantService {
               Optional<ApplicantQuestion> addressQuestionMaybe =
                   blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
 
-              if (addressQuestionMaybe.isPresent()) {
-                AddressQuestion addressQuestion =
-                    addressQuestionMaybe.get().createAddressQuestion();
+              if (addressQuestionMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(formData);
+              }
 
-                if (addressQuestion.hasChanges(formData)) {
-                  return CompletableFuture.completedFuture(
-                      new ImmutableMap.Builder<String, String>()
-                          .putAll(formData)
-                          .put(addressQuestion.getCorrectedPath().toString(), "")
-                          .put(addressQuestion.getLatitudePath().toString(), "")
-                          .put(addressQuestion.getLongitudePath().toString(), "")
-                          .put(addressQuestion.getWellKnownIdPath().toString(), "")
-                          .build());
-                }
+              AddressQuestion addressQuestion =
+                  addressQuestionMaybe.get().createAddressQuestion();
+
+              if (addressQuestion.hasChanges(formData)) {
+                return CompletableFuture.completedFuture(
+                    new ImmutableMap.Builder<String, String>()
+                        .putAll(formData)
+                        .put(addressQuestion.getCorrectedPath().toString(), "")
+                        .put(addressQuestion.getLatitudePath().toString(), "")
+                        .put(addressQuestion.getLongitudePath().toString(), "")
+                        .put(addressQuestion.getWellKnownIdPath().toString(), "")
+                        .build());
               }
 
               return CompletableFuture.completedFuture(formData);
