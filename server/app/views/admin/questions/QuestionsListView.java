@@ -473,7 +473,7 @@ public final class QuestionsListView extends BaseHtmlView {
       return Optional.empty();
     }
 
-    DivTag referencingProgramModalContent = div().withClasses("p-6", "flex-row", "space-y-6");
+    DivTag referencingProgramModalContent = div().withClasses("flex-row", "space-y-6");
     if (modalHeader.isPresent()) {
       referencingProgramModalContent.with(modalHeader.get());
     }
@@ -506,7 +506,9 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withClass("text-sm"));
 
     return Optional.of(
-        Modal.builder(Modal.randomModalId(), referencingProgramModalContent)
+        Modal.builder()
+            .setModalId(Modal.randomModalId())
+            .setContent(referencingProgramModalContent)
             .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
             .build());
@@ -645,7 +647,9 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
 
     Modal modal =
-        Modal.builder("discard-confirmation-modal", discardConfirmationDiv)
+        Modal.builder()
+            .setModalId("discard-confirmation-modal")
+            .setContent(discardConfirmationDiv)
             .setModalTitle("Discard draft?")
             .setTriggerButtonContent(discardMenuButton)
             .setWidth(Width.FOURTH)

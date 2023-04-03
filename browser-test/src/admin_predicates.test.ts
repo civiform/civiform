@@ -266,8 +266,10 @@ describe('create and edit predicates', () => {
     await applicantQuestions.expectIneligiblePage()
     await validateScreenshot(page, 'ineligible')
 
-    await page.click('text=program details')
+    // Begin waiting for the popup before clicking the link, otherwise
+    // the popup may fire before the wait is registered, causing the test to flake.
     const popupPromise = page.waitForEvent('popup')
+    await page.click('text=program details')
     const popup = await popupPromise
     const popupURL = await popup.evaluate('location.href')
 

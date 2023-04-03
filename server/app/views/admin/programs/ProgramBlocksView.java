@@ -1047,13 +1047,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
       deleteBlockForm
           .withId("block-delete-form")
           .with(
-              div(h1("Are you sure you want to delete this screen?")
-                      .withClasses("text-base", "mb-2"))
-                  .withClasses("mx-4"),
+              div(
+                  h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                  .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     } else {
       // If there are questions, eligibility conditions, or visibility conditions on this screen,
       // print the appropriate message.
@@ -1071,22 +1070,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                      h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
-                          .withClasses("text-base", "mb-2"),
-                      h1("Are you sure you want to delete this screen?")
-                          .withClasses("text-base", "mb-2"))
-                  .withClasses("mx-4"),
+                  h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
+                      .withClasses("text-base", "mb-2"),
+                  h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                  .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     }
 
     ButtonTag deleteScreenButton =
         ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
 
-    return Modal.builder("block-delete-modal", deleteBlockForm)
+    return Modal.builder()
+        .setModalId("block-delete-modal")
+        .setContent(deleteBlockForm)
         .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
         .setWidth(Modal.Width.THIRD)
@@ -1129,7 +1128,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
-    return Modal.builder("block-description-modal", blockDescriptionForm)
+    return Modal.builder()
+        .setModalId("block-description-modal")
+        .setContent(blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonContent(editScreenButton)
         .setWidth(Modal.Width.THIRD)

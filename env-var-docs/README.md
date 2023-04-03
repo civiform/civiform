@@ -40,11 +40,16 @@ server is deployed.
 
 ### Running locally
 
-To run check_vars_documented.py and run_regex_tests.py locally:
+```sh
+# Before running any env-var-docs scripts, a python virtual environment (venv) must be created:
+bin/env-var-docs-create-venv
 
-1. First ensure a python virtual environment (venv) is created to run the
-   scripts in: `bin/env-var-docs-create-venv`.
-1. Run `bin/env-var-docs-check-vars`.
+# Run check_vars_documented.py and run_regex_tests.py:
+bin/env-var-docs-check-vars
+
+# Run generate_markdown.py:
+bin/env-var-docs-generate-markdown
+```
 
 ## Developer setup
 

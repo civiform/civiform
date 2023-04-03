@@ -285,8 +285,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     // No form action or content is rendered since admin_application_view.ts extracts the values
     // and calls postMessage rather than attempting a submission. The main frame is responsible for
     // constructing a form to update the note.
-    FormTag modalContent =
-        form().withId(formId).withClasses("px-6", "py-2", "cf-program-admin-edit-note-form");
+    FormTag modalContent = form().withId(formId).withClasses("cf-program-admin-edit-note-form");
     modalContent.with(
         input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
         input().withName(APPLICATION_ID).withValue(Long.toString(application.id)).isHidden(),
@@ -303,7 +302,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 button("Cancel")
                     .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                 submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
-    return Modal.builder(Modal.randomModalId(), modalContent)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(modalContent)
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
         .setWidth(Width.THREE_FOURTHS)
@@ -325,7 +326,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
     // constructing a form to update the status.
     FormTag modalContent =
         form()
-            .withClasses("px-6", "py-2", "cf-program-admin-status-update-form")
+            .withClasses("cf-program-admin-status-update-form")
             .with(
                 input().withName(PROGRAM_ID).withValue(Long.toString(programId)).isHidden(),
                 input()
@@ -376,7 +377,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
         button("")
             .withClasses("hidden")
             .withData("status-update-confirm-for-status", status.statusText());
-    return Modal.builder(Modal.randomModalId(), modalContent)
+    return Modal.builder()
+        .setModalId(Modal.randomModalId())
+        .setContent(modalContent)
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
         .setTriggerButtonContent(triggerButton)

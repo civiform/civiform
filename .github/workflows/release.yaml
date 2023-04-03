@@ -31,3 +31,11 @@ jobs:
 
       - name: Run bin/create-release
         run: 'GH_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/create-release ${{ github.event.inputs.commit_sha }} ${{ github.event.inputs.release_number }}'
+
+  update_environment_variable_documentation_markdown:
+    needs: create_release # The generate markdown job relies on the release tag being added, so wait for bin/create-release to complete.
+    uses: ./.github/workflows/generate_env_var_docs_markdown_for_release.yaml
+    with:
+      release_number: ${{ github.event.inputs.release_number }}
+    secrets:
+      AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN: ${{ secrets.AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN }}

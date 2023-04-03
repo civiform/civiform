@@ -190,7 +190,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
                             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6")
                             .withType("submit")));
-    return Modal.builder(modalId, downloadDemographicCsvModalContent)
+    return Modal.builder()
+        .setModalId(modalId)
+        .setContent(downloadDemographicCsvModalContent)
         .setModalTitle(downloadActionText)
         .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD))
         .build();
@@ -216,7 +218,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag publishAllModalContent =
         div()
-            .withClasses("p-6", "flex-row", "space-y-6")
+            .withClasses("flex-row", "space-y-6")
             .with(
                 p("Please be aware that due to the nature of shared questions and versioning,"
                         + " all questions and programs will need to be published together.")
@@ -258,7 +260,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "my-2");
     Modal publishAllModal =
-        Modal.builder("publish-all-programs-modal", publishAllModalContent)
+        Modal.builder()
+            .setModalId("publish-all-programs-modal")
+            .setContent(publishAllModalContent)
             .setModalTitle("All draft programs will be published")
             .setTriggerButtonContent(publishAllButton)
             .build();

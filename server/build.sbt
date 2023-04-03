@@ -23,7 +23,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // JSON libraries
-      "com.jayway.jsonpath" % "json-path" % "2.7.0",
+      "com.jayway.jsonpath" % "json-path" % "2.8.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.2",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.2",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
@@ -33,8 +33,8 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.33",
-      "software.amazon.awssdk" % "ses" % "2.20.33",
+      "software.amazon.awssdk" % "s3" % "2.20.35",
+      "software.amazon.awssdk" % "ses" % "2.20.35",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.8.1",
