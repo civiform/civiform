@@ -510,9 +510,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return buttons;
   }
 
-  /**
-   * Creates the UI that is used to display or edit the visibility setting of a specified block.
-   */
+  /** Creates the UI that is used to display or edit the visibility setting of a specified block. */
   private DivTag renderVisibilityPredicate(
       long programId,
       long blockId,
@@ -836,9 +834,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .with(optionalButton));
   }
 
-  /**
-   * Creates label that can be used in the read only view, for example to replace a toggle.
-   **/
+  /** Creates label that can be used in the read only view, for example to replace a toggle. */
   private DivTag renderReadOnlyLabel(String label) {
     DivTag ret =
         div()
@@ -1013,10 +1009,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return qb.getContainer(questionBankVisibility);
   }
 
-  /** 
-   * Creates a modal, which allows the admin to confirm that they want to delete
-   * a block. 
-   **/
+  /** Creates a modal, which allows the admin to confirm that they want to delete a block. */
   private Modal renderBlockDeleteModal(
       InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
 
@@ -1141,10 +1134,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return programDefinition.getBlockDefinitionsForEnumerator(blockId).isEmpty();
   }
 
-  /**
-   * Returns if this view is editable or not.
-   * A view is editable only if it represents a draft.
-   */
+  /** Returns if this view is editable or not. A view is editable only if it represents a draft. */
   private boolean viewAllowsEditingProgram() {
     return programDisplayType.equals(DRAFT);
   }
