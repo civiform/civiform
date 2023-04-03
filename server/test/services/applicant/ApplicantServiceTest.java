@@ -2795,11 +2795,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             "Expected to find an address with address correction enabled in block");
   }
 
-  @Test
-  public void getAddressSuggestionGroup_isSuccessful()
+  /* Creates a program with an address question with address correction enabled,
+   * creates an applicant, creates a block with the given address, then returns
+   * the block for use in getAddressSuggestionGroup.
+   */
+  public Block createProgramAndBlockWithAddress(String address)
       throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
           ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
-    // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -2829,9 +2831,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
-            .put(
-                Path.create("applicant.applicant_address").join(Scalar.STREET).toString(),
-                "Legit Address")
+            .put(Path.create("applicant.applicant_address").join(Scalar.STREET).toString(), address)
             .put(Path.create("applicant.applicant_address").join(Scalar.CITY).toString(), "City")
             .put(Path.create("applicant.applicant_address").join(Scalar.STATE).toString(), "State")
             .put(Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(), "55555")
@@ -2845,19 +2845,41 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicantData applicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    Block blockWithUpdatedData =
-        new Block(
-            String.valueOf(blockDefinition.id()),
-            blockDefinition,
-            applicantDataAfter,
-            Optional.empty());
+    return new Block(
+        String.valueOf(blockDefinition.id()),
+        blockDefinition,
+        applicantDataAfter,
+        Optional.empty());
+  }
 
-    // Act
+  @Test
+  public void getAddressSuggestionGroup_isSuccessful()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    Block block = createProgramAndBlockWithAddress("Legit Address");
     AddressSuggestionGroup addressSuggestionGroup =
-        subject.getAddressSuggestionGroup(blockWithUpdatedData).toCompletableFuture().join();
-
-    // Assert
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
     assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(4);
+  }
+
+  @Test
+  public void getAddressSuggestionGroup_noSuggestions()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    Block block = createProgramAndBlockWithAddress("Bogus Address");
+    AddressSuggestionGroup addressSuggestionGroup =
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
+    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
+  }
+
+  @Test
+  public void getAddressSuggestionGroup_errorFromService()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException,
+          ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
+    Block block = createProgramAndBlockWithAddress("Error Address");
+    AddressSuggestionGroup addressSuggestionGroup =
+        subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
+    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(0);
   }
 
   @Test

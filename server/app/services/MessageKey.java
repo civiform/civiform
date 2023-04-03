@@ -2,8 +2,10 @@ package services;
 
 /** Contains keys into the {@code messages} files used for translation. */
 public enum MessageKey {
-  ADDRESS_CORRECTION_HEADING("title.verifyAddress"),
-  ADDRESS_CORRECTION_PAGE_INSTRUCTIONS("content.foundSimilarAddress"),
+  ADDRESS_CORRECTION_VERIFY_TITLE("title.verifyAddress"),
+  ADDRESS_CORRECTION_NO_VALID_TITLE("title.noValidAddress"),
+  ADDRESS_CORRECTION_VERIFY_INSTRUCTIONS("content.foundSimilarAddress"),
+  ADDRESS_CORRECTION_NO_VALID_INSTRUCTIONS("content.noValidAddress"),
   ADDRESS_CORRECTION_AS_ENTERED_HEADING("content.addressEntered"),
   ADDRESS_CORRECTION_SUGGESTED_ADDRESS_HEADING("content.suggestedAddress"),
   ADDRESS_CORRECTION_SUGGESTED_ADDRESSES_HEADING("content.suggestedAddresses"),

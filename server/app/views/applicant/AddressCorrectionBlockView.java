@@ -96,14 +96,18 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
             .withAction(formAction)
             .withMethod(Http.HttpVerbs.POST)
             .with(makeCsrfTokenInputTag(params.request()));
+    MessageKey title =
+        suggestions.size() > 0
+            ? MessageKey.ADDRESS_CORRECTION_VERIFY_TITLE
+            : MessageKey.ADDRESS_CORRECTION_NO_VALID_TITLE;
+    MessageKey instructions =
+        suggestions.size() > 0
+            ? MessageKey.ADDRESS_CORRECTION_VERIFY_INSTRUCTIONS
+            : MessageKey.ADDRESS_CORRECTION_NO_VALID_INSTRUCTIONS;
+    form.with(h2(messages.at(title.getKeyName())).withClass("font-bold mb-2"))
+        .with(div(messages.at(instructions.getKeyName())).withClass("mb-8"));
 
-    form.with(
-            h2(messages.at(MessageKey.ADDRESS_CORRECTION_HEADING.getKeyName()))
-                .withClass("font-bold mb-2"))
-        .with(
-            div(messages.at(MessageKey.ADDRESS_CORRECTION_PAGE_INSTRUCTIONS.getKeyName()))
-                .withClass("mb-8"));
-
+    boolean anySuggestions = suggestions.size() > 0;
     if (!isEligibilityEnabled) {
       form.with(
           div()
@@ -111,20 +115,24 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
               .with(
                   renderAsEnteredHeading(
                       params.applicantId(), params.programId(), params.block().getId(), messages),
-                  renderAddress(addressAsEntered, false, Optional.empty())));
+                  renderAddress(
+                      addressAsEntered,
+                      /* selected= */ !anySuggestions,
+                      /* hideButton= */ !anySuggestions,
+                      /* singleLineAddress= */ Optional.empty())));
     }
 
-    MessageKey suggestionsHeadingMessageKey =
-        suggestions.size() <= 1
-            ? MessageKey.ADDRESS_CORRECTION_SUGGESTED_ADDRESS_HEADING
-            : MessageKey.ADDRESS_CORRECTION_SUGGESTED_ADDRESSES_HEADING;
+    if (anySuggestions) {
+      MessageKey suggestionsHeadingMessageKey =
+          suggestions.size() <= 1
+              ? MessageKey.ADDRESS_CORRECTION_SUGGESTED_ADDRESS_HEADING
+              : MessageKey.ADDRESS_CORRECTION_SUGGESTED_ADDRESSES_HEADING;
 
-    form.with(
-        h3(messages.at(suggestionsHeadingMessageKey.getKeyName())).withClass("font-bold mb-2"),
-        div()
-            .withClasses("mb-8")
-            .with(renderSuggestedAddresses(suggestions))
-            .with(renderBottomNavButtons(params)));
+      form.with(
+          h3(messages.at(suggestionsHeadingMessageKey.getKeyName())).withClass("font-bold mb-2"),
+          div().withClasses("mb-8").with(renderSuggestedAddresses(suggestions)));
+    }
+    form.with(renderBottomNavButtons(params));
 
     return form;
   }
@@ -165,6 +173,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
           renderAddress(
               suggestion.getAddress(),
               selected,
+              /* hideButton= */ false,
               Optional.ofNullable(suggestion.getSingleLineAddress())));
       selected = false;
     }
@@ -173,14 +182,15 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private LabelTag renderAddress(
-      Address address, boolean selected, Optional<String> singleLineAddress) {
+      Address address, boolean selected, boolean hideButton, Optional<String> singleLineAddress) {
     LabelTag containerDiv = label().withClass("flex flex-nowrap mb-2");
 
     InputTag input =
         TagCreator.input()
             .withType("radio")
             .withName(SELECTED_ADDRESS_NAME)
-            .withClass("cf-radio-input h-4 w-4 mr-4 align-middle");
+            .withClass("cf-radio-input h-4 w-4 mr-4 align-middle")
+            .withCondHidden(hideButton);
 
     if (singleLineAddress.isPresent()) {
       input.withValue(singleLineAddress.get());

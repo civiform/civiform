@@ -60,10 +60,10 @@ public abstract class EsriClient {
    * Calls an external Esri service to get address suggestions given the provided {@link Address}.
    * Takes the returned address suggestions to build an {@link AddressSuggestionGroup}.
    *
-   * @return an optional {@link AddressSuggestionGroup} if successful, or an empty optional if the
-   *     request fails.
+   * @return an {@link AddressSuggestionGroup}, which may have an empty list of suggestions if the
+   *     Esri service had an error or returned bad data.
    */
-  public CompletionStage<Optional<AddressSuggestionGroup>> getAddressSuggestions(Address address) {
+  public CompletionStage<AddressSuggestionGroup> getAddressSuggestions(Address address) {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", address.getStreet());
     addressJson.put("line2", address.getLine2());
@@ -79,7 +79,11 @@ public abstract class EsriClient {
                     "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
                         + " EsriClient.getAddressSuggestions. Address = {}",
                     address);
-                return Optional.empty();
+                return AddressSuggestionGroup.builder()
+                    .setWellKnownId(0)
+                    .setOriginalAddress(address)
+                    .setAddressSuggestions(ImmutableList.of())
+                    .build();
               }
               JsonNode json = maybeJson.get();
               int wkid = json.get("spatialReference").get("wkid").asInt();
@@ -117,7 +121,7 @@ public abstract class EsriClient {
                       .setAddressSuggestions(suggestionBuilder.build())
                       .setOriginalAddress(address)
                       .build();
-              return Optional.of(addressCandidates);
+              return addressCandidates;
             });
   }
 
