@@ -2334,12 +2334,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     var programForDraftApp =
         ProgramBuilder.newActiveProgram("program_for_draft_app")
             .withBlock()
-              .withRequiredQuestionDefinitions(
-                  ImmutableList.of(questionDefinition))
-              .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-              .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
-              .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
+            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
     applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraftApp.id)
@@ -2350,12 +2349,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     var programForSubmittedApp =
         ProgramBuilder.newActiveProgram("program_for_submitted_app")
             .withBlock()
-              .withRequiredQuestionDefinitions(
-                ImmutableList.of(questionDefinition))
-              .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-              .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
-              .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
+            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
     applicationRepository
         .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
@@ -2366,12 +2364,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     var programForUnappliedApp =
         ProgramBuilder.newActiveProgram("program_for_unapplied_app")
             .withBlock()
-              .withRequiredQuestionDefinitions(
-                ImmutableList.of(questionDefinition))
-              .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-              .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
-              .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
+            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
 
     // Fetch results
@@ -2391,44 +2388,45 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Set up applicant and questions
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
-      createEligibilityDefinition(questionDefinition, "Taylor");
+        createEligibilityDefinition(questionDefinition, "Taylor");
     QuestionAnswerer.answerNameQuestion(
-      applicant.getApplicantData(),
-      ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment()),
-      "Taylor",
-      "Allison",
-      "Swift");
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment()),
+        "Taylor",
+        "Allison",
+        "Swift");
     EligibilityDefinition ineligibleQuestionEligibilityDefinition =
-      createEligibilityDefinition(questionDefinition2, "Sza");
+        createEligibilityDefinition(questionDefinition2, "Sza");
     QuestionAnswerer.answerNameQuestion(
-      applicant.getApplicantData(),
-      ApplicantData.APPLICANT_PATH.join(questionDefinition2.getQuestionPathSegment()),
-      "Solána",
-      "Imani",
-      "Rowe");
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(questionDefinition2.getQuestionPathSegment()),
+        "Solána",
+        "Imani",
+        "Rowe");
 
     // Set up program
     var programWithEligibleAndIneligibleAnswers =
-      ProgramBuilder.newActiveProgram("program_with_eligible_and_ineligible_answers")
-        .withBlock()
-          .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
-          .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
-        .withBlock()
-          .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
-          .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
-        .buildDefinition();
-//    applicationRepository
-//      .createOrUpdateDraft(applicant.id, programWithEligibleAndIneligibleAnswers.id)
-//      .toCompletableFuture()
-//      .join();
+        ProgramBuilder.newActiveProgram("program_with_eligible_and_ineligible_answers")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition2))
+            .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
+            .buildDefinition();
+    //    applicationRepository
+    //      .createOrUpdateDraft(applicant.id, programWithEligibleAndIneligibleAnswers.id)
+    //      .toCompletableFuture()
+    //      .join();
 
     // Fetch results
     var result =
-      subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     var matchingProgramIds =
-      result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
-    assertThat(matchingProgramIds).doesNotContain(programWithEligibleAndIneligibleAnswers.toProgram().id);
+        result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
+    assertThat(matchingProgramIds)
+        .doesNotContain(programWithEligibleAndIneligibleAnswers.toProgram().id);
   }
 
   @Test

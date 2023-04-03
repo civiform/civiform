@@ -12,6 +12,7 @@ import static j2html.TagCreator.section;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
@@ -34,10 +35,13 @@ import views.style.StyleUtils;
 public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final Config configuration;
 
   @Inject
-  public ApplicantCommonIntakeUpsellCreateAccountView(ApplicantLayout layout) {
+  public ApplicantCommonIntakeUpsellCreateAccountView(
+      ApplicantLayout layout, Config configuration) {
     this.layout = checkNotNull(layout);
+    this.configuration = checkNotNull(configuration);
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -141,8 +145,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
               .setText(
                   messages.at(
                       MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName()))
-              // TODO(#4483): When available, use the new Admin Settings UI for this link href.
-              .setHref("https://access.arkansas.gov/Learn/Home")
+              .setHref(configuration.getString("common_intake_more_resources_href"))
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()

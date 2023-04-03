@@ -340,6 +340,15 @@
       }
     }
   },
+  "Custom Text": {
+    "group_description": "Text specific to a civic entity.",
+    "members": {
+      "COMMON_INTAKE_MORE_RESOURCES_HREF": {
+        "description": "TODO(#4483): When available, use the new Admin Settings UI for this link href. The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
+        "type": "string"
+      }
+    }
+  },
   "SECRET_KEY": {
     "description": "The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used to sign Play's session cookie. This must be changed for production.",
     "type": "string"
