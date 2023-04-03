@@ -253,7 +253,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
         .setText(
             String.format(
-                "Back to %s conditions for %s screen", typeDisplayName, blockDefinition.name()))
+                "Back to %s conditions for %s", typeDisplayName, blockDefinition.name()))
         .asAnchorText();
   }
 
