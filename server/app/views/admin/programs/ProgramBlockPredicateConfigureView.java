@@ -252,8 +252,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         .setHref(editPredicateUrl)
         .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
         .setText(
-            String.format(
-                "Back to %s conditions for %s", typeDisplayName, blockDefinition.name()))
+            String.format("Back to %s conditions for %s", typeDisplayName, blockDefinition.name()))
         .asAnchorText();
   }
 
