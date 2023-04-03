@@ -31,8 +31,7 @@ public class MessagesTest {
   // we do *not* expect translations to be present. This is useful for keys that
   // are checked into the primary language file but for which
   // we are waiting for translations for.
-  private static final ImmutableSet<String> IGNORE_LIST =
-      ImmutableSet.of();
+  private static final ImmutableSet<String> IGNORE_LIST = ImmutableSet.of();
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
