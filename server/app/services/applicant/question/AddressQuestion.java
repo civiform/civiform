@@ -344,9 +344,9 @@ public final class AddressQuestion extends Question {
         (path, value) -> !Objects.equals(formData.get(path.toString()), value.orElse(""));
 
     return checkIfChanged.apply(getStreetPath(), getStreetValue())
-      || checkIfChanged.apply(getLine2Path(), getLine2Value())
-      || checkIfChanged.apply(getCityPath(), getCityValue())
-      || checkIfChanged.apply(getStatePath(), getStateValue())
-      || checkIfChanged.apply(getZipPath(), getZipValue());
+        || checkIfChanged.apply(getLine2Path(), getLine2Value())
+        || checkIfChanged.apply(getCityPath(), getCityValue())
+        || checkIfChanged.apply(getStatePath(), getStateValue())
+        || checkIfChanged.apply(getZipPath(), getZipValue());
   }
 }

@@ -1548,8 +1548,7 @@ public final class ApplicantService {
                 return CompletableFuture.completedFuture(formData);
               }
 
-              AddressQuestion addressQuestion =
-                  addressQuestionMaybe.get().createAddressQuestion();
+              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
 
               if (addressQuestion.hasChanges(formData)) {
                 return CompletableFuture.completedFuture(
