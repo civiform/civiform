@@ -1506,4 +1506,49 @@ public final class ApplicantService {
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
     return esriClient.getAddressSuggestions(addressQuestion.getAddress());
   }
+
+  /**
+   * Checks for an {@link AddressQuestion} that has address correction enabled. If found and the
+   * data in the database differs from the submitted form data. Set the corrected, latitude, and
+   * longitude, and wellKnownId values to empty. This is done to allow triggering the address
+   * correction process again, but only when there have been changes.
+   *
+   * <p>Otherwise if no {@link AddressQuestion} or no changes to the address we return the untouched
+   * formdata
+   */
+  public CompletionStage<ImmutableMap<String, String>> resetAddressCorrectionWhenAddressChanged(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
+              }
+
+              Optional<ApplicantQuestion> addressQuestionMaybe =
+                  blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
+
+              if (addressQuestionMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(formData);
+              }
+
+              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
+
+              if (addressQuestion.hasChanges(formData)) {
+                return CompletableFuture.completedFuture(
+                    new ImmutableMap.Builder<String, String>()
+                        .putAll(formData)
+                        .put(addressQuestion.getCorrectedPath().toString(), "")
+                        .put(addressQuestion.getLatitudePath().toString(), "")
+                        .put(addressQuestion.getLongitudePath().toString(), "")
+                        .put(addressQuestion.getWellKnownIdPath().toString(), "")
+                        .build());
+              }
+
+              return CompletableFuture.completedFuture(formData);
+            });
+  }
 }

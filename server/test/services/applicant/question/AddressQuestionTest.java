@@ -274,4 +274,68 @@ public class AddressQuestionTest {
       new Object[] {"111 A St", "Unit B", "", "", "", "111 A St\nUnit B"}
     };
   }
+
+  @Test
+  public void hasChanges_returnsFalse() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "PO Box 123",
+        "Line 2",
+        "Seattle",
+        "WA",
+        "98101",
+        "true",
+        10.1,
+        -20.1,
+        1000L,
+        "Seattle_InArea_1234");
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    ImmutableMap<String, String> formData =
+        new ImmutableMap.Builder<String, String>()
+            .put(addressQuestion.getStreetPath().toString(), "PO Box 123")
+            .put(addressQuestion.getLine2Path().toString(), "Line 2")
+            .put(addressQuestion.getCityPath().toString(), "Seattle")
+            .put(addressQuestion.getStatePath().toString(), "WA")
+            .put(addressQuestion.getZipPath().toString(), "98101")
+            .build();
+
+    assertThat(addressQuestion.hasChanges(formData)).isEqualTo(false);
+  }
+
+  @Test
+  public void hasChanges_returnsTrue() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(addressQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerAddressQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        "PO Box 123",
+        "Line 2",
+        "Seattle",
+        "WA",
+        "98101",
+        "true",
+        10.1,
+        -20.1,
+        1000L,
+        "Seattle_InArea_1234");
+
+    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+
+    ImmutableMap<String, String> formData =
+        new ImmutableMap.Builder<String, String>()
+            .put(addressQuestion.getStreetPath().toString(), "PO Box 456")
+            .put(addressQuestion.getLine2Path().toString(), "Line 3")
+            .put(addressQuestion.getCityPath().toString(), "Portland")
+            .put(addressQuestion.getStatePath().toString(), "OR")
+            .put(addressQuestion.getZipPath().toString(), "97086")
+            .build();
+
+    assertThat(addressQuestion.hasChanges(formData)).isEqualTo(true);
+  }
 }
