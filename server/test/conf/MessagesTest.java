@@ -32,7 +32,7 @@ public class MessagesTest {
   // are checked into the primary language file but for which
   // we are waiting for translations for.
   private static final ImmutableSet<String> IGNORE_LIST =
-      ImmutableSet.of("content.mustMeetRequirementsTi");
+      ImmutableSet.of();
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {

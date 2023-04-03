@@ -257,9 +257,6 @@ title.applicantNotEligible=Based on your responses to the following questions, y
 # Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
 title.applicantNotEligibleTi=Based on your responses to the following questions, your client may not qualify for the {0}.
 
-# A message that explains the client must meet certain program requirements, when someone else is filling out the application on a client''s behalf. This is followed by a list of questions that determine eligibility.
-content.mustMeetRequirementsTi=Your client must meet these program requirements:
-
 # Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
 content.eligibilityCriteria=For eligibility criteria please refer to {0}
 
