@@ -9,8 +9,12 @@ import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
 import j2html.TagCreator;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.FormTag;
+import java.util.Optional;
+import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -18,10 +22,17 @@ import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.Icons;
+import views.components.LinkElement;
+import views.components.LinkElement.IconPosition;
 import views.style.StyleUtils;
 
 /** Renders a page for editing program-level settings. */
 public final class ProgramSettingsEditView extends BaseHtmlView {
+  public static final String NAVIGATION_SOURCE_SESSION_KEY = "programSettingsnavigationSource";
+  public static final String NAVIGATION_SOURCE_PROGRAM_INDEX_SESSION_VALUE = "programIndex";
+  public static final String NAVIGATION_SOURCE_PROGRAM_BLOCKS_SESSION_VALUE = "programBlocks";
+
   private static final String ELIGIBILITY_TOGGLE_ID = "eligibility-toggle";
   private static final String ELIGIBILITY_IS_GATING_LABEL =
       "Eligibility criteria does not block submission";
@@ -88,7 +99,8 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withClasses("px-12")
-            .with(div().withClasses("mt-12").with(h1(title)))
+            .with(getBackButton(request, program))
+            .with(div().withClasses("mt-4").with(h1(title)))
             .with(
                 form(makeCsrfTokenInputTag(request))
                     .withId(formId)
@@ -103,5 +115,23 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                     .withClasses("text-md", "max-w-prose", "mt-6", "text-gray-700"));
 
     return layout.renderCentered(layout.getBundle().setTitle(title).addMainContent(contentDiv));
+  }
+
+  private ATag getBackButton(Request request, ProgramDefinition program) {
+    String backTarget = controllers.admin.routes.AdminProgramController.index().url();
+    String buttonText = "Back to all programs";
+    Optional<String> navSource = request.session().get(NAVIGATION_SOURCE_SESSION_KEY);
+    if (navSource.isPresent()
+        && navSource.get().equals(NAVIGATION_SOURCE_PROGRAM_BLOCKS_SESSION_VALUE)) {
+      backTarget = controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
+      buttonText =
+          String.format("Back to %s program edit page", program.localizedName().getDefault());
+    }
+    return new LinkElement()
+        .setHref(backTarget)
+        .setIcon(Icons.ARROW_LEFT, IconPosition.START)
+        .setText(buttonText)
+        .setStyles("mt-6")
+        .asAnchorText();
   }
 }

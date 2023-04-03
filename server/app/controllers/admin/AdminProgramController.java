@@ -84,12 +84,15 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-    return ok(
-        listView.render(
+    return ok(listView.render(
             programService.getActiveAndDraftPrograms(),
             questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
             request,
-            profileMaybe));
+            profileMaybe))
+        .addingToSession(
+            request,
+            ProgramSettingsEditView.NAVIGATION_SOURCE_SESSION_KEY,
+            ProgramSettingsEditView.NAVIGATION_SOURCE_PROGRAM_INDEX_SESSION_VALUE);
   }
 
   /** Returns an HTML page containing a form to create a new program in the draft version. */
