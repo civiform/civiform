@@ -322,7 +322,7 @@ title.createAnAccount=Create an account or sign in
 content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application or apply for other benefits quickly.
+content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
 
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account
