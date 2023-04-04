@@ -65,7 +65,7 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
     Modal loginPromptModal = createLoginPromptModal(messages, redirectTo);
 
-    // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
+    // Don't show "create an account" upsell box to TIs, or anyone with an account already.
     boolean hasAccount = !Strings.isNullOrEmpty(account.getAuthorityId());
     boolean isTi = account.getMemberOfGroup().isPresent();
     if (hasAccount || isTi) {
