@@ -218,7 +218,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
-  private DivTag renderAnswer(long programId, AnswerData answerData, boolean doesEligibilityApply) {
+  private DivTag renderAnswer(long programId, AnswerData answerData, boolean showEligibilityText) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
@@ -233,7 +233,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         div().withClasses("flex-auto", "text-right", "font-light", "text-xs");
     eligibilityAndTimestampDiv.with(
         div("Answered on " + date).withClasses(ReferenceClasses.BT_DATE));
-    if (doesEligibilityApply) {
+    if (showEligibilityText) {
       String eligibilityText =
           answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
       eligibilityAndTimestampDiv.with(div(eligibilityText));
