@@ -114,7 +114,7 @@ public class EsriClientTest {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
-    assertEquals("123 Address In Area", street);
+    assertEquals("Address In Area", street);
   }
 
   @Test

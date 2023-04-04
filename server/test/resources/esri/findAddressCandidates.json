@@ -5,21 +5,6 @@
   },
   "candidates": [
     {
-      "address": "No Number Address In Area, Redlands, California, 92373",
-      "location": {
-        "x": -100,
-        "y": 100
-      },
-      "score": 100,
-      "attributes": {
-        "SubAddr": "",
-        "Address": "No Number Address In Area",
-        "City": "Redlands",
-        "RegionAbbr": "CA",
-        "Postal": "92373"
-      }
-    },
-    {
       "address": "Redlands, California, 92373",
       "location": {
         "x": -100,
@@ -35,7 +20,7 @@
       }
     },
     {
-      "address": "123 Address In Area, Redlands, California, 92373",
+      "address": "Address In Area, Redlands, California, 92373",
       "location": {
         "x": -100,
         "y": 100
@@ -43,14 +28,14 @@
       "score": 100,
       "attributes": {
         "SubAddr": "",
-        "Address": "123 Address In Area",
+        "Address": "Address In Area",
         "City": "Redlands",
         "RegionAbbr": "CA",
         "Postal": "92373"
       }
     },
     {
-      "address": "123 Address With No Service Area Features, Redlands, California, 92373",
+      "address": "Address With No Service Area Features, Redlands, California, 92373",
       "location": {
         "x": -101,
         "y": 101
@@ -58,14 +43,14 @@
       "score": 100,
       "attributes": {
         "SubAddr": "",
-        "Address": "123 Address With No Service Area Features",
+        "Address": "Address With No Service Area Features",
         "City": "Redlands",
         "RegionAbbr": "CA",
         "Postal": "92373"
       }
     },
     {
-      "address": "123 Address Not In Area, Redlands, California, 92373",
+      "address": "Address Not In Area, Redlands, California, 92373",
       "location": {
         "x": -102,
         "y": 102
@@ -73,14 +58,14 @@
       "score": 100,
       "attributes": {
         "SubAddr": "",
-        "Address": "123 Address Not In Area",
+        "Address": "Address Not In Area",
         "City": "Redlands",
         "RegionAbbr": "CA",
         "Postal": "92373"
       }
     },
     {
-      "address": "123 Address Causes Service Area Fetch Error, Redlands, California, 92373",
+      "address": "Address Causes Service Area Fetch Error, Redlands, California, 92373",
       "location": {
         "x": -103,
         "y": 103
@@ -88,7 +73,7 @@
       "score": 100,
       "attributes": {
         "SubAddr": "",
-        "Address": "123 Address Causes Service Area Fetch Error",
+        "Address": "Address Causes Service Area Fetch Error",
         "City": "Redlands",
         "RegionAbbr": "CA",
         "Postal": "92373"
