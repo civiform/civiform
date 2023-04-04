@@ -125,7 +125,12 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                         continueWithoutAnAccountButton(messages, postLoginRedirectTo),
                         loginButton("modal-login-button", messages, postLoginRedirectTo),
                         createAccountButton("modal-createaccount-button", messages))
-                    .withClasses("flex", "flex-row", "gap-x-4", "justify-end"));
+                    .withClasses(
+                        "flex",
+                        "flex-col",
+                        StyleUtils.responsiveMedium("flex-row"),
+                        "gap-x-4",
+                        "justify-end"));
 
     return Modal.builder()
         .setModalId(Modal.randomModalId())
