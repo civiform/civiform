@@ -854,8 +854,8 @@ public final class ApplicantService {
   /**
    * Find unsubmitted programs the applicant may be eligible for, if they've started an application.
    *
-   * <p>If no application has been started  all programs are returned because
-   * their eligibility status is not set by relevantProgramsForApplicant().
+   * <p>If no application has been started all programs are returned because their eligibility
+   * status is not set by relevantProgramsForApplicant().
    *
    * @return All programs that are appropriate to serve to an applicant and that they may be
    *     eligible for. Includes programs with matching eligibility criteria or no eligibility
@@ -863,8 +863,8 @@ public final class ApplicantService {
    *     <p>Does not include the Common Intake Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long)}.
    */
-  public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleUnsubmittedProgramsForApplicant(
-      long applicantId) {
+  public CompletionStage<ImmutableList<ApplicantProgramData>>
+      maybeEligibleUnsubmittedProgramsForApplicant(long applicantId) {
     return relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
             relevantPrograms ->
@@ -873,7 +873,8 @@ public final class ApplicantService {
                         relevantPrograms.submitted(), // todo remove line
                         relevantPrograms.unapplied())
                     .flatMap(ImmutableList::stream)
-                    // Return all unsubmitted programs the user is eligible for, or that have no eligibility
+                    // Return all unsubmitted programs the user is eligible for, or that have no
+                    // eligibility
                     // conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
                     .collect(ImmutableList.toImmutableList()),
@@ -1004,7 +1005,8 @@ public final class ApplicantService {
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
-//                    .setIsProgramMaybeEligible(getApplicantMayBeEligibleStatus(maybeSubmittedApp.get().getApplicant(), programDefinition));
+            //
+            // .setIsProgramMaybeEligible(getApplicantMayBeEligibleStatus(maybeSubmittedApp.get().getApplicant(), programDefinition));
 
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());

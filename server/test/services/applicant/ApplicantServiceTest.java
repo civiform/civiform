@@ -2389,7 +2389,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Fetch results
     var result =
-        subject.maybeEligibleUnsubmittedProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     // Asset results contained expected program IDs
     var matchingProgramIds =
@@ -2408,11 +2411,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up program and questions
-//    Question q1 = new Question(questionDefinition);
-//    Question q2 = new Question(questionDefinition2);
-//    q1.refresh();
-//    q2.refresh();
-//    versionRepository.getActiveVersion().addQuestion(q).save();
+    //    Question q1 = new Question(questionDefinition);
+    //    Question q2 = new Question(questionDefinition2);
+    //    q1.refresh();
+    //    q2.refresh();
+    //    versionRepository.getActiveVersion().addQuestion(q).save();
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
         createEligibilityDefinition(questionDefinition, "Taylor");
     EligibilityDefinition ineligibleQuestionEligibilityDefinition =
@@ -2462,7 +2465,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Fetch results
     var result =
-        subject.maybeEligibleUnsubmittedProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2476,10 +2482,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
-//    Question q = new Question(questionDefinition2);
-//    q.refresh();
-//    versionRepository.getActiveVersion().addQuestion(q).save();
-//    versionRepository.getActiveVersion().save();
+    //    Question q = new Question(questionDefinition2);
+    //    q.refresh();
+    //    versionRepository.getActiveVersion().addQuestion(q).save();
+    //    versionRepository.getActiveVersion().save();
 
     // Set up common intake form and answer question
     Program commonIntakeForm =
@@ -2505,7 +2511,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Fetch results
     var result =
-        subject.maybeEligibleUnsubmittedProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2539,7 +2548,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         testProgramWithNoEligibilityConditions.id);
 
-    //ProgramBuilder.newActiveProgram("throwaway").withBlock().withRequiredQuestionDefinition(questionDefinition2).build().id
+    // ProgramBuilder.newActiveProgram("throwaway").withBlock().withRequiredQuestionDefinition(questionDefinition2).build().id
 
     // Create an application so the ApplicantService checks eligibility.
     applicationRepository
@@ -2549,7 +2558,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Fetch results
     var result =
-        subject.maybeEligibleUnsubmittedProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2581,7 +2593,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Fetch results
     var result =
-        subject.maybeEligibleUnsubmittedProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
