@@ -108,7 +108,9 @@ public class EsriClientTest {
         helper.getClient().getAddressSuggestions(address);
     ImmutableList<AddressSuggestion> suggestions =
         group.toCompletableFuture().join().getAddressSuggestions();
-    // first item is guaranteed to be here since the response is taken from  JSON file
+    // First item is guaranteed to be here since the response is taken from the JSON file.
+    // This also tests that we are rejecting the responses that do not include a number
+    // in the street address or any street address at all.
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
