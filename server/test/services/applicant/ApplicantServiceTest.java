@@ -89,7 +89,6 @@ public class ApplicantServiceTest extends ResetPostgres {
   private ApplicantService subject;
   private QuestionService questionService;
   private NameQuestionDefinition questionDefinition;
-  private NameQuestionDefinition questionDefinition2;
   private ProgramDefinition programDefinition;
   private UserRepository userRepository;
   private ApplicationRepository applicationRepository;
@@ -2315,19 +2314,21 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up question eligibility
+    NameQuestionDefinition eligibleQuestion = createNameQuestion("question_with_matching_eligibility");
+    NameQuestionDefinition unansweredQuestion = createNameQuestion("unanswered_question");
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
-        createEligibilityDefinition(questionDefinition, "Taylor");
+        createEligibilityDefinition(eligibleQuestion, "Taylor");
     EligibilityDefinition unansweredQuestionEligibilityDefinition =
-        createEligibilityDefinition(questionDefinition2, "Sza");
+        createEligibilityDefinition(unansweredQuestion, "Sza");
 
     // Setup program for answering questions (not necessarily a common intake program)
     Program programForAnsweringQuestions =
         ProgramBuilder.newDraftProgram("other program")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
+            .withRequiredQuestionDefinition(eligibleQuestion)
             .build();
     answerNameQuestion(
-        questionDefinition,
+      eligibleQuestion,
         "Taylor",
         "Allison",
         "Swift",
@@ -2343,10 +2344,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Program programForDraftApp =
         ProgramBuilder.newDraftProgram("program_for_draft_app")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
+            .withRequiredQuestionDefinition(eligibleQuestion)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition2)
+            .withRequiredQuestionDefinition(unansweredQuestion)
             .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
     applicationRepository
@@ -2358,10 +2359,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Program programForSubmittedApp =
         ProgramBuilder.newDraftProgram("program_for_submitted_app")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
+            .withRequiredQuestionDefinition(eligibleQuestion)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition2)
+            .withRequiredQuestionDefinition(unansweredQuestion)
             .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
     applicationRepository
@@ -2373,10 +2374,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Program programForUnappliedApp =
         ProgramBuilder.newDraftProgram("program_for_unapplied_app")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
+            .withRequiredQuestionDefinition(eligibleQuestion)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition2)
+            .withRequiredQuestionDefinition(unansweredQuestion)
             .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
 
@@ -2405,23 +2406,25 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up program and questions
+    NameQuestionDefinition eligibleQuestion = createNameQuestion("question_with_matching_eligibility");
+    NameQuestionDefinition ineligibleQuestion = createNameQuestion("question_with_non_matching_eligibility");
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
-        createEligibilityDefinition(questionDefinition, "Taylor");
+        createEligibilityDefinition(eligibleQuestion, "Taylor");
     EligibilityDefinition ineligibleQuestionEligibilityDefinition =
-        createEligibilityDefinition(questionDefinition2, "Sza");
+        createEligibilityDefinition(ineligibleQuestion, "Sza");
     var programWithEligibleAndIneligibleAnswers =
         ProgramBuilder.newDraftProgram("program_with_eligible_and_ineligible_answers")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
+            .withRequiredQuestionDefinition(eligibleQuestion)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition2)
+            .withRequiredQuestionDefinition(ineligibleQuestion)
             .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
             .build();
 
     // Fill out application
     answerNameQuestion(
-        questionDefinition,
+        eligibleQuestion,
         "Taylor",
         "Allison",
         "Swift",
@@ -2433,7 +2436,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
     answerNameQuestion(
-        questionDefinition2,
+        ineligibleQuestion,
         "Solána",
         "Imani",
         "Rowe",
@@ -2445,10 +2448,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
 
-    // We need at least one application for the ApplicantService to bother checking eligibility
+    // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, programWithEligibleAndIneligibleAnswers.id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2473,6 +2476,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up common intake form
+    NameQuestionDefinition question = createNameQuestion("question");
     Program commonIntakeForm =
       ProgramBuilder.newDraftProgram(
           ProgramDefinition.builder()
@@ -2486,11 +2490,11 @@ public class ApplicantServiceTest extends ResetPostgres {
             .setStatusDefinitions(new StatusDefinitions())
             .build())
         .withBlock()
-        .withRequiredQuestionDefinition(questionDefinition)
+        .withRequiredQuestionDefinition(question)
         .build();
 
     answerNameQuestion(
-        questionDefinition,
+      question,
         "Taylor",
         "Allison",
         "Swift",
@@ -2498,9 +2502,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         commonIntakeForm.id);
 
-    // Create an application so the ApplicantService checks eligibility. todo change these to be a throwaway app
+    // We need at least one application for the ApplicantService to bother filling eligibility
+    // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2525,14 +2530,15 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up program and answer question
+    NameQuestionDefinition question = createNameQuestion("question");
     Program testProgramWithNoEligibilityConditions =
         ProgramBuilder.newDraftProgram("test_program_with_no_eligibility_conditions")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
+            .withRequiredQuestionDefinition(question)
             .build();
 
     answerNameQuestion(
-        questionDefinition,
+      question,
         "Taylor",
         "Allison",
         "Swift",
@@ -2544,11 +2550,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         testProgramWithNoEligibilityConditions.id);
 
-    // ProgramBuilder.newActiveProgram("throwaway").withBlock().withRequiredQuestionDefinition(questionDefinition2).build().id
-
-    // Create an application so the ApplicantService checks eligibility.
+    // We need at least one application for the ApplicantService to bother filling eligibility
+    // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, testProgramWithNoEligibilityConditions.id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2573,16 +2578,18 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up program and don't answer question
-    EligibilityDefinition eligibleQuestionEligibilityDefinition =
-        createEligibilityDefinition(questionDefinition, "Taylor");
+    NameQuestionDefinition question = createNameQuestion("question");
+    EligibilityDefinition questionEligibilityDefinition =
+        createEligibilityDefinition(question, "Taylor");
     Program testProgramWithNoEligibilityConditions =
         ProgramBuilder.newDraftProgram("test_program_with_no_eligibility_conditions")
             .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition)
-            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withRequiredQuestionDefinition(question)
+            .withEligibilityDefinition(questionEligibilityDefinition)
             .build();
 
-    // Create an application so the ApplicantService checks eligibility.
+    // We need at least one application for the ApplicantService to bother filling eligibility
+    // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
         .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
         .toCompletableFuture()
@@ -2639,29 +2646,21 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
   }
 
+  private NameQuestionDefinition createNameQuestion(String name) {
+    return (NameQuestionDefinition)
+      questionService
+        .create(
+          new NameQuestionDefinition(
+            name,
+            Optional.empty(),
+            "description",
+            LocalizedStrings.of(Locale.US, "question?"),
+            LocalizedStrings.of(Locale.US, "help text")))
+        .getResult();
+  }
+
   private void createQuestions() {
-    questionDefinition =
-        (NameQuestionDefinition)
-            questionService
-                .create(
-                    new NameQuestionDefinition(
-                        "name",
-                        Optional.empty(),
-                        "description",
-                        LocalizedStrings.of(Locale.US, "question?"),
-                        LocalizedStrings.of(Locale.US, "help text")))
-                .getResult();
-    questionDefinition2 =
-        (NameQuestionDefinition)
-            questionService
-                .create(
-                    new NameQuestionDefinition(
-                        "name_two",
-                        Optional.empty(),
-                        "description_two",
-                        LocalizedStrings.of(Locale.US, "question_two?"),
-                        LocalizedStrings.of(Locale.US, "help text_two")))
-                .getResult();
+    questionDefinition = createNameQuestion("name");
   }
 
   private void createProgram() {
