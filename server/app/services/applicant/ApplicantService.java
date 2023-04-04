@@ -857,7 +857,7 @@ public final class ApplicantService {
    * <p>If no application has been started all programs are returned because their eligibility
    * status is not set by relevantProgramsForApplicant().
    *
-   * @return All programs that are appropriate to serve to an applicant and that they may be
+   * @return All unsubmitted programs that are appropriate to serve to an applicant and that they may be
    *     eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
    *     <p>Does not include the Common Intake Form.
@@ -870,12 +870,10 @@ public final class ApplicantService {
             relevantPrograms ->
                 Stream.of(
                         relevantPrograms.inProgress(),
-                        relevantPrograms.submitted(), // todo remove line
                         relevantPrograms.unapplied())
                     .flatMap(ImmutableList::stream)
                     // Return all unsubmitted programs the user is eligible for, or that have no
-                    // eligibility
-                    // conditions.
+                    // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
                     .collect(ImmutableList.toImmutableList()),
             httpExecutionContext.current());

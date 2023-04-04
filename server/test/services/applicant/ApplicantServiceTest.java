@@ -2307,13 +2307,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.unapplied()).isEmpty();
   }
 
-  // assert that it doesn't include the common intake form
-  // assert that it includes partially matching in progress applications
-  // assert that it includes partially matching submitted applications
-  // assert that it includes partially matching unapplied applications
-  // assert that it doesn't include ineligible programs
-  // assert that it includes programs without eligibility conditions from each phase
-
   @Test
   public void maybeEligibleProgramsForApplicant_includesPartiallyEligiblePrograms() {
     // Set up applicant
@@ -2329,7 +2322,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Setup program for answering questions (not necessarily a common intake program)
     Program programForAnsweringQuestions =
-        ProgramBuilder.newActiveProgram("other program")
+        ProgramBuilder.newDraftProgram("other program")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .build();
@@ -2348,7 +2341,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Set up draft program and answer question
     Program programForDraftApp =
-        ProgramBuilder.newActiveProgram("program_for_draft_app")
+        ProgramBuilder.newDraftProgram("program_for_draft_app")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
@@ -2363,7 +2356,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Set up submitted program
     Program programForSubmittedApp =
-        ProgramBuilder.newActiveProgram("program_for_submitted_app")
+        ProgramBuilder.newDraftProgram("program_for_submitted_app")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
@@ -2378,7 +2371,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Set up unapplied program
     Program programForUnappliedApp =
-        ProgramBuilder.newActiveProgram("program_for_unapplied_app")
+        ProgramBuilder.newDraftProgram("program_for_unapplied_app")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
@@ -2387,7 +2380,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
             .build();
 
-    // Fetch results
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
@@ -2399,8 +2393,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
 
     assertThat(matchingProgramIds).contains(programForDraftApp.id);
-    assertThat(matchingProgramIds).contains(programForSubmittedApp.id);
     assertThat(matchingProgramIds).contains(programForUnappliedApp.id);
+    assertThat(matchingProgramIds).doesNotContain(programForSubmittedApp.id);
   }
 
   @Test
@@ -2411,17 +2405,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up program and questions
-    //    Question q1 = new Question(questionDefinition);
-    //    Question q2 = new Question(questionDefinition2);
-    //    q1.refresh();
-    //    q2.refresh();
-    //    versionRepository.getActiveVersion().addQuestion(q).save();
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
         createEligibilityDefinition(questionDefinition, "Taylor");
     EligibilityDefinition ineligibleQuestionEligibilityDefinition =
         createEligibilityDefinition(questionDefinition2, "Sza");
     var programWithEligibleAndIneligibleAnswers =
-        ProgramBuilder.newActiveProgram("program_with_eligible_and_ineligible_answers")
+        ProgramBuilder.newDraftProgram("program_with_eligible_and_ineligible_answers")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
@@ -2463,7 +2452,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Fetch results
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
@@ -2482,20 +2472,25 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
-    //    Question q = new Question(questionDefinition2);
-    //    q.refresh();
-    //    versionRepository.getActiveVersion().addQuestion(q).save();
-    //    versionRepository.getActiveVersion().save();
-
-    // Set up common intake form and answer question
+    // Set up common intake form
     Program commonIntakeForm =
-        ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
-            .withBlock()
-            .withRequiredQuestionDefinition(questionDefinition2)
-            .build();
+      ProgramBuilder.newDraftProgram(
+          ProgramDefinition.builder()
+            .setId(123)
+            .setAdminName("common_intake_form")
+            .setAdminDescription("common_intake_form")
+            .setExternalLink("https://usa.gov")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+            .setEligibilityIsGating(false)
+            .setStatusDefinitions(new StatusDefinitions())
+            .build())
+        .withBlock()
+        .withRequiredQuestionDefinition(questionDefinition)
+        .build();
 
     answerNameQuestion(
-        questionDefinition2,
+        questionDefinition,
         "Taylor",
         "Allison",
         "Swift",
@@ -2503,13 +2498,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         commonIntakeForm.id);
 
-    // Create an application so the ApplicantService checks eligibility.
+    // Create an application so the ApplicantService checks eligibility. todo change these to be a throwaway app
     applicationRepository
         .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
         .toCompletableFuture()
         .join();
 
-    // Fetch results
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
@@ -2530,7 +2526,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Set up program and answer question
     Program testProgramWithNoEligibilityConditions =
-        ProgramBuilder.newActiveProgram("test_program_with_no_eligibility_conditions")
+        ProgramBuilder.newDraftProgram("test_program_with_no_eligibility_conditions")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .build();
@@ -2556,7 +2552,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    // Fetch results
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
@@ -2579,7 +2576,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
         createEligibilityDefinition(questionDefinition, "Taylor");
     Program testProgramWithNoEligibilityConditions =
-        ProgramBuilder.newActiveProgram("test_program_with_no_eligibility_conditions")
+        ProgramBuilder.newDraftProgram("test_program_with_no_eligibility_conditions")
             .withBlock()
             .withRequiredQuestionDefinition(questionDefinition)
             .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
@@ -2587,11 +2584,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // Create an application so the ApplicantService checks eligibility.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, ProgramBuilder.newActiveProgram("throwaway").build().id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
-    // Fetch results
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
