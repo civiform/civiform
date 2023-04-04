@@ -29,25 +29,23 @@ public final class ActiveAndDraftPrograms {
    * Queries the existing active and draft versions and builds a snapshotted view of the program
    * state.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersions(
-      ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        service, repository.getActiveVersion(), repository.getDraftVersion());
+  public static ActiveAndDraftPrograms buildFromCurrentVersions(VersionRepository repository) {
+    return new ActiveAndDraftPrograms(repository.getActiveVersion(), repository.getDraftVersion());
   }
 
-  private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
+  private ActiveAndDraftPrograms(Version active, Version draft) {
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         checkNotNull(active).getPrograms().stream()
-            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .map(program -> program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         checkNotNull(draft).getPrograms().stream()
-            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .map(program -> program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
@@ -101,14 +99,5 @@ public final class ActiveAndDraftPrograms {
 
   public boolean anyDraft() {
     return draftPrograms.size() > 0;
-  }
-
-  private ProgramDefinition getProgramDefinition(ProgramService service, long id) {
-    try {
-      return service.getProgramDefinition(id);
-    } catch (ProgramNotFoundException e) {
-      // This is not possible because we query with existing program ids.
-      throw new RuntimeException(e);
-    }
   }
 }

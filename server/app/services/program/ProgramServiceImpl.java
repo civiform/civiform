@@ -97,7 +97,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ActiveAndDraftPrograms getActiveAndDraftPrograms() {
-    return ActiveAndDraftPrograms.buildFromCurrentVersions(this, versionRepository);
+    return ActiveAndDraftPrograms.buildFromCurrentVersions(versionRepository);
   }
 
   @Override
