@@ -344,7 +344,7 @@ describe('create and edit predicates', () => {
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
-      expect(await page.innerText('h2')).toContain(
+      expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
     })

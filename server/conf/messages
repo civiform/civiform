@@ -37,7 +37,7 @@ label.languageSr=Choose a language
 header.endSession=End session
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
-header.guestIndicator=You''re a guest user
+header.guestIndicator=You''re a guest user.
 
 # Message with user's name to show who you are logged in as.
 header.userName=Logged in as {0}

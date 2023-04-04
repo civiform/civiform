@@ -778,7 +778,7 @@ describe('Applicant navigation flow', () => {
           1,
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickNext()
@@ -815,7 +815,7 @@ describe('Applicant navigation flow', () => {
           1,
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
@@ -841,7 +841,7 @@ describe('Applicant navigation flow', () => {
           '98109',
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
 
         // Only doing accessibility and screenshot checks for address correction page
         // once since they are all the same
@@ -856,6 +856,63 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickSubmit()
         await logout(page)
       })
+
+      it('prompts user to edit if no suggestions are returned', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Bogus Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(false)
+
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'no-suggestions-returned')
+
+        // Can continue on anyway
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
+      it('prompts user to edit if an error is returned from the Esri service', async () => {
+        // This is currently the same as when no suggestions are returend.
+        // We may change this later.
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Error Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(false)
+
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'esri-service-errored')
+
+        // Can continue on anyway
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
       it('clicking previous on address correction page takes you back to address entry page', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
@@ -872,7 +929,7 @@ describe('Applicant navigation flow', () => {
           '98109',
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
 
         await applicantQuestions.clickPrevious()
         await applicantQuestions.expectAddressPage()

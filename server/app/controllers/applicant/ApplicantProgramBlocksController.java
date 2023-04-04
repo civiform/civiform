@@ -444,15 +444,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
               ImmutableMap<String, String> formData = cleanForm(form.rawData());
-
-              return applicantService.stageAndUpdateIfValid(
-                  applicantId,
-                  programId,
-                  blockId,
-                  formData,
-                  featureFlags.getFlagEnabled(
-                      request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED));
+              return applicantService.resetAddressCorrectionWhenAddressChanged(
+                  applicantId, programId, blockId, formData);
             },
+            httpExecutionContext.current())
+        .thenComposeAsync(
+            formData ->
+                applicantService.stageAndUpdateIfValid(
+                    applicantId,
+                    programId,
+                    blockId,
+                    formData,
+                    featureFlags.getFlagEnabled(
+                        request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)),
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService ->
