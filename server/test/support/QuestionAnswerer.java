@@ -109,6 +109,10 @@ public class QuestionAnswerer {
       ApplicantData applicantData, Path contextualizedPath, String value) {
     applicantData.putString(contextualizedPath.join(Scalar.TEXT), value);
   }
+  public static void answerPhoneQuestion(ApplicantData applicantData, Path contextualizedPath, String countryCode, String phoneNumber){
+    applicantData.putString(contextualizedPath.join(Scalar.COUNTRY_CODE),countryCode);
+    applicantData.putString(contextualizedPath.join(Scalar.PHONE_NUMBER),phoneNumber);
+  }
 
   public static void answerDateQuestion(
       ApplicantData applicantData, Path contextualizedPath, String value) {

@@ -71,6 +71,7 @@ public class ApplicantQuestionRendererFactoryTest {
       case ID:
       case NUMBER:
       case STATIC:
+      case PHONE:
       case TEXT:
         assertThat(renderedContent).doesNotContain("fieldset");
         break;

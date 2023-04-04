@@ -130,6 +130,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
         // applicant two did not answer this question.
         break;
+      case PHONE:
+        QuestionAnswerer.answerPhoneQuestion(applicantDataOne,answerPath,"US","(615) 757-1010");
+        break;
       case STATIC:
         // Do nothing.
         break;

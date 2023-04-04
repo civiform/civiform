@@ -55,6 +55,9 @@ public class QuestionConfigTest {
       case EMAIL:
         assertThat(maybeConfig).isEmpty();
         break;
+      case PHONE:
+        assertThat(maybeConfig).isEmpty();
+        break;
       case ENUMERATOR:
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("What are we enumerating");

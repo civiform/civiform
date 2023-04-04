@@ -13,6 +13,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.PhoneQuestion;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
+import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
 import static j2html.TagCreator.*;
@@ -33,36 +34,23 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     PhoneQuestion phoneQuestion = question.createPhoneQuestion();
 
     Messages messages = params.messages();
-  /*  OptionTag optionTagUS = option("US").withValue("US");
-    OptionTag optionTagCA = option("CA").withValue("CA");
+    OptionTag optionTagUS = option("United States").withValue("US");
+    OptionTag optionTagCA = option("Canada").withValue("CA");
 
-    /*DivTag countryCodeField = new DivTag().with(
-      select()
-      .withId("cf-country-selector")
-      .with(optionTagCA)
-      .with(optionTagUS)
-        .withName(phoneQuestion.getCountryCodePath().toString())
-        .setFi
-      . );*/
 
     SelectWithLabel countryCodeField =
       (SelectWithLabel)
-        new SelectWithLabel().addStyleClass("py-15")
+        new SelectWithLabel()
           .setFieldName(phoneQuestion.getCountryCodePath().toString())
           .setValue(phoneQuestion.getCountryCodeValue().orElse(""))
           .setLabelText(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
-          .setOptionGroups(
-            ImmutableList.of(
-              SelectWithLabel.OptionGroup.builder()
-                .setLabel(
-                  messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
-                .setOptions(countryOptions())
-                .build()))
+          .setCustomOptions(ImmutableList.of(optionTagCA,optionTagUS))
           .setFieldErrors(
             messages,
             validationErrors.getOrDefault(
               phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
           .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
+
     FieldWithLabel phoneField =
       FieldWithLabel.input()
         .setPlaceholderText("(xxx) xxx-xxxx")
@@ -83,13 +71,9 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     }
 
    return div()
-      .withClasses("grid", "grid-cols-2", "gap-3")
-      .with(countryCodeField.getSelectTag(), phoneField.getInputTag());
+     .withClasses("grid","grid-column:auto")
+      .with(
+        countryCodeField.getSelectTag(), phoneField.getInputTag());
   }
 
-  private static ImmutableList<SelectWithLabel.OptionValue> countryOptions() {
-    return ImmutableList.of(
-      SelectWithLabel.OptionValue.builder().setLabel("United States").setValue("US").build(),
-      SelectWithLabel.OptionValue.builder().setLabel("Canada").setValue("CA").build());
-  }
 }

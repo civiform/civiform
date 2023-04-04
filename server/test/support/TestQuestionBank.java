@@ -14,22 +14,7 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CheckboxQuestionDefinition;
-import services.question.types.CurrencyQuestionDefinition;
-import services.question.types.DateQuestionDefinition;
-import services.question.types.DropdownQuestionDefinition;
-import services.question.types.EmailQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.IdQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.QuestionType;
-import services.question.types.RadioButtonQuestionDefinition;
-import services.question.types.StaticContentQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.*;
 
 /**
  * A cached {@link Question} bank for testing.
@@ -88,7 +73,12 @@ public class TestQuestionBank {
         .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.TEXT, applicantFavoriteColor())
         .put(QuestionType.STATIC, staticContent())
+      .put(QuestionType.PHONE,applicantPhone())
         .build();
+  }
+
+  private Question applicantPhone() {
+    return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_PHONE, this::applicantPhone);
   }
 
   // Address
@@ -203,6 +193,16 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "What is your address?"),
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
+  }
+  private Question applicantPhone(QuestionEnum ignore) {
+    QuestionDefinition definition =
+      new PhoneQuestionDefinition(
+        "applicant phone",
+        Optional.empty(),
+        "The applicant Phone Number",
+        LocalizedStrings.of(Locale.US, "What is your phone number?"),
+        LocalizedStrings.of(Locale.US, "This is sample help text."));
+      return maybeSave(definition);
   }
 
   // Address
@@ -488,5 +488,6 @@ public class TestQuestionBank {
     APPLICANT_SEASON,
     APPLICANT_EMAIL,
     STATIC_CONTENT,
+    APPLICANT_PHONE,
   }
 }
