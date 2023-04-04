@@ -857,8 +857,8 @@ public final class ApplicantService {
    * <p>If no application has been started all programs are returned because their eligibility
    * status is not set by relevantProgramsForApplicant().
    *
-   * @return All unsubmitted programs that are appropriate to serve to an applicant and that they may be
-   *     eligible for. Includes programs with matching eligibility criteria or no eligibility
+   * @return All unsubmitted programs that are appropriate to serve to an applicant and that they
+   *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
    *     <p>Does not include the Common Intake Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long)}.
@@ -868,9 +868,7 @@ public final class ApplicantService {
     return relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
             relevantPrograms ->
-                Stream.of(
-                        relevantPrograms.inProgress(),
-                        relevantPrograms.unapplied())
+                Stream.of(relevantPrograms.inProgress(), relevantPrograms.unapplied())
                     .flatMap(ImmutableList::stream)
                     // Return all unsubmitted programs the user is eligible for, or that have no
                     // eligibility conditions.

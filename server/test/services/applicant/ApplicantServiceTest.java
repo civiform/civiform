@@ -2314,7 +2314,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up question eligibility
-    NameQuestionDefinition eligibleQuestion = createNameQuestion("question_with_matching_eligibility");
+    NameQuestionDefinition eligibleQuestion =
+        createNameQuestion("question_with_matching_eligibility");
     NameQuestionDefinition unansweredQuestion = createNameQuestion("unanswered_question");
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
         createEligibilityDefinition(eligibleQuestion, "Taylor");
@@ -2328,7 +2329,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(eligibleQuestion)
             .build();
     answerNameQuestion(
-      eligibleQuestion,
+        eligibleQuestion,
         "Taylor",
         "Allison",
         "Swift",
@@ -2406,8 +2407,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.save();
 
     // Set up program and questions
-    NameQuestionDefinition eligibleQuestion = createNameQuestion("question_with_matching_eligibility");
-    NameQuestionDefinition ineligibleQuestion = createNameQuestion("question_with_non_matching_eligibility");
+    NameQuestionDefinition eligibleQuestion =
+        createNameQuestion("question_with_matching_eligibility");
+    NameQuestionDefinition ineligibleQuestion =
+        createNameQuestion("question_with_non_matching_eligibility");
     EligibilityDefinition eligibleQuestionEligibilityDefinition =
         createEligibilityDefinition(eligibleQuestion, "Taylor");
     EligibilityDefinition ineligibleQuestionEligibilityDefinition =
@@ -2478,23 +2481,23 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Set up common intake form
     NameQuestionDefinition question = createNameQuestion("question");
     Program commonIntakeForm =
-      ProgramBuilder.newDraftProgram(
-          ProgramDefinition.builder()
-            .setId(123)
-            .setAdminName("common_intake_form")
-            .setAdminDescription("common_intake_form")
-            .setExternalLink("https://usa.gov")
-            .setDisplayMode(DisplayMode.PUBLIC)
-            .setProgramType(ProgramType.COMMON_INTAKE_FORM)
-            .setEligibilityIsGating(false)
-            .setStatusDefinitions(new StatusDefinitions())
-            .build())
-        .withBlock()
-        .withRequiredQuestionDefinition(question)
-        .build();
+        ProgramBuilder.newDraftProgram(
+                ProgramDefinition.builder()
+                    .setId(123)
+                    .setAdminName("common_intake_form")
+                    .setAdminDescription("common_intake_form")
+                    .setExternalLink("https://usa.gov")
+                    .setDisplayMode(DisplayMode.PUBLIC)
+                    .setProgramType(ProgramType.COMMON_INTAKE_FORM)
+                    .setEligibilityIsGating(false)
+                    .setStatusDefinitions(new StatusDefinitions())
+                    .build())
+            .withBlock()
+            .withRequiredQuestionDefinition(question)
+            .build();
 
     answerNameQuestion(
-      question,
+        question,
         "Taylor",
         "Allison",
         "Swift",
@@ -2538,7 +2541,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     answerNameQuestion(
-      question,
+        question,
         "Taylor",
         "Allison",
         "Swift",
@@ -2648,15 +2651,15 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private NameQuestionDefinition createNameQuestion(String name) {
     return (NameQuestionDefinition)
-      questionService
-        .create(
-          new NameQuestionDefinition(
-            name,
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "question?"),
-            LocalizedStrings.of(Locale.US, "help text")))
-        .getResult();
+        questionService
+            .create(
+                new NameQuestionDefinition(
+                    name,
+                    Optional.empty(),
+                    "description",
+                    LocalizedStrings.of(Locale.US, "question?"),
+                    LocalizedStrings.of(Locale.US, "help text")))
+            .getResult();
   }
 
   private void createQuestions() {
