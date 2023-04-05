@@ -32,26 +32,35 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildFromCurrentVersions(
       ProgramService service, VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        service, repository.getActiveVersion(), repository.getDraftVersion());
+        repository.getActiveVersion(), repository.getDraftVersion(), Optional.of(service));
   }
 
   public static ActiveAndDraftPrograms buildFromCurrentVersions(VersionRepository repository) {
-    return new ActiveAndDraftPrograms(repository.getActiveVersion(), repository.getDraftVersion());
+    return new ActiveAndDraftPrograms(
+        repository.getActiveVersion(), repository.getDraftVersion(), Optional.empty());
   }
 
-  private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
+  private ActiveAndDraftPrograms(Version active, Version draft, Optional<ProgramService> service) {
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         checkNotNull(active).getPrograms().stream()
-            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .map(
+                program ->
+                    service.isPresent()
+                        ? getProgramDefinition(checkNotNull(service.get()), program.id)
+                        : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         checkNotNull(draft).getPrograms().stream()
-            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .map(
+                program ->
+                    service.isPresent()
+                        ? getProgramDefinition(checkNotNull(service.get()), program.id)
+                        : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
@@ -67,33 +76,6 @@ public final class ActiveAndDraftPrograms {
                           Optional.ofNullable(activeNameToProgram.get(programName)),
                           Optional.ofNullable(draftNameToProgram.get(programName)));
                     }));
-  }
-
-  private ActiveAndDraftPrograms(Version active, Version draft) {
-      ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        checkNotNull(active).getPrograms().stream()
-          .map(program -> program.getProgramDefinition())
-          .collect(
-            ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
-
-      ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        checkNotNull(draft).getPrograms().stream()
-          .map(program -> program.getProgramDefinition())
-          .collect(
-            ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
-
-      this.activePrograms = activeNameToProgram.values().asList();
-      this.draftPrograms = draftNameToProgram.values().asList();
-      this.versionedByName =
-        Sets.union(activeNameToProgram.keySet(), draftNameToProgram.keySet()).stream()
-          .collect(
-            ImmutableMap.toImmutableMap(
-              Function.identity(),
-              programName -> {
-                return Pair.create(
-                  Optional.ofNullable(activeNameToProgram.get(programName)),
-                  Optional.ofNullable(draftNameToProgram.get(programName)));
-              }));
   }
 
   public ImmutableList<ProgramDefinition> getActivePrograms() {
