@@ -112,7 +112,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   @Override
   public Content render(HtmlBundle bundle) {
-    bundle.addBodyStyles(ApplicantStyles.BODY);
+    // TODO(#4577): remove the distinction between applicant and TI styles. This is a hotfix
+    // to fix TI dashboard styles.
+    if (bundle.render().body().contains("ti-dashboard-link")) {
+      bundle.addBodyStyles(ApplicantStyles.BODY_FOR_TIS);
+    } else {
+      bundle.addBodyStyles(ApplicantStyles.BODY);
+    }
 
     bundle.addFooterStyles("mt-24");
 

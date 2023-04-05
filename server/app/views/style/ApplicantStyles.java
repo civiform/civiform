@@ -3,6 +3,11 @@ package views.style;
 /** Styles for applicant pages. */
 public final class ApplicantStyles {
   public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
+
+  // TODO(#4577): remove BODY_FOR_TIS. This is a hotfix for a frontend issue, where flex
+  // breaks the TI dashboard view.
+  public static final String BODY_FOR_TIS =
+      StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full");
   public static final String BODY =
       StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full", "flex", "flex-col");
 
