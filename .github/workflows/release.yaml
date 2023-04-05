@@ -37,3 +37,4 @@ jobs:
     uses: ./.github/workflows/generate_env_var_docs_markdown_for_release.yaml
     with:
       release_number: ${{ github.event.inputs.release_number }}
+    secrets: inherit
