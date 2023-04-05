@@ -48,7 +48,7 @@ public final class ActiveAndDraftPrograms {
         checkNotNull(active).getPrograms().stream()
             .map(
                 program ->
-                    service.isPresent() && service.get() != null
+                    service.isPresent()
                         ? getProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
             .collect(
@@ -58,7 +58,7 @@ public final class ActiveAndDraftPrograms {
         checkNotNull(draft).getPrograms().stream()
             .map(
                 program ->
-                    service.isPresent() && service.get() != null
+                    service.isPresent()
                         ? getProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
             .collect(
