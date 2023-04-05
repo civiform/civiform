@@ -47,6 +47,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -165,7 +166,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
+    return confirmAddressWithSuggestions(
+        request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
+  }
 
+  private CompletionStage<Result> confirmAddressWithSuggestions(
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      String selectedAddress,
+      ImmutableList<AddressSuggestion> suggestions) {
     CompletableFuture<Optional<String>> applicantNameStage =
         applicantService.getName(applicantId).toCompletableFuture();
 
@@ -513,18 +525,37 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               .createAddressQuestion();
 
       if (addressQuestion.needsAddressCorrection()) {
-        return applicantService
-            .getAddressSuggestionGroup(thisBlockUpdated)
-            .thenApplyAsync(
-                addressSuggestionGroup -> {
-                  ImmutableList<AddressSuggestion> suggestions =
-                      addressSuggestionGroup.getAddressSuggestions();
-                  String json = addressSuggestionJsonSerializer.serialize(suggestions);
+        AddressSuggestionGroup addressSuggestionGroup =
+            applicantService
+                .getAddressSuggestionGroup(thisBlockUpdated)
+                .toCompletableFuture()
+                .join();
+        ImmutableList<AddressSuggestion> suggestions =
+            addressSuggestionGroup.getAddressSuggestions();
 
-                  Boolean isEligibilityEnabledOnThisBlock =
-                      thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
+        AddressSuggestion[] suggestionMatch =
+            suggestions.stream()
+                .filter(suggestion -> suggestion.getAddress().equals(addressQuestion.getAddress()))
+                .toArray(AddressSuggestion[]::new);
 
-                  return ok(addressCorrectionBlockView.render(
+        if (suggestionMatch.length > 0) {
+          return confirmAddressWithSuggestions(
+              request,
+              applicantId,
+              programId,
+              blockId,
+              inReview,
+              suggestionMatch[0].getSingleLineAddress(),
+              suggestions);
+        } else {
+          String json = addressSuggestionJsonSerializer.serialize(suggestions);
+
+          Boolean isEligibilityEnabledOnThisBlock =
+              thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
+
+          return supplyAsync(
+              () ->
+                  ok(addressCorrectionBlockView.render(
                           buildApplicationBaseViewParams(
                               request,
                               applicantId,
@@ -538,8 +569,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           messagesApi.preferred(request),
                           addressSuggestionGroup,
                           isEligibilityEnabledOnThisBlock))
-                      .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json);
-                });
+                      .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+        }
       }
     }
 
