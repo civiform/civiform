@@ -11,6 +11,8 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Joiner;
 import controllers.AssetsFinder;
+import j2html.tags.ContainerTag;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.ImgTag;
@@ -22,6 +24,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
 import views.components.Icons;
+import views.components.LinkElement;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -100,19 +103,35 @@ public final class ViewUtils {
   }
 
   public static DivTag makeSvgToolTipRightAnchored(String toolTipText, Icons icon) {
-    return makeSvgToolTip(toolTipText, icon, Optional.of("right-1/2"));
+    return makeSvgToolTip(toolTipText, icon, Optional.of("right-1/2 mt-2.5"));
   }
 
   public static DivTag makeSvgToolTip(String toolTipText, Icons icon) {
-    return makeSvgToolTip(toolTipText, icon, /* classes= */ Optional.empty());
+    return makeSvgToolTip(toolTipText, icon, Optional.of("mt-2.5"));
   }
 
-  public static DivTag makeSvgToolTip(String toolTipText, Icons icon, Optional<String> classes) {
+  public static DivTag makeSvgToolTipRightAnchoredWithLink(
+      String toolTipText, Icons icon, String linkText, String linkRef) {
+    ATag link =
+        new LinkElement()
+            .setStyles("mb-2", "text-sm", "underline")
+            .setText(linkText)
+            .setHref(linkRef)
+            .opensInNewTab()
+            .asAnchorText();
+    // We must set mt-0 or else a user will be unable to move their mouse inside
+    // the tooltip to be able to click on the link without the tooltip disappearing.
+    return makeSvgToolTip(toolTipText, icon, Optional.of("right-1/2 mt-0"), link);
+  }
+
+  public static DivTag makeSvgToolTip(
+      String toolTipText, Icons icon, Optional<String> classes, ContainerTag... otherElements) {
     return div()
         .withClasses("group inline")
         .with(
             Icons.svg(icon).withClasses("inline-block", "w-5", "relative"),
             span(toolTipText)
+                .with(otherElements)
                 .withClasses(
                     "hidden",
                     "z-50",
@@ -123,7 +142,6 @@ public final class ViewUtils {
                     "px-4",
                     "text-black",
                     "absolute",
-                    "mt-2.5",
                     "border-gray-200",
                     "border",
                     "text-left",
