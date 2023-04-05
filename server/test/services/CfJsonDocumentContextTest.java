@@ -124,6 +124,7 @@ public class CfJsonDocumentContextTest {
     assertThat(data.hasValueAtPath(path)).isFalse();
   }
 
+
   @Test
   public void hasValueAtPath_returnsFalseForMissingPath() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
@@ -166,6 +167,15 @@ public class CfJsonDocumentContextTest {
     data.putDouble(Path.create("applicant.monthly_income"), 99.9);
 
     assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"monthly_income\":99.9}}");
+  }
+
+  @Test
+  public void putPhoneNumber_AddsAPhoneNumberWithoutFormat() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    data.putPhoneNumber(Path.create("applicant.phone_number"), "(707) -123-1234");
+
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"phone_number\":7071231234}}");
   }
 
   @Test

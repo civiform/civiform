@@ -40,7 +40,8 @@ public class MessagesTest {
           "validation.phoneCountryCodeRequired",
           "validation.phoneMustBeLocalToCountry",
           "validation.phoneNumberMustContainNumbersOnly",
-          "validation.phoneNumberRequired");
+          "validation.phoneNumberRequired"
+      );
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {

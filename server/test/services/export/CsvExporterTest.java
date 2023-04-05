@@ -82,7 +82,7 @@ public class CsvExporterTest extends AbstractExporterTest {
         getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
     String phoneHeader = CsvExporterService.pathToHeader(phoneQuestion1.getPhoneNumberPath());
     String countryCodeHeader = CsvExporterService.pathToHeader(phoneQuestion1.getCountryCodePath());
-    assertThat(records.get(1).get(phoneHeader)).contains("(615) 757-1010");
+    assertThat(records.get(1).get(phoneHeader)).contains("6157571010");
     assertThat(records.get(1).get(countryCodeHeader)).contains("US");
 
     // Applications should appear most recent first.

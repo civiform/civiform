@@ -61,7 +61,7 @@ public class PhoneQuestionTest {
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
     assertThat(phoneQuestion.getValidationErrors().isEmpty()).isTrue();
-    assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("(615) 717-1234");
+    assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("6157171234");
     assertThat(phoneQuestion.getCountryCodeValue().get()).isEqualTo("US");
   }
 }
