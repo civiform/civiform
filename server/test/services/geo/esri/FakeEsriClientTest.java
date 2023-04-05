@@ -9,29 +9,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import java.time.Clock;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
 import services.geo.AddressLocation;
+import services.geo.esri.EsriTestHelper.TestType;
 
 public class FakeEsriClientTest {
-  private Config config;
-  private EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
-  private FakeEsriClient client;
+  private final EsriTestHelper helper;
 
-  @Before
-  // setup client
-  public void setup() {
-    Clock clock = Clock.system(ZoneId.of("America/Los_Angeles"));
-    config = ConfigFactory.load();
-    esriServiceAreaValidationConfig = new EsriServiceAreaValidationConfig(config);
-    client = new FakeEsriClient(clock, esriServiceAreaValidationConfig);
+  public FakeEsriClientTest() throws Exception {
+    helper = new EsriTestHelper(TestType.FAKE);
   }
 
   @Test
@@ -39,12 +28,12 @@ public class FakeEsriClientTest {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "Legit Address");
     Optional<JsonNode> maybeResp =
-        client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
     assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
-    assertEquals(4, candidates.size());
+    assertEquals(5, candidates.size());
   }
 
   @Test
@@ -52,7 +41,7 @@ public class FakeEsriClientTest {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "Bogus Address");
     Optional<JsonNode> maybeResp =
-        client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
@@ -64,7 +53,7 @@ public class FakeEsriClientTest {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "Error Address");
     Optional<JsonNode> maybeResp =
-        client.fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     assertEquals(Optional.empty(), maybeResp);
   }
 
@@ -72,7 +61,7 @@ public class FakeEsriClientTest {
   public void fetchAddressSuggestionsInvalidAddress() throws Exception {
     ObjectNode addressJson = Json.newObject();
     addressJson.put("street", "oops");
-    assertThatThrownBy(() -> client.fetchAddressSuggestions(addressJson))
+    assertThatThrownBy(() -> helper.getClient().fetchAddressSuggestions(addressJson))
         .isInstanceOf(InvalidFakeAddressException.class);
   }
 
@@ -81,7 +70,11 @@ public class FakeEsriClientTest {
     AddressLocation location =
         AddressLocation.builder().setLongitude(-100).setLatitude(100).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
-        client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
+        helper
+            .getClient()
+            .fetchServiceAreaFeatures(location, "/query")
+            .toCompletableFuture()
+            .join();
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ReadContext ctx = JsonPath.parse(resp.toString());
@@ -96,7 +89,11 @@ public class FakeEsriClientTest {
     AddressLocation location =
         AddressLocation.builder().setLongitude(-101).setLatitude(101).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
-        client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
+        helper
+            .getClient()
+            .fetchServiceAreaFeatures(location, "/query")
+            .toCompletableFuture()
+            .join();
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ReadContext ctx = JsonPath.parse(resp.toString());
@@ -109,7 +106,11 @@ public class FakeEsriClientTest {
     AddressLocation location =
         AddressLocation.builder().setLongitude(-102).setLatitude(102).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
-        client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
+        helper
+            .getClient()
+            .fetchServiceAreaFeatures(location, "/query")
+            .toCompletableFuture()
+            .join();
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ReadContext ctx = JsonPath.parse(resp.toString());
@@ -123,7 +124,11 @@ public class FakeEsriClientTest {
     AddressLocation location =
         AddressLocation.builder().setLongitude(-103).setLatitude(103).setWellKnownId(4326).build();
     Optional<JsonNode> maybeResp =
-        client.fetchServiceAreaFeatures(location, "/query").toCompletableFuture().join();
+        helper
+            .getClient()
+            .fetchServiceAreaFeatures(location, "/query")
+            .toCompletableFuture()
+            .join();
     assertEquals(Optional.empty(), maybeResp);
   }
 }

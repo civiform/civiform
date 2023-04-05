@@ -3,7 +3,9 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -320,5 +322,31 @@ public final class AddressQuestion extends Question {
         getLongitudePath(),
         getWellKnownIdPath(),
         getServiceAreaPath());
+  }
+
+  /**
+   * Returns false if the formData matches the saved data (i.e. no changes). Returns true if the
+   * formData does not match the saved data (i.e. has changes)
+   */
+  public boolean hasChanges(ImmutableMap<String, String> formData) {
+    boolean hasAllRequiredPaths =
+        formData.containsKey(getStreetPath().toString())
+            && formData.containsKey(getLine2Path().toString())
+            && formData.containsKey(getCityPath().toString())
+            && formData.containsKey(getStatePath().toString())
+            && formData.containsKey(getZipPath().toString());
+
+    if (!hasAllRequiredPaths) {
+      return false;
+    }
+
+    BiFunction<Path, Optional<String>, Boolean> checkIfChanged =
+        (path, value) -> !Objects.equals(formData.get(path.toString()), value.orElse(""));
+
+    return checkIfChanged.apply(getStreetPath(), getStreetValue())
+        || checkIfChanged.apply(getLine2Path(), getLine2Value())
+        || checkIfChanged.apply(getCityPath(), getCityValue())
+        || checkIfChanged.apply(getStatePath(), getStateValue())
+        || checkIfChanged.apply(getZipPath(), getZipValue());
   }
 }

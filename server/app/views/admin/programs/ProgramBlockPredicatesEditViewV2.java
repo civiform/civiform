@@ -34,7 +34,9 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.LinkElement.IconPosition;
 import views.components.ToastMessage;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
@@ -82,7 +84,6 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
     final String predicateTypeNameTitleCase;
     final String h2CurrentCondition;
     final DivTag existingPredicateDisplay;
-    final String h2NewCondition;
     final String textNewCondition;
     final String textNoAvailableQuestions;
     final String removePredicateUrl;
@@ -94,10 +95,9 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
       case ELIGIBILITY:
         predicateTypeNameTitleCase = "Eligibility";
         h2CurrentCondition = "Current eligibility condition";
-        h2NewCondition = "New eligibility condition";
         textNewCondition =
-            "Apply a eligibility condition using a question below. When you create a eligibility"
-                + " condition, it replaces the present one.";
+            "You can select the questions you would like to add eligibility conditions to. When"
+                + " you create an eligibility condition, it replaces the present one.";
         textNoAvailableQuestions =
             "There are no available questions with which to set an eligibility condition for this"
                 + " screen.";
@@ -108,7 +108,10 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
                 .map(EligibilityDefinition::predicate)
                 .map(
                     pred ->
-                        renderExistingPredicate(blockDefinition.name(), pred, predicateQuestions))
+                        div()
+                            .with(
+                                renderExistingPredicate(
+                                    blockDefinition.name(), pred, predicateQuestions)))
                 .orElse(div("This screen is always eligible."));
         removePredicateUrl =
             routes.AdminProgramBlockPredicatesController.destroyEligibility(
@@ -126,10 +129,9 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
       case VISIBILITY:
         predicateTypeNameTitleCase = "Visibility";
         h2CurrentCondition = "Current visibility condition";
-        h2NewCondition = "New visibility condition";
         textNewCondition =
-            "Apply a visibility condition using a question below. When you create a visibility"
-                + " condition, it replaces the present one.";
+            "You can select the questions you would like to add visibility conditions to. When you"
+                + " create a visibility condition, it replaces the present one.";
         textNoAvailableQuestions =
             "There are no available questions with which to set a visibility condition for this"
                 + " screen.";
@@ -173,6 +175,7 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
                         String.format(
                             "Remove existing %s condition",
                             predicateTypeNameTitleCase.toLowerCase()))
+                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
 
@@ -186,15 +189,15 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
             .withClasses("mx-6", "my-10", "flex", "flex-col", "gap-6")
             // Link back to the editor for this predicate's block.
             .with(
+                new LinkElement()
+                    .setHref(editBlockUrl)
+                    .setIcon(Icons.ARROW_LEFT, IconPosition.START)
+                    .setText(String.format("Back to edit %s", blockDefinition.name()))
+                    .asAnchorText())
+            .with(
                 div()
-                    .withClasses("flex", "flex-row")
                     .with(h1(title).withClasses("font-bold", "text-xl"))
-                    .with(div().withClasses("flex-grow"))
-                    .with(
-                        new LinkElement()
-                            .setHref(editBlockUrl)
-                            .setText(String.format("Return to edit %s", blockDefinition.name()))
-                            .asAnchorText()))
+                    .with(div(textNewCondition).withClasses("mb-2")))
             // Show the current predicate.
             .with(
                 div()
@@ -209,14 +212,13 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
                                 predicateTypeNameTitleCase.toLowerCase()),
                             configureExistingPredicateUrl)
                         .withCondDisabled(!hasExistingPredicate)
-                        .withClasses()))
+                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
             .with(
                 div()
-                    .with(h2(h2NewCondition).withClasses("font-semibold", "text-lg"))
-                    .with(div(textNewCondition).withClasses("mb-2"))
+                    .with(h2("Questions").withClasses("font-semibold", "text-lg"))
                     .with(
                         predicateQuestions.isEmpty()
                             ? text(textNoAvailableQuestions)
@@ -226,7 +228,11 @@ public final class ProgramBlockPredicatesEditViewV2 extends ProgramBlockBaseView
                                         predicateQuestions,
                                         ProgramBlockPredicatesEditViewV2
                                             ::renderPredicateQuestionCheckBoxRow),
-                                    submitButton("Add condition"))
+                                    submitButton(
+                                            hasExistingPredicate
+                                                ? "Replace condition"
+                                                : "Add condition")
+                                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES))
                                 .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));
 

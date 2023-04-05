@@ -117,7 +117,7 @@ public final class BaseStyles {
           "transform",
           "-translate-x-1/2",
           "-translate-y-1/2",
-          "rounded-xl",
+          "rounded-3xl",
           "shadow-xl",
           "bg-white",
           "max-h-screen",
@@ -125,8 +125,10 @@ public final class BaseStyles {
 
   public static final String MODAL_HEADER =
       StyleUtils.joinStyles(
-          "sticky", "top-0", "bg-gray-200", "p-2", "flex", "gap-4", "place-items-center");
-  /** Generic style for for the button for the modal. */
+          "sticky", "top-0", "px-2", "pt-2", "flex", "gap-4", "place-items-center");
+  public static final String MODAL_TITLE =
+      StyleUtils.joinStyles("text-2xl", "text-gray-600", "my-5", "mx-4");
+  /** Generic style for the modal button. */
   public static final String MODAL_BUTTON =
       StyleUtils.joinStyles(
           "block",
@@ -145,12 +147,13 @@ public final class BaseStyles {
           "opacity-60",
           "w-7",
           "h-7",
+          "m-4",
           StyleUtils.hover("opacity-100"));
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins
    * and sizing.
    */
-  public static final String MODAL_CONTENT = StyleUtils.joinStyles("my-4");
+  public static final String MODAL_CONTENT = StyleUtils.joinStyles("my-5", "mx-6");
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Login style classes

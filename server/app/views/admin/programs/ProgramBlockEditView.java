@@ -403,7 +403,11 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   request));
     }
 
-    DivTag programQuestions = div();
+    DivTag programQuestions =
+        div()
+            .withClasses("my-4")
+            .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
+
     IntStream.range(0, blockQuestions.size())
         .forEach(
             index -> {
@@ -495,17 +499,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       Optional<PredicateDefinition> predicate,
       String blockName,
       ImmutableList<QuestionDefinition> questions) {
-    DivTag currentBlockStatus =
-        predicate.isEmpty()
-            ? div("This screen is always shown.")
-            : renderExistingPredicate(blockName, predicate.get(), questions);
-
     DivTag div =
         div()
             .withClasses("my-4")
-            .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
-
+            .with(div("Visibility condition").withClasses("text-lg", "font-bold", "py-2"));
+    if (predicate.isEmpty()) {
+      DivTag currentBlockStatus = div("This screen is always shown.");
+      div.with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
+    } else {
+      div.with(renderExistingPredicate(blockName, predicate.get(), questions));
+    }
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
@@ -527,16 +530,16 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       String blockName,
       ImmutableList<QuestionDefinition> questions,
       Request request) {
-    DivTag currentBlockStatus =
-        predicate.isEmpty()
-            ? renderEmptyEligibilityPredicate(program, request)
-            : renderExistingPredicate(blockName, predicate.get().predicate(), questions);
     DivTag div =
         div()
             .withClasses("my-4")
-            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(currentBlockStatus.withClasses("text-lg", "max-w-prose"));
-
+            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"));
+    if (predicate.isEmpty()) {
+      div.with(
+          renderEmptyEligibilityPredicate(program, request).withClasses("text-lg", "max-w-prose"));
+    } else {
+      div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
+    }
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
@@ -822,25 +825,40 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
     boolean questionIsUsedInPredicate =
         programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
+    boolean addressCorrectionEnabledQuestionAlreadyExists =
+        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
+    boolean addressCorrectionDisabled =
+        !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
 
     String toolTipText =
-        "Enabling address correction will check the resident's address to ensure it is accurate.";
-    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
-      toolTipText +=
-          " To use this feature, you will need to have your IT manager configure the GIS service.";
-    }
+        "Enabling 'address correction' will check the resident's address to ensure it is accurate.";
+
+    toolTipText +=
+        addressCorrectionEnabledQuestionAlreadyExists
+            ? " This screen already contains a question with address correction enabled. This"
+                + " feature can only be enabled once per screen."
+            : " You can select one address question to correct per screen.";
+
     if (questionIsUsedInPredicate) {
       toolTipText +=
           " Questions used in visibility or eligibility conditions must have address correction"
               + " enabled.";
     }
 
-    boolean addressCorrectionEnabledQuestionAlreadyExists =
-        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
-    if (addressCorrectionEnabledQuestionAlreadyExists) {
+    DivTag toolTip;
+    if (addressCorrectionDisabled) {
+      // Leave the space at the end, because we will add a "Learn more" link. This
+      // should always be the last string added to toolTipText for this reason.
       toolTipText +=
-          " This screen already contains a question with address correction enabled. This feature"
-              + " can only be enabled once per screen.";
+          " To use this feature, you will need to have your IT manager configure the GIS service. ";
+      toolTip =
+          ViewUtils.makeSvgToolTipRightAnchoredWithLink(
+              toolTipText,
+              Icons.INFO,
+              "Learn more",
+              "https://docs.civiform.us/it-manual/sre-playbook/configure-gis-service");
+    } else {
+      toolTip = ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO);
     }
 
     ButtonTag addressCorrectionButton =
@@ -876,7 +894,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.HELP)));
+            .with(div(toolTip));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
@@ -990,13 +1008,12 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       deleteBlockForm
           .withId("block-delete-form")
           .with(
-              div(h1("Are you sure you want to delete this screen?")
-                      .withClasses("text-base", "mb-2"))
-                  .withClasses("mx-4"),
+              div(
+                  h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                  .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     } else {
       // If there are questions, eligibility conditions, or visibility conditions on this screen,
       // print the appropriate message.
@@ -1014,15 +1031,13 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                      h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
-                          .withClasses("text-base", "mb-2"),
-                      h1("Are you sure you want to delete this screen?")
-                          .withClasses("text-base", "mb-2"))
-                  .withClasses("mx-4"),
+                  h1(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
+                      .withClasses("text-base", "mb-2"),
+                  h1("Are you sure you want to delete this screen?")
+                      .withClasses("text-base", "mb-4")),
               submitButton("Delete")
                   .withId("delete-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
+                  .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     }
 
     ButtonTag deleteScreenButton =

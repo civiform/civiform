@@ -11,6 +11,10 @@ public final class ProgramForm {
   private String displayMode;
   private Boolean isCommonIntakeForm;
 
+  // Represents whether or not the user has confirmed that they want to change which program is
+  // marked as the common intake form.
+  private Boolean confirmedChangeCommonIntakeForm;
+
   public ProgramForm() {
     adminName = "";
     adminDescription = "";
@@ -20,6 +24,7 @@ public final class ProgramForm {
     externalLink = "";
     displayMode = "";
     isCommonIntakeForm = false;
+    confirmedChangeCommonIntakeForm = false;
   }
 
   public String getAdminName() {
@@ -80,6 +85,14 @@ public final class ProgramForm {
 
   public void setIsCommonIntakeForm(Boolean isCommonIntakeForm) {
     this.isCommonIntakeForm = isCommonIntakeForm;
+  }
+
+  public Boolean getConfirmedChangeCommonIntakeForm() {
+    return confirmedChangeCommonIntakeForm;
+  }
+
+  public void setConfirmedChangeCommonIntakeForm(Boolean confirmedChangeCommonIntakeForm) {
+    this.confirmedChangeCommonIntakeForm = confirmedChangeCommonIntakeForm;
   }
 
   public void setLocalizedConfirmationMessage(String localizedConfirmationMessage) {

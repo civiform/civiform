@@ -83,7 +83,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 hr().withClasses("mt-6"),
                 renderHeader("Trusted Intermediary Members"),
                 renderTIMembersTable(tiGroup).withClasses("ml-2"))
-            .addMainStyles("px-2", "max-w-screen-xl", "mx-auto");
+            .addMainStyles("px-20", "max-w-screen-xl");
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {

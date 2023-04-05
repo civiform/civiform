@@ -68,7 +68,6 @@ import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
-import services.geo.esri.EsriClientRequestException;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -1508,18 +1507,51 @@ public final class ApplicantService {
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
-    // TODO(#4441): this shouldn't throw if no suggestions are empty and
-    // CF should let the user continue on with the application
-    return esriClient
-        .getAddressSuggestions(addressQuestion.getAddress())
-        .thenApplyAsync(
-            suggestionsMaybe -> {
-              if (suggestionsMaybe.isEmpty()) {
-                throw new EsriClientRequestException(
-                    "Call to EsriClient.getAddressSuggestions failed.");
+    return esriClient.getAddressSuggestions(addressQuestion.getAddress());
+  }
+
+  /**
+   * Checks for an {@link AddressQuestion} that has address correction enabled. If found and the
+   * data in the database differs from the submitted form data. Set the corrected, latitude, and
+   * longitude, and wellKnownId values to empty. This is done to allow triggering the address
+   * correction process again, but only when there have been changes.
+   *
+   * <p>Otherwise if no {@link AddressQuestion} or no changes to the address we return the untouched
+   * formdata
+   */
+  public CompletionStage<ImmutableMap<String, String>> resetAddressCorrectionWhenAddressChanged(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
               }
 
-              return suggestionsMaybe.get();
+              Optional<ApplicantQuestion> addressQuestionMaybe =
+                  blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
+
+              if (addressQuestionMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(formData);
+              }
+
+              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
+
+              if (addressQuestion.hasChanges(formData)) {
+                return CompletableFuture.completedFuture(
+                    new ImmutableMap.Builder<String, String>()
+                        .putAll(formData)
+                        .put(addressQuestion.getCorrectedPath().toString(), "")
+                        .put(addressQuestion.getLatitudePath().toString(), "")
+                        .put(addressQuestion.getLongitudePath().toString(), "")
+                        .put(addressQuestion.getWellKnownIdPath().toString(), "")
+                        .build());
+              }
+
+              return CompletableFuture.completedFuture(formData);
             });
   }
 }

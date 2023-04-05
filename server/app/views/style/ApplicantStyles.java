@@ -3,7 +3,8 @@ package views.style;
 /** Styles for applicant pages. */
 public final class ApplicantStyles {
   public static final String BODY_BG_COLOR = BaseStyles.BG_CIVIFORM_WHITE;
-  public static final String BODY = StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full");
+  public static final String BODY =
+      StyleUtils.joinStyles(BODY_BG_COLOR, "h-full", "w-full", "flex", "flex-col");
 
   public static final String MAIN_APPLICANT_INFO =
       StyleUtils.joinStyles("w-5/6", "max-w-screen-sm", "mx-auto", "my-8");
@@ -26,9 +27,14 @@ public final class ApplicantStyles {
           "flex-wrap",
           "content-center",
           StyleUtils.hover("opacity-100"));
-  public static final String LINK_LOGOUT =
+  public static final String LINK =
       StyleUtils.joinStyles(
-          "text-base", "font-bold", "opacity-75", StyleUtils.hover("opacity-100"));
+          "text-sm",
+          "text-blue-900",
+          "font-bold",
+          "opacity-75",
+          "underline",
+          StyleUtils.hover("opacity-100"));
 
   public static final String PROGRAM_APPLICATION_TITLE =
       StyleUtils.joinStyles("text-3xl", "text-black", "font-bold", "mt-8", "mb-4");

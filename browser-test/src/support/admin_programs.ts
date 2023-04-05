@@ -1009,7 +1009,9 @@ export class AdminPrograms {
     return this.page
       .locator('.cf-program-question')
       .filter({hasText: questionName})
-      .locator(':is(span:has-text("Enabling address correction will check"))')
+      .locator(
+        ':is(span:has-text("Enabling \'address correction\' will check"))',
+      )
   }
 
   async clickAddressCorrectionToggle() {

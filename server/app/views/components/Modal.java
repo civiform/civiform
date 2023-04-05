@@ -121,7 +121,7 @@ public abstract class Modal {
   private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
-        .with(div(modalTitle()).withClasses("text-lg"))
+        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
         .with(div().withClasses("flex-grow"))
         .with(
             Icons.svg(Icons.CLOSE)

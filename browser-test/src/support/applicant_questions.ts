@@ -188,6 +188,10 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickApplyToAnotherProgramButton() {
+    await this.page.click('button:has-text("Apply to another program")')
+  }
+
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -345,7 +349,15 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h1')).toContain(
       'Application confirmation',
     )
-    await this.page.click('text="Apply to another program"')
+    await this.clickApplyToAnotherProgramButton()
+
+    // If we are logged in as a guest, we will get a prompt to log
+    // in before going back to the programs page. Bypass this to stay
+    // logged in as a guest.
+    const pageContent = await this.page.textContent('html')
+    if (pageContent!.includes('Continue without an account')) {
+      await this.page.click('text="Continue without an account"')
+    }
     await waitForPageJsLoad(this.page)
 
     // Ensure that we redirected to the programs list page.
@@ -390,8 +402,9 @@ export class ApplicantQuestions {
     ).toEqual(0)
   }
 
-  async expectVerifyAddressPage() {
-    expect(await this.page.innerText('h2')).toContain('Verify address')
+  async expectVerifyAddressPage(validAddress: boolean) {
+    const header = validAddress ? 'Verify address' : 'No valid address found'
+    expect(await this.page.innerText('h2')).toContain(header)
   }
 
   async expectAddressPage() {
