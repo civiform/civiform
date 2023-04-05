@@ -148,11 +148,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()
               .attr(
-                  "aria-label",
-                  messages.at(
-                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT
-                          .getKeyName()
-                          .toLowerCase()));
+                  "aria-label", configuration.getString("common_intake_more_resources_link_text"));
 
       return eligibleProgramsSection.with(
           p(isTrustedIntermediary
