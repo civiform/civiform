@@ -93,7 +93,7 @@ public final class PhoneQuestion extends Question {
 
   public Optional<String> getPhoneNumberValue() {
     if (phoneNumberValue != null) {
-      return Optional.of(phoneNumberValue.get().replaceAll("[^0-9]", ""));
+      return phoneNumberValue;
     }
     phoneNumberValue = applicantQuestion.getApplicantData().readString(getPhoneNumberPath());
     return phoneNumberValue;

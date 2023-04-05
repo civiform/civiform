@@ -1263,6 +1263,9 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
+          case PHONE_NUMBER:
+              applicantData.putPhoneNumber(currentPath,update.value());
+              break;
           case CURRENCY_CENTS:
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());

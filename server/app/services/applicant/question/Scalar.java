@@ -49,7 +49,7 @@ public enum Scalar {
   SERVICE_AREA("service_area", ScalarType.SERVICE_AREA),
 
   // Scalars for Phone Question
-  PHONE_NUMBER("phone_number", ScalarType.STRING),
+  PHONE_NUMBER("phone_number", ScalarType.PHONE_NUMBER),
   COUNTRY_CODE("country_code", ScalarType.STRING),
   // Metadata scalars
   UPDATED_AT("updated at", ScalarType.LONG),

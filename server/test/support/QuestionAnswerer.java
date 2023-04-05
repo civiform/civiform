@@ -111,7 +111,7 @@ public class QuestionAnswerer {
   }
   public static void answerPhoneQuestion(ApplicantData applicantData, Path contextualizedPath, String countryCode, String phoneNumber){
     applicantData.putString(contextualizedPath.join(Scalar.COUNTRY_CODE),countryCode);
-    applicantData.putString(contextualizedPath.join(Scalar.PHONE_NUMBER),phoneNumber);
+    applicantData.putPhoneNumber(contextualizedPath.join(Scalar.PHONE_NUMBER),phoneNumber);
   }
 
   public static void answerDateQuestion(

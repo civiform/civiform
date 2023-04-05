@@ -19,6 +19,12 @@ import views.style.ReferenceClasses;
 import static j2html.TagCreator.*;
 
 public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
+
+  public static final String US_LABEL = "United States";
+  public static final String CA_LABEL = "Canada";
+  public static final String US_VALUE = "US";
+  public static final String CA_VALUE = "CA";
+
   PhoneQuestionRenderer(ApplicantQuestion question) {
     super(question);
   }
@@ -34,22 +40,52 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     PhoneQuestion phoneQuestion = question.createPhoneQuestion();
 
     Messages messages = params.messages();
-    OptionTag optionTagUS = option("United States").withValue("US");
-    OptionTag optionTagCA = option("Canada").withValue("CA");
-
-
+//    OptionTag optionTagUS = option(US_LABEL).withValue(US_VALUE);
+//    OptionTag optionTagCA = option(CA_LABEL).withValue(CA_VALUE);
+//    String selectedOption = "";
+//
+//if(phoneQuestion.getCountryCodeValue().isPresent()) {
+//  String value = phoneQuestion.getCountryCodeValue().get();
+//  if (value.equals(US_VALUE)) {
+//    selectedOption = US_LABEL;
+//  } else {
+//    selectedOption = CA_LABEL;
+//  }
+//}
     SelectWithLabel countryCodeField =
       (SelectWithLabel)
-        new SelectWithLabel()
-          .setFieldName(phoneQuestion.getCountryCodePath().toString())
-          .setValue(phoneQuestion.getCountryCodeValue().orElse(""))
-          .setLabelText(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
-          .setCustomOptions(ImmutableList.of(optionTagCA,optionTagUS))
-          .setFieldErrors(
-            messages,
-            validationErrors.getOrDefault(
-              phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
-          .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
+    new SelectWithLabel().addStyleClass("py-15")
+      .setFieldName(phoneQuestion.getCountryCodePath().toString())
+      .setValue(phoneQuestion.getCountryCodeValue().orElse(""))
+      .setLabelText(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
+      .setOptionGroups(
+        ImmutableList.of(
+          SelectWithLabel.OptionGroup.builder()
+            .setLabel(
+              messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
+            .setOptions(countryOptions())
+            .build()))
+      .setFieldErrors(
+        messages,
+        validationErrors.getOrDefault(
+          phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
+      .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
+
+
+
+//    SelectWithLabel countryCodeField =
+//      (SelectWithLabel)
+//        new SelectWithLabel()
+//          .setFieldName(phoneQuestion.getCountryCodePath().toString())
+//          .setPlaceholderText(selectedOption)
+//          .setValue(phoneQuestion.getCountryCodeValue().orElse(""))
+//          .setLabelText(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
+//          .setCustomOptions(ImmutableList.of(optionTagCA,optionTagUS))
+//          .setFieldErrors(
+//            messages,
+//            validationErrors.getOrDefault(
+//              phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
+//          .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
 
     FieldWithLabel phoneField =
       FieldWithLabel.input()
@@ -71,9 +107,15 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     }
 
    return div()
-     .withClasses("grid","grid-column:auto")
+     .withClasses("grid")
       .with(
         countryCodeField.getSelectTag(), phoneField.getInputTag());
+  }
+
+  private static ImmutableList<SelectWithLabel.OptionValue> countryOptions() {
+    return ImmutableList.of(
+      SelectWithLabel.OptionValue.builder().setLabel("United States").setValue("US").build(),
+      SelectWithLabel.OptionValue.builder().setLabel("Canada").setValue("CA").build());
   }
 
 }
