@@ -115,6 +115,7 @@ public final class ViewUtils {
             span(toolTipText)
                 .withClasses(
                     "hidden",
+                    "z-50",
                     "group-hover:block",
                     "bg-white",
                     "rounded-3xl",
