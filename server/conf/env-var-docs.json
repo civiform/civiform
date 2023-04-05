@@ -343,7 +343,11 @@
   "Custom Text": {
     "group_description": "Text specific to a civic entity.",
     "members": {
-      "COMMON_INTAKE_MORE_RESOURCES_HREF": {
+      "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT": {
+        "description": "The text for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
+        "type": "string"
+      },
+      "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF": {
         "description": "The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string"
       }

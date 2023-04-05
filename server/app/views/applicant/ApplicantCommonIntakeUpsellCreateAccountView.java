@@ -142,10 +142,8 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
       var moreLink =
           new LinkElement()
               .setStyles("underline")
-              .setText(
-                  messages.at(
-                      MessageKey.CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_LINK_TEXT.getKeyName()))
-              .setHref(configuration.getString("common_intake_more_resources_href"))
+              .setText(configuration.getString("common_intake_more_resources_link_text"))
+              .setHref(configuration.getString("common_intake_more_resources_link_href"))
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()

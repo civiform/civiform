@@ -41,7 +41,6 @@ public class MessagesTest {
           "content.commonIntakeConfirmation",
           "content.commonIntakeConfirmationTi",
           "content.commonIntakeNoMatchingPrograms",
-          "content.commonIntakeNoMatchingProgramsLinkText",
           "content.commonIntakeNoMatchingProgramsNextStep",
           "content.commonIntakeNoMatchingProgramsTi",
           "title.commonIntakeConfirmation",
