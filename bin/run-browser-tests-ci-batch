@@ -39,6 +39,8 @@ print(f"Batch {batch_number} will run:")
 for item in batch_contents:
     print(f"\t{item}")
 
-shell_command = ["./bin/run-browser-tests-ci"] + batch_contents
-
-subprocess.run(shell_command, check=True)
+if batch_contents:
+    shell_command = ["./bin/run-browser-tests-ci"] + batch_contents
+    subprocess.run(shell_command, check=True)
+else:
+    print("No tests assigned to this batch.")
