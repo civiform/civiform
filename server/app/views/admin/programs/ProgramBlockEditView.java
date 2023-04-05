@@ -827,9 +827,10 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
 
     boolean questionIsUsedInPredicate =
         programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
-
     boolean addressCorrectionEnabledQuestionAlreadyExists =
         blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
+    boolean addressCorrectionDisabled =
+        !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
 
     String toolTipText =
         "Enabling 'address correction' will check the resident's address to ensure it is accurate.";
@@ -840,14 +841,26 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 + " feature can only be enabled once per screen."
             : " You can select one address question to correct per screen.";
 
-    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
-      toolTipText +=
-          " To use this feature, you will need to have your IT manager configure the GIS service.";
-    }
     if (questionIsUsedInPredicate) {
       toolTipText +=
           " Questions used in visibility or eligibility conditions must have address correction"
               + " enabled.";
+    }
+
+    DivTag toolTip;
+    if (addressCorrectionDisabled) {
+      // Leave the space at the end, because we will add a "Learn more" link. This
+      // should always be the last string added to toolTipText for this reason.
+      toolTipText +=
+          " To use this feature, you will need to have your IT manager configure the GIS service. ";
+      toolTip =
+          ViewUtils.makeSvgToolTipRightAnchoredWithLink(
+              toolTipText,
+              Icons.INFO,
+              "Learn more",
+              "https://docs.civiform.us/it-manual/sre-playbook/configure-gis-service");
+    } else {
+      toolTip = ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO);
     }
 
     ButtonTag addressCorrectionButton =
@@ -883,7 +896,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO)));
+            .with(div(toolTip));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
