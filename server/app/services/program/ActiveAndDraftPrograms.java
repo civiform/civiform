@@ -48,8 +48,8 @@ public final class ActiveAndDraftPrograms {
         checkNotNull(active).getPrograms().stream()
             .map(
                 program ->
-                    service.isPresent()
-                        ? getProgramDefinition(checkNotNull(service.get()), program.id)
+                    service.isPresent() && service.get() != null
+                        ? getProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
@@ -58,8 +58,8 @@ public final class ActiveAndDraftPrograms {
         checkNotNull(draft).getPrograms().stream()
             .map(
                 program ->
-                    service.isPresent()
-                        ? getProgramDefinition(checkNotNull(service.get()), program.id)
+                    service.isPresent() && service.get() != null
+                        ? getProgramDefinition(service.get(), program.id)
                         : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
