@@ -79,6 +79,4 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.PHONE;
   }
-
-
 }

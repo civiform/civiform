@@ -12,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
-
-import services.applicant.question.PhoneQuestion;
 import models.Application;
 import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
@@ -31,6 +29,7 @@ import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
+import services.applicant.question.PhoneQuestion;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -192,19 +191,22 @@ public final class JsonExporter {
             break;
           }
         case PHONE:
-        {
-          PhoneQuestion phoneQuestion = answerData.applicantQuestion().createPhoneQuestion();
-          Path path = phoneQuestion.getPhoneNumberPath().asApplicationPath();
-
-          if(phoneQuestion.getPhoneNumberValue().isPresent() && phoneQuestion.getCountryCodeValue().isPresent())
           {
-            String formattedPhone = getFormattedPhoneNumber(phoneQuestion.getPhoneNumberValue().get(),phoneQuestion.getCountryCodeValue().get());
-            jsonApplication.putString(path,formattedPhone);
-          } else {
-            jsonApplication.putNull(path);
+            PhoneQuestion phoneQuestion = answerData.applicantQuestion().createPhoneQuestion();
+            Path path = phoneQuestion.getPhoneNumberPath().asApplicationPath();
+
+            if (phoneQuestion.getPhoneNumberValue().isPresent()
+                && phoneQuestion.getCountryCodeValue().isPresent()) {
+              String formattedPhone =
+                  getFormattedPhoneNumber(
+                      phoneQuestion.getPhoneNumberValue().get(),
+                      phoneQuestion.getCountryCodeValue().get());
+              jsonApplication.putString(path, formattedPhone);
+            } else {
+              jsonApplication.putNull(path);
+            }
+            break;
           }
-          break;
-        }
         default:
           {
             for (Map.Entry<Path, String> answer :
@@ -234,6 +236,5 @@ public final class JsonExporter {
     } catch (NumberParseException e) {
       throw new RuntimeException(e);
     }
-
   }
 }

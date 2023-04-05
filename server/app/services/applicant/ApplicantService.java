@@ -1264,8 +1264,8 @@ public final class ApplicantService {
       } else {
         switch (type) {
           case PHONE_NUMBER:
-              applicantData.putPhoneNumber(currentPath,update.value());
-              break;
+            applicantData.putPhoneNumber(currentPath, update.value());
+            break;
           case CURRENCY_CENTS:
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());

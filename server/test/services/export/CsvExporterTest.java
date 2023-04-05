@@ -47,8 +47,8 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
-          "applicant phone (phone_number)",
-          "applicant phone (country_code)",
+            "applicant phone (phone_number)",
+            "applicant phone (country_code)",
             "kitchen tools (selections)",
             "number of items applicant can juggle (number)",
             "radio (selection)",
@@ -67,8 +67,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant file (file_key)",
             "applicant ice cream (selection)",
             "applicant id (id)",
-            "applicant monthly income (currency)")
-       ;
+            "applicant monthly income (currency)");
 
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
@@ -77,9 +76,10 @@ public class CsvExporterTest extends AbstractExporterTest {
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     String lastNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
-    Question phoneQuestion = testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
+    Question phoneQuestion =
+        testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
     PhoneQuestion phoneQuestion1 =
-      getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
+        getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
     String phoneHeader = CsvExporterService.pathToHeader(phoneQuestion1.getPhoneNumberPath());
     String countryCodeHeader = CsvExporterService.pathToHeader(phoneQuestion1.getCountryCodePath());
     assertThat(records.get(1).get(phoneHeader)).contains("(615) 757-1010");

@@ -44,7 +44,7 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath(2, ".applicant_address.street", "street st");
     resultAsserter.assertValueAtPath(2, ".applicant_address.state", "AB");
     resultAsserter.assertValueAtPath(2, ".applicant_address.line2", "apt 100");
-    resultAsserter.assertValueAtPath(1,".applicant_phone.phone_number","+1 615-757-1010");
+    resultAsserter.assertValueAtPath(1, ".applicant_phone.phone_number", "+1 615-757-1010");
     resultAsserter.assertValueAtPath(
         2, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
     resultAsserter.assertValueAtPath(2, ".applicant_monthly_income.currency_dollars", 1234.56);

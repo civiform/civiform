@@ -3,9 +3,10 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.util.Optional;
-
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.MessageKey;
@@ -13,9 +14,6 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionType;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-
 
 /**
  * Represents a phone question in the context of a specific applicant.
@@ -57,26 +55,24 @@ public final class PhoneQuestion extends Question {
       return ImmutableSet.of(
           ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_REQUIRED));
     }
-    if(getCountryCodeValue().isEmpty()){
-      return ImmutableSet.of(ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED));
-    }
-    try{
-      Phonenumber.PhoneNumber phonenumber = phoneUtil.parse(getPhoneNumberValue().get(),getCountryCodeValue().get());
-      if(!phoneUtil.isValidNumber(phonenumber))
-      {
-        return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_INVALID_PHONE_NUMBER));
-      }
-      if(!phoneUtil.isValidNumberForRegion(phonenumber,getCountryCodeValue().get()))
-      {
-        return ImmutableSet.of(
-          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY));
-      }
-    }
-    catch (NumberParseException e)
-    {
+    if (getCountryCodeValue().isEmpty()) {
       return ImmutableSet.of(
-        ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NON_NUMBER_VALUE));
+          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED));
+    }
+    try {
+      Phonenumber.PhoneNumber phonenumber =
+          phoneUtil.parse(getPhoneNumberValue().get(), getCountryCodeValue().get());
+      if (!phoneUtil.isValidNumber(phonenumber)) {
+        return ImmutableSet.of(
+            ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_INVALID_PHONE_NUMBER));
+      }
+      if (!phoneUtil.isValidNumberForRegion(phonenumber, getCountryCodeValue().get())) {
+        return ImmutableSet.of(
+            ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY));
+      }
+    } catch (NumberParseException e) {
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NON_NUMBER_VALUE));
     }
 
     return ImmutableSet.of();
@@ -123,13 +119,16 @@ public final class PhoneQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    try{
-      Phonenumber.PhoneNumber phoneNumber =  phoneUtil.parse(getPhoneNumberValue().orElse(""),getCountryCodeValue().orElse(""));
+    try {
+      Phonenumber.PhoneNumber phoneNumber =
+          phoneUtil.parse(getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
       return phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
-    }
-    catch (NumberParseException e)
-    {
-      logger.error("Unable to retrieve or parse phone number "+ getPhoneNumberValue().orElse("") + "for country_code " + getCountryCodeValue().orElse(""));
+    } catch (NumberParseException e) {
+      logger.error(
+          "Unable to retrieve or parse phone number "
+              + getPhoneNumberValue().orElse("")
+              + "for country_code "
+              + getCountryCodeValue().orElse(""));
     }
     return "-";
   }

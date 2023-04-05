@@ -65,9 +65,10 @@ public final class QuestionsListView extends BaseHtmlView {
 
   @Inject
   public QuestionsListView(
-    AdminLayoutFactory layoutFactory,
-    TranslationLocales translationLocales,
-    ViewUtils viewUtils, FeatureFlags featureFlags) {
+      AdminLayoutFactory layoutFactory,
+      TranslationLocales translationLocales,
+      ViewUtils viewUtils,
+      FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
@@ -116,7 +117,8 @@ public final class QuestionsListView extends BaseHtmlView {
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url(),
                             /* isPrimaryButton= */ true,
-                          /* phoneQuestionTypeEnabled= */ featureFlags.getFlagEnabled(request,PHONE_QUESTION_TYPE_ENABLED))),
+                            /* phoneQuestionTypeEnabled= */ featureFlags.getFlagEnabled(
+                                request, PHONE_QUESTION_TYPE_ENABLED))),
                 filterDiv,
                 div()
                     .withClasses("mt-10", "flex")

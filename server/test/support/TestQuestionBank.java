@@ -73,7 +73,7 @@ public class TestQuestionBank {
         .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.TEXT, applicantFavoriteColor())
         .put(QuestionType.STATIC, staticContent())
-      .put(QuestionType.PHONE,applicantPhone())
+        .put(QuestionType.PHONE, applicantPhone())
         .build();
   }
 
@@ -194,15 +194,16 @@ public class TestQuestionBank {
             LocalizedStrings.of(Locale.US, "This is sample help text."));
     return maybeSave(definition);
   }
+
   private Question applicantPhone(QuestionEnum ignore) {
     QuestionDefinition definition =
-      new PhoneQuestionDefinition(
-        "applicant phone",
-        Optional.empty(),
-        "The applicant Phone Number",
-        LocalizedStrings.of(Locale.US, "What is your phone number?"),
-        LocalizedStrings.of(Locale.US, "This is sample help text."));
-      return maybeSave(definition);
+        new PhoneQuestionDefinition(
+            "applicant phone",
+            Optional.empty(),
+            "The applicant Phone Number",
+            LocalizedStrings.of(Locale.US, "What is your phone number?"),
+            LocalizedStrings.of(Locale.US, "This is sample help text."));
+    return maybeSave(definition);
   }
 
   // Address

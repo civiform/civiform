@@ -262,8 +262,9 @@ public final class ApplicantQuestion {
   public SingleSelectQuestion createSingleSelectQuestion() {
     return new SingleSelectQuestion(this);
   }
+
   public PhoneQuestion createPhoneQuestion() {
-    return  new PhoneQuestion(this);
+    return new PhoneQuestion(this);
   }
 
   public StaticContentQuestion createStaticContentQuestion() {
@@ -333,5 +334,4 @@ public final class ApplicantQuestion {
   public int hashCode() {
     return Objects.hash(getQuestionDefinition(), applicantData);
   }
-
 }

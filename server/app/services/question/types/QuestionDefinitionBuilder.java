@@ -12,9 +12,9 @@ import services.question.types.AddressQuestionDefinition.AddressValidationPredic
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
+import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
-import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates;
 
 /** Provides helper functions to build a QuestionDefinition. */
 public final class QuestionDefinitionBuilder {
@@ -318,14 +318,14 @@ public final class QuestionDefinitionBuilder {
           phoneValidationPredicates = PhoneValidationPredicates.parse(validationPredicatesString);
         }
         return new PhoneQuestionDefinition(
-        id,
-          name,
-          enumeratorId,
-          description,
-          questionText,
-          questionHelpText,
-          phoneValidationPredicates,
-          lastModifiedTime);
+            id,
+            name,
+            enumeratorId,
+            description,
+            questionText,
+            questionHelpText,
+            phoneValidationPredicates,
+            lastModifiedTime);
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

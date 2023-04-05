@@ -131,7 +131,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
         // applicant two did not answer this question.
         break;
       case PHONE:
-        QuestionAnswerer.answerPhoneQuestion(applicantDataOne,answerPath,"US","(615) 757-1010");
+        QuestionAnswerer.answerPhoneQuestion(applicantDataOne, answerPath, "US", "(615) 757-1010");
         break;
       case STATIC:
         // Do nothing.

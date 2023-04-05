@@ -89,14 +89,13 @@ public class CfJsonDocumentContext {
     }
   }
 
-  public void putPhoneNumber(Path path, String phoneNumber)
-  {
-    if(phoneNumber.isEmpty()){
+  public void putPhoneNumber(Path path, String phoneNumber) {
+    if (phoneNumber.isEmpty()) {
       putNull(path);
       return;
     }
 
-    put(path,phoneNumber.replaceAll("[^0-9]", ""));
+    put(path, phoneNumber.replaceAll("[^0-9]", ""));
   }
   /**
    * Stores the dollars currency string as a long of the currency cents at the given {@link Path}.
