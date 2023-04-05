@@ -67,6 +67,9 @@ title.login=Login
 # Prompt for applicant to log in, input is the full civic entity name.
 content.loginPrompt=Please log in with your {0} account
 
+# The text on the button an applicant clicks to create an account.
+button.createAnAccount=Create an account
+
 # The text on the button an applicant clicks to log in to their session.
 button.login=Log in
 
@@ -319,13 +322,37 @@ content.confirmed=Thank you for applying to {0}.  Your application has been rece
 title.createAnAccount=Create an account or sign in
 
 # A message urging users to create an account to save their data.
-content.pleaseCreateAccount=If you sign into a city account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+content.pleaseCreateAccount=If you sign into an account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
 
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account
+
+# Title on the page after applicant has successfully filled out the common intake form.
+title.commonIntakeConfirmation=Benefits you may qualify for
+
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
+title.commonIntakeConfirmationTi=Benefits your client may qualify for
+
+# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmation=You may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''.
+
+# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmationTi=Your client may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''.
+
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
+
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
+
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
+content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+
+# A button prompting users to apply to programs.
+button.applyToPrograms=Apply to programs
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
