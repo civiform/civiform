@@ -44,6 +44,8 @@ public interface ProgramService {
   /** Get the data object about the programs that are in the active or draft version. */
   ActiveAndDraftPrograms getActiveAndDraftPrograms();
 
+  ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad();
+
   /**
    * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously, by
    * querying for questions then updating each {@link ProgramDefinition}s.

@@ -101,6 +101,11 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad() {
+    return ActiveAndDraftPrograms.buildFromCurrentVersions(versionRepository);
+  }
+
+  @Override
   public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
