@@ -1001,8 +1001,6 @@ public final class ApplicantService {
                     .setLatestSubmittedApplicationTime(latestSubmittedApplicationTime)
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
-            //
-            // .setIsProgramMaybeEligible(getApplicantMayBeEligibleStatus(maybeSubmittedApp.get().getApplicant(), programDefinition));
 
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());

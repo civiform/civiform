@@ -2717,7 +2717,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   /**
-   * @param question Question to use for eligibility definition
+   * @param question Question to use for the eligibility definition
    * @return An eligibility definition with a {@link NameQuestionDefinition} and an eligibility
    *     condition requiring the question's {@link Scalar.FIRST_NAME} be "eligible name".
    */
