@@ -343,10 +343,10 @@ content.commonIntakeConfirmation=You may be able to get these benefits if you ap
 content.commonIntakeConfirmationTi=Your client may be able to get these benefits if you apply through the online application by clicking ''Apply to programs''.
 
 # A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website. It may read "State of Arkansas site", for example.
-content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit the {0}.
+content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit the {0}
 
 # A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website. It may read "State of Arkansas site", for example.
-content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit the {0}.
+content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit the {0}
 
 # TODO(#4483): When available, use the new Admin Settings UI for this link text.
 # Text for the link in content.commonIntakeNoMatchingPrograms and content.commonIntakeNoMatchingProgramsTi. It is the name of the linked site, and is in the middle of a sentence, like "To view more go to <this link text>."
