@@ -37,5 +37,3 @@ jobs:
     uses: ./.github/workflows/generate_env_var_docs_markdown_for_release.yaml
     with:
       release_number: ${{ github.event.inputs.release_number }}
-    secrets:
-      AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN: ${{ secrets.AUTOMATION_GITHUB_BOT_PERSONAL_ACCESS_TOKEN }}
