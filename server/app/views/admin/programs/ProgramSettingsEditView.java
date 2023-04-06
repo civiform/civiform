@@ -47,7 +47,6 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
         TagCreator.button()
             .withId(ELIGIBILITY_TOGGLE_ID)
             .attr("hx-post", toggleAction)
-            .attr("hx-swap", "innerHTML")
             .attr("hx-select-oob", String.format("#%s", formId))
             .withClasses(
                 "flex",

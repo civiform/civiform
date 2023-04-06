@@ -21,7 +21,10 @@ import * as enumerator from './enumerator'
 import htmx from 'htmx.org'
 
 declare global {
-  interface Window { htmx: any; }
+  interface Window {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    htmx: any
+  }
 }
 
 window.htmx = htmx
