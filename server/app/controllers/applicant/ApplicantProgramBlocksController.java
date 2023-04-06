@@ -525,52 +525,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               .createAddressQuestion();
 
       if (addressQuestion.needsAddressCorrection()) {
-        AddressSuggestionGroup addressSuggestionGroup =
-            applicantService
-                .getAddressSuggestionGroup(thisBlockUpdated)
-                .toCompletableFuture()
-                .join();
-        ImmutableList<AddressSuggestion> suggestions =
-            addressSuggestionGroup.getAddressSuggestions();
 
-        AddressSuggestion[] suggestionMatch =
-            suggestions.stream()
-                .filter(suggestion -> suggestion.getAddress().equals(addressQuestion.getAddress()))
-                .toArray(AddressSuggestion[]::new);
-
-        if (suggestionMatch.length > 0) {
-          return confirmAddressWithSuggestions(
-              request,
-              applicantId,
-              programId,
-              blockId,
-              inReview,
-              suggestionMatch[0].getSingleLineAddress(),
-              suggestions);
-        } else {
-          String json = addressSuggestionJsonSerializer.serialize(suggestions);
-
-          Boolean isEligibilityEnabledOnThisBlock =
-              thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
-
-          return supplyAsync(
-              () ->
-                  ok(addressCorrectionBlockView.render(
-                          buildApplicationBaseViewParams(
-                              request,
-                              applicantId,
-                              programId,
-                              blockId,
-                              inReview,
-                              roApplicantProgramService,
-                              thisBlockUpdated,
-                              applicantName,
-                              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
-                          messagesApi.preferred(request),
-                          addressSuggestionGroup,
-                          isEligibilityEnabledOnThisBlock))
-                      .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
-        }
+        return applicantService
+            .getAddressSuggestionGroup(thisBlockUpdated)
+            .thenComposeAsync(
+                addressSuggestionGroup -> {
+                  return maybeRenderAddressCorrectionScreen(
+                      addressSuggestionGroup,
+                      addressQuestion,
+                      request,
+                      applicantId,
+                      programId,
+                      blockId,
+                      inReview,
+                      roApplicantProgramService,
+                      thisBlockUpdated,
+                      applicantName);
+                });
       }
     }
 
@@ -635,6 +606,58 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     routes.ApplicantProgramBlocksController.edit(
                         applicantId, programId, nextBlockIdMaybe.get()))
                 .flashing(flashingMap));
+  }
+
+  private CompletionStage<Result> maybeRenderAddressCorrectionScreen(
+      AddressSuggestionGroup addressSuggestionGroup,
+      AddressQuestion addressQuestion,
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Block thisBlockUpdated,
+      Optional<String> applicantName) {
+    ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
+
+    AddressSuggestion[] suggestionMatch =
+        suggestions.stream()
+            .filter(suggestion -> suggestion.getAddress().equals(addressQuestion.getAddress()))
+            .toArray(AddressSuggestion[]::new);
+
+    if (suggestionMatch.length > 0) {
+      return confirmAddressWithSuggestions(
+          request,
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          suggestionMatch[0].getSingleLineAddress(),
+          suggestions);
+    } else {
+      String json = addressSuggestionJsonSerializer.serialize(suggestions);
+
+      Boolean isEligibilityEnabledOnThisBlock =
+          thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
+
+      return CompletableFuture.completedFuture(
+          ok(addressCorrectionBlockView.render(
+                  buildApplicationBaseViewParams(
+                      request,
+                      applicantId,
+                      programId,
+                      blockId,
+                      inReview,
+                      roApplicantProgramService,
+                      thisBlockUpdated,
+                      applicantName,
+                      ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
+                  messagesApi.preferred(request),
+                  addressSuggestionGroup,
+                  isEligibilityEnabledOnThisBlock))
+              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+    }
   }
 
   /** Returns true if eligibility is gating and the block is ineligible, false otherwise. */
