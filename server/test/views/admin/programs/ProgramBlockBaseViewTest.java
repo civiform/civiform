@@ -50,9 +50,9 @@ public class ProgramBlockBaseViewTest {
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
-        .isEqualTo(
-            "<div>Block_name is hidden if &quot;applicant birth date&quot; date is equal to"
-                + " 2023-01-01</div>");
+        .contains(
+            "Block_name is hidden if &quot;applicant birth date&quot; date is equal to"
+                + " 2023-01-01");
   }
 
   @Test
@@ -87,10 +87,10 @@ public class ProgramBlockBaseViewTest {
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
-        .isEqualTo(
-            "<div>Block_name is hidden if &quot;applicant Email address&quot; email is equal to"
+        .contains(
+            "Block_name is hidden if &quot;applicant Email address&quot; email is equal to"
                 + " &quot;test@example.com&quot; and &quot;applicant birth date&quot; date is"
-                + " equal to 2023-01-01</div>");
+                + " equal to 2023-01-01");
   }
 
   @Test
@@ -144,13 +144,13 @@ public class ProgramBlockBaseViewTest {
             .renderExistingPredicate(BLOCK_NAME, predicateDefinition, questionDefinitions);
 
     assertThat(result.render())
-        .isEqualTo(
-            "<div>Block_name is hidden if any of:<ul class=\"list-disc ml-4"
+        .contains(
+            "Block_name is hidden if any of:<ul class=\"list-disc ml-4"
                 + " mb-4\"><li>&quot;applicant Email address&quot; email is equal to"
                 + " &quot;test@example.com&quot; and &quot;applicant birth date&quot; date is"
                 + " equal to 2023-01-01</li><li>&quot;applicant Email address&quot; email is equal"
                 + " to &quot;other@example.com&quot; and &quot;applicant birth date&quot; date is"
-                + " equal to 2023-03-03</li></ul></div>");
+                + " equal to 2023-03-03</li></ul>");
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBlockBaseView {

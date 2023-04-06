@@ -96,7 +96,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
-                            .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
                     .with(
                         new LinkElement()
                             .setHref(
@@ -105,7 +105,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                                     .url())
                             .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
                             .asButton()
-                            .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT)));
+                            .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION)));
     String title = "Ineligible for program";
     HtmlBundle bundle =
         layout

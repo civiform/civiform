@@ -21,6 +21,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -66,14 +67,21 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final FeatureFlags featureFlags;
   private final ProfileUtils profileUtils;
+  private final String civicEntityShortName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
-      ApplicantLayout layout, ZoneId zoneId, FeatureFlags featureFlags, ProfileUtils profileUtils) {
+      ApplicantLayout layout,
+      ZoneId zoneId,
+      Config config,
+      FeatureFlags featureFlags,
+      ProfileUtils profileUtils) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
+    this.civicEntityShortName =
+        checkNotNull(config).getString("whitelabel.civic_entity_short_name");
     this.zoneId = checkNotNull(zoneId);
   }
 
@@ -100,15 +108,15 @@ public final class ProgramIndexView extends BaseHtmlView {
     bundle.addMainContent(
         topContent(
             messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
-            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_1.getKeyName()),
-            messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION_2.getKeyName())),
+            messages.at(
+                MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName)),
         mainContent(
             request, messages, applicationPrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle);
   }
 
-  private DivTag topContent(String titleText, String infoTextLine1, String infoTextLine2) {
+  private DivTag topContent(String titleText, String infoTextLine) {
     // "Get benefits"
     H1Tag programIndexH1 =
         h1().withText(titleText)
@@ -120,20 +128,21 @@ public final class ProgramIndexView extends BaseHtmlView {
                 "px-6",
                 StyleUtils.responsiveSmall("mb-6"));
 
-    DivTag infoLine1Div =
+    DivTag infoDiv =
         div()
-            .withText(infoTextLine1)
-            .withClasses("text-sm", "px-6", StyleUtils.responsiveSmall("text-base"));
-
-    DivTag infoLine2Div =
-        div()
-            .withText(infoTextLine2)
-            .withClasses("text-sm", "px-6", "pb-6", StyleUtils.responsiveSmall("text-base"));
+            .withText(infoTextLine)
+            .withClasses(
+                "text-sm", "px-6", "w-5/12", "pb-6", StyleUtils.responsiveSmall("text-base"));
 
     return div()
         .withId("top-content")
-        .withClasses(ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT, "relative", "flex", "flex-col")
-        .with(programIndexH1, infoLine1Div, infoLine2Div);
+        .withClasses(
+            ApplicantStyles.PROGRAM_INDEX_TOP_CONTENT,
+            "relative",
+            "flex",
+            "flex-col",
+            "items-center")
+        .with(programIndexH1, infoDiv);
   }
 
   private H2Tag programSectionTitle(String title) {

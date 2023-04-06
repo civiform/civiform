@@ -8,6 +8,7 @@ import static views.components.ToastMessage.ToastType.ERROR;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
 import forms.ProgramForm;
@@ -101,21 +102,53 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result create(Request request) {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
-    ProgramForm program = programForm.bindFromRequest(request).get();
+    ProgramForm programData = programForm.bindFromRequest(request).get();
+
+    // Display any errors with the form input to the user.
+    ImmutableSet<CiviFormError> errors =
+        programService.validateProgramDataForCreate(
+            programData.getAdminName(),
+            programData.getAdminDescription(),
+            programData.getLocalizedDisplayName(),
+            programData.getLocalizedDisplayDescription(),
+            programData.getExternalLink(),
+            programData.getDisplayMode());
+    if (!errors.isEmpty()) {
+      ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
+      return ok(newOneView.render(request, programData, message));
+    }
+
+    // If the user needs to confirm that they want to change the common intake form from a different
+    // program to this one, show the confirmation dialog.
+    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+        && programData.getIsCommonIntakeForm()
+        && !programData.getConfirmedChangeCommonIntakeForm()) {
+      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
+      if (maybeCommonIntakeForm.isPresent()) {
+        return ok(
+            newOneView.renderChangeCommonIntakeConfirmation(
+                request, programData, maybeCommonIntakeForm.get().localizedName().getDefault()));
+      }
+    }
+
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         programService.createProgramDefinition(
-            program.getAdminName(),
-            program.getAdminDescription(),
-            program.getLocalizedDisplayName(),
-            program.getLocalizedDisplayDescription(),
-            program.getLocalizedConfirmationMessage(),
-            program.getExternalLink(),
-            program.getDisplayMode(),
-            program.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
+            programData.getAdminName(),
+            programData.getAdminDescription(),
+            programData.getLocalizedDisplayName(),
+            programData.getLocalizedDisplayDescription(),
+            programData.getLocalizedConfirmationMessage(),
+            programData.getExternalLink(),
+            programData.getDisplayMode(),
+            programData.getIsCommonIntakeForm()
+                ? ProgramType.COMMON_INTAKE_FORM
+                : ProgramType.DEFAULT,
             featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+    // There shouldn't be any errors since we already validated the program, but check for errors
+    // again just in case.
     if (result.isError()) {
       ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
-      return ok(newOneView.render(request, program, Optional.of(message)));
+      return ok(newOneView.render(request, programData, message));
     }
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
   }
@@ -170,27 +203,50 @@ public final class AdminProgramController extends CiviFormController {
   public Result update(Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
-
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        programService.updateProgramDefinition(
-            programDefinition.id(),
-            LocalizedStrings.DEFAULT_LOCALE,
+
+    // Display any errors with the form input to the user.
+    ImmutableSet<CiviFormError> validationErrors =
+        programService.validateProgramDataForUpdate(
             programData.getAdminDescription(),
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
-            programData.getLocalizedConfirmationMessage(),
             programData.getExternalLink(),
-            programData.getDisplayMode(),
-            programData.getIsCommonIntakeForm()
-                ? ProgramType.COMMON_INTAKE_FORM
-                : ProgramType.DEFAULT,
-            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
-    if (result.isError()) {
-      ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
-      return ok(editView.render(request, programDefinition, programData, Optional.of(message)));
+            programData.getDisplayMode());
+    if (!validationErrors.isEmpty()) {
+      ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
+      return ok(editView.render(request, programDefinition, programData, message));
     }
+
+    // If the user needs to confirm that they want to change the common intake form from a different
+    // program to this one, show the confirmation dialog.
+    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+        && programData.getIsCommonIntakeForm()
+        && !programData.getConfirmedChangeCommonIntakeForm()) {
+      Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
+      if (maybeCommonIntakeForm.isPresent()
+          && !maybeCommonIntakeForm.get().adminName().equals(programDefinition.adminName())) {
+        return ok(
+            editView.renderChangeCommonIntakeConfirmation(
+                request,
+                programDefinition,
+                programData,
+                maybeCommonIntakeForm.get().localizedName().getDefault()));
+      }
+    }
+
+    programService.updateProgramDefinition(
+        programDefinition.id(),
+        LocalizedStrings.DEFAULT_LOCALE,
+        programData.getAdminDescription(),
+        programData.getLocalizedDisplayName(),
+        programData.getLocalizedDisplayDescription(),
+        programData.getLocalizedConfirmationMessage(),
+        programData.getExternalLink(),
+        programData.getDisplayMode(),
+        programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
+        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 

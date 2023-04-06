@@ -5,7 +5,7 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
-import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h1;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.option;
@@ -226,11 +226,14 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     DivTag content =
         div(
                 renderBackLink(editPredicateUrl, typeDisplayName, blockDefinition),
-                h2(String.format("Configure %s conditions", typeDisplayName)).withClasses("my-6"),
-                each(questionDefinitions, this::renderQuestionCard),
+                div()
+                    .with(
+                        h1(String.format("Configure %s conditions", typeDisplayName))
+                            .withClasses("font-bold", "text-xl", "mb-2"))
+                    .with(each(questionDefinitions, this::renderQuestionCard)),
                 renderPredicateConfigurator(
                     request, formActionUrl, questionDefinitions, existingPredicate, type))
-            .withClasses("max-w-6xl", "mb-12");
+            .withClasses("mx-6", "max-w-6xl", "mb-12", "my-10", "flex", "flex-col", "gap-6");
 
     HtmlBundle htmlBundle =
         layout
@@ -249,9 +252,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         .setHref(editPredicateUrl)
         .setIcon(Icons.ARROW_LEFT, LinkElement.IconPosition.START)
         .setText(
-            String.format(
-                "Return to %s conditions for %s screen", typeDisplayName, blockDefinition.name()))
-        .setStyles("my-6")
+            String.format("Back to %s conditions for %s", typeDisplayName, blockDefinition.name()))
         .asAnchorText();
   }
 
@@ -467,6 +468,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
     return row.with(delete);
   }
 
+  // TODO: Refactor shared styles between this and
+  // ProgramBlockPredicatesEditViewV2.renderPredicateQuestionCheckBoxRow.
   private DivTag renderQuestionCard(QuestionDefinition questionDefinition) {
     String questionHelpText =
         questionDefinition.getQuestionHelpText().isEmpty()
@@ -771,6 +774,12 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
 
       case DATE:
         {
+          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_LONGS)) {
+            return formatListOfLongs(predicateValue.value());
+          }
+          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LONG)) {
+            return predicateValue.value();
+          }
           return Instant.ofEpochMilli(Long.parseLong(predicateValue.value()))
               .atZone(ZoneId.systemDefault())
               .toLocalDate()
@@ -779,19 +788,8 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
 
       case LONG:
         {
-          if (maybeOperator
-              .map(
-                  operator ->
-                      operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_LONGS))
-              .orElse(false)) {
-            String value = predicateValue.value();
-
-            // Lists of longs are serialized as JSON arrays e.g. "[1, 2]"
-            return Splitter.on(", ")
-                // Remove opening and closing brackets
-                .splitToStream(value.substring(1, value.length() - 1))
-                // Join to CSV
-                .collect(Collectors.joining(","));
+          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_LONGS)) {
+            return formatListOfLongs(predicateValue.value());
           }
 
           return predicateValue.value();
@@ -800,11 +798,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
       case LIST_OF_STRINGS:
       case STRING:
         {
-          if (maybeOperator
-              .map(
-                  operator ->
-                      operator.getRightHandTypes().contains(OperatorRightHandType.LIST_OF_STRINGS))
-              .orElse(false)) {
+          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_STRINGS)) {
             String value = predicateValue.value();
 
             // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
@@ -826,6 +820,22 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
               String.format("Unknown scalar type: %s", scalar.toScalarType()));
         }
     }
+  }
+
+  private static boolean hasOperatorRightHandType(
+      Optional<Operator> maybeOperator, OperatorRightHandType operatorRightHandType) {
+    return maybeOperator
+        .map(operator -> operator.getRightHandTypes().contains(operatorRightHandType))
+        .orElse(false);
+  }
+
+  private static String formatListOfLongs(String value) {
+    // Lists of longs are serialized as JSON arrays e.g. "[1, 2]"
+    return Splitter.on(", ")
+        // Remove opening and closing brackets
+        .splitToStream(value.substring(1, value.length() - 1))
+        // Join to CSV
+        .collect(Collectors.joining(","));
   }
 
   private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {

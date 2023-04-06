@@ -1,11 +1,14 @@
 import {
   AdminQuestions,
+  ClientInformation,
   createTestContext,
   enableFeatureFlag,
   disableFeatureFlag,
+  dropTables,
   loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
+  loginAsTrustedIntermediary,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -144,10 +147,13 @@ describe('Applicant navigation flow', () => {
       const {page} = ctx
       await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
+
+      // Begin waiting for the popup before clicking the link, otherwise
+      // the popup may fire before the wait is registered, causing the test to flake.
+      const popupPromise = page.waitForEvent('popup')
       await page.click(
         `.cf-application-card:has-text("${programName}") >> text='Program details'`,
       )
-      const popupPromise = page.waitForEvent('popup')
       const popup = await popupPromise
       const popupURL = await popup.evaluate('location.href')
 
@@ -280,6 +286,16 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-guest')
+
+      // Click the "Apply to another program" button while a guest, which triggers
+      // a modal to prompt the guest to login or create an account. Note that
+      // in this screenshot, the mouse ends up hovering on top of the first
+      // button in the new modal that appears, which is why it is highlighted.
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await validateScreenshot(
+        page,
+        'program-submission-guest-login-prompt-modal',
+      )
     })
 
     it('verify program submission page for logged in user', async () => {
@@ -336,6 +352,267 @@ describe('Applicant navigation flow', () => {
         "There's been an update to the application",
       )
       await validateScreenshot(page, 'program-out-of-date')
+    })
+  })
+
+  describe('navigation with common intake', () => {
+    // Create two programs, one is common intake
+    const commonIntakeProgramName = 'Test Common Intake Form Program'
+    const secondProgramName = 'Test Regular Program with Eligibility Conditions'
+    const eligibilityQuestionId = 'nav-predicate-number-q'
+    const secondProgramCorrectAnswer = '5'
+
+    beforeAll(async () => {
+      const {page} = ctx
+      await dropTables(page)
+    })
+
+    // TODO(#4509): Once we can create different test users, change this to
+    // beforeAll and use different users for each test, instead of wiping the
+    // db after each test.
+    beforeEach(async () => {
+      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      // Add questions
+      await adminQuestions.addNumberQuestion({
+        questionName: eligibilityQuestionId,
+      })
+
+      // Set up common intake form
+      await adminPrograms.addProgram(
+        commonIntakeProgramName,
+        'program description',
+        'https://usa.gov',
+        /* hidden= */ false,
+        'admin description',
+        /* isCommonIntake= */ true,
+      )
+
+      await adminPrograms.editProgramBlock(
+        commonIntakeProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+
+      // Set up another program
+      await adminPrograms.addProgram(secondProgramName)
+
+      await adminPrograms.editProgramBlock(
+        secondProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        secondProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        'nav-predicate-number-q',
+        /* action= */ null,
+        'number',
+        'is equal to',
+        secondProgramCorrectAnswer,
+      )
+
+      await adminPrograms.publishAllPrograms()
+      // TODO(#4509): Once this is a beforeAll(), it'll automatically go back
+      // to the home page when it's done and we can remove this line.
+      await logout(page)
+    })
+
+    afterEach(async () => {
+      // TODO(#4509): Once we can create different test users, we don't need to
+      // wipe the db after each test
+      const {page} = ctx
+      await dropTables(page)
+    })
+
+    it('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with non-eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion('4')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [],
+      )
+
+      await validateScreenshot(
+        page,
+        'cif-ineligible-signed-in-confirmation-page',
+      )
+      await validateAccessibility(page)
+    })
+
+    it('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
+      await validateAccessibility(page)
+    })
+
+    it('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with non-eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion('4')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [],
+      )
+
+      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page')
+      await validateAccessibility(page)
+    })
+
+    it('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await validateScreenshot(page, 'cif-eligible-guest-confirmation-page')
+      await validateAccessibility(page)
+    })
+
+    it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
+      const {page, tiDashboard, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      // Create trusted intermediary client
+      await loginAsTrustedIntermediary(page)
+      await selectApplicantLanguage(page, 'English')
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+      await tiDashboard.clickOnApplicantDashboard()
+
+      // Fill out common intake form, with non-eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion('4')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ true,
+        /* wantEligiblePrograms= */ [],
+      )
+
+      await validateScreenshot(page, 'cif-ineligible-ti-confirmation-page')
+    })
+
+    it('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
+      const {page, tiDashboard, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      // Create trusted intermediary client
+      await loginAsTrustedIntermediary(page)
+      await selectApplicantLanguage(page, 'English')
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+      await tiDashboard.clickOnApplicantDashboard()
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ true,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
     })
   })
 
@@ -749,7 +1026,6 @@ describe('Applicant navigation flow', () => {
       // Log out admin
       await logout(page)
     })
-
     if (isLocalDevEnvironment()) {
       it('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
@@ -768,7 +1044,7 @@ describe('Applicant navigation flow', () => {
           0,
         )
         await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
+          'Legit Address',
           '',
           'Seattle',
           'WA',
@@ -776,13 +1052,13 @@ describe('Applicant navigation flow', () => {
           1,
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
         await applicantQuestions.answerTextQuestion('Some text')
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
-          '305 Harrison St',
+          'Address In Area',
         )
         await applicantQuestions.clickSubmit()
         await logout(page)
@@ -805,7 +1081,7 @@ describe('Applicant navigation flow', () => {
           0,
         )
         await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
+          'Legit Address',
           '',
           'Seattle',
           'WA',
@@ -813,11 +1089,11 @@ describe('Applicant navigation flow', () => {
           1,
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
-          '305 Harrison St',
+          'Address In Area',
         )
         await applicantQuestions.clickSubmit()
         await logout(page)
@@ -832,14 +1108,14 @@ describe('Applicant navigation flow', () => {
 
         // Fill out application and submit.
         await applicantQuestions.answerAddressQuestion(
-          '305 Harrison',
+          'Legit Address',
           '',
           'Seattle',
           'WA',
           '98109',
         )
         await applicantQuestions.clickNext()
-        await applicantQuestions.expectVerifyAddressPage()
+        await applicantQuestions.expectVerifyAddressPage(true)
 
         // Only doing accessibility and screenshot checks for address correction page
         // once since they are all the same
@@ -849,9 +1125,89 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.clickNext()
         await applicantQuestions.expectAddressHasBeenCorrected(
           'With Correction',
-          '305 Harrison St',
+          'Address In Area',
         )
         await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
+      it('prompts user to edit if no suggestions are returned', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Bogus Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(false)
+
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'no-suggestions-returned')
+
+        // Can continue on anyway
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
+      it('prompts user to edit if an error is returned from the Esri service', async () => {
+        // This is currently the same as when no suggestions are returend.
+        // We may change this later.
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Error Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(false)
+
+        await validateAccessibility(page)
+        await validateScreenshot(page, 'esri-service-errored')
+
+        // Can continue on anyway
+        await applicantQuestions.clickNext()
+        await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
+      it('clicking previous on address correction page takes you back to address entry page', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+
+        // Fill out application and submit.
+        await applicantQuestions.answerAddressQuestion(
+          'Legit Address',
+          '',
+          'Seattle',
+          'WA',
+          '98109',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectVerifyAddressPage(true)
+
+        await applicantQuestions.clickPrevious()
+        await applicantQuestions.expectAddressPage()
+
         await logout(page)
       })
     }
@@ -877,30 +1233,6 @@ describe('Applicant navigation flow', () => {
         '305 Harrison',
       )
       await applicantQuestions.clickSubmit()
-      await logout(page)
-    })
-
-    it('clicking previous on address correction page takes you back to address entry page', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-      await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
-
-      // Fill out application and submit.
-      await applicantQuestions.answerAddressQuestion(
-        '305 Harrison',
-        '',
-        'Seattle',
-        'WA',
-        '98109',
-      )
-      await applicantQuestions.clickNext()
-      await applicantQuestions.expectVerifyAddressPage()
-
-      await applicantQuestions.clickPrevious()
-      await applicantQuestions.expectAddressPage()
-
       await logout(page)
     })
   })

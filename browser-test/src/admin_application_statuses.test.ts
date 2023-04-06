@@ -632,11 +632,14 @@ describe('view program statuses', () => {
       await adminQuestions.addNumberQuestion({
         questionName: eligibilityQuestionId,
       })
+      await adminQuestions.addTextQuestion({
+        questionName: 'fave-color-q',
+      })
       await adminPrograms.addProgram(eligibilityProgramName)
       await adminPrograms.editProgramBlock(
         eligibilityProgramName,
         'first description',
-        [eligibilityQuestionId],
+        [eligibilityQuestionId, 'statuses-fave-color-q'],
       )
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(eligibilityProgramName)
@@ -649,6 +652,7 @@ describe('view program statuses', () => {
 
       // Fill out application and submit.
       await applicantQuestions.answerNumberQuestion('1')
+      await applicantQuestions.answerTextQuestion('Red')
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
@@ -677,6 +681,7 @@ describe('view program statuses', () => {
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(eligibilityProgramName)
       await applicantQuestions.answerNumberQuestion('5')
+      await applicantQuestions.answerTextQuestion('Red')
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 

@@ -33,8 +33,8 @@ describe('applicant auth', () => {
     await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'logged-in-guest')
-    expect(await ctx.page.textContent('html')).toContain('Logged in as Guest')
-    expect(await ctx.page.textContent('html')).toContain('Logout')
+    expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
+    expect(await ctx.page.textContent('html')).toContain('End session')
   })
 
   // so far only fake-oidc provider requires user to click "Yes" to confirm
@@ -83,13 +83,13 @@ describe('applicant auth', () => {
     )
   })
 
-  it('applicant can logout from guest', async () => {
+  it('applicant can logout (end session) from guest', async () => {
     const {page} = ctx
     await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
-    expect(await ctx.page.textContent('html')).toContain('Logged in as Guest')
+    expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
 
-    await page.click('text=Logout')
+    await page.click('text=End session')
     expect(await ctx.page.textContent('html')).toContain('Continue as guest')
   })
 
@@ -106,7 +106,7 @@ describe('applicant auth', () => {
 
     await applicantQuestions.clickApplyProgramButton(programName)
     await applicantQuestions.submitFromReviewPage()
-    await loginAsTestUser(page, 'button:has-text("Create account or sign in")')
+    await loginAsTestUser(page)
 
     // Check that program is marked as submitted.
     expect(

@@ -15,6 +15,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
+import services.program.EligibilityNotValidForProgramTypeException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -318,7 +319,8 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException
         | QuestionNotFoundException
-        | ProgramQuestionDefinitionNotFoundException e) {
+        | ProgramQuestionDefinitionNotFoundException
+        | EligibilityNotValidForProgramTypeException e) {
       return redirect(
               routes.AdminProgramBlockPredicatesController.editEligibility(
                   programId, blockDefinitionId))

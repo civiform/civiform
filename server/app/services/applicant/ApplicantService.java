@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
@@ -68,7 +69,6 @@ import services.geo.AddressSuggestionGroup;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusionGroup;
 import services.geo.esri.EsriClient;
-import services.geo.esri.EsriClientRequestException;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -845,9 +845,35 @@ public final class ApplicantService {
             allPrograms -> {
               ImmutableSet<Application> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
-              return relevantProgramsForApplicant(
+              return relevantProgramsForApplicantInternal(
                   activeProgramDefinitions, applications, allPrograms);
             },
+            httpExecutionContext.current());
+  }
+
+  /**
+   * Find unsubmitted programs the applicant may be eligible for, if they've started an application.
+   *
+   * <p>If no application has been started all programs are returned because their eligibility
+   * status is not set by relevantProgramsForApplicant().
+   *
+   * @return All unsubmitted programs that are appropriate to serve to an applicant and that they
+   *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
+   *     criteria.
+   *     <p>Does not include the Common Intake Form.
+   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long)}.
+   */
+  public CompletionStage<ImmutableList<ApplicantProgramData>>
+      maybeEligibleUnsubmittedProgramsForApplicant(long applicantId) {
+    return relevantProgramsForApplicant(applicantId)
+        .thenApplyAsync(
+            relevantPrograms ->
+                Stream.of(relevantPrograms.inProgress(), relevantPrograms.unapplied())
+                    .flatMap(ImmutableList::stream)
+                    // Return all unsubmitted programs the user is eligible for, or that have no
+                    // eligibility conditions.
+                    .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
+                    .collect(ImmutableList.toImmutableList()),
             httpExecutionContext.current());
   }
 
@@ -878,7 +904,7 @@ public final class ApplicantService {
         : Optional.empty();
   }
 
-  private ApplicationPrograms relevantProgramsForApplicant(
+  private ApplicationPrograms relevantProgramsForApplicantInternal(
       ImmutableList<ProgramDefinition> activePrograms,
       ImmutableSet<Application> applications,
       ImmutableList<ProgramDefinition> allPrograms) {
@@ -1071,6 +1097,13 @@ public final class ApplicantService {
   public abstract static class ApplicantProgramData {
     public abstract ProgramDefinition program();
 
+    /**
+     * Returns whether an applicant is potentially eligible for a program based only on the
+     * questions they've answered, and empty if there are no eligibility conditions for the program.
+     *
+     * <p>If an applicant has not finished an application, only the questions they've answered are
+     * used to determine if they might be eligible.
+     */
     public abstract Optional<Boolean> isProgramMaybeEligible();
 
     public abstract Optional<Instant> latestSubmittedApplicationTime();
@@ -1505,17 +1538,51 @@ public final class ApplicantService {
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    return esriClient.getAddressSuggestions(addressQuestion.getAddress());
+  }
 
-    return esriClient
-        .getAddressSuggestions(addressQuestion.getAddress())
-        .thenApplyAsync(
-            suggestionsMaybe -> {
-              if (suggestionsMaybe.isEmpty()) {
-                throw new EsriClientRequestException(
-                    "Call to EsriClient.getAddressSuggestions failed.");
+  /**
+   * Checks for an {@link AddressQuestion} that has address correction enabled. If found and the
+   * data in the database differs from the submitted form data. Set the corrected, latitude, and
+   * longitude, and wellKnownId values to empty. This is done to allow triggering the address
+   * correction process again, but only when there have been changes.
+   *
+   * <p>Otherwise if no {@link AddressQuestion} or no changes to the address we return the untouched
+   * formdata
+   */
+  public CompletionStage<ImmutableMap<String, String>> resetAddressCorrectionWhenAddressChanged(
+      long applicantId, long programId, String blockId, ImmutableMap<String, String> formData) {
+    return getReadOnlyApplicantProgramService(applicantId, programId)
+        .thenComposeAsync(
+            roApplicantProgramService -> {
+              Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockId);
+
+              if (blockMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(
+                    new ProgramBlockNotFoundException(programId, blockId));
               }
 
-              return suggestionsMaybe.get();
+              Optional<ApplicantQuestion> addressQuestionMaybe =
+                  blockMaybe.get().getAddressQuestionWithCorrectionEnabled();
+
+              if (addressQuestionMaybe.isEmpty()) {
+                return CompletableFuture.completedFuture(formData);
+              }
+
+              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
+
+              if (addressQuestion.hasChanges(formData)) {
+                return CompletableFuture.completedFuture(
+                    new ImmutableMap.Builder<String, String>()
+                        .putAll(formData)
+                        .put(addressQuestion.getCorrectedPath().toString(), "")
+                        .put(addressQuestion.getLatitudePath().toString(), "")
+                        .put(addressQuestion.getLongitudePath().toString(), "")
+                        .put(addressQuestion.getWellKnownIdPath().toString(), "")
+                        .build());
+              }
+
+              return CompletableFuture.completedFuture(formData);
             });
   }
 }

@@ -266,8 +266,10 @@ describe('create and edit predicates', () => {
     await applicantQuestions.expectIneligiblePage()
     await validateScreenshot(page, 'ineligible')
 
-    await page.click('text=program details')
+    // Begin waiting for the popup before clicking the link, otherwise
+    // the popup may fire before the wait is registered, causing the test to flake.
     const popupPromise = page.waitForEvent('popup')
+    await page.click('text=program details')
     const popup = await popupPromise
     const popupURL = await popup.evaluate('location.href')
 
@@ -342,7 +344,7 @@ describe('create and edit predicates', () => {
 
       // ensure the edit page renders without errors
       await adminPredicates.clickEditPredicateButton('eligibility')
-      expect(await page.innerText('h2')).toContain(
+      expect(await page.innerText('h1')).toContain(
         'Configure eligibility conditions',
       )
     })
@@ -948,6 +950,14 @@ describe('create and edit predicates', () => {
         '90',
       )
 
+      // ensure the edit page renders without errors
+      await adminPredicates.clickEditPredicateButton('eligibility')
+      expect(await page.innerText('h1')).toContain(
+        'Configure eligibility conditions',
+      )
+      await validateScreenshot(page, 'predicate-age-greater-than-edit')
+      await adminPredicates.clickSaveConditionButton()
+
       // Date predicate age is less than
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
@@ -961,6 +971,13 @@ describe('create and edit predicates', () => {
         '50',
       )
 
+      // ensure the edit page renders without errors
+      await adminPredicates.clickEditPredicateButton('eligibility')
+      expect(await page.innerText('h1')).toContain(
+        'Configure eligibility conditions',
+      )
+      await adminPredicates.clickSaveConditionButton()
+
       // Date predicate age is between
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
@@ -973,6 +990,14 @@ describe('create and edit predicates', () => {
         'age is between',
         '1,90',
       )
+
+      // ensure the edit page renders without errors
+      await adminPredicates.clickEditPredicateButton('eligibility')
+      expect(await page.innerText('h1')).toContain(
+        'Configure eligibility conditions',
+      )
+      await validateScreenshot(page, 'predicate-age-between-edit')
+      await adminPredicates.clickSaveConditionButton()
 
       // Lists of strings on both sides (multi-option question checkbox)
       await adminPrograms.goToEditBlockEligibilityPredicatePage(

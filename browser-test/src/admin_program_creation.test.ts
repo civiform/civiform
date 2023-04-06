@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {dismissModal, waitForAnyModal} from './support/wait'
 import {Page} from 'playwright'
 
 describe('program creation', () => {
@@ -64,7 +65,7 @@ describe('program creation', () => {
       'this is a note',
     )
 
-    await validateScreenshot(page, 'open-question-search')
+    await validateScreenshot(page, 'open-question-search', {fullPage: false})
   })
 
   it('create program with enumerator and repeated questions', async () => {
@@ -338,7 +339,7 @@ describe('program creation', () => {
     const programName = 'Apc program 3'
     await adminPrograms.addProgram(programName)
     await adminPrograms.openQuestionBank()
-    await validateScreenshot(page, 'question-bank-empty')
+    await validateScreenshot(page, 'question-bank-empty', {fullPage: false})
     await page.click('#create-question-button')
     await page.click('#create-text-question')
     await waitForPageJsLoad(page)
@@ -352,7 +353,9 @@ describe('program creation', () => {
       helpText: 'Question help text',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
-    await validateScreenshot(page, 'question-bank-with-created-question')
+    await validateScreenshot(page, 'question-bank-with-created-question', {
+      fullPage: false,
+    })
 
     await adminPrograms.expectSuccessToast(`question ${questionName} created`)
     await adminPrograms.expectProgramBlockEditPage(programName)
@@ -455,7 +458,9 @@ describe('program creation', () => {
     await loginAsAdmin(page)
 
     await adminPrograms.launchDeleteScreenModal()
-    await validateScreenshot(page, 'delete-screen-confirmation-modal')
+    await validateScreenshot(page, 'delete-screen-confirmation-modal', {
+      fullPage: false,
+    })
   })
 
   async function expectQuestionsOrderWithinBlock(
@@ -499,6 +504,57 @@ describe('program creation', () => {
       'program-description-page-with-intake-form-true',
     )
     expect(await commonIntakeFormInput.isChecked()).toBe(true)
+    await page.click('#program-update-button')
+    await waitForPageJsLoad(page)
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
+
+  it('correctly renders common intake form change confirmation modal', async () => {
+    const {page, adminPrograms} = ctx
+
+    await enableFeatureFlag(page, 'intake_form_enabled')
+    await loginAsAdmin(page)
+
+    const commonIntakeFormProgramName = 'Benefits finder'
+    await adminPrograms.addProgram(
+      commonIntakeFormProgramName,
+      'program description',
+      'https://usa.gov',
+      /* hidden= */ false,
+      'admin description',
+      /* isCommonIntake= */ true,
+    )
+
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+
+    await adminPrograms.goToProgramDescriptionPage(programName)
+    await adminPrograms.clickCommonIntakeFormToggle()
+    await page.fill('#program-external-link-input', 'badlink')
+    await page.click('#program-update-button')
+
+    // Error messages get displayed before the confirmation modal.
+    const toastMessages = await page.innerText('#toast-container')
+    expect(toastMessages).toContain('program link')
+
+    await page.fill('#program-external-link-input', 'https://example.com')
+    await page.click('#program-update-button')
+
+    let modal = await waitForAnyModal(page)
+    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+    await validateScreenshot(page, 'confirm-common-intake-change-modal', {
+      fullPage: false,
+    })
+
+    // Modal gets re-rendered if needed.
+    await dismissModal(page)
+    await page.click('#program-update-button')
+    modal = await waitForAnyModal(page)
+    expect(await modal.innerText()).toContain(`Confirm pre-screener change?`)
+
+    await page.click('#confirm-common-intake-change-button')
+    await waitForPageJsLoad(page)
+    await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
   it('regular program has eligibility conditions', async () => {

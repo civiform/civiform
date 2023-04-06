@@ -48,7 +48,7 @@ public final class LanguageSelector {
             .withId("select-language")
             .withName("locale")
             .withClasses(
-                "block",
+                "justify-center",
                 "outline-none",
                 "px-3",
                 "mx-3",
