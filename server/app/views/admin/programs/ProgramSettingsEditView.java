@@ -118,19 +118,11 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
   }
 
   private ATag getBackButton(Request request, ProgramDefinition program) {
-    String backTarget = controllers.admin.routes.AdminProgramController.index().url();
-    String buttonText = "Back to all programs";
-    Optional<String> navSource = request.session().get(NAVIGATION_SOURCE_SESSION_KEY);
-    if (navSource.isPresent()
-        && navSource.get().equals(NAVIGATION_SOURCE_PROGRAM_BLOCKS_SESSION_VALUE)) {
-      backTarget = controllers.admin.routes.AdminProgramBlocksController.index(program.id()).url();
-      buttonText =
-          String.format("Back to %s program edit page", program.localizedName().getDefault());
-    }
+    String backTarget = request.header("referer").orElse(controllers.admin.routes.AdminProgramController.index().url());
     return new LinkElement()
         .setHref(backTarget)
         .setIcon(Icons.ARROW_LEFT, IconPosition.START)
-        .setText(buttonText)
+        .setText("Back")
         .setStyles("mt-6")
         .asAnchorText();
   }
