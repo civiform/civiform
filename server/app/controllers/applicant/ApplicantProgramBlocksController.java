@@ -170,6 +170,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
   }
 
+  /**
+   * This method saves the selected corrected address to the db and redirects the user to the next
+   * screen
+   */
   private CompletionStage<Result> confirmAddressWithSuggestions(
       Request request,
       long applicantId,
@@ -608,6 +612,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 .flashing(flashingMap));
   }
 
+  /**
+   * This method determines if the address entered by the user matches one of the suggestions
+   * returned by the Esri service. If a matching suggestion is found, it is saved to the db and the
+   * user is sent on to the next question. Otherwise, the user is directed to a screen where they
+   * can pick from the corrected address suggestions returned by the Esri service.
+   */
   private CompletionStage<Result> maybeRenderAddressCorrectionScreen(
       AddressSuggestionGroup addressSuggestionGroup,
       AddressQuestion addressQuestion,
