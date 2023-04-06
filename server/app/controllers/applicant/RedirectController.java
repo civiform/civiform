@@ -6,6 +6,7 @@ import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
@@ -15,6 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.Account;
 import models.Applicant;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
@@ -22,10 +24,13 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicantService.ApplicantProgramData;
+import services.applicant.ApplicantService.ApplicationPrograms;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 import views.components.ToastMessage;
 
@@ -40,6 +45,7 @@ public final class RedirectController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
+  private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
   private final LanguageUtils languageUtils;
 
@@ -50,6 +56,7 @@ public final class RedirectController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
+      ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
       LanguageUtils languageUtils) {
     this.httpContext = checkNotNull(httpContext);
@@ -57,6 +64,7 @@ public final class RedirectController extends CiviFormController {
     this.profileUtils = checkNotNull(profileUtils);
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
+    this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.languageUtils = checkNotNull(languageUtils);
   }
@@ -130,9 +138,9 @@ public final class RedirectController extends CiviFormController {
     return applicantService
         .relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
-            (ApplicantService.ApplicationPrograms relevantPrograms) ->
+            (ApplicationPrograms relevantPrograms) ->
                 relevantPrograms.inProgress().stream()
-                    .map(ApplicantService.ApplicantProgramData::program)
+                    .map(ApplicantProgramData::program)
                     .filter(program -> program.slug().equals(programSlug))
                     .findFirst(),
             httpContext.current());
@@ -152,30 +160,85 @@ public final class RedirectController extends CiviFormController {
           badRequest("You are not signed in - you cannot perform this action."));
     }
 
-    CompletionStage<Optional<String>> applicantName = applicantService.getName(applicantId);
-    CompletionStage<ReadOnlyApplicantProgramService> roApplicantProgramServiceCompletionStage =
-        applicantService.getReadOnlyApplicantProgramService(applicantId, programId);
+    CompletableFuture<Boolean> isCommonIntake =
+        programService
+            .getActiveProgramDefinitionAsync(programId)
+            .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
+            .toCompletableFuture();
 
-    return applicantName
+    CompletableFuture<Optional<String>> applicantName =
+        applicantService.getName(applicantId).toCompletableFuture();
+
+    CompletableFuture<Account> account =
+        applicantName
+            .thenComposeAsync(
+                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+                httpContext.current())
+            .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
+            .toCompletableFuture();
+
+    CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
+        applicantService
+            .getReadOnlyApplicantProgramService(applicantId, programId)
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(isCommonIntake, account, roApplicantProgramService)
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpContext.current())
-        .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
-        .thenCombineAsync(
-            roApplicantProgramServiceCompletionStage,
-            (account, roApplicantProgramService) ->
-                ok(
-                    upsellView.render(
+            ignored -> {
+              if (!isCommonIntake.join()) {
+                // If this isn't the common intake form, we don't need to make the
+                // call to get the applicant's eligible programs.
+                Optional<ImmutableList<ApplicantProgramData>> result = Optional.empty();
+                return CompletableFuture.completedFuture(result);
+              }
+
+              return applicantName
+                  .thenComposeAsync(
+                      v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+                  .thenComposeAsync(
+                      v ->
+                          applicantService.maybeEligibleUnsubmittedProgramsForApplicant(
+                              applicantId),
+                      httpContext.current())
+                  .thenApplyAsync(Optional::of);
+            })
+        .thenApplyAsync(
+            maybeEligiblePrograms -> {
+              Optional<ToastMessage> toastMessage =
+                  request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+
+              if (isCommonIntake.join()) {
+                return ok(
+                    cifUpsellView.render(
                         request,
                         redirectTo,
-                        account,
-                        roApplicantProgramService.getApplicantData().preferredLocale(),
-                        roApplicantProgramService.getProgramTitle(),
-                        roApplicantProgramService.getCustomConfirmationMessage(),
-                        applicantName.toCompletableFuture().join(),
-                        applicationId,
+                        account.join(),
+                        applicantName.join(),
+                        applicantId,
+                        programId,
+                        profileUtils
+                            .currentUserProfile(request)
+                            .orElseThrow()
+                            .isTrustedIntermediary(),
+                        maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
-                        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT)))),
+                        toastMessage));
+              }
+
+              return ok(
+                  upsellView.render(
+                      request,
+                      redirectTo,
+                      account.join(),
+                      roApplicantProgramService.join().getApplicantData().preferredLocale(),
+                      roApplicantProgramService.join().getProgramTitle(),
+                      roApplicantProgramService.join().getCustomConfirmationMessage(),
+                      applicantName.join(),
+                      applicantId,
+                      applicationId,
+                      messagesApi.preferred(request),
+                      toastMessage));
+            },
             httpContext.current())
         .exceptionally(
             ex -> {

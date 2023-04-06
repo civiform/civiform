@@ -4,10 +4,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.section;
 
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.routes;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
@@ -31,10 +35,12 @@ import views.style.StyleUtils;
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final String civicEntityFullName;
 
   @Inject
-  public ApplicantUpsellCreateAccountView(ApplicantLayout layout) {
+  public ApplicantUpsellCreateAccountView(ApplicantLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -46,70 +52,65 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
       String programTitle,
       LocalizedStrings customConfirmationMessage,
       Optional<String> applicantName,
+      Long applicantId,
       Long applicationId,
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
-
     HtmlBundle bundle = layout.getBundle().setTitle(title);
-
-    DivTag content =
-        div()
-            .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
-            .with(h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"))
-            .with(
-                div(messages.at(
-                        MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
-                    .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"))
-            .with(div(customConfirmationMessage.getOrDefault(locale)).withClasses("mb-4"));
+    // Don't show "create an account" upsell box to TIs, or anyone with an account already.
+    boolean shouldUpsell =
+        Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
 
     Modal loginPromptModal = createLoginPromptModal(messages, redirectTo);
 
-    // Don't show "create an account" upsell box to TIs, or anyone with an account already.
-    boolean hasAccount = !Strings.isNullOrEmpty(account.getAuthorityId());
-    boolean isTi = account.getMemberOfGroup().isPresent();
-    if (hasAccount || isTi) {
-      content.with(loggedInUpsellDiv(messages, redirectTo));
-    } else {
-      content.with(guestUpsellDiv(messages, redirectTo, loginPromptModal.getButton()));
-    }
+    ImmutableList<DomContent> actionButtons =
+        shouldUpsell
+            ? ImmutableList.of(
+                loginPromptModal.getButton(), // apply to another program
+                loginButton("sign-in", messages, redirectTo),
+                createAccountButton("sign-up", messages))
+            : ImmutableList.of(
+                redirectButton(
+                        "another-program",
+                        messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
+                        controllers.applicant.routes.ApplicantProgramsController.index(applicantId)
+                            .url())
+                    .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION));
+
+    var content =
+        div()
+            .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+            .with(
+                h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
+                section(
+                    div(messages.at(
+                            MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
+                        .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"),
+                    div(customConfirmationMessage.getOrDefault(locale)).withClasses("mb-4")),
+                section()
+                    .condWith(
+                        shouldUpsell,
+                        h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
+                            .withClasses("mb-4", "font-bold"),
+                        div(messages.at(
+                                MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(),
+                                civicEntityFullName))
+                            .withClasses("mb-4"))
+                    .with(
+                        div()
+                            .withClasses(
+                                "flex",
+                                "flex-col",
+                                "gap-4",
+                                "justify-end",
+                                StyleUtils.responsiveMedium("flex-row"))
+                            .with(actionButtons)));
 
     bannerMessage.ifPresent(bundle::addToastMessages);
-
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION).addMainContent(content);
     bundle.addModals(loginPromptModal);
-
     return layout.renderWithNav(request, applicantName, messages, bundle);
-  }
-
-  private DivTag loggedInUpsellDiv(Messages messages, String redirectTo) {
-    return div()
-        .withClasses("flex", "flex-row", "justify-end")
-        .with(
-            redirectButton(
-                    "another-program",
-                    messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
-                    redirectTo)
-                .withClasses(ApplicantStyles.BUTTON_PROGRAM_APPLY_TO_ANOTHER));
-  }
-
-  private DivTag guestUpsellDiv(
-      Messages messages, String loginRedirectTo, ButtonTag triggerButton) {
-    return div()
-        .with(
-            h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
-                .withClasses("mb-4", "font-bold"))
-        .with(
-            div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
-                .withClasses("mb-4"))
-        .with(
-            div()
-                .withClasses("flex", "flex-col", "gap-4", StyleUtils.responsiveMedium("flex-row"))
-                // Empty div to push buttons to the right on desktop.
-                .with(div().withClasses("flex-grow"))
-                .with(triggerButton)
-                .with(loginButton("upsell-login-button", messages, loginRedirectTo))
-                .with(createAccountButton("upsell-createaccount-button", messages)));
   }
 
   private static Modal createLoginPromptModal(Messages messages, String postLoginRedirectTo) {
@@ -118,37 +119,34 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
     DivTag modalContent =
         div()
-            .with(div().withText(modalDescription).withClass("mb-8"))
             .with(
+                div().withText(modalDescription).withClass("mb-8"),
                 div()
                     .with(
-                        continueWithoutAnAccountButton(messages, postLoginRedirectTo),
-                        loginButton("modal-login-button", messages, postLoginRedirectTo),
-                        createAccountButton("modal-createaccount-button", messages))
+                        redirectButton(
+                                "continue-without-an-account",
+                                messages.at(
+                                    MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT.getKeyName()),
+                                postLoginRedirectTo)
+                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
+                        loginButton("modal-sign-in", messages, postLoginRedirectTo),
+                        createAccountButton("modal-sign-up", messages))
                     .withClasses(
                         "flex",
                         "flex-col",
-                        StyleUtils.responsiveMedium("flex-row"),
-                        "gap-x-4",
-                        "justify-end"));
+                        "gap-4",
+                        "justify-end",
+                        StyleUtils.responsiveMedium("flex-row")));
 
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setTriggerButtonContent(
             button(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW))
+                .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
         .setModalTitle(modalTitle)
         .setWidth(Width.HALF)
         .build();
-  }
-
-  private static ButtonTag createAccountButton(String createAccountButtonId, Messages messages) {
-    return redirectButton(
-            createAccountButtonId,
-            messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
-            routes.LoginController.register().url())
-        .withClasses(ApplicantStyles.BUTTON_CREATE_ACCOUNT);
   }
 
   private static ButtonTag loginButton(
@@ -157,15 +155,14 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
             loginButtonId,
             messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
             routes.LoginController.applicantLogin(Optional.of(postLoginRedirectTo)).url())
-        .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW);
+        .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION);
   }
 
-  private static ButtonTag continueWithoutAnAccountButton(
-      Messages messages, String programsPageUri) {
-    String continueWithoutAccountMessage =
-        messages.at(MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT.getKeyName());
+  private static ButtonTag createAccountButton(String createAccountButtonId, Messages messages) {
     return redirectButton(
-            "continue-without-an-account", continueWithoutAccountMessage, programsPageUri)
-        .withClasses(ApplicantStyles.BUTTON_NOT_RIGHT_NOW);
+            createAccountButtonId,
+            messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
+            routes.LoginController.register().url())
+        .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
   }
 }
