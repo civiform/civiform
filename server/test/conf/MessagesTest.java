@@ -36,26 +36,26 @@ public class MessagesTest {
   // are checked into the primary language file but for which
   // we are waiting for translations for.
   private static final ImmutableSet<String> IGNORE_LIST =
-    ImmutableSet.of(
-      // TODO(#4592): Remove once these are translated
-      "button.continueWithoutAnAccount",
-      "content.loginModalPrompt",
-      "button.applyToPrograms",
-      "button.createAnAccount",
-      "content.commonIntakeConfirmation",
-      "content.commonIntakeConfirmationTi",
-      "content.commonIntakeNoMatchingPrograms",
-      "content.commonIntakeNoMatchingProgramsNextStep",
-      "content.commonIntakeNoMatchingProgramsTi",
-      "title.commonIntakeConfirmation",
-      "title.commonIntakeConfirmationTi",
-      "label.countryCode",
-      "label.phoneNumber",
-      "validation.invalidPhoneNumberProvided",
-      "validation.phoneCountryCodeRequired",
-      "validation.phoneMustBeLocalToCountry",
-      "validation.phoneNumberMustContainNumbersOnly",
-      "validation.phoneNumberRequired");
+      ImmutableSet.of(
+          // TODO(#4592): Remove once these are translated
+          "button.continueWithoutAnAccount",
+          "content.loginModalPrompt",
+          "button.applyToPrograms",
+          "button.createAnAccount",
+          "content.commonIntakeConfirmation",
+          "content.commonIntakeConfirmationTi",
+          "content.commonIntakeNoMatchingPrograms",
+          "content.commonIntakeNoMatchingProgramsNextStep",
+          "content.commonIntakeNoMatchingProgramsTi",
+          "title.commonIntakeConfirmation",
+          "title.commonIntakeConfirmationTi",
+          "label.countryCode",
+          "label.phoneNumber",
+          "validation.invalidPhoneNumberProvided",
+          "validation.phoneCountryCodeRequired",
+          "validation.phoneMustBeLocalToCountry",
+          "validation.phoneNumberMustContainNumbersOnly",
+          "validation.phoneNumberRequired");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
