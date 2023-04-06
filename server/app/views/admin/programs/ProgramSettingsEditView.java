@@ -9,6 +9,7 @@ import static j2html.TagCreator.p;
 
 import com.google.inject.Inject;
 import j2html.TagCreator;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import play.mvc.Http.Request;
@@ -18,6 +19,9 @@ import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.Icons;
+import views.components.LinkElement;
+import views.components.LinkElement.IconPosition;
 import views.style.StyleUtils;
 
 /** Renders a page for editing program-level settings. */
@@ -88,7 +92,8 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withClasses("px-12")
-            .with(div().withClasses("mt-12").with(h1(title)))
+            .with(getBackButton(request))
+            .with(div().withClasses("mt-4").with(h1(title)))
             .with(
                 form(makeCsrfTokenInputTag(request))
                     .withId(formId)
@@ -103,5 +108,18 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                     .withClasses("text-md", "max-w-prose", "mt-6", "text-gray-700"));
 
     return layout.renderCentered(layout.getBundle().setTitle(title).addMainContent(contentDiv));
+  }
+
+  private ATag getBackButton(Request request) {
+    String backTarget =
+        request
+            .header("referer")
+            .orElse(controllers.admin.routes.AdminProgramController.index().url());
+    return new LinkElement()
+        .setHref(backTarget)
+        .setIcon(Icons.ARROW_LEFT, IconPosition.START)
+        .setText("Back")
+        .setStyles("mt-6")
+        .asAnchorText();
   }
 }
