@@ -30,7 +30,6 @@ import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import views.admin.programs.ProgramBlockEditView;
-import views.admin.programs.ProgramSettingsEditView;
 import views.components.ToastMessage;
 
 /** Controller for admins editing screens (blocks) of a program. */
@@ -244,12 +243,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    return ok(editView.render(
-            request, program, block, message, roQuestionService.getUpToDateQuestions()))
-        .addingToSession(
-            request,
-            ProgramSettingsEditView.NAVIGATION_SOURCE_SESSION_KEY,
-            ProgramSettingsEditView.NAVIGATION_SOURCE_PROGRAM_BLOCKS_SESSION_VALUE);
+    return ok(
+        editView.render(
+            request, program, block, message, roQuestionService.getUpToDateQuestions()));
   }
 
   private Result renderReadOnlyViewWithMessage(

@@ -26,10 +26,6 @@ import views.style.StyleUtils;
 
 /** Renders a page for editing program-level settings. */
 public final class ProgramSettingsEditView extends BaseHtmlView {
-  public static final String NAVIGATION_SOURCE_SESSION_KEY = "programSettingsnavigationSource";
-  public static final String NAVIGATION_SOURCE_PROGRAM_INDEX_SESSION_VALUE = "programIndex";
-  public static final String NAVIGATION_SOURCE_PROGRAM_BLOCKS_SESSION_VALUE = "programBlocks";
-
   private static final String ELIGIBILITY_TOGGLE_ID = "eligibility-toggle";
   private static final String ELIGIBILITY_IS_GATING_LABEL =
       "Eligibility criteria does not block submission";
