@@ -18,6 +18,13 @@ import * as modal from './modal'
 import * as questionBank from './questionBank'
 import * as preview from './preview'
 import * as enumerator from './enumerator'
+import htmx from 'htmx.org'
+
+declare global {
+  interface Window { htmx: any; }
+}
+
+window.htmx = htmx
 
 window.addEventListener('load', () => {
   main.init()
