@@ -25,7 +25,14 @@ describe('program settings', () => {
 
     await validateScreenshot(page, 'gating-eligibility')
 
+    const responsePromise = page.waitForResponse((response) => {
+      return response.url().includes('settings/edit')
+    })
     await page.click('#eligibility-toggle')
+    await responsePromise
+
+    // Get the mouse out of the way so that it's not hovering over the toggle during the screenshot.
+    await page.mouse.move(0, 0)
     await validateScreenshot(page, 'nongating-eligibility')
   })
 
