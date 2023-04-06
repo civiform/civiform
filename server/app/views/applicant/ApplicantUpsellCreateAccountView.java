@@ -9,6 +9,7 @@ import static j2html.TagCreator.section;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import controllers.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
@@ -34,10 +35,12 @@ import views.style.StyleUtils;
 public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
+  private final String civicEntityFullName;
 
   @Inject
-  public ApplicantUpsellCreateAccountView(ApplicantLayout layout) {
+  public ApplicantUpsellCreateAccountView(ApplicantLayout layout, Config config) {
     this.layout = checkNotNull(layout);
+    this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -90,7 +93,9 @@ public final class ApplicantUpsellCreateAccountView extends BaseHtmlView {
                         shouldUpsell,
                         h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
                             .withClasses("mb-4", "font-bold"),
-                        div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
+                        div(messages.at(
+                                MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(),
+                                civicEntityFullName))
                             .withClasses("mb-4"))
                     .with(
                         div()

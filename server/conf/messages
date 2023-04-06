@@ -8,6 +8,10 @@
 #    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
 #    translation a screen reader could read for the delete button.
 # 4. Keys in this file should be alphabetized within their own section or sub-section.
+# 5. This files contains the strings used in applicant UI as they are seen by translators. To make correct translations as easy as possible,
+#    please include a description that allows someone without knowledge about where this string is being used to understand it fully. For
+#    example, explain where the string is shown and if strings are deployment-specific, specify what each passed through value represents,
+#    such as: "Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal."
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -321,8 +325,8 @@ content.confirmed=Thank you for applying to {0}.  Your application has been rece
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Create an account or sign in
 
-# A message urging users to create an account to save their data.
-content.pleaseCreateAccount=If you sign into an account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+# Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal.
+content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
