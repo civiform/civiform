@@ -138,6 +138,13 @@ public class ApplicantQuestionTest {
             new ApplicantData(),
             Optional.empty());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
+
+    ApplicantQuestion phoneQuestion =
+        new ApplicantQuestion(
+            testQuestionBank.applicantPhone().getQuestionDefinition(),
+            new ApplicantData(),
+            Optional.empty());
+    assertThat(phoneQuestion.createPhoneQuestion()).isInstanceOf(PhoneQuestion.class);
   }
 
   @Test
@@ -154,6 +161,16 @@ public class ApplicantQuestionTest {
                 Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantAddress().getQuestionDefinition(),
+                new ApplicantData(),
+                Optional.empty()))
+        .addEqualityGroup(
+            // Address
+            new ApplicantQuestion(
+                testQuestionBank.applicantPhone().getQuestionDefinition(),
+                new ApplicantData(),
+                Optional.empty()),
+            new ApplicantQuestion(
+                testQuestionBank.applicantPhone().getQuestionDefinition(),
                 new ApplicantData(),
                 Optional.empty()))
         .addEqualityGroup(

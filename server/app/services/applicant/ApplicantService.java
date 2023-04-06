@@ -1263,7 +1263,11 @@ public final class ApplicantService {
       } else {
         switch (type) {
           case PHONE_NUMBER:
-            applicantData.putPhoneNumber(currentPath, update.value());
+            try {
+              applicantData.putPhoneNumber(currentPath, update.value());
+            } catch (IllegalArgumentException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
             break;
           case CURRENCY_CENTS:
             try {

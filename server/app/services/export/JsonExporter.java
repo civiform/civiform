@@ -41,6 +41,7 @@ public final class JsonExporter {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final DateConverter dateConverter;
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   JsonExporter(
@@ -229,10 +230,9 @@ public final class JsonExporter {
   }
 
   public String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
-    PhoneNumberUtil util = PhoneNumberUtil.getInstance();
     try {
-      Phonenumber.PhoneNumber phoneNumber = util.parse(phoneNumberValue, countryCode);
-      return util.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+      Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phoneNumberValue, countryCode);
+      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
       throw new RuntimeException(e);
     }

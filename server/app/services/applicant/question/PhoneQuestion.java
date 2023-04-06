@@ -26,7 +26,7 @@ public final class PhoneQuestion extends Question {
   private Optional<String> countryCodeValue;
   private static final Logger logger = LoggerFactory.getLogger(PhoneQuestion.class);
 
-  private static final PhoneNumberUtil phoneUtil = PhoneNumberUtil.getInstance();
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   PhoneQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
@@ -59,14 +59,18 @@ public final class PhoneQuestion extends Question {
       return ImmutableSet.of(
           ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_COUNTRY_CODE_REQUIRED));
     }
+    if (!getPhoneNumberValue().get().matches("[0-9]+")) {
+      return ImmutableSet.of(
+          ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NON_NUMBER_VALUE));
+    }
     try {
       Phonenumber.PhoneNumber phonenumber =
-          phoneUtil.parse(getPhoneNumberValue().get(), getCountryCodeValue().get());
-      if (!phoneUtil.isValidNumber(phonenumber)) {
+          PHONE_NUMBER_UTIL.parse(getPhoneNumberValue().get(), getCountryCodeValue().get());
+      if (!PHONE_NUMBER_UTIL.isValidNumber(phonenumber)) {
         return ImmutableSet.of(
             ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_INVALID_PHONE_NUMBER));
       }
-      if (!phoneUtil.isValidNumberForRegion(phonenumber, getCountryCodeValue().get())) {
+      if (!PHONE_NUMBER_UTIL.isValidNumberForRegion(phonenumber, getCountryCodeValue().get())) {
         return ImmutableSet.of(
             ValidationErrorMessage.create(MessageKey.PHONE_VALIDATION_NUMBER_NOT_IN_COUNTRY));
       }
@@ -121,8 +125,9 @@ public final class PhoneQuestion extends Question {
   public String getAnswerString() {
     try {
       Phonenumber.PhoneNumber phoneNumber =
-          phoneUtil.parse(getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
-      return phoneUtil.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
+          PHONE_NUMBER_UTIL.parse(
+              getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
+      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
       logger.error(
           "Unable to retrieve or parse phone number "

@@ -1,4 +1,3 @@
-import {assertNotNull} from './util'
 import Cleave from 'cleave.js'
 
 export function init() {

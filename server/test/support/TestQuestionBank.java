@@ -77,7 +77,7 @@ public class TestQuestionBank {
         .build();
   }
 
-  private Question applicantPhone() {
+  public Question applicantPhone() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_PHONE, this::applicantPhone);
   }
 

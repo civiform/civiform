@@ -124,7 +124,6 @@ public class CfJsonDocumentContextTest {
     assertThat(data.hasValueAtPath(path)).isFalse();
   }
 
-
   @Test
   public void hasValueAtPath_returnsFalseForMissingPath() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
@@ -175,7 +174,16 @@ public class CfJsonDocumentContextTest {
 
     data.putPhoneNumber(Path.create("applicant.phone_number"), "(707) -123-1234");
 
-    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"phone_number\":7071231234}}");
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"phone_number\":\"7071231234\"}}");
+  }
+
+  @Test
+  public void putPhoneNumber_AddingInvalidNumberResultsInEmptyPath() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThatThrownBy(() -> data.putPhoneNumber(Path.create("applicant.phone_number"), "(707)"))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("invalid_phone_input");
   }
 
   @Test

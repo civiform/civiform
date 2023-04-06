@@ -387,7 +387,6 @@ placeholder.noDropdownSelection=Choose an option:
 #------------------------------------------------------------------------------------------------------------------------------#
 # PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
 #------------------------------------------------------------------------------------------------------------------------------#
-
 label.countryCode=Country
 label.phoneNumber=Enter Phone number
 validation.phoneNumberRequired=Phone number is required

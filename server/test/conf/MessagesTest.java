@@ -40,7 +40,8 @@ public class MessagesTest {
           "validation.phoneMustBeLocalToCountry",
           "validation.phoneNumberMustContainNumbersOnly",
           "validation.phoneNumberRequired",
-"button.continueWithoutAnAccount", "content.loginModalPrompt");
+          "button.continueWithoutAnAccount",
+          "content.loginModalPrompt");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
