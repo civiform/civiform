@@ -870,25 +870,40 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     boolean questionIsUsedInPredicate =
         programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
+    boolean addressCorrectionEnabledQuestionAlreadyExists =
+        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
+    boolean addressCorrectionDisabled =
+        !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
 
     String toolTipText =
-        "Enabling address correction will check the resident's address to ensure it is accurate.";
-    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
-      toolTipText +=
-          " To use this feature, you will need to have your IT manager configure the GIS service.";
-    }
+        "Enabling 'address correction' will check the resident's address to ensure it is accurate.";
+
+    toolTipText +=
+        addressCorrectionEnabledQuestionAlreadyExists
+            ? " This screen already contains a question with address correction enabled. This"
+                + " feature can only be enabled once per screen."
+            : " You can select one address question to correct per screen.";
+
     if (questionIsUsedInPredicate) {
       toolTipText +=
           " Questions used in visibility or eligibility conditions must have address correction"
               + " enabled.";
     }
 
-    boolean addressCorrectionEnabledQuestionAlreadyExists =
-        blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
-    if (addressCorrectionEnabledQuestionAlreadyExists) {
+    DivTag toolTip;
+    if (addressCorrectionDisabled) {
+      // Leave the space at the end, because we will add a "Learn more" link. This
+      // should always be the last string added to toolTipText for this reason.
       toolTipText +=
-          " This screen already contains a question with address correction enabled. This feature"
-              + " can only be enabled once per screen.";
+          " To use this feature, you will need to have your IT manager configure the GIS service. ";
+      toolTip =
+          ViewUtils.makeSvgToolTipRightAnchoredWithLink(
+              toolTipText,
+              Icons.INFO,
+              "Learn more",
+              "https://docs.civiform.us/it-manual/sre-playbook/configure-gis-service");
+    } else {
+      toolTip = ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO);
     }
 
     ButtonTag addressCorrectionButton =
@@ -924,7 +939,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")))
-            .with(div(ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.HELP)));
+            .with(div(toolTip));
     String toggleAddressCorrectionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
                 programDefinition.id(), blockDefinition.id(), questionDefinition.getId())

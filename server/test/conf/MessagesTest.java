@@ -32,7 +32,19 @@ public class MessagesTest {
   // are checked into the primary language file but for which
   // we are waiting for translations for.
   private static final ImmutableSet<String> IGNORE_LIST =
-      ImmutableSet.of("content.mustMeetRequirementsTi");
+      ImmutableSet.of(
+          // TODO(#4592): Remove once these are translated
+          "button.continueWithoutAnAccount",
+          "content.loginModalPrompt",
+          "button.applyToPrograms",
+          "button.createAnAccount",
+          "content.commonIntakeConfirmation",
+          "content.commonIntakeConfirmationTi",
+          "content.commonIntakeNoMatchingPrograms",
+          "content.commonIntakeNoMatchingProgramsNextStep",
+          "content.commonIntakeNoMatchingProgramsTi",
+          "title.commonIntakeConfirmation",
+          "title.commonIntakeConfirmationTi");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {

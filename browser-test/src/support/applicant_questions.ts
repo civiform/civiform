@@ -188,6 +188,10 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickApplyToAnotherProgramButton() {
+    await this.page.click('button:has-text("Apply to another program")')
+  }
+
   async expectProgramPublic(programName: string, description: string) {
     const tableInnerText = await this.page.innerText('main')
 
@@ -345,7 +349,15 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h1')).toContain(
       'Application confirmation',
     )
-    await this.page.click('text="Apply to another program"')
+    await this.clickApplyToAnotherProgramButton()
+
+    // If we are logged in as a guest, we will get a prompt to log
+    // in before going back to the programs page. Bypass this to stay
+    // logged in as a guest.
+    const pageContent = await this.page.textContent('html')
+    if (pageContent!.includes('Continue without an account')) {
+      await this.page.click('text="Continue without an account"')
+    }
     await waitForPageJsLoad(this.page)
 
     // Ensure that we redirected to the programs list page.
@@ -356,6 +368,48 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain(
       'Program application summary',
     )
+  }
+
+  async expectCommonIntakeReviewPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'Benefits pre-screener summary',
+    )
+  }
+
+  async expectCommonIntakeConfirmationPage(
+    wantUpsell: boolean,
+    wantTrustedIntermediary: boolean,
+    wantEligiblePrograms: string[],
+  ) {
+    if (wantTrustedIntermediary) {
+      expect(await this.page.innerText('h1')).toContain(
+        'Benefits your client may qualify for',
+      )
+    } else {
+      expect(await this.page.innerText('h1')).toContain(
+        'Benefits you may qualify for',
+      )
+    }
+
+    const upsellLocator = this.page.locator(
+      ':text("Create an account or sign in")',
+    )
+    if (wantUpsell) {
+      expect(await upsellLocator.count()).toEqual(1)
+    } else {
+      expect(await upsellLocator.count()).toEqual(0)
+    }
+
+    const programLocator = this.page.locator(
+      '.cf-applicant-cif-eligible-program-name',
+    )
+    if (wantEligiblePrograms.length == 0) {
+      expect(await programLocator.count()).toEqual(0)
+    } else {
+      expect(await programLocator.count()).toEqual(wantEligiblePrograms.length)
+      const allProgramTitles = await programLocator.allTextContents()
+      expect(allProgramTitles.sort()).toEqual(wantEligiblePrograms.sort())
+    }
   }
 
   async expectIneligiblePage() {

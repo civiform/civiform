@@ -184,10 +184,31 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(p().withClasses("flex-grow"))
             .with(p(block.getDescription()).withClasses("text-gray-700", "italic"));
 
+    boolean isEligibilityEnabledInBlock =
+        hasEligibilityEnabled && block.getEligibilityDefinition().isPresent();
     DivTag mainContent =
         div()
             .withClasses("w-full")
-            .with(each(answers, answer -> renderAnswer(programId, answer, hasEligibilityEnabled)));
+            .with(
+                each(
+                    answers,
+                    answer ->
+                        renderAnswer(
+                            programId,
+                            answer,
+                            // If an eligibility predicate is defined for the block, check if
+                            // the question is part of the predicate to determine whether to
+                            // show the eligibility status.
+                            isEligibilityEnabledInBlock
+                                && block
+                                    .getEligibilityDefinition()
+                                    .map(
+                                        definition ->
+                                            definition
+                                                .predicate()
+                                                .getQuestions()
+                                                .contains(answer.questionDefinition().getId()))
+                                    .orElse(false))));
 
     DivTag innerDiv =
         div(topContent, mainContent)
@@ -197,8 +218,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         .withClasses(ReferenceClasses.ADMIN_APPLICATION_BLOCK_CARD, "w-full", "shadow-lg", "mb-4");
   }
 
-  private DivTag renderAnswer(
-      long programId, AnswerData answerData, boolean hasEligibilityEnabled) {
+  private DivTag renderAnswer(long programId, AnswerData answerData, boolean showEligibilityText) {
     String date = dateConverter.renderDate(Instant.ofEpochMilli(answerData.timestamp()));
     DivTag answerContent;
     if (answerData.encodedFileKey().isPresent()) {
@@ -213,7 +233,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
         div().withClasses("flex-auto", "text-right", "font-light", "text-xs");
     eligibilityAndTimestampDiv.with(
         div("Answered on " + date).withClasses(ReferenceClasses.BT_DATE));
-    if (hasEligibilityEnabled) {
+    if (showEligibilityText) {
       String eligibilityText =
           answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
       eligibilityAndTimestampDiv.with(div(eligibilityText));

@@ -106,7 +106,7 @@ describe('applicant auth', () => {
 
     await applicantQuestions.clickApplyProgramButton(programName)
     await applicantQuestions.submitFromReviewPage()
-    await loginAsTestUser(page, 'button:has-text("Create account or sign in")')
+    await loginAsTestUser(page)
 
     // Check that program is marked as submitted.
     expect(

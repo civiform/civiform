@@ -1,11 +1,14 @@
 import {
   AdminQuestions,
+  ClientInformation,
   createTestContext,
   enableFeatureFlag,
   disableFeatureFlag,
+  dropTables,
   loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
+  loginAsTrustedIntermediary,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -283,6 +286,16 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('h1')).toContain('Application confirmation')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-guest')
+
+      // Click the "Apply to another program" button while a guest, which triggers
+      // a modal to prompt the guest to login or create an account. Note that
+      // in this screenshot, the mouse ends up hovering on top of the first
+      // button in the new modal that appears, which is why it is highlighted.
+      await applicantQuestions.clickApplyToAnotherProgramButton()
+      await validateScreenshot(
+        page,
+        'program-submission-guest-login-prompt-modal',
+      )
     })
 
     it('verify program submission page for logged in user', async () => {
@@ -339,6 +352,267 @@ describe('Applicant navigation flow', () => {
         "There's been an update to the application",
       )
       await validateScreenshot(page, 'program-out-of-date')
+    })
+  })
+
+  describe('navigation with common intake', () => {
+    // Create two programs, one is common intake
+    const commonIntakeProgramName = 'Test Common Intake Form Program'
+    const secondProgramName = 'Test Regular Program with Eligibility Conditions'
+    const eligibilityQuestionId = 'nav-predicate-number-q'
+    const secondProgramCorrectAnswer = '5'
+
+    beforeAll(async () => {
+      const {page} = ctx
+      await dropTables(page)
+    })
+
+    // TODO(#4509): Once we can create different test users, change this to
+    // beforeAll and use different users for each test, instead of wiping the
+    // db after each test.
+    beforeEach(async () => {
+      const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
+      await loginAsAdmin(page)
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      // Add questions
+      await adminQuestions.addNumberQuestion({
+        questionName: eligibilityQuestionId,
+      })
+
+      // Set up common intake form
+      await adminPrograms.addProgram(
+        commonIntakeProgramName,
+        'program description',
+        'https://usa.gov',
+        /* hidden= */ false,
+        'admin description',
+        /* isCommonIntake= */ true,
+      )
+
+      await adminPrograms.editProgramBlock(
+        commonIntakeProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+
+      // Set up another program
+      await adminPrograms.addProgram(secondProgramName)
+
+      await adminPrograms.editProgramBlock(
+        secondProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        secondProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicate(
+        'nav-predicate-number-q',
+        /* action= */ null,
+        'number',
+        'is equal to',
+        secondProgramCorrectAnswer,
+      )
+
+      await adminPrograms.publishAllPrograms()
+      // TODO(#4509): Once this is a beforeAll(), it'll automatically go back
+      // to the home page when it's done and we can remove this line.
+      await logout(page)
+    })
+
+    afterEach(async () => {
+      // TODO(#4509): Once we can create different test users, we don't need to
+      // wipe the db after each test
+      const {page} = ctx
+      await dropTables(page)
+    })
+
+    it('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with non-eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion('4')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [],
+      )
+
+      await validateScreenshot(
+        page,
+        'cif-ineligible-signed-in-confirmation-page',
+      )
+      await validateAccessibility(page)
+    })
+
+    it('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsTestUser(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await validateScreenshot(page, 'cif-eligible-signed-in-confirmation-page')
+      await validateAccessibility(page)
+    })
+
+    it('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with non-eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion('4')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [],
+      )
+
+      await validateScreenshot(page, 'cif-ineligible-guest-confirmation-page')
+      await validateAccessibility(page)
+    })
+
+    it('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async () => {
+      const {page, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ true,
+        /* wantTrustedIntermediary= */ false,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await validateScreenshot(page, 'cif-eligible-guest-confirmation-page')
+      await validateAccessibility(page)
+    })
+
+    it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
+      const {page, tiDashboard, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      // Create trusted intermediary client
+      await loginAsTrustedIntermediary(page)
+      await selectApplicantLanguage(page, 'English')
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+      await tiDashboard.clickOnApplicantDashboard()
+
+      // Fill out common intake form, with non-eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion('4')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ true,
+        /* wantEligiblePrograms= */ [],
+      )
+
+      await validateScreenshot(page, 'cif-ineligible-ti-confirmation-page')
+    })
+
+    it('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
+      const {page, tiDashboard, applicantQuestions} = ctx
+      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
+      await enableFeatureFlag(page, 'intake_form_enabled')
+      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+
+      // Create trusted intermediary client
+      await loginAsTrustedIntermediary(page)
+      await selectApplicantLanguage(page, 'English')
+      await tiDashboard.gotoTIDashboardPage(page)
+      await waitForPageJsLoad(page)
+      const client: ClientInformation = {
+        emailAddress: 'fake@sample.com',
+        firstName: 'first',
+        middleName: 'middle',
+        lastName: 'last',
+        dobDate: '2021-05-10',
+      }
+      await tiDashboard.createClient(client)
+      await tiDashboard.expectDashboardContainClient(client)
+      await tiDashboard.clickOnApplicantDashboard()
+
+      // Fill out common intake form, with eligible response
+      await applicantQuestions.applyProgram(commonIntakeProgramName)
+      await applicantQuestions.answerNumberQuestion(secondProgramCorrectAnswer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.expectCommonIntakeReviewPage()
+      await applicantQuestions.clickSubmit()
+
+      await applicantQuestions.expectCommonIntakeConfirmationPage(
+        /* wantUpsell= */ false,
+        /* wantTrustedIntermediary= */ true,
+        /* wantEligiblePrograms= */ [secondProgramName],
+      )
+
+      await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
     })
   })
 

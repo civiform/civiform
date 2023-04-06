@@ -105,6 +105,14 @@ public abstract class EsriClient {
                         .setState(attributes.get("RegionAbbr").asText())
                         .setZip(attributes.get("Postal").asText())
                         .build();
+                // Suggestion must be a fully formed address.
+                // Sometimes the esri service returns only a partially formed address.
+                if (candidateAddress.getStreet().isEmpty()
+                    || candidateAddress.getCity().isEmpty()
+                    || candidateAddress.getState().isEmpty()
+                    || candidateAddress.getZip().isEmpty()) {
+                  continue;
+                }
                 AddressSuggestion addressCandidate =
                     AddressSuggestion.builder()
                         .setSingleLineAddress(candidateJson.get("address").asText())
