@@ -18,6 +18,9 @@ on:
       CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN:
         required: true
 
+permissions:
+  contents: read
+
 jobs:
   generate_markdown:
     runs-on: ubuntu-latest
