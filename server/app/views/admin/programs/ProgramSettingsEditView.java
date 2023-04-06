@@ -12,9 +12,6 @@ import j2html.TagCreator;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
-import java.util.Optional;
-import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -99,7 +96,7 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
     DivTag contentDiv =
         div()
             .withClasses("px-12")
-            .with(getBackButton(request, program))
+            .with(getBackButton(request))
             .with(div().withClasses("mt-4").with(h1(title)))
             .with(
                 form(makeCsrfTokenInputTag(request))
@@ -117,8 +114,11 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
     return layout.renderCentered(layout.getBundle().setTitle(title).addMainContent(contentDiv));
   }
 
-  private ATag getBackButton(Request request, ProgramDefinition program) {
-    String backTarget = request.header("referer").orElse(controllers.admin.routes.AdminProgramController.index().url());
+  private ATag getBackButton(Request request) {
+    String backTarget =
+        request
+            .header("referer")
+            .orElse(controllers.admin.routes.AdminProgramController.index().url());
     return new LinkElement()
         .setHref(backTarget)
         .setIcon(Icons.ARROW_LEFT, IconPosition.START)
