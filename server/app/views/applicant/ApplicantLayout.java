@@ -86,30 +86,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.civicEntityShortName = configuration.getString("whitelabel.civic_entity_short_name");
   }
 
-  private Content renderWithSupportFooter(HtmlBundle bundle, Messages messages) {
-    ATag emailAction =
-        new LinkElement()
-            .setText(supportEmail)
-            .setHref("mailto:" + supportEmail)
-            .opensInNewTab()
-            .asAnchorText();
-
-    DivTag supportLink =
-        div()
-            .withClasses("flex", "flex-row")
-            .with(
-                div()
-                    .with(
-                        text(messages.at(MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
-                        text(" "),
-                        emailAction)
-                    .withClasses("mx-auto"));
-
-    bundle.addFooterContent(supportLink);
-
-    return render(bundle);
-  }
-
   @Override
   public Content render(HtmlBundle bundle) {
     bundle.addBodyStyles(ApplicantStyles.BODY);
@@ -126,12 +102,65 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return rendered;
   }
 
+  // Same as renderWithNav, but defaults to no admin login link.
   public Content renderWithNav(
       Http.Request request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
+    return renderWithNav(request, userName, messages, bundle, /*includeAdminLogin=*/ false);
+  }
+
+  public Content renderWithNav(
+      Http.Request request,
+      Optional<String> userName,
+      Messages messages,
+      HtmlBundle bundle,
+      boolean includeAdminLogin) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, userName, messages));
-    return renderWithSupportFooter(bundle, messages);
+
+    ATag emailAction =
+        new LinkElement()
+            .setText(supportEmail)
+            .setHref("mailto:" + supportEmail)
+            .opensInNewTab()
+            .asAnchorText()
+            .withClasses(ApplicantStyles.LINK);
+    ATag adminLoginAction =
+        new LinkElement()
+            .setText(messages.at(MessageKey.LINK_ADMIN_LOGIN.getKeyName()))
+            .setHref(routes.LoginController.adminLogin().url())
+            .asAnchorText()
+            .withClasses(ApplicantStyles.LINK);
+
+    DivTag footerDiv =
+        div()
+            .withClasses("flex", "flex-col")
+            .with(
+                div()
+                    .with(
+                        span(
+                                text(
+                                    messages.at(
+                                        MessageKey.FOOTER_SUPPORT_LINK_DESCRIPTION.getKeyName())),
+                                text(" "))
+                            .withClasses("text-gray-600"),
+                        emailAction)
+                    .withClasses("mx-auto"),
+                div()
+                    .condWith(
+                        includeAdminLogin,
+                        span(
+                                text(
+                                    messages.at(
+                                        MessageKey.CONTENT_ADMIN_FOOTER_PROMPT.getKeyName())),
+                                text(" "),
+                                adminLoginAction)
+                            .withClasses("text-gray-600"))
+                    .withClasses("mx-auto"));
+
+    bundle.addFooterContent(footerDiv);
+
+    return render(bundle);
   }
 
   private NavTag renderNavBar(Http.Request request, Optional<String> userName, Messages messages) {

@@ -95,6 +95,9 @@ content.loginDisabledPrompt=Account login currently disabled
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Looking for something else?
 
+# The footer of the CiviForm site to prompt admins to login if needed.
+content.adminFooterPrompt=Are you a benefits administrator?
+
 # The text on the anchor for admins to log in to their session.
 link.adminLogin=Admin login
 
