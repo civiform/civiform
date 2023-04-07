@@ -96,8 +96,8 @@ public class CfJsonDocumentContext {
       putNull(path);
       return;
     }
-    // Currently on US and CA numbers are supported, hence testing for just the two regions.
-    // for future cases, it is better to get the countrycode and test against the country code, not
+    // Currently only US and CA numbers are supported, hence testing for just the two regions.
+    // For future cases, it is better to get the countrycode and test against the country code, not
     // just all possible regions.
     if (PHONE_NUMBER_UTIL.isPossibleNumber(phoneNumber, "US")
         || PHONE_NUMBER_UTIL.isPossibleNumber(phoneNumber, "CA")) {
