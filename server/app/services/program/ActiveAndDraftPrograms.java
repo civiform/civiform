@@ -27,7 +27,8 @@ public final class ActiveAndDraftPrograms {
 
   /**
    * Queries the existing active and draft versions and builds a snapshotted view of the program
-   * state.
+   * state. Since a ProgramService argument is included, we will get the full program definition,
+   * which includes the question definitions.
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersions(
       ProgramService service, VersionRepository repository) {
@@ -35,6 +36,11 @@ public final class ActiveAndDraftPrograms {
         repository.getActiveVersion(), repository.getDraftVersion(), Optional.of(service));
   }
 
+  /**
+   * Queries the existing active and draft versions and builds a snapshotted view of the program
+   * state. These programs won't include the question definition, since ProgramService is not
+   * provided.
+   */
   public static ActiveAndDraftPrograms buildFromCurrentVersions(VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository.getActiveVersion(), repository.getDraftVersion(), Optional.empty());
