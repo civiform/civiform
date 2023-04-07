@@ -17,6 +17,9 @@ on:
       - 'server/conf/helper/*.conf'
       - '.github/workflows/pr_env_var_docs.yaml'
 
+permissions:
+  contents: read
+
 jobs:
   run-validations:
     runs-on: ubuntu-latest

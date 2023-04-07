@@ -124,8 +124,6 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base", "mx-auto");
   public static final String BUTTON_PROGRAM_APPLY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-sm", "mx-auto");
-  public static final String BUTTON_PROGRAM_APPLY_TO_ANOTHER =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-sm");
   public static final String BUTTON_TI_DASHBOARD =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-xl");
   public static final String BUTTON_BLOCK_NEXT =
@@ -146,9 +144,9 @@ public final class ApplicantStyles {
           "font-normal",
           "justify-self-end",
           "self-center");
-  public static final String BUTTON_CREATE_ACCOUNT =
+  public static final String BUTTON_UPSELL_PRIMARY_ACTION =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
-  public static final String BUTTON_NOT_RIGHT_NOW =
+  public static final String BUTTON_UPSELL_SECONDARY_ACTION =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
   public static final String BUTTON_UPLOAD =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
