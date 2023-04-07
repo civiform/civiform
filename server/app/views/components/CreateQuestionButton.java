@@ -49,7 +49,7 @@ public final class CreateQuestionButton {
                 "hidden");
 
     for (QuestionType type : QuestionType.values()) {
-      if (!phoneQuestionTypeEnabled && type == QuestionType.PHONE) {
+      if (!phoneQuestionTypeEnabled && QuestionType.PHONE.equals(type)) {
         continue;
       }
       String typeString = type.toString().toLowerCase();
