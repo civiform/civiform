@@ -88,7 +88,7 @@ public final class QuestionConfig {
         new DivTag()
             .withText(
                 "This supports only US and CA phone numbers. If you need other international"
-                    + " numbers, Please use Text type questions"));
+                    + " numbers, please use a Text question."));
     return this;
   }
 
