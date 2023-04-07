@@ -78,9 +78,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
         .with(countryCodeField.getSelectTag(), phoneField.getInputTag());
   }
 
-  private static ImmutableList<SelectWithLabel.OptionValue> countryOptions() {
-    return ImmutableList.of(
+  private static final ImmutableList<SelectWithLabel.OptionValue> COUNTRY_OPTIONS = ImmutableList.of(
         SelectWithLabel.OptionValue.builder().setLabel("United States").setValue("US").build(),
         SelectWithLabel.OptionValue.builder().setLabel("Canada").setValue("CA").build());
-  }
 }
