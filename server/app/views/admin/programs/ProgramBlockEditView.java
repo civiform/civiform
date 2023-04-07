@@ -1,7 +1,11 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.*;
+import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
+import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
+import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
+import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;

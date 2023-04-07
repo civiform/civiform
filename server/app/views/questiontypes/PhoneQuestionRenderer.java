@@ -36,6 +36,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     Messages messages = params.messages();
 
     SelectWithLabel countryCodeField =
+        (SelectWithLabel)
             new SelectWithLabel()
                 .addStyleClass("py-15")
                 .setFieldName(phoneQuestion.getCountryCodePath().toString())
@@ -45,7 +46,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     ImmutableList.of(
                         SelectWithLabel.OptionGroup.builder()
                             .setLabel(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
-                            .setOptions(countryOptions())
+                            .setOptions(COUNTRY_OPTIONS)
                             .build()))
                 .setFieldErrors(
                     messages,
@@ -77,7 +78,8 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
         .with(countryCodeField.getSelectTag(), phoneField.getInputTag());
   }
 
-  private static final ImmutableList<SelectWithLabel.OptionValue> COUNTRY_OPTIONS = ImmutableList.of(
-        SelectWithLabel.OptionValue.builder().setLabel("United States").setValue("US").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Canada").setValue("CA").build());
+  private static final ImmutableList<SelectWithLabel.OptionValue> COUNTRY_OPTIONS =
+      ImmutableList.of(
+          SelectWithLabel.OptionValue.builder().setLabel("United States").setValue("US").build(),
+          SelectWithLabel.OptionValue.builder().setLabel("Canada").setValue("CA").build());
 }
