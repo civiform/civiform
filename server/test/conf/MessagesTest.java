@@ -48,7 +48,8 @@ public class MessagesTest {
           "content.commonIntakeNoMatchingProgramsNextStep",
           "content.commonIntakeNoMatchingProgramsTi",
           "title.commonIntakeConfirmation",
-          "title.commonIntakeConfirmationTi");
+          "title.commonIntakeConfirmationTi",
+          "content.adminFooterPrompt");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
