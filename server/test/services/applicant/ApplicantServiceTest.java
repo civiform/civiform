@@ -2397,7 +2397,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .maybeEligibleProgramsForApplicant(applicant.id)
             .toCompletableFuture()
             .join();
 
@@ -2407,7 +2407,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(matchingProgramIds).contains(programForDraftApp.id);
     assertThat(matchingProgramIds).contains(programForUnappliedApp.id);
-    assertThat(matchingProgramIds).doesNotContain(programForSubmittedApp.id);
+    assertThat(matchingProgramIds).contains(programForSubmittedApp.id);
   }
 
   @Test
@@ -2473,7 +2473,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .maybeEligibleProgramsForApplicant(applicant.id)
             .toCompletableFuture()
             .join();
 
@@ -2527,7 +2527,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .maybeEligibleProgramsForApplicant(applicant.id)
             .toCompletableFuture()
             .join();
 
@@ -2575,7 +2575,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .maybeEligibleProgramsForApplicant(applicant.id)
             .toCompletableFuture()
             .join();
 
@@ -2613,7 +2613,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .maybeEligibleProgramsForApplicant(applicant.id)
             .toCompletableFuture()
             .join();
 
