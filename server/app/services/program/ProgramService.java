@@ -44,7 +44,10 @@ public interface ProgramService {
   /** Get the data object about the programs that are in the active or draft version. */
   ActiveAndDraftPrograms getActiveAndDraftPrograms();
 
-  /** Get the data object about the programs that are in the active or draft version without the full question definitions attached to the programs. */
+  /**
+   * Get the data object about the programs that are in the active or draft version without the full
+   * question definitions attached to the programs.
+   */
   ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad();
 
   /**
