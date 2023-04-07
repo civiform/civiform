@@ -108,6 +108,39 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void getActiveAndDraftProgramsWithoutQuestionLoad_hasBasicProgramInfo() {
+    QuestionDefinition questionOne = nameQuestion;
+    QuestionDefinition questionTwo = addressQuestion;
+    QuestionDefinition questionThree = colorQuestion;
+
+    ProgramBuilder.newDraftProgram("program1")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionThree)
+        .buildDefinition();
+    ProgramBuilder.newActiveProgram("program2")
+        .withBlock()
+        .withRequiredQuestionDefinition(questionTwo)
+        .withBlock()
+        .withRequiredQuestionDefinition(questionOne)
+        .buildDefinition();
+
+    ImmutableList<ProgramDefinition> draftPrograms =
+        ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
+    ImmutableList<ProgramDefinition> activePrograms =
+      ps.getActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+
+    ProgramDefinition draftProgramDef = draftPrograms.get(0);
+    assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(draftProgramDef.getQuestionCount()).isEqualTo(3);
+    ProgramDefinition activeProgramDef = activePrograms.get(0);
+    assertThat(activeProgramDef.getBlockCount()).isEqualTo(2);
+    assertThat(activeProgramDef.getQuestionCount()).isEqualTo(2);
+  }
+
+  @Test
   public void createProgram_setsId() {
     assertThat(ps.getActiveAndDraftPrograms().getActivePrograms()).isEmpty();
     assertThat(ps.getActiveAndDraftPrograms().getDraftPrograms()).isEmpty();
@@ -494,6 +527,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ProgramDefinition found = ps.getProgramDefinition(updatedProgram.id());
 
     assertThat(ps.getActiveAndDraftPrograms().getDraftPrograms()).hasSize(1);
+    assertThat(ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms()).hasSize(1);
     assertThat(found.adminName()).isEqualTo(updatedProgram.adminName());
     assertThat(found.lastModifiedTime().isPresent()).isTrue();
     assertThat(originalProgram.lastModifiedTime().isPresent()).isTrue();
