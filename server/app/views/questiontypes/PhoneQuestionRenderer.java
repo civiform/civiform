@@ -36,7 +36,6 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     Messages messages = params.messages();
 
     SelectWithLabel countryCodeField =
-        (SelectWithLabel)
             new SelectWithLabel()
                 .addStyleClass("py-15")
                 .setFieldName(phoneQuestion.getCountryCodePath().toString())
