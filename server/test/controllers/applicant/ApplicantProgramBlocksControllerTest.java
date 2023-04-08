@@ -1,5 +1,6 @@
 package controllers.applicant;
 
+import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -290,6 +291,68 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
+  }
+
+  @Test
+  public void update_savesCorrectedAddressWhenValidAddressIsEntered() {
+    // need request (what should it look like?)
+    // need applicantId, programId, blockId, inReview
+    program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block 1")
+            .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
+            .build();
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                        routes.ApplicantProgramBlocksController.update(
+                            applicant.id, program.id, "1", false))
+                    .session(ESRI_ADDRESS_CORRECTION_ENABLED.toString(), "true")
+                    .bodyForm(
+                        ImmutableMap.of(
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.STREET)
+                                .toString(),
+                            "Address In Area",
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.LINE2)
+                                .toString(),
+                            "",
+                            Path.create("applicant.applicant_address").join(Scalar.CITY).toString(),
+                            "Redlands",
+                            Path.create("applicant.applicant_address")
+                                .join(Scalar.STATE)
+                                .toString(),
+                            "CA",
+                            Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
+                            "92373")))
+            .build();
+    // what does the result look like??
+    Result result =
+        subject
+            .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    // assert that result is what we want
+
+    // check that review screen renders, not address correction screen
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
+    assertThat(result.redirectLocation()).hasValue(reviewRoute);
+
+    applicant.refresh();
+
+    // what does applicant look like???
+
+    // ok so it's saved... but how can i check it was saved with the extra bits in the suggestions?
+
+    assertThat(applicant.getApplications().get(0).getApplicantData().asJsonString())
+        .isEqualTo(null); // is an empty applicant object?
+    System.out.println(applicant);
+
+    // refresh
+    // assert that saved address is what we want
   }
 
   @Test
