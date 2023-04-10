@@ -732,12 +732,10 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
-      await validateScreenshot(
-        page,
-        'home-page-no-eligibility-tag-for-submitted',
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
       )
-    })
 
     it('shows not eligible with ineligible answer from another application', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
