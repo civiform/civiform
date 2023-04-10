@@ -99,11 +99,14 @@ public class CfJsonDocumentContext {
     // Currently only US and CA numbers are supported, hence testing for just the two regions.
     // For future cases, it is better to get the countrycode and test against the country code, not
     // just all possible regions.
+    // The function isPossibleNumber() - quickly guesses whether a number is a possible phone number
+    // by using only the length information, much faster than a full validation.
     if (PHONE_NUMBER_UTIL.isPossibleNumber(phoneNumber, "US")
         || PHONE_NUMBER_UTIL.isPossibleNumber(phoneNumber, "CA")) {
       put(path, phoneNumber.replaceAll("[^0-9]", ""));
     } else {
-      throw new IllegalArgumentException("invalid_phone_input");
+      throw new IllegalArgumentException(
+          String.format("Invalid phone number format: %s", phoneNumber.replaceAll("\\d", "X")));
     }
   }
   /**

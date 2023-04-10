@@ -228,8 +228,13 @@ public final class JsonExporter {
   private DocumentContext makeEmptyJsonObject() {
     return JsonPathProvider.getJsonPath().parse("{}");
   }
-
-  public String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
+  /**
+   * This method accepts a phoneNumber as String and the countryCode which is iso alpha 2 format as
+   * a String. It formats the phone number per E.123 format, but with all spaces and other
+   * separating symbols replaced with a hyphen. For a sample input of phoneNumberValue="2123456789"
+   * with countryCode="US", the output will be +1 212-345-6789
+   */
+  private String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
     try {
       Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phoneNumberValue, countryCode);
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
