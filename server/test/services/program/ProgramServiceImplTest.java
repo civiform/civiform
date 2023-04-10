@@ -130,7 +130,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     ImmutableList<ProgramDefinition> draftPrograms =
         ps.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
-      ps.getActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
+        ps.getActiveAndDraftProgramsWithoutQuestionLoad().getActivePrograms();
 
     ProgramDefinition draftProgramDef = draftPrograms.get(0);
     assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
