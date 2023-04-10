@@ -19,12 +19,17 @@
       "matchPackagePrefixes": ["org.pac4j:pac4j"]
     },
     {
-      "matchPaths": ["browser-test/"],
+      "matchPaths": [
+        ".github/workflows/",
+        "browser-test/",
+        "env-var-docs/",
+        "formatter/"
+      ],
       "labels": ["dependencies", "ignore-for-release"]
     },
     {
-      "matchPaths": ["formatter/"],
-      "labels": ["dependencies", "ignore-for-release"]
+      "matchPackageNames": ["postgres"],
+      "allowedVersion": "<13.0.0"
     }
   ]
 }
