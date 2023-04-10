@@ -128,7 +128,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
           messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), civicEntityShortName);
-      widthClass = "w-7/12";
+      widthClass = "w-8/12";
       // Log in and Create account buttons if user is a guest.
       buttonsDiv =
           div()
