@@ -1,4 +1,5 @@
-/** Javascript handling for PhoneType questions
+/**
+ * Javascript handler for PhoneType questions
  * This file requires third party dependency- cleave.js for formatting the input as the user types.
  * Documentation for it can be found here:https://github.com/nosir/cleave.js/
  */
