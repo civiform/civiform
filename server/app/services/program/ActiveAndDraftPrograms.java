@@ -27,27 +27,47 @@ public final class ActiveAndDraftPrograms {
 
   /**
    * Queries the existing active and draft versions and builds a snapshotted view of the program
-   * state.
+   * state. Since a ProgramService argument is included, we will get the full program definition,
+   * which includes the question definitions.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersions(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        service, repository.getActiveVersion(), repository.getDraftVersion());
+        repository.getActiveVersion(), repository.getDraftVersion(), Optional.of(service));
   }
 
-  private ActiveAndDraftPrograms(ProgramService service, Version active, Version draft) {
+  /**
+   * Queries the existing active and draft versions and builds a snapshotted view of the program
+   * state. These programs won't include the question definition, since ProgramService is not
+   * provided.
+   */
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
+      VersionRepository repository) {
+    return new ActiveAndDraftPrograms(
+        repository.getActiveVersion(), repository.getDraftVersion(), Optional.empty());
+  }
+
+  private ActiveAndDraftPrograms(Version active, Version draft, Optional<ProgramService> service) {
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
         checkNotNull(active).getPrograms().stream()
-            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .map(
+                program ->
+                    service.isPresent()
+                        ? getProgramDefinition(service.get(), program.id)
+                        : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
         checkNotNull(draft).getPrograms().stream()
-            .map(program -> getProgramDefinition(checkNotNull(service), program.id))
+            .map(
+                program ->
+                    service.isPresent()
+                        ? getProgramDefinition(service.get(), program.id)
+                        : program.getProgramDefinition())
             .collect(
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
