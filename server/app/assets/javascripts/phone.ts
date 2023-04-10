@@ -1,7 +1,7 @@
 /**
  * Input formatting for PhoneQuestion question type
  * This file requires third party dependency- cleave.js for formatting the input as the user types.
- * Documentation for it can be found here:https://github.com/nosir/cleave.js/
+ * Documentation for it can be found here: https://github.com/nosir/cleave.js/
  */
 
 import Cleave from 'cleave.js'
