@@ -178,6 +178,13 @@ content.benefits=Get benefits
 # Long form description of the CiviForm site shown to the applicant.
 content.description=CiviForm helps you find benefits you may be eligible for in {0}. Get started by choosing an application below.
 
+# Title for programs page when applicant is not logged in
+content.saveTime=Save time when applying for benefits
+
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the civic entity's name, in reference to their login portal.
+content.guestDescription=Log in to your {0} account or create an account and apply for many benefits without having to enter the same information again. You can also edit applications at any time and check your application statuses.
+
 # Link text to read more about a program.
 link.programDetails=Program details
 

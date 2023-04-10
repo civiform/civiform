@@ -47,6 +47,8 @@ public class MessagesTest {
           "content.commonIntakeNoMatchingPrograms",
           "content.commonIntakeNoMatchingProgramsNextStep",
           "content.commonIntakeNoMatchingProgramsTi",
+          "content.guestDescription",
+          "content.saveTime",
           "title.commonIntakeConfirmation",
           "title.commonIntakeConfirmationTi",
           "content.adminFooterPrompt",
