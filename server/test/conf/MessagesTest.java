@@ -49,6 +49,7 @@ public class MessagesTest {
           "content.commonIntakeNoMatchingProgramsTi",
           "title.commonIntakeConfirmation",
           "title.commonIntakeConfirmationTi",
+          "content.adminFooterPrompt",
           "label.countryCode",
           "label.phoneNumber",
           "validation.invalidPhoneNumberProvided",

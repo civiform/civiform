@@ -113,7 +113,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         mainContent(
             request, messages, applicationPrograms, applicantId, messages.lang().toLocale()));
 
-    return layout.renderWithNav(request, userName, messages, bundle);
+    return layout.renderWithNav(request, userName, messages, bundle, /*includeAdminLogin=*/ true);
   }
 
   private DivTag topContent(String titleText, String infoTextLine) {
