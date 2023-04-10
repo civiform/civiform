@@ -5,6 +5,7 @@
  */
 
 import Cleave from 'cleave.js'
+
 export function init() {
   const element = document.getElementById('cf-phone-number')
   const countryElement = document.getElementById('cf-phone-country-code')
