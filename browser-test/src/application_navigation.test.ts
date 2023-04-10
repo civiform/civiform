@@ -738,7 +738,7 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
-    }
+    })
 
     it('shows not eligible with ineligible answer from another application', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
