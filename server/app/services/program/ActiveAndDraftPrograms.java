@@ -30,7 +30,7 @@ public final class ActiveAndDraftPrograms {
    * state. Since a ProgramService argument is included, we will get the full program definition,
    * which includes the question definitions.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsWithProgramServiceQuestionLoad(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository.getActiveVersion(), repository.getDraftVersion(), Optional.of(service));
@@ -41,7 +41,7 @@ public final class ActiveAndDraftPrograms {
    * state. These programs won't include the question definition, since ProgramService is not
    * provided.
    */
-  public static ActiveAndDraftPrograms buildFromCurrentVersionsWithoutQuestionLoad(
+  public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
         repository.getActiveVersion(), repository.getDraftVersion(), Optional.empty());
