@@ -30,6 +30,7 @@ public final class ApplicantUtils {
     return maybeName.orElse(messages.at(MessageKey.GUEST.getKeyName()));
   }
 
+  // TODO(#4626): make this a more robust check.
   public static boolean isGuest(Optional<String> maybeName, Messages messages) {
     String userName = maybeName.orElse(messages.at(MessageKey.GUEST.getKeyName()));
 
