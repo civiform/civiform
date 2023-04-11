@@ -145,7 +145,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                           routes.LoginController.register().url())
                       .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
               .withClasses(
-                  "flex", "flex-row", "gap-x-8", "pb-6", "w-screen", "place-content-center");
+                  "flex",
+                  "flex-row",
+                  "gap-x-8",
+                  "pb-6",
+                  "px-4",
+                  "w-screen",
+                  "place-content-center");
     } else { // Logged in.
       // "Get benefits"
       h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
