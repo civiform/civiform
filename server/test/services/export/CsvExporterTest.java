@@ -11,10 +11,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.junit.Test;
 import repository.TimeFilter;
 import services.applicant.ApplicantData;
-import services.applicant.question.ApplicantQuestion;
-import services.applicant.question.FileUploadQuestion;
-import services.applicant.question.MultiSelectQuestion;
-import services.applicant.question.NameQuestion;
+import services.applicant.question.*;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -50,6 +47,8 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
+            "applicant phone (phone_number)",
+            "applicant phone (country_code)",
             "kitchen tools (selections)",
             "number of items applicant can juggle (number)",
             "radio (selection)",
@@ -77,6 +76,15 @@ public class CsvExporterTest extends AbstractExporterTest {
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     String lastNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getLastNamePath());
+    Question phoneQuestion =
+        testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
+    PhoneQuestion phoneQuestion1 =
+        getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
+    String phoneHeader = CsvExporterService.pathToHeader(phoneQuestion1.getPhoneNumberPath());
+    String countryCodeHeader = CsvExporterService.pathToHeader(phoneQuestion1.getCountryCodePath());
+    assertThat(records.get(1).get(phoneHeader)).contains("6157571010");
+    assertThat(records.get(1).get(countryCodeHeader)).contains("US");
+
     // Applications should appear most recent first.
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("Bob");
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");

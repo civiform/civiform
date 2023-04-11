@@ -1296,6 +1296,13 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
+          case PHONE_NUMBER:
+            try {
+              applicantData.putPhoneNumber(currentPath, update.value());
+            } catch (IllegalArgumentException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
+            break;
           case CURRENCY_CENTS:
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());

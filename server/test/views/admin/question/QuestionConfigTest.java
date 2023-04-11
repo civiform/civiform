@@ -55,6 +55,13 @@ public class QuestionConfigTest {
       case EMAIL:
         assertThat(maybeConfig).isEmpty();
         break;
+      case PHONE:
+        assertThat(maybeConfig).isPresent();
+        assertThat(maybeConfig.get().renderFormatted())
+            .contains(
+                "This supports only US and CA phone numbers. If you need other international"
+                    + " numbers, please use a Text question.");
+        break;
       case ENUMERATOR:
         assertThat(maybeConfig).isPresent();
         assertThat(maybeConfig.get().renderFormatted()).contains("What are we enumerating");

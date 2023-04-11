@@ -46,7 +46,7 @@ public final class QuestionPreview {
     try {
       renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
     } catch (UnsupportedQuestionTypeException e) {
-      renderedQuestion = div().withText(e.toString());
+      throw new RuntimeException(e);
     }
 
     DivTag innerContentContainer =

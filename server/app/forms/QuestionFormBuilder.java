@@ -15,6 +15,7 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
+import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.RadioButtonQuestionDefinition;
@@ -55,6 +56,8 @@ public final class QuestionFormBuilder {
         return formFactory.form(StaticContentQuestionForm.class).bindFromRequest(request).get();
       case TEXT:
         return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
+      case PHONE:
+        return formFactory.form(PhoneQuestionForm.class).bindFromRequest(request).get();
       default:
         throw new InvalidQuestionTypeException(questionType.toString());
     }
@@ -91,6 +94,8 @@ public final class QuestionFormBuilder {
         return new StaticContentQuestionForm();
       case TEXT:
         return new TextQuestionForm();
+      case PHONE:
+        return new PhoneQuestionForm();
       default:
         throw new UnsupportedQuestionTypeException(questionType);
     }
@@ -128,6 +133,8 @@ public final class QuestionFormBuilder {
         return new StaticContentQuestionForm((StaticContentQuestionDefinition) questionDefinition);
       case TEXT:
         return new TextQuestionForm((TextQuestionDefinition) questionDefinition);
+      case PHONE:
+        return new PhoneQuestionForm((PhoneQuestionDefinition) questionDefinition);
       default:
         throw new InvalidQuestionTypeException(questionType.toString());
     }

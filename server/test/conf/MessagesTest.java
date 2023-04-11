@@ -47,8 +47,18 @@ public class MessagesTest {
           "content.commonIntakeNoMatchingPrograms",
           "content.commonIntakeNoMatchingProgramsNextStep",
           "content.commonIntakeNoMatchingProgramsTi",
+          "content.guestDescription",
+          "content.saveTime",
           "title.commonIntakeConfirmation",
-          "title.commonIntakeConfirmationTi");
+          "title.commonIntakeConfirmationTi",
+          "content.adminFooterPrompt",
+          "label.countryCode",
+          "label.phoneNumber",
+          "validation.invalidPhoneNumberProvided",
+          "validation.phoneCountryCodeRequired",
+          "validation.phoneMustBeLocalToCountry",
+          "validation.phoneNumberMustContainNumbersOnly",
+          "validation.phoneNumberRequired");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {

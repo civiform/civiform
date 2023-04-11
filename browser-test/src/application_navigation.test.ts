@@ -173,7 +173,9 @@ describe('Applicant navigation flow', () => {
       await selectApplicantLanguage(page, 'English')
 
       // Verify we are on program list page.
-      expect(await page.innerText('h1')).toContain('Get benefits')
+      expect(await page.innerText('h1')).toContain(
+        'Save time when applying for benefits',
+      )
       const cardHtml = await page.innerHTML(
         '.cf-application-card:has-text("' + programWithExternalLink + '")',
       )

@@ -110,6 +110,15 @@ public class QuestionAnswerer {
     applicantData.putString(contextualizedPath.join(Scalar.TEXT), value);
   }
 
+  public static void answerPhoneQuestion(
+      ApplicantData applicantData,
+      Path contextualizedPath,
+      String countryCode,
+      String phoneNumber) {
+    applicantData.putString(contextualizedPath.join(Scalar.COUNTRY_CODE), countryCode);
+    applicantData.putPhoneNumber(contextualizedPath.join(Scalar.PHONE_NUMBER), phoneNumber);
+  }
+
   public static void answerDateQuestion(
       ApplicantData applicantData, Path contextualizedPath, String value) {
     applicantData.putDate(contextualizedPath.join(Scalar.DATE), value);

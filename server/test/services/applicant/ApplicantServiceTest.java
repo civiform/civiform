@@ -253,10 +253,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     Path currencyPath = applicantPathForQuestion(currencyQuestion).join(Scalar.CURRENCY_CENTS);
     Question numberQuestion = testQuestionBank.applicantJugglingNumber();
     Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    Question phoneQuestion = testQuestionBank.applicantPhone();
+    Path phonePath = applicantPathForQuestion(phoneQuestion).join(Scalar.PHONE_NUMBER);
     createProgram(
         dateQuestion.getQuestionDefinition(),
         currencyQuestion.getQuestionDefinition(),
-        numberQuestion.getQuestionDefinition());
+        numberQuestion.getQuestionDefinition(),
+        phoneQuestion.getQuestionDefinition());
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
@@ -266,6 +269,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(datePath.toString(), "invalid_date_input")
             .put(currencyPath.toString(), "invalid_currency_input")
             .put(numberPath.toString(), "invalid_number_input")
+            .put(phonePath.toString(), "invalid_phone_input")
             .build();
 
     // We grab the result of the stage call to assert that it contains
@@ -281,18 +285,25 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(resultApplicantData.hasPath(datePath)).isFalse();
     assertThat(resultApplicantData.hasPath(currencyPath)).isFalse();
     assertThat(resultApplicantData.hasPath(numberPath)).isFalse();
+    assertThat(resultApplicantData.hasPath(phonePath)).isFalse();
     assertThat(resultApplicantData.getFailedUpdates())
         .isEqualTo(
             ImmutableMap.of(
-                datePath, "invalid_date_input",
-                currencyPath, "invalid_currency_input",
-                numberPath, "invalid_number_input"));
+                datePath,
+                "invalid_date_input",
+                currencyPath,
+                "invalid_currency_input",
+                numberPath,
+                "invalid_number_input",
+                phonePath,
+                "invalid_phone_input"));
 
     ApplicantData freshApplicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(freshApplicantDataAfter.hasPath(datePath)).isFalse();
     assertThat(freshApplicantDataAfter.hasPath(currencyPath)).isFalse();
     assertThat(freshApplicantDataAfter.hasPath(numberPath)).isFalse();
+    assertThat(resultApplicantData.hasPath(phonePath)).isFalse();
   }
 
   @Test

@@ -3,6 +3,9 @@ package services.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.jayway.jsonpath.DocumentContext;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +29,7 @@ import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
+import services.applicant.question.PhoneQuestion;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -37,6 +41,7 @@ public final class JsonExporter {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final DateConverter dateConverter;
+  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
   @Inject
   JsonExporter(
@@ -186,6 +191,23 @@ public final class JsonExporter {
 
             break;
           }
+        case PHONE:
+          {
+            PhoneQuestion phoneQuestion = answerData.applicantQuestion().createPhoneQuestion();
+            Path path = phoneQuestion.getPhoneNumberPath().asApplicationPath();
+
+            if (phoneQuestion.getPhoneNumberValue().isPresent()
+                && phoneQuestion.getCountryCodeValue().isPresent()) {
+              String formattedPhone =
+                  getFormattedPhoneNumber(
+                      phoneQuestion.getPhoneNumberValue().get(),
+                      phoneQuestion.getCountryCodeValue().get());
+              jsonApplication.putString(path, formattedPhone);
+            } else {
+              jsonApplication.putNull(path);
+            }
+            break;
+          }
         default:
           {
             for (Map.Entry<Path, String> answer :
@@ -205,5 +227,18 @@ public final class JsonExporter {
 
   private DocumentContext makeEmptyJsonObject() {
     return JsonPathProvider.getJsonPath().parse("{}");
+  }
+  /**
+   * This method accepts a phoneNumber as String and the countryCode which is iso alpha 2 format as
+   * a String. It formats the phone number per E164 format. For a sample input of
+   * phoneNumberValue="2123456789" with countryCode="US", the output will be +12123456789
+   */
+  private String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
+    try {
+      Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phoneNumberValue, countryCode);
+      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
+    } catch (NumberParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
