@@ -418,6 +418,16 @@ content.noValidAddress=We could not verify the address that you provided. Please
 # Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=Choose an option:
 
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+label.countryCode=Country
+label.phoneNumber=Enter Phone number
+validation.phoneNumberRequired=Phone number is required
+validation.phoneCountryCodeRequired=Country must be selected
+validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters
+validation.invalidPhoneNumberProvided=This number is invalid
+validation.phoneMustBeLocalToCountry=The phone you have provided does not belong to the country
 
 #----------------------------------------------------------------------------------------------------------#
 # DATE QUESTION - text shown when answering a question where a user must select date. #

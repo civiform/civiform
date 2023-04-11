@@ -42,6 +42,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
+import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.RadioButtonQuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
@@ -322,6 +323,18 @@ public class DatabaseSeedController extends Controller {
         .getResult();
   }
 
+  private QuestionDefinition insertPhoneQuestionDefinition() {
+    return questionService
+        .create(
+            new PhoneQuestionDefinition(
+                "phone",
+                Optional.empty(),
+                "description",
+                LocalizedStrings.withDefaultValue("what is your phone number"),
+                LocalizedStrings.withDefaultValue("help text")))
+        .getResult();
+  }
+
   private ProgramDefinition insertProgramWithBlocks(
       String adminName, String displayName, QuestionDefinition nameQuestion) {
     try {
@@ -356,7 +369,8 @@ public class DatabaseSeedController extends Controller {
               insertCheckboxQuestionDefinition().getId(),
               insertCurrencyQuestionDefinition().getId(),
               insertDateQuestionDefinition("date", "When is your birthday?").getId(),
-              insertDropdownQuestionDefinition().getId()));
+              insertDropdownQuestionDefinition().getId(),
+              insertPhoneQuestionDefinition().getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();

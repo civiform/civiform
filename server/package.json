@@ -12,6 +12,7 @@
   "devDependencies": {
     "@tailwindcss/line-clamp": "0.4.4",
     "@tsconfig/recommended": "1.0.2",
+    "@types/cleave.js": "1.4.7",
     "@types/jest": "29.5.0",
     "@typescript-eslint/eslint-plugin": "5.57.1",
     "@typescript-eslint/parser": "5.57.1",
@@ -27,5 +28,8 @@
     "typescript": "5.0.4",
     "webpack": "5.78.0",
     "webpack-cli": "5.0.1"
+  },
+  "dependencies": {
+    "cleave.js": "1.6.0"
   }
 }

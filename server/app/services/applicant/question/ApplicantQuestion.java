@@ -263,6 +263,10 @@ public final class ApplicantQuestion {
     return new SingleSelectQuestion(this);
   }
 
+  public PhoneQuestion createPhoneQuestion() {
+    return new PhoneQuestion(this);
+  }
+
   public StaticContentQuestion createStaticContentQuestion() {
     return new StaticContentQuestion(this);
   }
@@ -300,6 +304,8 @@ public final class ApplicantQuestion {
         return createTextQuestion();
       case STATIC:
         return createStaticContentQuestion();
+      case PHONE:
+        return createPhoneQuestion();
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }

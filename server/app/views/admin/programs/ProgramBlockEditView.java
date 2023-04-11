@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
 import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
@@ -190,7 +191,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  QuestionBank.shouldShowQuestionBank(request)))
+                  QuestionBank.shouldShowQuestionBank(request),
+                  featureFlags.getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -955,7 +957,8 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      QuestionBank.Visibility questionBankVisibility) {
+      QuestionBank.Visibility questionBankVisibility,
+      boolean phoneQuestionTypeEnabled) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -976,7 +979,7 @@ public final class ProgramBlockEditView extends ProgramBlockBaseView {
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build());
-    return qb.getContainer(questionBankVisibility);
+    return qb.getContainer(questionBankVisibility, phoneQuestionTypeEnabled);
   }
 
   private Modal blockDeleteModal(

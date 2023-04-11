@@ -13,5 +13,6 @@ public enum ScalarType {
   LIST_OF_STRINGS,
   LONG,
   STRING,
-  SERVICE_AREA
+  SERVICE_AREA,
+  PHONE_NUMBER
 }
