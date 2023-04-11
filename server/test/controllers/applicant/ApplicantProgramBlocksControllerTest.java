@@ -295,8 +295,6 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_savesCorrectedAddressWhenValidAddressIsEntered() {
-    // need request (what should it look like?)
-    // need applicantId, programId, blockId, inReview
     program =
         ProgramBuilder.newDraftProgram()
             .withBlock("block 1")
@@ -327,32 +325,21 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                             "92373")))
             .build();
-    // what does the result look like??
     Result result =
         subject
             .update(request, applicant.id, program.id, /* blockId = */ "1", /* inReview = */ false)
             .toCompletableFuture()
             .join();
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    // assert that result is what we want
 
-    // check that review screen renders, not address correction screen
+    // check that the address correction screen is skipped and the user is redirected to the review screen
     String reviewRoute =
         routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
 
+    // assert that the corrected address is saved
     applicant.refresh();
-
-    // what does applicant look like???
-
-    // ok so it's saved... but how can i check it was saved with the extra bits in the suggestions?
-
-    assertThat(applicant.getApplications().get(0).getApplicantData().asJsonString())
-        .isEqualTo(null); // is an empty applicant object?
-    System.out.println(applicant);
-
-    // refresh
-    // assert that saved address is what we want
+    assertThat(applicant.getApplicantData().asJsonString()).contains("Corrected");
   }
 
   @Test

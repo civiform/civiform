@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -106,5 +107,10 @@ public class Applicant extends BaseModel {
   public Applicant saveAndReturn() {
     save();
     return this;
+  }
+
+  @PostLoad
+  public void expireApplicantDataCache() {
+    this.applicantData = null;
   }
 }
