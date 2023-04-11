@@ -301,7 +301,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   .withHref(createAnAccountLink)
                   .withClasses(ApplicantStyles.LINK)));
     } else {
-      String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), userName.get());
+      // TODO(#4626): make this a more robust check. userName should always be present here,
+      // but a more foolproof solution would be better.
+      String loggedInAsMessage =
+          messages.at(MessageKey.USER_NAME.getKeyName(), userName.orElse("user"));
       String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
       return outsideDiv.with(
           div(loggedInAsMessage).withClasses("text-sm"),
