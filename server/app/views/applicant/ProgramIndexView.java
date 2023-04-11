@@ -22,6 +22,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
+import controllers.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -48,6 +49,7 @@ import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
+import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.TranslationUtils;
@@ -106,20 +108,33 @@ public final class ProgramIndexView extends BaseHtmlView {
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
     bundle.addMainContent(
-        topContent(
-            messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()),
-            messages.at(
-                MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName)),
+        topContent(messages, userName),
         mainContent(
             request, messages, applicationPrograms, applicantId, messages.lang().toLocale()));
 
     return layout.renderWithNav(request, userName, messages, bundle, /*includeAdminLogin=*/ true);
   }
 
-  private DivTag topContent(String titleText, String infoTextLine) {
-    // "Get benefits"
+  private DivTag topContent(Messages messages, Optional<String> userName) {
+
+    String h1Text, infoDivText, widthClass;
+
+    if (ApplicantUtils.isGuest(userName, messages)) {
+      // "Save time when applying for benefits"
+      h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
+      infoDivText =
+          messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), civicEntityShortName);
+      widthClass = "w-8/12";
+    } else { // Logged in.
+      // "Get benefits"
+      h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
+      infoDivText =
+          messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName);
+      widthClass = "w-5/12";
+    }
+
     H1Tag programIndexH1 =
-        h1().withText(titleText)
+        h1().withText(h1Text)
             .withClasses(
                 "text-4xl",
                 StyleUtils.responsiveSmall("text-5xl"),
@@ -130,9 +145,9 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     DivTag infoDiv =
         div()
-            .withText(infoTextLine)
+            .withText(infoDivText)
             .withClasses(
-                "text-sm", "px-6", "w-5/12", "pb-6", StyleUtils.responsiveSmall("text-base"));
+                "text-sm", "px-6", widthClass, "pb-6", StyleUtils.responsiveSmall("text-base"));
 
     return div()
         .withId("top-content")
@@ -142,7 +157,31 @@ public final class ProgramIndexView extends BaseHtmlView {
             "flex",
             "flex-col",
             "items-center")
-        .with(programIndexH1, infoDiv);
+        .with(programIndexH1, infoDiv)
+        .condWith(
+            ApplicantUtils.isGuest(userName, messages),
+            // Log in and Create account buttons if user is a guest.
+            div()
+                .with(
+                    redirectButton(
+                            "login-button",
+                            messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
+                            routes.LoginController.applicantLogin(Optional.empty()).url())
+                        .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                .with(
+                    redirectButton(
+                            "create-account",
+                            messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
+                            routes.LoginController.register().url())
+                        .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                .withClasses(
+                    "flex",
+                    "flex-row",
+                    "gap-x-8",
+                    "pb-6",
+                    "px-4",
+                    "w-screen",
+                    "place-content-center"));
   }
 
   private H2Tag programSectionTitle(String title) {
