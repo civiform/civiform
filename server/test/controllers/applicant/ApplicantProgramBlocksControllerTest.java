@@ -331,7 +331,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .toCompletableFuture()
             .join();
 
-    // check that the address correction screen is skipped and the user is redirected to the review screen
+    // check that the address correction screen is skipped and the user is redirected to the review
+    // screen
     String reviewRoute =
         routes.ApplicantProgramReviewController.review(applicant.id, program.id).url();
     assertThat(result.redirectLocation()).hasValue(reviewRoute);
@@ -339,7 +340,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // assert that the corrected address is saved
     applicant.refresh();
-    assertThat(applicant.getApplicantData().asJsonString()).contains("Corrected");
+    assertThat(applicant.getApplicantData(/*expireCache=*/ true).asJsonString())
+        .contains("Corrected");
   }
 
   @Test

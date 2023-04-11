@@ -12,7 +12,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.applicant.ApplicantData;
@@ -50,6 +49,16 @@ public class Applicant extends BaseModel {
 
   public Applicant() {
     super();
+  }
+
+  /**
+   * Clears applicantData so that a new ApplicantData object will be returned from getApplicantData.
+   * Useful when applicantData has been stored as an empty object and needs to be udpated with the
+   * data stored in object
+   */
+  public ApplicantData getApplicantData(boolean expireCache) {
+    this.expireApplicantDataCache();
+    return getApplicantData();
   }
 
   public ApplicantData getApplicantData() {
@@ -109,8 +118,7 @@ public class Applicant extends BaseModel {
     return this;
   }
 
-  @PostLoad
-  public void expireApplicantDataCache() {
+  private void expireApplicantDataCache() {
     this.applicantData = null;
   }
 }
