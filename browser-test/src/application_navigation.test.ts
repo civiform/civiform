@@ -21,11 +21,12 @@ import {
 describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('navigation with four blocks', () => {
+  describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
+      await enableFeatureFlag(page, 'phone_question_type_enabled')
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
@@ -257,6 +258,11 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
 
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
+      await applicantQuestions.clickNext()
       // Verify we are on program review page.
       expect(await page.innerText('h2')).toContain(
         'Program application summary',
@@ -285,6 +291,11 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
@@ -324,6 +335,11 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
