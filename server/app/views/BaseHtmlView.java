@@ -51,23 +51,8 @@ public abstract class BaseHtmlView {
   }
 
   // TODO(#4657): remove this method.
-  public static ButtonTag button(String textContents) {
-    return TagCreator.button(text(textContents)).withType("button");
-  }
-
-  // TODO(#4657): remove this method.
-  public static ButtonTag button(String id, String textContents) {
-    return button(textContents).withId(id);
-  }
-
-  // TODO(#4657): remove this method.
-  protected static ButtonTag submitButton(String textContents) {
-    return TagCreator.button(text(textContents)).withType("submit");
-  }
-
-  // TODO(#4657): remove this method.
   protected static ButtonTag submitButton(String id, String textContents) {
-    return submitButton(textContents).withId(id);
+    return TagCreator.button(text(textContents)).withId(id);
   }
 
   // TODO(#4657): remove this method.
@@ -92,14 +77,6 @@ public abstract class BaseHtmlView {
   // TODO(#4657): remove this method.
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return ViewUtils.makeSvgTextButton(buttonText, icon);
-  }
-
-  protected static SpanTag spanNowrap(String tag) {
-    return span(tag).withClasses("whitespace-nowrap");
-  }
-
-  protected static SpanTag spanNowrap(Tag... tags) {
-    return span().with(tags).withClasses("whitespace-nowrap");
   }
 
   /**

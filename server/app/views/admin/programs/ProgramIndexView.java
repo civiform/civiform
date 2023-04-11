@@ -49,6 +49,9 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
@@ -249,7 +252,12 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .withClasses("flex", "flex-row")
                     .with(
                         div().withClass("flex-grow"),
-                        button("Cancel")
+                        Button.builder()
+                            .setId("cancel-button")
+                            .setText("Cancel")
+                            .setStyle(ButtonStyle.SOLID_BLUE)
+                            .setButtonAction(ButtonAction.ofNone())
+                            .build()
                             .withClasses(
                                 ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                         toLinkButtonForPost(

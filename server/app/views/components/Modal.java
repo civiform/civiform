@@ -1,7 +1,6 @@
 package views.components;
 
 import static j2html.TagCreator.div;
-import static views.BaseHtmlView.button;
 
 import com.google.auto.value.AutoValue;
 import j2html.tags.ContainerTag;
@@ -9,6 +8,9 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import java.util.UUID;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -106,7 +108,12 @@ public abstract class Modal {
     if (triggerButtonContent().isPresent()) {
       return triggerButtonContent().get().withId(triggerButtonId);
     } else {
-      return button(triggerButtonId, modalTitle());
+      return Button.builder()
+          .setId(triggerButtonId)
+          .setText(modalTitle())
+          .setStyle(ButtonStyle.SOLID_BLUE)
+          .setButtonAction(ButtonAction.ofNone()) // Modal trigger is done outside the Button class.
+          .build();
     }
   }
 

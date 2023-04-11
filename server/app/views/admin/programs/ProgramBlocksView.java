@@ -58,6 +58,9 @@ import views.components.Modal;
 import views.components.QuestionBank;
 import views.components.SvgTag;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -491,11 +494,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
     buttons.with(blockDescriptionModalButton);
     buttons.condWith(
         blockDefinitionIsEnumerator,
-        button("Create repeated screen")
-            .withType("submit")
-            .withId("create-repeated-block-button")
-            .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+        Button.builder()
+            .setId("create-repeated-block-button")
+            .setText("Create repeated screen")
+            .setStyle(ButtonStyle.SOLID_WHITE)
+            .setButtonAction(ButtonAction.ofSubmitWithFormId(CREATE_REPEATED_BLOCK_FORM_ID))
+            .build());
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?

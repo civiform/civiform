@@ -43,6 +43,9 @@ import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -266,7 +269,14 @@ public final class QuestionEditView extends BaseHtmlView {
                 .withClasses("flex", "space-x-2", "mt-3")
                 .with(
                     div().withClasses("flex-grow"),
-                    asRedirectElement(button("Cancel"), cancelUrl)
+                    asRedirectElement(
+                            Button.builder()
+                                .setId("cancel-button")
+                                .setText("Cancel")
+                                .setStyle(ButtonStyle.SOLID_BLUE)
+                                .setButtonAction(ButtonAction.ofNone())
+                                .build(),
+                            cancelUrl)
                         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
                     submitButton("Create")
                         .withClass("m-4")
