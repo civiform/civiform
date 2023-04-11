@@ -121,45 +121,21 @@ public final class ProgramIndexView extends BaseHtmlView {
     String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
 
     String h1Text, infoDivText, widthClass;
-    DivTag buttonsDiv;
 
-    if (displayUserName.equals(guestUserName)) {
+    boolean isGuest = displayUserName.equals(guestUserName);
+
+    if (isGuest) {
       // "Save time when applying for benefits"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
           messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), civicEntityShortName);
       widthClass = "w-8/12";
-      // Log in and Create account buttons if user is a guest.
-      buttonsDiv =
-          div()
-              .with(
-                  redirectButton(
-                          "login-button",
-                          messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
-                          routes.LoginController.applicantLogin(Optional.empty()).url())
-                      .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
-              .with(
-                  redirectButton(
-                          "create-account",
-                          messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
-                          routes.LoginController.register().url())
-                      .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
-              .withClasses(
-                  "flex",
-                  "flex-row",
-                  "gap-x-8",
-                  "pb-6",
-                  "px-4",
-                  "w-screen",
-                  "place-content-center");
     } else { // Logged in.
       // "Get benefits"
       h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
       infoDivText =
           messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName);
       widthClass = "w-5/12";
-      // No buttons if logged in.
-      buttonsDiv = div();
     }
 
     H1Tag programIndexH1 =
@@ -186,7 +162,31 @@ public final class ProgramIndexView extends BaseHtmlView {
             "flex",
             "flex-col",
             "items-center")
-        .with(programIndexH1, infoDiv, buttonsDiv);
+        .with(programIndexH1, infoDiv)
+        .condWith(
+            isGuest,
+            // Log in and Create account buttons if user is a guest.
+            div()
+                .with(
+                    redirectButton(
+                            "login-button",
+                            messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
+                            routes.LoginController.applicantLogin(Optional.empty()).url())
+                        .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                .with(
+                    redirectButton(
+                            "create-account",
+                            messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
+                            routes.LoginController.register().url())
+                        .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                .withClasses(
+                    "flex",
+                    "flex-row",
+                    "gap-x-8",
+                    "pb-6",
+                    "px-4",
+                    "w-screen",
+                    "place-content-center"));
   }
 
   private H2Tag programSectionTitle(String title) {
