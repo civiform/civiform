@@ -50,6 +50,42 @@ describe('applicant program index page', () => {
     await logout(page)
   })
 
+  it('shows log in button for guest users', async () => {
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    await page.click('#login-button')
+    const loginPage = page.url()
+    expect(loginPage).toMatch(/dev-oidc.*\//)
+
+    await applicantQuestions.gotoApplicantHomePage()
+    await logout(page)
+  })
+
+  it('shows create account button for guest users', async () => {
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    // Create account does work in dev because accounts are created implicitly when logging in.
+    // Instead, just check for the existence of the button.
+    expect(await page.textContent('#create-account')).toContain(
+      'Create account',
+    )
+
+    await applicantQuestions.gotoApplicantHomePage()
+    await logout(page)
+  })
+
   it('categorizes programs for draft and applied applications', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsTestUser(page)
