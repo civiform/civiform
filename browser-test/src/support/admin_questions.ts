@@ -541,6 +541,36 @@ export class AdminQuestions {
     await this.expectDraftQuestionExist(questionName, questionText)
   }
 
+  async addPhoneQuestion({
+    questionName,
+    description = 'Phone description',
+    questionText = 'Phone question text',
+    helpText = 'Phone question help text',
+    enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
+    exportOption = AdminQuestions.NO_EXPORT_OPTION,
+  }: QuestionParams) {
+    await this.gotoAdminQuestionsPage()
+
+    await this.page.click('#create-question-button')
+    await this.page.click('#create-phone-question')
+    await waitForPageJsLoad(this.page)
+
+    await this.fillInQuestionBasics({
+      questionName,
+      description,
+      questionText,
+      helpText,
+      enumeratorName,
+      exportOption,
+    })
+
+    await this.clickSubmitButtonAndNavigate('Create')
+
+    await this.expectAdminQuestionsPageWithCreateSuccessToast()
+
+    await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
   async addDateQuestion({
     questionName,
     description = 'date description',

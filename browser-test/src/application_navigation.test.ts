@@ -38,6 +38,9 @@ describe('Applicant navigation flow', () => {
         options: ['one', 'two', 'three'],
       })
       await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
+      await adminQuestions.addPhoneQuestion({
+        questionName: 'nav-phone-q',
+      })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
@@ -52,6 +55,9 @@ describe('Applicant navigation flow', () => {
       ])
       await adminPrograms.addProgramBlock(programName, 'fourth description', [
         'nav-radio-q',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'fifth description', [
+        'nav-phone-q',
       ])
 
       await adminPrograms.gotoAdminProgramsPage()
