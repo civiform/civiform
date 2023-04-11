@@ -196,7 +196,9 @@ public final class RedirectController extends CiviFormController {
                   .thenComposeAsync(
                       v -> checkApplicantAuthorization(profileUtils, request, applicantId))
                   .thenComposeAsync(
-                      v -> applicantService.maybeEligibleProgramsForApplicant(applicantId),
+                      v ->
+                          applicantService.maybeEligibleUnsubmittedProgramsForApplicant(
+                              applicantId),
                       httpContext.current())
                   .thenApplyAsync(Optional::of);
             })
