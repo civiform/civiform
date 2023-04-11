@@ -139,6 +139,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                             + " access this program")
                     .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
                     .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
+                    .getRadioTag(),
+                FieldWithLabel.radio()
+                    .setId("program-display-mode-ti-only")
+                    .setFieldName("displayMode")
+                    .setLabelText("Trusted Intermediaries ONLY")
+                    .setValue(DisplayMode.TI_ONLY.getValue())
+                    .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
