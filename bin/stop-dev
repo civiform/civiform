@@ -6,7 +6,42 @@ source bin/lib.sh
 docker::set_project_name_dev
 set +e # errors are OK
 
+# Default to using Localstack emulator.
+emulators::set_localstack_emulator_vars
+
+#######################################
+# Process the script's commandline args.
+# Globals:
+#   already_set_cloud_provider
+#   cloud_provider
+#   emulator
+#   server_url
+#   STORAGE_SERVICE_NAME
+# Arguments:
+#   1: "$@" - full args array for the script
+#######################################
+function set_args() {
+  while [ "${1:-}" != "" ]; do
+    case "$1" in
+      "--azure")
+        emulators::ensure_only_one_cloud_provider_flag azure
+        emulators::set_azurite_emulator_vars
+        ;;
+
+      "--aws")
+        emulators::ensure_only_one_cloud_provider_flag aws
+        # Already defaulted to AWS.
+        ;;
+    esac
+
+    shift
+  done
+}
+
+set_args "$@"
+
 echo "Stopping local civiform container"
-docker::compose_dev stop
+docker::compose_dev --profile "${cloud_provider}" stop
+
 echo "Stopping local civiform shell container"
 docker::stop_shell_container
