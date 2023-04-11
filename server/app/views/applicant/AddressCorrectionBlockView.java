@@ -31,6 +31,9 @@ import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
@@ -229,9 +232,12 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
   }
 
   private ButtonTag renderNextButton(Params params) {
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
-        .withId("cf-block-submit");
+    return Button.builder()
+        .setId("cf-block-submit")
+        .setText(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+        .setStyle(ButtonStyle.SOLID_BLUE)
+        .setButtonAction(ButtonAction.ofSubmit())
+        .build();
   }
 
   @Override

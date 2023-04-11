@@ -20,6 +20,7 @@ import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.buttons.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
@@ -96,7 +97,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
-                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
+                            .withClasses(ButtonStyles.SOLID_WHITE))
                     .with(
                         new LinkElement()
                             .setHref(
@@ -105,7 +106,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                                     .url())
                             .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
                             .asButton()
-                            .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION)));
+                            .withClasses(ButtonStyles.SOLID_BLUE)));
     String title = "Ineligible for program";
     HtmlBundle bundle =
         layout

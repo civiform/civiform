@@ -21,7 +21,6 @@ import com.typesafe.config.Config;
 import controllers.routes;
 import featureflags.FeatureFlags;
 import io.jsonwebtoken.lang.Strings;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -46,6 +45,10 @@ import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.LinkElement;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
+import views.components.buttons.ButtonStyles;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -210,9 +213,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .with(redirectInput)
                     .with(languageDropdown)
                     .with(
-                        TagCreator.button()
-                            .withId("cf-update-lang")
-                            .withType("submit")
+                        Button.builder()
+                            .setId("cf-update-lang")
+                            .setText("")
+                            .setStyle(ButtonStyle.NONE) // Doesn't matter since it's hidden.
+                            .setButtonAction(ButtonAction.ofSubmit())
+                            .build()
                             .isHidden()));
       }
     }
@@ -258,9 +264,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .withId("ti-dashboard-link")
               .withHref(tiDashboardLink)
               .withClasses(
-                  "opacity-75",
-                  StyleUtils.hover("opacity-100"),
-                  ApplicantStyles.BUTTON_TI_DASHBOARD),
+                  "opacity-75", StyleUtils.hover("opacity-100"), ButtonStyles.BUTTON_TI_DASHBOARD),
           div("(applying as: " + userName + ")")
               .withClasses("text-sm", "text-black", "text-center"));
     }

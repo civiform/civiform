@@ -50,22 +50,27 @@ public abstract class BaseHtmlView {
         .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, StyleUtils.joinStyles(additionalClasses));
   }
 
+  // TODO(#4657): remove this method.
   public static ButtonTag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }
 
+  // TODO(#4657): remove this method.
   public static ButtonTag button(String id, String textContents) {
     return button(textContents).withId(id);
   }
 
+  // TODO(#4657): remove this method.
   protected static ButtonTag submitButton(String textContents) {
     return TagCreator.button(text(textContents)).withType("submit");
   }
 
+  // TODO(#4657): remove this method.
   protected static ButtonTag submitButton(String id, String textContents) {
     return submitButton(textContents).withId(id);
   }
 
+  // TODO(#4657): remove this method.
   protected static ButtonTag redirectButton(String id, String text, String redirectUrl) {
     return asRedirectElement(TagCreator.button(text).withId(id).withClasses("m-2"), redirectUrl);
   }
@@ -77,12 +82,14 @@ public abstract class BaseHtmlView {
    *
    * @return The element itself.
    */
+  // TODO(#4657): remove this method.
   protected static <T extends Tag> T asRedirectElement(T element, String redirectUrl) {
     // Attribute `data-redirect-to` is handled in JS by main.ts file.
     element.attr("data-redirect-to", redirectUrl);
     return element;
   }
 
+  // TODO(#4657): remove this method.
   protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return ViewUtils.makeSvgTextButton(buttonText, icon);
   }
@@ -129,6 +136,7 @@ public abstract class BaseHtmlView {
     return div.with(br());
   }
 
+  // TODO(#4657): remove this method.
   protected static ButtonTag toLinkButtonForPost(
       ButtonTag buttonEl, String href, Http.Request request) {
     String formId = RandomStringUtils.randomAlphabetic(32);

@@ -21,6 +21,9 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
@@ -80,7 +83,13 @@ public class ApplicantInformationView extends BaseHtmlView {
 
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
     ButtonTag formSubmit =
-        submitButton(submitText).withClasses(ApplicantStyles.BUTTON_SELECT_LANGUAGE);
+        Button.builder()
+            .setId("lang-submit-button")
+            .setText(submitText)
+            .setStyle(ButtonStyle.SOLID_BLUE)
+            .setButtonAction(ButtonAction.ofSubmit())
+            .setCustomClasses("mx-auto")
+            .build();
     formContent.with(formSubmit);
 
     // No translation needed since this appears before applicants select their preferred language,

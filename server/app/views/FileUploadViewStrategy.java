@@ -9,7 +9,6 @@ import static j2html.TagCreator.p;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.routes;
-import j2html.TagCreator;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
@@ -22,6 +21,9 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
@@ -177,11 +179,12 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       buttonId = FILEUPLOAD_DELETE_BUTTON_ID;
     }
     ButtonTag button =
-        TagCreator.button(buttonText)
-            .withType("submit")
-            .withForm(FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
-            .withId(buttonId);
+        Button.builder()
+            .setId(buttonId)
+            .setText(buttonText)
+            .setStyle(ButtonStyle.SOLID_WHITE)
+            .setButtonAction(ButtonAction.ofSubmitWithFormId(FILEUPLOAD_DELETE_FORM_ID))
+            .build();
     return Optional.of(button);
   }
 
@@ -195,10 +198,13 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
       return Optional.empty();
     }
     ButtonTag button =
-        submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
-            .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
-            .withId(FILEUPLOAD_CONTINUE_BUTTON_ID);
+        Button.builder()
+            .setId(FILEUPLOAD_CONTINUE_BUTTON_ID)
+            .setText(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
+            .setStyle(ButtonStyle.SOLID_BLUE)
+            .setButtonAction(ButtonAction.ofSubmitWithFormId(FILEUPLOAD_CONTINUE_FORM_ID))
+            .build();
+
     return Optional.of(button);
   }
 
@@ -248,14 +254,17 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   }
 
   private ButtonTag renderNextButton(Params params) {
-    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
+    ButtonStyle style = ButtonStyle.SOLID_BLUE;
     if (hasUploadedFile(params)) {
-      styles = ApplicantStyles.BUTTON_REVIEW;
+      style = ButtonStyle.SOLID_WHITE;
     }
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
-        .withForm(BLOCK_FORM_ID)
-        .withClasses(styles)
-        .withId(FILEUPLOAD_SUBMIT_FORM_ID);
+
+    return Button.builder()
+        .setId(FILEUPLOAD_SUBMIT_FORM_ID)
+        .setText(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+        .setStyle(style)
+        .setButtonAction(ButtonAction.ofSubmitWithFormId(BLOCK_FORM_ID))
+        .build();
   }
 
   private DivTag renderFileKeyField(

@@ -24,7 +24,9 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
-import views.style.ApplicantStyles;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.ReferenceClasses;
 
 /** Renders a confirmation page after application submission, for the common intake form. */
@@ -60,13 +62,16 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
     var actionButtonsBuilder = ImmutableList.<DomContent>builder();
     if (shouldUpsell && eligiblePrograms.isEmpty()) {
       actionButtonsBuilder.add(
-          redirectButton(
-                  "go-back-and-edit",
-                  messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()),
-                  controllers.applicant.routes.ApplicantProgramReviewController.review(
-                          applicantId, programId)
-                      .url())
-              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION));
+          Button.builder()
+              .setId("go-back-and-edit")
+              .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
+              .setStyle(ButtonStyle.SOLID_WHITE)
+              .setButtonAction(
+                  ButtonAction.ofRedirect(
+                      controllers.applicant.routes.ApplicantProgramReviewController.review(
+                              applicantId, programId)
+                          .url()))
+              .build());
     }
 
     if (shouldUpsell) {

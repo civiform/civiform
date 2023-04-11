@@ -58,6 +58,7 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
+import views.components.buttons.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -167,13 +168,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                             "login-button",
                             messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
                             routes.LoginController.applicantLogin(Optional.empty()).url())
-                        .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                        .withClasses(ButtonStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
                 .with(
                     redirectButton(
                             "create-account",
                             messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
                             routes.LoginController.register().url())
-                        .withClasses(ApplicantStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                        .withClasses(ButtonStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
                 .withClasses(
                     "flex",
                     "flex-row",
@@ -447,7 +448,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     program.localizedName().getOrDefault(preferredLocale)))
             .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
-            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
+            .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.BUTTON_PROGRAM_APPLY);
 
     DivTag actionDiv =
         div(actionButton).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");

@@ -16,7 +16,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
 import views.components.FieldWithLabel;
-import views.style.ApplicantStyles;
+import views.components.buttons.ButtonStyles;
 import views.style.ReferenceClasses;
 
 /**
@@ -73,7 +73,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             label()
                 .withFor(fileInputId)
                 .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer"));
+                .withClasses(ButtonStyles.SOLID_WHITE, "w-44", "mt-2", "cursor-pointer"));
   }
 
   @Override

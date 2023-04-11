@@ -85,6 +85,7 @@ public final class ViewUtils {
     return img().withSrc(assetsFinder.path("Images/" + filename + ".png"));
   }
 
+  // TODO(#4657): remove this method.
   public static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return button()
         .with(

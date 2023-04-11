@@ -21,7 +21,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
 import views.components.FieldWithLabel;
-import views.style.ApplicantStyles;
+import views.components.buttons.ButtonStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -87,7 +87,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
-                        ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
+                        ButtonStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
                         StyleUtils.disabled("bg-gray-200", "text-gray-400"))
                     .with(
                         span("＋ ").attr("aria-hidden", "true"),
@@ -175,7 +175,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     confirmationMessage))
             .withClasses(
                 ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON,
-                ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
+                ButtonStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
             .withText(
                 messages.at(
                         MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(),
