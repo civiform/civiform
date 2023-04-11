@@ -2396,7 +2396,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     // Asset results contained expected program IDs
     var matchingProgramIds =
@@ -2404,7 +2407,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(matchingProgramIds).contains(programForDraftApp.id);
     assertThat(matchingProgramIds).contains(programForUnappliedApp.id);
-    assertThat(matchingProgramIds).contains(programForSubmittedApp.id);
+    assertThat(matchingProgramIds).doesNotContain(programForSubmittedApp.id);
   }
 
   @Test
@@ -2469,7 +2472,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2520,7 +2526,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2565,7 +2574,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2600,7 +2612,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+        subject
+            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
