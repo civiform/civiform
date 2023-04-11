@@ -60,10 +60,19 @@ public final class FakeEsriClient extends EsriClient {
 
     switch (address) {
       case "Address In Area":
-        maybeJson = findAddressCandidates(maybeJson);
-        break;
       case "Legit Address":
-        maybeJson = findAddressCandidates(maybeJson);
+        if (addressCandidates != null) {
+          maybeJson = Optional.of(addressCandidates);
+          break;
+        }
+        try {
+          resource = new File(jsonResources + "findAddressCandidates.json");
+          inputStream = new FileInputStream(resource);
+          addressCandidates = Json.parse(inputStream);
+          maybeJson = Optional.of(addressCandidates);
+        } catch (FileNotFoundException e) {
+          LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
+        }
         break;
       case "Bogus Address":
         if (noAddressCandidates != null) {
@@ -88,22 +97,6 @@ public final class FakeEsriClient extends EsriClient {
     }
 
     return CompletableFuture.completedFuture(maybeJson);
-  }
-
-  Optional<JsonNode> findAddressCandidates(Optional<JsonNode> maybeJson) {
-    if (addressCandidates != null) {
-      maybeJson = Optional.of(addressCandidates);
-    } else {
-      try {
-        File resource = new File(jsonResources + "findAddressCandidates.json");
-        FileInputStream inputStream = new FileInputStream(resource);
-        addressCandidates = Json.parse(inputStream);
-        maybeJson = Optional.of(addressCandidates);
-      } catch (FileNotFoundException e) {
-        LOGGER.error("fakeEsriClient fetchAddressSuggestions file not found: {}", e);
-      }
-    }
-    return maybeJson;
   }
 
   @Override
