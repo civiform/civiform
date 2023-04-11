@@ -2477,6 +2477,84 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void maybeEligibleProgramsForApplicant_doesNotIncludeIneligibleSubmittedApplications() {
+    // Set up applicant
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Set up program and questions
+    NameQuestionDefinition eligibleQuestion =
+        createNameQuestion("question_with_matching_eligibility");
+    NameQuestionDefinition ineligibleQuestion =
+        createNameQuestion("question_with_non_matching_eligibility");
+    EligibilityDefinition eligibleQuestionEligibilityDefinition =
+        createEligibilityDefinition(eligibleQuestion, "Taylor");
+    EligibilityDefinition ineligibleQuestionEligibilityDefinition =
+        createEligibilityDefinition(ineligibleQuestion, "Sza");
+    var programWithEligibleAndIneligibleAnswers =
+        ProgramBuilder.newDraftProgram(
+                ProgramDefinition.builder()
+                    .setId(123)
+                    .setAdminName("name")
+                    .setAdminDescription("desc")
+                    .setExternalLink("https://usa.gov")
+                    .setDisplayMode(DisplayMode.PUBLIC)
+                    .setProgramType(ProgramType.DEFAULT)
+                    .setEligibilityIsGating(false)
+                    .setStatusDefinitions(new StatusDefinitions())
+                    .build())
+            .withBlock()
+            .withRequiredQuestionDefinition(eligibleQuestion)
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withBlock()
+            .withRequiredQuestionDefinition(ineligibleQuestion)
+            .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
+            .build();
+
+    // Fill out application
+    answerNameQuestion(
+        eligibleQuestion,
+        "Taylor",
+        "Allison",
+        "Swift",
+        programWithEligibleAndIneligibleAnswers
+            .getProgramDefinition()
+            .getBlockDefinitionByIndex(0)
+            .orElseThrow()
+            .id(),
+        applicant.id,
+        programWithEligibleAndIneligibleAnswers.id);
+    answerNameQuestion(
+        ineligibleQuestion,
+        "Solána",
+        "Imani",
+        "Rowe",
+        programWithEligibleAndIneligibleAnswers
+            .getProgramDefinition()
+            .getBlockDefinitionByIndex(1)
+            .orElseThrow()
+            .id(),
+        applicant.id,
+        programWithEligibleAndIneligibleAnswers.id);
+
+    applicationRepository
+        .submitApplication(
+            applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
+    var result =
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    var matchingProgramIds =
+        result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
+    assertThat(matchingProgramIds).doesNotContain(programWithEligibleAndIneligibleAnswers.id);
+  }
+
+  @Test
   public void maybeEligibleProgramsForApplicant_doesNotIncludeCommonIntake() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
