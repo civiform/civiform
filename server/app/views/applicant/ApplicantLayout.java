@@ -172,9 +172,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(branding())
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
-            div(
-                    getLanguageForm(request, profile, messages),
-                    authDisplaySection(displayUserName, messages))
+            div(getLanguageForm(request, profile, messages), authDisplaySection(userName, messages))
                 .withClasses("justify-self-end", "flex", "flex-row"));
   }
 
@@ -275,12 +273,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * <p>If the user is a guest, we show a "Log in" and a "Create an account" button. If they are
    * logged in, we show a "Logout" button.
    */
-  private DivTag authDisplaySection(String userName, Messages messages) {
+  private DivTag authDisplaySection(Optional<String> userName, Messages messages) {
     DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
 
-    String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
-
-    if (userName.equals(guestUserName)) {
+    if (ApplicantUtils.isGuest(userName, messages)) {
       String loggedInAsMessage = messages.at(MessageKey.GUEST_INDICATOR.getKeyName());
       String endSessionMessage = messages.at(MessageKey.END_SESSION.getKeyName());
       // Ending a guest session is equivalent to "logging out" the guest.
@@ -305,7 +301,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   .withHref(createAnAccountLink)
                   .withClasses(ApplicantStyles.LINK)));
     } else {
-      String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), userName);
+      String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), userName.get());
       String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
       return outsideDiv.with(
           div(loggedInAsMessage).withClasses("text-sm"),

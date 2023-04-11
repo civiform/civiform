@@ -116,15 +116,10 @@ public final class ProgramIndexView extends BaseHtmlView {
   }
 
   private DivTag topContent(Messages messages, Optional<String> userName) {
-    String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
-
-    String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
 
     String h1Text, infoDivText, widthClass;
 
-    boolean isGuest = displayUserName.equals(guestUserName);
-
-    if (isGuest) {
+    if (ApplicantUtils.isGuest(userName, messages)) {
       // "Save time when applying for benefits"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
@@ -164,7 +159,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             "items-center")
         .with(programIndexH1, infoDiv)
         .condWith(
-            isGuest,
+            ApplicantUtils.isGuest(userName, messages),
             // Log in and Create account buttons if user is a guest.
             div()
                 .with(
