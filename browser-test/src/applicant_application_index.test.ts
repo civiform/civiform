@@ -80,7 +80,7 @@ describe('applicant program index page', () => {
 
     await validateAccessibility(page)
 
-    // Create account does work in dev because accounts are created implicitly when logging in.
+    // Create account does not work in dev because accounts are created implicitly when logging in.
     // Instead, just check for the existence of the button.
     expect(await page.textContent('#create-account')).toContain(
       'Create account',
