@@ -59,6 +59,8 @@ describe('applicant program index page', () => {
       /* assertProgramIndexPage= */ true,
     )
 
+    await validateAccessibility(page)
+
     await page.click('#login-button')
     const loginPage = page.url()
     expect(loginPage).toMatch(/dev-oidc.*\//)
@@ -75,6 +77,8 @@ describe('applicant program index page', () => {
       'English',
       /* assertProgramIndexPage= */ true,
     )
+
+    await validateAccessibility(page)
 
     // Create account does work in dev because accounts are created implicitly when logging in.
     // Instead, just check for the existence of the button.
