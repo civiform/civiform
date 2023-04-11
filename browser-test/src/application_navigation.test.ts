@@ -732,10 +732,9 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
       await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
-      await validateScreenshot(
-        page,
-        'home-page-no-eligibility-tag-for-submitted',
+      await applicantQuestions.seeEligibilityTag(
+        fullProgramName,
+        /* isEligible= */ true,
       )
     })
 
@@ -877,14 +876,6 @@ describe('Applicant navigation flow', () => {
         fullProgramName,
         /* isEligible= */ true,
       )
-
-      // Go back to in progress application and submit.
-      await applicantQuestions.applyProgram(fullProgramName)
-      await applicantQuestions.answerEmailQuestion('test@test.com')
-      await applicantQuestions.clickNext()
-      await applicantQuestions.submitFromReviewPage()
-      await applicantQuestions.gotoApplicantHomePage()
-      await applicantQuestions.seeNoEligibilityTags(fullProgramName)
     })
 
     it('does not show not eligible with nongating eligibility', async () => {
