@@ -30,7 +30,7 @@ public enum Operator {
   EQUAL_TO(
       "==",
       "is equal to",
-      ImmutableSet.of(ScalarType.CURRENCY_CENTS, ScalarType.LONG, ScalarType.STRING),
+      ImmutableSet.of(ScalarType.CURRENCY_CENTS, ScalarType.LONG, ScalarType.STRING, ScalarType.PHONE_NUMBER),
       ImmutableSet.of(
           OperatorRightHandType.DATE, OperatorRightHandType.STRING, OperatorRightHandType.LONG)),
   GREATER_THAN(
@@ -46,7 +46,7 @@ public enum Operator {
   IN(
       "in",
       "is one of",
-      ImmutableSet.of(ScalarType.STRING, ScalarType.LONG),
+      ImmutableSet.of(ScalarType.STRING, ScalarType.LONG,ScalarType.PHONE_NUMBER),
       ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS, OperatorRightHandType.LIST_OF_STRINGS)),
   IS_AFTER(
       ">",
@@ -86,13 +86,13 @@ public enum Operator {
   NOT_EQUAL_TO(
       "!=",
       "is not equal to",
-      ImmutableSet.of(ScalarType.CURRENCY_CENTS, ScalarType.LONG, ScalarType.STRING),
+      ImmutableSet.of(ScalarType.CURRENCY_CENTS, ScalarType.LONG, ScalarType.STRING,ScalarType.PHONE_NUMBER),
       ImmutableSet.of(
           OperatorRightHandType.DATE, OperatorRightHandType.STRING, OperatorRightHandType.LONG)),
   NOT_IN(
       "nin",
       "is not one of",
-      ImmutableSet.of(ScalarType.STRING, ScalarType.LONG),
+      ImmutableSet.of(ScalarType.STRING, ScalarType.LONG,ScalarType.PHONE_NUMBER),
       ImmutableSet.of(OperatorRightHandType.LIST_OF_LONGS, OperatorRightHandType.LIST_OF_STRINGS)),
   SUBSET_OF(
       "subsetof",
