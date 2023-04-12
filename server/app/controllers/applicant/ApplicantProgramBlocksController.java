@@ -124,7 +124,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method renders all questions in the block of the program and presents to the applicant.
+   * Renders all questions in the block of the program and presents to the applicant.
    *
    * <p>The difference between `edit` and `review` is the next block the applicant will see after
    * submitting the answers.
@@ -140,7 +140,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method renders all questions in the block of the program and presents to the applicant.
+   * Renders all questions in the block of the program and presents to the applicant.
    *
    * <p>The difference between `edit` and `review` is the next block the applicant will see after
    * submitting the answers.
@@ -154,7 +154,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return editOrReview(request, applicantId, programId, blockId, true);
   }
 
-  /** This method handles the applicant's selection from the address correction options. */
+  /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
@@ -170,10 +170,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
   }
 
-  /**
-   * This method saves the selected corrected address to the db and redirects the user to the next
-   * screen
-   */
+  /** Saves the selected corrected address to the db and redirects the user to the next screen */
   private CompletionStage<Result> confirmAddressWithSuggestions(
       Request request,
       long applicantId,
@@ -230,7 +227,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     request.session().removing(ADDRESS_JSON_SESSION_KEY);
   }
 
-  /** This method navigates to the previous page of the application. */
+  /** Navigates to the previous page of the application. */
   @Secure
   public CompletionStage<Result> previous(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
@@ -352,10 +349,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method is used by the file upload question. We let users directly upload files to S3
-   * bucket from browsers. On success, users are redirected to this method. The redirect is a GET
-   * method with file key in the query string. We parse and store them in the database for record
-   * and redirect users to the next block or review page.
+   * Used by the file upload question. We let users directly upload files to S3 bucket from
+   * browsers. On success, users are redirected to this method. The redirect is a GET method with
+   * file key in the query string. We parse and store them in the database for record and redirect
+   * users to the next block or review page.
    */
   @Secure
   public CompletionStage<Result> updateFile(
@@ -612,10 +609,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method determines if the address entered by the user matches one of the suggestions
-   * returned by the Esri service. If a matching suggestion is found, it is saved to the db and the
-   * user is sent on to the next question. Otherwise, the user is directed to a screen where they
-   * can pick from the corrected address suggestions returned by the Esri service.
+   * Determines if the address entered by the user matches one of the suggestions returned by the
+   * {@code EsriClient} and renders the correct screen.
+   *
+   * <p>If a matching suggestion is found, it is saved to the db and the user is sent on to the next
+   * question. Otherwise, the user is directed to a screen where they can pick from the corrected
+   * address suggestions returned by the {@code EsriClient}.
    */
   private CompletionStage<Result> maybeRenderAddressCorrectionScreen(
       AddressSuggestionGroup addressSuggestionGroup,
