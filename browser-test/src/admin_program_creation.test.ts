@@ -130,6 +130,18 @@ describe('program creation', () => {
       'apc-repeated',
     )
   })
+  it('phone field is hidden with phone type question disabled', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'phone_question_type_enabled')
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await page.click('#create-question-button')
+    expect(
+      await page.innerText('id=create-question-button-dropdown'),
+    ).not.toContain('Phone Field')
+  })
 
   it('create program with address and address correction feature enabled', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
