@@ -655,7 +655,11 @@ public abstract class ProgramDefinition {
   }
 
   private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
-      ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.FILEUPLOAD, QuestionType.STATIC,QuestionType.PHONE);
+      ImmutableSet.of(
+          QuestionType.ENUMERATOR,
+          QuestionType.FILEUPLOAD,
+          QuestionType.STATIC,
+          QuestionType.PHONE);
 
   /**
    * A question definition is eligible for predicates if it is of an allowable question type and, if
