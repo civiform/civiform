@@ -8,6 +8,7 @@ import {
   validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
+import {ProgramVisibility} from './support/admin_programs'
 
 // TODO(#4125) This test suite is a duplicate of civiform_admin_publish.test.ts should be removed once the program_read_only_view
 // flag has been removed. If you make changes to this file, please consider updating the other test too.
@@ -37,7 +38,7 @@ describe('publishing all draft questions and programs with program read only vie
       hiddenProgramNoQuestions,
       'program description',
       'https://usa.gov',
-      true,
+      ProgramVisibility.HIDDEN,
     )
 
     // Create a new question refererenced by a program.

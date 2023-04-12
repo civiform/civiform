@@ -31,6 +31,12 @@ export interface DownloadedApplication {
   }
 }
 
+export enum ProgramVisibility {
+  HIDDEN = 'Hide from applicants.',
+  PUBLIC = 'Publicly visible',
+  TI_ONLY = 'Trusted Intermediaries ONLY',
+}
+
 function slugify(value: string): string {
   return value
     .toLowerCase()
@@ -96,7 +102,7 @@ export class AdminPrograms {
     programName: string,
     description = 'program description',
     externalLink = 'https://usa.gov',
-    hidden = false,
+    visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
     isCommonIntake = false,
   ) {
@@ -111,11 +117,7 @@ export class AdminPrograms {
     await this.page.fill('#program-display-description-textarea', description)
     await this.page.fill('#program-external-link-input', externalLink)
 
-    if (hidden) {
-      await this.page.check(`label:has-text("Hide from applicants.")`)
-    } else {
-      await this.page.check(`label:has-text("Publicly visible")`)
-    }
+    await this.page.check(`label:has-text("${visibility}")`)
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()

@@ -10,6 +10,7 @@ import {
   validateScreenshot,
 } from './support'
 import {Page} from 'playwright'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('publishing all draft questions and programs', () => {
   let pageObject: Page
@@ -41,7 +42,7 @@ describe('publishing all draft questions and programs', () => {
       hiddenProgramNoQuestions,
       'program description',
       'https://usa.gov',
-      true,
+      ProgramVisibility.HIDDEN,
     )
 
     // Create a new question referenced by a program.

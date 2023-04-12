@@ -13,6 +13,8 @@ public enum DisplayMode {
   // The following modes are mutually exclusive.
   // The program should be fully visible.
   PUBLIC,
+  // Visible only to Trusted Intermediaries
+  TI_ONLY,
   // The program should not appear in the applicant's index screen.
   HIDDEN_IN_INDEX;
 

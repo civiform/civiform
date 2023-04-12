@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('program settings', () => {
   const ctx = createTestContext()
@@ -155,7 +156,7 @@ describe('program settings', () => {
       programName,
       'description',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )

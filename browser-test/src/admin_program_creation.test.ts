@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 import {dismissModal, waitForAnyModal} from './support/wait'
 import {Page} from 'playwright'
 
@@ -497,7 +498,7 @@ describe('program creation', () => {
       commonIntakeFormProgramName,
       'program description',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )
@@ -546,7 +547,7 @@ describe('program creation', () => {
       'cif',
       'desc',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ false,
     )
@@ -567,7 +568,7 @@ describe('program creation', () => {
       'cif',
       'desc',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )
