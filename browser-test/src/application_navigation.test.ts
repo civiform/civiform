@@ -67,9 +67,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickPrevious()
 
       // Assert that we're on the preview page.
-      expect(await page.innerText('h2')).toContain(
-        'Program application summary',
-      )
+      await applicantQuestions.expectReviewPage()
     })
 
     it('clicking previous on later blocks goes to previous blocks', async () => {
@@ -118,9 +116,7 @@ describe('Applicant navigation flow', () => {
 
       // Assert that we're on the preview page.
       await applicantQuestions.clickPrevious()
-      expect(await page.innerText('h2')).toContain(
-        'Program application summary',
-      )
+      await applicantQuestions.expectReviewPage()
     })
 
     it('verify login page', async () => {
@@ -200,9 +196,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickApplyProgramButton(programName)
 
       // Verify we are on program preview page.
-      expect(await page.innerText('h2')).toContain(
-        'Program application summary',
-      )
+      await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-preview')
     })
@@ -254,9 +248,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
 
       // Verify we are on program review page.
-      expect(await page.innerText('h2')).toContain(
-        'Program application summary',
-      )
+      await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-review')
     })
@@ -1177,6 +1169,26 @@ describe('Applicant navigation flow', () => {
         // Can continue on anyway
         await applicantQuestions.clickNext()
         await applicantQuestions.clickSubmit()
+        await logout(page)
+      })
+
+      it('skips the address correction screen if the user enters an address that exactly matches one of the returned suggestions', async () => {
+        const {page, applicantQuestions} = ctx
+        await enableFeatureFlag(page, 'esri_address_correction_enabled')
+        await loginAsGuest(page)
+        await selectApplicantLanguage(page, 'English')
+        await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
+        // Fill out application with address that is contained in findAddressCandidates.json (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
+        await applicantQuestions.answerAddressQuestion(
+          'Address In Area',
+          '',
+          'Redlands',
+          'CA',
+          '92373',
+        )
+        await applicantQuestions.clickNext()
+        await applicantQuestions.expectReviewPage()
+
         await logout(page)
       })
 

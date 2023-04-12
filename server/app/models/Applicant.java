@@ -1,5 +1,6 @@
 package models;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
@@ -106,5 +107,17 @@ public class Applicant extends BaseModel {
   public Applicant saveAndReturn() {
     save();
     return this;
+  }
+
+  /**
+   * Clears {@code applicantData} so that a new {@link ApplicantData} object will be returned from
+   * {@code getApplicantData}.
+   *
+   * <p>Useful in tests when {@code applicantData} has been stored as an empty object and needs to
+   * be udpated with the data stored in {@code object}.
+   */
+  @VisibleForTesting
+  public void expireApplicantDataCache() {
+    this.applicantData = null;
   }
 }

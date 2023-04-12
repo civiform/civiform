@@ -47,6 +47,7 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.geo.AddressSuggestion;
+import services.geo.AddressSuggestionGroup;
 import services.program.PathNotInBlockException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -123,7 +124,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method renders all questions in the block of the program and presents to the applicant.
+   * Renders all questions in the block of the program and presents to the applicant.
    *
    * <p>The difference between `edit` and `review` is the next block the applicant will see after
    * submitting the answers.
@@ -139,7 +140,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method renders all questions in the block of the program and presents to the applicant.
+   * Renders all questions in the block of the program and presents to the applicant.
    *
    * <p>The difference between `edit` and `review` is the next block the applicant will see after
    * submitting the answers.
@@ -153,7 +154,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return editOrReview(request, applicantId, programId, blockId, true);
   }
 
-  /** This method handles the applicant's selection from the address correction options. */
+  /** Handles the applicant's selection from the address correction options. */
   @Secure
   public CompletionStage<Result> confirmAddress(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
@@ -165,7 +166,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     ImmutableList<AddressSuggestion> suggestions =
         addressSuggestionJsonSerializer.deserialize(
             maybeAddressJson.orElseThrow(() -> new RuntimeException("Address JSON missing")));
+    return confirmAddressWithSuggestions(
+        request, applicantId, programId, blockId, inReview, selectedAddress, suggestions);
+  }
 
+  /** Saves the selected corrected address to the db and redirects the user to the next screen */
+  private CompletionStage<Result> confirmAddressWithSuggestions(
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      String selectedAddress,
+      ImmutableList<AddressSuggestion> suggestions) {
     CompletableFuture<Optional<String>> applicantNameStage =
         applicantService.getName(applicantId).toCompletableFuture();
 
@@ -214,7 +227,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     request.session().removing(ADDRESS_JSON_SESSION_KEY);
   }
 
-  /** This method navigates to the previous page of the application. */
+  /** Navigates to the previous page of the application. */
   @Secure
   public CompletionStage<Result> previous(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
@@ -336,10 +349,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
-   * This method is used by the file upload question. We let users directly upload files to S3
-   * bucket from browsers. On success, users are redirected to this method. The redirect is a GET
-   * method with file key in the query string. We parse and store them in the database for record
-   * and redirect users to the next block or review page.
+   * Used by the file upload question. We let users directly upload files to S3 bucket from
+   * browsers. On success, users are redirected to this method. The redirect is a GET method with
+   * file key in the query string. We parse and store them in the database for record and redirect
+   * users to the next block or review page.
    */
   @Secure
   public CompletionStage<Result> updateFile(
@@ -513,33 +526,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               .createAddressQuestion();
 
       if (addressQuestion.needsAddressCorrection()) {
+
         return applicantService
             .getAddressSuggestionGroup(thisBlockUpdated)
-            .thenApplyAsync(
-                addressSuggestionGroup -> {
-                  ImmutableList<AddressSuggestion> suggestions =
-                      addressSuggestionGroup.getAddressSuggestions();
-                  String json = addressSuggestionJsonSerializer.serialize(suggestions);
-
-                  Boolean isEligibilityEnabledOnThisBlock =
-                      thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
-
-                  return ok(addressCorrectionBlockView.render(
-                          buildApplicationBaseViewParams(
-                              request,
-                              applicantId,
-                              programId,
-                              blockId,
-                              inReview,
-                              roApplicantProgramService,
-                              thisBlockUpdated,
-                              applicantName,
-                              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
-                          messagesApi.preferred(request),
-                          addressSuggestionGroup,
-                          isEligibilityEnabledOnThisBlock))
-                      .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json);
-                });
+            .thenComposeAsync(
+                addressSuggestionGroup ->
+                    maybeRenderAddressCorrectionScreen(
+                        addressSuggestionGroup,
+                        addressQuestion,
+                        request,
+                        applicantId,
+                        programId,
+                        blockId,
+                        inReview,
+                        roApplicantProgramService,
+                        thisBlockUpdated,
+                        applicantName));
       }
     }
 
@@ -604,6 +606,66 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     routes.ApplicantProgramBlocksController.edit(
                         applicantId, programId, nextBlockIdMaybe.get()))
                 .flashing(flashingMap));
+  }
+
+  /**
+   * Determines if the address entered by the user matches one of the suggestions returned by the
+   * {@code EsriClient} and renders the correct screen.
+   *
+   * <p>If a matching suggestion is found, it is saved to the db and the user is sent on to the next
+   * question. Otherwise, the user is directed to a screen where they can pick from the corrected
+   * address suggestions returned by the {@code EsriClient}.
+   */
+  private CompletionStage<Result> maybeRenderAddressCorrectionScreen(
+      AddressSuggestionGroup addressSuggestionGroup,
+      AddressQuestion addressQuestion,
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      Block thisBlockUpdated,
+      Optional<String> applicantName) {
+    ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
+
+    AddressSuggestion[] suggestionMatch =
+        suggestions.stream()
+            .filter(suggestion -> suggestion.getAddress().equals(addressQuestion.getAddress()))
+            .toArray(AddressSuggestion[]::new);
+
+    if (suggestionMatch.length > 0) {
+      return confirmAddressWithSuggestions(
+          request,
+          applicantId,
+          programId,
+          blockId,
+          inReview,
+          suggestionMatch[0].getSingleLineAddress(),
+          suggestions);
+    } else {
+      String json = addressSuggestionJsonSerializer.serialize(suggestions);
+
+      Boolean isEligibilityEnabledOnThisBlock =
+          thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
+
+      return CompletableFuture.completedFuture(
+          ok(addressCorrectionBlockView.render(
+                  buildApplicationBaseViewParams(
+                      request,
+                      applicantId,
+                      programId,
+                      blockId,
+                      inReview,
+                      roApplicantProgramService,
+                      thisBlockUpdated,
+                      applicantName,
+                      ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
+                  messagesApi.preferred(request),
+                  addressSuggestionGroup,
+                  isEligibilityEnabledOnThisBlock))
+              .addingToSession(request, ADDRESS_JSON_SESSION_KEY, json));
+    }
   }
 
   /** Returns true if eligibility is gating and the block is ineligible, false otherwise. */
