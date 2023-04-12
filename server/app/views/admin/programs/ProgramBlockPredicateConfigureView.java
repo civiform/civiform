@@ -796,10 +796,23 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
         }
 
       case LIST_OF_STRINGS:
-      case PHONE_NUMBER:
-      case STRING: {
-        return getString(maybeOperator, predicateValue);
-      }
+      case STRING:
+        {
+          if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_STRINGS)) {
+            String value = predicateValue.value();
+
+            // Lists of strings are serialized as JSON arrays e.g. "[\"one\", \"two\"]"
+            return Splitter.on(", ")
+                // Remove opening and closing brackets
+                .splitToStream(value.substring(1, value.length() - 1))
+                // Remove quotes
+                .map(item -> item.substring(1, item.length() - 1))
+                // Join to CSV
+                .collect(Collectors.joining(","));
+          }
+
+          return predicateValue.value();
+        }
 
       default:
         {
@@ -807,22 +820,6 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
               String.format("Unknown scalar type: %s", scalar.toScalarType()));
         }
     }
-  }
-
-  private static String getString(Optional<Operator> maybeOperator, PredicateValue predicateValue) {
-    if (hasOperatorRightHandType(maybeOperator, OperatorRightHandType.LIST_OF_STRINGS)) {
-      String value = predicateValue.value();
-      return Splitter.on(", ")
-        // Remove opening and closing brackets
-        .splitToStream(value.substring(1, value.length() - 1))
-        // Remove quotes
-        .map(item -> item.substring(1, item.length() - 1))
-        // Join to CSV
-        .collect(Collectors.joining(","));
-
-    }
-
-    return predicateValue.value();
   }
 
   private static boolean hasOperatorRightHandType(

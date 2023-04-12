@@ -352,8 +352,7 @@ public final class PredicateGenerator {
             // LESS_THAN_OR_EQUAL_TO
             return PredicateValue.of(Long.parseLong(value));
         }
-      case PHONE_NUMBER:
-        return PredicateValue.of(value.replaceAll("[^0-9]", ""));
+
       default: // STRING - we list all operators here, but in reality only IN and NOT_IN are
         // expected. The others are handled using the "values" field in the predicate form
         switch (operator) {
