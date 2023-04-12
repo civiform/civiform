@@ -392,7 +392,7 @@ export class ApplicantQuestions {
     }
 
     const upsellLocator = this.page.locator(
-      ':text("Create an account or sign in")',
+      ':text("Create an account or sign in"):visible',
     )
     if (wantUpsell) {
       expect(await upsellLocator.count()).toEqual(1)

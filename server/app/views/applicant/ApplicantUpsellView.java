@@ -24,11 +24,11 @@ import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
-/** Renders a confirmation page after application submission. */
+/** Base class for confirmation pages after application submission. */
 public abstract class ApplicantUpsellView extends BaseHtmlView {
 
   protected static Modal createLoginPromptModal(
-      Messages messages, String postLoginRedirectTo, MessageKey applyToProgramsButtonMsg) {
+      Messages messages, String postLoginRedirectTo, MessageKey triggerButtonMsg) {
     String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
     String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
 
@@ -40,11 +40,12 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
                     .with(
                         redirectButton(
                                 "continue-without-an-account",
-                                messages.at(applyToProgramsButtonMsg.getKeyName()),
+                                messages.at(
+                                    MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT.getKeyName()),
                                 postLoginRedirectTo)
                             .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
-                        loginButton("modal-sign-in", messages, postLoginRedirectTo),
-                        createAccountButton("modal-sign-up", messages))
+                        createLoginButton("modal-sign-in", messages, postLoginRedirectTo),
+                        createNewAccountButton("modal-sign-up", messages))
                     .withClasses(
                         "flex",
                         "flex-col",
@@ -56,31 +57,31 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setTriggerButtonContent(
-            button(messages.at(applyToProgramsButtonMsg.getKeyName()))
+            button(messages.at(triggerButtonMsg.getKeyName()))
                 .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
         .setModalTitle(modalTitle)
         .setWidth(Width.HALF)
         .build();
   }
 
-  protected static ButtonTag loginButton(
-      String loginButtonId, Messages messages, String postLoginRedirectTo) {
+  protected static ButtonTag createLoginButton(
+      String buttonId, Messages messages, String postLoginRedirectTo) {
     return redirectButton(
-            loginButtonId,
+            buttonId,
             messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
             routes.LoginController.applicantLogin(Optional.of(postLoginRedirectTo)).url())
         .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION);
   }
 
-  protected static ButtonTag createAccountButton(String createAccountButtonId, Messages messages) {
+  protected static ButtonTag createNewAccountButton(String buttonId, Messages messages) {
     return redirectButton(
-            createAccountButtonId,
+            buttonId,
             messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
             routes.LoginController.register().url())
         .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
   }
 
-  protected static ButtonTag applyToProgramsButton(
+  protected static ButtonTag createApplyToProgramsButton(
       String buttonId, String buttonText, Long applicantId) {
     return redirectButton(
             buttonId,
@@ -89,7 +90,43 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
         .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
   }
 
-  protected static SectionTag accountManagementSection(
+  protected static DivTag createMainContent(
+      String title,
+      SectionTag confirmationSection,
+      Boolean shouldUpsell,
+      Messages messages,
+      String civicEntityFullName,
+      ImmutableList<DomContent> actionButtons) {
+    return div()
+        .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
+        .with(
+            h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
+            confirmationSection,
+            createAccountManagementSection(
+                shouldUpsell, messages, civicEntityFullName, actionButtons));
+  }
+
+  protected static HtmlBundle createHtmlBundle(
+      ApplicantLayout layout,
+      String title,
+      Optional<ToastMessage> bannerMessage,
+      Modal loginPromptModal,
+      DivTag mainContent) {
+    HtmlBundle bundle = layout.getBundle().setTitle(title);
+    bannerMessage.ifPresent(bundle::addToastMessages);
+    bundle
+        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
+        .addMainContent(mainContent)
+        .addModals(loginPromptModal);
+    return bundle;
+  }
+
+  /** Don't show "create an account" upsell box to TIs, or anyone with an email address already. */
+  protected static boolean shouldUpsell(Account account) {
+    return Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
+  }
+
+  private static SectionTag createAccountManagementSection(
       boolean shouldUpsell,
       Messages messages,
       String civicEntityFullName,
@@ -111,40 +148,5 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
                     "justify-end",
                     StyleUtils.responsiveMedium("flex-row"))
                 .with(actionButtons));
-  }
-
-  protected static DivTag mainContent(
-      String title,
-      SectionTag confirmationSection,
-      Boolean shouldUpsell,
-      Messages messages,
-      String civicEntityFullName,
-      ImmutableList<DomContent> actionButtons) {
-    return div()
-        .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
-        .with(
-            h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
-            confirmationSection,
-            accountManagementSection(shouldUpsell, messages, civicEntityFullName, actionButtons));
-  }
-
-  protected static HtmlBundle bundle(
-      ApplicantLayout layout,
-      String title,
-      Optional<ToastMessage> bannerMessage,
-      Modal loginPromptModal,
-      DivTag mainContent) {
-    HtmlBundle bundle = layout.getBundle().setTitle(title);
-    bannerMessage.ifPresent(bundle::addToastMessages);
-    bundle
-        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)
-        .addMainContent(mainContent)
-        .addModals(loginPromptModal);
-    return bundle;
-  }
-
-  /** Don't show "create an account" upsell box to TIs, or anyone with an email address already. */
-  protected static boolean shouldUpsell(Account account) {
-    return Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
   }
 }

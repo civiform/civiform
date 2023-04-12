@@ -537,6 +537,10 @@ describe('Applicant navigation flow', () => {
 
       await validateScreenshot(page, 'cif-eligible-guest-confirmation-page')
       await validateAccessibility(page)
+
+      await page.click('button:has-text("Apply to programs")')
+      await validateScreenshot(page, 'cif-submission-guest-login-prompt-modal')
+
     })
 
     it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
@@ -611,7 +615,6 @@ describe('Applicant navigation flow', () => {
         /* wantTrustedIntermediary= */ true,
         /* wantEligiblePrograms= */ [secondProgramName],
       )
-
       await validateScreenshot(page, 'cif-eligible-ti-confirmation-page')
     })
   })

@@ -72,11 +72,11 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
     if (shouldUpsell) {
       actionButtonsBuilder.add(
           loginPromptModal.getButton(), // Apply to programs
-          loginButton("sign-in", messages, redirectTo),
-          createAccountButton("sign-up", messages));
+          createLoginButton("sign-in", messages, redirectTo),
+          createNewAccountButton("sign-up", messages));
     } else {
       actionButtonsBuilder.add(
-          applyToProgramsButton(
+          createApplyToProgramsButton(
               "apply-to-programs",
               messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
               applicantId));
@@ -87,7 +87,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
             : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
     var content =
-        mainContent(
+        createMainContent(
             title,
             eligibleProgramsSection(eligiblePrograms, messages, isTrustedIntermediary)
                 .withClasses("mb-4"),
@@ -99,7 +99,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         request,
         applicantName,
         messages,
-        bundle(layout, title, bannerMessage, loginPromptModal, content));
+        createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
   }
 
   private SectionTag eligibleProgramsSection(

@@ -53,18 +53,18 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
-                loginPromptModal.getButton(), // apply to another program
-                loginButton("sign-in", messages, redirectTo),
-                createAccountButton("sign-up", messages))
+                loginPromptModal.getButton(), // Apply to another program
+                createLoginButton("sign-in", messages, redirectTo),
+                createNewAccountButton("sign-up", messages))
             : ImmutableList.of(
-                applyToProgramsButton(
+                createApplyToProgramsButton(
                     "another-program",
                     messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
                     applicantId));
 
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
     var content =
-        mainContent(
+        createMainContent(
             title,
             section(
                 div(messages.at(
@@ -79,6 +79,6 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
         request,
         applicantName,
         messages,
-        bundle(layout, title, bannerMessage, loginPromptModal, content));
+        createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
   }
 }
