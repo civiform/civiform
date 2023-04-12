@@ -1,5 +1,6 @@
 package models;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
@@ -49,16 +50,6 @@ public class Applicant extends BaseModel {
 
   public Applicant() {
     super();
-  }
-
-  /**
-   * Clears applicantData so that a new ApplicantData object will be returned from getApplicantData.
-   * Useful when applicantData has been stored as an empty object and needs to be udpated with the
-   * data stored in object
-   */
-  public ApplicantData getApplicantData(boolean expireCache) {
-    this.expireApplicantDataCache();
-    return getApplicantData();
   }
 
   public ApplicantData getApplicantData() {
@@ -118,7 +109,13 @@ public class Applicant extends BaseModel {
     return this;
   }
 
-  private void expireApplicantDataCache() {
+  /**
+   * Clears applicantData so that a new ApplicantData object will be returned from getApplicantData.
+   * Useful in tests when applicantData has been stored as an empty object and needs to be udpated
+   * with the data stored in object
+   */
+  @VisibleForTesting
+  public void expireApplicantDataCache() {
     this.applicantData = null;
   }
 }

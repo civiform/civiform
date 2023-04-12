@@ -340,8 +340,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // assert that the corrected address is saved
     applicant.refresh();
-    assertThat(applicant.getApplicantData(/*expireCache=*/ true).asJsonString())
-        .contains("Corrected");
+    applicant.expireApplicantDataCache();
+    assertThat(applicant.getApplicantData().asJsonString()).contains("Corrected");
   }
 
   @Test

@@ -533,19 +533,18 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         return applicantService
             .getAddressSuggestionGroup(thisBlockUpdated)
             .thenComposeAsync(
-                addressSuggestionGroup -> {
-                  return maybeRenderAddressCorrectionScreen(
-                      addressSuggestionGroup,
-                      addressQuestion,
-                      request,
-                      applicantId,
-                      programId,
-                      blockId,
-                      inReview,
-                      roApplicantProgramService,
-                      thisBlockUpdated,
-                      applicantName);
-                });
+                addressSuggestionGroup ->
+                    maybeRenderAddressCorrectionScreen(
+                        addressSuggestionGroup,
+                        addressQuestion,
+                        request,
+                        applicantId,
+                        programId,
+                        blockId,
+                        inReview,
+                        roApplicantProgramService,
+                        thisBlockUpdated,
+                        applicantName));
       }
     }
 
