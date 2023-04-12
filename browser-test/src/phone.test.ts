@@ -63,8 +63,22 @@ describe('phone question for applicant flow', () => {
         'United States',
         '4256373270',
       )
+      await validateScreenshot(page, 'phone-format-usa')
       await applicantQuestions.clickNext()
 
+      await applicantQuestions.submitFromReviewPage()
+    })
+    it('with canada phone submits successfully', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
+
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion('Canada', '2507274212')
+
+      await validateScreenshot(page, 'phone-format-ca')
+
+      await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
     })
 
@@ -99,216 +113,232 @@ describe('phone question for applicant flow', () => {
       )
     })
 
-    //   it('with too short text does not submit', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+    it('invalid phone numbers', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion('hi')
-    //     await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '1234567890',
+      )
 
-    //     const textId = '.cf-question-text'
-    //     expect(await page.innerText(textId)).toContain(
-    //       'Must contain at least 5 characters.',
-    //     )
-    //   })
+      await applicantQuestions.clickNext()
 
-    //   it('with too long text does not submit', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+      const countryCodeId = '.cf-phone-number'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'This number is invalid',
+      )
+    })
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion(
-    //       'A long string that exceeds the character limit',
-    //     )
-    //     await applicantQuestions.clickNext()
+    it('invalid phone numbers for the country', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     const textId = '.cf-question-text'
-    //     expect(await page.innerText(textId)).toContain(
-    //       'Must contain at most 20 characters.',
-    //     )
-    //   })
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '2507274212.',
+      )
 
-    //   it('hitting enter on text does not trigger submission', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+      await applicantQuestions.clickNext()
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
+      const countryCodeId = '.cf-phone-number'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'The phone you have provided does not belong to the country',
+      )
+    })
 
-    //     // Ensure that clicking enter while on text input doesn't trigger form
-    //     // submission.
-    //     await page.focus('input[type=text]')
-    //     await page.keyboard.press('Enter')
-    //     expect(await page.locator('input[type=text]').isVisible()).toEqual(true)
+    it('555 fake phone numbers', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     // Check that pressing Enter on button works.
-    //     await page.focus('button:has-text("Save and next")')
-    //     await page.keyboard.press('Enter')
-    //     await applicantQuestions.expectReviewPage()
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '5553231234',
+      )
 
-    //     // Go back to question and ensure that "Review" button is also clickable
-    //     // via Enter.
-    //     await page.click('a:has-text("Edit")')
-    //     await page.focus('a:has-text("Review")')
-    //     await page.keyboard.press('Enter')
-    //     await applicantQuestions.expectReviewPage()
-    //   })
-    // })
+      await applicantQuestions.clickNext()
+      const countryCodeId = '.cf-phone-number'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'This number is invalid',
+      )
+    })
+    it('invalid characters in phone numbers', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    // describe('no max text question', () => {
-    //   const programName = 'test-program-for-no-max-text-q'
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '123###1212',
+      )
 
-    //   beforeAll(async () => {
-    //     const {page, adminQuestions, adminPrograms} = ctx
-    //     // As admin, create program with a free form text question.
-    //     await loginAsAdmin(page)
+      await applicantQuestions.clickNext()
+      const countryCodeId = '.cf-phone-number'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'This number is invalid',
+      )
+    })
+    it('incorrect length of phone number', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     await adminQuestions.addTextQuestion({
-    //       questionName: 'no-max-text-q',
-    //       minNum: 5,
-    //     })
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion('United States', '615974')
 
-    //     await adminPrograms.addAndPublishProgramWithQuestions(
-    //       ['no-max-text-q'],
-    //       programName,
-    //     )
+      await applicantQuestions.clickNext()
+      const countryCodeId = '.cf-phone-number'
+      expect(await page.innerText(countryCodeId)).toContain(
+        'Phone number is required',
+      )
+    })
+    it('hitting enter on phone does not trigger submission', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     await logout(page)
-    //   })
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion('Canada', '2507274212.')
 
-    //   it('text that is too long is cut off at 10k characters', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+      // Ensure that clicking enter while on phone input doesn't trigger form
+      // submission.
+      await page.focus('input[type=text]')
+      await page.keyboard.press('Enter')
+      expect(await page.locator('input[type=text]').isVisible()).toEqual(true)
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     let largeString = ''
-    //     for (let i = 0; i < 1000; i++) {
-    //       largeString += '1234567890'
-    //     }
-    //     await applicantQuestions.answerTextQuestion(
-    //       // 10k characters + extra characters that should be trimmed
-    //       largeString + 'xxxxxxx',
-    //     )
-    //     await applicantQuestions.clickNext()
+      // Check that pressing Enter on button works.
+      await page.focus('button:has-text("Save and next")')
+      await page.keyboard.press('Enter')
+      await applicantQuestions.expectReviewPage()
 
-    //     // Scroll to bottom so end of text is in view.
-    //     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+      // Go back to question and ensure that "Review" button is also clickable
+      // via Enter.
+      await page.click('a:has-text("Edit")')
+      await page.focus('a:has-text("Review")')
+      await page.keyboard.press('Enter')
+      await applicantQuestions.expectReviewPage()
+    })
+    it('has no accessiblity violations', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     // Should display answered question with "x"s cut off from the end.
-    //     await validateScreenshot(page, 'text-max')
+      await applicantQuestions.applyProgram(programName)
 
-    //     // Form should submit with partial text entry.
-    //     await applicantQuestions.submitFromReviewPage()
-    //   })
-    // })
+      await validateAccessibility(page)
+    })
+  })
 
-    // describe('multiple text questions', () => {
-    //   const programName = 'Test program for multiple text qs'
+  describe('multiple phone questions', () => {
+    const programName = 'Test program for multiple phone qs'
 
-    //   beforeAll(async () => {
-    //     const {page, adminQuestions, adminPrograms} = ctx
-    //     await loginAsAdmin(page)
+    beforeAll(async () => {
+      const {page, adminQuestions, adminPrograms} = ctx
+      await enableFeatureFlag(page, 'phone_question_type_enabled')
+      await loginAsAdmin(page)
 
-    //     await adminQuestions.addTextQuestion({
-    //       questionName: 'first-text-q',
-    //       minNum: 5,
-    //       maxNum: 20,
-    //     })
-    //     await adminQuestions.addTextQuestion({
-    //       questionName: 'second-text-q',
-    //       minNum: 5,
-    //       maxNum: 20,
-    //     })
+      await adminQuestions.addPhoneQuestion({
+        questionName: 'first-phone-q',
+      })
+      await adminQuestions.addPhoneQuestion({
+        questionName: 'second-phone-q',
+      })
 
-    //     await adminPrograms.addProgram(programName)
-    //     await adminPrograms.editProgramBlockWithOptional(
-    //       programName,
-    //       'Optional question block',
-    //       ['second-text-q'],
-    //       'first-text-q', // optional
-    //     )
-    //     await adminPrograms.publishAllPrograms()
+      await adminPrograms.addProgram(programName)
+      await adminPrograms.editProgramBlockWithOptional(
+        programName,
+        'Optional question block',
+        ['second-phone-q'],
+        'first-phone-q', // optional
+      )
+      await adminPrograms.publishAllPrograms()
 
-    //     await logout(page)
-    //   })
+      await logout(page)
+    })
 
-    //   it('with both selections submits successfully', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+    it('with both selections submits successfully', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
-    //     await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
-    //     await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion('Canada', '2507274212', 0)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+        1,
+      )
+      await applicantQuestions.clickNext()
 
-    //     await applicantQuestions.submitFromReviewPage()
-    //   })
+      await applicantQuestions.submitFromReviewPage()
+    })
 
-    //   it('with unanswered optional question submits successfully', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+    it('with unanswered optional question submits successfully', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     // Only answer second question. First is optional.
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
-    //     await applicantQuestions.clickNext()
+      // Only answer second question. First is optional.
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+        1,
+      )
+      await applicantQuestions.clickNext()
 
-    //     await applicantQuestions.submitFromReviewPage()
-    //   })
+      await applicantQuestions.submitFromReviewPage()
+    })
 
-    //   it('with first invalid does not submit', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+    it('with first invalid does not submit', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion(
-    //       'A long string that exceeds the character limit',
-    //       0,
-    //     )
-    //     await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
-    //     await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '1234567320',
+        0,
+      )
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+        1,
+      )
+      await applicantQuestions.clickNext()
 
-    //     const textId = '.cf-question-text'
-    //     expect(await page.innerText(textId)).toContain(
-    //       'Must contain at most 20 characters.',
-    //     )
-    //   })
+      const textId = '.cf-question-phone'
+      expect(await page.innerText(textId)).toContain('This number is invalid')
+    })
 
-    //   it('with second invalid does not submit', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
+    it('with second invalid does not submit', async () => {
+      const {page, applicantQuestions} = ctx
+      await loginAsGuest(page)
+      await selectApplicantLanguage(page, 'English')
 
-    //     await applicantQuestions.applyProgram(programName)
-    //     await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
-    //     await applicantQuestions.answerTextQuestion(
-    //       'A long string that exceeds the character limit',
-    //       1,
-    //     )
-    //     await applicantQuestions.clickNext()
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+        0,
+      )
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '1234567320',
+        1,
+      )
+      await applicantQuestions.clickNext()
 
-    //     const textId = `.cf-question-text >> nth=1`
-    //     expect(await page.innerText(textId)).toContain(
-    //       'Must contain at most 20 characters.',
-    //     )
-    //   })
-
-    //   it('has no accessiblity violations', async () => {
-    //     const {page, applicantQuestions} = ctx
-    //     await loginAsGuest(page)
-    //     await selectApplicantLanguage(page, 'English')
-
-    //     await applicantQuestions.applyProgram(programName)
-
-    //     await validateAccessibility(page)
-    //   })
+      const textId = `.cf-question-phone >> nth=1`
+      expect(await page.innerText(textId)).toContain('This number is invalid')
+    })
   })
 })
