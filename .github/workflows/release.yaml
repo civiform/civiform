@@ -41,3 +41,4 @@ jobs:
       release_number: ${{ github.event.inputs.release_number }}
     secrets:
       CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}
+      
