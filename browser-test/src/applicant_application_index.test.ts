@@ -9,6 +9,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('applicant program index page', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -152,7 +153,7 @@ describe('applicant program index page', () => {
       commonIntakeFormProgramName,
       'program description',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )

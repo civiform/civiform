@@ -13,7 +13,6 @@ describe('Managing API keys', () => {
       programName,
       programDescription,
       'https://usa.gov',
-      false,
     )
     await adminPrograms.publishAllPrograms()
     await adminApiKeys.gotoNewApiKeyPage()

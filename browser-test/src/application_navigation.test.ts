@@ -17,6 +17,7 @@ import {
   waitForPageJsLoad,
   isLocalDevEnvironment,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -389,7 +390,7 @@ describe('Applicant navigation flow', () => {
         commonIntakeProgramName,
         'program description',
         'https://usa.gov',
-        /* hidden= */ false,
+        ProgramVisibility.PUBLIC,
         'admin description',
         /* isCommonIntake= */ true,
       )
