@@ -61,31 +61,12 @@ describe('applicant program index page', () => {
 
     await validateAccessibility(page)
 
-    await page.click('#login-button')
-    const loginPage = page.url()
-    expect(loginPage).toMatch(/dev-oidc.*\//)
-
-    await applicantQuestions.gotoApplicantHomePage()
-    await logout(page)
-  })
-
-  it('shows create account button for guest users', async () => {
-    const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
-
-    await validateAccessibility(page)
-
-    // Create account does not work in dev because accounts are created implicitly when logging in.
-    // Instead, just check for the existence of the button.
+    // We cannot check that the login/create account buttons redirect the user to a particular
+    // URL because it varies between environments, so just check for their existence.
+    expect(await page.textContent('#login-button')).toContain('Log in')
     expect(await page.textContent('#create-account')).toContain(
       'Create account',
     )
-
     await applicantQuestions.gotoApplicantHomePage()
     await logout(page)
   })
