@@ -105,6 +105,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     String questionLink = controllers.admin.routes.AdminQuestionController.index().url();
     String programLink = controllers.admin.routes.AdminProgramController.index().url();
+    String programAdminProgramsLink = controllers.admin.routes.ProgramAdminController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
@@ -126,6 +127,12 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "Programs", programLink, NavPage.PROGRAMS.equals(activeNavPage) ? activeNavStyle : "");
 
+    ATag programAdminProgramsHeaderLink =
+        headerLink(
+            "Programs",
+            programAdminProgramsLink,
+            NavPage.PROGRAMS.equals(activeNavPage) ? activeNavStyle : "");
+
     ATag questionsHeaderLink =
         headerLink(
             "Questions",
@@ -143,7 +150,7 @@ public final class AdminLayout extends BaseHtmlLayout {
             "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
 
     if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
-      adminHeader.with(programsHeaderLink).with(reportingHeaderLink);
+      adminHeader.with(programAdminProgramsHeaderLink).with(reportingHeaderLink);
     } else {
       adminHeader
           .with(programsHeaderLink)
