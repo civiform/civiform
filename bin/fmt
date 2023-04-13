@@ -35,8 +35,10 @@ if [[ "$(git rev-parse --git-common-dir)" != "$(git rev-parse --git-dir)" ]]; th
   repotype="worktree"
 fi
 
-echo "gitdir ${gitdir}"
-echo "repotype ${repotype}"
+echo "gitdir: ${gitdir}"
+echo "repotype: ${repotype}"
+echo "interactive_flag: ${interactive_flag}"
+echo "CI: ${CI}"
 
 # If repotype is a directory then the git repository was created by with the common `git clone` way
 # which is just a single working tree pointing at the current branch. Is is the more common way
@@ -47,7 +49,7 @@ echo "repotype ${repotype}"
 #   > git checkout -b new-branch-name
 #   > bin/fmt
 if [[ "${repotype}" == "not-worktree" ]]; then
-  docker run --rm "${interactive_flag}" \
+  docker run --rm ${interactive_flag} \
     -v "$(pwd):/code" \
     civiform/formatter \
     "$@"
