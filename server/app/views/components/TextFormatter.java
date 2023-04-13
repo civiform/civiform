@@ -3,8 +3,6 @@ package views.components;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.li;
-import static j2html.TagCreator.rawHtml;
-import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
@@ -26,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import views.ViewUtils;
 import views.style.BaseStyles;
 
 /**
@@ -132,7 +131,7 @@ public final class TextFormatter {
       contentBuilder.add(text(content));
     }
     if (addRequiredIndicator) {
-      contentBuilder.add(span(rawHtml("&nbsp;*")).withClasses("text-red-600"));
+      contentBuilder.add(ViewUtils.requiredQuestionIndicator());
     }
     return contentBuilder.build();
   }
