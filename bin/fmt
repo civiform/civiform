@@ -50,7 +50,7 @@ if [[ "${repotype}" == "not-worktree" ]]; then
     "$@"
 
 # If repotype is a file then the current folder was created with the command `git worktree add` which
-# is a branch checkout out in its own folder. For this we pass in the path of the worktree parent so
+# is a branch checked out in its own folder. For this we pass in the path of the worktree parent so
 # the fmt command will has access to other branches when it does a diff.
 # Example:
 #   > git clone --bare git@github.com:civiform/civiform.git
