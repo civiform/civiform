@@ -90,17 +90,19 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
-        h2("Visible to applicants").withClasses("py-2"),
+        h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
         FieldWithLabel.input()
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
-            .setLabelText("Enter the publicly displayed name for this program*")
+            .setLabelText("Enter the publicly displayed name for this program")
+            .isRequired()
             .setValue(displayName)
             .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
-            .setLabelText("Describe this program for the public*")
+            .setLabelText("Describe this program for the public")
+            .isRequired()
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, editExistingProgram),
@@ -119,11 +121,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     + " application process and/or highlight other programs to apply for.")
             .setValue(confirmationSceen)
             .getTextareaTag(),
-        h2("Visible to administrators only").withClasses("py-2"),
+        h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
         // TODO(#2618): Consider using helpers for grouping related radio controls.
         fieldset()
             .with(
-                legend("Program visibility*").withClass(BaseStyles.INPUT_LABEL),
+                legend("Program visibility")
+                    .withClass(BaseStyles.INPUT_LABEL)
+                    .with(ViewUtils.requiredQuestionIndicator()),
                 FieldWithLabel.radio()
                     .setId("program-display-mode-public")
                     .setFieldName("displayMode")
@@ -150,7 +154,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
-            .setLabelText("Program note for administrative use only*")
+            .setLabelText("Program note for administrative use only")
+            .isRequired()
             .setValue(adminDescription)
             .getTextareaTag());
     if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
@@ -185,7 +190,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         submitButton("Save")
             .withId("program-update-button")
-            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
+            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6"));
 
     return formTag;
   }
@@ -210,7 +215,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         .setLabelText(
             "Enter an identifier that will be used in this program's applicant-facing URL. This"
                 + " value can't be changed later. Aim to keep it short so it's easy to share. Use"
-                + " a dash between each word*")
+                + " a dash between each word")
+        .isRequired()
         .setValue(adminName)
         .getInputTag();
   }
