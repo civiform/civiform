@@ -42,6 +42,7 @@ fi
 #   > git clone git@github.com:civiform/civiform.git
 #   > cd ./civiform
 #   > git checkout -b new-branch-name
+#   > bin/fmt
 if [[ "${repotype}" == "not-worktree" ]]; then
   docker run --rm "${interactive_flag}" \
     -v "$(pwd):/code" \
@@ -53,8 +54,10 @@ if [[ "${repotype}" == "not-worktree" ]]; then
 # the fmt command will has access to other branches when it does a diff.
 # Example:
 #   > git clone --bare git@github.com:civiform/civiform.git
+#   > cd ./civiform
 #   > git worktree add -B new-branch-name ./new-branch-name
 #   > cd ./new-branch-name
+#   > bin/fmt
 elif [[ "${repotype}" == "worktree" ]]; then
   worktree_root="$(dirname "${gitdir}")"
 
