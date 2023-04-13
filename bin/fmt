@@ -28,7 +28,42 @@ if [[ -n "${CI}" ]]; then
   interactive_flag=""
 fi
 
-docker run --rm ${interactive_flag} \
-  -v "$(pwd):/code" \
-  civiform/formatter \
-  "$@"
+gitdir="$(git rev-parse --show-toplevel)"
+repotype="not-worktree"
+
+if [[ "$(git rev-parse --git-common-dir)" != "$(git rev-parse --git-dir)" ]]; then
+  repotype="worktree"
+fi
+
+# If repotype is a directory then the git repository was created by with the common `git clone` way
+# which is just a single working tree pointing at the current branch. Is is the more common way
+# in which folks clone a repository.
+# Example:
+#   > git clone git@github.com:civiform/civiform.git
+#   > cd ./civiform
+#   > git checkout -b new-branch-name
+if [[ "${repotype}" == "not-worktree" ]]; then
+  docker run --rm "${interactive_flag}" \
+    -v "$(pwd):/code" \
+    civiform/formatter \
+    "$@"
+
+# If repotype is a file then the current folder was created with the command `git worktree add` which
+# is a branch checkout out in its own folder. For this we pass in the path of the worktree parent so
+# the fmt command will has access to other branches when it does a diff.
+# Example:
+#   > git clone --bare git@github.com:civiform/civiform.git
+#   > git worktree add -B new-branch-name ./new-branch-name
+#   > cd ./new-branch-name
+elif [[ "${repotype}" == "worktree" ]]; then
+  worktree_root="$(dirname "${gitdir}")"
+
+  docker run --rm "${interactive_flag}" \
+    -v "$(pwd):/code" \
+    -v "${worktree_root}:${worktree_root}" \
+    civiform/formatter \
+    "$@"
+else
+  echo "Could not find the git work tree for ${gitdir}"
+  exit 1
+fi
