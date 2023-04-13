@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -85,13 +86,16 @@ public final class ProgramEditView extends ProgramFormBuilder {
             .getBundle()
             .setTitle(title)
             .addMainContent(
-                renderHeader(title),
-                formTag
-                    .with(makeCsrfTokenInputTag(request))
-                    .with(buildManageQuestionLink(existingProgram.id()))
-                    .withAction(
-                        controllers.admin.routes.AdminProgramController.update(existingProgram.id())
-                            .url()));
+                div(
+                        renderHeader(title),
+                        formTag
+                            .with(makeCsrfTokenInputTag(request))
+                            .with(buildManageQuestionLink(existingProgram.id()))
+                            .withAction(
+                                controllers.admin.routes.AdminProgramController.update(
+                                        existingProgram.id())
+                                    .url()))
+                    .withClasses("mx-4", "my-12", "flex", "flex-col"));
     toastMessage.ifPresent(htmlBundle::addToastMessages);
     modal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);

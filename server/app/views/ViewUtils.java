@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.script;
 import static j2html.TagCreator.span;
 
@@ -19,6 +20,7 @@ import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.LinkTag;
 import j2html.tags.specialized.PTag;
 import j2html.tags.specialized.ScriptTag;
+import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -214,5 +216,9 @@ public final class ViewUtils {
                     ReferenceClasses.BT_DATE,
                     "font-semibold",
                     StyleUtils.responsiveLarge("hidden")));
+  }
+
+  public static SpanTag requiredQuestionIndicator() {
+    return span(rawHtml("&nbsp;*")).withClasses("text-red-600", "font-semibold");
   }
 }

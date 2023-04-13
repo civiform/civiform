@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
+import views.ViewUtils;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
@@ -68,6 +69,7 @@ public class FieldWithLabel {
   private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
+  private boolean required = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
@@ -276,6 +278,11 @@ public class FieldWithLabel {
     return this;
   }
 
+  public FieldWithLabel setRequired(boolean required) {
+    this.required = required;
+    return this;
+  }
+
   public FieldWithLabel setScreenReaderText(String screenReaderText) {
     this.screenReaderText = screenReaderText;
     return this;
@@ -438,13 +445,13 @@ public class FieldWithLabel {
   }
 
   private LabelTag genLabelTag() {
-
     return label()
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
         .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
-        .withText(labelText.isEmpty() ? screenReaderText : labelText);
+        .withText(labelText.isEmpty() ? screenReaderText : labelText)
+        .condWith(required, ViewUtils.requiredQuestionIndicator());
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {

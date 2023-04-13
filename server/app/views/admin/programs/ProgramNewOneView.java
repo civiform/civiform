@@ -65,11 +65,12 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
     DivTag contentDiv =
         div(
-            buildProgramForm(request, programForm, /* editExistingProgram = */ false)
-                .with(makeCsrfTokenInputTag(request))
-                .withAction(controllers.admin.routes.AdminProgramController.create().url()));
-    HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(renderHeader(title), contentDiv);
+                renderHeader(title),
+                buildProgramForm(request, programForm, /* editExistingProgram = */ false)
+                    .with(makeCsrfTokenInputTag(request))
+                    .withAction(controllers.admin.routes.AdminProgramController.create().url()))
+            .withClasses("mx-4", "my-12", "flex", "flex-col");
+    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
     toastMessage.ifPresent(htmlBundle::addToastMessages);
     modal.ifPresent(htmlBundle::addModals);
     return layout.renderCentered(htmlBundle);
