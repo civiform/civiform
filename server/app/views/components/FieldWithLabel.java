@@ -278,8 +278,12 @@ public class FieldWithLabel {
     return this;
   }
 
-  public FieldWithLabel setRequired(boolean required) {
-    this.required = required;
+  /**
+   * Set this field to required. Causes a required question indicator to be displayed when this
+   * field is rendered.
+   */
+  public FieldWithLabel isRequired() {
+    this.required = true;
     return this;
   }
 

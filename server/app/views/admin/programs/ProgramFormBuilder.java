@@ -95,14 +95,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
             .setLabelText("Enter the publicly displayed name for this program")
-            .setRequired(true)
+            .isRequired()
             .setValue(displayName)
             .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
-            .setRequired(true)
+            .isRequired()
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, editExistingProgram),
@@ -155,7 +155,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
-            .setRequired(true)
+            .isRequired()
             .setValue(adminDescription)
             .getTextareaTag());
     if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
@@ -216,7 +216,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Enter an identifier that will be used in this program's applicant-facing URL. This"
                 + " value can't be changed later. Aim to keep it short so it's easy to share. Use"
                 + " a dash between each word")
-        .setRequired(true)
+        .isRequired()
         .setValue(adminName)
         .getInputTag();
   }
