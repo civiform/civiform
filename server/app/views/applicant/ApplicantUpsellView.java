@@ -121,7 +121,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
     return bundle;
   }
 
-  /** Don't show "create an account" upsell box to TIs, or anyone with an email address already. */
+  /** Don't show "create an account" upsell box to TIs, or anyone with an account already. */
   protected static boolean shouldUpsell(Account account) {
     return Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
   }
