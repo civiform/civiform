@@ -110,6 +110,17 @@ export class ApplicantQuestions {
     )
   }
 
+  async answerPhoneQuestion(country: string, phone: string, index = 0) {
+    // United States
+    await this.page.selectOption(
+      `.cf-phone-country-code select >> nth=${index}`,
+      {
+        label: country,
+      },
+    )
+    await this.page.fill(`.cf-phone-number input >> nth=${index}`, phone)
+  }
+
   async answerNumberQuestion(number: string, index = 0) {
     await this.page.fill(`input[type="number"] >> nth=${index}`, number)
   }

@@ -22,11 +22,12 @@ import {ProgramVisibility} from './support/admin_programs'
 describe('Applicant navigation flow', () => {
   const ctx = createTestContext(/* clearDb= */ false)
 
-  describe('navigation with four blocks', () => {
+  describe('navigation with five blocks', () => {
     const programName = 'Test program for navigation flows'
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
+      await enableFeatureFlag(page, 'phone_question_type_enabled')
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})
@@ -39,6 +40,9 @@ describe('Applicant navigation flow', () => {
         options: ['one', 'two', 'three'],
       })
       await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
+      await adminQuestions.addPhoneQuestion({
+        questionName: 'nav-phone-q',
+      })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, 'first description', [
@@ -53,6 +57,9 @@ describe('Applicant navigation flow', () => {
       ])
       await adminPrograms.addProgramBlock(programName, 'fourth description', [
         'nav-radio-q',
+      ])
+      await adminPrograms.addProgramBlock(programName, 'fifth description', [
+        'nav-phone-q',
       ])
 
       await adminPrograms.gotoAdminProgramsPage()
@@ -248,6 +255,11 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.answerRadioButtonQuestion('one')
       await applicantQuestions.clickNext()
 
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
+      await applicantQuestions.clickNext()
       // Verify we are on program review page.
       await applicantQuestions.expectReviewPage()
       await validateAccessibility(page)
@@ -274,6 +286,11 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
@@ -313,6 +330,11 @@ describe('Applicant navigation flow', () => {
       )
       await applicantQuestions.clickNext()
       await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
