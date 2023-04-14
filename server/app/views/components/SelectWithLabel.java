@@ -95,6 +95,12 @@ public final class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
+  public SelectWithLabel isRequired() {
+    super.isRequired();
+    return this;
+  }
+
+  @Override
   public SelectWithLabel setAriaDescribedByIds(ImmutableList<String> ariaDescribedByIds) {
     super.setAriaDescribedByIds(ariaDescribedByIds);
     return this;
