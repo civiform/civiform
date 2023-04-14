@@ -35,6 +35,7 @@ import services.question.types.QuestionType;
 import views.BaseHtmlView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
+import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
@@ -308,12 +309,13 @@ public final class QuestionEditView extends BaseHtmlView {
                     .withValue(questionForm.getRedirectUrl()),
                 requiredFieldsExplanationContent());
     formTag.with(
-        h2("Visible to applicants").withClasses("py-2"),
+        h2("Visible to applicants").withClasses("py-2", "mt-6", "font-semibold"),
         repeatedQuestionInformation(),
         FieldWithLabel.textArea()
             .setId("question-text-textarea")
             .setFieldName("questionText")
-            .setLabelText("Question text displayed to the applicant*")
+            .setLabelText("Question text displayed to the applicant")
+            .isRequired()
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
             .getTextareaTag());
@@ -331,7 +333,7 @@ public final class QuestionEditView extends BaseHtmlView {
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.
     formTag.with(
-        h2("Visible to administrators only").withClasses("py-2"),
+        h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
         administrativeNameField(questionForm.getQuestionName(), !forCreate));
     if (!forCreate) {
       formTag.with(
@@ -365,7 +367,9 @@ public final class QuestionEditView extends BaseHtmlView {
     }
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
-      formTag.with(h2("Question settings").withClasses("py-2")).with(questionSettingsContent);
+      formTag
+          .with(h2("Question settings").withClasses("py-2", "mt-6", "font-semibold"))
+          .with(questionSettingsContent);
     }
 
     return formTag;
@@ -377,7 +381,9 @@ public final class QuestionEditView extends BaseHtmlView {
     // TODO(#2618): Consider using helpers for grouping related radio controls.
     return fieldset()
         .with(
-            legend("Data privacy settings*").withClass(BaseStyles.INPUT_LABEL),
+            legend("Data privacy settings")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .withClass(BaseStyles.INPUT_LABEL),
             p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                 .with(
                     span("Learn more about each of the data export settings in the "),
@@ -468,9 +474,10 @@ public final class QuestionEditView extends BaseHtmlView {
     return new SelectWithLabel()
         .setId("question-enumerator-select")
         .setFieldName(QUESTION_ENUMERATOR_FIELD)
-        .setLabelText("Question enumerator*")
+        .setLabelText("Question enumerator")
         .setOptions(options)
-        .setValue(selected);
+        .setValue(selected)
+        .isRequired();
   }
 
   private DivTag repeatedQuestionInformation() {
@@ -505,7 +512,8 @@ public final class QuestionEditView extends BaseHtmlView {
     return FieldWithLabel.input()
         .setId("question-name-input")
         .setFieldName(QUESTION_NAME_FIELD)
-        .setLabelText("Administrative identifier. This value can't be changed later*")
+        .setLabelText("Administrative identifier. This value can't be changed later")
+        .isRequired()
         .setValue(adminName)
         .getInputTag();
   }
