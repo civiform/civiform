@@ -24,7 +24,6 @@ import services.question.LocalizedQuestionOption;
 import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.SelectWithLabel;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -100,12 +99,6 @@ public final class QuestionConfig {
 
   private QuestionConfig addAddressQuestionConfig(AddressQuestionForm addressQuestionForm) {
     content.with(
-        new SelectWithLabel()
-            .setFieldName("defaultState")
-            .setLabelText("Default state")
-            .setOptions(stateOptions())
-            .setValue("-")
-            .getSelectTag(),
         FieldWithLabel.checkbox()
             .setFieldName("disallowPoBox")
             .setLabelText("Disallow post office boxes")
@@ -301,15 +294,5 @@ public final class QuestionConfig {
             div()
                 .withClasses(OUTER_DIV_CLASSES)
                 .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
-  }
-
-  /**
-   * I don't feel like hard-coding a list of states here, so this will do until we can think up a
-   * better approach.
-   */
-  private static ImmutableList<SelectWithLabel.OptionValue> stateOptions() {
-    return ImmutableList.of(
-        SelectWithLabel.OptionValue.builder().setLabel("-- Leave blank --").setValue("-").build(),
-        SelectWithLabel.OptionValue.builder().setLabel("Washington").setValue("WA").build());
   }
 }
