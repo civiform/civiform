@@ -21,7 +21,7 @@ import views.components.Icons;
 import views.style.AdminStyles;
 import views.style.StyleUtils;
 
-abstract class ProgramBlockBaseView extends BaseHtmlView {
+abstract class ProgramBaseView extends BaseHtmlView {
 
   /** Renders a div with internal/admin program information. */
   protected final DivTag renderProgramInfo(ProgramDefinition programDefinition) {

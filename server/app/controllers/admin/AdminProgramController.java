@@ -30,8 +30,8 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
-import views.admin.programs.ProgramEditView;
 import views.admin.programs.ProgramIndexView;
+import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
 import views.admin.programs.ProgramSettingsEditView;
 import views.components.ToastMessage;
@@ -43,7 +43,7 @@ public final class AdminProgramController extends CiviFormController {
   private final QuestionService questionService;
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
-  private final ProgramEditView editView;
+  private final ProgramMetaDataEditView editView;
   private final ProgramSettingsEditView programSettingsEditView;
   private final FormFactory formFactory;
   private final VersionRepository versionRepository;
@@ -57,7 +57,7 @@ public final class AdminProgramController extends CiviFormController {
       QuestionService questionService,
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
-      ProgramEditView editView,
+      ProgramMetaDataEditView editView,
       ProgramSettingsEditView programSettingsEditView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
