@@ -5,7 +5,6 @@ import static j2html.TagCreator.div;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-
 import forms.AddressQuestionForm;
 import forms.EnumeratorQuestionForm;
 import forms.IdQuestionForm;
@@ -25,8 +24,6 @@ import services.question.LocalizedQuestionOption;
 import views.ViewUtils;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.components.SelectWithLabel;
-import views.questiontypes.AddressQuestionRenderer;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -299,4 +296,3 @@ public final class QuestionConfig {
                 .with(content.withId("question-settings").withClasses(INNER_DIV_CLASSES)));
   }
 }
-
