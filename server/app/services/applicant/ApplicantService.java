@@ -824,20 +824,32 @@ public final class ApplicantService {
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-    ImmutableList<ProgramDefinition> activeProgramDefinitions =
-        versionRepository.getActiveVersion().getPrograms().stream()
-            .map(Program::getProgramDefinition)
-            .filter(pdef -> pdef.displayMode().equals(DisplayMode.PUBLIC))
-            .collect(ImmutableList.toImmutableList());
 
-    return applicationsFuture
+    CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
+        userRepository
+            .lookupApplicant(applicantId)
+            .thenApplyAsync(
+                applicant -> applicant.orElseThrow().getAccount().getManagedByGroup().isPresent())
+            .thenApplyAsync(
+                isTi ->
+                    versionRepository.getActiveVersion().getPrograms().stream()
+                        .map(Program::getProgramDefinition)
+                        .filter(
+                            pdef ->
+                                pdef.displayMode().equals(DisplayMode.PUBLIC)
+                                    || (isTi && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                        .collect(ImmutableList.toImmutableList()))
+            .toCompletableFuture();
+
+    return CompletableFuture.allOf(applicationsFuture, activeProgramDefinitionsFuture)
         .thenComposeAsync(
-            applications -> {
+            v -> {
+              ImmutableSet<Application> applications = applicationsFuture.join();
               List<ProgramDefinition> programDefinitionsList =
                   applications.stream()
                       .map(application -> application.getProgram().getProgramDefinition())
                       .collect(Collectors.toList());
-              programDefinitionsList.addAll(activeProgramDefinitions);
+              programDefinitionsList.addAll(activeProgramDefinitionsFuture.join());
               return programService.syncQuestionsToProgramDefinitions(
                   programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
             })
@@ -846,13 +858,13 @@ public final class ApplicantService {
               ImmutableSet<Application> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitions, applications, allPrograms);
+                  activeProgramDefinitionsFuture.join(), applications, allPrograms);
             },
             httpExecutionContext.current());
   }
 
   /**
-   * Find unsubmitted programs the applicant may be eligible for, if they've started an application.
+   * Find programs the applicant may be eligible for, if they've started an application.
    *
    * <p>If no application has been started all programs are returned because their eligibility
    * status is not set by relevantProgramsForApplicant().
@@ -863,14 +875,17 @@ public final class ApplicantService {
    *     <p>Does not include the Common Intake Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long)}.
    */
-  public CompletionStage<ImmutableList<ApplicantProgramData>>
-      maybeEligibleUnsubmittedProgramsForApplicant(long applicantId) {
+  public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
+      long applicantId) {
     return relevantProgramsForApplicant(applicantId)
         .thenApplyAsync(
             relevantPrograms ->
-                Stream.of(relevantPrograms.inProgress(), relevantPrograms.unapplied())
+                Stream.of(
+                        relevantPrograms.inProgress(),
+                        relevantPrograms.unapplied(),
+                        relevantPrograms.submitted())
                     .flatMap(ImmutableList::stream)
-                    // Return all unsubmitted programs the user is eligible for, or that have no
+                    // Return all programs the user is eligible for, or that have no
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
                     .collect(ImmutableList.toImmutableList()),
@@ -1002,6 +1017,8 @@ public final class ApplicantService {
                     .setLatestSubmittedApplicationStatus(maybeCurrentStatus)
                     .setLatestApplicationLifecycleStage(Optional.of(LifecycleStage.ACTIVE));
 
+            applicantProgramDataBuilder.setIsProgramMaybeEligible(
+                getApplicationEligibilityStatus(maybeSubmittedApp.get(), programDefinition));
             if (programDefinition.isCommonIntakeForm()) {
               relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
             } else {
@@ -1296,6 +1313,13 @@ public final class ApplicantService {
         applicantData.maybeDelete(update.path());
       } else {
         switch (type) {
+          case PHONE_NUMBER:
+            try {
+              applicantData.putPhoneNumber(currentPath, update.value());
+            } catch (IllegalArgumentException e) {
+              failedUpdatesBuilder.put(currentPath, update.value());
+            }
+            break;
           case CURRENCY_CENTS:
             try {
               applicantData.putCurrencyDollars(currentPath, update.value());

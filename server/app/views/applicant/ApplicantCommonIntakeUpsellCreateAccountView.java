@@ -3,13 +3,11 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
-import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.section;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -22,17 +20,15 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantService;
-import views.BaseHtmlView;
-import views.HtmlBundle;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
-import views.style.StyleUtils;
 
 /** Renders a confirmation page after application submission, for the common intake form. */
-public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtmlView {
+public final class ApplicantCommonIntakeUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
   private final Config configuration;
@@ -56,14 +52,10 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
-    String title =
-        isTrustedIntermediary
-            ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
-            : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
-    HtmlBundle bundle = layout.getBundle().setTitle(title);
-    // Don't show "create an account" upsell box to TIs, or anyone with an email address already.
-    boolean shouldUpsell =
-        Strings.isNullOrEmpty(account.getEmailAddress()) && account.getMemberOfGroup().isEmpty();
+    boolean shouldUpsell = shouldUpsell(account);
+
+    Modal loginPromptModal =
+        createLoginPromptModal(messages, redirectTo, MessageKey.BUTTON_APPLY_TO_PROGRAMS);
 
     var actionButtonsBuilder = ImmutableList.<DomContent>builder();
     if (shouldUpsell && eligiblePrograms.isEmpty()) {
@@ -79,57 +71,35 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends BaseHtml
 
     if (shouldUpsell) {
       actionButtonsBuilder.add(
-          redirectButton(
-                  "apply-to-programs",
-                  messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-                  controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
-              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
-          redirectButton(
-                  "sign-in",
-                  messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
-                  controllers.routes.LoginController.applicantLogin(Optional.of(redirectTo)).url())
-              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
-          redirectButton(
-                  "sign-up",
-                  messages.at(MessageKey.BUTTON_CREATE_AN_ACCOUNT.getKeyName()),
-                  controllers.routes.LoginController.register().url())
-              .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION));
+          loginPromptModal.getButton(), // Apply to programs
+          createLoginButton("sign-in", messages, redirectTo),
+          createNewAccountButton("sign-up", messages));
     } else {
       actionButtonsBuilder.add(
-          redirectButton(
-                  "apply-to-programs",
-                  messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-                  controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
-              .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION));
+          createApplyToProgramsButton(
+              "apply-to-programs",
+              messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
+              applicantId));
     }
 
+    String title =
+        isTrustedIntermediary
+            ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
+            : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
     var content =
-        div()
-            .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
-            .with(
-                h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
-                eligibleProgramsSection(eligiblePrograms, messages, isTrustedIntermediary)
-                    .withClasses("mb-4"),
-                section()
-                    .condWith(
-                        shouldUpsell,
-                        h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
-                            .withClasses("mb-4", "font-bold"),
-                        div(messages.at(MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName()))
-                            .withClasses("mb-4"))
-                    .with(
-                        div()
-                            .withClasses(
-                                "flex",
-                                "flex-col",
-                                "gap-4",
-                                "justify-end",
-                                StyleUtils.responsiveMedium("flex-row"))
-                            .with(actionButtonsBuilder.build())));
-
-    bannerMessage.ifPresent(bundle::addToastMessages);
-    bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION).addMainContent(content);
-    return layout.renderWithNav(request, applicantName, messages, bundle);
+        createMainContent(
+            title,
+            eligibleProgramsSection(eligiblePrograms, messages, isTrustedIntermediary)
+                .withClasses("mb-4"),
+            shouldUpsell,
+            messages,
+            configuration.getString("whitelabel.civic_entity_full_name"),
+            actionButtonsBuilder.build());
+    return layout.renderWithNav(
+        request,
+        applicantName,
+        messages,
+        createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
   }
 
   private SectionTag eligibleProgramsSection(

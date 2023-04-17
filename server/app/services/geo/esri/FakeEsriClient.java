@@ -59,6 +59,7 @@ public final class FakeEsriClient extends EsriClient {
     FileInputStream inputStream;
 
     switch (address) {
+      case "Address In Area":
       case "Legit Address":
         if (addressCandidates != null) {
           maybeJson = Optional.of(addressCandidates);
@@ -78,7 +79,6 @@ public final class FakeEsriClient extends EsriClient {
           maybeJson = Optional.of(noAddressCandidates);
           break;
         }
-
         try {
           resource = new File(jsonResources + "findAddressCandidatesNoCandidates.json");
           inputStream = new FileInputStream(resource);

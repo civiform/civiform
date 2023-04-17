@@ -9,11 +9,15 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Optional;
 import java.util.TimeZone;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import services.applicant.predicate.JsonPathPredicate;
 
+@RunWith(JUnitParamsRunner.class)
 public class CfJsonDocumentContextTest {
 
   private static final ZoneId BEHIND_UTC_ZONE = ZoneId.of("America/New_York");
@@ -166,6 +170,27 @@ public class CfJsonDocumentContextTest {
     data.putDouble(Path.create("applicant.monthly_income"), 99.9);
 
     assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"monthly_income\":99.9}}");
+  }
+
+  @Test
+  public void putPhoneNumber_AddsAPhoneNumberWithoutFormat() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    data.putPhoneNumber(Path.create("applicant.phone_number"), "(707) -123-1234");
+
+    assertThat(data.asJsonString()).isEqualTo("{\"applicant\":{\"phone_number\":\"7071231234\"}}");
+  }
+
+  @Test
+  @Parameters({"123123", "1122233334445556666", "123456789", "(707)-123-455"})
+  public void putPhoneNumber_AddingInvalidNumberResultsInEmptyPath(String phoneNumber) {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThatThrownBy(
+            () -> data.putPhoneNumber(Path.create("applicant.phone_number"), phoneNumber))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage(
+            String.format("Invalid phone number format: %s", phoneNumber.replaceAll("\\d", "X")));
   }
 
   @Test

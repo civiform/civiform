@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 import {dismissModal, waitForAnyModal} from './support/wait'
 import {Page} from 'playwright'
 
@@ -129,6 +130,18 @@ describe('program creation', () => {
     expect(await page.innerText('id=question-bank-questions')).toContain(
       'apc-repeated',
     )
+  })
+  it('phone field is hidden with phone type question disabled', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'phone_question_type_enabled')
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await page.click('#create-question-button')
+    expect(
+      await page.innerText('id=create-question-button-dropdown'),
+    ).not.toContain('Phone Field')
   })
 
   it('create program with address and address correction feature enabled', async () => {
@@ -497,7 +510,7 @@ describe('program creation', () => {
       commonIntakeFormProgramName,
       'program description',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )
@@ -546,7 +559,7 @@ describe('program creation', () => {
       'cif',
       'desc',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ false,
     )
@@ -567,7 +580,7 @@ describe('program creation', () => {
       'cif',
       'desc',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )

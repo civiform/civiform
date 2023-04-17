@@ -70,6 +70,8 @@ public final class QuestionConfig {
       case TEXT:
         return Optional.of(
             config.addTextQuestionConfig((TextQuestionForm) questionForm).getContainer());
+      case PHONE:
+        return Optional.of(config.addPhoneConfig().getContainer());
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
         return Optional.of(
@@ -85,6 +87,15 @@ public final class QuestionConfig {
       default:
         return Optional.empty();
     }
+  }
+
+  private QuestionConfig addPhoneConfig() {
+    content.with(
+        new DivTag()
+            .withText(
+                "This supports only US and CA phone numbers. If you need other international"
+                    + " numbers, please use a Text question."));
+    return this;
   }
 
   private QuestionConfig addAddressQuestionConfig(AddressQuestionForm addressQuestionForm) {
@@ -140,7 +151,8 @@ public final class QuestionConfig {
         FieldWithLabel.input()
             .setId("enumerator-question-entity-type-input")
             .setFieldName("entityType")
-            .setLabelText("Repeated entity type* (What are we enumerating?)")
+            .setLabelText("Repeated entity type (What are we enumerating?)")
+            .isRequired()
             .setValue(enumeratorQuestionForm.getEntityType())
             .getInputTag());
     return this;
@@ -163,7 +175,8 @@ public final class QuestionConfig {
     DivTag optionInput =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
-            .setLabelText("Question option*")
+            .setLabelText("Question option")
+            .isRequired()
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .setFieldErrors(

@@ -25,6 +25,7 @@ import models.LifecycleStage;
 import models.Program;
 import models.Question;
 import models.StoredFile;
+import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -253,10 +254,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     Path currencyPath = applicantPathForQuestion(currencyQuestion).join(Scalar.CURRENCY_CENTS);
     Question numberQuestion = testQuestionBank.applicantJugglingNumber();
     Path numberPath = applicantPathForQuestion(numberQuestion).join(Scalar.NUMBER);
+    Question phoneQuestion = testQuestionBank.applicantPhone();
+    Path phonePath = applicantPathForQuestion(phoneQuestion).join(Scalar.PHONE_NUMBER);
     createProgram(
         dateQuestion.getQuestionDefinition(),
         currencyQuestion.getQuestionDefinition(),
-        numberQuestion.getQuestionDefinition());
+        numberQuestion.getQuestionDefinition(),
+        phoneQuestion.getQuestionDefinition());
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
 
@@ -266,6 +270,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .put(datePath.toString(), "invalid_date_input")
             .put(currencyPath.toString(), "invalid_currency_input")
             .put(numberPath.toString(), "invalid_number_input")
+            .put(phonePath.toString(), "invalid_phone_input")
             .build();
 
     // We grab the result of the stage call to assert that it contains
@@ -281,18 +286,25 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(resultApplicantData.hasPath(datePath)).isFalse();
     assertThat(resultApplicantData.hasPath(currencyPath)).isFalse();
     assertThat(resultApplicantData.hasPath(numberPath)).isFalse();
+    assertThat(resultApplicantData.hasPath(phonePath)).isFalse();
     assertThat(resultApplicantData.getFailedUpdates())
         .isEqualTo(
             ImmutableMap.of(
-                datePath, "invalid_date_input",
-                currencyPath, "invalid_currency_input",
-                numberPath, "invalid_number_input"));
+                datePath,
+                "invalid_date_input",
+                currencyPath,
+                "invalid_currency_input",
+                numberPath,
+                "invalid_number_input",
+                phonePath,
+                "invalid_phone_input"));
 
     ApplicantData freshApplicantDataAfter =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(freshApplicantDataAfter.hasPath(datePath)).isFalse();
     assertThat(freshApplicantDataAfter.hasPath(currencyPath)).isFalse();
     assertThat(freshApplicantDataAfter.hasPath(numberPath)).isFalse();
+    assertThat(resultApplicantData.hasPath(phonePath)).isFalse();
   }
 
   @Test
@@ -1658,9 +1670,16 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(email).hasValue("test@example.com");
   }
 
+  private Applicant createTestApplicant() {
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+    return applicant;
+  }
+
   @Test
   public void relevantProgramsForApplicant() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     Program commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
             .withBlock()
@@ -1719,7 +1738,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_noCommonIntakeForm() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1769,7 +1788,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_commonIntakeFormHasCorrectLifecycleStage() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     Program commonIntakeForm =
         ProgramBuilder.newActiveCommonIntakeForm("common_intake_form")
             .withBlock()
@@ -1822,7 +1841,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_setsEligibility() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
     Program programForDraft =
         ProgramBuilder.newDraftProgram("program_for_draft")
@@ -1876,7 +1895,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_setsEligibilityOnMultipleApps() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     EligibilityDefinition eligibilityDef = createEligibilityDefinition(questionDefinition);
     Program programForDraft =
         ProgramBuilder.newDraftProgram("program_for_draft")
@@ -1938,8 +1957,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_otherApplicant() {
-    Applicant primaryApplicant = subject.createApplicant().toCompletableFuture().join();
-    Applicant otherApplicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant primaryApplicant = createTestApplicant();
+    Applicant otherApplicant = createTestApplicant();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -1977,7 +1996,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_withNewerProgramVersion() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
 
     // Create a draft based on the original version of a program.
     Program originalProgramForDraft =
@@ -2035,7 +2054,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     // This ensures that the applicant can always see that draft
     // applications for a given program, even if a newer version of the
     // program is hidden from the index.
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+
+    Applicant applicant = createTestApplicant();
 
     // Create a submitted application based on the original version of a program.
     Program originalProgramForDraftApp =
@@ -2096,11 +2116,90 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void relevantProgramsForApplicant_tiOnly() {
+    Applicant applicant = createTestApplicant();
+    Applicant ti = resourceCreator.insertApplicant();
+    Account tiAccount = resourceCreator.insertAccount();
+    TrustedIntermediaryGroup tiGroup =
+        new TrustedIntermediaryGroup("Super Cool CBO", "Description");
+    tiGroup.save();
+    tiAccount.setManagedByGroup(tiGroup);
+    tiAccount.save();
+    ti.setAccount(tiAccount);
+    ti.save();
+
+    // Create a submitted application based on the original version of a program.
+    Program originalProgramForDraftApp =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program originalProgramForSubmittedApp =
+        ProgramBuilder.newActiveProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, originalProgramForDraftApp.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    // Create a new program version.
+    Program updatedProgramForDraftApp =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    updatedProgramForDraftApp.getProgramDefinition().toBuilder()
+        .setDisplayMode(DisplayMode.TI_ONLY)
+        .build()
+        .toProgram()
+        .update();
+    Program updatedProgramForSubmittedApp =
+        ProgramBuilder.newDraftProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    updatedProgramForSubmittedApp.getProgramDefinition().toBuilder()
+        .setDisplayMode(DisplayMode.TI_ONLY)
+        .build()
+        .toProgram()
+        .update();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ApplicantService.ApplicationPrograms applicantResult =
+        subject.relevantProgramsForApplicant(applicant.id).toCompletableFuture().join();
+    ApplicantService.ApplicationPrograms tiResult =
+        subject.relevantProgramsForApplicant(ti.id).toCompletableFuture().join();
+
+    assertThat(applicantResult.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(originalProgramForDraftApp.id);
+    // TODO(#3477): Determine if already submitted applications for hidden
+    // programs should show in the index, similar to draft applications.
+    assertThat(applicantResult.submitted()).isEmpty();
+    // As part of test setup, a "test program" is initialized.
+    // When calling publish, this will become active. This provides
+    // confidence that the draft version created above is actually published.
+    // Additionally, this ensures the applicant can not see the TI-only programs.
+    assertThat(applicantResult.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
+
+    assertThat(tiResult.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(
+            programDefinition.id(), updatedProgramForDraftApp.id, updatedProgramForSubmittedApp.id);
+    // assertThat(tiResult.submitted()).
+  }
+
+  @Test
   public void relevantProgramsForApplicant_submittedTimestamp() {
     // Creates an app + draft app for a program as well as
     // an application for another program and ensures that
     // the submitted timestamp is present.
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
 
     // Create a submitted application based on the original version of a program.
     Program programForDraftApp =
@@ -2148,7 +2247,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_multipleActiveAndDraftApplications() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -2227,7 +2326,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_withApplicationStatus() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     Program program =
         ProgramBuilder.newActiveProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
@@ -2257,7 +2356,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void relevantProgramsForApplicant_withApplicationStatusAndOlderProgramVersion() {
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    Applicant applicant = createTestApplicant();
     Program originalProgram =
         ProgramBuilder.newObsoleteProgram("program")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
@@ -2385,10 +2484,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
-            .toCompletableFuture()
-            .join();
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     // Asset results contained expected program IDs
     var matchingProgramIds =
@@ -2396,7 +2492,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(matchingProgramIds).contains(programForDraftApp.id);
     assertThat(matchingProgramIds).contains(programForUnappliedApp.id);
-    assertThat(matchingProgramIds).doesNotContain(programForSubmittedApp.id);
+    assertThat(matchingProgramIds).contains(programForSubmittedApp.id);
   }
 
   @Test
@@ -2461,10 +2557,85 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
-            .toCompletableFuture()
-            .join();
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
+
+    var matchingProgramIds =
+        result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
+    assertThat(matchingProgramIds).doesNotContain(programWithEligibleAndIneligibleAnswers.id);
+  }
+
+  @Test
+  public void maybeEligibleProgramsForApplicant_doesNotIncludeIneligibleSubmittedApplications() {
+    // Set up applicant
+    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    // Set up program and questions
+    NameQuestionDefinition eligibleQuestion =
+        createNameQuestion("question_with_matching_eligibility");
+    NameQuestionDefinition ineligibleQuestion =
+        createNameQuestion("question_with_non_matching_eligibility");
+    EligibilityDefinition eligibleQuestionEligibilityDefinition =
+        createEligibilityDefinition(eligibleQuestion, "Taylor");
+    EligibilityDefinition ineligibleQuestionEligibilityDefinition =
+        createEligibilityDefinition(ineligibleQuestion, "Sza");
+    var programWithEligibleAndIneligibleAnswers =
+        ProgramBuilder.newDraftProgram(
+                ProgramDefinition.builder()
+                    .setId(123)
+                    .setAdminName("name")
+                    .setAdminDescription("desc")
+                    .setExternalLink("https://usa.gov")
+                    .setDisplayMode(DisplayMode.PUBLIC)
+                    .setProgramType(ProgramType.DEFAULT)
+                    .setEligibilityIsGating(false)
+                    .setStatusDefinitions(new StatusDefinitions())
+                    .build())
+            .withBlock()
+            .withRequiredQuestionDefinition(eligibleQuestion)
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withBlock()
+            .withRequiredQuestionDefinition(ineligibleQuestion)
+            .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
+            .build();
+
+    // Fill out application
+    answerNameQuestion(
+        eligibleQuestion,
+        "Taylor",
+        "Allison",
+        "Swift",
+        programWithEligibleAndIneligibleAnswers
+            .getProgramDefinition()
+            .getBlockDefinitionByIndex(0)
+            .orElseThrow()
+            .id(),
+        applicant.id,
+        programWithEligibleAndIneligibleAnswers.id);
+    answerNameQuestion(
+        ineligibleQuestion,
+        "Solána",
+        "Imani",
+        "Rowe",
+        programWithEligibleAndIneligibleAnswers
+            .getProgramDefinition()
+            .getBlockDefinitionByIndex(1)
+            .orElseThrow()
+            .id(),
+        applicant.id,
+        programWithEligibleAndIneligibleAnswers.id);
+
+    applicationRepository
+        .submitApplication(
+            applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+
+    // Publish version and fetch results
+    versionRepository.publishNewSynchronizedVersion();
+    var result =
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2515,10 +2686,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
-            .toCompletableFuture()
-            .join();
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2563,10 +2731,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
-            .toCompletableFuture()
-            .join();
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2601,10 +2766,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject
-            .maybeEligibleUnsubmittedProgramsForApplicant(applicant.id)
-            .toCompletableFuture()
-            .join();
+        subject.maybeEligibleProgramsForApplicant(applicant.id).toCompletableFuture().join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());

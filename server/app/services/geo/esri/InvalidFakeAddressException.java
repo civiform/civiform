@@ -6,7 +6,7 @@ public class InvalidFakeAddressException extends RuntimeException {
     super(
         String.format(
             "Address passed to FakeEsriClient should be one of 'Legit Address', 'Bogus Address',"
-                + " or 'Error Address'. Address used: %s",
+                + " 'Address In Area' or 'Error Address'. Address used: %s",
             address));
   }
 }

@@ -9,6 +9,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('applicant program index page', () => {
   const ctx = createTestContext(/* clearDb= */ false)
@@ -47,6 +48,27 @@ describe('applicant program index page', () => {
     ])
 
     await adminPrograms.publishAllPrograms()
+    await logout(page)
+  })
+
+  it('shows log in button for guest users', async () => {
+    const {page, applicantQuestions} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    await validateAccessibility(page)
+
+    // We cannot check that the login/create account buttons redirect the user to a particular
+    // URL because it varies between environments, so just check for their existence.
+    expect(await page.textContent('#login-button')).toContain('Log in')
+    expect(await page.textContent('#create-account')).toContain(
+      'Create account',
+    )
+    await applicantQuestions.gotoApplicantHomePage()
     await logout(page)
   })
 
@@ -131,7 +153,7 @@ describe('applicant program index page', () => {
       commonIntakeFormProgramName,
       'program description',
       'https://usa.gov',
-      /* hidden= */ false,
+      ProgramVisibility.PUBLIC,
       'admin description',
       /* isCommonIntake= */ true,
     )

@@ -8,6 +8,10 @@
 #    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
 #    translation a screen reader could read for the delete button.
 # 4. Keys in this file should be alphabetized within their own section or sub-section.
+# 5. This files contains the strings used in applicant UI as they are seen by translators. To make correct translations as easy as possible,
+#    please include a description that allows someone without knowledge about where this string is being used to understand it fully. For
+#    example, explain where the string is shown and if strings are deployment-specific, specify what each passed through value represents,
+#    such as: "Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal."
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
@@ -91,6 +95,9 @@ content.loginDisabledPrompt=Account login currently disabled
 # The words leading up to the admin login anchor
 content.adminLoginPrompt=Looking for something else?
 
+# The footer of the CiviForm site to prompt admins to login if needed.
+content.adminFooterPrompt=Are you a benefits administrator?
+
 # The text on the anchor for admins to log in to their session.
 link.adminLogin=Admin login
 
@@ -170,6 +177,13 @@ content.benefits=Get benefits
 
 # Long form description of the CiviForm site shown to the applicant.
 content.description=CiviForm helps you find benefits you may be eligible for in {0}. Get started by choosing an application below.
+
+# Title for programs page when applicant is not logged in
+content.saveTime=Save time when applying for benefits
+
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the civic entity's name, in reference to their login portal.
+content.guestDescription=Log in to your {0} account or create an account and apply for many benefits without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 
 # Link text to read more about a program.
 link.programDetails=Program details
@@ -321,8 +335,8 @@ content.confirmed=Thank you for applying to {0}.  Your application has been rece
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Create an account or sign in
 
-# A message urging users to create an account to save their data.
-content.pleaseCreateAccount=If you sign into an account now, your information will be saved and you''ll be able to return at any time to complete future applications.  If you do not already have an account, the login page will allow you to register.  You won''t lose any data you''ve already entered.
+# Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal.
+content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
 content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
@@ -411,6 +425,16 @@ content.noValidAddress=We could not verify the address that you provided. Please
 # Placeholder text shown in a dropdown selector before the user has made a selection.
 placeholder.noDropdownSelection=Choose an option:
 
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+label.countryCode=Country
+label.phoneNumber=Enter Phone number
+validation.phoneNumberRequired=Phone number is required
+validation.phoneCountryCodeRequired=Country must be selected
+validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters
+validation.invalidPhoneNumberProvided=This number is invalid
+validation.phoneMustBeLocalToCountry=The phone you have provided does not belong to the country
 
 #----------------------------------------------------------------------------------------------------------#
 # DATE QUESTION - text shown when answering a question where a user must select date. #

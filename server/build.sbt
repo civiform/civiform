@@ -33,11 +33,11 @@ lazy val root = (project in file("."))
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.37",
-      "software.amazon.awssdk" % "ses" % "2.20.37",
+      "software.amazon.awssdk" % "s3" % "2.20.43",
+      "software.amazon.awssdk" % "ses" % "2.20.43",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.8.1",
+      "com.azure" % "azure-identity" % "1.8.2",
       "com.azure" % "azure-storage-blob" % "12.21.1",
 
       // Database and database testing libraries
@@ -91,6 +91,8 @@ lazy val root = (project in file("."))
 
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
+      // Phone number formatting and validation dependency
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.4",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.2",

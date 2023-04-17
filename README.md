@@ -2,7 +2,6 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6008/badge)](https://bestpractices.coreinfrastructure.org/projects/6008)
 [![Seattle Staging Deploy](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml/badge.svg?branch=main)](https://github.com/seattle-uat/civiform-deploy/actions/workflows/deploy-staging.yml)
 [![AWS Staging Deploy](https://github.com/civiform/civiform-staging-deploy/actions/workflows/aws_deploy.yaml/badge.svg?branch=main)](https://github.com/civiform/civiform-staging-deploy/actions/workflows/aws_deploy.yaml)
-[![Deploy Azure Staging](https://github.com/civiform/civiform-staging-deploy/actions/workflows/azure_deploy.yaml/badge.svg?branch=main)](https://github.com/civiform/civiform-staging-deploy/actions/workflows/azure_deploy.yaml)
 ![codecov.io](https://codecov.io/github/civiform/civiform/coverage.svg?branch=main)
 [![Code Style: Google](https://img.shields.io/badge/code%20style-google-blueviolet.svg)](https://google.github.io/styleguide/)
 

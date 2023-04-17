@@ -150,4 +150,8 @@ public final class ApplicantStyles {
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
   public static final String BUTTON_UPLOAD =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
+
+  public static final String BUTTON_PROGRAMS_PAGE_WHITE =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_OUTLINE_SEMIBOLD, BaseStyles.BG_CIVIFORM_WHITE, "text-blue-900");
 }

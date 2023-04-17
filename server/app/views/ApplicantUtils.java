@@ -29,4 +29,13 @@ public final class ApplicantUtils {
   public static String getApplicantName(Optional<String> maybeName, Messages messages) {
     return maybeName.orElse(messages.at(MessageKey.GUEST.getKeyName()));
   }
+
+  // TODO(#4626): make this a more robust check.
+  public static boolean isGuest(Optional<String> maybeName, Messages messages) {
+    String userName = maybeName.orElse(messages.at(MessageKey.GUEST.getKeyName()));
+
+    String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
+
+    return userName.equals(guestUserName);
+  }
 }

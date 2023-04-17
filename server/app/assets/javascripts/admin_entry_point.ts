@@ -18,6 +18,17 @@ import * as modal from './modal'
 import * as questionBank from './questionBank'
 import * as preview from './preview'
 import * as enumerator from './enumerator'
+import * as phoneNumber from './phone'
+import htmx from 'htmx.org'
+
+declare global {
+  interface Window {
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    htmx: any
+  }
+}
+
+window.htmx = htmx
 
 window.addEventListener('load', () => {
   main.init()
@@ -35,4 +46,5 @@ window.addEventListener('load', () => {
   questionBank.init()
   preview.init()
   enumerator.init()
+  phoneNumber.init()
 })
