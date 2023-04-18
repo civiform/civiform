@@ -63,7 +63,7 @@ public class AdminReportingShowView extends BaseHtmlView {
       String programSlug,
       String programName,
       ReportingService.MonthlyStats monthlyStats) {
-    if (profile.isProgramAdmin()) {
+    if (profile.isOnlyProgramAdmin()) {
       layout.setOnlyProgramAdminType();
     }
 

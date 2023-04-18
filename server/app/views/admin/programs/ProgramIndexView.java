@@ -81,7 +81,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ActiveAndDraftQuestions questions,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
-    if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
+    if (profile.isPresent() && profile.get().isOnlyProgramAdmin()) {
       layout.setOnlyProgramAdminType();
     }
 

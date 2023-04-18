@@ -36,7 +36,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
   }
 
   public Content render(CiviFormProfile profile, ReportingService.MonthlyStats monthlyStats) {
-    if (profile.isProgramAdmin()) {
+    if (profile.isProgramAdmin() && !profile.isCiviFormAdmin()) {
       layout.setOnlyProgramAdminType();
     }
 

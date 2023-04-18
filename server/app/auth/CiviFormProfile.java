@@ -104,6 +104,11 @@ public class CiviFormProfile {
     return this.getRoles().contains(Role.ROLE_PROGRAM_ADMIN.toString());
   }
 
+  /** Returns true if the profile has the Program Admin role AND NOT the CiviForm admin role. */
+  public boolean isOnlyProgramAdmin() {
+    return isProgramAdmin() && !isCiviFormAdmin();
+  }
+
   /** Returns the account ID associated with the profile. */
   public String getId() {
     return profileData.getId();

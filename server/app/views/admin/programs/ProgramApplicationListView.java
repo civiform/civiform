@@ -13,6 +13,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -74,7 +75,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
       DateConverter dateConverter) {
-    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
@@ -82,12 +83,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
+      CiviFormProfile profile,
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri) {
+    if (profile.isOnlyProgramAdmin()) {
+      layout.setOnlyProgramAdminType();
+    }
 
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
