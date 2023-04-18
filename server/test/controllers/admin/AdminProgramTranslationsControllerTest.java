@@ -200,14 +200,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_programNotFound() {
-    assertThatThrownBy(() -> controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "es-US"))
-        .isInstanceOf(ProgramNotFoundException.class);
-  }
-
-  @Test
-  public void update_validationErrors_rendersEditFormWithMessages()
-      throws ProgramNotFoundException {
+  public void update_allowsClearingFields() throws Exception {
     Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
@@ -216,30 +209,72 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                 ImmutableMap.<String, String>builder()
                     .put("displayName", "")
                     .put("displayDescription", "")
-                    // Initialize fields for the two existing status values to new values and
-                    // assert that they're preserved when rendering the error.
                     .put("status-key-to-update-0", ENGLISH_FIRST_STATUS_TEXT)
-                    .put("localized-status-0", "new first status text")
-                    .put("localized-email-0", "new first status email")
+                    .put("localized-status-0", "updated spanish first status text")
+                    .put("localized-email-0", "updated spanish first status email")
                     .put("status-key-to-update-1", ENGLISH_SECOND_STATUS_TEXT)
-                    .put("localized-status-1", "new second status text")
-                    .put("localized-email-1", "new second status email")
+                    .put("localized-status-1", "updated spanish second status text")
+                    .put("localized-email-1", "updated spanish second status email")
                     .build());
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id, "es-US");
 
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains(
-            String.format("Manage program translations: %s", ENGLISH_DISPLAY_NAME),
-            "program display name cannot be blank",
-            "program display description cannot be blank",
-            "new first status text",
-            "new first status email",
-            "new second status text",
-            "new second status email");
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().orElse(""))
+        .isEqualTo(controllers.admin.routes.AdminProgramController.index().url());
+    assertThat(result.flash().get("success").get())
+        .isEqualTo("Program translations updated for Spanish");
 
-    assertProgramNotChanged(program);
+    ProgramDefinition updatedProgram =
+        programRepository
+            .lookupProgram(program.id)
+            .toCompletableFuture()
+            .join()
+            .get()
+            .getProgramDefinition();
+    assertThat(updatedProgram.localizedName().get(ES_LOCALE)).isEqualTo("");
+    assertThat(updatedProgram.localizedDescription().get(ES_LOCALE)).isEqualTo("");
+    assertThat(updatedProgram.statusDefinitions().getStatuses())
+        .isEqualTo(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUSES_WITH_EMAIL.get(0).statusText())
+                    .setLocalizedStatusText(
+                        STATUSES_WITH_EMAIL
+                            .get(0)
+                            .localizedStatusText()
+                            .updateTranslation(ES_LOCALE, "updated spanish first status text"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUSES_WITH_EMAIL
+                                .get(0)
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(
+                                    ES_LOCALE, "updated spanish first status email")))
+                    .build(),
+                StatusDefinitions.Status.builder()
+                    .setStatusText(STATUSES_WITH_EMAIL.get(1).statusText())
+                    .setLocalizedStatusText(
+                        STATUSES_WITH_EMAIL
+                            .get(1)
+                            .localizedStatusText()
+                            .updateTranslation(ES_LOCALE, "updated spanish second status text"))
+                    .setLocalizedEmailBodyText(
+                        Optional.of(
+                            STATUSES_WITH_EMAIL
+                                .get(1)
+                                .localizedEmailBodyText()
+                                .get()
+                                .updateTranslation(
+                                    ES_LOCALE, "updated spanish second status email")))
+                    .build()));
+  }
+
+  @Test
+  public void update_programNotFound() {
+    assertThatThrownBy(() -> controller.update(addCSRFToken(fakeRequest()).build(), 1000L, "es-US"))
+        .isInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
