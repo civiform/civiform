@@ -396,9 +396,6 @@ public final class ProgramServiceImpl implements ProgramService {
       throws ProgramNotFoundException, OutOfDateStatusesException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    validateProgramText(errorsBuilder, "display name", localizationUpdate.localizedDisplayName());
-    validateProgramText(
-        errorsBuilder, "display description", localizationUpdate.localizedDisplayDescription());
     validateLocalizationStatuses(localizationUpdate, programDefinition);
 
     // We iterate the existing statuses along with the provided statuses since they were verified
@@ -472,13 +469,6 @@ public final class ProgramServiceImpl implements ProgramService {
     return getAllProgramNames().stream()
         .map(MainModule.SLUGIFIER::slugify)
         .anyMatch(MainModule.SLUGIFIER.slugify(programName)::equals);
-  }
-
-  private void validateProgramText(
-      ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
-    if (text.isBlank()) {
-      builder.add(CiviFormError.of("program " + fieldName.trim() + " cannot be blank"));
-    }
   }
 
   @Override
