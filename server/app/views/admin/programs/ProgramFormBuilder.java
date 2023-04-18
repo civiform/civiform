@@ -131,6 +131,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 FieldWithLabel.radio()
                     .setId("program-display-mode-public")
                     .setFieldName("displayMode")
+                    .setAriaRequired(true)
                     .setLabelText("Publicly visible")
                     .setValue(DisplayMode.PUBLIC.getValue())
                     .setChecked(displayMode.equals(DisplayMode.PUBLIC.getValue()))
@@ -138,6 +139,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 FieldWithLabel.radio()
                     .setId("program-display-mode-hidden")
                     .setFieldName("displayMode")
+                    .setAriaRequired(true)
                     .setLabelText(
                         "Hide from applicants. Only individuals with the unique program link can"
                             + " access this program")
@@ -147,6 +149,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                 FieldWithLabel.radio()
                     .setId("program-display-mode-ti-only")
                     .setFieldName("displayMode")
+                    .setAriaRequired(true)
                     .setLabelText("Trusted Intermediaries ONLY")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
