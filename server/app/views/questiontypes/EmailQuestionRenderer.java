@@ -28,7 +28,8 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     EmailQuestion emailQuestion = question.createEmailQuestion();
 
     FieldWithLabel emailField =
@@ -36,6 +37,7 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setFieldName(emailQuestion.getEmailPath().toString())
             .setAutocomplete(Optional.of("email"))
             .setValue(emailQuestion.getEmailValue().orElse(""))
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))

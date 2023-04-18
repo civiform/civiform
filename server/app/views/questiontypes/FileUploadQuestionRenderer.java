@@ -56,7 +56,8 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
     return div()

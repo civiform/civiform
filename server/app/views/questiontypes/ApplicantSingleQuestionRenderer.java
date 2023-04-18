@@ -26,7 +26,8 @@ abstract class ApplicantSingleQuestionRenderer extends ApplicantQuestionRenderer
   protected abstract DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds);
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional);
 
   @Override
   protected final ContainerTag renderQuestionTag(
@@ -34,7 +35,8 @@ abstract class ApplicantSingleQuestionRenderer extends ApplicantQuestionRenderer
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       ImmutableList<DomContent> questionTextDoms,
-      DivTag questionSecondaryTextDiv) {
+      DivTag questionSecondaryTextDiv,
+      boolean isOptional) {
     ContainerTag questionTag =
         div()
             .with(
@@ -43,7 +45,7 @@ abstract class ApplicantSingleQuestionRenderer extends ApplicantQuestionRenderer
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT))
             .with(questionSecondaryTextDiv)
-            .with(renderInputTag(params, validationErrors, ariaDescribedByIds));
+            .with(renderInputTag(params, validationErrors, ariaDescribedByIds, isOptional));
 
     return questionTag;
   }

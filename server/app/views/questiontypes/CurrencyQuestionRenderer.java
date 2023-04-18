@@ -28,7 +28,8 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
@@ -36,6 +37,7 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
             .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(

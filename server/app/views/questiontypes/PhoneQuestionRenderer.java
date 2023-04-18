@@ -30,7 +30,8 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     PhoneQuestion phoneQuestion = question.createPhoneQuestion();
 
     Messages messages = params.messages();
@@ -48,6 +49,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                             .setLabel(messages.at(MessageKey.PHONE_LABEL_COUNTRY_CODE.getKeyName()))
                             .setOptions(COUNTRY_OPTIONS)
                             .build()))
+                .setAriaRequired(!isOptional)
                 .setFieldErrors(
                     messages,
                     validationErrors.getOrDefault(
@@ -61,6 +63,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setFieldName(phoneQuestion.getPhoneNumberPath().toString())
             .setValue(phoneQuestion.getPhoneNumberValue().orElse(""))
             .setLabelText(messages.at(MessageKey.PHONE_LABEL_PHONE_NUMBER.getKeyName()))
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(
