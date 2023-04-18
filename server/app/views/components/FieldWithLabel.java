@@ -289,6 +289,10 @@ public class FieldWithLabel {
     return this;
   }
 
+  /**
+   * Sets the aria-required attribute indicating whether or not the field is required without making
+   * any visible UI changes.
+   */
   public FieldWithLabel setAriaRequired(boolean isRequired) {
     this.ariaRequired = isRequired;
     return this;
