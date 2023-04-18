@@ -51,7 +51,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       ImmutableList<DomContent> questionTextDoms,
-      DivTag questionSecondaryTextDiv);
+      DivTag questionSecondaryTextDiv,
+      boolean isOptional);
 
   @Override
   public final DivTag render(ApplicantQuestionRendererParams params) {
@@ -112,7 +113,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             validationErrors,
             ariaDescribedByIds,
             questionTextDoms,
-            questionSecondaryTextDiv);
+            questionSecondaryTextDiv,
+            question.isOptional());
 
     return div()
         .withId(questionId)

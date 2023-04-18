@@ -29,13 +29,15 @@ public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     DateQuestion dateQuestion = question.createDateQuestion();
 
     FieldWithLabel dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
             .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()))

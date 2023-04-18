@@ -26,13 +26,15 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     IdQuestion idQuestion = question.createIdQuestion();
 
     FieldWithLabel idField =
         FieldWithLabel.input()
             .setFieldName(idQuestion.getIdPath().toString())
             .setValue(idQuestion.getIdValue().orElse(""))
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))

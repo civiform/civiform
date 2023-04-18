@@ -26,13 +26,15 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     TextQuestion textQuestion = question.createTextQuestion();
 
     FieldWithLabel textField =
         FieldWithLabel.input()
             .setFieldName(textQuestion.getTextPath().toString())
             .setValue(textQuestion.getTextValue().orElse(""))
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(textQuestion.getTextPath(), ImmutableSet.of()))

@@ -30,7 +30,8 @@ abstract class ApplicantCompositeQuestionRenderer extends ApplicantQuestionRende
 
   protected abstract DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors);
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      boolean isOptional);
 
   @Override
   protected final ContainerTag renderQuestionTag(
@@ -38,7 +39,8 @@ abstract class ApplicantCompositeQuestionRenderer extends ApplicantQuestionRende
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       ImmutableList<DomContent> questionTextDoms,
-      DivTag questionSecondaryTextDiv) {
+      DivTag questionSecondaryTextDiv,
+      boolean isOptional) {
     ContainerTag questionTag =
         fieldset()
             .attr("aria-describedby", StringUtils.join(ariaDescribedByIds, " "))
@@ -50,7 +52,7 @@ abstract class ApplicantCompositeQuestionRenderer extends ApplicantQuestionRende
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_TEXT, ApplicantStyles.QUESTION_TEXT))
             .with(questionSecondaryTextDiv)
-            .with(renderInputTags(params, validationErrors));
+            .with(renderInputTags(params, validationErrors, isOptional));
 
     return questionTag;
   }

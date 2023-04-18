@@ -42,7 +42,8 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
   @Override
   protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      boolean isOptional) {
     Messages messages = params.messages();
     AddressQuestion addressQuestion = question.createAddressQuestion();
 
@@ -114,6 +115,13 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
       cityField.forceAriaInvalid();
       stateField.forceAriaInvalid();
       zipField.forceAriaInvalid();
+    }
+
+    if (!isOptional) {
+      streetAddressField.setAriaRequired(true);
+      cityField.setAriaRequired(true);
+      stateField.setAriaRequired(true);
+      zipField.setAriaRequired(true);
     }
 
     DivTag addressQuestionFormContent =

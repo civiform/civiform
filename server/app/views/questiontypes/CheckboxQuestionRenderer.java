@@ -34,7 +34,8 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
   @Override
   protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      boolean isOptional) {
 
     boolean hasErrors = !validationErrors.isEmpty();
     MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
@@ -58,13 +59,18 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                                 multiOptionQuestion.getSelectionPathAsArray(),
                                 option,
                                 multiOptionQuestion.optionIsSelected(option),
-                                hasErrors)));
+                                hasErrors,
+                                isOptional)));
 
     return checkboxQuestionFormContent;
   }
 
   private DivTag renderCheckboxOption(
-      String selectionPath, LocalizedQuestionOption option, boolean isSelected, boolean hasErrors) {
+      String selectionPath,
+      LocalizedQuestionOption option,
+      boolean isSelected,
+      boolean hasErrors,
+      boolean isOptional) {
     String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
     LabelTag labelTag =
         label()
@@ -80,6 +86,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
                     .condAttr(hasErrors, "aria-invalid", "true")
+                    .condAttr(!isOptional, "aria-required", "true")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
                 span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));

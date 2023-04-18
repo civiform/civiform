@@ -52,7 +52,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
   @Override
   protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      boolean isOptional) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -71,6 +72,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
               /* extraStyle= */ Optional.empty(),
               /* isDisabled= */ false,
               hasErrors,
+              isOptional,
               /* elementId= */ Optional.empty()));
     }
 
@@ -105,6 +107,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         // Do not submit this with the form.
                         /* isDisabled= */ true,
                         hasErrors,
+                        isOptional,
                         /* elementId= */ Optional.of(ENUMERATOR_FIELD_TEMPLATE_INPUT_ID))
                     .withId(ENUMERATOR_FIELD_TEMPLATE_ID))
             .withData(
@@ -133,6 +136,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       Optional<String> extraStyle,
       boolean isDisabled,
       boolean hasErrors,
+      boolean isOptional,
       Optional<String> elementId) {
 
     String indexString = "";
@@ -144,6 +148,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
             .setDisabled(isDisabled)
+            .setAriaRequired(!isOptional)
             .setLabelText(
                 messages.at(
                         MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),

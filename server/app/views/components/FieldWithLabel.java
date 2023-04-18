@@ -70,6 +70,7 @@ public class FieldWithLabel {
   private boolean checked = false;
   private boolean disabled = false;
   private boolean required = false;
+  private boolean ariaRequired = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
@@ -284,6 +285,12 @@ public class FieldWithLabel {
    */
   public FieldWithLabel isRequired() {
     this.required = true;
+    setAriaRequired(true);
+    return this;
+  }
+
+  public FieldWithLabel setAriaRequired(boolean isRequired) {
+    this.ariaRequired = isRequired;
     return this;
   }
 
@@ -532,6 +539,9 @@ public class FieldWithLabel {
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
     fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
+    if (ariaRequired) {
+      fieldTag.attr("aria-required", "true");
+    }
 
     generalApplyAttrsClassesToTag(fieldTag, hasFieldErrors);
 

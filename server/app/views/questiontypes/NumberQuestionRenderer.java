@@ -29,7 +29,8 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     NumberQuestion numberQuestion = question.createNumberQuestion();
 
     FieldWithLabel numberField =
@@ -38,6 +39,7 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setScreenReaderText(question.getQuestionTextForScreenReader())
             .setMin(numberQuestion.getQuestionDefinition().getMin())
             .setMax(numberQuestion.getQuestionDefinition().getMax())
+            .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
