@@ -63,7 +63,6 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
     if (shouldUpsell && eligiblePrograms.isEmpty()) {
       actionButtonsBuilder.add(
           Button.builder()
-              .setId("go-back-and-edit")
               .setText(messages.at(MessageKey.BUTTON_GO_BACK_AND_EDIT.getKeyName()))
               .setStyle(ButtonStyle.SOLID_WHITE)
               .setButtonAction(
@@ -71,6 +70,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                       controllers.applicant.routes.ApplicantProgramReviewController.review(
                               applicantId, programId)
                           .url()))
+              .setId("go-back-and-edit")
               .build());
     }
 

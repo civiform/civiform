@@ -7,8 +7,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
 
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
@@ -19,7 +17,6 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
-import j2html.tags.specialized.SpanTag;
 import java.util.function.Function;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
@@ -48,11 +45,6 @@ public abstract class BaseHtmlView {
       Messages messages, ImmutableSet<ValidationErrorMessage> errors, String... additionalClasses) {
     return div(each(errors, error -> div(error.getMessage(messages))))
         .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, StyleUtils.joinStyles(additionalClasses));
-  }
-
-  // TODO(#4657): remove this method.
-  protected static ButtonTag submitButton(String id, String textContents) {
-    return TagCreator.button(text(textContents)).withId(id);
   }
 
   // TODO(#4657): remove this method.

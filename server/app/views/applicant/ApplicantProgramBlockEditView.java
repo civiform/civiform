@@ -21,6 +21,9 @@ import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.components.buttons.ButtonStyles;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
@@ -161,7 +164,12 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   }
 
   private ButtonTag renderNextButton(Params params) {
-    return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
+    String textContents = params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName());
+    return Button.builder()
+        .setText(textContents)
+        .setStyle(ButtonStyle.SOLID_BLUE)
+        .setButtonAction(ButtonAction.ofSubmit())
+        .build()
         .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-submit");
   }

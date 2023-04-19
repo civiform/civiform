@@ -323,14 +323,19 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 div().withClass("flex-grow"),
                 Button.builder()
-                    .setId("cancel-button")
                     .setText("Cancel")
                     .setStyle(ButtonStyle.SOLID_BLUE)
-                    .setButtonAction(ButtonAction.ofSubmitWithoutFormId())
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .setId("cancel-button")
                     .setCustomClasses(
                         ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES)
                     .build(),
-                submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                Button.builder()
+                    .setText("Save")
+                    .setStyle(ButtonStyle.SOLID_BLUE)
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .build()
+                    .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
@@ -399,18 +404,23 @@ public final class ProgramApplicationView extends BaseHtmlView {
                     .with(
                         div().withClass("flex-grow"),
                         Button.builder()
-                            .setId("cancel-button")
                             .setText("Cancel")
                             .setStyle(ButtonStyle.SOLID_BLUE)
                             .setButtonAction(ButtonAction.ofCloseModal())
+                            .setId("cancel-button")
                             .build(),
-                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                        Button.builder()
+                            .setText("Confirm")
+                            .setStyle(ButtonStyle.SOLID_BLUE)
+                            .setButtonAction(ButtonAction.ofSubmit())
+                            .build()
+                            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     ButtonTag triggerButton =
         Button.builder()
-            .setId("trigger-button")
             .setText("")
             .setStyle(ButtonStyle.SOLID_BLUE)
             .setButtonAction(ButtonAction.ofNone())
+            .setId("trigger-button")
             .setCustomClasses("hidden")
             .build()
             .withData("status-update-confirm-for-status", status.statusText());

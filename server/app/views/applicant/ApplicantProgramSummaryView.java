@@ -97,10 +97,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           Button.builder()
-              .setId("submit-application-button")
               .setText(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
               .setStyle(ButtonStyle.SOLID_BLUE)
               .setButtonAction(ButtonAction.ofSubmit())
+              .setId("submit-application-button")
               .setCustomClasses(ReferenceClasses.SUBMIT_BUTTON, "mx-auto")
               .build();
     } else {

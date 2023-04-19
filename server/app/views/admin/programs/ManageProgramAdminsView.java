@@ -24,6 +24,9 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -94,7 +97,13 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         .withAction(routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
         .with(emailFields)
-        .with(submitButton("Save").withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "my-4"));
+        .with(
+            Button.builder()
+                .setText("Save")
+                .setStyle(ButtonStyle.SOLID_BLUE)
+                .setButtonAction(ButtonAction.ofSubmit())
+                .setCustomClasses("my-4")
+                .build());
   }
 
   private DivTag adminEmailInput(Optional<String> existing) {

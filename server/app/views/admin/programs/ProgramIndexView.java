@@ -253,15 +253,20 @@ public final class ProgramIndexView extends BaseHtmlView {
                     .with(
                         div().withClass("flex-grow"),
                         Button.builder()
-                            .setId("cancel-button")
                             .setText("Cancel")
                             .setStyle(ButtonStyle.SOLID_BLUE)
                             .setButtonAction(ButtonAction.ofNone())
+                            .setId("cancel-button")
                             .build()
                             .withClasses(
                                 ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
                         toLinkButtonForPost(
-                            submitButton("Confirm").withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                            Button.builder()
+                                .setText("Confirm")
+                                .setStyle(ButtonStyle.SOLID_BLUE)
+                                .setButtonAction(ButtonAction.ofSubmit())
+                                .build()
+                                .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
                             link,
                             request)));
     ButtonTag publishAllButton =

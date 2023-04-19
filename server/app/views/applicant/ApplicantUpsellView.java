@@ -21,6 +21,9 @@ import views.HtmlBundle;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.components.buttons.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
@@ -58,8 +61,12 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setTriggerButtonContent(
-            button(messages.at(triggerButtonMsg.getKeyName()))
-                .withClasses(ButtonStyles.SOLID_WHITE))
+            Button.builder()
+                .setText(messages.at(triggerButtonMsg.getKeyName()))
+                .setStyle(ButtonStyle.SOLID_WHITE)
+                // Trigger for modal is wired elsewhere.
+                .setButtonAction(ButtonAction.ofNone())
+                .build())
         .setModalTitle(modalTitle)
         .setWidth(Width.HALF)
         .build();

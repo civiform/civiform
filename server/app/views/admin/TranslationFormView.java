@@ -20,6 +20,9 @@ import services.LocalizedStrings;
 import services.TranslationLocales;
 import views.BaseHtmlView;
 import views.components.LinkElement;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 
 /**
@@ -83,6 +86,9 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Locale locale,
       String formAction,
       ImmutableList<DomContent> formFieldContent) {
+    String textContents =
+        String.format(
+            "Save %s updates", locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE));
     FormTag form =
         form()
             .withMethod("POST")
@@ -90,10 +96,11 @@ public abstract class TranslationFormView extends BaseHtmlView {
             .withAction(formAction)
             .with(formFieldContent)
             .with(
-                submitButton(
-                        String.format(
-                            "Save %s updates",
-                            locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
+                Button.builder()
+                    .setText(textContents)
+                    .setStyle(ButtonStyle.SOLID_BLUE)
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .build()
                     .withId("update-localizations-button")
                     .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
     return form;

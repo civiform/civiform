@@ -36,6 +36,9 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
@@ -171,10 +174,14 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
             .withMethod(POST)
             .withAction(removePredicateUrl)
             .with(
-                submitButton(
+                Button.builder()
+                    .setText(
                         String.format(
                             "Remove existing %s condition",
                             predicateTypeNameTitleCase.toLowerCase()))
+                    .setStyle(ButtonStyle.SOLID_BLUE)
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .build()
                     .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
@@ -184,6 +191,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
         routes.AdminProgramBlocksController.edit(programDefinition.id(), blockDefinition.id())
             .url();
 
+    String textContents = hasExistingPredicate ? "Replace condition" : "Add condition";
     DivTag content =
         div()
             .withClasses("mx-6", "my-10", "flex", "flex-col", "gap-6")
@@ -228,10 +236,11 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                         predicateQuestions,
                                         ProgramPredicatesEditViewV2
                                             ::renderPredicateQuestionCheckBoxRow),
-                                    submitButton(
-                                            hasExistingPredicate
-                                                ? "Replace condition"
-                                                : "Add condition")
+                                    Button.builder()
+                                        .setText(textContents)
+                                        .setStyle(ButtonStyle.SOLID_BLUE)
+                                        .setButtonAction(ButtonAction.ofSubmit())
+                                        .build()
                                         .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES))
                                 .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));

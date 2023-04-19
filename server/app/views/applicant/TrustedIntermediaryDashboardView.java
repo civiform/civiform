@@ -41,6 +41,9 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -125,7 +128,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 .getInputTag()
                 .withClass("w-full"),
             makeCsrfTokenInputTag(request),
-            submitButton("Search").withClasses("m-2"));
+            Button.builder()
+                .setText("Search")
+                .setStyle(ButtonStyle.SOLID_BLUE)
+                .setButtonAction(ButtonAction.ofSubmit())
+                .build()
+                .withClasses("m-2"));
   }
 
   private DivTag renderTIApplicantsTable(
@@ -217,7 +225,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 lastNameField.getInputTag(),
                 dateOfBirthField.getDateTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses("ml-2", "mb-6")))
+                Button.builder()
+                    .setText("Add")
+                    .setStyle(ButtonStyle.SOLID_BLUE)
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .build()
+                    .withClasses("ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
@@ -269,7 +282,12 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                         .withType("date")
                         .withValue(currentDob),
                     makeCsrfTokenInputTag(request),
-                    submitButton("Update DOB").withClasses("text-xs", "ml-3")));
+                    Button.builder()
+                        .setText("Update DOB")
+                        .setStyle(ButtonStyle.SOLID_BLUE)
+                        .setButtonAction(ButtonAction.ofSubmit())
+                        .build()
+                        .withClasses("text-xs", "ml-3")));
   }
 
   private TdTag renderApplicantInfoCell(Account applicantAccount) {

@@ -109,10 +109,10 @@ public abstract class Modal {
       return triggerButtonContent().get().withId(triggerButtonId);
     } else {
       return Button.builder()
-          .setId(triggerButtonId)
           .setText(modalTitle())
           .setStyle(ButtonStyle.SOLID_BLUE)
           .setButtonAction(ButtonAction.ofNone()) // Modal trigger is done outside the Button class.
+          .setId(triggerButtonId)
           .build();
     }
   }

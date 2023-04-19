@@ -214,10 +214,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .with(languageDropdown)
                     .with(
                         Button.builder()
-                            .setId("cf-update-lang")
                             .setText("")
                             .setStyle(ButtonStyle.NONE) // Doesn't matter since it's hidden.
                             .setButtonAction(ButtonAction.ofSubmit())
+                            .setId("cf-update-lang")
                             .build()
                             .isHidden()));
       }

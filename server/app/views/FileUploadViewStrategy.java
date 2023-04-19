@@ -180,10 +180,10 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     }
     ButtonTag button =
         Button.builder()
-            .setId(buttonId)
             .setText(buttonText)
             .setStyle(ButtonStyle.SOLID_WHITE)
             .setButtonAction(ButtonAction.ofSubmitWithFormId(FILEUPLOAD_DELETE_FORM_ID))
+            .setId(buttonId)
             .build();
     return Optional.of(button);
   }
@@ -199,10 +199,10 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     }
     ButtonTag button =
         Button.builder()
-            .setId(FILEUPLOAD_CONTINUE_BUTTON_ID)
             .setText(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
             .setStyle(ButtonStyle.SOLID_BLUE)
             .setButtonAction(ButtonAction.ofSubmitWithFormId(FILEUPLOAD_CONTINUE_FORM_ID))
+            .setId(FILEUPLOAD_CONTINUE_BUTTON_ID)
             .build();
 
     return Optional.of(button);
@@ -260,10 +260,10 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     }
 
     return Button.builder()
-        .setId(FILEUPLOAD_SUBMIT_FORM_ID)
         .setText(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .setStyle(style)
         .setButtonAction(ButtonAction.ofSubmitWithFormId(BLOCK_FORM_ID))
+        .setId(FILEUPLOAD_SUBMIT_FORM_ID)
         .build();
   }
 

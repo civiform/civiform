@@ -27,6 +27,9 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 
@@ -191,7 +194,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   .getCheckboxTag());
     }
     formTag.with(
-        submitButton("Save")
+        Button.builder()
+            .setText("Save")
+            .setStyle(ButtonStyle.SOLID_BLUE)
+            .setButtonAction(ButtonAction.ofSubmit())
+            .build()
             .withId("program-update-button")
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6"));
 
@@ -238,7 +245,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withClasses("flex")
                     .with(div().withClasses("flex-grow"))
                     .with(
-                        submitButton("Confirm")
+                        Button.builder()
+                            .setText("Confirm")
+                            .setStyle(ButtonStyle.SOLID_BLUE)
+                            .setButtonAction(ButtonAction.ofSubmit())
+                            .build()
                             .withForm("program-details-form")
                             .withId("confirm-common-intake-change-button")
                             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer")));

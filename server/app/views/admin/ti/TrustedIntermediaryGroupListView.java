@@ -33,6 +33,9 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -103,7 +106,11 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                 nameField.getInputTag(),
                 descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Create")
+                Button.builder()
+                    .setText("Create")
+                    .setStyle(ButtonStyle.SOLID_BLUE)
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .build()
                     .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }

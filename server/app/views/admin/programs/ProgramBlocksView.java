@@ -355,7 +355,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.UP.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                    .with(
+                        Button.builder()
+                            .setText("^")
+                            .setStyle(ButtonStyle.SOLID_BLUE)
+                            .setButtonAction(ButtonAction.ofSubmit())
+                            .build()
+                            .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
 
     String moveDownFormAction =
         routes.AdminProgramBlocksController.move(programId, blockDefinition.id()).url();
@@ -373,7 +379,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     .withMethod(HttpVerbs.POST)
                     .with(makeCsrfTokenInputTag(request))
                     .with(input().isHidden().withName("direction").withValue(Direction.DOWN.name()))
-                    .with(submitButton("^").withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
+                    .with(
+                        Button.builder()
+                            .setText("^")
+                            .setStyle(ButtonStyle.SOLID_BLUE)
+                            .setButtonAction(ButtonAction.ofSubmit())
+                            .build()
+                            .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)));
     return div().withClasses("flex", "flex-col", "self-center").with(moveUp, moveDown);
   }
 
@@ -495,10 +507,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
     buttons.condWith(
         blockDefinitionIsEnumerator,
         Button.builder()
-            .setId("create-repeated-block-button")
             .setText("Create repeated screen")
             .setStyle(ButtonStyle.SOLID_WHITE)
             .setButtonAction(ButtonAction.ofSubmitWithFormId(CREATE_REPEATED_BLOCK_FORM_ID))
+            .setId("create-repeated-block-button")
             .build());
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
@@ -762,7 +774,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       String label,
       boolean isInvisible) {
     ButtonTag button =
-        submitButton("")
+        Button.builder()
+            .setText("")
+            .setStyle(ButtonStyle.SOLID_BLUE)
+            .setButtonAction(ButtonAction.ofSubmit())
+            .build()
             .with(Icons.svg(icon).withClasses("w-6", "h-6"))
             .withClasses(AdminStyles.MOVE_BLOCK_BUTTON)
             .attr("aria-label", label);
@@ -1068,7 +1084,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
               div(
                   h1("Are you sure you want to delete this screen?")
                       .withClasses("text-base", "mb-4")),
-              submitButton("Delete")
+              Button.builder()
+                  .setText("Delete")
+                  .setStyle(ButtonStyle.SOLID_BLUE)
+                  .setButtonAction(ButtonAction.ofSubmit())
+                  .build()
                   .withId("delete-block-button")
                   .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     } else {
@@ -1092,7 +1112,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       .withClasses("text-base", "mb-2"),
                   h1("Are you sure you want to delete this screen?")
                       .withClasses("text-base", "mb-4")),
-              submitButton("Delete")
+              Button.builder()
+                  .setText("Delete")
+                  .setStyle(ButtonStyle.SOLID_BLUE)
+                  .setButtonAction(ButtonAction.ofSubmit())
+                  .build()
                   .withId("delete-block-button")
                   .withClasses("my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50")));
     }
@@ -1138,7 +1162,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .setValue(blockForm.getDescription())
                         .getTextareaTag())
                 .withClasses("mx-4"),
-            submitButton("Save")
+            Button.builder()
+                .setText("Save")
+                .setStyle(ButtonStyle.SOLID_BLUE)
+                .setButtonAction(ButtonAction.ofSubmit())
+                .build()
                 .withId("update-block-button")
                 .withClasses(
                     "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))

@@ -42,6 +42,9 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -309,7 +312,11 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .withClasses("flex", "mt-5", "space-x-2")
                             .with(
                                 div().withClass("flex-grow"),
-                                submitButton("Delete")
+                                Button.builder()
+                                    .setText("Delete")
+                                    .setStyle(ButtonStyle.SOLID_BLUE)
+                                    .setButtonAction(ButtonAction.ofSubmit())
+                                    .build()
                                     .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
 
     return Modal.builder()
@@ -403,7 +410,12 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .with(
                         defaultCheckbox,
                         div().withClass("flex-grow"),
-                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                        Button.builder()
+                            .setText("Confirm")
+                            .setStyle(ButtonStyle.SOLID_BLUE)
+                            .setButtonAction(ButtonAction.ofSubmit())
+                            .build()
+                            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(content)

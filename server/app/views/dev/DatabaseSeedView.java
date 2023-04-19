@@ -23,6 +23,9 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 
 /**
  * Renders a page for a developer to seed the database. This is only available in non-prod
@@ -63,20 +66,37 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Generate mock program"))
+                            .with(
+                                Button.builder()
+                                    .setText("Generate mock program")
+                                    .setStyle(ButtonStyle.SOLID_BLUE)
+                                    .setButtonAction(ButtonAction.ofSubmit())
+                                    .build())
                             .withMethod("post")
                             .withAction(routes.DatabaseSeedController.seed().url()))
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Seed canonical questions").withId("canonical-questions"))
+                            .with(
+                                Button.builder()
+                                    .setText("Seed canonical questions")
+                                    .setStyle(ButtonStyle.SOLID_BLUE)
+                                    .setButtonAction(ButtonAction.ofSubmit())
+                                    .build()
+                                    .withId("canonical-questions"))
                             .withMethod("post")
                             .withAction(
                                 routes.DatabaseSeedController.seedCanonicalQuestions().url()))
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Clear entire database (irreversible!)").withId("clear"))
+                            .with(
+                                Button.builder()
+                                    .setText("Clear entire database (irreversible!)")
+                                    .setStyle(ButtonStyle.SOLID_BLUE)
+                                    .setButtonAction(ButtonAction.ofSubmit())
+                                    .build()
+                                    .withId("clear"))
                             .withMethod("post")
                             .withAction(routes.DatabaseSeedController.clear().url())))
             .with(

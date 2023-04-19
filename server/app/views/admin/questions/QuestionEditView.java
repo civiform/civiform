@@ -271,14 +271,18 @@ public final class QuestionEditView extends BaseHtmlView {
                     div().withClasses("flex-grow"),
                     asRedirectElement(
                             Button.builder()
-                                .setId("cancel-button")
                                 .setText("Cancel")
                                 .setStyle(ButtonStyle.SOLID_BLUE)
                                 .setButtonAction(ButtonAction.ofNone())
+                                .setId("cancel-button")
                                 .build(),
                             cancelUrl)
                         .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
-                    submitButton("Create")
+                    Button.builder()
+                        .setText("Create")
+                        .setStyle(ButtonStyle.SOLID_BLUE)
+                        .setButtonAction(ButtonAction.ofSubmit())
+                        .build()
                         .withClass("m-4")
                         .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
 
@@ -297,7 +301,13 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClasses("ml-2", AdminStyles.PRIMARY_BUTTON_STYLES));
+        .with(
+            Button.builder()
+                .setText("Update")
+                .setStyle(ButtonStyle.SOLID_BLUE)
+                .setButtonAction(ButtonAction.ofSubmit())
+                .setCustomClasses("ml-2")
+                .build());
     return formTag;
   }
 

@@ -31,6 +31,9 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -87,7 +90,12 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "ml-2", "mb-6")))
+                Button.builder()
+                    .setText("Add")
+                    .setStyle(ButtonStyle.SOLID_BLUE)
+                    .setButtonAction(ButtonAction.ofSubmit())
+                    .setCustomClasses("ml-2", "mb-6")
+                    .build()))
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 

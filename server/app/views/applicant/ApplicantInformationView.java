@@ -84,10 +84,10 @@ public class ApplicantInformationView extends BaseHtmlView {
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
     ButtonTag formSubmit =
         Button.builder()
-            .setId("lang-submit-button")
             .setText(submitText)
             .setStyle(ButtonStyle.SOLID_BLUE)
             .setButtonAction(ButtonAction.ofSubmit())
+            .setId("lang-submit-button")
             .setCustomClasses("mx-auto")
             .build();
     formContent.with(formSubmit);

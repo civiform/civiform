@@ -70,6 +70,9 @@ import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -296,7 +299,13 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     formTag.with(valueRowContainer);
     formTag.with(div(makeSvgTextButton("Add values", Icons.ADD).withId("predicate-add-value-row")));
-    formTag.with(submitButton("Save condition").withClasses("my-4"));
+    formTag.with(
+        Button.builder()
+            .setText("Save condition")
+            .setStyle(ButtonStyle.SOLID_BLUE)
+            .setButtonAction(ButtonAction.ofSubmit())
+            .build()
+            .withClasses("my-4"));
 
     return formTag;
   }

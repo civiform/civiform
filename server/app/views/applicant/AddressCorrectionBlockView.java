@@ -233,10 +233,10 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
 
   private ButtonTag renderNextButton(Params params) {
     return Button.builder()
-        .setId("cf-block-submit")
         .setText(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .setStyle(ButtonStyle.SOLID_BLUE)
         .setButtonAction(ButtonAction.ofSubmit())
+        .setId("cf-block-submit")
         .build();
   }
 

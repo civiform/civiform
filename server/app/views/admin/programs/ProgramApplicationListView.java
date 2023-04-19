@@ -49,6 +49,9 @@ import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.components.buttons.Button;
+import views.components.buttons.ButtonAction;
+import views.components.buttons.ButtonStyle;
 import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -292,22 +295,25 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                         div()
                             .withClasses("flex", "mt-6", "space-x-2")
                             .with(
-                                TagCreator.button("Download CSV")
-                                    .withClasses(
+                                Button.builder()
+                                    .setText("Download CSV")
+                                    .setStyle(ButtonStyle.SOLID_BLUE)
+                                    .setButtonAction(
+                                        ButtonAction.ofSubmitWithFormAction(
+                                            controllers.admin.routes.AdminApplicationController
+                                                .downloadAll(
+                                                    program.id(),
+                                                    /* search= */ Optional.empty(),
+                                                    /* fromDate= */ Optional.empty(),
+                                                    /* untilDate= */ Optional.empty(),
+                                                    /* applicationStatus= */ Optional.empty(),
+                                                    /* ignoreFilters= */ Optional.empty())
+                                                .url()))
+                                    .setId("download-csv-button")
+                                    .setCustomClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
-                                        ReferenceClasses.MODAL_CLOSE,
-                                        AdminStyles.PRIMARY_BUTTON_STYLES)
-                                    .withFormaction(
-                                        controllers.admin.routes.AdminApplicationController
-                                            .downloadAll(
-                                                program.id(),
-                                                /* search= */ Optional.empty(),
-                                                /* fromDate= */ Optional.empty(),
-                                                /* untilDate= */ Optional.empty(),
-                                                /* applicationStatus= */ Optional.empty(),
-                                                /* ignoreFilters= */ Optional.empty())
-                                            .url())
-                                    .withType("submit"),
+                                        ReferenceClasses.MODAL_CLOSE)
+                                    .build(),
                                 TagCreator.button("Download JSON")
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
