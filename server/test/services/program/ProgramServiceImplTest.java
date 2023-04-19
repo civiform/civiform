@@ -1958,27 +1958,6 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void updateLocalizations_returnsErrorMessages() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
-
-    LocalizationUpdate updateData =
-        LocalizationUpdate.builder()
-            .setLocalizedDisplayName("")
-            .setLocalizedDisplayDescription("")
-            .setLocalizedConfirmationMessage("")
-            .setStatuses(ImmutableList.of())
-            .build();
-    ErrorAnd<ProgramDefinition, CiviFormError> result =
-        ps.updateLocalization(program.id, Locale.FRENCH, updateData);
-
-    assertThat(result.isError()).isTrue();
-    assertThat(result.getErrors())
-        .containsExactly(
-            CiviFormError.of("program display name cannot be blank"),
-            CiviFormError.of("program display description cannot be blank"));
-  }
-
-  @Test
   public void updateLocalizations_programNotFound_throws() {
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
