@@ -1,4 +1,4 @@
-package views.components.buttons;
+package views.components;
 
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -40,13 +40,6 @@ public final class ButtonStyles {
   private static final String BUTTON_BASE_OUTLINE_SEMIBOLD =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE, "font-semibold", "px-8");
 
-  public static final String BUTTON_PROGRAM_APPLY =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-sm", "mx-auto");
-  public static final String BUTTON_TI_DASHBOARD =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-xl");
-
-  public static final String BUTTON_SUBMIT_APPLICATION =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base", "mx-auto");
   public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID, "text-base", "normal-case", "font-normal", "px-4");
   public static final String BUTTON_ENUMERATOR_REMOVE_ENTITY =
@@ -59,6 +52,13 @@ public final class ButtonStyles {
           "self-center");
   public static final String SOLID_BLUE =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
+
+  public static final String SOLID_BLUE_TEXT_SM =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-sm");
+
+  public static final String SOLID_BLUE_TEXT_XL =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-xl");
+
   public static final String SOLID_WHITE =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
 

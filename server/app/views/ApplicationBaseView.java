@@ -13,8 +13,8 @@ import play.mvc.Http;
 import services.MessageKey;
 import services.applicant.Block;
 import services.cloud.StorageClient;
-import views.components.ToastMessage;
 import views.components.ButtonStyles;
+import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 public class ApplicationBaseView extends BaseHtmlView {

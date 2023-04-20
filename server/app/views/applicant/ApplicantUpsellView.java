@@ -18,10 +18,10 @@ import play.i18n.Messages;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
-import views.components.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 

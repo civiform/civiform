@@ -20,11 +20,11 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantService;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
-import views.components.ButtonStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a confirmation page after application submission, for the common intake form. */

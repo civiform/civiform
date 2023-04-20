@@ -20,8 +20,8 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
-import views.components.FieldWithLabel;
 import views.components.ButtonStyles;
+import views.components.FieldWithLabel;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 

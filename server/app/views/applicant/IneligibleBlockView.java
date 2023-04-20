@@ -18,9 +18,9 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
 import views.HtmlBundle;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
-import views.components.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 

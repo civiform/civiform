@@ -53,12 +53,12 @@ import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.TranslationUtils;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
-import views.components.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -448,7 +448,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                     program.localizedName().getOrDefault(preferredLocale)))
             .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
-            .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.BUTTON_PROGRAM_APPLY);
+            .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
 
     DivTag actionDiv =
         div(actionButton).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
