@@ -81,8 +81,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       ActiveAndDraftQuestions questions,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
-    if (profile.isPresent() && profile.get().isProgramAdmin() && !profile.get().isCiviFormAdmin()) {
-      layout.setOnlyProgramAdminType();
+    if (profile.isPresent()) {
+      layout.setAdminType(profile.get());
     }
 
     String pageTitle = "Program dashboard";

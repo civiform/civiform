@@ -8,6 +8,7 @@ import static views.admin.programs.ProgramApplicationView.SEND_EMAIL;
 
 import annotations.BindingAnnotations.Now;
 import auth.Authorizers;
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
@@ -505,9 +506,11 @@ public final class AdminApplicationController extends CiviFormController {
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, F.Either.Right(paginationSpec), filters);
 
+    CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
         applicationListView.render(
             request,
+            profile,
             program,
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
@@ -529,5 +532,11 @@ public final class AdminApplicationController extends CiviFormController {
         .distinct()
         .sorted()
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private CiviFormProfile getCiviFormProfile(Http.Request request) {
+    return profileUtils
+        .currentUserProfile(request)
+        .orElseThrow(() -> new RuntimeException("User authorized as admin but no profile found."));
   }
 }
