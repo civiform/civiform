@@ -88,6 +88,9 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         ButtonStyles.SOLID_BLUE,
+                        "text-base",
+                        "normal-case",
+                        "font-normal",
                         "px-4",
                         StyleUtils.disabled("bg-gray-200", "text-gray-400"))
                     .with(
@@ -176,10 +179,12 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     confirmationMessage))
             .withClasses(
                 ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON,
-                ButtonStyles.OUTLINED_TRANSPARENT,
+                StyleUtils.removeStyles(ButtonStyles.OUTLINED_TRANSPARENT, "px-8"),
+                "text-base",
+                "normal-case",
+                "font-normal",
                 "justify-self-end",
-                "self-center",
-                "normal-case")
+                "self-center")
             .withText(
                 messages.at(
                         MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(),
