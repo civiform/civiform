@@ -3,7 +3,12 @@ package views.components;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
-/** A collection of styles for buttons throughout CiviForm. */
+/**
+ * A collection of styles for buttons throughout CiviForm. Importantly, the public style Strings in
+ * this file should be **generalizable**, meaning they are not designed for a particuar use case.
+ * Styles should not be called i.e. BUTTON_SUBMIT_APPLICATION for example. If a specific change is
+ * required for a use case, use a general style and add more classes in the client code.
+ */
 public final class ButtonStyles {
   /**
    * Base styles for buttons in the applicant UI. This is missing a specified text size, so that
