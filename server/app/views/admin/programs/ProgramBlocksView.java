@@ -92,7 +92,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
-  private static final String QUESTIONS_SECTION_ID = "questions-section"
+  private static final String QUESTIONS_SECTION_ID = "questions-section";
 
   @Inject
   public ProgramBlocksView(
