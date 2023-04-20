@@ -429,6 +429,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     DivTag programQuestions =
         div()
+            .withId(QUESTIONS_SECTION_ID)
             .withClasses("my-4")
             .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
 
@@ -470,11 +471,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
-      return div.withId(QUESTIONS_SECTION_ID).with(programQuestions, addQuestion);
+      return div.with(programQuestions, addQuestion);
     } else {
       div.with(blockInfoDisplay, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
-      return div.withId(QUESTIONS_SECTION_ID).with(programQuestions);
+      return div.with(programQuestions);
     }
   }
 
