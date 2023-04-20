@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import featureflags.FeatureFlag;
+import featureflags.FeatureFlags;
 import forms.ProgramQuestionDefinitionAddressCorrectionEnabledForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
@@ -36,17 +38,20 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final VersionRepository versionRepository;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminProgramBlockQuestionsController(
       ProgramService programService,
       VersionRepository versionRepository,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -153,8 +158,17 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for editing whether or not a question has address correction enabled. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setAddressCorrectionEnabled(
-      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId)
+      throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
+
+    if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
+        || programService
+            .getProgramDefinition(programId)
+            .isQuestionUsedInPredicate(questionDefinitionId)) {
+      return redirect(
+          controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
+    }
 
     ProgramQuestionDefinitionAddressCorrectionEnabledForm
         programQuestionDefinitionAddressCorrectionEnabledForm =
