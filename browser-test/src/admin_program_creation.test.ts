@@ -170,7 +170,11 @@ describe('program creation', () => {
     // the input value shows what it will be set to when clicked
     expect(await addressCorrectionInput.inputValue()).toBe('true')
 
+    const responsePromise = page.waitForResponse((response) => {
+      return response.url().includes('setAddressCorrectionEnabled')
+    })
     await adminPrograms.clickAddressCorrectionToggle()
+    await responsePromise
 
     expect(await addressCorrectionInput.inputValue()).toBe('false')
 
