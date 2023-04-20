@@ -40,16 +40,7 @@ public final class ButtonStyles {
   private static final String BUTTON_BASE_OUTLINE_SEMIBOLD =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE, "font-semibold", "px-8");
 
-  public static final String BUTTON_ENUMERATOR_ADD_ENTITY =
-      StyleUtils.joinStyles(BUTTON_BASE_SOLID, "text-base", "normal-case", "font-normal", "px-4");
-  public static final String BUTTON_ENUMERATOR_REMOVE_ENTITY =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_OUTLINE,
-          "text-base",
-          "normal-case",
-          "font-normal",
-          "justify-self-end",
-          "self-center");
+  // ---------------- CLIENT-FACING STYLES BELOW ----------------
 
   public static final String SOLID_WHITE =
       StyleUtils.joinStyles(
