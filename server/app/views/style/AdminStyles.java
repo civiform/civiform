@@ -63,19 +63,6 @@ public final class AdminStyles {
       StyleUtils.joinStyles(
           "bg-white", "border", "border-gray-200", "mt-12", "shadow-lg", "w-screen");
 
-  public static final String BUTTON_QUESTION_PREDICATE =
-      StyleUtils.joinStyles(
-          "w-full",
-          "px-4",
-          "py-2",
-          "border",
-          "border-gray-200",
-          "text-black",
-          "text-left",
-          "font-normal",
-          "bg-white",
-          StyleUtils.hover("text-gray-800", "bg-gray-100"));
-
   private static final String BASE_BUTTON_STYLES =
       StyleUtils.joinStyles("flex", "items-center", "font-medium");
 
@@ -102,16 +89,6 @@ public final class AdminStyles {
       StyleUtils.joinStyles(
           BASE_BUTTON_STYLES,
           "space-x-2",
-          "border-none",
-          "rounded",
-          "bg-transparent",
-          BaseStyles.TEXT_SEATTLE_BLUE,
-          StyleUtils.hover("bg-gray-200"));
-
-  public static final String DROPDOWN_BUTTON_STYLES =
-      StyleUtils.joinStyles(
-          BASE_BUTTON_STYLES,
-          "space-x-4",
           "border-none",
           "rounded",
           "bg-transparent",
