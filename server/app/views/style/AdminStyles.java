@@ -1,5 +1,7 @@
 package views.style;
 
+import views.components.ButtonStyles;
+
 /** Styles for admin pages. */
 public final class AdminStyles {
 
@@ -66,13 +68,8 @@ public final class AdminStyles {
   private static final String BASE_BUTTON_STYLES =
       StyleUtils.joinStyles("flex", "items-center", "font-medium");
 
-  public static final String PRIMARY_BUTTON_STYLES =
-      StyleUtils.joinStyles(
-          BASE_BUTTON_STYLES,
-          "rounded-full",
-          "space-x-2",
-          BaseStyles.BG_SEATTLE_BLUE,
-          "text-white");
+  // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
+  public static final String PRIMARY_BUTTON_STYLES = ButtonStyles.SOLID_BLUE;
 
   public static final String SECONDARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
