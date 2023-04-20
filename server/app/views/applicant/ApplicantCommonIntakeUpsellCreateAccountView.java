@@ -24,7 +24,7 @@ import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ToastMessage;
-import views.style.ApplicantStyles;
+import views.components.ButtonStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a confirmation page after application submission, for the common intake form. */
@@ -66,7 +66,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                   controllers.applicant.routes.ApplicantProgramReviewController.review(
                           applicantId, programId)
                       .url())
-              .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION));
+              .withClasses(ButtonStyles.SOLID_WHITE));
     }
 
     if (shouldUpsell) {

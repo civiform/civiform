@@ -46,6 +46,7 @@ import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.LinkElement;
+import views.components.ButtonStyles;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -258,9 +259,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .withId("ti-dashboard-link")
               .withHref(tiDashboardLink)
               .withClasses(
-                  "opacity-75",
-                  StyleUtils.hover("opacity-100"),
-                  ApplicantStyles.BUTTON_TI_DASHBOARD),
+                  "opacity-75", StyleUtils.hover("opacity-100"), ButtonStyles.BUTTON_TI_DASHBOARD),
           div("(applying as: " + userName + ")")
               .withClasses("text-sm", "text-black", "text-center"));
     }

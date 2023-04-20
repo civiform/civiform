@@ -22,6 +22,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.FileNameFormatter;
 import services.cloud.StorageUploadRequest;
+import views.components.ButtonStyles;
 import views.questiontypes.ApplicantQuestionRendererFactory;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.FileUploadQuestionRenderer;
@@ -180,7 +181,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         TagCreator.button(buttonText)
             .withType("submit")
             .withForm(FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_REVIEW)
+            .withClasses(ButtonStyles.SOLID_WHITE)
             .withId(buttonId);
     return Optional.of(button);
   }
@@ -197,7 +198,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
     ButtonTag button =
         submitButton(params.messages().at(MessageKey.BUTTON_KEEP_FILE.getKeyName()))
             .withForm(FILEUPLOAD_CONTINUE_FORM_ID)
-            .withClasses(ApplicantStyles.BUTTON_BLOCK_NEXT)
+            .withClasses(ButtonStyles.SOLID_BLUE)
             .withId(FILEUPLOAD_CONTINUE_BUTTON_ID);
     return Optional.of(button);
   }
@@ -248,9 +249,9 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   }
 
   private ButtonTag renderNextButton(Params params) {
-    String styles = ApplicantStyles.BUTTON_BLOCK_NEXT;
+    String styles = ButtonStyles.SOLID_BLUE;
     if (hasUploadedFile(params)) {
-      styles = ApplicantStyles.BUTTON_REVIEW;
+      styles = ButtonStyles.SOLID_WHITE;
     }
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withForm(BLOCK_FORM_ID)

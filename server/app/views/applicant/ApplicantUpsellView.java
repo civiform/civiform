@@ -21,6 +21,7 @@ import views.HtmlBundle;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
+import views.components.ButtonStyles;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
 
@@ -43,7 +44,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
                                 messages.at(
                                     MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT.getKeyName()),
                                 postLoginRedirectTo)
-                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
+                            .withClasses(ButtonStyles.SOLID_WHITE),
                         createLoginButton("modal-sign-in", messages, postLoginRedirectTo),
                         createNewAccountButton("modal-sign-up", messages))
                     .withClasses(
@@ -58,7 +59,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
         .setContent(modalContent)
         .setTriggerButtonContent(
             button(messages.at(triggerButtonMsg.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
+                .withClasses(ButtonStyles.SOLID_WHITE))
         .setModalTitle(modalTitle)
         .setWidth(Width.HALF)
         .build();
@@ -70,7 +71,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             buttonId,
             messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
             routes.LoginController.applicantLogin(Optional.of(postLoginRedirectTo)).url())
-        .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION);
+        .withClasses(ButtonStyles.SOLID_WHITE);
   }
 
   protected static ButtonTag createNewAccountButton(String buttonId, Messages messages) {
@@ -78,7 +79,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             buttonId,
             messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
             routes.LoginController.register().url())
-        .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
+        .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
   protected static ButtonTag createApplyToProgramsButton(
@@ -87,7 +88,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             buttonId,
             buttonText,
             controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
-        .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
+        .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
   protected static DivTag createMainContent(

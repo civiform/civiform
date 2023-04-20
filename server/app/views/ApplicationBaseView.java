@@ -14,8 +14,8 @@ import services.MessageKey;
 import services.applicant.Block;
 import services.cloud.StorageClient;
 import views.components.ToastMessage;
+import views.components.ButtonStyles;
 import views.questiontypes.ApplicantQuestionRendererParams;
-import views.style.ApplicantStyles;
 
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
@@ -27,7 +27,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)
-        .withClasses(ApplicantStyles.BUTTON_REVIEW);
+        .withClasses(ButtonStyles.SOLID_WHITE);
   }
 
   protected ATag renderPreviousButton(ApplicationBaseView.Params params) {
@@ -46,7 +46,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     }
     return a().withHref(redirectUrl)
         .withText(params.messages().at(MessageKey.BUTTON_PREVIOUS_SCREEN.getKeyName()))
-        .withClasses(ApplicantStyles.BUTTON_BLOCK_PREVIOUS)
+        .withClasses(ButtonStyles.SOLID_BLUE)
         .withId("cf-block-previous");
   }
 
