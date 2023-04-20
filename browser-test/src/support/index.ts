@@ -292,6 +292,11 @@ export const loginAsProgramAdmin = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
+export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
+  await page.click('#dual-admin')
+  await waitForPageJsLoad(page)
+}
+
 export const loginAsTrustedIntermediary = async (page: Page) => {
   await page.click('#trusted-intermediary')
   await waitForPageJsLoad(page)

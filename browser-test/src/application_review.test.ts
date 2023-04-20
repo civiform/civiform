@@ -2,6 +2,7 @@ import {
   createTestContext,
   isHermeticTestEnvironment,
   loginAsAdmin,
+  loginAsCiviformAndProgramAdmin,
   loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -262,6 +263,34 @@ describe('Program admin review of submitted applications', () => {
 
     if (isHermeticTestEnvironment()) {
       await validateScreenshot(page, 'program-specific-reporting-page')
+    }
+
+    // Validate the views for CF and program admins.
+    await logout(page)
+    await loginAsCiviformAndProgramAdmin(page)
+    await waitForPageJsLoad(page)
+
+    await page.click(
+      adminPrograms.withinProgramCardSelector(
+        programName,
+        'Active',
+        '.cf-with-dropdown',
+      ),
+    )
+    await page.click(
+      adminPrograms.withinProgramCardSelector(
+        programName,
+        'ACTIVE',
+        'button :text("Applications")',
+      ),
+    )
+    await waitForPageJsLoad(page)
+    await validateScreenshot(page, 'cf-admin-applications-page')
+
+    if (isHermeticTestEnvironment()) {
+      await page.click('text=Reporting')
+      await waitForPageJsLoad(page)
+      await validateScreenshot(page, 'cf-admin-reporting-page')
     }
   })
 

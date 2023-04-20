@@ -55,8 +55,8 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
       ActiveAndDraftPrograms programs,
       List<String> authorizedPrograms,
       Optional<CiviFormProfile> civiformProfile) {
-    if (civiformProfile.isPresent() && civiformProfile.get().isOnlyProgramAdmin()) {
-      layout.setOnlyProgramAdminType();
+    if (civiformProfile.isPresent()) {
+      layout.setAdminType(civiformProfile.get());
     }
 
     String title = "Your programs";

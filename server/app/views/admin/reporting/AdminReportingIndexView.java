@@ -36,10 +36,6 @@ public final class AdminReportingIndexView extends BaseHtmlView {
   }
 
   public Content render(CiviFormProfile profile, ReportingService.MonthlyStats monthlyStats) {
-    if (profile.isProgramAdmin() && !profile.isCiviFormAdmin()) {
-      layout.setOnlyProgramAdminType();
-    }
-
     ImmutableList<ApplicationSubmissionsStat> allApplicationsMonthlyStats =
         monthlyStats.monthlySubmissionsAggregated();
     ImmutableList<ApplicationSubmissionsStat> totalSubmissionsByProgram =
@@ -58,7 +54,8 @@ public final class AdminReportingIndexView extends BaseHtmlView {
     contentDiv.with(renderAggregatedProgramStats(totalSubmissionsByProgram));
     contentDiv.with(renderAllApplicationsMonthlyStats(allApplicationsMonthlyStats));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout.setAdminType(profile).getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

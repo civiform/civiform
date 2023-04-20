@@ -506,10 +506,11 @@ public final class AdminApplicationController extends CiviFormController {
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, F.Either.Right(paginationSpec), filters);
 
+    CiviFormProfile profile = getCiviFormProfile(request);
     return ok(
         applicationListView.render(
             request,
-            getCiviFormProfile(request),
+            profile,
             program,
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,

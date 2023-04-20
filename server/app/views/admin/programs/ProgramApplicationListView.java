@@ -90,10 +90,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri) {
-    if (profile.isOnlyProgramAdmin()) {
-      layout.setOnlyProgramAdminType();
-    }
-
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
     Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
@@ -146,6 +142,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
+            .setAdminType(profile)
             .getBundle()
             .setTitle(program.adminName() + " - Applications")
             .addModals(downloadModal)
