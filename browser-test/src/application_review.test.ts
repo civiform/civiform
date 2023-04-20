@@ -268,7 +268,6 @@ describe('Program admin review of submitted applications', () => {
     // Validate the views for CF and program admins.
     await logout(page)
     await loginAsCiviformAndProgramAdmin(page)
-    await waitForPageJsLoad(page)
 
     await page.click(
       adminPrograms.withinProgramCardSelector(
