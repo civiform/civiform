@@ -50,6 +50,11 @@ public final class ButtonStyles {
           "font-normal",
           "justify-self-end",
           "self-center");
+
+  public static final String SOLID_WHITE =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_OUTLINE_SEMIBOLD, BaseStyles.BG_CIVIFORM_WHITE, "text-blue-900");
+
   public static final String SOLID_BLUE =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-base");
 
@@ -59,10 +64,6 @@ public final class ButtonStyles {
   public static final String SOLID_BLUE_TEXT_XL =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_SEMIBOLD, "text-xl");
 
-  public static final String SOLID_WHITE =
+  public static final String OUTLINED_TRANSPARENT =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
-
-  public static final String BUTTON_PROGRAMS_PAGE_WHITE =
-      StyleUtils.joinStyles(
-          BUTTON_BASE_OUTLINE_SEMIBOLD, BaseStyles.BG_CIVIFORM_WHITE, "text-blue-900");
 }

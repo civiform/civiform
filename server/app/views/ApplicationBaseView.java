@@ -27,7 +27,7 @@ public class ApplicationBaseView extends BaseHtmlView {
     return a().withHref(reviewUrl)
         .withText(params.messages().at(MessageKey.BUTTON_REVIEW.getKeyName()))
         .withId(REVIEW_APPLICATION_BUTTON_ID)
-        .withClasses(ButtonStyles.SOLID_WHITE);
+        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT);
   }
 
   protected ATag renderPreviousButton(ApplicationBaseView.Params params) {

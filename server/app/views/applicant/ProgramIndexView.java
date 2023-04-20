@@ -168,13 +168,13 @@ public final class ProgramIndexView extends BaseHtmlView {
                             "login-button",
                             messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
                             routes.LoginController.applicantLogin(Optional.empty()).url())
-                        .withClasses(ButtonStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                        .withClasses(ButtonStyles.SOLID_WHITE, "basis-60"))
                 .with(
                     redirectButton(
                             "create-account",
                             messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
                             routes.LoginController.register().url())
-                        .withClasses(ButtonStyles.BUTTON_PROGRAMS_PAGE_WHITE, "basis-60"))
+                        .withClasses(ButtonStyles.SOLID_WHITE, "basis-60"))
                 .withClasses(
                     "flex",
                     "flex-row",

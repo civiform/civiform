@@ -97,7 +97,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()
-                            .withClasses(ButtonStyles.SOLID_WHITE))
+                            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT))
                     .with(
                         new LinkElement()
                             .setHref(

@@ -181,7 +181,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
         TagCreator.button(buttonText)
             .withType("submit")
             .withForm(FILEUPLOAD_DELETE_FORM_ID)
-            .withClasses(ButtonStyles.SOLID_WHITE)
+            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)
             .withId(buttonId);
     return Optional.of(button);
   }
@@ -251,7 +251,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   private ButtonTag renderNextButton(Params params) {
     String styles = ButtonStyles.SOLID_BLUE;
     if (hasUploadedFile(params)) {
-      styles = ButtonStyles.SOLID_WHITE;
+      styles = ButtonStyles.OUTLINED_TRANSPARENT;
     }
     return submitButton(params.messages().at(MessageKey.BUTTON_NEXT_SCREEN.getKeyName()))
         .withForm(BLOCK_FORM_ID)

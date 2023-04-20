@@ -66,7 +66,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                   controllers.applicant.routes.ApplicantProgramReviewController.review(
                           applicantId, programId)
                       .url())
-              .withClasses(ButtonStyles.SOLID_WHITE));
+              .withClasses(ButtonStyles.OUTLINED_TRANSPARENT));
     }
 
     if (shouldUpsell) {

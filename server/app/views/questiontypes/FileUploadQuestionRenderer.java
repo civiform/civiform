@@ -73,7 +73,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             label()
                 .withFor(fileInputId)
                 .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
-                .withClasses(ButtonStyles.SOLID_WHITE, "w-44", "mt-2", "cursor-pointer"));
+                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer"));
   }
 
   @Override
