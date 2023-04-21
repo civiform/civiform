@@ -80,8 +80,7 @@ public class ApplicantInformationView extends BaseHtmlView {
             .with(languageSelectorFieldset);
 
     String submitText = messages.at(MessageKey.BUTTON_UNTRANSLATED_SUBMIT.getKeyName());
-    ButtonTag formSubmit =
-        submitButton(submitText).withClasses(ButtonStyles.SOLID_BLUE, "text-base", "mx-auto");
+    ButtonTag formSubmit = submitButton(submitText).withClasses(ButtonStyles.SOLID_BLUE, "mx-auto");
     formContent.with(formSubmit);
 
     // No translation needed since this appears before applicants select their preferred language,

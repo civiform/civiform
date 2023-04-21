@@ -88,7 +88,6 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
                         ButtonStyles.SOLID_BLUE,
-                        "text-base",
                         "normal-case",
                         "font-normal",
                         "px-4",
