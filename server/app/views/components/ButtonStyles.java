@@ -15,14 +15,14 @@ public final class ButtonStyles {
    * added by other button style constants that use this as a base.
    */
   private static final String BUTTON_BASE =
-      StyleUtils.joinStyles(
-          "block", "py-2", "text-center", "rounded-full", "border", "border-transparent");
+      StyleUtils.joinStyles("block", "py-2", "text-center", "rounded-full", "border");
 
   /** Base styles for semibold buttons with a solid blue background. */
   private static final String BUTTON_BASE_SOLID_BLUE_SEMIBOLD =
       StyleUtils.joinStyles(
           BUTTON_BASE,
           BaseStyles.BG_SEATTLE_BLUE,
+          "border-transparent",
           "text-white",
           "rounded-full",
           "font-semibold",
@@ -34,8 +34,7 @@ public final class ButtonStyles {
       StyleUtils.joinStyles(
           "font-semibold",
           "px-8",
-          // Remove "border-transparent" so it doesn't conflict with "border-seattle-blue".
-          StyleUtils.removeStyles(BUTTON_BASE, "border-transparent"),
+          BUTTON_BASE,
           "bg-transparent",
           BaseStyles.TEXT_SEATTLE_BLUE,
           BaseStyles.BORDER_SEATTLE_BLUE,
@@ -58,4 +57,14 @@ public final class ButtonStyles {
 
   public static final String OUTLINED_TRANSPARENT =
       StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
+
+  public static final String OUTLINED_WHITE_WITH_ICON =
+      StyleUtils.joinStyles(
+          StyleUtils.removeStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "px-8", "bg-transparent"),
+          "flex",
+          "items-center",
+          "font-medium",
+          "space-x-2",
+          "bg-white",
+          StyleUtils.hover("bg-gray-200"));
 }

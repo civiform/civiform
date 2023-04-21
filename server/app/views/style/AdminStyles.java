@@ -71,16 +71,8 @@ public final class AdminStyles {
   // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
   public static final String PRIMARY_BUTTON_STYLES = ButtonStyles.SOLID_BLUE;
 
-  public static final String SECONDARY_BUTTON_STYLES =
-      StyleUtils.joinStyles(
-          BASE_BUTTON_STYLES,
-          "rounded-full",
-          "space-x-2",
-          "border",
-          BaseStyles.BORDER_SEATTLE_BLUE,
-          "bg-white",
-          BaseStyles.TEXT_SEATTLE_BLUE,
-          StyleUtils.hover("bg-gray-200"));
+  // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
+  public static final String SECONDARY_BUTTON_STYLES = ButtonStyles.OUTLINED_WHITE_WITH_ICON;
 
   public static final String TERTIARY_BUTTON_STYLES =
       StyleUtils.joinStyles(
