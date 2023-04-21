@@ -1,0 +1,61 @@
+package views.components;
+
+import views.style.BaseStyles;
+import views.style.StyleUtils;
+
+/**
+ * A collection of styles for buttons throughout CiviForm. Importantly, the public style Strings in
+ * this file should be **generalizable**, meaning they are not designed for a particuar use case.
+ * Styles should not be called i.e. BUTTON_SUBMIT_APPLICATION for example. If a specific change is
+ * required for a use case, use a general style and add more classes in the client code.
+ */
+public final class ButtonStyles {
+  /**
+   * Base styles for buttons in CiviForm. This is missing a specified text size, so that should be
+   * added by other button style constants that use this as a base.
+   */
+  private static final String BUTTON_BASE =
+      StyleUtils.joinStyles(
+          "block", "py-2", "text-center", "rounded-full", "border", "border-transparent");
+
+  /** Base styles for semibold buttons with a solid blue background. */
+  private static final String BUTTON_BASE_SOLID_BLUE_SEMIBOLD =
+      StyleUtils.joinStyles(
+          BUTTON_BASE,
+          BaseStyles.BG_SEATTLE_BLUE,
+          "text-white",
+          "rounded-full",
+          "font-semibold",
+          "px-8",
+          StyleUtils.hover("bg-blue-700"),
+          StyleUtils.disabled("bg-gray-200", "text-gray-400"));
+
+  private static final String BUTTON_BASE_OUTLINE_SEMIBOLD =
+      StyleUtils.joinStyles(
+          "font-semibold",
+          "px-8",
+          // Remove "border-transparent" so it doesn't conflict with "border-seattle-blue".
+          StyleUtils.removeStyles(BUTTON_BASE, "border-transparent"),
+          "bg-transparent",
+          BaseStyles.TEXT_SEATTLE_BLUE,
+          BaseStyles.BORDER_SEATTLE_BLUE,
+          StyleUtils.hover("bg-blue-100"));
+
+  // ---------------- CLIENT-FACING STYLES BELOW ----------------
+
+  public static final String SOLID_WHITE =
+      StyleUtils.joinStyles(
+          BUTTON_BASE_OUTLINE_SEMIBOLD, BaseStyles.BG_CIVIFORM_WHITE, "text-blue-900");
+
+  public static final String SOLID_BLUE =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "text-base");
+
+  public static final String SOLID_BLUE_TEXT_SM =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "text-sm");
+
+  public static final String SOLID_BLUE_TEXT_XL =
+      StyleUtils.joinStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "text-xl");
+
+  public static final String OUTLINED_TRANSPARENT =
+      StyleUtils.joinStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "text-base");
+}

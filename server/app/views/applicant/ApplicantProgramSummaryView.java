@@ -30,6 +30,7 @@ import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
@@ -93,8 +94,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     if (params.completedBlockCount() == params.totalBlockCount()) {
       continueOrSubmitButton =
           submitButton(messages.at(MessageKey.BUTTON_SUBMIT.getKeyName()))
-              .withClasses(
-                  ReferenceClasses.SUBMIT_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
+              .withClasses(ReferenceClasses.SUBMIT_BUTTON, ButtonStyles.SOLID_BLUE, "mx-auto");
     } else {
       String applyUrl =
           routes.ApplicantProgramsController.edit(params.applicantId(), params.programId()).url();
@@ -102,8 +102,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           a().withHref(applyUrl)
               .withText(messages.at(MessageKey.BUTTON_CONTINUE.getKeyName()))
               .withId("continue-application-button")
-              .withClasses(
-                  ReferenceClasses.CONTINUE_BUTTON, ApplicantStyles.BUTTON_SUBMIT_APPLICATION);
+              .withClasses(ReferenceClasses.CONTINUE_BUTTON, ButtonStyles.SOLID_BLUE, "mx-auto");
     }
 
     DivTag content =

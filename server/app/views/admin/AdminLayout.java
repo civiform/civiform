@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
 import featureflags.FeatureFlags;
@@ -53,10 +54,12 @@ public final class AdminLayout extends BaseHtmlLayout {
   }
 
   /**
-   * Sets this layout's admin type to PROGRAM_ADMIN, used to determine which navigation to include.
+   * Sets this layout's admin type based on the CiviFormProfile, used to determine which navigation
+   * to include.
    */
-  public AdminLayout setOnlyProgramAdminType() {
-    primaryAdminType = AdminType.PROGRAM_ADMIN;
+  public AdminLayout setAdminType(CiviFormProfile profile) {
+    primaryAdminType =
+        profile.isOnlyProgramAdmin() ? AdminType.PROGRAM_ADMIN : AdminType.CIVI_FORM_ADMIN;
     return this;
   }
 

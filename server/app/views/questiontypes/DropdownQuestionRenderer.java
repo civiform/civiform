@@ -32,7 +32,8 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     Messages messages = params.messages();
     SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
 
@@ -40,6 +41,7 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
         new SelectWithLabel()
             .addReferenceClass("cf-dropdown-question")
             .setFieldName(singleSelectQuestion.getSelectionPath().toString())
+            .setAriaRequired(!isOptional)
             .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
             .setOptions(
                 singleSelectQuestion.getOptions().stream()

@@ -15,8 +15,8 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import views.FileUploadViewStrategy;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
-import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
 /**
@@ -56,7 +56,8 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
   protected DivTag renderInputTag(
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
-      ImmutableList<String> ariaDescribedByIds) {
+      ImmutableList<String> ariaDescribedByIds,
+      boolean isOptional) {
     Messages messages = params.messages();
     boolean hasErrors = !validationErrors.isEmpty();
     return div()
@@ -72,7 +73,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             label()
                 .withFor(fileInputId)
                 .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_UPLOAD, "w-44", "mt-2", "cursor-pointer"));
+                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer"));
   }
 
   @Override

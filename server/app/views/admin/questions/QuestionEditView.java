@@ -396,6 +396,7 @@ public final class QuestionEditView extends BaseHtmlView {
                     span(".")),
             FieldWithLabel.radio()
                 .setDisabled(!submittable)
+                .setAriaRequired(true)
                 .setFieldName("questionExportState")
                 .setLabelText("Don't allow answers to be exported")
                 .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
@@ -403,6 +404,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getRadioTag(),
             FieldWithLabel.radio()
                 .setDisabled(!submittable)
+                .setAriaRequired(true)
                 .setFieldName("questionExportState")
                 .setLabelText("Export exact answers")
                 .setValue(QuestionTag.DEMOGRAPHIC.getValue())
@@ -410,6 +412,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .getRadioTag(),
             FieldWithLabel.radio()
                 .setDisabled(!submittable)
+                .setAriaRequired(true)
                 .setFieldName("questionExportState")
                 .setLabelText("Export obfuscated answers")
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())

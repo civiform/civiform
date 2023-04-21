@@ -20,8 +20,8 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
-import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -52,7 +52,8 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
   @Override
   protected DivTag renderInputTags(
       ApplicantQuestionRendererParams params,
-      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors) {
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
+      boolean isOptional) {
     Messages messages = params.messages();
     EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
     String localizedEntityType = enumeratorQuestion.getEntityType();
@@ -71,6 +72,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
               /* extraStyle= */ Optional.empty(),
               /* isDisabled= */ false,
               hasErrors,
+              isOptional,
               /* elementId= */ Optional.empty()));
     }
 
@@ -85,7 +87,10 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
-                        ApplicantStyles.BUTTON_ENUMERATOR_ADD_ENTITY,
+                        ButtonStyles.SOLID_BLUE,
+                        "normal-case",
+                        "font-normal",
+                        "px-4",
                         StyleUtils.disabled("bg-gray-200", "text-gray-400"))
                     .with(
                         span("＋ ").attr("aria-hidden", "true"),
@@ -105,6 +110,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                         // Do not submit this with the form.
                         /* isDisabled= */ true,
                         hasErrors,
+                        isOptional,
                         /* elementId= */ Optional.of(ENUMERATOR_FIELD_TEMPLATE_INPUT_ID))
                     .withId(ENUMERATOR_FIELD_TEMPLATE_ID))
             .withData(
@@ -133,6 +139,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       Optional<String> extraStyle,
       boolean isDisabled,
       boolean hasErrors,
+      boolean isOptional,
       Optional<String> elementId) {
 
     String indexString = "";
@@ -144,6 +151,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .setFieldName(contextualizedPath.toString())
             .setValue(existingEntity)
             .setDisabled(isDisabled)
+            .setAriaRequired(!isOptional)
             .setLabelText(
                 messages.at(
                         MessageKey.ENUMERATOR_PLACEHOLDER_ENTITY_NAME.getKeyName(),
@@ -170,7 +178,12 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     confirmationMessage))
             .withClasses(
                 ReferenceClasses.ENUMERATOR_EXISTING_DELETE_BUTTON,
-                ApplicantStyles.BUTTON_ENUMERATOR_REMOVE_ENTITY)
+                StyleUtils.removeStyles(ButtonStyles.OUTLINED_TRANSPARENT, "px-8"),
+                "text-base",
+                "normal-case",
+                "font-normal",
+                "justify-self-end",
+                "self-center")
             .withText(
                 messages.at(
                         MessageKey.ENUMERATOR_BUTTON_REMOVE_ENTITY.getKeyName(),

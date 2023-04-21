@@ -87,7 +87,7 @@ import views.style.ReferenceClasses;
  * node, with one leaf node per question. If multiple groups or questions are specified an
  * OR_OF_SINGLE_LAYER_ANDS {@link PredicateDefinition.PredicateFormat} will result.
  */
-public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseView {
+public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
   private static final String COLUMN_WIDTH = "w-48";
 
@@ -100,7 +100,7 @@ public final class ProgramBlockPredicateConfigureView extends ProgramBlockBaseVi
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   @Inject
-  public ProgramBlockPredicateConfigureView(
+  public ProgramPredicateConfigureView(
       AdminLayoutFactory layoutFactory,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.PROGRAMS);
