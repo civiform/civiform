@@ -18,7 +18,7 @@ describe('view program references from question view', () => {
       version: 'draft',
     })
   })
-
+  
   it('shows results for referencing programs', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
