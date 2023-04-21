@@ -11,7 +11,6 @@ describe('admin program view page', () => {
   it('view active program, without draft and after creating draft', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
@@ -20,10 +19,7 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-read-only-view')
     await adminPrograms.gotoAdminProgramsPage()
     await validateScreenshot(page, 'program-list-only-one-active-program')
-    await adminPrograms.createNewVersion(
-      programName,
-      /* programReadOnlyViewEnabled = */ true,
-    )
+    await adminPrograms.createNewVersion(programName)
 
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await adminPrograms.gotoAdminProgramsPage()
@@ -33,7 +29,6 @@ describe('admin program view page', () => {
   it('view program, view multiple blocks, then start editing', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_read_only_view_enabled')
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
 
     const programName = 'Apc program'

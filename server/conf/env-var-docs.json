@@ -455,10 +455,6 @@
         "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
-      "PROGRAM_READ_ONLY_VIEW_ENABLED": {
-        "description": "If enabled, the admin UI can show a read only view of a program. If disabled, the only way to view a program is to start editing it. Is disabled by default.",
-        "type": "bool"
-      },
       "PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED": {
         "description": "Enables the [program eligibility](https://github.com/civiform/civiform/issues/3744) feature.",
         "type": "bool"

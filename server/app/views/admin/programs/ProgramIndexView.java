@@ -3,7 +3,6 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
-import static featureflags.FeatureFlag.PROGRAM_READ_ONLY_VIEW_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -350,17 +349,11 @@ public final class ProgramIndexView extends BaseHtmlView {
           maybeRenderViewApplicationsLink(activeProgram.get(), profile, request);
       applicationsLink.ifPresent(activeRowExtraActions::add);
       if (draftProgram.isEmpty()) {
-        if (featureFlags.getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED)) {
-          activeRowExtraActions.add(
-              renderEditLink(/* isActive = */ true, activeProgram.get(), request));
-        } else {
-          activeRowActions.add(renderEditLink(/* isActive = */ true, activeProgram.get(), request));
-        }
+        activeRowExtraActions.add(
+            renderEditLink(/* isActive = */ true, activeProgram.get(), request));
         activeRowExtraActions.add(renderManageProgramAdminsLink(activeProgram.get()));
       }
-      if (featureFlags.getFlagEnabled(request, PROGRAM_READ_ONLY_VIEW_ENABLED)) {
-        activeRowActions.add(renderViewLink(activeProgram.get(), request));
-      }
+      activeRowActions.add(renderViewLink(activeProgram.get(), request));
       activeRowActions.add(renderShareLink(activeProgram.get()));
       activeRow =
           Optional.of(
