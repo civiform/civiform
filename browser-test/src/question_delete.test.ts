@@ -1,7 +1,4 @@
-import {
-  createTestContext,
-  loginAsAdmin,
-} from './support'
+import {createTestContext, loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
 describe('deleting question lifecycle', () => {

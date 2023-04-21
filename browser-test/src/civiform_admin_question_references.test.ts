@@ -1,8 +1,4 @@
-import {
-  createTestContext,
-  loginAsAdmin,
-  validateScreenshot,
-} from './support'
+import {createTestContext, loginAsAdmin, validateScreenshot} from './support'
 
 describe('view program references from question view', () => {
   const ctx = createTestContext()
@@ -18,7 +14,7 @@ describe('view program references from question view', () => {
       version: 'draft',
     })
   })
-  
+
   it('shows results for referencing programs', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     const questionName = 'question-references-q'
