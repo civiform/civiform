@@ -23,6 +23,7 @@ import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
@@ -158,26 +159,32 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** POST endpoint for editing whether or not a question has address correction enabled. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result setAddressCorrectionEnabled(
-      Request request, long programId, long blockDefinitionId, long questionDefinitionId)
-      throws ProgramNotFoundException {
+      Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
-        || programService
-            .getProgramDefinition(programId)
-            .isQuestionUsedInPredicate(questionDefinitionId)) {
-      return redirect(
-          controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockDefinitionId));
-    }
-
-    ProgramQuestionDefinitionAddressCorrectionEnabledForm
-        programQuestionDefinitionAddressCorrectionEnabledForm =
-            formFactory
-                .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
-                .bindFromRequest(request)
-                .get();
-
     try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+
+      // In these cases, we warn admins that changing address correction is not allowed inthe
+      // tooltip,
+      // so we can silently ignore the request.
+      if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
+          || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
+          || programDefinition
+              .getBlockDefinition(blockDefinitionId)
+              .hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinitionId)) {
+        return redirect(
+            controllers.admin.routes.AdminProgramBlocksController.edit(
+                programId, blockDefinitionId));
+      }
+
+      ProgramQuestionDefinitionAddressCorrectionEnabledForm
+          programQuestionDefinitionAddressCorrectionEnabledForm =
+              formFactory
+                  .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
+                  .bindFromRequest(request)
+                  .get();
+
       programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
           programId,
           blockDefinitionId,
