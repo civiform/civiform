@@ -92,6 +92,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
+  private static final String QUESTIONS_SECTION_ID = "questions-section";
 
   @Inject
   public ProgramBlocksView(
@@ -428,6 +429,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     DivTag programQuestions =
         div()
+            .withId(QUESTIONS_SECTION_ID)
             .withClasses("my-4")
             .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
 
@@ -794,6 +796,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
       return Optional.empty();
     }
+
+    String toggleOptionalFormId = String.format("toggle-optional-%d", questionDefinition.getId());
+    String toggleOptionalAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
     ButtonTag optionalButton =
         TagCreator.button()
             .withClasses(
@@ -806,6 +814,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-full",
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
+            .attr("hx-post", toggleOptionalAction)
+            .attr("hx-select-oob", String.format("#%s", toggleOptionalFormId))
             .with(p("optional").withClasses("hover-group:text-white"))
             .with(
                 div()
@@ -827,14 +837,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")));
-    String toggleOptionalAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
-                programDefinitionId, blockDefinitionId, questionDefinition.getId())
-            .url();
     return Optional.of(
         form(csrfTag)
-            .withMethod(HttpVerbs.POST)
-            .withAction(toggleOptionalAction)
+            .withId(toggleOptionalFormId)
             .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
   }
@@ -874,9 +879,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
         programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
     boolean addressCorrectionEnabledQuestionAlreadyExists =
         blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
-    boolean addressCorrectionDisabled =
-        !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
-
     String toolTipText =
         "Enabling 'address correction' will check the resident's address to ensure it is accurate.";
 
@@ -893,7 +895,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (addressCorrectionDisabled) {
+    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=
@@ -908,6 +910,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       toolTip = ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO);
     }
 
+    String toggleAddressCorrectionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+                programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
+            .url();
     ButtonTag addressCorrectionButton =
         TagCreator.button()
             .withClasses(
@@ -920,6 +926,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-full",
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
+            .attr("hx-post", toggleAddressCorrectionAction)
+            // Replace entire Questions section so that the tooltips for all address questions get
+            // updated.
+            .attr("hx-select-oob", String.format("#%s", QUESTIONS_SECTION_ID))
             .with(p("Address correction").withClasses("hover-group:text-white"))
             .with(
                 div()
@@ -942,19 +952,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 "h-6",
                                 "rounded-full")))
             .with(div(toolTip));
-    String toggleAddressCorrectionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
-                programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
-            .url();
     return Optional.of(
         form(csrfTag)
-            .withMethod(HttpVerbs.POST)
-            .withCondOnsubmit(
-                !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
-                    || questionIsUsedInPredicate,
-                "return false;")
-            .withCondOnsubmit(addressCorrectionEnabledQuestionAlreadyExists, "return false;")
-            .withAction(toggleAddressCorrectionAction)
             .with(
                 input()
                     .isHidden()
