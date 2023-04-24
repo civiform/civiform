@@ -67,4 +67,16 @@ public final class ButtonStyles {
           "space-x-2",
           "bg-white",
           StyleUtils.hover("bg-gray-200"));
+
+  public static final String CLEAR_WITH_ICON =
+      StyleUtils.joinStyles(
+          "flex",
+          "items-center",
+          "font-medium",
+          "space-x-2",
+          "border-none",
+          "rounded-full",
+          "bg-transparent",
+          BaseStyles.TEXT_SEATTLE_BLUE,
+          StyleUtils.hover("bg-gray-200"));
 }
