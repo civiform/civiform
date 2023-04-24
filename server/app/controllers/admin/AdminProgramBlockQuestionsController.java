@@ -165,9 +165,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
 
-      // In these cases, we warn admins that changing address correction is not allowed inthe
-      // tooltip,
-      // so we can silently ignore the request.
+      // In these cases, we warn admins that changing address correction is not allowed in the
+      // tooltip, so we can silently ignore the request.
       if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
           || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
           || programDefinition
