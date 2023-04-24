@@ -1,0 +1,27 @@
+name: Label Checker
+on:
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
+    - labeled
+    - unlabeled
+
+jobs:
+
+  check_labels:
+    name: Check labels
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Check for label
+      run: |
+        if [ ${{ github.event.pull_request.labels[@] }} -eq 0 ]; then
+          echo "PR has at least one label. Success."
+        else
+          echo "PR does not have any labels."
+          exit 1
+        fi
