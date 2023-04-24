@@ -65,22 +65,12 @@ public final class AdminStyles {
       StyleUtils.joinStyles(
           "bg-white", "border", "border-gray-200", "mt-12", "shadow-lg", "w-screen");
 
-  private static final String BASE_BUTTON_STYLES =
-      StyleUtils.joinStyles("flex", "items-center", "font-medium");
-
   // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
   public static final String PRIMARY_BUTTON_STYLES = ButtonStyles.SOLID_BLUE;
 
   // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
   public static final String SECONDARY_BUTTON_STYLES = ButtonStyles.OUTLINED_WHITE_WITH_ICON;
 
-  public static final String TERTIARY_BUTTON_STYLES =
-      StyleUtils.joinStyles(
-          BASE_BUTTON_STYLES,
-          "space-x-2",
-          "border-none",
-          "rounded",
-          "bg-transparent",
-          BaseStyles.TEXT_SEATTLE_BLUE,
-          StyleUtils.hover("bg-gray-200"));
+  // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
+  public static final String TERTIARY_BUTTON_STYLES = ButtonStyles.CLEAR_WITH_ICON;
 }
