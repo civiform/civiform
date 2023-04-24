@@ -21,7 +21,6 @@ public enum FeatureFlag {
 
   // Launch Flags, these will eventually be removed.
   PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-  PROGRAM_READ_ONLY_VIEW_ENABLED,
 
   // Address correction and verification flags
   ESRI_ADDRESS_CORRECTION_ENABLED,

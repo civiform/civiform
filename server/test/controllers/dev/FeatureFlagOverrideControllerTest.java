@@ -104,10 +104,6 @@ public class FeatureFlagOverrideControllerTest {
   public void status() {
     setupControllerInMode(Mode.TEST);
 
-    Result enabledResult =
-        controller.status(fakeRequest().build(), "program_read_only_view_enabled");
-    assertEquals("true", Helpers.contentAsString(enabledResult));
-
     Result diabledResult = controller.status(fakeRequest().build(), "intake_form_enabled");
     assertEquals("false", Helpers.contentAsString(diabledResult));
 
