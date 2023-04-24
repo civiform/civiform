@@ -22,9 +22,9 @@ import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -191,7 +191,7 @@ public final class QuestionConfig {
         ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("button")
             .withClasses(
-                AdminStyles.SECONDARY_BUTTON_STYLES,
+                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
                 "ml-4",
                 "multi-option-question-field-remove-button");
 
@@ -243,7 +243,7 @@ public final class QuestionConfig {
             ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")
                 .withId("add-new-option")
-                .withClasses("m-2", AdminStyles.SECONDARY_BUTTON_STYLES));
+                .withClasses("m-2", ButtonStyles.OUTLINED_WHITE_WITH_ICON));
     return this;
   }
 

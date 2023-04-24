@@ -9,7 +9,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import services.question.types.QuestionType;
-import views.style.AdminStyles;
 import views.style.StyleUtils;
 
 /**
@@ -27,9 +26,7 @@ public final class CreateQuestionButton {
             .withId(parentId)
             .withType("button")
             .withClass(
-                isPrimaryButton
-                    ? AdminStyles.PRIMARY_BUTTON_STYLES
-                    : AdminStyles.SECONDARY_BUTTON_STYLES);
+                isPrimaryButton ? ButtonStyles.SOLID_BLUE : ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     DivTag dropdown =
         div()
             .withId(dropdownId)

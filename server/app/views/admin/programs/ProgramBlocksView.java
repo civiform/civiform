@@ -52,6 +52,7 @@ import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
@@ -248,7 +249,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       ret.with(
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
               .withType("submit")
               .withId("add-block-button")
               .withForm(CREATE_BLOCK_FORM_ID));
@@ -465,9 +466,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag addQuestion =
           makeSvgTextButton("Add a question", Icons.ADD)
               .withClasses(
-                  AdminStyles.PRIMARY_BUTTON_STYLES,
-                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
-                  "my-4");
+                  ButtonStyles.SOLID_BLUE, ReferenceClasses.OPEN_QUESTION_BANK_BUTTON, "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
@@ -497,7 +496,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withType("submit")
             .withId("create-repeated-block-button")
             .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
@@ -538,7 +537,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-2")
               .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
       div.with(
           asRedirectElement(
@@ -572,7 +571,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-2")
               .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
       div.with(
           asRedirectElement(
@@ -985,7 +984,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     + " repeated screens.")
             .withClasses(
                 ReferenceClasses.REMOVE_QUESTION_BUTTON,
-                AdminStyles.SECONDARY_BUTTON_STYLES,
+                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
                 canRemove ? "" : "opacity-50");
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
@@ -1094,7 +1093,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     ButtonTag deleteScreenButton =
         ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
 
     return Modal.builder()
         .setModalId("block-delete-modal")
@@ -1140,7 +1139,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .isDisabled());
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     return Modal.builder()
         .setModalId("block-description-modal")
         .setContent(blockDescriptionForm)

@@ -25,10 +25,10 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.ProgramCardFactory;
 import views.components.ProgramCardFactory.ProgramCardData;
-import views.style.AdminStyles;
 
 /** Renders a page for program admins to view programs they administer. */
 public final class ProgramAdministratorProgramListView extends BaseHtmlView {
@@ -110,8 +110,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
             ? "Forms"
             : "Applications";
     ButtonTag button =
-        makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET)
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+        makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, viewApplicationsLink);
   }
 
@@ -120,7 +119,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
         baseUrl
             + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
-        .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+        .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);
   }
 }

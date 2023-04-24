@@ -43,12 +43,12 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -170,7 +170,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .url();
     return asRedirectElement(
         ViewUtils.makeSvgTextButton("Export to PDF", Icons.DOWNLOAD)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON),
         link);
   }
 
@@ -300,7 +300,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private Modal renderUpdateNoteConfirmationModal(
       long programId, Application application, Optional<String> noteMaybe) {
     ButtonTag triggerButton =
-        makeSvgTextButton("Edit note", Icons.EDIT).withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+        makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
     String formId = Modal.randomModalId();
     // No form action or content is rendered since admin_application_view.ts extracts the values
     // and calls postMessage rather than attempting a submission. The main frame is responsible for
@@ -320,8 +320,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .with(
                 div().withClass("flex-grow"),
                 button("Cancel")
-                    .withClasses(ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                submitButton("Save").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                    .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
+                submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
@@ -391,8 +391,8 @@ public final class ProgramApplicationView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         button("Cancel")
                             .withClasses(
-                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
-                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                                ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
+                        submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON)));
     ButtonTag triggerButton =
         button("")
             .withClasses("hidden")

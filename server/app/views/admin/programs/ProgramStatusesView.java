@@ -37,12 +37,12 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -98,7 +98,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
             /* showEmailDeletionWarning= */ false);
     ButtonTag createStatusTriggerButton =
         makeSvgTextButton("Create a new status", Icons.PLUS)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2")
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2")
             .withId(createStatusModal.getTriggerButtonId());
 
     Pair<DivTag, ImmutableList<Modal>> statusContainerAndModals =
@@ -149,7 +149,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
         routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
-            .withClass(AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     return Optional.of(asRedirectElement(button, linkDestination));
   }
 
@@ -236,13 +236,13 @@ public final class ProgramStatusesView extends BaseHtmlView {
             /* showEmailDeletionWarning= */ status.localizedEmailBodyText().isPresent());
     ButtonTag editStatusTriggerButton =
         makeSvgTextButton("Edit", Icons.EDIT)
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+            .withClass(ButtonStyles.CLEAR_WITH_ICON)
             .withId(editStatusModal.getTriggerButtonId());
 
     Modal deleteStatusModal = makeStatusDeleteModal(request, program, status.statusText());
     ButtonTag deleteStatusTriggerButton =
         makeSvgTextButton("Delete", Icons.DELETE)
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+            .withClass(ButtonStyles.CLEAR_WITH_ICON)
             .withId(deleteStatusModal.getTriggerButtonId());
     return Pair.of(
         div()
@@ -310,7 +310,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                             .with(
                                 div().withClass("flex-grow"),
                                 submitButton("Delete")
-                                    .withClass(AdminStyles.SECONDARY_BUTTON_STYLES))));
+                                    .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON))));
 
     return Modal.builder()
         .setModalId(Modal.randomModalId())
@@ -403,7 +403,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                     .with(
                         defaultCheckbox,
                         div().withClass("flex-grow"),
-                        submitButton("Confirm").withClass(AdminStyles.TERTIARY_BUTTON_STYLES)));
+                        submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(content)

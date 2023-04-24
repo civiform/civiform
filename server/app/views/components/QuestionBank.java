@@ -30,7 +30,6 @@ import services.ProgramBlockValidation;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -199,7 +198,8 @@ public final class QuestionBank {
             .withId("question-" + definition.getId())
             .withName("question-" + definition.getId())
             .withValue(definition.getId() + "")
-            .withClasses(ReferenceClasses.ADD_QUESTION_BUTTON, AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClasses(
+                ReferenceClasses.ADD_QUESTION_BUTTON, ButtonStyles.OUTLINED_WHITE_WITH_ICON);
 
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-12", "w-6");
