@@ -193,7 +193,7 @@ public final class QuestionConfig {
         button()
             .with(Icons.svg(Icons.ARROW_UPWARD).withClasses("w-6", "h-6"))
             .withClasses(
-                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button")
+                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button", "ml-4")
             .attr("aria-label", "move up");
     ButtonTag moveDownButton =
         button()
