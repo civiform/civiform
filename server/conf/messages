@@ -160,6 +160,9 @@ button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
 
+# The text for the button that allows a guest to bypass the login prompt modal.
+button.continueToApplication=Continue to application
+
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Start here by filling out {0}
 

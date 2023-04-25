@@ -38,7 +38,7 @@ public class MessagesTest {
   private static final ImmutableSet<String> IGNORE_LIST =
       ImmutableSet.of(
           // TODO(#4640): Translations Batch 6 - Insert items awaiting translations here
-          );
+          "button.continueToApplication");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
