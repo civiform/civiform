@@ -3,6 +3,9 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.section;
+import static views.applicant.AuthenticateUpsellViews.createLoginButton;
+import static views.applicant.AuthenticateUpsellViews.createLoginPromptModal;
+import static views.applicant.AuthenticateUpsellViews.createNewAccountButton;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;

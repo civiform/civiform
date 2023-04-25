@@ -7,6 +7,9 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.section;
+import static views.applicant.AuthenticateUpsellViews.createLoginButton;
+import static views.applicant.AuthenticateUpsellViews.createLoginPromptModal;
+import static views.applicant.AuthenticateUpsellViews.createNewAccountButton;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
