@@ -313,7 +313,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setId("question-text-textarea")
             .setFieldName("questionText")
             .setLabelText("Question text displayed to the applicant")
-            .isRequired()
+            .setRequired(true)
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
             .getTextareaTag());
@@ -478,7 +478,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
-        .isRequired();
+        .setRequired(true);
   }
 
   private DivTag repeatedQuestionInformation() {
@@ -514,7 +514,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setId("question-name-input")
         .setFieldName(QUESTION_NAME_FIELD)
         .setLabelText("Administrative identifier. This value can't be changed later")
-        .isRequired()
+        .setRequired(true)
         .setValue(adminName)
         .getInputTag();
   }
