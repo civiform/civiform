@@ -196,6 +196,14 @@ export class ApplicantQuestions {
     await this.page.click(
       `.cf-application-card:has-text("${programName}") .cf-apply-button`,
     )
+
+    // If we are as a guest, we will get a prompt to log in before continuing to the
+    // application. Bypass this to continue as a guest.
+    const pageContent = await this.page.textContent('html')
+    if (pageContent!.includes('Continue to application')) {
+      await this.page.click('#bypass-login-prompt-button')
+    }
+
     await waitForPageJsLoad(this.page)
   }
 
@@ -362,9 +370,8 @@ export class ApplicantQuestions {
     )
     await this.clickApplyToAnotherProgramButton()
 
-    // If we are logged in as a guest, we will get a prompt to log
-    // in before going back to the programs page. Bypass this to stay
-    // logged in as a guest.
+    // If we are as a guest, we will get a prompt to log in before going back to the
+    // programs page. Bypass this to continue as a guest.
     const pageContent = await this.page.textContent('html')
     if (pageContent!.includes('Continue without an account')) {
       await this.page.click('text="Continue without an account"')
