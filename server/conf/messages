@@ -433,7 +433,7 @@ label.phoneNumber=Enter Phone number
 validation.phoneNumberRequired=Phone number is required
 validation.phoneCountryCodeRequired=Country must be selected
 validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters
-validation.invalidPhoneNumberProvided=This number is invalid
+validation.invalidPhoneNumberProvided=This phone number is invalid
 validation.phoneMustBeLocalToCountry=The phone you have provided does not belong to the country
 
 #----------------------------------------------------------------------------------------------------------#
