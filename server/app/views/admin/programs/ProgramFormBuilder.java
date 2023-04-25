@@ -193,7 +193,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         submitButton("Save")
             .withId("program-update-button")
-            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "mt-6"));
+            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
     return formTag;
   }
@@ -241,7 +241,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                         submitButton("Confirm")
                             .withForm("program-details-form")
                             .withId("confirm-common-intake-change-button")
-                            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "cursor-pointer")));
+                            .withClasses(ButtonStyles.SOLID_BLUE, "cursor-pointer")));
     return Modal.builder()
         .setModalId("confirm-common-intake-change")
         .setContent(content)

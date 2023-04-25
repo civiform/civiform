@@ -132,7 +132,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
                 formTag
                     .with(
                         submitButton("Save")
-                            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON)
+                            .withClasses(ButtonStyles.SOLID_BLUE)
                             .withId("apikey-submit-button"))
                     .withAction(routes.AdminApiKeysController.create().url()));
 

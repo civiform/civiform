@@ -26,9 +26,7 @@ public final class CreateQuestionButton {
             .withId(parentId)
             .withType("button")
             .withClass(
-                isPrimaryButton
-                    ? ButtonStyles.SOLID_BLUE_WITH_ICON
-                    : ButtonStyles.OUTLINED_WHITE_WITH_ICON);
+                isPrimaryButton ? ButtonStyles.SOLID_BLUE : ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     DivTag dropdown =
         div()
             .withId(dropdownId)

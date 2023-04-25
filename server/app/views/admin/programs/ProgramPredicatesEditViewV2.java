@@ -175,7 +175,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                         String.format(
                             "Remove existing %s condition",
                             predicateTypeNameTitleCase.toLowerCase()))
-                    .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON)
+                    .withClasses(ButtonStyles.SOLID_BLUE)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
 
@@ -212,7 +212,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                 predicateTypeNameTitleCase.toLowerCase()),
                             configureExistingPredicateUrl)
                         .withCondDisabled(!hasExistingPredicate)
-                        .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON)))
+                        .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
@@ -232,7 +232,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                             hasExistingPredicate
                                                 ? "Replace condition"
                                                 : "Add condition")
-                                        .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON))
+                                        .withClasses(ButtonStyles.SOLID_BLUE))
                                 .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));
 
