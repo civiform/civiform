@@ -27,6 +27,7 @@ import controllers.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
+import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
@@ -475,21 +476,22 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     ATag actionButton =
         a().withHref(actionUrl)
-            .attr(
-                "aria-label",
-                messages.at(
-                    buttonSrText.getKeyName(),
-                    program.localizedName().getOrDefault(preferredLocale)))
             .withText(messages.at(buttonTitle.getKeyName()))
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
 
-    DomContent content =
+    Tag content =
         ApplicantUtils.isGuest(userName, messages)
             ? button(messages.at(buttonTitle.getKeyName()))
                 .withId(loginPromptModal.getTriggerButtonId())
-                .withClasses(ButtonStyles.SOLID_BLUE, "mx-auto")
+                .withClasses(
+                    ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto")
             : actionButton;
+
+    content.attr(
+        "aria-label",
+        messages.at(
+            buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)));
 
     DivTag actionDiv = div(content).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
     return li().withId(baseId)
