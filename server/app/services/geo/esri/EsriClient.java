@@ -8,13 +8,12 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import io.prometheus.client.Histogram;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-
-import io.prometheus.client.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -32,10 +31,11 @@ public abstract class EsriClient {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private static final Histogram esriLookupTime = Histogram.build()
-    .name("esri_lookup_time_seconds")
-    .help("Execution time of esri lookup")
-    .register();
+  private static final Histogram esriLookupTime =
+      Histogram.build()
+          .name("esri_lookup_time_seconds")
+          .help("Execution time of esri lookup")
+          .register();
 
   public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.clock = checkNotNull(clock);

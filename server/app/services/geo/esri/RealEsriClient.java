@@ -6,14 +6,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
+import io.prometheus.client.Counter;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
-
-import io.prometheus.client.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSBodyReadables;
@@ -39,11 +38,12 @@ import services.geo.AddressLocation;
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
-  private static final Counter esriRequestCount = Counter.build()
-    .name("esri_requests_total")
-    .help("Total amount of requests to the esri client")
-    .labelNames("status")
-    .register();
+  private static final Counter esriRequestCount =
+      Counter.build()
+          .name("esri_requests_total")
+          .help("Total amount of requests to the esri client")
+          .labelNames("status")
+          .register();
 
   private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
