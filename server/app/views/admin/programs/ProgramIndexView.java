@@ -388,13 +388,11 @@ public final class ProgramIndexView extends BaseHtmlView {
       editLinkId = "program-new-version-link-" + program.id();
     }
 
-    ButtonTag button =
-        makeSvgTextButton("Edit", Icons.EDIT)
-            .withId(editLinkId)
-            .withClasses(ButtonStyles.CLEAR_WITH_ICON);
+    ButtonTag button = makeSvgTextButton("Edit", Icons.EDIT).withId(editLinkId);
     return isActive
-        ? toLinkButtonForPost(button, editLink, request)
-        : asRedirectElement(button, editLink);
+        ? toLinkButtonForPost(
+            button.withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN), editLink, request)
+        : asRedirectElement(button.withClass(ButtonStyles.CLEAR_WITH_ICON), editLink);
   }
 
   ButtonTag renderViewLink(ProgramDefinition program, Http.Request request) {
@@ -418,7 +416,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return Optional.of(asRedirectElement(button, linkDestination));
   }
 
@@ -426,7 +424,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String linkDestination = routes.AdminProgramStatusesController.index(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
-            .withClass(ButtonStyles.CLEAR_WITH_ICON);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, linkDestination);
   }
 
@@ -476,7 +474,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, adminLink);
   }
 
@@ -493,7 +491,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Settings", Icons.SETTINGS)
             .withId("edit-settings-link-" + program.id())
-            .withClass(ButtonStyles.CLEAR_WITH_ICON);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return Optional.of(asRedirectElement(button, linkDestination));
   }
 }
