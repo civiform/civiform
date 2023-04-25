@@ -6,9 +6,9 @@ labels: ''
 assignees: ''
 ---
 
-The Oncall is responsible for releasing a new version of CiviForm at the start of their rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
+The Oncall is responsible for releasing a new version of CiviForm on Wednesday during their rotation and general upkeep through their rotation. This is an aid for each rotation, but the docs are the source of truth.
 
-Rotations begin each Wednesday.
+Rotations begin each Monday, with the release happening on Wednesday.
 
 Please check off all items at their appropriate times during your rotation.
 
