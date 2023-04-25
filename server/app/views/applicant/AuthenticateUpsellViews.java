@@ -16,8 +16,9 @@ import views.style.StyleUtils;
 
 public class AuthenticateUpsellViews extends BaseHtmlView {
 
+  /** Creates a Modal that prompts the guest user to log in or create an account. */
   public static Modal createLoginPromptModal(
-      Messages messages, String postLoginRedirectTo, MessageKey triggerButtonMsg) {
+      Messages messages, String postLoginRedirectTo, MessageKey bypassMessage) {
     String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
     String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
 
@@ -28,9 +29,8 @@ public class AuthenticateUpsellViews extends BaseHtmlView {
                 div()
                     .with(
                         redirectButton(
-                                "continue-without-an-account",
-                                messages.at(
-                                    MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT.getKeyName()),
+                                "bypass-login-prompt-button",
+                                messages.at(bypassMessage.getKeyName()),
                                 postLoginRedirectTo)
                             .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                         createLoginButton("modal-sign-in", messages, postLoginRedirectTo),
@@ -45,9 +45,6 @@ public class AuthenticateUpsellViews extends BaseHtmlView {
     return Modal.builder()
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
-        .setTriggerButtonContent(
-            button(messages.at(triggerButtonMsg.getKeyName()))
-                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT))
         .setModalTitle(modalTitle)
         .setWidth(Width.HALF)
         .build();

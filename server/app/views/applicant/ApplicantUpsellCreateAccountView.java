@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
+import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -51,12 +52,17 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     boolean shouldUpsell = shouldUpsell(account);
 
     Modal loginPromptModal =
-        createLoginPromptModal(messages, redirectTo, MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM);
+        createLoginPromptModal(
+            messages,
+            redirectTo,
+            /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT);
 
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
-                loginPromptModal.getButton(), // Apply to another program
+                button(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
+                    .withId(loginPromptModal.getTriggerButtonId())
+                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                 createLoginButton("sign-in", messages, redirectTo),
                 createNewAccountButton("sign-up", messages))
             : ImmutableList.of(
