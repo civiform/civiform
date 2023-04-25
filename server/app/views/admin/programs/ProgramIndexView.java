@@ -187,7 +187,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     .getDateTag()
                                     .withClasses("ml-3", "inline-flex")),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
-                            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6")
+                            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "mt-6")
                             .withType("submit")));
     return Modal.builder()
         .setModalId(modalId)
@@ -257,7 +257,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                             request)));
     ButtonTag publishAllButton =
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
-            .withClasses(ButtonStyles.SOLID_BLUE, "my-2");
+            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-2");
     Modal publishAllModal =
         Modal.builder()
             .setModalId("publish-all-programs-modal")

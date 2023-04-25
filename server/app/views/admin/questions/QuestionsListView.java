@@ -641,7 +641,8 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ButtonTag discardConfirmButton =
         toLinkButtonForPost(
-            makeSvgTextButton("Discard", Icons.DELETE).withClasses(ButtonStyles.SOLID_BLUE),
+            makeSvgTextButton("Discard", Icons.DELETE)
+                .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON),
             link,
             request);
 

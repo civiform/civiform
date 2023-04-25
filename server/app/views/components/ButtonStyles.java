@@ -49,6 +49,13 @@ public final class ButtonStyles {
   public static final String SOLID_BLUE =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "text-base");
 
+  public static final String SOLID_BLUE_WITH_ICON =
+      StyleUtils.joinStyles(
+          // Buttons with icons should not have extra padding
+          StyleUtils.removeStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "px-8"),
+          "text-base",
+          "space-x-2");
+
   public static final String SOLID_BLUE_TEXT_SM =
       StyleUtils.joinStyles(BUTTON_BASE_SOLID_BLUE_SEMIBOLD, "text-sm");
 
@@ -60,6 +67,7 @@ public final class ButtonStyles {
 
   public static final String OUTLINED_WHITE_WITH_ICON =
       StyleUtils.joinStyles(
+          // Buttons with icons should not have extra padding
           StyleUtils.removeStyles(BUTTON_BASE_OUTLINE_SEMIBOLD, "px-8", "bg-transparent"),
           "flex",
           "items-center",
