@@ -16,6 +16,7 @@ import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static views.applicant.AuthenticateUpsellViews.createLoginPromptModal;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -113,7 +114,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     bundle.addMainContent(
         topContent(messages, userName),
         mainContent(
-            request, messages, applicationPrograms, applicantId, messages.lang().toLocale()));
+            request,
+            messages,
+            userName,
+            applicationPrograms,
+            applicantId,
+            messages.lang().toLocale(),
+            bundle));
 
     return layout.renderWithNav(request, userName, messages, bundle, /*includeAdminLogin=*/ true);
   }
@@ -194,9 +201,11 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag mainContent(
       Http.Request request,
       Messages messages,
+      Optional<String> userName,
       ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
-      Locale preferredLocale) {
+      Locale preferredLocale,
+      HtmlBundle bundle) {
     DivTag content =
         div()
             .withId("main-content")
@@ -216,10 +225,12 @@ public final class ProgramIndexView extends BaseHtmlView {
           findServicesSection(
               request,
               messages,
+              userName,
               relevantPrograms,
               cardContainerStyles,
               applicantId,
-              preferredLocale),
+              preferredLocale,
+              bundle),
           div().withClass("mb-12"),
           programSectionTitle(
               messages.at(
@@ -236,39 +247,45 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardsSection(
               request,
               messages,
+              userName,
               Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
               cardContainerStyles,
               applicantId,
               preferredLocale,
               relevantPrograms.inProgress(),
               MessageKey.BUTTON_CONTINUE,
-              MessageKey.BUTTON_CONTINUE_SR));
+              MessageKey.BUTTON_CONTINUE_SR,
+              bundle));
     }
     if (!relevantPrograms.submitted().isEmpty()) {
       content.with(
           programCardsSection(
               request,
               messages,
+              userName,
               Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
               cardContainerStyles,
               applicantId,
               preferredLocale,
               relevantPrograms.submitted(),
               MessageKey.BUTTON_EDIT,
-              MessageKey.BUTTON_EDIT_SR));
+              MessageKey.BUTTON_EDIT_SR,
+              bundle));
     }
     if (!relevantPrograms.unapplied().isEmpty()) {
       content.with(
           programCardsSection(
               request,
               messages,
+              userName,
               Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
               cardContainerStyles,
               applicantId,
               preferredLocale,
               relevantPrograms.unapplied(),
               MessageKey.BUTTON_APPLY,
-              MessageKey.BUTTON_APPLY_SR));
+              MessageKey.BUTTON_APPLY_SR,
+              bundle));
     }
 
     return div().withClasses("flex", "flex-col", "place-items-center").with(content);
@@ -277,10 +294,12 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag findServicesSection(
       Http.Request request,
       Messages messages,
+      Optional<String> userName,
       ApplicantService.ApplicationPrograms relevantPrograms,
       String cardContainerStyles,
       long applicantId,
-      Locale preferredLocale) {
+      Locale preferredLocale,
+      HtmlBundle bundle) {
     Optional<LifecycleStage> commonIntakeFormApplicationStatus =
         relevantPrograms.commonIntakeForm().get().latestApplicationLifecycleStage();
     MessageKey buttonText = MessageKey.BUTTON_START_HERE;
@@ -306,13 +325,15 @@ public final class ProgramIndexView extends BaseHtmlView {
             programCardsSection(
                 request,
                 messages,
+                userName,
                 Optional.empty(),
                 cardContainerStyles,
                 applicantId,
                 preferredLocale,
                 ImmutableList.of(relevantPrograms.commonIntakeForm().get()),
                 buttonText,
-                buttonScreenReaderText));
+                buttonScreenReaderText,
+                bundle));
   }
 
   /**
@@ -332,13 +353,15 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag programCardsSection(
       Http.Request request,
       Messages messages,
+      Optional<String> userName,
       Optional<MessageKey> sectionTitle,
       String cardContainerStyles,
       long applicantId,
       Locale preferredLocale,
       ImmutableList<ApplicantService.ApplicantProgramData> cards,
       MessageKey buttonTitle,
-      MessageKey buttonSrText) {
+      MessageKey buttonSrText,
+      HtmlBundle bundle) {
     String sectionHeaderId = Modal.randomModalId();
     DivTag div = div().withClass(ReferenceClasses.APPLICATION_PROGRAM_SECTION);
     if (sectionTitle.isPresent()) {
@@ -357,23 +380,27 @@ public final class ProgramIndexView extends BaseHtmlView {
                         programCard(
                             request,
                             messages,
+                            userName,
                             card,
                             applicantId,
                             preferredLocale,
                             buttonTitle,
                             buttonSrText,
-                            sectionTitle.isPresent()))));
+                            sectionTitle.isPresent(),
+                            bundle))));
   }
 
   private LiTag programCard(
       Http.Request request,
       Messages messages,
+      Optional<String> userName,
       ApplicantService.ApplicantProgramData cardData,
       Long applicantId,
       Locale preferredLocale,
       MessageKey buttonTitle,
       MessageKey buttonSrText,
-      boolean nestedUnderSubheading) {
+      boolean nestedUnderSubheading,
+      HtmlBundle bundle) {
     ProgramDefinition program = cardData.program();
 
     String baseId = ReferenceClasses.APPLICATION_CARD + "-" + program.id();
@@ -441,6 +468,11 @@ public final class ProgramIndexView extends BaseHtmlView {
         controllers.applicant.routes.ApplicantProgramReviewController.review(
                 applicantId, program.id())
             .url();
+
+    Modal loginPromptModal =
+        createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION);
+    bundle.addModals(loginPromptModal);
+
     ATag actionButton =
         a().withHref(actionUrl)
             .attr(
@@ -452,8 +484,14 @@ public final class ProgramIndexView extends BaseHtmlView {
             .withId(baseId + "-apply")
             .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
 
-    DivTag actionDiv =
-        div(actionButton).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
+    DomContent content =
+        ApplicantUtils.isGuest(userName, messages)
+            ? button(messages.at(buttonTitle.getKeyName()))
+                .withId(loginPromptModal.getTriggerButtonId())
+                .withClasses(ButtonStyles.SOLID_BLUE, "mx-auto")
+            : actionButton;
+
+    DivTag actionDiv = div(content).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
     return li().withId(baseId)
         .withClasses(ReferenceClasses.APPLICATION_CARD, ApplicantStyles.PROGRAM_CARD)
         .with(
