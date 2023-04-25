@@ -103,7 +103,8 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                 nameField.getInputTag(),
                 descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Create").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
+                submitButton("Create")
+                    .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 

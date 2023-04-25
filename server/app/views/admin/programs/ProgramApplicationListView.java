@@ -250,7 +250,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     div().withClass("flex-grow"),
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
-                        .withClass(ButtonStyles.SOLID_BLUE)
+                        .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit")));
   }
 
@@ -298,7 +298,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         ReferenceClasses.MODAL_CLOSE,
-                                        ButtonStyles.SOLID_BLUE)
+                                        ButtonStyles.SOLID_BLUE_WITH_ICON)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAll(
@@ -314,7 +314,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         ReferenceClasses.MODAL_CLOSE,
-                                        ButtonStyles.SOLID_BLUE)
+                                        ButtonStyles.SOLID_BLUE_WITH_ICON)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(

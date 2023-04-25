@@ -268,7 +268,9 @@ public final class QuestionEditView extends BaseHtmlView {
                     div().withClasses("flex-grow"),
                     asRedirectElement(button("Cancel"), cancelUrl)
                         .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON),
-                    submitButton("Create").withClass("m-4").withClasses(ButtonStyles.SOLID_BLUE)));
+                    submitButton("Create")
+                        .withClass("m-4")
+                        .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON)));
 
     return formTag;
   }
@@ -285,7 +287,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE_WITH_ICON));
     return formTag;
   }
 

@@ -94,7 +94,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         .withAction(routes.ProgramAdminManagementController.update(programId).url())
         .withMethod("POST")
         .with(emailFields)
-        .with(submitButton("Save").withClasses(ButtonStyles.SOLID_BLUE, "my-4"));
+        .with(submitButton("Save").withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "my-4"));
   }
 
   private DivTag adminEmailInput(Optional<String> existing) {

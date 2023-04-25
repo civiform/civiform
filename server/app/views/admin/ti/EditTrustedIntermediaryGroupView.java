@@ -87,7 +87,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
+                submitButton("Add").withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 

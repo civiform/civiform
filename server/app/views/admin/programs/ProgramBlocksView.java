@@ -466,7 +466,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag addQuestion =
           makeSvgTextButton("Add a question", Icons.ADD)
               .withClasses(
-                  ButtonStyles.SOLID_BLUE, ReferenceClasses.OPEN_QUESTION_BANK_BUTTON, "my-4");
+                  ButtonStyles.SOLID_BLUE_WITH_ICON,
+                  ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
+                  "my-4");
 
       div.with(blockInfoDisplay, buttons, visibilityPredicateDisplay);
       maybeEligibilityPredicateDisplay.ifPresent(div::with);

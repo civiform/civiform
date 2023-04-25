@@ -56,7 +56,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     ButtonTag newKeyButton =
         ViewUtils.makeSvgTextButton("New API Key", Icons.PLUS)
             .withId("new-api-key-button")
-            .withClasses(ButtonStyles.SOLID_BLUE);
+            .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON);
     DivTag headerDiv =
         div()
             .withClasses("flex", "items-center", "place-content-between", "my-8")
