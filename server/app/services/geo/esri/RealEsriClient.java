@@ -12,6 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
+
+import io.prometheus.client.Counter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.ws.WSBodyReadables;
@@ -36,6 +38,12 @@ import services.geo.AddressLocation;
  */
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
+
+  private static final Counter esriRequestCount = Counter.build()
+    .name("esri_requests_total")
+    .help("Total amount of requests to the esri client")
+    .labelNames("status")
+    .register();
 
   private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
@@ -122,6 +130,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
             res -> {
+              esriRequestCount.labels(String.valueOf(res.getStatus())).inc();
               // return empty if still failing after retries
               if (res.getStatus() != 200) {
                 return Optional.empty();

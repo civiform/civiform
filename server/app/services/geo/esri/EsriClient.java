@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import io.prometheus.client.Histogram;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -29,6 +31,11 @@ public abstract class EsriClient {
   final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+  private static final Histogram esriLookupTime = Histogram.build()
+    .name("esri_lookup_time_seconds")
+    .help("Execution time of esri lookup")
+    .register();
 
   public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.clock = checkNotNull(clock);
@@ -71,6 +78,7 @@ public abstract class EsriClient {
     addressJson.put("state", address.getState());
     addressJson.put("zip", address.getZip());
 
+    Histogram.Timer timer = esriLookupTime.startTimer();
     return fetchAddressSuggestions(addressJson)
         .thenApply(
             (maybeJson) -> {
@@ -129,6 +137,9 @@ public abstract class EsriClient {
                       .setAddressSuggestions(suggestionBuilder.build())
                       .setOriginalAddress(address)
                       .build();
+
+              // Record the execution time of the esri lookup process.
+              timer.observeDuration();
               return addressCandidates;
             });
   }

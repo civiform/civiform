@@ -9,6 +9,9 @@ import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import io.prometheus.client.Counter;
+import io.prometheus.client.Histogram;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,23 @@ import software.amazon.awssdk.services.ses.model.SesException;
 public final class SimpleEmail {
   public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
+
+  private static final Histogram emailExecutionTime = Histogram.build()
+    .name("email_send_time_seconds")
+    .help("Execution time of email send")
+    .register();
+
+  private static final Counter emailSendCount = Counter.build()
+    .name("email_send_count")
+    .help("Number of emails sent")
+    .labelNames("status")
+    .register();
+
+  private static final Counter emailFailCount = Counter.build()
+    .name("email_fail_count")
+    .help("Number of emails that failed to send")
+    .labelNames("status")
+    .register();
 
   private final String sender;
   private final Client client;
@@ -61,6 +81,7 @@ public final class SimpleEmail {
     if (toAddresses.isEmpty()) {
       return;
     }
+    Histogram.Timer timer = emailExecutionTime.startTimer();
 
     try {
       Destination destination =
@@ -77,6 +98,12 @@ public final class SimpleEmail {
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
+      emailFailCount.labels(e.toString()).inc();
+    } finally {
+      // Increase the count of emails sent.
+      emailSendCount.inc();
+      // Record the execution time of the email sending process.
+      timer.observeDuration();
     }
   }
 
