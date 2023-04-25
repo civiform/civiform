@@ -110,6 +110,9 @@ public final class ReferenceClasses {
   public static final String PHONE_NUMBER = "cf-phone-number";
   public static final String MULTI_OPTION_VALUE = "cf-multi-option-value";
   public static final String MULTI_OPTION_QUESTION_OPTION = "cf-multi-option-question-option";
+  // Editable instance of a question option; not to be used for question previews.
+  public static final String MULTI_OPTION_QUESTION_OPTION_EDITABLE =
+      "cf-multi-option-question-option-editable";
   public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
 
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";

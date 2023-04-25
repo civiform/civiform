@@ -230,6 +230,7 @@ public final class QuestionEditView extends BaseHtmlView {
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(
                         ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
                         "hidden",
                         "flex",
                         "flex-row",

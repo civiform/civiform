@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 
 import com.google.common.base.Preconditions;
@@ -25,6 +26,7 @@ import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -187,6 +189,18 @@ public final class QuestionConfig {
                 .setScreenReaderText("option ids")
                 .getInputTag()
                 .withClasses("hidden");
+    ButtonTag moveUpButton =
+        button()
+            .with(Icons.svg(Icons.ARROW_UPWARD).withClasses("w-6", "h-6"))
+            .withClasses(
+                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button")
+            .attr("aria-label", "move up");
+    ButtonTag moveDownButton =
+        button()
+            .with(Icons.svg(Icons.ARROW_DOWNWARD).withClasses("w-6", "h-6"))
+            .withClasses(
+                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-down-button")
+            .attr("aria-label", "move down");
     ButtonTag removeOptionButton =
         ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("button")
@@ -198,11 +212,12 @@ public final class QuestionConfig {
     return div()
         .withClasses(
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
             "flex",
             "flex-row",
             "mb-4",
             "items-center")
-        .with(optionInput, optionIndexInput, removeOptionButton);
+        .with(optionInput, optionIndexInput, moveUpButton, moveDownButton, removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(

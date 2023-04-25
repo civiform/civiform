@@ -98,10 +98,16 @@ function addNewInput(
   newField.classList.remove('hidden')
   newField.removeAttribute('id')
 
-  // Register the click event handler for the remove button.
+  // Register the click event handler for the buttons.
   newField
-    .querySelector('[type=button]')!
+    .querySelector('.multi-option-question-field-remove-button')!
     .addEventListener('click', removeInput)
+  newField
+    .querySelector('.multi-option-question-field-move-up-button')!
+    .addEventListener('click', moveMultiOptionQuestionUp)
+  newField
+    .querySelector('.multi-option-question-field-move-down-button')!
+    .addEventListener('click', moveMultiOptionQuestionDown)
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId)
@@ -115,10 +121,72 @@ function addNewInput(
  */
 function removeInput(event: Event) {
   // Get the parent div, which contains the input field and remove button, and remove it.
-  const optionDiv = assertNotNull(
+  const clickedOption = assertNotNull(
     (event.currentTarget as Element).parentNode,
   ) as HTMLElement
-  optionDiv.remove()
+  clickedOption.remove()
+}
+
+/**
+ * Swaps an input field and its associated elements with the one above it, if possible. All
+ * elements must be contained in a parent div.
+ * @param {Event} event The event that triggered this action.
+ */
+function moveMultiOptionQuestionUp(event: Event) {
+  event.preventDefault()
+  const clickedOption = assertNotNull(
+    (event.currentTarget as Element).parentNode,
+  ) as HTMLElement
+
+  const parentContainer = clickedOption.parentElement
+  if (parentContainer == null) {
+    return
+  }
+
+  const options = Array.from(
+    document.querySelectorAll(
+      'div.cf-multi-option-question-option-editable:not(.hidden)',
+    ),
+  )
+  const clickedIndex = options.indexOf(clickedOption)
+
+  // If the clicked element is not the first element in the parent container,
+  // then move it up one index.
+  if (clickedIndex > 0) {
+    const previousElement = options[clickedIndex - 1]
+    parentContainer.insertBefore(clickedOption, previousElement)
+  }
+}
+
+/**
+ * Swaps an input field and its associated elements with the one below it, if possible. All
+ * elements must be contained in a parent div.
+ * @param {Event} event The event that triggered this action.
+ */
+function moveMultiOptionQuestionDown(event: Event) {
+  event.preventDefault()
+  const clickedOption = assertNotNull(
+    (event.currentTarget as Element).parentNode,
+  ) as HTMLElement
+
+  const parentContainer = clickedOption.parentElement
+  if (parentContainer == null) {
+    return
+  }
+
+  const options = Array.from(
+    document.querySelectorAll(
+      'div.cf-multi-option-question-option-editable:not(.hidden)',
+    ),
+  )
+  const clickedIndex = options.indexOf(clickedOption)
+
+  // If the clicked element is not the last element in the parent container,
+  // then move it down one index.
+  if (clickedIndex < options.length - 1) {
+    const nextElement = options[clickedIndex + 1]
+    parentContainer.insertBefore(nextElement, clickedOption)
+  }
 }
 
 /**
@@ -244,6 +312,18 @@ export function init() {
     '.multi-option-question-field-remove-button',
     'click',
     removeInput,
+  )
+
+  // Bind click handler for re-arranging options in multi-option edit view
+  addEventListenerToElements(
+    '.multi-option-question-field-move-up-button',
+    'click',
+    moveMultiOptionQuestionUp,
+  )
+  addEventListenerToElements(
+    '.multi-option-question-field-move-down-button',
+    'click',
+    moveMultiOptionQuestionDown,
   )
 
   // Configure the button on the manage program admins form to add more email inputs
