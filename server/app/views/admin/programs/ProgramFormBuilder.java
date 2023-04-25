@@ -23,11 +23,11 @@ import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.BaseHtmlView;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 
 /**
@@ -193,7 +193,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         submitButton("Save")
             .withId("program-update-button")
-            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6"));
+            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
     return formTag;
   }
@@ -241,7 +241,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                         submitButton("Confirm")
                             .withForm("program-details-form")
                             .withId("confirm-common-intake-change-button")
-                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer")));
+                            .withClasses(ButtonStyles.SOLID_BLUE, "cursor-pointer")));
     return Modal.builder()
         .setModalId("confirm-common-intake-change")
         .setContent(content)

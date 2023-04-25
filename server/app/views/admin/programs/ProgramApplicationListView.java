@@ -44,13 +44,13 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -250,7 +250,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     div().withClass("flex-grow"),
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
-                        .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
+                        .withClass(ButtonStyles.SOLID_BLUE)
                         .withType("submit")));
   }
 
@@ -298,7 +298,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         ReferenceClasses.MODAL_CLOSE,
-                                        AdminStyles.PRIMARY_BUTTON_STYLES)
+                                        ButtonStyles.SOLID_BLUE)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAll(
@@ -314,7 +314,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         ReferenceClasses.MODAL_CLOSE,
-                                        AdminStyles.PRIMARY_BUTTON_STYLES)
+                                        ButtonStyles.SOLID_BLUE)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(
@@ -332,7 +332,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setModalTitle("Download application data")
         .setTriggerButtonContent(
             makeSvgTextButton("Download", Icons.DOWNLOAD)
-                .withClass(AdminStyles.SECONDARY_BUTTON_STYLES)
+                .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
                 .withType("button"))
         .build();
   }

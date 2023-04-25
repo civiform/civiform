@@ -19,6 +19,7 @@ import play.mvc.Http;
 import services.LocalizedStrings;
 import services.TranslationLocales;
 import views.BaseHtmlView;
+import views.components.ButtonStyles;
 import views.components.LinkElement;
 import views.style.AdminStyles;
 
@@ -95,7 +96,7 @@ public abstract class TranslationFormView extends BaseHtmlView {
                             "Save %s updates",
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button")
-                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES));
+                    .withClasses(ButtonStyles.SOLID_BLUE));
     return form;
   }
 

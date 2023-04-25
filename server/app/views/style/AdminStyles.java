@@ -1,7 +1,5 @@
 package views.style;
 
-import views.components.ButtonStyles;
-
 /** Styles for admin pages. */
 public final class AdminStyles {
 
@@ -64,13 +62,4 @@ public final class AdminStyles {
   public static final String MAIN =
       StyleUtils.joinStyles(
           "bg-white", "border", "border-gray-200", "mt-12", "shadow-lg", "w-screen");
-
-  // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
-  public static final String PRIMARY_BUTTON_STYLES = ButtonStyles.SOLID_BLUE;
-
-  // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
-  public static final String SECONDARY_BUTTON_STYLES = ButtonStyles.OUTLINED_WHITE_WITH_ICON;
-
-  // TODO(MichaelZetune): replace instances of this with ButtonStyles directly.
-  public static final String TERTIARY_BUTTON_STYLES = ButtonStyles.CLEAR_WITH_ICON;
 }

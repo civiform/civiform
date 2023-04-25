@@ -39,11 +39,11 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -267,10 +267,8 @@ public final class QuestionEditView extends BaseHtmlView {
                 .with(
                     div().withClasses("flex-grow"),
                     asRedirectElement(button("Cancel"), cancelUrl)
-                        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
-                    submitButton("Create")
-                        .withClass("m-4")
-                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
+                        .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON),
+                    submitButton("Create").withClass("m-4").withClasses(ButtonStyles.SOLID_BLUE)));
 
     return formTag;
   }
@@ -287,7 +285,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClasses("ml-2", AdminStyles.PRIMARY_BUTTON_STYLES));
+        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
     return formTag;
   }
 

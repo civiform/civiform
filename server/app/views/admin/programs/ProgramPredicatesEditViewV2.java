@@ -32,11 +32,11 @@ import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page for editing predicates of a block in a program. */
@@ -175,7 +175,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                         String.format(
                             "Remove existing %s condition",
                             predicateTypeNameTitleCase.toLowerCase()))
-                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)
+                    .withClasses(ButtonStyles.SOLID_BLUE)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
 
@@ -212,7 +212,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                 predicateTypeNameTitleCase.toLowerCase()),
                             configureExistingPredicateUrl)
                         .withCondDisabled(!hasExistingPredicate)
-                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)))
+                        .withClasses(ButtonStyles.SOLID_BLUE)))
             // Show the control to remove the current predicate.
             .with(removePredicateForm)
             // Show all available questions that predicates can be made for, for this block.
@@ -232,7 +232,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                             hasExistingPredicate
                                                 ? "Replace condition"
                                                 : "Add condition")
-                                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES))
+                                        .withClasses(ButtonStyles.SOLID_BLUE))
                                 .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));
 

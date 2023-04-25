@@ -42,13 +42,13 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.ProgramCardFactory;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page so the admin can view all active programs and draft programs. */
@@ -103,7 +103,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         demographicsCsvModal
                             .getButton()
-                            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2"),
+                            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2"),
                         renderNewProgramButton(),
                         maybePublishModal.isPresent() ? maybePublishModal.get().getButton() : null),
                 div()
@@ -187,7 +187,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     .getDateTag()
                                     .withClasses("ml-3", "inline-flex")),
                         makeSvgTextButton(downloadActionText, Icons.DOWNLOAD)
-                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6")
+                            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6")
                             .withType("submit")));
     return Modal.builder()
         .setModalId(modalId)
@@ -250,14 +250,14 @@ public final class ProgramIndexView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         button("Cancel")
                             .withClasses(
-                                ReferenceClasses.MODAL_CLOSE, AdminStyles.TERTIARY_BUTTON_STYLES),
+                                ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON),
                         toLinkButtonForPost(
-                            submitButton("Confirm").withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                            submitButton("Confirm").withClasses(ButtonStyles.CLEAR_WITH_ICON),
                             link,
                             request)));
     ButtonTag publishAllButton =
         makeSvgTextButton("Publish all drafts", Icons.PUBLISH)
-            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "my-2");
+            .withClasses(ButtonStyles.SOLID_BLUE, "my-2");
     Modal publishAllModal =
         Modal.builder()
             .setModalId("publish-all-programs-modal")
@@ -305,7 +305,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Create new program", Icons.ADD)
             .withId("new-program-button")
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-2");
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-2");
     return asRedirectElement(button, link);
   }
 
@@ -375,7 +375,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         baseUrl
             + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
-        .withClass(AdminStyles.TERTIARY_BUTTON_STYLES)
+        .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);
   }
 
@@ -391,7 +391,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Edit", Icons.EDIT)
             .withId(editLinkId)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON);
     return isActive
         ? toLinkButtonForPost(button, editLink, request)
         : asRedirectElement(button, editLink);
@@ -405,7 +405,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("View", Icons.VIEW)
             .withId(viewLinkId)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, viewLink);
   }
 
@@ -418,7 +418,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON);
     return Optional.of(asRedirectElement(button, linkDestination));
   }
 
@@ -426,7 +426,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     String linkDestination = routes.AdminProgramStatusesController.index(program.id()).url();
     ButtonTag button =
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, linkDestination);
   }
 
@@ -465,8 +465,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               ? "Forms"
               : "Applications";
       ButtonTag button =
-          makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET)
-              .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+          makeSvgTextButton(buttonText, Icons.TEXT_SNIPPET).withClass(ButtonStyles.CLEAR_WITH_ICON);
       return Optional.of(asRedirectElement(button, editLink));
     }
     return Optional.empty();
@@ -477,7 +476,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Manage Program Admins", Icons.GROUP)
             .withId("manage-program-admin-link-" + program.id())
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON);
     return asRedirectElement(button, adminLink);
   }
 
@@ -494,7 +493,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     ButtonTag button =
         makeSvgTextButton("Settings", Icons.SETTINGS)
             .withId("edit-settings-link-" + program.id())
-            .withClass(AdminStyles.TERTIARY_BUTTON_STYLES);
+            .withClass(ButtonStyles.CLEAR_WITH_ICON);
     return Optional.of(asRedirectElement(button, linkDestination));
   }
 }

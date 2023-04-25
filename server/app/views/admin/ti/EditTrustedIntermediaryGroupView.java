@@ -29,9 +29,9 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -87,7 +87,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "ml-2", "mb-6")))
+                submitButton("Add").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
@@ -135,7 +135,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .with(input().isHidden().withName("accountId").withValue(account.id.toString()))
         .with(
             ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
-                .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+                .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
   }
 
   private TheadTag renderGroupTableHeader() {

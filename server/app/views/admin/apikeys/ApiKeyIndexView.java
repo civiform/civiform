@@ -33,8 +33,8 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.Icons;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page that lists the system's {@link models.ApiKey}s. */
@@ -56,7 +56,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     ButtonTag newKeyButton =
         ViewUtils.makeSvgTextButton("New API Key", Icons.PLUS)
             .withId("new-api-key-button")
-            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.SOLID_BLUE);
     DivTag headerDiv =
         div()
             .withClasses("flex", "items-center", "place-content-between", "my-8")
@@ -114,7 +114,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
               .withId(String.format("retire-%s", keyNameSlugified))
               .with(
                   makeSvgTextButton("Retire key", Icons.DELETE)
-                      .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES)));
+                      .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON)));
     }
 
     DivTag topRowDiv =
