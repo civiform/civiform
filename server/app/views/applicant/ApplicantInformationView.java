@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.fieldset;
@@ -115,9 +114,7 @@ public class ApplicantInformationView extends BaseHtmlView {
             .addMainContent(h1(title).withClasses("sr-only"), formContent);
 
     // Only show the dev features on the language selection screen if the feature flag is on.
-    if (featureFlags.getFlagEnabled(request, BYPASS_LOGIN_LANGUAGE_SCREENS)
-        && isDevOrStaging
-        && !disableDemoModeLogins) {
+    if (isDevOrStaging && !disableDemoModeLogins) {
       bundle.addMainContent(br(), DebugContent.devTools());
       bundle.addMainStyles("flex", "flex-col");
     }
