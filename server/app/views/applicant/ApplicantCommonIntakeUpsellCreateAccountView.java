@@ -93,7 +93,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
-            configuration.getString("whitelabel.civic_entity_full_name"),
+            configuration.getString("auth.applicant_auth_provider_name"),
             actionButtonsBuilder.build());
     return layout.renderWithNav(
         request,

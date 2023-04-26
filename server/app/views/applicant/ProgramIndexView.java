@@ -70,6 +70,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final FeatureFlags featureFlags;
   private final ProfileUtils profileUtils;
+  private final String authProviderName;
   private final String civicEntityShortName;
   private final ZoneId zoneId;
 
@@ -85,6 +86,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.profileUtils = checkNotNull(profileUtils);
     this.civicEntityShortName =
         checkNotNull(config).getString("whitelabel.civic_entity_short_name");
+    this.authProviderName = config.getString("auth.applicant_auth_provider_name");
     this.zoneId = checkNotNull(zoneId);
   }
 
@@ -124,7 +126,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       // "Save time when applying for benefits"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
-          messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), civicEntityShortName);
+          messages.at(MessageKey.CONTENT_GUEST_DESCRIPTION.getKeyName(), authProviderName);
       widthClass = "w-8/12";
     } else { // Logged in.
       // "Get benefits"
