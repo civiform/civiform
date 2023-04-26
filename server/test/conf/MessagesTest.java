@@ -37,7 +37,7 @@ public class MessagesTest {
   // we are waiting for translations for.
   private static final ImmutableSet<String> IGNORE_LIST =
       ImmutableSet.of(
-          // TODO(#4640): Translations Batch 6 - Remove once these are translated
+          // TODO(#4640): Translations Batch 6 - Insert items awaiting translations here
           );
 
   @Test
