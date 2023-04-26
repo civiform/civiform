@@ -14,10 +14,10 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.StyleUtils;
 
-public class AuthenticateUpsellViews extends BaseHtmlView {
+final class AuthenticateUpsellViews extends BaseHtmlView {
 
   /** Creates a Modal that prompts the guest user to log in or create an account. */
-  public static Modal createLoginPromptModal(
+  static Modal createLoginPromptModal(
       Messages messages, String postLoginRedirectTo, MessageKey bypassMessage) {
     String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
     String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
@@ -50,7 +50,7 @@ public class AuthenticateUpsellViews extends BaseHtmlView {
         .build();
   }
 
-  protected static ButtonTag createNewAccountButton(String buttonId, Messages messages) {
+  static ButtonTag createNewAccountButton(String buttonId, Messages messages) {
     return redirectButton(
             buttonId,
             messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
@@ -58,7 +58,7 @@ public class AuthenticateUpsellViews extends BaseHtmlView {
         .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
-  protected static ButtonTag createLoginButton(
+  static ButtonTag createLoginButton(
       String buttonId, Messages messages, String postLoginRedirectTo) {
     return redirectButton(
             buttonId,
