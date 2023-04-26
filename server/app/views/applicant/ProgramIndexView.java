@@ -25,9 +25,9 @@ import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
 import controllers.routes;
 import featureflags.FeatureFlags;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
-import j2html.tags.Tag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
@@ -474,24 +474,20 @@ public final class ProgramIndexView extends BaseHtmlView {
         createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION);
     bundle.addModals(loginPromptModal);
 
-    ATag actionButton =
-        a().withHref(actionUrl)
-            .withText(messages.at(buttonTitle.getKeyName()))
-            .withId(baseId + "-apply")
-            .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
+    ATag actionButton = a().withHref(actionUrl).withId(baseId + "-apply");
 
-    Tag content =
+    ContainerTag content =
         ApplicantUtils.isGuest(userName, messages)
-            ? button(messages.at(buttonTitle.getKeyName()))
-                .withId(loginPromptModal.getTriggerButtonId())
-                .withClasses(
-                    ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto")
+            ? TagCreator.button().withId(loginPromptModal.getTriggerButtonId())
             : actionButton;
 
-    content.attr(
-        "aria-label",
-        messages.at(
-            buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)));
+    content
+        .withText(messages.at(buttonTitle.getKeyName()))
+        .attr(
+            "aria-label",
+            messages.at(
+                buttonSrText.getKeyName(), program.localizedName().getOrDefault(preferredLocale)))
+        .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
 
     DivTag actionDiv = div(content).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
     return li().withId(baseId)

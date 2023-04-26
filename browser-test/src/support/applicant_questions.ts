@@ -201,7 +201,7 @@ export class ApplicantQuestions {
     // application. Bypass this to continue as a guest.
     const pageContent = await this.page.textContent('html')
     if (pageContent!.includes('Continue to application')) {
-      await this.page.click('#bypass-login-prompt-button')
+      await this.page.click('button:text("Continue to application"):visible')
     }
 
     await waitForPageJsLoad(this.page)
