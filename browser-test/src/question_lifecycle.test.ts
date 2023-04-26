@@ -156,7 +156,6 @@ describe('normal question lifecycle', () => {
 
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminQuestions.gotoQuestionEditPage(questionName)
-    await validateScreenshot(page, 'testing-question-with-rearranged-options')
 
     // Validate that the options are in the correct order after saving.
     const result = await page
