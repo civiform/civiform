@@ -3,6 +3,7 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
@@ -10,7 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -18,12 +18,10 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.applicant.ApplicantData;
-import views.LoginForm;
 
 /** Controller for handling methods for the landing pages. */
 public class HomeController extends Controller {
 
-  private final LoginForm loginForm;
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
@@ -33,13 +31,11 @@ public class HomeController extends Controller {
   @Inject
   public HomeController(
       Config configuration,
-      LoginForm form,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
       LanguageUtils languageUtils) {
     checkNotNull(configuration);
-    this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -51,11 +47,13 @@ public class HomeController extends Controller {
   public CompletionStage<Result> index(Http.Request request) {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
+    // If the user isn't already logged in within their browser session, consider them a guest.
     if (maybeProfile.isEmpty()) {
       return CompletableFuture.completedFuture(
-          redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
+          redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()));
     }
 
+    // Otherwise, get the profile and go to the appropriate landing page.
     CiviFormProfile profile = maybeProfile.get();
 
     if (profile.isCiviFormAdmin()) {
@@ -87,11 +85,6 @@ public class HomeController extends Controller {
               },
               httpExecutionContext.current());
     }
-  }
-
-  public Result loginForm(Http.Request request, Optional<String> message)
-      throws TechnicalException {
-    return ok(loginForm.render(request, messagesApi.preferred(request), message));
   }
 
   public Result playIndex() {

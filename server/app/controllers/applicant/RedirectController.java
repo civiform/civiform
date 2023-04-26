@@ -7,10 +7,8 @@ import static views.components.ToastMessage.ToastType.ALERT;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
-import controllers.routes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -71,13 +69,6 @@ public final class RedirectController extends CiviFormController {
 
   public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
-    if (profile.isEmpty()) {
-      Result result = redirect(routes.HomeController.loginForm(Optional.of("login")));
-      result = result.withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
-
-      return CompletableFuture.completedFuture(result);
-    }
 
     return profile
         .get()

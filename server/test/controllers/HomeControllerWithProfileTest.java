@@ -17,7 +17,6 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
 import repository.UserRepository;
-import views.LoginForm;
 
 public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
@@ -46,7 +45,6 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     HomeController controller =
         new HomeController(
             instanceOf(Config.class),
-            instanceOf(LoginForm.class),
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),

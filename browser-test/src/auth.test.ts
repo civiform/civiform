@@ -66,14 +66,11 @@ describe('applicant auth', () => {
       `Logged in as ${testUserDisplayName()}`,
     )
 
-    await page.click('text=Logout')
-    // At the moment only fake OIDC has confirmation page during logout.
-    if (TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC) {
-      await page.click('button:has-text("Yes")')
-    }
+    await logout(page)
 
-    await ctx.page.waitForURL(/.*\/loginForm/)
-    expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+    expect(await ctx.page.textContent('html')).toContain(
+      'Please select your preferred language',
+    )
 
     // Try login again, ensuring that full login process is followed. If login
     // page doesn't ask for username/password - the method will fail.
@@ -90,7 +87,9 @@ describe('applicant auth', () => {
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
 
     await page.click('text=End session')
-    expect(await ctx.page.textContent('html')).toContain('Continue as guest')
+    expect(await ctx.page.textContent('html')).toContain(
+      'Please select your preferred language',
+    )
   })
 
   it('guest login followed by auth login stores submitted applications', async () => {
