@@ -109,17 +109,37 @@ describe('normal question lifecycle', () => {
 
     const options = ['option1', 'option2', 'option3', 'option4']
 
-    await adminQuestions.createDropdownQuestion({
-      questionName: 'dropdownWithEmptyOptions',
-      options,
-    })
+    await adminQuestions.createDropdownQuestion(
+      {
+        questionName: 'dropdownWithEmptyOptions',
+        options,
+      },
+      /* clickSubmit= */ false,
+    )
 
-    await page.click('div:has-text("option1").multi-option-question-field-move-down-button')
-    await page.click('div:has-text("option2").multi-option-question-field-move-up-button')  // Should do nothing
-    await page.click('div:has-text("option3").multi-option-question-field-move-down-button')
-    await page.click('button:has-text("Add answer option"')
-    await page.click('div:has-text("option3").multi-option-question-field-move-down-button')
-    await page.click('div:has-text("option3").multi-option-question-field-move-down-button') // Should do nothing
+    const downButtons = await page
+      .locator(
+        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
+      )
+      .all()
+    const upButtons = await page
+      .locator(
+        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+      )
+      .all()
+    expect(upButtons).toHaveLength(4)
+    expect(downButtons).toHaveLength(4)
+
+    await downButtons[3].click() // Should do nothing
+    await waitForPageJsLoad(page)
+    await upButtons[0].click() // Should do nothing
+    await waitForPageJsLoad(page)
+    await downButtons[0].click() // becomes 2, 1, 3, 4
+    await waitForPageJsLoad(page)
+    await downButtons[1].click() // becomes 2, 3, 1, 4
+    await waitForPageJsLoad(page)
+    await upButtons[1].click() // mecomes 3, 2, 1, 4
+    await waitForPageJsLoad(page)
     await validateScreenshot(page, 'question-with-rearranged-options')
   })
 
