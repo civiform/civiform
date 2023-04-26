@@ -102,6 +102,27 @@ describe('normal question lifecycle', () => {
     })
   }
 
+  it('allows re-ordering options in dropdown question', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    const options = ['option1', 'option2', 'option3', 'option4']
+
+    await adminQuestions.createDropdownQuestion({
+      questionName: 'dropdownWithEmptyOptions',
+      options,
+    })
+
+    await page.click('div:has-text("option1").multi-option-question-field-move-down-button')
+    await page.click('div:has-text("option2").multi-option-question-field-move-up-button')  // Should do nothing
+    await page.click('div:has-text("option3").multi-option-question-field-move-down-button')
+    await page.click('button:has-text("Add answer option"')
+    await page.click('div:has-text("option3").multi-option-question-field-move-down-button')
+    await page.click('div:has-text("option3").multi-option-question-field-move-down-button') // Should do nothing
+    await validateScreenshot(page, 'question-with-rearranged-options')
+  })
+
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
