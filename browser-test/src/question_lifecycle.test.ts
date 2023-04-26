@@ -13,7 +13,6 @@ import {BASE_URL} from './support/config'
 describe('normal question lifecycle', () => {
   const ctx = createTestContext()
 
-  /*
   it('canonical question seeding works', async () => {
     const {page, adminQuestions} = ctx
     await dropTables(page)
@@ -102,7 +101,7 @@ describe('normal question lifecycle', () => {
       await adminQuestions.expectActiveQuestions(allQuestions)
     })
   }
-*/
+
   it('allows re-ordering options in dropdown question', async () => {
     const {page, adminQuestions} = ctx
 
@@ -171,7 +170,6 @@ describe('normal question lifecycle', () => {
     expect(await result[4].inputValue()).toContain('option4')
   })
 
-  /*
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
@@ -337,5 +335,4 @@ describe('normal question lifecycle', () => {
       newQuestionText,
     )
   })
-  */
 })
