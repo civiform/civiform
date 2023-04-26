@@ -109,9 +109,10 @@ describe('normal question lifecycle', () => {
 
     const options = ['option1', 'option2', 'option3', 'option4']
 
+    const questionName = 'adropdownquestion'
     await adminQuestions.createDropdownQuestion(
       {
-        questionName: 'dropdownWithEmptyOptions',
+        questionName: questionName,
         options,
       },
       /* clickSubmit= */ false,
@@ -134,13 +135,37 @@ describe('normal question lifecycle', () => {
     await waitForPageJsLoad(page)
     await upButtons[0].click() // Should do nothing
     await waitForPageJsLoad(page)
+
     await downButtons[0].click() // becomes 2, 1, 3, 4
     await waitForPageJsLoad(page)
     await downButtons[1].click() // becomes 2, 3, 1, 4
     await waitForPageJsLoad(page)
-    await upButtons[1].click() // mecomes 3, 2, 1, 4
+    await upButtons[1].click() // becomes 3, 2, 1, 4
     await waitForPageJsLoad(page)
+
+    await page.click('#add-new-option')
+    await page.fill(
+      `:nth-match(#question-settings div.flex-row, 5) input`,
+      'option5',
+    )
+    const newUpButtons = await page
+      .locator(
+        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+      )
+      .all()
+    expect(newUpButtons).toHaveLength(5)
+    await newUpButtons[4].click() // becomes 3, 2, 1, 5, 4
+
     await validateScreenshot(page, 'question-with-rearranged-options')
+
+    await adminQuestions.clickSubmitButtonAndNavigate('Create')
+    await adminQuestions.gotoQuestionEditPage(questionName)
+
+    const updatedOptions = await page
+      .locator('.cf-multi-option-question-option-editable:not(.hidden)')
+      .all()
+    expect(updatedOptions).toHaveLength(5)
+    expect(updatedOptions[0].innerHTML()).toContain('option3')
   })
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
