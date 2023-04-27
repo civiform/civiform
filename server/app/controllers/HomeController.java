@@ -51,7 +51,7 @@ public class HomeController extends Controller {
     this.languageUtils = checkNotNull(languageUtils);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
-    this.featureFlags = featureFlags;
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public CompletionStage<Result> index(Http.Request request) {

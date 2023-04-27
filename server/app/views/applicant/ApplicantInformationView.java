@@ -4,14 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.br;
-import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
-import static j2html.TagCreator.p;
-import static views.dev.DebugContent.debugContent;
 
 import com.typesafe.config.Config;
 import controllers.applicant.routes;
@@ -31,6 +28,7 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.dev.DebugContent;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
 
@@ -45,22 +43,21 @@ public class ApplicantInformationView extends BaseHtmlView {
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final FeatureFlags featureFlags;
-  private final String civiformVersion;
-  private final String civiformImageTag;
+  private final DebugContent debugContent;
 
   @Inject
   public ApplicantInformationView(
       ApplicantLayout layout,
       DeploymentType deploymentType,
       Config config,
-      FeatureFlags featureFlags) {
+      FeatureFlags featureFlags,
+      DebugContent debugContent) {
     this.layout = checkNotNull(layout);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && config.getBoolean("staging_disable_demo_mode_logins");
     this.featureFlags = featureFlags;
-    this.civiformVersion = config.getString("civiform_version");
-    this.civiformImageTag = config.getString("civiform_image_tag");
+    this.debugContent = debugContent;
   }
 
   public Content render(
@@ -121,22 +118,12 @@ public class ApplicantInformationView extends BaseHtmlView {
     if (featureFlags.getFlagEnabled(request, BYPASS_LOGIN_LANGUAGE_SCREENS)
         && isDevOrStaging
         && !disableDemoModeLogins) {
-      bundle.addMainContent(br(), debugContent());
+      bundle.addMainContent(br(), DebugContent.devTools());
       bundle.addMainStyles("flex", "flex-col");
     }
 
     if (featureFlags.getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE)) {
-      // civiformVersion is the version the deployer requests, like "latest" or
-      // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
-      // like "SNAPSHOT-3af8997-1678895722".
-      String version = civiformVersion;
-      if (civiformVersion.equals("") || civiformVersion.equals("latest")) {
-        version = civiformImageTag;
-      }
-      bundle.addFooterContent(
-          div()
-              .with(p("CiviForm version: " + version).withClasses("text-gray-600", "mx-auto"))
-              .withClasses("flex", "flex-row"));
+      bundle.addFooterContent(debugContent.civiformVersionDiv());
     }
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)

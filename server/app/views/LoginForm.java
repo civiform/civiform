@@ -9,7 +9,6 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
-import static views.dev.DebugContent.debugContent;
 
 import auth.AuthIdentityProviderName;
 import auth.GuestClient;
@@ -27,6 +26,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
+import views.dev.DebugContent;
 import views.style.BaseStyles;
 
 /** Renders a page for login. */
@@ -34,8 +34,6 @@ import views.style.BaseStyles;
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final String civiformImageTag;
-  private final String civiformVersion;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final boolean disableApplicantGuestLogin;
@@ -47,19 +45,19 @@ public class LoginForm extends BaseHtmlView {
 
   private final String authProviderName;
   private final FeatureFlags featureFlags;
+  private final DebugContent debugContent;
 
   @Inject
   public LoginForm(
       BaseHtmlLayout layout,
       Config config,
       FeatureFlags featureFlags,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      DebugContent debugContent) {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
     checkNotNull(deploymentType);
 
-    this.civiformImageTag = config.getString("civiform_image_tag");
-    this.civiformVersion = config.getString("civiform_version");
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && config.getBoolean("staging_disable_demo_mode_logins");
@@ -75,6 +73,7 @@ public class LoginForm extends BaseHtmlView {
     this.authProviderName = config.getString("auth.applicant_auth_provider_name");
     this.featureFlags = checkNotNull(featureFlags);
     this.renderCreateAccountButton = config.hasPath("auth.register_uri");
+    this.debugContent = debugContent;
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
@@ -99,7 +98,7 @@ public class LoginForm extends BaseHtmlView {
         div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content));
 
     if (isDevOrStaging && !disableDemoModeLogins) {
-      htmlBundle.addMainContent(debugContent());
+      htmlBundle.addMainContent(DebugContent.devTools());
     }
 
     return layout.render(htmlBundle);
@@ -195,14 +194,7 @@ public class LoginForm extends BaseHtmlView {
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
 
     if (featureFlags.getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE)) {
-      // civiformVersion is the version the deployer requests, like "latest" or
-      // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
-      // like "SNAPSHOT-3af8997-1678895722".
-      String version = civiformVersion;
-      if (civiformVersion.equals("") || civiformVersion.equals("latest")) {
-        version = civiformImageTag;
-      }
-      footer.with(p("CiviForm version: " + version).withClasses("text-gray-600"));
+      footer.with(debugContent.civiformVersionDiv());
     }
 
     return footer;
