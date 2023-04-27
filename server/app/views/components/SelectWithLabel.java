@@ -95,8 +95,8 @@ public final class SelectWithLabel extends FieldWithLabel {
   }
 
   @Override
-  public SelectWithLabel isRequired() {
-    super.isRequired();
+  public SelectWithLabel setRequired(boolean isRequired) {
+    super.setRequired(isRequired);
     return this;
   }
 

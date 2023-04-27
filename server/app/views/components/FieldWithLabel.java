@@ -280,18 +280,20 @@ public class FieldWithLabel {
   }
 
   /**
-   * Set this field to required. Causes a required question indicator to be displayed when this
-   * field is rendered.
+   * Set this field to required or optional. If required, a required question indicator will be
+   * displayed when this field is rendered. If instead you do NOT want any UI changes and just want
+   * to mark the field required for a11y purposes, use setAriaRequired().
    */
-  public FieldWithLabel isRequired() {
-    this.required = true;
-    setAriaRequired(true);
+  public FieldWithLabel setRequired(boolean isRequired) {
+    this.required = isRequired;
+    setAriaRequired(isRequired);
     return this;
   }
 
   /**
-   * Sets the aria-required attribute indicating whether or not the field is required without making
-   * any visible UI changes.
+   * Sets the aria-required attribute indicating whether or not the field is required for a11y
+   * purposes without making any visible UI changes. If instead you need the UI to reflect that the
+   * field is required, use setRequired().
    */
   public FieldWithLabel setAriaRequired(boolean isRequired) {
     this.ariaRequired = isRequired;

@@ -145,7 +145,7 @@ public final class QuestionConfig {
             .setId("enumerator-question-entity-type-input")
             .setFieldName("entityType")
             .setLabelText("Repeated entity type (What are we enumerating?)")
-            .isRequired()
+            .setRequired(true)
             .setValue(enumeratorQuestionForm.getEntityType())
             .getInputTag());
     return this;
@@ -169,7 +169,7 @@ public final class QuestionConfig {
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
             .setLabelText("Question option")
-            .isRequired()
+            .setRequired(true)
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .setFieldErrors(
