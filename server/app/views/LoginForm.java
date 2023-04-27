@@ -44,6 +44,8 @@ public class LoginForm extends BaseHtmlView {
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
+
+  private final String authProviderName;
   private final FeatureFlags featureFlags;
 
   @Inject
@@ -70,6 +72,7 @@ public class LoginForm extends BaseHtmlView {
             : Optional.empty();
     this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
+    this.authProviderName = config.getString("auth.applicant_auth_provider_name");
     this.featureFlags = checkNotNull(featureFlags);
     this.renderCreateAccountButton = config.hasPath("auth.register_uri");
   }
@@ -153,7 +156,7 @@ public class LoginForm extends BaseHtmlView {
       applicantAccountLogin.with(p(loginDisabledMessage));
     } else {
       String loginMessage =
-          messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), civicEntityFullName);
+          messages.at(MessageKey.CONTENT_LOGIN_PROMPT.getKeyName(), authProviderName);
       applicantAccountLogin.with(p(loginMessage)).with(loginButton(messages));
     }
 

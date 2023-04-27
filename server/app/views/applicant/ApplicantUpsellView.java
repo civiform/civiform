@@ -96,7 +96,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
       SectionTag confirmationSection,
       Boolean shouldUpsell,
       Messages messages,
-      String civicEntityFullName,
+      String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return div()
         .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
@@ -104,7 +104,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
             confirmationSection,
             createAccountManagementSection(
-                shouldUpsell, messages, civicEntityFullName, actionButtons));
+                shouldUpsell, messages, authProviderName, actionButtons));
   }
 
   protected static HtmlBundle createHtmlBundle(
@@ -130,7 +130,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
   private static SectionTag createAccountManagementSection(
       boolean shouldUpsell,
       Messages messages,
-      String civicEntityFullName,
+      String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return section()
         .condWith(
@@ -138,7 +138,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
                 .withClasses("mb-4", "font-bold"),
             div(messages.at(
-                    MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(), civicEntityFullName))
+                    MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(), authProviderName))
                 .withClasses("mb-4"))
         .with(
             div()

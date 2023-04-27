@@ -24,12 +24,12 @@ import views.style.ReferenceClasses;
 public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
-  private final String civicEntityFullName;
+  private final String authProviderName;
 
   @Inject
   public ApplicantUpsellCreateAccountView(ApplicantLayout layout, Config config) {
     this.layout = checkNotNull(layout);
-    this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
+    this.authProviderName = config.getString("auth.applicant_auth_provider_name");
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -73,7 +73,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 div(customConfirmationMessage.getOrDefault(locale)).withClasses("mb-4")),
             shouldUpsell,
             messages,
-            civicEntityFullName,
+            authProviderName,
             actionButtons);
     return layout.renderWithNav(
         request,

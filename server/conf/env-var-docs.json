@@ -46,6 +46,10 @@
             "description": "URI to create a new account in the applicant identity provider.",
             "type": "string"
           },
+          "APPLICANT_PORTAL_NAME": {
+            "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
+            "type": "string"
+          },
           "Oracle Identity Cloud Service": {
             "group_description": "Configuration options for the [idcs](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#oracle-idcs) provider.",
             "members": {
@@ -64,7 +68,7 @@
             }
           },
           "Login Radius": {
-            "group_description": "Configuration optiosn for the [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml) provider",
+            "group_description": "Configuration options for the [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml) provider",
             "members": {
               "LOGIN_RADIUS_API_KEY": {
                 "description": "The API key used to interact with LoginRadius.",
