@@ -47,7 +47,7 @@
             "type": "string"
           },
           "APPLICANT_PORTAL_NAME": {
-            "description": "The name of the portal that applicants log into.",
+            "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
             "type": "string"
           },
           "Oracle Identity Cloud Service": {
