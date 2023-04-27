@@ -102,6 +102,72 @@ describe('normal question lifecycle', () => {
     })
   }
 
+  it('allows re-ordering options in dropdown question', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    const options = ['option1', 'option2', 'option3', 'option4']
+    const questionName = 'adropdownquestion'
+    await adminQuestions.createDropdownQuestion(
+      {
+        questionName: questionName,
+        options,
+      },
+      /* clickSubmit= */ false,
+    )
+
+    const downButtons = await page
+      .locator(
+        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
+      )
+      .all()
+    const upButtons = await page
+      .locator(
+        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+      )
+      .all()
+    expect(upButtons).toHaveLength(4)
+    expect(downButtons).toHaveLength(4)
+
+    await downButtons[3].click() // Should do nothing
+    await waitForPageJsLoad(page)
+    await upButtons[0].click() // Should do nothing
+    await waitForPageJsLoad(page)
+
+    await downButtons[0].click() // becomes 2, 1, 3, 4
+    await waitForPageJsLoad(page)
+    await downButtons[1].click() // becomes 2, 3, 1, 4
+    await waitForPageJsLoad(page)
+    await upButtons[1].click() // becomes 3, 2, 1, 4
+    await waitForPageJsLoad(page)
+
+    await page.click('#add-new-option')
+    await adminQuestions.changeMultiOptionAnswer(5, 'option5')
+    const newUpButtons = await page
+      .locator(
+        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+      )
+      .all()
+    expect(newUpButtons).toHaveLength(5)
+    await newUpButtons[4].click() // becomes 3, 2, 1, 5, 4
+
+    await validateScreenshot(page, 'question-with-rearranged-options')
+
+    await adminQuestions.clickSubmitButtonAndNavigate('Create')
+    await adminQuestions.gotoQuestionEditPage(questionName)
+
+    // Validate that the options are in the correct order after saving.
+    const result = await page
+      .getByRole('textbox', {name: 'Question option *'})
+      .all()
+    expect(await result[0].inputValue()).toContain('option3')
+    expect(await result[1].inputValue()).toContain('option2')
+    expect(await result[2].inputValue()).toContain('option1')
+    expect(await result[3].inputValue()).toContain('option5')
+    expect(await result[4].inputValue()).toContain('option4')
+  })
+
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
     const {page, adminQuestions} = ctx
 
