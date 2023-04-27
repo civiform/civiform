@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
@@ -10,13 +11,12 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
+import static views.dev.DebugContent.debugContent;
 
-import auth.FakeAdminClient;
 import com.typesafe.config.Config;
 import controllers.applicant.routes;
 import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
-import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
@@ -117,7 +117,10 @@ public class ApplicantInformationView extends BaseHtmlView {
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), formContent);
 
-    if (isDevOrStaging && !disableDemoModeLogins) {
+    // Only show the dev features on the language selection screen if the feature flag is on.
+    if (featureFlags.getFlagEnabled(request, BYPASS_LOGIN_LANGUAGE_SCREENS)
+        && isDevOrStaging
+        && !disableDemoModeLogins) {
       bundle.addMainContent(br(), debugContent());
       bundle.addMainStyles("flex", "flex-col");
     }
@@ -138,44 +141,5 @@ public class ApplicantInformationView extends BaseHtmlView {
 
     // We probably don't want the nav bar here (or we need it somewhat different - no dropdown.)
     return layout.renderWithNav(request, userName, messages, bundle);
-  }
-
-  private DivTag debugContent() {
-    return div()
-        .withClasses("flex", "flex-col")
-        .with(
-            p("DEVELOPMENT MODE TOOLS:").withClasses("text-2xl"),
-            redirectButton(
-                "admin",
-                "CiviForm Admin",
-                controllers.routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-                    .url()),
-            redirectButton(
-                "program-admin",
-                "Program Admin",
-                controllers.routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-                    .url()),
-            redirectButton(
-                "dual-admin",
-                "Program and Civiform Admin",
-                controllers.routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
-                    .url()),
-            redirectButton(
-                "trusted-intermediary",
-                "Trusted Intermediary",
-                controllers.routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-                    .url()),
-            redirectButton(
-                "feature-flags",
-                "Feature Flags",
-                controllers.dev.routes.FeatureFlagOverrideController.index().url()),
-            redirectButton(
-                "database-seed",
-                "Seed Database",
-                controllers.dev.routes.DatabaseSeedController.index().url()));
   }
 }

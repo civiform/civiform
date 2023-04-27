@@ -1,7 +1,6 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.NEW_LOGIN_FORM_ENABLED;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -10,9 +9,9 @@ import static j2html.TagCreator.img;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static views.dev.DebugContent.debugContent;
 
 import auth.AuthIdentityProviderName;
-import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -31,6 +30,7 @@ import services.MessageKey;
 import views.style.BaseStyles;
 
 /** Renders a page for login. */
+// TODO(#4705): remove this class.
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
@@ -78,21 +78,6 @@ public class LoginForm extends BaseHtmlView {
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
-    if (featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
-      return renderNewLoginPage(request, messages);
-    } else {
-      return renderOldLoginPage(request, messages);
-    }
-  }
-
-  // TODO(#4366): implement new login page.
-  private Content renderNewLoginPage(Http.Request unused1, Messages unused2) {
-    HtmlBundle htmlBundle = this.layout.getBundle();
-
-    return layout.render(htmlBundle);
-  }
-
-  private Content renderOldLoginPage(Http.Request request, Messages messages) {
     String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
@@ -130,7 +115,7 @@ public class LoginForm extends BaseHtmlView {
     } else {
       return this.layout
           .viewUtils
-          .makeLocalImageTag("civiform-staging")
+          .makeLocalImageTag("ChiefSeattle_Blue")
           .withAlt(civicEntityFullName + " Logo")
           .attr("aria-hidden", "true")
           .withClasses("w-1/4", "pt-4");
@@ -250,44 +235,5 @@ public class LoginForm extends BaseHtmlView {
     return a(msg)
         .withHref(routes.LoginController.adminLogin().url())
         .withClasses(BaseStyles.ADMIN_LOGIN);
-  }
-
-  private DivTag debugContent() {
-    return div()
-        .withClasses("absolute", "flex", "flex-col")
-        .with(
-            p("DEVELOPMENT MODE TOOLS:").withClasses("text-2xl"),
-            redirectButton(
-                "admin",
-                "CiviForm Admin",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-                    .url()),
-            redirectButton(
-                "program-admin",
-                "Program Admin",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-                    .url()),
-            redirectButton(
-                "dual-admin",
-                "Program and Civiform Admin",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
-                    .url()),
-            redirectButton(
-                "trusted-intermediary",
-                "Trusted Intermediary",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-                    .url()),
-            redirectButton(
-                "feature-flags",
-                "Feature Flags",
-                controllers.dev.routes.FeatureFlagOverrideController.index().url()),
-            redirectButton(
-                "database-seed",
-                "Seed Database",
-                controllers.dev.routes.DatabaseSeedController.index().url()));
   }
 }

@@ -31,7 +31,12 @@ public enum FeatureFlag {
   NONGATED_ELIGIBILITY_ENABLED,
 
   // Phone number question type.
-  PHONE_QUESTION_TYPE_ENABLED;
+  PHONE_QUESTION_TYPE_ENABLED,
+
+  // Whether to bypass the login and language screens and automatically and consider
+  // a new user to be a guest until they log in.
+  // TODO(#4705): remove this feature flag and make this behavior the default.
+  BYPASS_LOGIN_LANGUAGE_SCREENS;
 
   /**
    * Returns a {@link FeatureFlag} for the given name. Matches based on the first matching flag,

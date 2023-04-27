@@ -7,8 +7,12 @@ import static views.components.ToastMessage.ToastType.ALERT;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
+import controllers.routes;
+import featureflags.FeatureFlag;
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -46,6 +50,7 @@ public final class RedirectController extends CiviFormController {
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
   private final LanguageUtils languageUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public RedirectController(
@@ -56,7 +61,8 @@ public final class RedirectController extends CiviFormController {
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      FeatureFlags featureFlags) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.profileUtils = checkNotNull(profileUtils);
@@ -65,10 +71,19 @@ public final class RedirectController extends CiviFormController {
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.languageUtils = checkNotNull(languageUtils);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+
+    if (!featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS)
+        && profile.isEmpty()) {
+      Result result = redirect(routes.HomeController.loginForm(Optional.of("login")));
+      result = result.withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
+
+      return CompletableFuture.completedFuture(result);
+    }
 
     return profile
         .get()

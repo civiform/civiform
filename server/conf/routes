@@ -181,6 +181,8 @@ GET     /callback/:client_name       controllers.CallbackController.callback(req
 POST    /callback/:client_name       controllers.CallbackController.callback(request: Request, client_name: String)
 
 # Log into application
+# TODO(#4705): remove /loginForm endpoint
+GET     /loginForm                   controllers.HomeController.loginForm(request: Request, message: java.util.Optional[String])
 GET     /adminLogin                  controllers.LoginController.adminLogin(request: Request)
 GET     /applicantLogin              controllers.LoginController.applicantLogin(request: Request, redirectTo: java.util.Optional[String])
 GET     /idcsRegister                controllers.LoginController.register(request: Request)
