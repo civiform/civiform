@@ -103,11 +103,15 @@ function addNewInput(
     .querySelector('[type=button]')!
     .addEventListener('click', removeInput)
 
-  const upButton = newField.querySelector('.multi-option-question-field-move-up-button')
+  const upButton = newField.querySelector(
+    '.multi-option-question-field-move-up-button',
+  )
   if (upButton != null) {
     upButton.addEventListener('click', moveMultiOptionQuestionUp)
   }
-  const downButton = newField.querySelector('.multi-option-question-field-move-down-button')
+  const downButton = newField.querySelector(
+    '.multi-option-question-field-move-down-button',
+  )
   if (downButton != null) {
     downButton.addEventListener('click', moveMultiOptionQuestionDown)
   }
