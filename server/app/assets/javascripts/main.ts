@@ -100,14 +100,17 @@ function addNewInput(
 
   // Register the click event handler for the buttons.
   newField
-    .querySelector('.multi-option-question-field-remove-button')!
+    .querySelector('[type=button]')!
     .addEventListener('click', removeInput)
-  newField
-    .querySelector('.multi-option-question-field-move-up-button')!
-    .addEventListener('click', moveMultiOptionQuestionUp)
-  newField
-    .querySelector('.multi-option-question-field-move-down-button')!
-    .addEventListener('click', moveMultiOptionQuestionDown)
+
+  const upButton = newField.querySelector('.multi-option-question-field-move-up-button')
+  if (upButton != null) {
+    upButton.addEventListener('click', moveMultiOptionQuestionUp)
+  }
+  const downButton = newField.querySelector('.multi-option-question-field-move-down-button')
+  if (downButton != null) {
+    downButton.addEventListener('click', moveMultiOptionQuestionDown)
+  }
 
   // Find the add option button and insert the new option input field before it.
   const button = document.getElementById(addButtonId)
