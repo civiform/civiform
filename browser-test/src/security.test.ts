@@ -39,11 +39,11 @@ describe('applicant security', () => {
     expect(response!.status()).toBe(403)
   })
 
-  it('redirects to login form when not logged in', async () => {
+  it('redirects to language selection form when not logged in', async () => {
     const {page} = ctx
     await page.goto(BASE_URL)
     expect(await page.innerHTML('body')).toMatch(
-      /Please log in with your (.*) account/,
+      /Please select your preferred language/,
     )
   })
 

@@ -3,9 +3,12 @@ package controllers;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
+import featureflags.FeatureFlag;
+import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -29,6 +32,7 @@ public class HomeController extends Controller {
   private final HttpExecutionContext httpExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public HomeController(
@@ -37,7 +41,8 @@ public class HomeController extends Controller {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       HttpExecutionContext httpExecutionContext,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      FeatureFlags featureFlags) {
     checkNotNull(configuration);
     this.loginForm = checkNotNull(form);
     this.profileUtils = checkNotNull(profileUtils);
@@ -46,16 +51,25 @@ public class HomeController extends Controller {
     this.languageUtils = checkNotNull(languageUtils);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   public CompletionStage<Result> index(Http.Request request) {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
+    boolean bypassLogin =
+        featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS);
+
+    // If the user isn't already logged in within their browser session, consider them a guest.
     if (maybeProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
+      return bypassLogin
+          ? CompletableFuture.completedFuture(
+              redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()))
+          : CompletableFuture.completedFuture(
+              redirect(controllers.routes.HomeController.loginForm(Optional.empty())));
     }
 
+    // Otherwise, get the profile and go to the appropriate landing page.
     CiviFormProfile profile = maybeProfile.get();
 
     if (profile.isCiviFormAdmin()) {
@@ -89,6 +103,7 @@ public class HomeController extends Controller {
     }
   }
 
+  // TODO(#4705): remove this method
   public Result loginForm(Http.Request request, Optional<String> message)
       throws TechnicalException {
     return ok(loginForm.render(request, messagesApi.preferred(request), message));

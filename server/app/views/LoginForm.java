@@ -1,7 +1,6 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.NEW_LOGIN_FORM_ENABLED;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
@@ -12,7 +11,6 @@ import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.AuthIdentityProviderName;
-import auth.FakeAdminClient;
 import auth.GuestClient;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -28,14 +26,14 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
+import views.dev.DebugContent;
 import views.style.BaseStyles;
 
 /** Renders a page for login. */
+// TODO(#4705): remove this class.
 public class LoginForm extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final String civiformImageTag;
-  private final String civiformVersion;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final boolean disableApplicantGuestLogin;
@@ -47,19 +45,19 @@ public class LoginForm extends BaseHtmlView {
 
   private final String authProviderName;
   private final FeatureFlags featureFlags;
+  private final DebugContent debugContent;
 
   @Inject
   public LoginForm(
       BaseHtmlLayout layout,
       Config config,
       FeatureFlags featureFlags,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      DebugContent debugContent) {
     this.layout = checkNotNull(layout);
     checkNotNull(config);
     checkNotNull(deploymentType);
 
-    this.civiformImageTag = config.getString("civiform_image_tag");
-    this.civiformVersion = config.getString("civiform_version");
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && config.getBoolean("staging_disable_demo_mode_logins");
@@ -75,24 +73,10 @@ public class LoginForm extends BaseHtmlView {
     this.authProviderName = config.getString("auth.applicant_auth_provider_name");
     this.featureFlags = checkNotNull(featureFlags);
     this.renderCreateAccountButton = config.hasPath("auth.register_uri");
+    this.debugContent = debugContent;
   }
 
   public Content render(Http.Request request, Messages messages, Optional<String> message) {
-    if (featureFlags.getFlagEnabled(request, NEW_LOGIN_FORM_ENABLED)) {
-      return renderNewLoginPage(request, messages);
-    } else {
-      return renderOldLoginPage(request, messages);
-    }
-  }
-
-  // TODO(#4366): implement new login page.
-  private Content renderNewLoginPage(Http.Request unused1, Messages unused2) {
-    HtmlBundle htmlBundle = this.layout.getBundle();
-
-    return layout.render(htmlBundle);
-  }
-
-  private Content renderOldLoginPage(Http.Request request, Messages messages) {
     String title = messages.at(MessageKey.TITLE_LOGIN.getKeyName());
 
     HtmlBundle htmlBundle = this.layout.getBundle().setTitle(title);
@@ -114,7 +98,7 @@ public class LoginForm extends BaseHtmlView {
         div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content));
 
     if (isDevOrStaging && !disableDemoModeLogins) {
-      htmlBundle.addMainContent(debugContent());
+      htmlBundle.addMainContent(DebugContent.devTools());
     }
 
     return layout.render(htmlBundle);
@@ -210,14 +194,7 @@ public class LoginForm extends BaseHtmlView {
             .with(p(adminPrompt).with(text(" ")).with(adminLink(messages)));
 
     if (featureFlags.getFlagEnabled(request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE)) {
-      // civiformVersion is the version the deployer requests, like "latest" or
-      // "v1.18.0". civiformImageTag is set by bin/build-prod and is a string
-      // like "SNAPSHOT-3af8997-1678895722".
-      String version = civiformVersion;
-      if (civiformVersion.equals("") || civiformVersion.equals("latest")) {
-        version = civiformImageTag;
-      }
-      footer.with(p("CiviForm version: " + version).withClasses("text-gray-600"));
+      footer.with(debugContent.civiformVersionDiv());
     }
 
     return footer;
@@ -250,44 +227,5 @@ public class LoginForm extends BaseHtmlView {
     return a(msg)
         .withHref(routes.LoginController.adminLogin().url())
         .withClasses(BaseStyles.ADMIN_LOGIN);
-  }
-
-  private DivTag debugContent() {
-    return div()
-        .withClasses("absolute", "flex", "flex-col")
-        .with(
-            p("DEVELOPMENT MODE TOOLS:").withClasses("text-2xl"),
-            redirectButton(
-                "admin",
-                "CiviForm Admin",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-                    .url()),
-            redirectButton(
-                "program-admin",
-                "Program Admin",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-                    .url()),
-            redirectButton(
-                "dual-admin",
-                "Program and Civiform Admin",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
-                    .url()),
-            redirectButton(
-                "trusted-intermediary",
-                "Trusted Intermediary",
-                routes.CallbackController.fakeAdmin(
-                        FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-                    .url()),
-            redirectButton(
-                "feature-flags",
-                "Feature Flags",
-                controllers.dev.routes.FeatureFlagOverrideController.index().url()),
-            redirectButton(
-                "database-seed",
-                "Seed Database",
-                controllers.dev.routes.DatabaseSeedController.index().url()));
   }
 }

@@ -127,14 +127,6 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    it('verify login page', async () => {
-      const {page} = ctx
-      // Verify we are on login page.
-      expect(await page.innerText('head')).toContain('Login')
-      await validateAccessibility(page)
-      await validateScreenshot(page, 'landing-page')
-    })
-
     it('verify language selection page', async () => {
       const {page} = ctx
       await loginAsGuest(page)
