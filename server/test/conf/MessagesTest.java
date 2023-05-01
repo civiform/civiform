@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -39,6 +40,10 @@ public class MessagesTest {
       ImmutableSet.of(
           // TODO(#4640): Translations Batch 6 - Insert items awaiting translations here
           );
+
+  // Slanted quotes like “ and ’ show up as â in tests; this is a common error when
+  // copy-pasting text. Check for this error in all messages files.
+  private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
@@ -93,28 +98,30 @@ public class MessagesTest {
   }
 
   @Test
-  @Parameters(method = "otherLanguageFiles")
-  public void messages_containsNoSlantedQuotes(String otherLanguageFile) throws Exception {
+  public void messages_primaryFile_containsNoProhibitedCharacters() throws Exception {
     TreeMap<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE);
-    TreeMap<String, String> entriesInOtherLanguageFile = entriesInFile(otherLanguageFile);
-
-    // Slanted quotes like “ show up as â in tests; this is a common error when
-    // copy-pasting text. Check for this error in all messages files.
 
     assertThat(entriesInPrimaryLanguageFile)
-        .withFailMessage("Slanted quotes found in primary language file. Use \" instead of “.")
+        .withFailMessage("Prohibited characters found in primary language file..")
         .allSatisfy(
             (key, value) -> {
-              assertThat(key).doesNotContain("â");
-              assertThat(value).doesNotContain("â");
+              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+              assertThat(value).doesNotContain(PROHIBITED_CHARACTERS);
             });
+  }
+
+  @Test
+  @Parameters(method = "otherLanguageFiles")
+  public void messages_otherLanguageFiles_containNoProhibitedCharacters(String otherLanguageFile)
+      throws Exception {
+    TreeMap<String, String> entriesInOtherLanguageFile = entriesInFile(otherLanguageFile);
 
     assertThat(entriesInOtherLanguageFile)
-        .withFailMessage("Slanted quotes found in " + otherLanguageFile + ". Use \" instead of “.")
+        .withFailMessage("Prohibited characters found in " + otherLanguageFile + ".")
         .allSatisfy(
             (key, value) -> {
-              assertThat(key).doesNotContain("â");
-              assertThat(value).doesNotContain("â");
+              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+              assertThat(value).doesNotContain(PROHIBITED_CHARACTERS);
             });
   }
 
