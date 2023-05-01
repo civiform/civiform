@@ -114,7 +114,7 @@ public class LoginForm extends BaseHtmlView {
     } else {
       return this.layout
           .viewUtils
-          .makeLocalImageTag("ChiefSeattle_Blue")
+          .makeLocalImageTag("civiform-staging")
           .withAlt(civicEntityFullName + " Logo")
           .attr("aria-hidden", "true")
           .withClasses("w-1/4", "pt-4");
