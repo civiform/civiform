@@ -92,6 +92,32 @@ public class MessagesTest {
         .containsAllEntriesOf(entriesInEnUsLanguageFile);
   }
 
+  @Test
+  @Parameters(method = "otherLanguageFiles")
+  public void messages_containsNoSlantedQuotes(String otherLanguageFile) throws Exception {
+    TreeMap<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE);
+    TreeMap<String, String> entriesInOtherLanguageFile = entriesInFile(otherLanguageFile);
+
+    // Slanted quotes like “ show up as â in tests; this is a common error when
+    // copy-pasting text. Check for this error in all messages files.
+
+    assertThat(entriesInPrimaryLanguageFile)
+        .withFailMessage("Slanted quotes found in primary language file. Use \" instead of “.")
+        .allSatisfy(
+            (key, value) -> {
+              assertThat(key).doesNotContain("â");
+              assertThat(value).doesNotContain("â");
+            });
+
+    assertThat(entriesInOtherLanguageFile)
+        .withFailMessage("Slanted quotes found in " + otherLanguageFile + ". Use \" instead of “.")
+        .allSatisfy(
+            (key, value) -> {
+              assertThat(key).doesNotContain("â");
+              assertThat(value).doesNotContain("â");
+            });
+  }
+
   private static TreeSet<String> keysInFile(String filePath) throws Exception {
     return new TreeSet<>(entriesInFile(filePath).keySet());
   }
