@@ -370,7 +370,7 @@ export class ApplicantQuestions {
     )
     await this.clickApplyToAnotherProgramButton()
 
-    // If we are as a guest, we will get a prompt to log in before going back to the
+    // If we are a guest, we will get a prompt to log in before going back to the
     // programs page. Bypass this to continue as a guest.
     const pageContent = await this.page.textContent('html')
     if (pageContent!.includes('Continue without an account')) {

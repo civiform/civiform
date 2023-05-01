@@ -474,12 +474,13 @@ public final class ProgramIndexView extends BaseHtmlView {
         createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION);
     bundle.addModals(loginPromptModal);
 
-    ATag actionButton = a().withHref(actionUrl).withId(baseId + "-apply");
-
+    // If the user is a guest, show the login prompt modal, which has a button
+    // to continue on to the application. Otherwise, show the button to go to the
+    // application directly.
     ContainerTag content =
         ApplicantUtils.isGuest(userName, messages)
             ? TagCreator.button().withId(loginPromptModal.getTriggerButtonId())
-            : actionButton;
+            : a().withHref(actionUrl).withId(baseId + "-apply");
 
     content
         .withText(messages.at(buttonTitle.getKeyName()))
