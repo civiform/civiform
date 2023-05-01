@@ -16,7 +16,7 @@ import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
-import static views.applicant.AuthenticateUpsellViews.createLoginPromptModal;
+import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;

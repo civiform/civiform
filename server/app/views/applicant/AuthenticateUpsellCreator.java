@@ -15,7 +15,8 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.StyleUtils;
 
-final class AuthenticateUpsellViews extends BaseHtmlView {
+/** Helper methods for rendering authentication related upsells. */
+final class AuthenticateUpsellCreator extends BaseHtmlView {
 
   /** Creates a Modal that prompts the guest user to log in or create an account. */
   static Modal createLoginPromptModal(
@@ -54,6 +55,7 @@ final class AuthenticateUpsellViews extends BaseHtmlView {
         .build();
   }
 
+  /** Creates a button that redirects to the account creation page. */
   static ButtonTag createNewAccountButton(String buttonId, Messages messages) {
     return redirectButton(
             buttonId,
@@ -62,6 +64,7 @@ final class AuthenticateUpsellViews extends BaseHtmlView {
         .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
+  /** Creates a button that redirects to the login page. */
   static ButtonTag createLoginButton(
       String buttonId, Messages messages, String postLoginRedirectTo) {
     return redirectButton(
