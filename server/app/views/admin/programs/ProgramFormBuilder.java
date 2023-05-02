@@ -6,21 +6,32 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
 import com.typesafe.config.Config;
+import com.typesafe.sslconfig.ssl.FakeChainedKeyStore;
 import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
 import models.DisplayMode;
+import models.TrustedIntermediaryGroup;
 import modules.MainModule;
 import play.mvc.Http.Request;
+import repository.UserRepository;
+import services.LocalizedStrings;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.question.LocalizedQuestionOption;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -29,6 +40,12 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -38,10 +55,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private final FeatureFlags featureFlags;
   private final String baseUrl;
+  private final UserRepository userRepository;
 
-  ProgramFormBuilder(Config configuration, FeatureFlags featureFlags) {
+  @Inject
+  ProgramFormBuilder(Config configuration, FeatureFlags featureFlags, UserRepository userRepository) {
     this.featureFlags = featureFlags;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.userRepository = checkNotNull(userRepository);
   }
 
   /** Builds the form using program form data. */
@@ -154,6 +174,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
+      showTISelectionList(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
@@ -196,6 +217,60 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
     return formTag;
+  }
+
+  private DomContent showTISelectionList() {
+    List<TrustedIntermediaryGroup> tiGroups = userRepository.listTrustedIntermediaryGroups();
+    DivTag tiSelectionRenderer =
+      div()
+        // Hidden input that's always selected to allow for clearing multi-select data.
+        .with(
+          input()
+            .withType("checkbox")
+            /**
+             * For multi-select, we must append {@code []} to the field name so that the Play
+             * framework allows multiple form keys with the same value. For more information, see
+             * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
+             */
+            .withName("Select Trusted Intermediaries"+ Path.ARRAY_SUFFIX)
+            .withValue("")
+            .withCondChecked(true)
+            .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
+        .with(
+          tiGroups.stream()
+            .map(
+              option ->
+                renderCheckboxOption(
+                  option.getName(),
+                  option.id)));
+
+    return tiSelectionRenderer;
+  }
+  private DivTag renderCheckboxOption(
+    String tiName, Long tiId) {
+    String id = "checkbox-" + "-" + option.id();
+    LabelTag labelTag =
+      label()
+        .withClasses(
+          ReferenceClasses.RADIO_OPTION,
+          BaseStyles.CHECKBOX_LABEL,
+          true ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+        .with(
+          input()
+            .withId(id)
+            .withType("checkbox")
+            .withName(tiName)
+            .withValue(String.valueOf(tiId))
+           // .withCondChecked(isSelected)
+          //  .condAttr("aria-invalid", "true")
+           // .condAttr( "aria-required", "true")
+            .withClasses(
+              StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)));
+          //span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+
+    return div()
+      .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
+      .with(labelTag);
   }
 
   private DomContent programUrlField(String adminName, boolean editExistingProgram) {
