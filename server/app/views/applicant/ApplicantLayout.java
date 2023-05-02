@@ -2,6 +2,7 @@ package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
+import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.br;
@@ -78,6 +79,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final String civicEntityShortName;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
+  private final DebugContent debugContent;
 
   @Inject
   public ApplicantLayout(
@@ -87,7 +89,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
       FeatureFlags featureFlags,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      DebugContent debugContent) {
     super(viewUtils, configuration, featureFlags, deploymentType);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
@@ -102,6 +105,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && configuration.getBoolean("staging_disable_demo_mode_logins");
+    this.debugContent = debugContent;
   }
 
   @Override
@@ -156,6 +160,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses("flex", "flex-col")
             .with(
+                div()
+                    .condWith(
+                        featureFlags.getFlagEnabled(
+                            request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE),
+                        debugContent.civiformVersionDiv()),
                 div()
                     .with(
                         span(
