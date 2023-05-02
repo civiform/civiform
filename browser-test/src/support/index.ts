@@ -314,11 +314,6 @@ export const loginAsGuest = async (page: Page) => {
   // CiviForm defaults to the guest user.
 }
 
-export const setLangEsUS = async (page: Page) => {
-  await page.click('text=Español')
-  await page.click('text=Submit')
-}
-
 /**
  * Logs in via an auth provider.
  * @param loginButton Selector of a button on current page that starts auth
@@ -429,25 +424,11 @@ export const supportsEmailInspection = () => {
  * The option to select a language is only shown once for a given applicant. If this is
  * the first time they see this page, select the given language. Otherwise continue.
  */
-export const selectApplicantLanguage = async (
-  page: Page,
-  language: string,
-  assertProgramIndexPage = false,
-) => {
-  const infoPageRegex = /applicants\/\d+\/edit/
-  const maybeSelectLanguagePage = page.url()
-  if (maybeSelectLanguagePage.match(infoPageRegex)) {
-    const languageOption = `.cf-radio-option:has-text("${language}")`
-    await page.click(languageOption + ' input')
-    await page.click('button:visible')
-  }
-  await waitForPageJsLoad(page)
+export const selectApplicantLanguage = async (page: Page, language: string) => {
+  await page.click('#select-language')
+  await page.selectOption('#select-language', {label: language})
 
-  if (assertProgramIndexPage) {
-    const programIndexRegex = /applicants\/\d+\/programs/
-    const maybeProgramIndexPage = page.url()
-    expect(maybeProgramIndexPage).toMatch(programIndexRegex)
-  }
+  await waitForPageJsLoad(page)
 }
 
 export const dropTables = async (page: Page) => {
