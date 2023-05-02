@@ -29,7 +29,7 @@
     },
     {
       "matchPackageNames": ["postgres"],
-      "allowedVersion": "<13.0.0"
+      "allowedVersions": "<13.0.0"
     }
   ]
 }
