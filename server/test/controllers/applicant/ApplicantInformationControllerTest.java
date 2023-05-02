@@ -10,11 +10,14 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
+import featureflags.FeatureFlag;
 import java.util.Locale;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
+import play.api.mvc.Call;
 import play.mvc.Http;
+import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.UserRepository;
 
@@ -36,7 +39,11 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void edit_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .edit(fakeRequest().build(), currentApplicant.id + 1)
+            .edit(
+                fakeRequestDontBypassLang(
+                        routes.ApplicantInformationController.update(currentApplicant.id))
+                    .build(),
+                currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -46,7 +53,11 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void update_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
-            .update(fakeRequest().build(), currentApplicant.id + 1)
+            .update(
+                fakeRequestDontBypassLang(
+                        routes.ApplicantInformationController.update(currentApplicant.id))
+                    .build(),
+                currentApplicant.id + 1)
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
@@ -56,7 +67,12 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void edit_usesHumanReadableLanguagesInsteadOfIsoTags() {
     Result result =
         controller
-            .edit(addCSRFToken(fakeRequest()).build(), currentApplicant.id)
+            .edit(
+                addCSRFToken(
+                        fakeRequestDontBypassLang(
+                            routes.ApplicantInformationController.update(currentApplicant.id)))
+                    .build(),
+                currentApplicant.id)
             .toCompletableFuture()
             .join();
     assertThat(contentAsString(result)).contains("English");
@@ -73,7 +89,8 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void update_redirectsToProgramIndex_withNonEnglishLocale() {
     Http.Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantInformationController.update(currentApplicant.id))
+                fakeRequestDontBypassLang(
+                        routes.ApplicantInformationController.update(currentApplicant.id))
                     .bodyForm(ImmutableMap.of("locale", "es-US")))
             .build();
 
@@ -91,7 +108,8 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   public void update_ignoresExistingLangCookie() {
     Http.Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantInformationController.update(currentApplicant.id))
+                fakeRequestDontBypassLang(
+                        routes.ApplicantInformationController.update(currentApplicant.id))
                     .bodyForm(ImmutableMap.of("locale", "es-US")))
             .langCookie(Locale.US, stubMessagesApi())
             .build();
@@ -104,5 +122,9 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.cookie("PLAY_LANG").get().value()).isEqualTo("es-US");
+  }
+
+  private static RequestBuilder fakeRequestDontBypassLang(Call call) {
+    return fakeRequest(call).session(FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS.toString(), "false");
   }
 }
