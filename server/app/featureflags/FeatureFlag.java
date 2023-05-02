@@ -10,6 +10,8 @@ package featureflags;
  * ensure that the lower_camel_case version of the flag is returned.
  *
  * <p>For example, a FeatureFlag with value MY_FLAG will appear in configuration as "my_flag".
+ *
+ * <p>See https://docs.civiform.us/contributor-guide/developer-guide/feature-flags.
  */
 public enum FeatureFlag {
   // Main control for any feature flags working.
