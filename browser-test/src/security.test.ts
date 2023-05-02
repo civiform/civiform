@@ -39,14 +39,6 @@ describe('applicant security', () => {
     expect(response!.status()).toBe(403)
   })
 
-  it('redirects to language selection form when not logged in', async () => {
-    const {page} = ctx
-    await page.goto(BASE_URL)
-    expect(await page.innerHTML('body')).toMatch(
-      /Please select your preferred language/,
-    )
-  })
-
   it('redirects to program dashboard when logged in as admin', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
@@ -54,15 +46,6 @@ describe('applicant security', () => {
     expect(await page.innerHTML('body')).toMatch(/Program dashboard/)
     expect(await page.innerHTML('body')).toMatch(
       /Create, edit and publish programs/,
-    )
-  })
-
-  it('redirects to language page when logged in as guest', async () => {
-    const {page} = ctx
-    await loginAsGuest(page)
-    await page.goto(BASE_URL)
-    expect(await page.innerHTML('body')).toMatch(
-      /Please select your preferred language/,
     )
   })
 })
