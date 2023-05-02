@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -63,6 +64,7 @@ public class Program extends BaseModel {
 
   // Not required - will be autofilled if not present.
   private String slug;
+  @DbJsonB private ProgramAcls acls;
 
   @DbJsonB private LocalizedStrings localizedName;
 
@@ -151,6 +153,7 @@ public class Program extends BaseModel {
     this.displayMode = definition.displayMode().getValue();
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
+    this.acls = definition.programAcls();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -172,7 +175,8 @@ public class Program extends BaseModel {
       String displayMode,
       ImmutableList<BlockDefinition> blockDefinitions,
       Version associatedVersion,
-      ProgramType programType) {
+      ProgramType programType,
+      ProgramAcls acls) {
     this.name = adminName;
     this.description = adminDescription;
     // A program is always created with the default CiviForm locale first, then localized.
@@ -187,6 +191,7 @@ public class Program extends BaseModel {
     this.versions.add(associatedVersion);
     this.programType = programType;
     this.eligibilityIsGating = true;
+    this.acls = acls;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -205,6 +210,7 @@ public class Program extends BaseModel {
     displayMode = programDefinition.displayMode().getValue();
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
+    acls = programDefinition.programAcls();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -226,7 +232,8 @@ public class Program extends BaseModel {
             .setCreateTime(createTime)
             .setLastModifiedTime(lastModifiedTime)
             .setProgramType(programType)
-            .setEligibilityIsGating(eligibilityIsGating);
+            .setEligibilityIsGating(eligibilityIsGating)
+            .setProgramAcls(acls);
 
     setLocalizedName(builder);
     setLocalizedDescription(builder);

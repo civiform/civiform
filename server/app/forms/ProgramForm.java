@@ -1,5 +1,8 @@
 package forms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Form for updating name and description of a program. */
 public final class ProgramForm {
   private String adminName;
@@ -10,10 +13,15 @@ public final class ProgramForm {
   private String externalLink;
   private String displayMode;
   private Boolean isCommonIntakeForm;
+  private List<String> selectedTI;
+  private List<Boolean> checked;
 
   // Represents whether or not the user has confirmed that they want to change which program is
   // marked as the common intake form.
   private Boolean confirmedChangeCommonIntakeForm;
+
+
+
 
   public ProgramForm() {
     adminName = "";
@@ -25,6 +33,8 @@ public final class ProgramForm {
     displayMode = "";
     isCommonIntakeForm = false;
     confirmedChangeCommonIntakeForm = false;
+    selectedTI = new ArrayList<>();
+    checked = new ArrayList<>();
   }
 
   public String getAdminName() {
@@ -97,5 +107,19 @@ public final class ProgramForm {
 
   public void setLocalizedConfirmationMessage(String localizedConfirmationMessage) {
     this.localizedConfirmationMessage = localizedConfirmationMessage;
+  }
+  public List<Boolean> getChecked() {
+    return checked;
+  }
+
+  public void setChecked(List<Boolean> checked) {
+    this.checked = checked;
+  }
+  public List<String> getSelectedTI() {
+    return selectedTI;
+  }
+
+  public void setSelectedTI(List<String> selectedTI) {
+    this.selectedTI = selectedTI;
   }
 }

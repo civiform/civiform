@@ -5,9 +5,7 @@ import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static views.components.ToastMessage.ToastType.ERROR;
 
-import auth.Authorizers;
-import auth.CiviFormProfile;
-import auth.ProfileUtils;
+import auth.*;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
@@ -21,6 +19,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -50,6 +49,8 @@ public final class AdminProgramController extends CiviFormController {
   private final ProfileUtils profileUtils;
   private final RequestChecker requestChecker;
   private final FeatureFlags featureFlags;
+  private final EditTIView editTIView;
+  private final UserRepository userRepository;
 
   @Inject
   public AdminProgramController(
@@ -59,7 +60,9 @@ public final class AdminProgramController extends CiviFormController {
       ProgramNewOneView newOneView,
       ProgramEditView editView,
       ProgramSettingsEditView programSettingsEditView,
+      EditTIView editTIView,
       VersionRepository versionRepository,
+      UserRepository userRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker,
@@ -70,11 +73,13 @@ public final class AdminProgramController extends CiviFormController {
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.programSettingsEditView = checkNotNull(programSettingsEditView);
+    this.editTIView = checkNotNull(editTIView);
     this.versionRepository = checkNotNull(versionRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.featureFlags = featureFlags;
+    this.userRepository = userRepository;
   }
 
   /**
@@ -172,6 +177,7 @@ public final class AdminProgramController extends CiviFormController {
     }
   }
 
+
   /** POST endpoint for creating a new draft version of the program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newVersionFrom(Request request, long programId) {
@@ -198,6 +204,12 @@ public final class AdminProgramController extends CiviFormController {
     }
   }
 
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result editTI(Request request, long programId) throws ProgramNotFoundException {
+    requestChecker.throwIfProgramNotDraft(programId);
+    ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+      return ok(editTIView.render(userRepository.listTrustedIntermediaryGroups(),request, programDefinition,programDefinition.()));
+    }
   /** POST endpoint for updating the program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Request request, long programId) throws ProgramNotFoundException {
@@ -246,7 +258,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getExternalLink(),
         programData.getDisplayMode(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+       );
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 

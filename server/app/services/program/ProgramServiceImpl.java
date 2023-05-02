@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -260,7 +261,8 @@ public final class ProgramServiceImpl implements ProgramService {
             displayMode,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion(),
-            programType);
+            programType,
+          pro);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -278,16 +280,16 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
-      long programId,
-      Locale locale,
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String confirmationMessage,
-      String externalLink,
-      String displayMode,
-      ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled)
+    long programId,
+    Locale locale,
+    String adminDescription,
+    String displayName,
+    String displayDescription,
+    String confirmationMessage,
+    String externalLink,
+    String displayMode,
+    ProgramType programType,
+    Boolean isIntakeFormFeatureEnabled, ProgramAcls programAcls)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
@@ -329,6 +331,7 @@ public final class ProgramServiceImpl implements ProgramService {
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setProgramType(programType)
+          .setProgramAcls(programAcls)
             .build()
             .toProgram();
 

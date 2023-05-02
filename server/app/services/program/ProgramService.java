@@ -1,5 +1,6 @@
 package services.program;
 
+import auth.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
@@ -157,16 +158,17 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
-      long programId,
-      Locale locale,
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String confirmationMessage,
-      String externalLink,
-      String displayMode,
-      ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled)
+    long programId,
+    Locale locale,
+    String adminDescription,
+    String displayName,
+    String displayDescription,
+    String confirmationMessage,
+    String externalLink,
+    String displayMode,
+    ProgramType programType,
+    Boolean isIntakeFormFeatureEnabled,
+    ProgramAcls programAcls)
       throws ProgramNotFoundException;
 
   /**

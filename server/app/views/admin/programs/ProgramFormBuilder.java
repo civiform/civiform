@@ -10,13 +10,15 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import auth.ProgramAcls;
+import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
-import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.*;
 import models.DisplayMode;
+import models.TrustedIntermediaryGroup;
 import modules.MainModule;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
@@ -29,6 +31,8 @@ import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
+
+import java.util.Optional;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -46,7 +50,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramForm program, boolean editExistingProgram) {
+      Request request, ProgramForm program, boolean editExistingProgram, ImmutableList<TrustedIntermediaryGroup> trustedIntermediaryGroups) {
     return buildProgramForm(
         request,
         program.getAdminName(),
@@ -57,12 +61,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
-        editExistingProgram);
+        editExistingProgram,
+      /* programId */ Optional.empty(),
+      trustedIntermediaryGroups,
+      /* programAcls */ Optional.empty());
   }
 
   /** Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      Request request, ProgramDefinition program, boolean editExistingProgram) {
+      Request request, ProgramDefinition program, boolean editExistingProgram, ImmutableList<TrustedIntermediaryGroup> tiGroups) {
     return buildProgramForm(
         request,
         program.adminName(),
@@ -73,20 +80,26 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
-        editExistingProgram);
+        editExistingProgram,
+        Optional.of(program.id()),
+        tiGroups,
+      Optional.of(program.programAcls()));
   }
 
   private FormTag buildProgramForm(
-      Request request,
-      String adminName,
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String externalLink,
-      String confirmationSceen,
-      String displayMode,
-      Boolean isCommonIntakeForm,
-      boolean editExistingProgram) {
+    Request request,
+    String adminName,
+    String adminDescription,
+    String displayName,
+    String displayDescription,
+    String externalLink,
+    String confirmationSceen,
+    String displayMode,
+    Boolean isCommonIntakeForm,
+    boolean editExistingProgram,
+    Optional<Long> programId,
+  ImmutableList<TrustedIntermediaryGroup> tiGroups,
+    Optional<ProgramAcls> programAcls) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
@@ -144,20 +157,22 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(DisplayMode.HIDDEN_IN_INDEX.getValue())
                     .setChecked(displayMode.equals(DisplayMode.HIDDEN_IN_INDEX.getValue()))
                     .getRadioTag(),
-                FieldWithLabel.radio()
+          div().withClasses("flex", "space-x-3")
+            .with(FieldWithLabel.radio()
                     .setId("program-display-mode-ti-only")
                     .setFieldName("displayMode")
                     .setLabelText("Trusted Intermediaries ONLY")
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
-                    .getRadioTag()),
+                    .getRadioTag())
+              ,renderEditTiButton(editExistingProgram,request,programId),//button("Edit TI").withClasses("text-xs", "ml-3")),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
             .isRequired()
             .setValue(adminDescription)
-            .getTextareaTag());
+            .getTextareaTag()));
     if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
       formTag
           .with(
@@ -193,6 +208,10 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6"));
 
     return formTag;
+  }
+  private ButtonTag renderEditTiButton(boolean editExistingProgram, Request request, Optional<Long> programId) {
+    if(editExistingProgram && programId.isPresent()) {
+
   }
 
   private DomContent programUrlField(String adminName, boolean editExistingProgram) {
