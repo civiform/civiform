@@ -32,7 +32,7 @@ RUN set -o pipefail && \
   apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
 
 # Install npm (node)
-RUN npm install -g npm@8.5.1
+RUN npm install -g npm@9.8.1
 
 # Download sbt
 RUN set -o pipefail && \

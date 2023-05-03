@@ -11,7 +11,8 @@ object TailwindBuilder {
       override def beforeStarted() = {
         process = Option(
           Process(
-            "npx tailwindcss build -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch",
+            "npx tailwindcss -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css --watch",
+//            "npx tailwindcss -i ./app/assets/stylesheets/styles.css -o ./public/stylesheets/tailwind.css",
             base
           ).run()
         )
