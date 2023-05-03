@@ -33,8 +33,8 @@ public class WithMockedProfiles {
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   private static Injector injector;
-  private static ResourceCreator resourceCreator;
   private static ProfileFactory profileFactory;
+  protected static ResourceCreator resourceCreator;
   protected static Application app;
 
   @BeforeClass
