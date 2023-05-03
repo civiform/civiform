@@ -32,20 +32,20 @@ public final class SimpleEmail {
   public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
-  private static final Histogram emailExecutionTime =
+  private static final Histogram EMAIL_EXECUTION_TIME =
       Histogram.build()
           .name("email_send_time_seconds")
           .help("Execution time of email send")
           .register();
 
-  private static final Counter emailSendCount =
+  private static final Counter EMAIL_SEND_COUNT =
       Counter.build()
           .name("email_send_count")
           .help("Number of emails sent")
           .labelNames("status")
           .register();
 
-  private static final Counter emailFailCount =
+  private static final Counter EMAIL_FAIL_COUNT =
       Counter.build()
           .name("email_fail_count")
           .help("Number of emails that failed to send")
@@ -83,7 +83,7 @@ public final class SimpleEmail {
     if (toAddresses.isEmpty()) {
       return;
     }
-    Histogram.Timer timer = emailExecutionTime.startTimer();
+    Histogram.Timer timer = EMAIL_EXECUTION_TIME.startTimer();
 
     try {
       Destination destination =
@@ -100,10 +100,12 @@ public final class SimpleEmail {
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
-      emailFailCount.labels(e.toString()).inc();
+      EMAIL_FAIL_COUNT.inc();
+      EMAIL_SEND_COUNT.labels("ERROR");
+      EMAIL_EXECUTION_TIME.labels("ERROR");
     } finally {
       // Increase the count of emails sent.
-      emailSendCount.inc();
+      EMAIL_SEND_COUNT.inc();
       // Record the execution time of the email sending process.
       timer.observeDuration();
     }

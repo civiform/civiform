@@ -38,10 +38,10 @@ import services.geo.AddressLocation;
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
-  private static final Counter esriRequestCount =
+  private static final Counter ESRI_REQUEST_C0UNT =
       Counter.build()
           .name("esri_requests_total")
-          .help("Total amount of requests to the esri client")
+          .help("Total amount of requests to the ESRI client")
           .labelNames("status")
           .register();
 
@@ -130,7 +130,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
             res -> {
-              esriRequestCount.labels(String.valueOf(res.getStatus())).inc();
+              ESRI_REQUEST_C0UNT.labels(String.valueOf(res.getStatus())).inc();
               // return empty if still failing after retries
               if (res.getStatus() != 200) {
                 return Optional.empty();

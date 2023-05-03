@@ -31,10 +31,10 @@ public abstract class EsriClient {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private static final Histogram esriLookupTime =
+  private static final Histogram ESRI_LOOKUP_TIME =
       Histogram.build()
           .name("esri_lookup_time_seconds")
-          .help("Execution time of esri lookup")
+          .help("Execution time of ESRI lookup")
           .register();
 
   public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
@@ -78,7 +78,7 @@ public abstract class EsriClient {
     addressJson.put("state", address.getState());
     addressJson.put("zip", address.getZip());
 
-    Histogram.Timer timer = esriLookupTime.startTimer();
+    Histogram.Timer timer = ESRI_LOOKUP_TIME.startTimer();
     return fetchAddressSuggestions(addressJson)
         .thenApply(
             (maybeJson) -> {
@@ -87,6 +87,7 @@ public abstract class EsriClient {
                     "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
                         + " EsriClient.getAddressSuggestions. Address = {}",
                     address);
+                ESRI_LOOKUP_TIME.labels("No suggestions");
                 return AddressSuggestionGroup.builder()
                     .setWellKnownId(0)
                     .setOriginalAddress(address)
@@ -119,6 +120,7 @@ public abstract class EsriClient {
                     || candidateAddress.getCity().isEmpty()
                     || candidateAddress.getState().isEmpty()
                     || candidateAddress.getZip().isEmpty()) {
+                  ESRI_LOOKUP_TIME.labels("Partially formed address");
                   continue;
                 }
                 AddressSuggestion addressCandidate =
@@ -128,6 +130,7 @@ public abstract class EsriClient {
                         .setScore(candidateJson.get("score").asInt())
                         .setAddress(candidateAddress)
                         .build();
+                ESRI_LOOKUP_TIME.labels("Success");
                 suggestionBuilder.add(addressCandidate);
               }
 
