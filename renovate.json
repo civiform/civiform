@@ -20,10 +20,10 @@
     },
     {
       "matchPaths": [
-        ".github/workflows/",
-        "browser-test/",
-        "env-var-docs/",
-        "formatter/"
+        ".github/workflows/**",
+        "browser-test/**",
+        "env-var-docs/**",
+        "formatter/**"
       ],
       "labels": ["dependencies", "ignore-for-release"]
     },
