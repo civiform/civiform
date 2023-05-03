@@ -40,7 +40,7 @@ public abstract class EsriClient {
 
   private static final Counter ESRI_LOOKUP_COUNT =
       Counter.build()
-          .name("esri_lookup_type_count")
+          .name("esri_lookup_total")
           .help("Values retrieved in ESRI lookup")
           .labelNames("type")
           .register();

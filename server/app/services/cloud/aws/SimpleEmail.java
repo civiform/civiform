@@ -40,16 +40,15 @@ public final class SimpleEmail {
 
   private static final Counter EMAIL_SEND_COUNT =
       Counter.build()
-          .name("email_send_count")
+          .name("email_send_total")
           .help("Number of emails sent")
           .labelNames("status")
           .register();
 
   private static final Counter EMAIL_FAIL_COUNT =
       Counter.build()
-          .name("email_fail_count")
+          .name("email_fail_total")
           .help("Number of emails that failed to send")
-          .labelNames("status")
           .register();
 
   private final String sender;
