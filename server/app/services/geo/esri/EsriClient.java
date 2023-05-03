@@ -8,6 +8,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import io.prometheus.client.Counter;
 import io.prometheus.client.Histogram;
 import java.time.Clock;
 import java.util.List;
@@ -36,6 +37,13 @@ public abstract class EsriClient {
           .name("esri_lookup_time_seconds")
           .help("Execution time of ESRI lookup")
           .register();
+
+  private static final Counter ESRI_LOOKUP_COUNT =
+    Counter.build()
+      .name("esri_lookup_type_count")
+      .help("Values retrieved in ESRI lookup")
+      .labelNames("type")
+      .register();
 
   public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.clock = checkNotNull(clock);
@@ -87,7 +95,7 @@ public abstract class EsriClient {
                     "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
                         + " EsriClient.getAddressSuggestions. Address = {}",
                     address);
-                ESRI_LOOKUP_TIME.labels("No suggestions");
+                ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
                 return AddressSuggestionGroup.builder()
                     .setWellKnownId(0)
                     .setOriginalAddress(address)
@@ -120,7 +128,7 @@ public abstract class EsriClient {
                     || candidateAddress.getCity().isEmpty()
                     || candidateAddress.getState().isEmpty()
                     || candidateAddress.getZip().isEmpty()) {
-                  ESRI_LOOKUP_TIME.labels("Partially formed address");
+                  ESRI_LOOKUP_COUNT.labels("Partially formed address").inc();
                   continue;
                 }
                 AddressSuggestion addressCandidate =
@@ -130,7 +138,7 @@ public abstract class EsriClient {
                         .setScore(candidateJson.get("score").asInt())
                         .setAddress(candidateAddress)
                         .build();
-                ESRI_LOOKUP_TIME.labels("Success");
+                ESRI_LOOKUP_COUNT.labels("Full address").inc();
                 suggestionBuilder.add(addressCandidate);
               }
 

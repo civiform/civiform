@@ -102,7 +102,6 @@ public final class SimpleEmail {
       e.printStackTrace();
       EMAIL_FAIL_COUNT.inc();
       EMAIL_SEND_COUNT.labels("ERROR");
-      EMAIL_EXECUTION_TIME.labels("ERROR");
     } finally {
       // Increase the count of emails sent.
       EMAIL_SEND_COUNT.inc();
