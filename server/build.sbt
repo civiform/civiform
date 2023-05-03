@@ -95,7 +95,7 @@ lazy val root = (project in file("."))
       "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.11",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.2",
+      "com.github.slugify" % "slugify" % "3.0.4",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.9.0",
