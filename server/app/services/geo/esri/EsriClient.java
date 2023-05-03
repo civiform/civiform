@@ -39,11 +39,11 @@ public abstract class EsriClient {
           .register();
 
   private static final Counter ESRI_LOOKUP_COUNT =
-    Counter.build()
-      .name("esri_lookup_type_count")
-      .help("Values retrieved in ESRI lookup")
-      .labelNames("type")
-      .register();
+      Counter.build()
+          .name("esri_lookup_type_count")
+          .help("Values retrieved in ESRI lookup")
+          .labelNames("type")
+          .register();
 
   public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
     this.clock = checkNotNull(clock);
