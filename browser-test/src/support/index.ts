@@ -421,8 +421,7 @@ export const supportsEmailInspection = () => {
 }
 
 /**
- * The option to select a language is only shown once for a given applicant. If this is
- * the first time they see this page, select the given language. Otherwise continue.
+ * The option to select a language is shown in the header bar as a dropdown. This helper method selects the given language from the dropdown.
  */
 export const selectApplicantLanguage = async (page: Page, language: string) => {
   await page.click('#select-language')

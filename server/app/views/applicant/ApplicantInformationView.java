@@ -37,6 +37,7 @@ import views.style.ReferenceClasses;
  * {@link play.i18n.Messages}, since the applicant has no language set yet. Instead, we use English
  * since this is the CiviForm default language.
  */
+// TODO(#4705): Delete this class after language screen is entirely removed from CiviForm.
 public class ApplicantInformationView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
