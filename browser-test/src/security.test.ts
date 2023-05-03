@@ -39,6 +39,15 @@ describe('applicant security', () => {
     expect(response!.status()).toBe(403)
   })
 
+  it('redirects to program index page when not logged in (guest)', async () => {
+    const {page} = ctx
+    await loginAsGuest(page)
+    await page.goto(BASE_URL)
+    expect(await page.innerHTML('body')).toMatch(
+      /Save time when applying for benefits/,
+    )
+  })
+
   it('redirects to program dashboard when logged in as admin', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
