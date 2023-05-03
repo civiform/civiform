@@ -11,6 +11,14 @@
       "matchPackagePrefixes": ["com.fasterxml.jackson"]
     },
     {
+      "groupName": "jdk and jre",
+      "matchPackagePrefixes": [
+        "bellsoft/liberica-openjdk-alpine",
+        "eclipse-temurin"
+      ],
+      "allowedVersions": "<12.0.0"
+    },
+    {
       "groupName": "jupiter",
       "matchPackagePrefixes": ["org.junit.jupiter:"]
     },
