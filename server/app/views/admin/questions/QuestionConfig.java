@@ -1,5 +1,6 @@
 package views.admin.questions;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 
 import com.google.common.base.Preconditions;
@@ -22,6 +23,7 @@ import services.MessageKey;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.style.AdminStyles;
@@ -145,7 +147,7 @@ public final class QuestionConfig {
             .setId("enumerator-question-entity-type-input")
             .setFieldName("entityType")
             .setLabelText("Repeated entity type (What are we enumerating?)")
-            .isRequired()
+            .setRequired(true)
             .setValue(enumeratorQuestionForm.getEntityType())
             .getInputTag());
     return this;
@@ -169,7 +171,7 @@ public final class QuestionConfig {
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptions[]" : "options[]")
             .setLabelText("Question option")
-            .isRequired()
+            .setRequired(true)
             .addReferenceClass(ReferenceClasses.MULTI_OPTION_INPUT)
             .setValue(existingOption.map(LocalizedQuestionOption::optionText))
             .setFieldErrors(
@@ -187,22 +189,35 @@ public final class QuestionConfig {
                 .setScreenReaderText("option ids")
                 .getInputTag()
                 .withClasses("hidden");
+    ButtonTag moveUpButton =
+        button()
+            .with(Icons.svg(Icons.ARROW_UPWARD).withClasses("w-6", "h-6"))
+            .withClasses(
+                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-up-button", "ml-4")
+            .attr("aria-label", "move up");
+    ButtonTag moveDownButton =
+        button()
+            .with(Icons.svg(Icons.ARROW_DOWNWARD).withClasses("w-6", "h-6"))
+            .withClasses(
+                AdminStyles.MOVE_BLOCK_BUTTON, "multi-option-question-field-move-down-button")
+            .attr("aria-label", "move down");
     ButtonTag removeOptionButton =
         ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
             .withType("button")
             .withClasses(
-                AdminStyles.SECONDARY_BUTTON_STYLES,
+                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
                 "ml-4",
                 "multi-option-question-field-remove-button");
 
     return div()
         .withClasses(
             ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
             "flex",
             "flex-row",
             "mb-4",
             "items-center")
-        .with(optionInput, optionIndexInput, removeOptionButton);
+        .with(optionInput, optionIndexInput, moveUpButton, moveDownButton, removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
@@ -243,7 +258,7 @@ public final class QuestionConfig {
             ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")
                 .withId("add-new-option")
-                .withClasses("m-2", AdminStyles.SECONDARY_BUTTON_STYLES));
+                .withClasses("m-2", ButtonStyles.OUTLINED_WHITE_WITH_ICON));
     return this;
   }
 

@@ -22,8 +22,8 @@ import services.MessageKey;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.ButtonStyles;
 import views.components.TextFormatter;
-import views.style.ApplicantStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -88,7 +88,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
     ATag applyLink =
         a().withText(messages.at(MessageKey.BUTTON_APPLY.getKeyName()))
             .withHref(applyUrl)
-            .withClasses(ReferenceClasses.APPLY_BUTTON, ApplicantStyles.BUTTON_PROGRAM_APPLY);
+            .withClasses(ReferenceClasses.APPLY_BUTTON, ButtonStyles.SOLID_BLUE_TEXT_SM, "mx-auto");
     DivTag buttonDiv =
         div(applyLink).withClasses("w-full", "mb-6", "flex-grow", "flex", "items-end");
 

@@ -8,6 +8,7 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.applicant.RedirectController;
+import featureflags.FeatureFlags;
 import java.util.List;
 import java.util.Locale;
 import models.Applicant;
@@ -121,7 +122,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(ApplicantCommonIntakeUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
-            languageUtils);
+            languageUtils,
+            instanceOf(FeatureFlags.class));
     Result result =
         controller
             .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
@@ -150,7 +152,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(ApplicantCommonIntakeUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
-            languageUtils);
+            languageUtils,
+            instanceOf(FeatureFlags.class));
     Result result =
         controller
             .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())

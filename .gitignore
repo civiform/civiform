@@ -6,6 +6,7 @@
 *.iml
 *.swp
 diff_output/
+updated_snapshots/
 
 # Test artifacts
 .log

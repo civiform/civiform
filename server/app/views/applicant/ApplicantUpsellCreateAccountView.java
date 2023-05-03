@@ -3,6 +3,9 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.section;
+import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
+import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
+import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -16,6 +19,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
+import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
@@ -24,12 +28,12 @@ import views.style.ReferenceClasses;
 public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
-  private final String civicEntityFullName;
+  private final String authProviderName;
 
   @Inject
   public ApplicantUpsellCreateAccountView(ApplicantLayout layout, Config config) {
     this.layout = checkNotNull(layout);
-    this.civicEntityFullName = config.getString("whitelabel.civic_entity_full_name");
+    this.authProviderName = config.getString("auth.applicant_auth_provider_name");
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -48,12 +52,17 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     boolean shouldUpsell = shouldUpsell(account);
 
     Modal loginPromptModal =
-        createLoginPromptModal(messages, redirectTo, MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM);
+        createLoginPromptModal(
+            messages,
+            redirectTo,
+            /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT);
 
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
-                loginPromptModal.getButton(), // Apply to another program
+                button(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
+                    .withId(loginPromptModal.getTriggerButtonId())
+                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                 createLoginButton("sign-in", messages, redirectTo),
                 createNewAccountButton("sign-up", messages))
             : ImmutableList.of(
@@ -73,7 +82,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 div(customConfirmationMessage.getOrDefault(locale)).withClasses("mb-4")),
             shouldUpsell,
             messages,
-            civicEntityFullName,
+            authProviderName,
             actionButtons);
     return layout.renderWithNav(
         request,

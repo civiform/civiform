@@ -23,11 +23,11 @@ import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.BaseHtmlView;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 
 /**
@@ -95,14 +95,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-display-name-input")
             .setFieldName("localizedDisplayName")
             .setLabelText("Enter the publicly displayed name for this program")
-            .isRequired()
+            .setRequired(true)
             .setValue(displayName)
             .getInputTag(),
         FieldWithLabel.textArea()
             .setId("program-display-description-textarea")
             .setFieldName("localizedDisplayDescription")
             .setLabelText("Describe this program for the public")
-            .isRequired()
+            .setRequired(true)
             .setValue(displayDescription)
             .getTextareaTag(),
         programUrlField(adminName, editExistingProgram),
@@ -158,7 +158,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
             .setLabelText("Program note for administrative use only")
-            .isRequired()
+            .setRequired(true)
             .setValue(adminDescription)
             .getTextareaTag());
     if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
@@ -193,7 +193,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     formTag.with(
         submitButton("Save")
             .withId("program-update-button")
-            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "mt-6"));
+            .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
     return formTag;
   }
@@ -219,7 +219,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             "Enter an identifier that will be used in this program's applicant-facing URL. This"
                 + " value can't be changed later. Aim to keep it short so it's easy to share. Use"
                 + " a dash between each word")
-        .isRequired()
+        .setRequired(true)
         .setValue(adminName)
         .getInputTag();
   }
@@ -241,7 +241,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                         submitButton("Confirm")
                             .withForm("program-details-form")
                             .withId("confirm-common-intake-change-button")
-                            .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "cursor-pointer")));
+                            .withClasses(ButtonStyles.SOLID_BLUE, "cursor-pointer")));
     return Modal.builder()
         .setModalId("confirm-common-intake-change")
         .setContent(content)

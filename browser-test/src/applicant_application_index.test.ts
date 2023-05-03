@@ -72,6 +72,25 @@ describe('applicant program index page', () => {
     await logout(page)
   })
 
+  it('shows login prompt for guest users when they click apply', async () => {
+    const {page} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+
+    await validateAccessibility(page)
+
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    await validateScreenshot(page, 'apply-program-login-prompt', {
+      fullPage: false,
+    })
+  })
+
   it('categorizes programs for draft and applied applications', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsTestUser(page)

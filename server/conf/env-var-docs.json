@@ -46,6 +46,10 @@
             "description": "URI to create a new account in the applicant identity provider.",
             "type": "string"
           },
+          "APPLICANT_PORTAL_NAME": {
+            "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
+            "type": "string"
+          },
           "Oracle Identity Cloud Service": {
             "group_description": "Configuration options for the [idcs](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#oracle-idcs) provider.",
             "members": {
@@ -64,7 +68,7 @@
             }
           },
           "Login Radius": {
-            "group_description": "Configuration optiosn for the [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml) provider",
+            "group_description": "Configuration options for the [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml) provider",
             "members": {
               "LOGIN_RADIUS_API_KEY": {
                 "description": "The API key used to interact with LoginRadius.",
@@ -455,10 +459,6 @@
         "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
-      "PROGRAM_READ_ONLY_VIEW_ENABLED": {
-        "description": "If enabled, the admin UI can show a read only view of a program. If disabled, the only way to view a program is to start editing it. Is disabled by default.",
-        "type": "bool"
-      },
       "PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED": {
         "description": "Enables the [program eligibility](https://github.com/civiform/civiform/issues/3744) feature.",
         "type": "bool"
@@ -492,8 +492,8 @@
         "description": "Enables the phone number question type.",
         "type": "bool"
       },
-      "NEW_LOGIN_FORM_ENABLED": {
-        "description": "Enables the new login form page.",
+      "BYPASS_LOGIN_LANGUAGE_SCREENS": {
+        "description": "Bypasses the login and language screens and takes applicant straight to programs page.",
         "type": "bool"
       }
     }

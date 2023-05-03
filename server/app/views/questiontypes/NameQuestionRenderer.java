@@ -41,7 +41,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .setLabelText(messages.at(MessageKey.NAME_LABEL_FIRST.getKeyName()))
             .setAutocomplete(Optional.of("given-name"))
             .setValue(nameQuestion.getFirstNameValue().orElse(""))
-            .setAriaRequired(!isOptional)
+            .setRequired(!isOptional)
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()))
@@ -64,7 +64,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .setLabelText(messages.at(MessageKey.NAME_LABEL_LAST.getKeyName()))
             .setAutocomplete(Optional.of("family-name"))
             .setValue(nameQuestion.getLastNameValue().orElse(""))
-            .setAriaRequired(!isOptional)
+            .setRequired(!isOptional)
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getLastNamePath(), ImmutableSet.of()))

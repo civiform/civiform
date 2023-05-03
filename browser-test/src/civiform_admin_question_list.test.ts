@@ -2,7 +2,6 @@ import {
   AdminPrograms,
   AdminQuestions,
   createTestContext,
-  disableFeatureFlag,
   loginAsAdmin,
 } from './support'
 describe('Admin question list', () => {
@@ -11,7 +10,6 @@ describe('Admin question list', () => {
     const {page, adminPrograms, adminQuestions} = ctx
 
     await loginAsAdmin(page)
-    await disableFeatureFlag(page, 'program_read_only_view_enabled')
 
     const questionOnePublishedText = 'question list test question one'
     const questionTwoPublishedText = 'question list test question two'

@@ -45,6 +45,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
+import views.components.ButtonStyles;
 import views.components.LinkElement;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
@@ -225,7 +226,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (maybeLogoUrl.isPresent()) {
       cityImage = img().withSrc(maybeLogoUrl.get());
     } else {
-      cityImage = this.layout.viewUtils.makeLocalImageTag("ChiefSeattle_Blue");
+      cityImage = this.layout.viewUtils.makeLocalImageTag("civiform-staging");
     }
 
     cityImage
@@ -258,9 +259,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
               .withId("ti-dashboard-link")
               .withHref(tiDashboardLink)
               .withClasses(
-                  "opacity-75",
-                  StyleUtils.hover("opacity-100"),
-                  ApplicantStyles.BUTTON_TI_DASHBOARD),
+                  "opacity-75", StyleUtils.hover("opacity-100"), ButtonStyles.SOLID_BLUE_TEXT_XL),
           div("(applying as: " + userName + ")")
               .withClasses("text-sm", "text-black", "text-center"));
     }

@@ -52,6 +52,7 @@ import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
@@ -92,6 +93,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
+  private static final String QUESTIONS_SECTION_ID = "questions-section";
 
   @Inject
   public ProgramBlocksView(
@@ -247,7 +249,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       ret.with(
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-4")
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
               .withType("submit")
               .withId("add-block-button")
               .withForm(CREATE_BLOCK_FORM_ID));
@@ -428,6 +430,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     DivTag programQuestions =
         div()
+            .withId(QUESTIONS_SECTION_ID)
             .withClasses("my-4")
             .with(div("Questions").withClasses("text-lg", "font-bold", "py-2"));
 
@@ -463,7 +466,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ButtonTag addQuestion =
           makeSvgTextButton("Add a question", Icons.ADD)
               .withClasses(
-                  AdminStyles.PRIMARY_BUTTON_STYLES,
+                  ButtonStyles.SOLID_BLUE_WITH_ICON,
                   ReferenceClasses.OPEN_QUESTION_BANK_BUTTON,
                   "my-4");
 
@@ -495,7 +498,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withType("submit")
             .withId("create-repeated-block-button")
             .withForm(CREATE_REPEATED_BLOCK_FORM_ID)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
 
     // TODO: Maybe add alpha variants to button color on hover over so we do not have
     //  to hard-code what the color will be when button is in hover state?
@@ -536,7 +539,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit visibility condition", Icons.EDIT)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-2")
               .withId(ReferenceClasses.EDIT_VISIBILITY_PREDICATE_BUTTON);
       div.with(
           asRedirectElement(
@@ -570,7 +573,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (viewAllowsEditingProgram()) {
       ButtonTag editScreenButton =
           ViewUtils.makeSvgTextButton("Edit eligibility condition", Icons.EDIT)
-              .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "m-2")
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-2")
               .withId(ReferenceClasses.EDIT_ELIGIBILITY_PREDICATE_BUTTON);
       div.with(
           asRedirectElement(
@@ -794,6 +797,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
       return Optional.empty();
     }
+
+    String toggleOptionalFormId = String.format("toggle-optional-%d", questionDefinition.getId());
+    String toggleOptionalAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
+                programDefinitionId, blockDefinitionId, questionDefinition.getId())
+            .url();
     ButtonTag optionalButton =
         TagCreator.button()
             .withClasses(
@@ -806,6 +815,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-full",
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
+            .attr("hx-post", toggleOptionalAction)
+            .attr("hx-select-oob", String.format("#%s", toggleOptionalFormId))
             .with(p("optional").withClasses("hover-group:text-white"))
             .with(
                 div()
@@ -827,14 +838,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 "w-6",
                                 "h-6",
                                 "rounded-full")));
-    String toggleOptionalAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setOptional(
-                programDefinitionId, blockDefinitionId, questionDefinition.getId())
-            .url();
     return Optional.of(
         form(csrfTag)
-            .withMethod(HttpVerbs.POST)
-            .withAction(toggleOptionalAction)
+            .withId(toggleOptionalFormId)
             .with(input().isHidden().withName("optional").withValue(isOptional ? "false" : "true"))
             .with(optionalButton));
   }
@@ -874,9 +880,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
         programDefinition.isQuestionUsedInPredicate(questionDefinition.getId());
     boolean addressCorrectionEnabledQuestionAlreadyExists =
         blockDefinition.hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinition.getId());
-    boolean addressCorrectionDisabled =
-        !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED);
-
     String toolTipText =
         "Enabling 'address correction' will check the resident's address to ensure it is accurate.";
 
@@ -893,7 +896,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (addressCorrectionDisabled) {
+    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=
@@ -908,6 +911,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       toolTip = ViewUtils.makeSvgToolTipRightAnchored(toolTipText, Icons.INFO);
     }
 
+    String toggleAddressCorrectionAction =
+        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
+                programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
+            .url();
     ButtonTag addressCorrectionButton =
         TagCreator.button()
             .withClasses(
@@ -920,6 +927,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 "rounded-full",
                 StyleUtils.hover("bg-gray-400", "text-gray-300"))
             .withType("submit")
+            .attr("hx-post", toggleAddressCorrectionAction)
+            // Replace entire Questions section so that the tooltips for all address questions get
+            // updated.
+            .attr("hx-select-oob", String.format("#%s", QUESTIONS_SECTION_ID))
             .with(p("Address correction").withClasses("hover-group:text-white"))
             .with(
                 div()
@@ -942,19 +953,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 "h-6",
                                 "rounded-full")))
             .with(div(toolTip));
-    String toggleAddressCorrectionAction =
-        controllers.admin.routes.AdminProgramBlockQuestionsController.setAddressCorrectionEnabled(
-                programDefinition.id(), blockDefinition.id(), questionDefinition.getId())
-            .url();
     return Optional.of(
         form(csrfTag)
-            .withMethod(HttpVerbs.POST)
-            .withCondOnsubmit(
-                !featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
-                    || questionIsUsedInPredicate,
-                "return false;")
-            .withCondOnsubmit(addressCorrectionEnabledQuestionAlreadyExists, "return false;")
-            .withAction(toggleAddressCorrectionAction)
             .with(
                 input()
                     .isHidden()
@@ -986,7 +986,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     + " repeated screens.")
             .withClasses(
                 ReferenceClasses.REMOVE_QUESTION_BUTTON,
-                AdminStyles.SECONDARY_BUTTON_STYLES,
+                ButtonStyles.OUTLINED_WHITE_WITH_ICON,
                 canRemove ? "" : "opacity-50");
     String deleteQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.destroy(
@@ -1095,7 +1095,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     ButtonTag deleteScreenButton =
         ViewUtils.makeSvgTextButton("Delete screen", Icons.DELETE)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
 
     return Modal.builder()
         .setModalId("block-delete-modal")
@@ -1141,7 +1141,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .isDisabled());
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES);
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     return Modal.builder()
         .setModalId("block-description-modal")
         .setContent(blockDescriptionForm)

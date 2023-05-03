@@ -44,13 +44,13 @@ import views.ViewUtils.ProgramDisplayType;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.CreateQuestionButton;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.components.SvgTag;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -544,7 +544,7 @@ public final class QuestionsListView extends BaseHtmlView {
     String link = controllers.admin.routes.AdminQuestionController.edit(definition.getId()).url();
     return asRedirectElement(
         makeSvgTextButton("Edit", Icons.EDIT)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES, isVisible ? "" : "invisible"),
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON, isVisible ? "" : "invisible"),
         link);
   }
 
@@ -560,7 +560,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ButtonTag button =
         asRedirectElement(
             makeSvgTextButton("Manage Translations", Icons.TRANSLATE)
-                .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON),
             link);
     return Optional.of(button);
   }
@@ -604,7 +604,7 @@ public final class QuestionsListView extends BaseHtmlView {
         makeSvgTextButton("", Icons.MORE_VERT)
             .withId(extraActionsButtonId)
             .withClasses(
-                AdminStyles.TERTIARY_BUTTON_STYLES,
+                ButtonStyles.CLEAR_WITH_ICON,
                 ReferenceClasses.WITH_DROPDOWN,
                 "h-12",
                 extraActions.build().isEmpty() ? "invisible" : "");
@@ -642,7 +642,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ButtonTag discardConfirmButton =
         toLinkButtonForPost(
             makeSvgTextButton("Discard", Icons.DELETE)
-                .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES),
+                .withClasses(ButtonStyles.SOLID_BLUE_WITH_ICON),
             link,
             request);
 
@@ -651,8 +651,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("p-6", "flex-row", "space-y-6");
 
     ButtonTag discardMenuButton =
-        makeSvgTextButton("Discard Draft", Icons.DELETE)
-            .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES);
+        makeSvgTextButton("Discard Draft", Icons.DELETE).withClasses(ButtonStyles.CLEAR_WITH_ICON);
 
     Modal modal =
         Modal.builder()
@@ -677,7 +676,7 @@ public final class QuestionsListView extends BaseHtmlView {
         ButtonTag unarchiveButton =
             toLinkButtonForPost(
                 makeSvgTextButton("Restore Archived", Icons.UNARCHIVE)
-                    .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                    .withClasses(ButtonStyles.CLEAR_WITH_ICON),
                 restoreLink,
                 request);
         return Pair.of(unarchiveButton, Optional.empty());
@@ -687,7 +686,7 @@ public final class QuestionsListView extends BaseHtmlView {
         ButtonTag archiveButton =
             toLinkButtonForPost(
                 makeSvgTextButton("Archive", Icons.ARCHIVE)
-                    .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES),
+                    .withClasses(ButtonStyles.CLEAR_WITH_ICON),
                 archiveLink,
                 request);
         return Pair.of(archiveButton, Optional.empty());
@@ -710,7 +709,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 definition.getName(), referencingPrograms, Optional.of(modalHeader));
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
-                .withClasses(AdminStyles.TERTIARY_BUTTON_STYLES)
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON)
                 .withId(maybeModal.get().getTriggerButtonId());
 
         return Pair.of(cantArchiveButton, maybeModal);

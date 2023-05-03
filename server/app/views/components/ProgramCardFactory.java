@@ -21,7 +21,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -119,7 +118,7 @@ public final class ProgramCardFactory {
         ViewUtils.makeSvgTextButton("", Icons.MORE_VERT)
             .withId(extraActionsButtonId)
             .withClasses(
-                AdminStyles.TERTIARY_BUTTON_STYLES,
+                ButtonStyles.CLEAR_WITH_ICON,
                 ReferenceClasses.WITH_DROPDOWN,
                 "h-12",
                 programRow.extraRowActions().size() == 0 ? "invisible" : "");

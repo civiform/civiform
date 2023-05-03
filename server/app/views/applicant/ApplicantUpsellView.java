@@ -7,7 +7,6 @@ import static j2html.TagCreator.section;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import controllers.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -18,8 +17,8 @@ import play.i18n.Messages;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.components.ButtonStyles;
 import views.components.Modal;
-import views.components.Modal.Width;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.StyleUtils;
@@ -27,67 +26,13 @@ import views.style.StyleUtils;
 /** Base class for confirmation pages after application submission. */
 public abstract class ApplicantUpsellView extends BaseHtmlView {
 
-  protected static Modal createLoginPromptModal(
-      Messages messages, String postLoginRedirectTo, MessageKey triggerButtonMsg) {
-    String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
-    String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
-
-    DivTag modalContent =
-        div()
-            .with(
-                div().withText(modalDescription).withClass("mb-8"),
-                div()
-                    .with(
-                        redirectButton(
-                                "continue-without-an-account",
-                                messages.at(
-                                    MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT.getKeyName()),
-                                postLoginRedirectTo)
-                            .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION),
-                        createLoginButton("modal-sign-in", messages, postLoginRedirectTo),
-                        createNewAccountButton("modal-sign-up", messages))
-                    .withClasses(
-                        "flex",
-                        "flex-col",
-                        "gap-4",
-                        "justify-end",
-                        StyleUtils.responsiveMedium("flex-row")));
-
-    return Modal.builder()
-        .setModalId(Modal.randomModalId())
-        .setContent(modalContent)
-        .setTriggerButtonContent(
-            button(messages.at(triggerButtonMsg.getKeyName()))
-                .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION))
-        .setModalTitle(modalTitle)
-        .setWidth(Width.HALF)
-        .build();
-  }
-
-  protected static ButtonTag createLoginButton(
-      String buttonId, Messages messages, String postLoginRedirectTo) {
-    return redirectButton(
-            buttonId,
-            messages.at(MessageKey.BUTTON_LOGIN.getKeyName()),
-            routes.LoginController.applicantLogin(Optional.of(postLoginRedirectTo)).url())
-        .withClasses(ApplicantStyles.BUTTON_UPSELL_SECONDARY_ACTION);
-  }
-
-  protected static ButtonTag createNewAccountButton(String buttonId, Messages messages) {
-    return redirectButton(
-            buttonId,
-            messages.at(MessageKey.BUTTON_CREATE_ACCOUNT.getKeyName()),
-            routes.LoginController.register().url())
-        .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
-  }
-
   protected static ButtonTag createApplyToProgramsButton(
       String buttonId, String buttonText, Long applicantId) {
     return redirectButton(
             buttonId,
             buttonText,
             controllers.applicant.routes.ApplicantProgramsController.index(applicantId).url())
-        .withClasses(ApplicantStyles.BUTTON_UPSELL_PRIMARY_ACTION);
+        .withClasses(ButtonStyles.SOLID_BLUE);
   }
 
   protected static DivTag createMainContent(
@@ -95,7 +40,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
       SectionTag confirmationSection,
       Boolean shouldUpsell,
       Messages messages,
-      String civicEntityFullName,
+      String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return div()
         .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
@@ -103,7 +48,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
             confirmationSection,
             createAccountManagementSection(
-                shouldUpsell, messages, civicEntityFullName, actionButtons));
+                shouldUpsell, messages, authProviderName, actionButtons));
   }
 
   protected static HtmlBundle createHtmlBundle(
@@ -129,7 +74,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
   private static SectionTag createAccountManagementSection(
       boolean shouldUpsell,
       Messages messages,
-      String civicEntityFullName,
+      String authProviderName,
       ImmutableList<DomContent> actionButtons) {
     return section()
         .condWith(
@@ -137,7 +82,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
             h2(messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName()))
                 .withClasses("mb-4", "font-bold"),
             div(messages.at(
-                    MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(), civicEntityFullName))
+                    MessageKey.CONTENT_PLEASE_CREATE_ACCOUNT.getKeyName(), authProviderName))
                 .withClasses("mb-4"))
         .with(
             div()

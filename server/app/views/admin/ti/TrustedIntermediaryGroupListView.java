@@ -30,10 +30,10 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -103,8 +103,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
                 nameField.getInputTag(),
                 descriptionField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Create")
-                    .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES, "ml-2", "mb-6")))
+                submitButton("Create").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
@@ -147,13 +146,13 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
         .with(makeCsrfTokenInputTag(request))
         .with(
             ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
-                .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES));
+                .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON));
   }
 
   private ButtonTag renderEditButton(TrustedIntermediaryGroup tiGroup) {
     return asRedirectElement(
         ViewUtils.makeSvgTextButton("Edit members", Icons.EDIT)
-            .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON),
         routes.TrustedIntermediaryManagementController.edit(tiGroup.id).url());
   }
 

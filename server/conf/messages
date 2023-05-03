@@ -160,6 +160,9 @@ button.continueSr=Continue application to {0}
 # The text on the button an applicant clicks to start filling out a pre-screener form.
 button.startHere=Start here
 
+# The text for the button that allows a guest to bypass the login prompt modal.
+button.continueToApplication=Continue to application
+
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Start here by filling out {0}
 
@@ -182,7 +185,7 @@ content.description=CiviForm helps you find benefits you may be eligible for in 
 content.saveTime=Save time when applying for benefits
 
 # Long form description of the site shown to the applicant when they are not logged in.
-# {0} represents the civic entity's name, in reference to their login portal.
+# {0} represents the authentication provider's name
 content.guestDescription=Log in to your {0} account or create an account and apply for many benefits without having to enter the same information again. You can also edit applications at any time and check your application statuses.
 
 # Link text to read more about a program.
@@ -335,7 +338,7 @@ content.confirmed=Thank you for applying to {0}.  Your application has been rece
 # Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
 title.createAnAccount=Create an account or sign in
 
-# Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal.
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
 content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
@@ -433,7 +436,7 @@ label.phoneNumber=Enter Phone number
 validation.phoneNumberRequired=Phone number is required
 validation.phoneCountryCodeRequired=Country must be selected
 validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters
-validation.invalidPhoneNumberProvided=This number is invalid
+validation.invalidPhoneNumberProvided=This phone number is invalid
 validation.phoneMustBeLocalToCountry=The phone you have provided does not belong to the country
 
 #----------------------------------------------------------------------------------------------------------#

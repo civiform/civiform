@@ -1,5 +1,4 @@
 import {
-  AuthStrategy,
   createTestContext,
   enableFeatureFlag,
   disableFeatureFlag,
@@ -7,16 +6,8 @@ import {
   validateScreenshot,
   TestContext,
 } from './support'
-import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
 function sharedTests(ctx: TestContext, screenshotName: string) {
-  it('has login options', async () => {
-    expect(await ctx.page.textContent('html')).toContain('Continue as guest')
-    if (TEST_USER_AUTH_STRATEGY !== AuthStrategy.AWS_STAGING) {
-      expect(await ctx.page.textContent('html')).toContain('Create account')
-    }
-  })
-
   it('matches the expected screenshot', async () => {
     await validateScreenshot(ctx.page, screenshotName)
   })

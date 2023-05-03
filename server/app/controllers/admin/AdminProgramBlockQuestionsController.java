@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import featureflags.FeatureFlag;
+import featureflags.FeatureFlags;
 import forms.ProgramQuestionDefinitionAddressCorrectionEnabledForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
@@ -21,6 +23,7 @@ import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalPredicateOrderingException;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
@@ -36,17 +39,20 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final VersionRepository versionRepository;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
+  private final FeatureFlags featureFlags;
 
   @Inject
   public AdminProgramBlockQuestionsController(
       ProgramService programService,
       VersionRepository versionRepository,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      FeatureFlags featureFlags) {
     this.programService = checkNotNull(programService);
     this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
+    this.featureFlags = checkNotNull(featureFlags);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -156,14 +162,28 @@ public class AdminProgramBlockQuestionsController extends Controller {
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    ProgramQuestionDefinitionAddressCorrectionEnabledForm
-        programQuestionDefinitionAddressCorrectionEnabledForm =
-            formFactory
-                .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
-                .bindFromRequest(request)
-                .get();
-
     try {
+      ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
+
+      // In these cases, we warn admins that changing address correction is not allowed in the
+      // tooltip, so we can silently ignore the request.
+      if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
+          || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
+          || programDefinition
+              .getBlockDefinition(blockDefinitionId)
+              .hasAddressCorrectionEnabledOnDifferentQuestion(questionDefinitionId)) {
+        return redirect(
+            controllers.admin.routes.AdminProgramBlocksController.edit(
+                programId, blockDefinitionId));
+      }
+
+      ProgramQuestionDefinitionAddressCorrectionEnabledForm
+          programQuestionDefinitionAddressCorrectionEnabledForm =
+              formFactory
+                  .form(ProgramQuestionDefinitionAddressCorrectionEnabledForm.class)
+                  .bindFromRequest(request)
+                  .get();
+
       programService.setProgramQuestionDefinitionAddressCorrectionEnabled(
           programId,
           blockDefinitionId,

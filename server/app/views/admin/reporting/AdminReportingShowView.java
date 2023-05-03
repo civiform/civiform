@@ -63,10 +63,6 @@ public class AdminReportingShowView extends BaseHtmlView {
       String programSlug,
       String programName,
       ReportingService.MonthlyStats monthlyStats) {
-    if (profile.isProgramAdmin()) {
-      layout.setOnlyProgramAdminType();
-    }
-
     var title = String.format("%s Reporting", programName);
 
     DivTag headerDiv =
@@ -81,7 +77,8 @@ public class AdminReportingShowView extends BaseHtmlView {
         renderProgramMonthlyStats(
             programSlug, monthlyStats.monthlySubmissionsForProgram(programName)));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle =
+        layout.setAdminType(profile).getBundle().setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

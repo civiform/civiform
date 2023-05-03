@@ -13,6 +13,7 @@ import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
+import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -43,13 +44,13 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -74,7 +75,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ApplicantUtils applicantUtils,
       ApplicantService applicantService,
       DateConverter dateConverter) {
-    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS).setOnlyProgramAdminType();
+    this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.applicantUtils = checkNotNull(applicantUtils);
     this.applicantService = checkNotNull(applicantService);
     this.dateConverter = checkNotNull(dateConverter);
@@ -82,13 +83,13 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
+      CiviFormProfile profile,
       ProgramDefinition program,
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       PageNumberBasedPaginationSpec paginationSpec,
       PaginationResult<Application> paginatedApplications,
       RenderFilterParams filterParams,
       Optional<String> selectedApplicationUri) {
-
     Modal downloadModal = renderDownloadApplicationsModal(program, filterParams);
     boolean hasEligibilityEnabled = program.hasEligibilityEnabled();
     Optional<StatusDefinitions.Status> defaultStatus = program.toProgram().getDefaultStatus();
@@ -141,6 +142,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
+            .setAdminType(profile)
             .getBundle()
             .setTitle(program.adminName() + " - Applications")
             .addModals(downloadModal)
@@ -248,7 +250,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     div().withClass("flex-grow"),
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
-                        .withClass(AdminStyles.PRIMARY_BUTTON_STYLES)
+                        .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit")));
   }
 
@@ -296,7 +298,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         ReferenceClasses.MODAL_CLOSE,
-                                        AdminStyles.PRIMARY_BUTTON_STYLES)
+                                        ButtonStyles.SOLID_BLUE_WITH_ICON)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAll(
@@ -312,7 +314,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withClasses(
                                         ReferenceClasses.DOWNLOAD_ALL_BUTTON,
                                         ReferenceClasses.MODAL_CLOSE,
-                                        AdminStyles.PRIMARY_BUTTON_STYLES)
+                                        ButtonStyles.SOLID_BLUE_WITH_ICON)
                                     .withFormaction(
                                         controllers.admin.routes.AdminApplicationController
                                             .downloadAllJson(
@@ -330,7 +332,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
         .setModalTitle("Download application data")
         .setTriggerButtonContent(
             makeSvgTextButton("Download", Icons.DOWNLOAD)
-                .withClass(AdminStyles.SECONDARY_BUTTON_STYLES)
+                .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
                 .withType("button"))
         .build();
   }

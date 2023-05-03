@@ -39,11 +39,11 @@ import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
-import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 
@@ -230,6 +230,7 @@ public final class QuestionEditView extends BaseHtmlView {
                     // Add "hidden" to other classes, so that the template is not shown
                     .withClasses(
                         ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
                         "hidden",
                         "flex",
                         "flex-row",
@@ -267,10 +268,8 @@ public final class QuestionEditView extends BaseHtmlView {
                 .with(
                     div().withClasses("flex-grow"),
                     asRedirectElement(button("Cancel"), cancelUrl)
-                        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES),
-                    submitButton("Create")
-                        .withClass("m-4")
-                        .withClasses(AdminStyles.PRIMARY_BUTTON_STYLES)));
+                        .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON),
+                    submitButton("Create").withClass("m-4").withClasses(ButtonStyles.SOLID_BLUE)));
 
     return formTag;
   }
@@ -287,7 +286,7 @@ public final class QuestionEditView extends BaseHtmlView {
             controllers.admin.routes.AdminQuestionController.update(
                     id, questionForm.getQuestionType().toString())
                 .url())
-        .with(submitButton("Update").withClasses("ml-2", AdminStyles.PRIMARY_BUTTON_STYLES));
+        .with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
     return formTag;
   }
 
@@ -315,7 +314,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setId("question-text-textarea")
             .setFieldName("questionText")
             .setLabelText("Question text displayed to the applicant")
-            .isRequired()
+            .setRequired(true)
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionText())
             .getTextareaTag());
@@ -480,7 +479,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
-        .isRequired();
+        .setRequired(true);
   }
 
   private DivTag repeatedQuestionInformation() {
@@ -516,7 +515,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setId("question-name-input")
         .setFieldName(QUESTION_NAME_FIELD)
         .setLabelText("Administrative identifier. This value can't be changed later")
-        .isRequired()
+        .setRequired(true)
         .setValue(adminName)
         .getInputTag();
   }

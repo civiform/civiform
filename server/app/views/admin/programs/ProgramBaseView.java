@@ -17,8 +17,8 @@ import services.question.types.QuestionDefinition;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
+import views.components.ButtonStyles;
 import views.components.Icons;
-import views.style.AdminStyles;
 import views.style.StyleUtils;
 
 abstract class ProgramBaseView extends BaseHtmlView {
@@ -106,7 +106,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
    */
   protected ButtonTag getStandardizedEditButton(String buttonText) {
     return ViewUtils.makeSvgTextButton(buttonText, Icons.EDIT)
-        .withClasses(AdminStyles.SECONDARY_BUTTON_STYLES, "my-5")
+        .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5")
         .withId("header_edit_button");
   }
 
