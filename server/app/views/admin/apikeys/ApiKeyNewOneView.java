@@ -45,7 +45,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
           + " highly sensitive data, expiring keys once a week or once a month is"
           + " recommended. Once a year is acceptable in most situations.";
   private static final DomContent[] SUBNET_DESCRIPTION = {
-    text("Specify a subnet using "),
+    text("Specify one or more comma-separated subnets using "),
     new LinkElement()
         .setText("CIDR notation")
         .setHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")
@@ -53,7 +53,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
         .asAnchorText(),
     text(
         " that is allowed to call the API. The"
-            + " subnet may be edited after the API key is created. A single IP address"
+            + " subnet may not be edited after the API key is created. A single IP address"
             + " can be specified with a mask of /32. For example, \"8.8.8.8/32\""
             + " allows only the IP 8.8.8.8 to use the API key. All IP addresses can be"
             + " allowed, but this is strongly discouraged for security reasons because"
