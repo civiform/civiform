@@ -47,7 +47,8 @@ public abstract class EsriClient {
           .labelNames("type")
           .register();
 
-  public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig, Config config) {
+  public EsriClient(
+      Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig, Config config) {
     this.clock = checkNotNull(clock);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
