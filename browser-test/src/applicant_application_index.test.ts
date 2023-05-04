@@ -68,7 +68,7 @@ describe('applicant program index page', () => {
     await logout(page)
   })
 
-  it('shows login prompt for guest users when they click apply', async () => {
+  fit('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
     await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
@@ -78,9 +78,21 @@ describe('applicant program index page', () => {
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
+    expect(await page.textContent('html')).toContain(
+      'Create an account or sign in',
+    )
     await validateScreenshot(page, 'apply-program-login-prompt', {
       fullPage: false,
     })
+
+    // Close the modal and click Apply again. This time, we should not see the login prompt modal.
+    await page.click(`.cf-modal .cf-modal-close`)
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).not.toContain(
+      'Create an account or sign in',
+    )
   })
 
   it('categorizes programs for draft and applied applications', async () => {

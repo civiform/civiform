@@ -51,6 +51,8 @@ final class AuthenticateUpsellCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setModalTitle(modalTitle)
+        .setOnlyShowOnce(true)
+        .setBypassUrl(postLoginRedirectTo)
         .setWidth(Width.HALF)
         .build();
   }

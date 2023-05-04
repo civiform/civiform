@@ -29,9 +29,16 @@ public abstract class Modal {
 
   public abstract boolean displayOnLoad();
 
+  public abstract boolean onlyShowOnce();
+
+  public abstract Optional<String> bypassUrl();
+
   public static Modal.RequiredModalId builder() {
     // Set some defaults before the user sets their own values.
-    return new AutoValue_Modal.Builder().setWidth(Width.DEFAULT).setDisplayOnLoad(false);
+    return new AutoValue_Modal.Builder()
+        .setWidth(Width.DEFAULT)
+        .setDisplayOnLoad(false)
+        .setOnlyShowOnce(false);
   }
 
   public interface RequiredModalId {
@@ -51,6 +58,10 @@ public abstract class Modal {
     public abstract Builder setWidth(Width width);
 
     public abstract Builder setDisplayOnLoad(boolean value);
+
+    public abstract Builder setOnlyShowOnce(boolean value);
+
+    public abstract Builder setBypassUrl(String value);
 
     // Effectively private (here and below). Java does not allow private abstract methods.
     abstract String modalTitle();
@@ -89,16 +100,21 @@ public abstract class Modal {
   }
 
   public DivTag getContainerTag() {
+    DivTag divTag = div().withId(modalId()).with(getModalHeader()).with(getContent());
+
     String modalStyles =
         StyleUtils.joinStyles(ReferenceClasses.MODAL, BaseStyles.MODAL, width().getStyle());
     if (displayOnLoad()) {
       modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
     }
-    return div()
-        .withId(modalId())
-        .withClasses(modalStyles)
-        .with(getModalHeader())
-        .with(getContent());
+    if (onlyShowOnce()) {
+      modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_ONLY_SHOW_ONCE);
+      if (bypassUrl().isPresent()) {
+        divTag.attr("bypass-url", bypassUrl().get());
+      }
+    }
+
+    return divTag.withClasses(modalStyles);
   }
 
   public ButtonTag getButton() {

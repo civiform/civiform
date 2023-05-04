@@ -10,21 +10,60 @@ class ModalController {
     if (modalButton) {
       modalButton.addEventListener('click', (e: Event) => {
         e.stopPropagation()
-        ModalController.toggleModal(modalContainer, modal)
+        ModalController.showModal(modalContainer, modal)
       })
     }
 
     const modalCloses = Array.from(modal.querySelectorAll('.cf-modal-close'))
     modalCloses.forEach((modalCloses) => {
       modalCloses.addEventListener('click', () => {
-        ModalController.toggleModal(modalContainer, modal)
+        ModalController.hideModal(modalContainer, modal)
       })
     })
   }
 
-  static toggleModal(modalContainer: Element, modal: Element) {
-    modalContainer.classList.toggle('hidden')
-    modal.classList.toggle('hidden')
+  static showModal(modalContainer: Element, modal: Element) {
+    if (!this.avoidShowingModalAgain(modal)) {
+      modalContainer.classList.remove('hidden')
+      modal.classList.remove('hidden')
+    }
+  }
+
+  static hideModal(modalContainer: Element, modal: Element) {
+    modalContainer.classList.add('hidden')
+    modal.classList.add('hidden')
+  }
+
+  /**
+   * Checks to see if the modal has the class cf-modal-only-show-once. If so,
+   * we must only show this Modal once. We do this by storing a constant key in localStorage
+   * that indicates the modal has been shown, and checking for it.
+   *
+   * In addition, there are some use cases where modals are a middleman for a redirect, with
+   * a button to bypass the modal. If there is an element with id prefixed with 'bypass-`, then we will extract the
+   * data-redirect-to attribute and redirect the user to that url, as if they had clicked the bypass element themselves.
+   *
+   * Returns a boolean indicating whether to skip showing the Modal if these cases are met.
+   */
+  private static avoidShowingModalAgain(modal: Element): boolean {
+    if (modal.classList.contains('cf-modal-only-show-once')) {
+      const shownKey = 'modal-shown-already'
+      const modalHasBeenShown = localStorage.getItem(shownKey)
+
+      if (modalHasBeenShown) {
+        const redirectTo = modal.getAttribute('bypass-url')
+
+        if (redirectTo) {
+          window.location.href = redirectTo
+        }
+
+        return true
+      } else {
+        localStorage.setItem(shownKey, 'true')
+        return false
+      }
+    }
+    return false
   }
 
   constructor() {
@@ -47,7 +86,7 @@ class ModalController {
           return
         }
         alreadyDisplayedModalOnLoad = true
-        ModalController.toggleModal(modalContainer, modal)
+        ModalController.showModal(modalContainer, modal)
       }
     })
 
