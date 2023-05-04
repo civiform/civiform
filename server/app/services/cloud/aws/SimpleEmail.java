@@ -100,7 +100,7 @@ public final class SimpleEmail {
       logger.error(e.toString());
       e.printStackTrace();
       EMAIL_FAIL_COUNT.inc();
-      EMAIL_SEND_COUNT.labels("ERROR");
+      EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode()));
     } finally {
       // Increase the count of emails sent.
       EMAIL_SEND_COUNT.inc();
