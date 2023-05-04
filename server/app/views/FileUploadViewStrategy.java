@@ -104,7 +104,7 @@ public abstract class FileUploadViewStrategy extends ApplicationBaseView {
   /**
    * Method to render the UI for uploading a file.
    *
-   * @param params the information needed to render a file upload view
+   * @param params the information needed to rener a file upload view
    * @param applicantQuestionRendererFactory a class for rendering applicant questions.
    * @return a container tag with the submit view
    */

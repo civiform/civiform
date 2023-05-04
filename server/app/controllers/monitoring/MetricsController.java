@@ -6,7 +6,6 @@ import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.meta.ServerMetrics;
 import io.prometheus.client.CollectorRegistry;
 import io.prometheus.client.Counter;
 import io.prometheus.client.exporter.common.TextFormat;
@@ -55,6 +54,10 @@ public final class MetricsController extends CiviFormController {
           .labelNames("name")
           .register();
 
+  // The start index we use for the metric substring. By default, the metric names start with
+  // "orm.", which is why we use 4 as the start index.
+  private static final int SUBSTRING_INDEX = 4;
+
   @Inject
   public MetricsController(CollectorRegistry collectorRegistry, Config config) {
     this.collectorRegistry = checkNotNull(collectorRegistry);
@@ -74,12 +77,13 @@ public final class MetricsController extends CiviFormController {
     var writer = new StringWriter();
 
     try {
-      ServerMetrics serverMetrics = database.getMetaInfoManager().collectMetrics();
-      serverMetrics
+      database
+          .getMetaInfoManager()
+          .collectMetrics()
           .getQueryMetrics()
           .forEach(
               metric -> {
-                String name = metric.getName().substring(4);
+                String name = metric.getName().substring(SUBSTRING_INDEX);
                 queryMetricCount.labels(name).inc((double) metric.getCount());
                 queryMetricMeanLatency.labels(name).inc((double) metric.getMean());
                 queryMetricMaxLatency.labels(name).inc((double) metric.getMax());
