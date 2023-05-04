@@ -48,10 +48,13 @@ public abstract class EsriClient {
           .register();
 
   public EsriClient(
-      Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig, Config config) {
+      Clock clock,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      Optional<Config> maybeConfig) {
     this.clock = checkNotNull(clock);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
-    this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
+    this.metricsEnabled =
+        maybeConfig.isPresent() ? maybeConfig.get().getBoolean("server_metrics.enabled") : false;
   }
 
   /**

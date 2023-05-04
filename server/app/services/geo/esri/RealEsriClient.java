@@ -64,9 +64,9 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
       Clock clock,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       WSClient ws) {
-    super(clock, esriServiceAreaValidationConfig);
+    super(clock, esriServiceAreaValidationConfig, Optional.of(configuration));
     this.ws = checkNotNull(ws);
-    this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
+    this.metricsEnabled = checkNotNull(configuration).getBoolean("server_metrics.enabled");
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
             ? Optional.of(configuration.getString("esri_find_address_candidates_url"))
