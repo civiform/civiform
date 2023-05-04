@@ -7,7 +7,6 @@ import static play.test.Helpers.route;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.context.HttpConstants;
@@ -33,10 +32,9 @@ public class ApiAuthenticationTest extends ResetPostgres {
   @Test
   public void nonApiRoutes_doNotRequireApiAuth() {
     Result result =
-        doGetRequest(
-            fakeRequest(
-                "GET", controllers.routes.HomeController.loginForm(Optional.empty()).url()));
-    assertThat(result.status()).isEqualTo(HttpConstants.OK);
+        doGetRequest(fakeRequest("GET", controllers.routes.HomeController.index().url()));
+    // The HomeController index page redirects to the programs page.
+    assertThat(result.status()).isEqualTo(HttpConstants.SEE_OTHER);
   }
 
   @Test

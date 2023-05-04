@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -37,28 +38,12 @@ public class MessagesTest {
   // we are waiting for translations for.
   private static final ImmutableSet<String> IGNORE_LIST =
       ImmutableSet.of(
-          // TODO(#4592): Remove once these are translated
-          "button.continueWithoutAnAccount",
-          "content.loginModalPrompt",
-          "button.applyToPrograms",
-          "button.createAnAccount",
-          "content.commonIntakeConfirmation",
-          "content.commonIntakeConfirmationTi",
-          "content.commonIntakeNoMatchingPrograms",
-          "content.commonIntakeNoMatchingProgramsNextStep",
-          "content.commonIntakeNoMatchingProgramsTi",
-          "content.guestDescription",
-          "content.saveTime",
-          "title.commonIntakeConfirmation",
-          "title.commonIntakeConfirmationTi",
-          "content.adminFooterPrompt",
-          "label.countryCode",
-          "label.phoneNumber",
-          "validation.invalidPhoneNumberProvided",
-          "validation.phoneCountryCodeRequired",
-          "validation.phoneMustBeLocalToCountry",
-          "validation.phoneNumberMustContainNumbersOnly",
-          "validation.phoneNumberRequired");
+          // TODO(#4640): Translations Batch 6 - Insert items awaiting translations here
+          "button.continueToApplication");
+
+  // Slanted quotes like “ and ’ show up as â in tests; this is a common error when
+  // copy-pasting text. Check for this error in all messages files.
+  private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
 
   @Test
   public void ignoreListIsUpToDate() throws Exception {
@@ -110,6 +95,34 @@ public class MessagesTest {
         // check on the other way around because entries may be on the IGNORE_LIST (and therefore
         // intentionally missing from messages.en-US).
         .containsAllEntriesOf(entriesInEnUsLanguageFile);
+  }
+
+  @Test
+  public void messages_primaryFile_containsNoProhibitedCharacters() throws Exception {
+    TreeMap<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE);
+
+    assertThat(entriesInPrimaryLanguageFile)
+        .withFailMessage("Prohibited characters found in primary language file..")
+        .allSatisfy(
+            (key, value) -> {
+              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+              assertThat(value).doesNotContain(PROHIBITED_CHARACTERS);
+            });
+  }
+
+  @Test
+  @Parameters(method = "otherLanguageFiles")
+  public void messages_otherLanguageFiles_containNoProhibitedCharacters(String otherLanguageFile)
+      throws Exception {
+    TreeMap<String, String> entriesInOtherLanguageFile = entriesInFile(otherLanguageFile);
+
+    assertThat(entriesInOtherLanguageFile)
+        .withFailMessage("Prohibited characters found in " + otherLanguageFile + ".")
+        .allSatisfy(
+            (key, value) -> {
+              assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
+              assertThat(value).doesNotContain(PROHIBITED_CHARACTERS);
+            });
   }
 
   private static TreeSet<String> keysInFile(String filePath) throws Exception {

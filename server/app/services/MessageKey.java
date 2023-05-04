@@ -47,6 +47,7 @@ public enum MessageKey {
   BUTTON_KEEP_FILE("button.keepFile"),
   BUTTON_SKIP_FILEUPLOAD("button.skipFileUpload"),
   BUTTON_START_HERE("button.startHere"),
+  BUTTON_CONTINUE_TO_APPLICATION("button.continueToApplication"),
   BUTTON_START_HERE_COMMON_INTAKE_SR("button.startHereCommonIntakeSr"),
   BUTTON_SUBMIT("button.submit"),
   BUTTON_UNTRANSLATED_SUBMIT("button.untranslatedSubmit"),

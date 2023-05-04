@@ -231,10 +231,10 @@ public class SecurityModule extends AbstractModule {
         .getResults()
         .putAll(
             ImmutableMap.of(
-                // Redirect unauthorized requests to the login page. This behavior is bypassed
+                // Redirect unauthorized requests to the home page. This behavior is bypassed
                 // for API requests in CiviFormHttpActionAdapter.
                 HttpConstants.UNAUTHORIZED,
-                redirect(routes.HomeController.loginForm(Optional.of("login"))),
+                redirect(routes.HomeController.index()),
 
                 // Display the string "403 forbidden" to forbidden requests.
                 // Helpful for test assertions.

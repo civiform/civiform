@@ -278,8 +278,9 @@ export const logout = async (page: Page) => {
   // Logout is handled by the play framework so it doesn't land on a
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
-  // for the final destination URL to make tests reliable.
-  await page.waitForURL('**/loginForm')
+  // for the final destination URL (the language selection page,
+  // /applicants/edit/123), to make tests reliable.
+  await page.waitForURL('**/applicants/**')
 }
 
 export const loginAsAdmin = async (page: Page) => {
@@ -302,9 +303,11 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
+// TODO(#4705): remove this method.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const loginAsGuest = async (page: Page) => {
-  await page.click('#guest')
-  await waitForPageJsLoad(page)
+  // Logging in as a guest is a no-op, because loading the index page of
+  // CiviForm defaults to the guest user.
 }
 
 export const setLangEsUS = async (page: Page) => {
@@ -319,10 +322,8 @@ export const setLangEsUS = async (page: Page) => {
  *     login can be initiated from different pages, for example after program
  *     submission.
  */
-export const loginAsTestUser = async (
-  page: Page,
-  loginButton = 'button:has-text("Log in")',
-) => {
+export const loginAsTestUser = async (page: Page) => {
+  const loginButton = 'a:has-text("Log in")'
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
       await loginAsTestUserFakeOidc(page, loginButton)
@@ -531,6 +532,8 @@ export const validateScreenshot = async (
     failureThresholdType: 'percent',
     customSnapshotsDir: 'image_snapshots',
     customDiffDir: 'diff_output',
+    storeReceivedOnFailure: true,
+    customReceivedDir: 'updated_snapshots',
     customSnapshotIdentifier: ({testPath}) => {
       const dir = path.basename(testPath).replace('.test.ts', '_test')
       return `${dir}/${screenshotFileName}`

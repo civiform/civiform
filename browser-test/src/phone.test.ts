@@ -128,7 +128,7 @@ describe('phone question for applicant flow', () => {
 
       const countryCodeId = '.cf-phone-number'
       expect(await page.innerText(countryCodeId)).toContain(
-        'This number is invalid',
+        'This phone number is invalid',
       )
     })
 
@@ -165,7 +165,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-phone-number'
       expect(await page.innerText(countryCodeId)).toContain(
-        'This number is invalid',
+        'This phone number is invalid',
       )
     })
     it('invalid characters in phone numbers', async () => {
@@ -182,7 +182,7 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
       const countryCodeId = '.cf-phone-number'
       expect(await page.innerText(countryCodeId)).toContain(
-        'This number is invalid',
+        'This phone number is invalid',
       )
     })
     it('incorrect length of phone number', async () => {
@@ -316,7 +316,9 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = '.cf-question-phone'
-      expect(await page.innerText(textId)).toContain('This number is invalid')
+      expect(await page.innerText(textId)).toContain(
+        'This phone number is invalid',
+      )
     })
 
     it('with second invalid does not submit', async () => {
@@ -338,7 +340,9 @@ describe('phone question for applicant flow', () => {
       await applicantQuestions.clickNext()
 
       const textId = `.cf-question-phone >> nth=1`
-      expect(await page.innerText(textId)).toContain('This number is invalid')
+      expect(await page.innerText(textId)).toContain(
+        'This phone number is invalid',
+      )
     })
   })
 })

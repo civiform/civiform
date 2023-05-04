@@ -24,21 +24,21 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.14.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.0",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.0",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.43",
-      "software.amazon.awssdk" % "ses" % "2.20.43",
+      "software.amazon.awssdk" % "s3" % "2.20.59",
+      "software.amazon.awssdk" % "ses" % "2.20.59",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.8.2",
-      "com.azure" % "azure-storage-blob" % "12.21.1",
+      "com.azure" % "azure-identity" % "1.8.3",
+      "com.azure" % "azure-storage-blob" % "12.22.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
@@ -66,13 +66,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "11.1.0-PLAY2.8",
-      "org.pac4j" % "pac4j-core" % "5.7.0",
+      "org.pac4j" % "pac4j-core" % "5.7.1",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "5.7.0",
+      "org.pac4j" % "pac4j-http" % "5.7.1",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "5.7.0",
+      "org.pac4j" % "pac4j-oidc" % "5.7.1",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "5.7.0",
+      "org.pac4j" % "pac4j-saml" % "5.7.1",
 
       // Encrypted cookies require encryption.
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
@@ -92,10 +92,10 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.4",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.11",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.2",
+      "com.github.slugify" % "slugify" % "3.0.4",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.9.0",
@@ -105,7 +105,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.6"
+      "ch.qos.logback" % "logback-classic" % "1.4.7"
     ),
     javacOptions ++= Seq(
       "-encoding",
@@ -212,9 +212,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.14.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.0",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.0",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.0"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

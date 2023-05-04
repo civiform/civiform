@@ -97,6 +97,12 @@ jobs:
           name: image diff output directory
           path: browser-test/diff_output
         if: failure()
+      - name: Upload updated snapshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: updated snapshots output directory
+          path: browser-test/updated_snapshots
+        if: failure()
       - name: Upload test videos on failure
         uses: actions/upload-artifact@v3
         with:

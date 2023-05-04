@@ -226,7 +226,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (maybeLogoUrl.isPresent()) {
       cityImage = img().withSrc(maybeLogoUrl.get());
     } else {
-      cityImage = this.layout.viewUtils.makeLocalImageTag("ChiefSeattle_Blue");
+      cityImage = this.layout.viewUtils.makeLocalImageTag("civiform-staging");
     }
 
     cityImage

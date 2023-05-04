@@ -3,12 +3,13 @@ version: '3.4'
 
 services:
   localstack:
-    image: localstack/localstack:1.4.0
+    image: localstack/localstack:2.0.2
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
     environment:
       - SERVICES=s3,ses
+      - PROVIDER_OVERRIDE_S3=legacy
     networks:
       default:
         aliases:

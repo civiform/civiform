@@ -7,6 +7,9 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.section;
+import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
+import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
+import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -55,7 +58,10 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
     boolean shouldUpsell = shouldUpsell(account);
 
     Modal loginPromptModal =
-        createLoginPromptModal(messages, redirectTo, MessageKey.BUTTON_APPLY_TO_PROGRAMS);
+        createLoginPromptModal(
+            messages,
+            redirectTo,
+            /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT);
 
     var actionButtonsBuilder = ImmutableList.<DomContent>builder();
     if (shouldUpsell && eligiblePrograms.isEmpty()) {
@@ -71,7 +77,9 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
 
     if (shouldUpsell) {
       actionButtonsBuilder.add(
-          loginPromptModal.getButton(), // Apply to programs
+          button(messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()))
+              .withId(loginPromptModal.getTriggerButtonId())
+              .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
           createLoginButton("sign-in", messages, redirectTo),
           createNewAccountButton("sign-up", messages));
     } else {
@@ -93,7 +101,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
-            configuration.getString("whitelabel.civic_entity_full_name"),
+            configuration.getString("auth.applicant_auth_provider_name"),
             actionButtonsBuilder.build());
     return layout.renderWithNav(
         request,
