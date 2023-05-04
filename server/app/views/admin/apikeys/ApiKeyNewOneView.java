@@ -53,7 +53,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
         .asAnchorText(),
     text(
         " that is allowed to call the API. The"
-            + " subnet may be edited after the API key is created. A single IP address"
+            + " subnet may not be edited after the API key is created. A single IP address"
             + " can be specified with a mask of /32. For example, \"8.8.8.8/32\""
             + " allows only the IP 8.8.8.8 to use the API key. All IP addresses can be"
             + " allowed, but this is strongly discouraged for security reasons because"
