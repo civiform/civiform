@@ -2,6 +2,7 @@ package auth;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.typesafe.config.Config;
 import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -49,10 +50,12 @@ public class ApiAuthenticator implements Authenticator {
 
   private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticator.class);
   private final Provider<ApiKeyService> apiKeyService;
+  private final ClientIpType clientIpType;
 
   @Inject
-  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService) {
+  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService, Config config) {
     this.apiKeyService = checkNotNull(apiKeyService);
+    this.clientIpType = checkNotNull(config).getEnum(ClientIpType.class, "client_ip_type");
   }
 
   /**
@@ -94,7 +97,7 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    if (!isAllowedIp(apiKey, context)) {
+    if (!isAllowedIp(apiKey, resolveClientIp(context))) {
       throwUnauthorized(
           context,
           String.format(
@@ -107,14 +110,32 @@ public class ApiAuthenticator implements Authenticator {
     }
   }
 
-  private boolean isAllowedIp(ApiKey apiKey, WebContext context) {
+  private boolean isAllowedIp(ApiKey apiKey, String clientIp) {
     return apiKey.getSubnetSet().stream()
         .map(SubnetUtils::new)
         // Setting this to true includes the network and broadcast addresses.
         // I.e. /31 and /32 will not be considered included in the subnetwork
         // if this is false.
         .peek(allowedSubnet -> allowedSubnet.setInclusiveHostCount(true))
-        .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(context.getRemoteAddr()));
+        .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(clientIp));
+  }
+
+  private String resolveClientIp(WebContext context) {
+    switch (clientIpType) {
+      case DIRECT:
+        return context.getRemoteAddr();
+      case FORWARDED:
+        return context
+            .getRequestHeader("X-Forwarded-For")
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For"
+                            + " header!"));
+      default:
+        throw new IllegalStateException(
+            String.format("Unrecognized ClientIpType: %s", clientIpType));
+    }
   }
 
   private void throwUnauthorized(WebContext context, String cause) {
