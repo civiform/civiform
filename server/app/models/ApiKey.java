@@ -1,6 +1,9 @@
 package models;
 
 import auth.ApiKeyGrants;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Streams;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
 import io.ebean.annotation.WhenModified;
@@ -164,6 +167,8 @@ public class ApiKey extends BaseModel {
   /**
    * An allowlist of IPv4 addresses that are permitted to authenticate with this ApiKey. Specified
    * using CIDR notation: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+   *
+   * <p>This attribute is a CSV, with multiple CIDR blocks separated by commas.
    */
   public String getSubnet() {
     return subnet;
@@ -172,6 +177,19 @@ public class ApiKey extends BaseModel {
   /**
    * An allowlist of IPv4 addresses that are permitted to authenticate with this ApiKey. Specified
    * using CIDR notation: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+   *
+   * <p>Each entry in the map is a CIDR block.
+   */
+  public ImmutableSet<String> getSubnetSet() {
+    return Streams.stream(Splitter.on(",").split(getSubnet()))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
+   * An allowlist of IPv4 addresses that are permitted to authenticate with this ApiKey. Specified
+   * using CIDR notation: https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing
+   *
+   * <p>This attribute is a CSV, with multiple CIDR blocks separated by commas.
    */
   public ApiKey setSubnet(String subnet) {
     this.subnet = subnet;

@@ -94,13 +94,7 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    SubnetUtils allowedSubnet = new SubnetUtils(apiKey.getSubnet());
-    // Setting this to true includes the network and broadcast addresses.
-    // I.e. /31 and /32 will not be considered included in the subnetwork
-    // if this is false.
-    allowedSubnet.setInclusiveHostCount(true);
-
-    if (!allowedSubnet.getInfo().isInRange(context.getRemoteAddr())) {
+    if (!isAllowedIp(apiKey, context)) {
       throwUnauthorized(
           context,
           String.format(
@@ -111,6 +105,16 @@ public class ApiAuthenticator implements Authenticator {
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
       throwUnauthorized(context, "Invalid secret for key ID: " + keyId);
     }
+  }
+
+  private boolean isAllowedIp(ApiKey apiKey, WebContext context) {
+    return apiKey.getSubnetSet().stream()
+        .map(SubnetUtils::new)
+        // Setting this to true includes the network and broadcast addresses.
+        // I.e. /31 and /32 will not be considered included in the subnetwork
+        // if this is false.
+        .peek(allowedSubnet -> allowedSubnet.setInclusiveHostCount(true))
+        .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(context.getRemoteAddr()));
   }
 
   private void throwUnauthorized(WebContext context, String cause) {

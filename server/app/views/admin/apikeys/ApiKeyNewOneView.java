@@ -45,7 +45,7 @@ public final class ApiKeyNewOneView extends BaseHtmlView {
           + " highly sensitive data, expiring keys once a week or once a month is"
           + " recommended. Once a year is acceptable in most situations.";
   private static final DomContent[] SUBNET_DESCRIPTION = {
-    text("Specify a subnet using "),
+    text("Specify one or more comma-separated subnets using "),
     new LinkElement()
         .setText("CIDR notation")
         .setHref("https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing")

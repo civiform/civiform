@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ApiKeyGrants;
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -227,23 +228,25 @@ public final class ApiKeyService {
 
   // apiKey is mutable and modified here, form is immutable so a new instance is returned
   private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
-    String subnetString = form.rawData().getOrDefault(FORM_FIELD_NAME_SUBNET, "");
+    String subnetInputString = form.rawData().getOrDefault(FORM_FIELD_NAME_SUBNET, "");
 
-    if (subnetString.isBlank()) {
+    if (subnetInputString.isBlank()) {
       return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot be blank.");
     }
 
-    if (subnetString.endsWith("0") && banGlobalSubnet) {
-      return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot allow all IP addresses.");
+    for (String subnetString : Splitter.on(",").split(subnetInputString)) {
+      if (subnetString.endsWith("0") && banGlobalSubnet) {
+        return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot allow all IP addresses.");
+      }
+
+      try {
+        new SubnetUtils(subnetString);
+      } catch (IllegalArgumentException e) {
+        return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet must be in CIDR notation.");
+      }
     }
 
-    try {
-      new SubnetUtils(subnetString);
-    } catch (IllegalArgumentException e) {
-      return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet must be in CIDR notation.");
-    }
-
-    apiKey.setSubnet(subnetString);
+    apiKey.setSubnet(subnetInputString);
 
     return form;
   }

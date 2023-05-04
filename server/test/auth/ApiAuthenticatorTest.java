@@ -135,7 +135,7 @@ public class ApiAuthenticatorTest {
 
   @Test
   public void validate_ipNotInSubnet() {
-    apiKey.setSubnet("2.2.2.2/30");
+    apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
     apiKey.save();
 
     assertBadCredentialsException(
