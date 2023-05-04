@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Histogram;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.CompletableFuture;
@@ -30,13 +32,34 @@ public final class SimpleEmail {
   public static final String AWS_SES_SENDER_CONF_PATH = "aws.ses.sender";
   private static final Logger logger = LoggerFactory.getLogger(SimpleEmail.class);
 
+  private static final Histogram EMAIL_EXECUTION_TIME =
+      Histogram.build()
+          .name("email_send_time_seconds")
+          .help("Execution time of email send")
+          .register();
+
+  private static final Counter EMAIL_SEND_COUNT =
+      Counter.build()
+          .name("email_send_total")
+          .help("Number of emails sent")
+          .labelNames("status")
+          .register();
+
+  private static final Counter EMAIL_FAIL_COUNT =
+      Counter.build()
+          .name("email_fail_total")
+          .help("Number of emails that failed to send")
+          .register();
+
   private final String sender;
   private final Client client;
+  private final boolean metricsEnabled;
 
   @Inject
   public SimpleEmail(
       AwsRegion region, Config config, Environment environment, ApplicationLifecycle appLifecycle) {
     this.sender = checkNotNull(config).getString(AWS_SES_SENDER_CONF_PATH);
+    this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);
@@ -61,6 +84,7 @@ public final class SimpleEmail {
     if (toAddresses.isEmpty()) {
       return;
     }
+    Histogram.Timer timer = EMAIL_EXECUTION_TIME.startTimer();
 
     try {
       Destination destination =
@@ -77,6 +101,17 @@ public final class SimpleEmail {
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
+      if (metricsEnabled) {
+        EMAIL_FAIL_COUNT.inc();
+        EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode()));
+      }
+    } finally {
+      if (metricsEnabled) {
+        // Increase the count of emails sent.
+        EMAIL_SEND_COUNT.inc();
+        // Record the execution time of the email sending process.
+        timer.observeDuration();
+      }
     }
   }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
+import io.prometheus.client.Counter;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +38,13 @@ import services.geo.AddressLocation;
 public final class RealEsriClient extends EsriClient implements WSBodyReadables, WSBodyWritables {
   private final WSClient ws;
 
+  private static final Counter ESRI_REQUEST_C0UNT =
+      Counter.build()
+          .name("esri_requests_total")
+          .help("Total amount of requests to the ESRI client")
+          .labelNames("status")
+          .register();
+
   private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
   private static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
@@ -47,6 +55,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   @VisibleForTesting Optional<String> ESRI_FIND_ADDRESS_CANDIDATES_URL;
   private int ESRI_EXTERNAL_CALL_TRIES;
 
+  private final boolean metricsEnabled;
   private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
   @Inject
@@ -55,8 +64,9 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
       Clock clock,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       WSClient ws) {
-    super(clock, esriServiceAreaValidationConfig);
+    super(clock, esriServiceAreaValidationConfig, Optional.of(configuration));
     this.ws = checkNotNull(ws);
+    this.metricsEnabled = checkNotNull(configuration).getBoolean("server_metrics.enabled");
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
             ? Optional.of(configuration.getString("esri_find_address_candidates_url"))
@@ -122,6 +132,9 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)
         .thenApply(
             res -> {
+              if (metricsEnabled) {
+                ESRI_REQUEST_C0UNT.labels(String.valueOf(res.getStatus())).inc();
+              }
               // return empty if still failing after retries
               if (res.getStatus() != 200) {
                 return Optional.empty();
