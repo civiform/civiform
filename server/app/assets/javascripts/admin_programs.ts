@@ -21,6 +21,22 @@ class AdminPrograms {
       },
     )
   }
+  static attachEventListenersToEditTIButton() {
+    addEventListenerToElements(
+      '#program-display-mode-select-ti-only',
+      'click',
+      () => {
+        const tiSelect = <HTMLInputElement>(
+          document.querySelector('#TIList')
+        )
+        if(tiSelect.hidden)
+        tiSelect.hidden = false
+        else{
+            tiSelect.hidden = true
+        }
+      },
+      )
+  }
 
   static attachCopyProgramLinkListeners() {
     const withCopyableProgramLink = Array.from(
@@ -86,4 +102,5 @@ class AdminPrograms {
 export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
+  AdminPrograms.attachEventListenersToEditTIButton()
 }

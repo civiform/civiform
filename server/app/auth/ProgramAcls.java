@@ -34,4 +34,5 @@ public class ProgramAcls {
   public boolean hasProgramViewPermission(Account account) {
     return programViewAcls.contains(account.getManagedByGroup().get().id.toString());
   }
+
 }

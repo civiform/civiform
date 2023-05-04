@@ -57,7 +57,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private final String baseUrl;
   private final UserRepository userRepository;
 
-  @Inject
+
   ProgramFormBuilder(Config configuration, FeatureFlags featureFlags, UserRepository userRepository) {
     this.featureFlags = featureFlags;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
@@ -174,6 +174,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
+      FieldWithLabel.radio()
+        .setId("program-display-mode-select-ti-only")
+        .setFieldName("displayMode")
+        .setAriaRequired(true)
+        .setLabelText("Visible to Selected Trusted Intermediaries ONLY")
+        .setValue(DisplayMode.SELECT_TI.getValue())
+        .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
+        .getRadioTag(),
       showTISelectionList(),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
@@ -232,7 +240,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
              * framework allows multiple form keys with the same value. For more information, see
              * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
              */
-            .withName("Select Trusted Intermediaries"+ Path.ARRAY_SUFFIX)
+            .withName("tiGroups"+Path.ARRAY_SUFFIX)
             .withValue("")
             .withCondChecked(true)
             .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
@@ -244,11 +252,11 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                   option.getName(),
                   option.id)));
 
-    return tiSelectionRenderer;
+    return div().withId("TIList").isHidden().with(tiSelectionRenderer);
   }
   private DivTag renderCheckboxOption(
     String tiName, Long tiId) {
-    String id = "checkbox-" + "-" + option.id();
+    String id =  tiId.toString();
     LabelTag labelTag =
       label()
         .withClasses(
@@ -259,14 +267,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
           input()
             .withId(id)
             .withType("checkbox")
-            .withName(tiName)
+            .withName("tiGroups"+Path.ARRAY_SUFFIX)
             .withValue(String.valueOf(tiId))
-           // .withCondChecked(isSelected)
+            .withCondChecked(true)
           //  .condAttr("aria-invalid", "true")
            // .condAttr( "aria-required", "true")
             .withClasses(
-              StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)));
-          //span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+              StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
+          span(tiName).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
 
     return div()
       .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")

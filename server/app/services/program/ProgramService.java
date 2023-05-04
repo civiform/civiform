@@ -3,6 +3,8 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
+
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -173,18 +175,18 @@ public interface ProgramService {
    * Checks if the provided data would be valid to update an existing program with. Does not
    * actually update any programs.
    *
-   * @param adminDescription the description of this program - visible only to admins
-   * @param displayName a name for this program
+   * @param adminDescription   the description of this program - visible only to admins
+   * @param displayName        a name for this program
    * @param displayDescription the description of what the program provides
-   * @param externalLink A link to an external page containing additional program details
-   * @param displayMode The display mode for the program
+   * @param externalLink       A link to an external page containing additional program details
+   * @param displayMode        The display mode for the program
    */
   ImmutableSet<CiviFormError> validateProgramDataForUpdate(
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String externalLink,
-      String displayMode);
+    String adminDescription,
+    String displayName,
+    String displayDescription,
+    String externalLink,
+    String displayMode);
 
   /**
    * Add or update a localization of the program's publicly-visible display name and description.

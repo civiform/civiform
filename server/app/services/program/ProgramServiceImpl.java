@@ -267,11 +267,11 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String externalLink,
-      String displayMode) {
+    String adminDescription,
+    String displayName,
+    String displayDescription,
+    String externalLink,
+    String displayMode) {
     return validateProgramData(
         adminDescription, displayName, displayDescription, externalLink, displayMode);
   }

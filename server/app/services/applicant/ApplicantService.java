@@ -28,6 +28,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
+
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
@@ -825,21 +827,25 @@ public final class ApplicantService {
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
 
+    Account applicantAccount =
+      userRepository
+        .lookupApplicant(applicantId).thenApplyAsync(applicant -> applicant.orElseThrow().getAccount())
+        .toCompletableFuture().join();
     CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
-        userRepository
-            .lookupApplicant(applicantId)
-            .thenApplyAsync(
-                applicant -> applicant.orElseThrow().getAccount().getManagedByGroup().isPresent())
-            .thenApplyAsync(
-                isTi ->
-                    versionRepository.getActiveVersion().getPrograms().stream()
-                        .map(Program::getProgramDefinition)
-                        .filter(
-                            pdef ->
-                                pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (isTi && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
-                        .collect(ImmutableList.toImmutableList()))
-            .toCompletableFuture();
+      userRepository
+        .lookupApplicant(applicantId)
+        .thenApplyAsync(
+          applicant -> applicant.orElseThrow().getAccount())
+        .thenApplyAsync(
+          acct ->
+            versionRepository.getActiveVersion().getPrograms().stream()
+              .map(Program::getProgramDefinition)
+              .filter(
+                pdef ->
+                  pdef.displayMode().equals(DisplayMode.PUBLIC)
+                    || (acct.getManagedByGroup().isPresent() && pdef.displayMode().equals(DisplayMode.TI_ONLY) && pdef.programAcls().hasProgramViewPermission(acct)))
+              .collect(ImmutableList.toImmutableList()))
+        .toCompletableFuture();
 
     return CompletableFuture.allOf(applicationsFuture, activeProgramDefinitionsFuture)
         .thenComposeAsync(

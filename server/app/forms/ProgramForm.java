@@ -13,17 +13,16 @@ public final class ProgramForm {
   private String externalLink;
   private String displayMode;
   private Boolean isCommonIntakeForm;
-  private List<String> selectedTI;
 
-  public List<Long> getTiId() {
-    return tiId;
+  public List<Long> getTiGroups() {
+    return tiGroups;
   }
 
-  public void setTiId(List<Long> tiId) {
-    this.tiId = tiId;
+  public void setTiGroups(List<Long> tiGroups) {
+    this.tiGroups = tiGroups;
   }
 
-  private List<Long> tiId;
+  private List<Long> tiGroups;
 
   // Represents whether or not the user has confirmed that they want to change which program is
   // marked as the common intake form.
@@ -39,15 +38,7 @@ public final class ProgramForm {
     displayMode = "";
     isCommonIntakeForm = false;
     confirmedChangeCommonIntakeForm = false;
-    selectedTI = new ArrayList<>();
-    tiId = new ArrayList<>();
-  }
-  public List<String> getSelectedTI() {
-    return selectedTI;
-  }
-
-  public void setSelectedTI(List<String> selectedTI) {
-    this.selectedTI = selectedTI;
+    tiGroups = new ArrayList<>();
   }
   public String getAdminName() {
     return adminName;
