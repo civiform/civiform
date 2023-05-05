@@ -105,7 +105,7 @@ public class ApiAuthenticatorTest {
 
     var request = fakeRequest().header("X-Forwarded-For", "1.1.1.1, 2.2.2.2").build();
 
-    assertThat(authenticator.resolveClientIp(new PlayWebContext(request))).isEqualTo("1.1.1.1");
+    assertThat(authenticator.resolveClientIp(new PlayWebContext(request))).isEqualTo("2.2.2.2");
   }
 
   @Test
