@@ -28,29 +28,29 @@ public final class MetricsController extends CiviFormController {
 
   private static final Counter queryMetricCount =
       Counter.build()
-          .name("ebean_query_metric_count")
+          .name("ebean_queries_total")
           .help("Count of database queries")
           .labelNames("name")
           .register();
 
   private static final Counter queryMetricMeanLatency =
       Counter.build()
-          .name("ebean_query_metric_mean_latency")
-          .help("Mean latency of database queries")
+          .name("ebean_queries_mean_latency_micros")
+          .help("Mean latency of database queries in micros")
           .labelNames("name")
           .register();
 
   private static final Counter queryMetricMaxLatency =
       Counter.build()
-          .name("ebean_query_metric_max_latency")
-          .help("Max latency of database queries")
+          .name("ebean_queries_max_latency_micros")
+          .help("Max latency of database queries in micros")
           .labelNames("name")
           .register();
 
   private static final Counter queryMetricTotalLatency =
       Counter.build()
-          .name("ebean_query_metric_total_latency")
-          .help("Total latency of database queries")
+          .name("ebean_queries_total_latency_micros")
+          .help("Total latency of database queries in micros")
           .labelNames("name")
           .register();
 
