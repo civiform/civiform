@@ -68,7 +68,7 @@ describe('applicant program index page', () => {
     await logout(page)
   })
 
-  fit('shows login prompt for guest users when they click apply', async () => {
+  it('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
     await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')

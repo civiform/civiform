@@ -143,6 +143,7 @@ public abstract class Modal {
     if (displayOnLoad()) {
       modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
     }
+    divTag.withClasses(modalStyles);
     if (repeatOpenBehavior().showOnlyOnce()) {
       divTag.attr("only-show-once-group", repeatOpenBehavior().group().name().toLowerCase());
       if (repeatOpenBehavior().bypassUrl().isPresent()) {
@@ -150,7 +151,7 @@ public abstract class Modal {
       }
     }
 
-    return divTag.withClasses(modalStyles);
+    return divTag;
   }
 
   public ButtonTag getButton() {

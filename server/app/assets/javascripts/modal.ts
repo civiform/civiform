@@ -35,13 +35,13 @@ class ModalController {
   }
 
   /**
-   * Checks to see if the modal has a class starting with cf-modal-only-show-once. If so,
+   * Checks to see if the modal has an attribute `only-show-once-group`. If so,
    * we must only show this Modal once. We do this by storing a constant key in localStorage
    * that indicates the modal has been shown, and checking for it.
    *
    * In addition, there are some use cases where modals are a middleman for a redirect, with
-   * a button to bypass the modal. If there is an element with id prefixed with 'bypass-`, then we will extract the
-   * bypass-url attribute and redirect the user to that url, as if they had clicked the bypass element themselves.
+   * a button to bypass the modal. If there is an attribute `bypass-url` then we will use it to
+   * redirect the user to that url, as if they had clicked the bypass element themselves.
    *
    * Returns a boolean indicating whether to skip showing the Modal if these cases are met.
    */

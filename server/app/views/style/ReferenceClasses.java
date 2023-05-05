@@ -151,7 +151,6 @@ public final class ReferenceClasses {
   public static final String MODAL = "cf-modal";
   public static final String MODAL_CLOSE = "cf-modal-close";
   public static final String MODAL_DISPLAY_ON_LOAD = "cf-modal-display-on-load";
-  public static final String MODAL_ONLY_SHOW_ONCE = "cf-modal-only-show-once";
   // These classes mark fields that need dynamic replacement by browser tests when
   // taking a screenshot (e.g. dates, application IDs).
   public static final String BT_DATE = "cf-bt-date";

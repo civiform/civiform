@@ -13,6 +13,7 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.components.ButtonStyles;
 import views.components.Modal;
+import views.components.Modal.RepeatOpenBehavior;
 import views.components.Modal.Width;
 import views.style.StyleUtils;
 
@@ -53,7 +54,7 @@ final class AuthenticateUpsellCreator extends BaseHtmlView {
         .setContent(modalContent)
         .setModalTitle(modalTitle)
         .setRepeatOpenBehavior(
-            Modal.RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, postLoginRedirectTo))
+            RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, postLoginRedirectTo))
         .setWidth(Width.HALF)
         .build();
   }
