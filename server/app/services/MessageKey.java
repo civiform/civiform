@@ -170,6 +170,7 @@ public enum MessageKey {
   TOAST_MAY_QUALIFY("toast.mayQualify"),
   TOAST_MAY_QUALIFY_TI("toast.mayQualifyTi"),
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
+  TOAST_SESSION_ENDED("toast.sessionEnded"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired");
 

@@ -40,6 +40,9 @@ label.languageSr=Choose a language
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=End session
 
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
+toast.sessionEnded=Your session has ended.
+
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=You''re a guest user.
 

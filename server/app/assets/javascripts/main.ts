@@ -375,6 +375,7 @@ export function init() {
       if (keepWarningMessage) {
         localStorage.setItem('warning-message-dismissed', 'true')
       }
+      localStorage.setItem('session_just_ended', 'true')
       window.location.href = link.href
     })
   }

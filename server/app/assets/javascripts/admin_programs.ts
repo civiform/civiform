@@ -67,6 +67,7 @@ class AdminPrograms {
         content: 'Program link copied to clipboard',
         duration: 3000,
         type: 'success',
+        condOnStorageKey: null,
         canDismiss: true,
         canIgnore: false,
       })
@@ -76,6 +77,7 @@ class AdminPrograms {
         content: `Could not copy program link to clipboard: ${programLink}`,
         duration: -1,
         type: 'warning',
+        condOnStorageKey: null,
         canDismiss: true,
         canIgnore: false,
       })

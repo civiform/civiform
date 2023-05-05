@@ -113,6 +113,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
+
+    String sessionEndedMessage = messages.at(MessageKey.TOAST_SESSION_ENDED.getKeyName());
+    bundle.addToastMessages(
+        ToastMessage.success(sessionEndedMessage)
+            .setCondOnStorageKey("session_just_ended")
+            .setDuration(5000));
+
     bundle.addMainContent(
         topContent(messages, userName),
         mainContent(
