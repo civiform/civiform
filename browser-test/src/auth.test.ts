@@ -8,6 +8,7 @@ import {
   AuthStrategy,
   logout,
   loginAsAdmin,
+  validateAccessibility,
 } from './support'
 import {TEST_USER_AUTH_STRATEGY} from './support/config'
 
@@ -86,6 +87,21 @@ describe('applicant auth', () => {
 
     await page.click('text=End session')
     expect(await ctx.page.textContent('html')).toContain('Get benefits')
+  })
+
+  it('toast is shown when either guest or logged-in user end their session', async () => {
+    const {page} = ctx
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
+
+    await logout(page)
+    await validateScreenshot(page, 'guest-just-ended-session')
+    await validateAccessibility(page)
+
+    await loginAsTestUser(page)
+    await logout(page)
+    await validateScreenshot(page, 'user-just-ended-session')
+    await validateAccessibility(page)
   })
 
   it('guest login followed by auth login stores submitted applications', async () => {
