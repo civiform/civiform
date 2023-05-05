@@ -4,9 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.test.Helpers.fakeRequest;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -17,6 +19,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.exception.BadCredentialsException;
@@ -31,6 +34,7 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.inject.guice.GuiceApplicationLoader;
 import play.mvc.Http;
 import play.test.Helpers;
+import services.apikey.ApiKeyService;
 import support.ResourceCreator;
 
 public class ApiAuthenticatorTest {
@@ -48,6 +52,7 @@ public class ApiAuthenticatorTest {
   private static final String validRawCredentials = keyId + ":" + secret;
   private static final SessionStore MOCK_SESSION_STORE = Mockito.mock(SessionStore.class);
   private ApiKey apiKey;
+  private Injector injector;
 
   @Before
   public void setUp() {
@@ -58,7 +63,7 @@ public class ApiAuthenticatorTest {
     // though, hence this test class uses the guice injector directly.
     GuiceApplicationBuilder builder =
         new GuiceApplicationLoader().builder(new ApplicationLoader.Context(Environment.simple()));
-    Injector injector = Guice.createInjector(builder.applicationModule());
+    injector = Guice.createInjector(builder.applicationModule());
     injector.injectMembers(this);
 
     resourceCreator =
@@ -90,6 +95,18 @@ public class ApiAuthenticatorTest {
   @After
   public void tearDown() {
     Helpers.stop(application);
+  }
+
+  @Test
+  public void resolveClientIp_forwarded() {
+    var authenticator = new ApiAuthenticator(injector.getProvider(ApiKeyService.class), ConfigFactory.parseMap(ImmutableMap.of(
+      "client_ip_type", "FORWARDED"
+    )));
+
+    var request = fakeRequest().header("X-Forwarded-For", "1.1.1.1, 2.2.2.2").build();
+
+    assertThat(authenticator.resolveClientIp(new PlayWebContext(request)))
+      .isEqualTo("1.1.1.1");
   }
 
   @Test
