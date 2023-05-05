@@ -3,7 +3,7 @@ import {
   gotoEndpoint,
   loginAsGuest,
   NotFoundPage,
-  setLangEsUS,
+  selectApplicantLanguage,
 } from './support'
 
 describe('error pages', () => {
@@ -18,7 +18,7 @@ describe('error pages', () => {
 
     await gotoEndpoint(page, '/')
     await loginAsGuest(page)
-    await setLangEsUS(page)
+    await selectApplicantLanguage(page, 'Español')
     await notFound.gotoNonExistentPage(page)
     await notFound.checkPageHeader('es-US')
   })

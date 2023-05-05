@@ -54,11 +54,7 @@ describe('applicant program index page', () => {
   it('shows log in button for guest users', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
 
@@ -75,11 +71,7 @@ describe('applicant program index page', () => {
   it('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
 
@@ -94,11 +86,7 @@ describe('applicant program index page', () => {
   it('categorizes programs for draft and applied applications', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsTestUser(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     // Navigate to the applicant's program index and validate that both programs appear in the
     // "Not started" section.
@@ -135,11 +123,7 @@ describe('applicant program index page', () => {
     // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
     await logout(page)
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectPrograms({
       wantNotStartedPrograms: [otherProgramName, primaryProgramName],
       wantInProgressPrograms: [],
@@ -152,11 +136,7 @@ describe('applicant program index page', () => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
@@ -180,11 +160,7 @@ describe('applicant program index page', () => {
     await logout(page)
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(primaryProgramName)
     await applicantQuestions.answerTextQuestion('first answer')
@@ -206,11 +182,7 @@ describe('applicant program index page', () => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
     expect(await page.innerText('h2')).toContain('Program application summary')
@@ -226,11 +198,7 @@ describe('applicant program index page', () => {
     const {page, applicantQuestions} = ctx
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     // Fill out application with one question and confirm it shows previously answered at the end.
     await applicantQuestions.applyProgram(otherProgramName)

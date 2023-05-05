@@ -284,21 +284,25 @@ export const logout = async (page: Page) => {
 }
 
 export const loginAsAdmin = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#admin')
   await waitForPageJsLoad(page)
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#program-admin')
   await waitForPageJsLoad(page)
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#dual-admin')
   await waitForPageJsLoad(page)
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#trusted-intermediary')
   await waitForPageJsLoad(page)
 }
@@ -308,11 +312,6 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
 export const loginAsGuest = async (page: Page) => {
   // Logging in as a guest is a no-op, because loading the index page of
   // CiviForm defaults to the guest user.
-}
-
-export const setLangEsUS = async (page: Page) => {
-  await page.click('text=Español')
-  await page.click('text=Submit')
 }
 
 /**
@@ -422,28 +421,13 @@ export const supportsEmailInspection = () => {
 }
 
 /**
- * The option to select a language is only shown once for a given applicant. If this is
- * the first time they see this page, select the given language. Otherwise continue.
+ * The option to select a language is shown in the header bar as a dropdown. This helper method selects the given language from the dropdown.
  */
-export const selectApplicantLanguage = async (
-  page: Page,
-  language: string,
-  assertProgramIndexPage = false,
-) => {
-  const infoPageRegex = /applicants\/\d+\/edit/
-  const maybeSelectLanguagePage = page.url()
-  if (maybeSelectLanguagePage.match(infoPageRegex)) {
-    const languageOption = `.cf-radio-option:has-text("${language}")`
-    await page.click(languageOption + ' input')
-    await page.click('button:visible')
-  }
-  await waitForPageJsLoad(page)
+export const selectApplicantLanguage = async (page: Page, language: string) => {
+  await page.click('#select-language')
+  await page.selectOption('#select-language', {label: language})
 
-  if (assertProgramIndexPage) {
-    const programIndexRegex = /applicants\/\d+\/programs/
-    const maybeProgramIndexPage = page.url()
-    expect(maybeProgramIndexPage).toMatch(programIndexRegex)
-  }
+  await waitForPageJsLoad(page)
 }
 
 export const dropTables = async (page: Page) => {

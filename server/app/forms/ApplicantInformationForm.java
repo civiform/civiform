@@ -3,7 +3,7 @@ package forms;
 import java.util.Locale;
 import services.LocalizedStrings;
 
-/** Form for updating an user's information, e.g. preferred language. */
+/** Form for updating a user's information, e.g. preferred language. */
 public final class ApplicantInformationForm {
   private Locale locale;
   private String redirectLink;

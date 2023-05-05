@@ -98,7 +98,8 @@ public class LoginForm extends BaseHtmlView {
         div().withClasses("fixed", "w-screen", "h-screen", "bg-gray-200").with(content));
 
     if (isDevOrStaging && !disableDemoModeLogins) {
-      htmlBundle.addMainContent(DebugContent.devTools());
+      htmlBundle.addMainContent(
+          DebugContent.devTools().withClasses("absolute", "flex", "flex-col"));
     }
 
     return layout.render(htmlBundle);

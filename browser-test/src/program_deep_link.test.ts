@@ -53,8 +53,13 @@ describe('navigating to a deep link', () => {
 
     // Exercise test user path
     // Act
-    await gotoEndpoint(page, '/programs/test-deep-link')
+
+    // TODO(#4705): make goToEndpoint execute before loginAsTestUser as it should,
+    // such that user can go to the slug, log in, and be taken back to the slug. Currently
+    // with BYPASS_LOGIN_LANGUAGE_SCREENS on, logging in always takes you back to the programs
+    // index page,and this behavior will take some work to override in a feasible way.
     await loginAsTestUser(page)
+    await gotoEndpoint(page, '/programs/test-deep-link')
     await selectApplicantLanguage(page, 'English')
 
     // Assert
