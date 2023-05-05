@@ -35,28 +35,28 @@ class ModalController {
   }
 
   /**
-   * Checks to see if the modal has the class cf-modal-only-show-once. If so,
+   * Checks to see if the modal has a class starting with cf-modal-only-show-once. If so,
    * we must only show this Modal once. We do this by storing a constant key in localStorage
    * that indicates the modal has been shown, and checking for it.
    *
    * In addition, there are some use cases where modals are a middleman for a redirect, with
    * a button to bypass the modal. If there is an element with id prefixed with 'bypass-`, then we will extract the
-   * data-redirect-to attribute and redirect the user to that url, as if they had clicked the bypass element themselves.
+   * bypass-url attribute and redirect the user to that url, as if they had clicked the bypass element themselves.
    *
    * Returns a boolean indicating whether to skip showing the Modal if these cases are met.
    */
   private static avoidShowingModalAgain(modal: Element): boolean {
-    if (modal.classList.contains('cf-modal-only-show-once')) {
-      const shownKey = 'modal-shown-already'
+    const onlyShowOnceGroup = modal.getAttribute('only-show-once-group')
+    if (onlyShowOnceGroup) {
+      const shownKey = onlyShowOnceGroup
       const modalHasBeenShown = localStorage.getItem(shownKey)
+      const bypassUrl = modal.getAttribute('bypass-url')
+
+      if (modalHasBeenShown && bypassUrl) {
+        window.location.href = bypassUrl
+      }
 
       if (modalHasBeenShown) {
-        const redirectTo = modal.getAttribute('bypass-url')
-
-        if (redirectTo) {
-          window.location.href = redirectTo
-        }
-
         return true
       } else {
         localStorage.setItem(shownKey, 'true')

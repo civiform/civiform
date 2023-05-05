@@ -75,6 +75,7 @@ describe('applicant program index page', () => {
 
     await validateAccessibility(page)
 
+    // Click Apply on the primary program. This should show the login prompt modal.
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
@@ -91,6 +92,21 @@ describe('applicant program index page', () => {
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
     expect(await page.textContent('html')).not.toContain(
+      'Create an account or sign in',
+    )
+
+    // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
+    await logout(page)
+    await loginAsGuest(page)
+    await selectApplicantLanguage(
+      page,
+      'English',
+      /* assertProgramIndexPage= */ true,
+    )
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).toContain(
       'Create an account or sign in',
     )
   })

@@ -29,16 +29,14 @@ public abstract class Modal {
 
   public abstract boolean displayOnLoad();
 
-  public abstract boolean onlyShowOnce();
-
-  public abstract Optional<String> bypassUrl();
+  public abstract RepeatOpenBehavior repeatOpenBehavior();
 
   public static Modal.RequiredModalId builder() {
     // Set some defaults before the user sets their own values.
     return new AutoValue_Modal.Builder()
         .setWidth(Width.DEFAULT)
         .setDisplayOnLoad(false)
-        .setOnlyShowOnce(false);
+        .setRepeatOpenBehavior(RepeatOpenBehavior.alwaysShow());
   }
 
   public interface RequiredModalId {
@@ -59,9 +57,7 @@ public abstract class Modal {
 
     public abstract Builder setDisplayOnLoad(boolean value);
 
-    public abstract Builder setOnlyShowOnce(boolean value);
-
-    public abstract Builder setBypassUrl(String value);
+    public abstract Builder setRepeatOpenBehavior(RepeatOpenBehavior repeatOpenBehavior);
 
     // Effectively private (here and below). Java does not allow private abstract methods.
     abstract String modalTitle();
@@ -99,6 +95,46 @@ public abstract class Modal {
     }
   }
 
+  /**
+   * Governs the behavior of the Modal if it were to be opened more than once. By default, shows the
+   * Modal every time it is triggered. By setting showOnlyOnce to true, the Modal will only be shown
+   * once.
+   *
+   * <p>In addition, setting the bypassUrl will allow the user to be redirected somewhere else
+   * (presumably where they would have gone after dismissing the Modal) if the modal were opened
+   * again when showOnlyOnce is true.
+   */
+  @AutoValue
+  public abstract static class RepeatOpenBehavior {
+    // Whether to limit displaying the Modal to once. Defaults to false.
+    public abstract boolean showOnlyOnce();
+
+    // Where to redirect the user if they try to open the Modal again when showOnlyOnce is true.
+    // If empty, nothing will happen upon trying to open the Modal again.
+    public abstract Optional<String> bypassUrl();
+
+    // The group for this Modal. If two Modals have the same group, then opening one
+    // of them will prevent any Modal in the group from being shown again.
+    public abstract Group group();
+
+    public enum Group {
+      NONE,
+      PROGRAMS_INDEX_LOGIN_PROMPT;
+    }
+
+    public static RepeatOpenBehavior alwaysShow() {
+      return new AutoValue_Modal_RepeatOpenBehavior(false, Optional.empty(), Group.NONE);
+    }
+
+    public static RepeatOpenBehavior showOnlyOnce(Group group) {
+      return new AutoValue_Modal_RepeatOpenBehavior(true, Optional.empty(), group);
+    }
+
+    public static RepeatOpenBehavior showOnlyOnce(Group group, String bypassUrl) {
+      return new AutoValue_Modal_RepeatOpenBehavior(true, Optional.of(bypassUrl), group);
+    }
+  }
+
   public DivTag getContainerTag() {
     DivTag divTag = div().withId(modalId()).with(getModalHeader()).with(getContent());
 
@@ -107,10 +143,10 @@ public abstract class Modal {
     if (displayOnLoad()) {
       modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
     }
-    if (onlyShowOnce()) {
-      modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_ONLY_SHOW_ONCE);
-      if (bypassUrl().isPresent()) {
-        divTag.attr("bypass-url", bypassUrl().get());
+    if (repeatOpenBehavior().showOnlyOnce()) {
+      divTag.attr("only-show-once-group", repeatOpenBehavior().group().name().toLowerCase());
+      if (repeatOpenBehavior().bypassUrl().isPresent()) {
+        divTag.attr("bypass-url", repeatOpenBehavior().bypassUrl().get());
       }
     }
 

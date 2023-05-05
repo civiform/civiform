@@ -360,4 +360,15 @@ export function init() {
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
+
+  // When the user ends their session, clear out local storage, then redirect to the
+  // href of the end session button.
+  const link = document.querySelector('#logout-button') as HTMLAnchorElement
+  if (link) {
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      localStorage.clear()
+      window.location.href = link.href
+    })
+  }
 }

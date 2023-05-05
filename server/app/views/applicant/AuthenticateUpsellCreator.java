@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static j2html.TagCreator.div;
+import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
 import controllers.routes;
 import j2html.tags.specialized.ButtonTag;
@@ -51,8 +52,8 @@ final class AuthenticateUpsellCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setModalTitle(modalTitle)
-        .setOnlyShowOnce(true)
-        .setBypassUrl(postLoginRedirectTo)
+        .setRepeatOpenBehavior(
+            Modal.RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, postLoginRedirectTo))
         .setWidth(Width.HALF)
         .build();
   }
