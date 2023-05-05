@@ -116,7 +116,9 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     String sessionEndedMessage = messages.at(MessageKey.TOAST_SESSION_ENDED.getKeyName());
     bundle.addToastMessages(
-        ToastMessage.success(sessionEndedMessage).setCondOnStorageKey("session_just_ended"));
+        ToastMessage.success(sessionEndedMessage)
+            .setCondOnStorageKey("session_just_ended")
+            .setDuration(5000));
 
     bundle.addMainContent(
         topContent(messages, userName),

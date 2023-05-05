@@ -72,7 +72,7 @@ public final class ToastMessage {
   }
 
   /**
-   * How long the toast displays before auto-hiding. A duration <= 0 indicates that the toast is
+   * How long, in ms, the toast displays before auto-hiding. A duration <= 0 indicates that the toast is
    * never automatically hidden.
    */
   public ToastMessage setDuration(int duration) {
