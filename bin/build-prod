@@ -20,6 +20,8 @@ if [[ "${HOST_CPU_ARCH}" != "x86_64" ]]; then
   echo "----------------------------------------------------------------"
   echo " Detected ${HOST_CPU_ARCH} as host system cpu architecture."
   echo " Currently only x86_64 is supported by our prod.Dockerfile."
+  echo ""
+  echo " For more info: https://github.com/civiform/civiform/issues/4785"
   echo "----------------------------------------------------------------"
   echo ""
   exit 1
