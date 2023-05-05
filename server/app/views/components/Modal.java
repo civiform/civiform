@@ -44,13 +44,15 @@ public abstract class Modal {
   }
 
   public interface RequiredContent {
-    Builder setContent(ContainerTag<?> content);
+    RequiredTitle setContent(ContainerTag<?> content);
+  }
+
+  public interface RequiredTitle {
+    Builder setModalTitle(String modalTitle);
   }
 
   @AutoValue.Builder
-  public abstract static class Builder implements RequiredModalId, RequiredContent {
-    public abstract Builder setModalTitle(String modalTitle);
-
+  public abstract static class Builder implements RequiredModalId, RequiredTitle, RequiredContent {
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
