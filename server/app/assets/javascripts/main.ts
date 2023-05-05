@@ -367,7 +367,14 @@ export function init() {
   if (link) {
     link.addEventListener('click', (event) => {
       event.preventDefault()
+      // If we've dismissed the staging warning message, keep it dismissed for the next session
+      // for the convenience of developers and cleanliness of screenshots.
+      const keepWarningMessage =
+        localStorage.getItem('warning-message-dismissed') !== null
       localStorage.clear()
+      if (keepWarningMessage) {
+        localStorage.setItem('warning-message-dismissed', 'true')
+      }
       window.location.href = link.href
     })
   }
