@@ -32,6 +32,8 @@ public final class ToastMessage {
   /** If true this message will not be shown if a user has already seen and dismissed it. */
   private boolean canIgnore = false;
 
+  private String condOnStorageKey;
+
   public ToastMessage(String message, ToastType severity) {
     this.message = checkNotNull(message);
     this.type = checkNotNull(severity);
@@ -93,6 +95,11 @@ public final class ToastMessage {
     return this;
   }
 
+  public ToastMessage setCondOnStorageKey(String storageKey) {
+    this.condOnStorageKey = storageKey;
+    return this;
+  }
+
   public DivTag getContainerTag() {
     DivTag ret =
         div(this.message)
@@ -101,6 +108,7 @@ public final class ToastMessage {
             .attr("canDismiss", this.canDismiss)
             .attr("canIgnore", this.canIgnore)
             .attr("toastDuration", this.duration)
+            .attr("condOnStorageKey", this.condOnStorageKey)
             .attr("toastType", this.type);
     return ret;
   }
