@@ -17,3 +17,6 @@ addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.4.0")
 
 // Formatting plugin
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.0")
+
+// This is needed per https://eed3si9n.com/sbt-1.8.0-beta
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
