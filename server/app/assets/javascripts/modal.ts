@@ -47,22 +47,18 @@ class ModalController {
    */
   private static avoidShowingModalAgain(modal: Element): boolean {
     const onlyShowOnceGroup = modal.getAttribute('only-show-once-group')
-    if (onlyShowOnceGroup) {
-      const shownKey = onlyShowOnceGroup
-      const modalHasBeenShown = localStorage.getItem(shownKey)
-      const bypassUrl = modal.getAttribute('bypass-url')
+    if (!onlyShowOnceGroup) return false
 
-      if (modalHasBeenShown && bypassUrl) {
-        window.location.href = bypassUrl
-      }
+    const shownKey = onlyShowOnceGroup
+    const modalHasBeenShown = localStorage.getItem(shownKey)
+    const bypassUrl = modal.getAttribute('bypass-url')
 
-      if (modalHasBeenShown) {
-        return true
-      } else {
-        localStorage.setItem(shownKey, 'true')
-        return false
-      }
+    if (modalHasBeenShown) {
+      if (bypassUrl) window.location.href = bypassUrl
+      return true
     }
+
+    localStorage.setItem(shownKey, 'true')
     return false
   }
 
