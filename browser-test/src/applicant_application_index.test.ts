@@ -98,11 +98,7 @@ describe('applicant program index page', () => {
     // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
     await logout(page)
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
