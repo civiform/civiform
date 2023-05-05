@@ -2,6 +2,9 @@ package auth;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.typesafe.config.Config;
 import java.time.Instant;
 import java.util.Optional;
@@ -120,18 +123,25 @@ public class ApiAuthenticator implements Authenticator {
         .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(clientIp));
   }
 
-  private String resolveClientIp(WebContext context) {
+  @VisibleForTesting
+  String resolveClientIp(WebContext context) {
     switch (clientIpType) {
       case DIRECT:
         return context.getRemoteAddr();
       case FORWARDED:
-        return context
-            .getRequestHeader("X-Forwarded-For")
-            .orElseThrow(
-                () ->
-                    new RuntimeException(
-                        "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For"
-                            + " header!"));
+        String forwardedFor =
+            context
+                .getRequestHeader("X-Forwarded-For")
+                .orElseThrow(
+                    () ->
+                        new RuntimeException(
+                            "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For"
+                                + " header!"));
+        // AWS appends the original client IP to the end of the X-Forwarded-For
+        // header if it is present in the original request.
+        // See
+        // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/x-forwarded-headers.html
+        return Iterables.getLast(Splitter.on(",").split(forwardedFor)).strip();
       default:
         throw new IllegalStateException(
             String.format("Unrecognized ClientIpType: %s", clientIpType));
