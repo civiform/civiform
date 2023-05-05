@@ -49,7 +49,7 @@ export class ToastController {
     }
 
     if (message.condOnStorageKey) {
-      // If showing this message is conditioned on a localStrorage key, check if the key is stored.
+      // If showing this message is conditioned on a localStorage key, check if the key is stored.
       const keyIsStored =
         localStorage.getItem(message.condOnStorageKey) !== null
       if (keyIsStored) {
