@@ -93,7 +93,6 @@ public abstract class ProgramDefinition {
    * submitted.
    */
   public abstract Boolean eligibilityIsGating();
-  public abstract ProgramAcls programAcls();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is

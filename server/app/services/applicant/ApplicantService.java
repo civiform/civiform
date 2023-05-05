@@ -827,10 +827,6 @@ public final class ApplicantService {
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
 
-    Account applicantAccount =
-      userRepository
-        .lookupApplicant(applicantId).thenApplyAsync(applicant -> applicant.orElseThrow().getAccount())
-        .toCompletableFuture().join();
     CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
       userRepository
         .lookupApplicant(applicantId)
@@ -843,7 +839,7 @@ public final class ApplicantService {
               .filter(
                 pdef ->
                   pdef.displayMode().equals(DisplayMode.PUBLIC)
-                    || (acct.getManagedByGroup().isPresent() && pdef.displayMode().equals(DisplayMode.TI_ONLY) && pdef.programAcls().hasProgramViewPermission(acct)))
+                    || (acct.getManagedByGroup().isPresent() && pdef.displayMode().equals(DisplayMode.TI_ONLY) ))//&& pdef.programAcls().hasProgramViewPermission(acct)))
               .collect(ImmutableList.toImmutableList()))
         .toCompletableFuture();
 
