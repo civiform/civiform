@@ -19,7 +19,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.UsernamePasswordCredentials;
 import org.pac4j.core.exception.BadCredentialsException;
@@ -99,14 +98,14 @@ public class ApiAuthenticatorTest {
 
   @Test
   public void resolveClientIp_forwarded() {
-    var authenticator = new ApiAuthenticator(injector.getProvider(ApiKeyService.class), ConfigFactory.parseMap(ImmutableMap.of(
-      "client_ip_type", "FORWARDED"
-    )));
+    var authenticator =
+        new ApiAuthenticator(
+            injector.getProvider(ApiKeyService.class),
+            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
 
     var request = fakeRequest().header("X-Forwarded-For", "1.1.1.1, 2.2.2.2").build();
 
-    assertThat(authenticator.resolveClientIp(new PlayWebContext(request)))
-      .isEqualTo("1.1.1.1");
+    assertThat(authenticator.resolveClientIp(new PlayWebContext(request))).isEqualTo("1.1.1.1");
   }
 
   @Test
