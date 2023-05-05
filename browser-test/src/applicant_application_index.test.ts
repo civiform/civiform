@@ -75,12 +75,36 @@ describe('applicant program index page', () => {
 
     await validateAccessibility(page)
 
+    // Click Apply on the primary program. This should show the login prompt modal.
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).toContain(
+      'Create an account or sign in',
     )
     await validateScreenshot(page, 'apply-program-login-prompt', {
       fullPage: false,
     })
+
+    // Close the modal and click Apply again. This time, we should not see the login prompt modal.
+    await page.click(`.cf-modal .cf-modal-close`)
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).not.toContain(
+      'Create an account or sign in',
+    )
+
+    // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
+    await logout(page)
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).toContain(
+      'Create an account or sign in',
+    )
   })
 
   it('categorizes programs for draft and applied applications', async () => {

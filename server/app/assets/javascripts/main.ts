@@ -360,4 +360,22 @@ export function init() {
 
   // Advertise (e.g., for browser tests) that main.ts initialization is done
   document.body.dataset.loadMain = 'true'
+
+  // When the user ends their session, clear out local storage, then redirect to the
+  // href of the end session button.
+  const link = document.querySelector('#logout-button') as HTMLAnchorElement
+  if (link) {
+    link.addEventListener('click', (event) => {
+      event.preventDefault()
+      // If we've dismissed the staging warning message, keep it dismissed for the next session
+      // for the convenience of developers and cleanliness of screenshots.
+      const keepWarningMessage =
+        localStorage.getItem('warning-message-dismissed') !== null
+      localStorage.clear()
+      if (keepWarningMessage) {
+        localStorage.setItem('warning-message-dismissed', 'true')
+      }
+      window.location.href = link.href
+    })
+  }
 }

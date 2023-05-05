@@ -17,6 +17,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
+import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -471,7 +472,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .url();
 
     Modal loginPromptModal =
-        createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION);
+        createLoginPromptModal(
+            messages,
+            actionUrl,
+            MessageKey.BUTTON_CONTINUE_TO_APPLICATION,
+            Modal.RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl));
     bundle.addModals(loginPromptModal);
 
     // If the user is a guest, show the login prompt modal, which has a button
