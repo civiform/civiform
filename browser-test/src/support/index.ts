@@ -278,9 +278,9 @@ export const logout = async (page: Page) => {
   // Logout is handled by the play framework so it doesn't land on a
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
-  // for the final destination URL (the language selection page,
-  // /applicants/edit/123), to make tests reliable.
+  // for the final destination URL (the programs index page.), to make tests reliable.
   await page.waitForURL('**/applicants/**')
+  await validateToastMessage(page, 'Your session has ended.')
 }
 
 export const loginAsAdmin = async (page: Page) => {
