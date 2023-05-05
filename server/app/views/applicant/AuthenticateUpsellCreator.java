@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static j2html.TagCreator.div;
-import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
 import controllers.routes;
 import j2html.tags.specialized.ButtonTag;
@@ -20,9 +19,18 @@ import views.style.StyleUtils;
 /** Helper methods for rendering authentication related upsells. */
 final class AuthenticateUpsellCreator extends BaseHtmlView {
 
-  /** Creates a Modal that prompts the guest user to log in or create an account. */
   static Modal createLoginPromptModal(
       Messages messages, String postLoginRedirectTo, MessageKey bypassMessage) {
+    return createLoginPromptModal(
+        messages, postLoginRedirectTo, bypassMessage, RepeatOpenBehavior.alwaysShow());
+  }
+
+  /** Creates a Modal that prompts the guest user to log in or create an account. */
+  static Modal createLoginPromptModal(
+      Messages messages,
+      String postLoginRedirectTo,
+      MessageKey bypassMessage,
+      RepeatOpenBehavior repeatOpenBehavior) {
     String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
     String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
 
@@ -53,8 +61,7 @@ final class AuthenticateUpsellCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setModalTitle(modalTitle)
-        .setRepeatOpenBehavior(
-            RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, postLoginRedirectTo))
+        .setRepeatOpenBehavior(repeatOpenBehavior)
         .setWidth(Width.HALF)
         .build();
   }
