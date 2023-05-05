@@ -1,4 +1,4 @@
-name: pr_server
+name: Server - On PR to Main
 
 # cancels in-progress jobs on this pull request
 # avoids wasted work when a new commit is pushed

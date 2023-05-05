@@ -1,4 +1,4 @@
-name: push_tests
+name: On Push to Main
 
 on:
   push:
