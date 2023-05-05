@@ -50,10 +50,11 @@ export class ToastController {
 
     if (message.condOnStorageKey) {
       // If showing this message is conditioned on a localStrorage key, check if the key is stored.
-      const keyIsStored = localStorage.getItem(message.condOnStorageKey!) !== null
+      const keyIsStored =
+        localStorage.getItem(message.condOnStorageKey) !== null
       if (keyIsStored) {
         // If the key is stored, remove it now and show the message.
-        localStorage.removeItem(message.condOnStorageKey!)
+        localStorage.removeItem(message.condOnStorageKey)
       } else {
         // If the key is not stored, don't show the message.
         return
