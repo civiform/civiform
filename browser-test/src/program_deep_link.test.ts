@@ -47,7 +47,9 @@ describe('navigating to a deep link', () => {
 
     await gotoEndpoint(page, '/programs/test-deep-link')
     await loginAsGuest(page)
-    expect(await page.innerText('html')).toContain('Continue to application')
+    expect(await page.innerText('html')).toContain(
+      'Create an account or sign in',
+    )
     await validateScreenshot(
       page,
       'login-prompt-for-guest-users-using-program-slug',
@@ -60,7 +62,7 @@ describe('navigating to a deep link', () => {
     await gotoEndpoint(page, '/programs/test-deep-link')
     await loginAsTestUser(page, 'button:has-text("Log in")')
     expect(await page.innerText('html')).not.toContain(
-      'Continue to application',
+      'Create an account or sign in',
     )
   })
 

@@ -39,7 +39,6 @@ import views.ApplicantUtils;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.Modal;
-import views.components.Modal.RepeatOpenBehavior;
 import views.components.ToastMessage;
 
 /**
@@ -122,15 +121,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       .setProgramId(programId)
                       .setRequest(request);
 
-              // Show a login prompt on the reviews page if we were redirected from a program slug
+              // Show a login prompt on the review page if we were redirected from a program slug
               // and user is a guest.
-              if (request.flash().get("redirect-from-program-slug").isPresent()
+              if (request.flash().get("redirected-from-program-slug").isPresent()
                   && ApplicantUtils.isGuest(
                       applicantStage.toCompletableFuture().join(), messages)) {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages, request.uri(), MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
-                        .setRepeatOpenBehavior(RepeatOpenBehavior.alwaysShow())
                         .setDisplayOnLoad(true)
                         .build();
                 params.setLoginPromptModal(loginPromptModal);

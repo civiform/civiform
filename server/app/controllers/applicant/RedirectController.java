@@ -118,7 +118,7 @@ public final class RedirectController extends CiviFormController {
                                           .review(
                                               applicantId,
                                               programForExistingApplication.get().id()))
-                                  .flashing("redirect-from-program-slug", "true"));
+                                  .flashing("redirected-from-program-slug", "true"));
                         }
 
                         return redirectToActiveProgram(applicantId, programSlug);
@@ -136,7 +136,7 @@ public final class RedirectController extends CiviFormController {
                 redirect(
                         controllers.applicant.routes.ApplicantProgramReviewController.review(
                             applicantId, activeProgramDefinition.id()))
-                    .flashing("redirect-from-program-slug", "true"),
+                    .flashing("redirected-from-program-slug", "true"),
             httpContext.current());
   }
 
