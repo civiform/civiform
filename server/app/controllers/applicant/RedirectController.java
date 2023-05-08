@@ -114,9 +114,11 @@ public final class RedirectController extends CiviFormController {
                         if (programForExistingApplication.isPresent()) {
                           return CompletableFuture.completedFuture(
                               redirect(
-                                  controllers.applicant.routes.ApplicantProgramReviewController
-                                      .review(
-                                          applicantId, programForExistingApplication.get().id())));
+                                      controllers.applicant.routes.ApplicantProgramReviewController
+                                          .review(
+                                              applicantId,
+                                              programForExistingApplication.get().id()))
+                                  .flashing("redirect-from-program-slug", "true"));
                         }
 
                         return redirectToActiveProgram(applicantId, programSlug);
@@ -132,8 +134,9 @@ public final class RedirectController extends CiviFormController {
         .thenApplyAsync(
             (activeProgramDefinition) ->
                 redirect(
-                    controllers.applicant.routes.ApplicantProgramReviewController.review(
-                        applicantId, activeProgramDefinition.id())),
+                        controllers.applicant.routes.ApplicantProgramReviewController.review(
+                            applicantId, activeProgramDefinition.id()))
+                    .flashing("redirect-from-program-slug", "true"),
             httpContext.current());
   }
 
