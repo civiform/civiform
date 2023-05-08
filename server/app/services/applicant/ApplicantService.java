@@ -473,7 +473,10 @@ public final class ApplicantService {
                       .map(
                           status -> setApplicationStatus(application, status).toCompletableFuture())
                       .orElse(CompletableFuture.completedFuture(null));
-              notifyProgramAdmins(applicantId, programId, application.id, programName);
+              CompletableFuture<Void> notifyProgramAdminsFuture =
+                  CompletableFuture.runAsync(
+                      () ->
+                          notifyProgramAdmins(applicantId, programId, application.id, programName));
               CompletableFuture<Void> maybeNotifyTiSubmitterFuture =
                   maybeNotifyTiSubmitter(
                           tiSubmitterEmail,
@@ -488,6 +491,7 @@ public final class ApplicantService {
                       .toCompletableFuture();
               return CompletableFuture.allOf(
                       maybeUpdateStatusFuture,
+                      notifyProgramAdminsFuture,
                       maybeNotifyApplicantFuture,
                       maybeNotifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
