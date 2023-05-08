@@ -20,9 +20,12 @@ public final class AuthenticateUpsellCreator extends BaseHtmlView {
 
   /** Creates a Modal that prompts the guest user to log in or create an account. */
   public static Modal.Builder createLoginPromptModal(
-      Messages messages, String postLoginRedirectTo, MessageKey bypassMessage) {
+      Messages messages,
+      String postLoginRedirectTo,
+      MessageKey description,
+      MessageKey bypassMessage) {
     String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
-    String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
+    String modalDescription = messages.at(description.getKeyName());
 
     // Include randomization in the IDs for this modal since some pages may have
     // multiple modals.

@@ -55,6 +55,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
         createLoginPromptModal(
                 messages,
                 redirectTo,
+                /*description=*/ MessageKey.GENERAL_LOGIN_MODAL_PROMPT,
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
 

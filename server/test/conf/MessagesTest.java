@@ -39,7 +39,7 @@ public class MessagesTest {
   private static final ImmutableSet<String> IGNORE_LIST =
       ImmutableSet.of(
           // TODO(#4640): Translations Batch 6 - Insert items awaiting translations here
-          "button.continueToApplication", "toast.sessionEnded");
+          "button.continueToApplication", "toast.sessionEnded", "content.initialLoginModalPrompt");
 
   // Slanted quotes like “ and ’ show up as â in tests; this is a common error when
   // copy-pasting text. Check for this error in all messages files.
