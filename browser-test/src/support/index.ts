@@ -321,8 +321,10 @@ export const loginAsGuest = async (page: Page) => {
  *     login can be initiated from different pages, for example after program
  *     submission.
  */
-export const loginAsTestUser = async (page: Page) => {
-  const loginButton = 'a:has-text("Log in")'
+export const loginAsTestUser = async (
+  page: Page,
+  loginButton = 'a:has-text("Log in")',
+) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
       await loginAsTestUserFakeOidc(page, loginButton)
