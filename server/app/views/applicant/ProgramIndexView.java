@@ -60,6 +60,7 @@ import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.Modal.RepeatOpenBehavior;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -479,11 +480,10 @@ public final class ProgramIndexView extends BaseHtmlView {
             .url();
 
     Modal loginPromptModal =
-        createLoginPromptModal(
-            messages,
-            actionUrl,
-            MessageKey.BUTTON_CONTINUE_TO_APPLICATION,
-            Modal.RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl));
+        createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
+            .setRepeatOpenBehavior(
+                RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))
+            .build();
     bundle.addModals(loginPromptModal);
 
     // If the user is a guest, show the login prompt modal, which has a button

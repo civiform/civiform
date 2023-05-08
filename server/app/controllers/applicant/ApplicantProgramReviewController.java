@@ -125,11 +125,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (request.flash().get("redirect-from-program-slug").isPresent()) {
                 Modal loginPromptModal =
                     createLoginPromptModal(
-                        messages,
-                        request.uri(),
-                        MessageKey.BUTTON_CONTINUE_TO_APPLICATION,
-                        RepeatOpenBehavior.alwaysShow(),
-                        /*displayOnLoad=*/ true);
+                            messages, request.uri(), MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
+                        .setRepeatOpenBehavior(RepeatOpenBehavior.alwaysShow())
+                        .setDisplayOnLoad(true).build();
                 params.setLoginPromptModal(loginPromptModal);
               }
 
