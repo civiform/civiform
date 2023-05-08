@@ -35,6 +35,7 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.ApplicantUtils;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.Modal;
@@ -122,12 +123,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       .setRequest(request);
 
               // Show a login prompt on the reviews page if we were redirected from a program slug
-              if (request.flash().get("redirect-from-program-slug").isPresent()) {
+              // and user is a guest.
+              if (request.flash().get("redirect-from-program-slug").isPresent()
+                  && ApplicantUtils.isGuest(
+                      applicantStage.toCompletableFuture().join(), messages)) {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages, request.uri(), MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
                         .setRepeatOpenBehavior(RepeatOpenBehavior.alwaysShow())
-                        .setDisplayOnLoad(true).build();
+                        .setDisplayOnLoad(true)
+                        .build();
                 params.setLoginPromptModal(loginPromptModal);
               }
 
