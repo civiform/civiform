@@ -66,7 +66,7 @@ describe('navigating to a deep link', () => {
     )
   })
 
-  it('as a guest user or registered user', async () => {
+  it('takes guests and logged in users through the flow correctly', async () => {
     const {page} = ctx
 
     // Exercise guest path
