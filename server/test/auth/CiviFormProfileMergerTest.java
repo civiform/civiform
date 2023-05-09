@@ -7,10 +7,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.Optional;
 import models.Account;
 import models.Applicant;
+import models.Application;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,12 +34,13 @@ public class CiviFormProfileMergerTest {
   @Mock private UserRepository repository;
   @Mock private ProfileFactory profileFactory;
   @Mock private CiviFormProfile civiFormProfile;
+  @Mock private Applicant applicant;
 
   private UserProfile userProfile;
   private OidcProfile oidcProfile;
   private CiviFormProfileData civiFormProfileData;
-  private Applicant applicant;
   private Account account;
+  private Application dummyApplication;
 
   private CiviFormProfileMerger civiFormProfileMerger;
 
@@ -57,10 +60,12 @@ public class CiviFormProfileMergerTest {
     account = new Account();
     account.id = ACCOUNT_ID;
 
-    applicant = new Applicant();
-    applicant.setAccount(account);
     account.setApplicants(Collections.singletonList(applicant));
 
+    dummyApplication = new Application(applicant, null, null);
+
+    when(applicant.getAccount()).thenReturn(account);
+    when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
     when(profileFactory.wrap(any(Applicant.class))).thenReturn(civiFormProfile);
     when(civiFormProfile.getApplicant()).thenReturn(completedFuture(applicant));
@@ -89,6 +94,25 @@ public class CiviFormProfileMergerTest {
         civiFormProfileMerger.mergeProfiles(
             Optional.of(applicant),
             /* guestProfile = */ Optional.empty(),
+            oidcProfile,
+            (civiFormProfile, profile) -> {
+              var profileData = civiFormProfile.orElseThrow().getProfileData();
+              assertThat(profileData.getId()).isEqualTo(ACCOUNT_ID.toString());
+              assertThat(profile).isEqualTo(oidcProfile);
+              return userProfile;
+            });
+    assertThat(merged).hasValue(userProfile);
+  }
+
+  @Test
+  public void mergeProfiles_succeeds_guestProfileWithNoApplications() {
+    // Simulate there being no applications for this guest applicant.
+    when(applicant.getApplications()).thenReturn(ImmutableList.of());
+
+    var merged =
+        civiFormProfileMerger.mergeProfiles(
+            Optional.of(applicant),
+            Optional.of(civiFormProfile),
             oidcProfile,
             (civiFormProfile, profile) -> {
               var profileData = civiFormProfile.orElseThrow().getProfileData();
