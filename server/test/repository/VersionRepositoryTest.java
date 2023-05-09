@@ -170,6 +170,72 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
   }
 
+  @Test
+  public void testPublishProgram() {
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+    Program secondProgramActive =
+        ProgramBuilder.newActiveProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestion)
+            .build();
+    Program thirdProgramActive =
+        ProgramBuilder.newActiveProgram("baz")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+    Program secondProgramDraft =
+        ProgramBuilder.newDraftProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestionUpdated)
+            .build();
+    Program thirdProgramDraft =
+        ProgramBuilder.newDraftProgram("baz")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id, thirdProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+
+    Version oldDraft = versionRepository.getDraftVersion();
+    Version oldActive = versionRepository.getActiveVersion();
+
+    versionRepository.publishNewSynchronizedVersion("bar");
+
+    oldDraft.refresh();
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    // The newly created draft should not contain any questions or programs.
+    assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+  }
+
   private Question insertActiveQuestion(String name) {
     Question q = resourceCreator.insertQuestion(name);
     q.addVersion(versionRepository.getActiveVersion()).save();
