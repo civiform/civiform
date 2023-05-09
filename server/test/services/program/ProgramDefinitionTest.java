@@ -449,7 +449,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
     QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
 
     long programDefinitionId = 123L;
-    // The blocks have their IDs set to non-consecutive numbers. This mimics blocks being re-ordered and deleted.
+    // The blocks have their IDs set to non-consecutive numbers. This mimics blocks being re-ordered
+    // and deleted.
     BlockDefinition block1QAQB =
         BlockDefinition.builder()
             .setId(2L)
