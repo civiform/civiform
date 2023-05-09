@@ -654,7 +654,6 @@ public abstract class ProgramDefinition {
 
     // Only include block definitions up through the specified block.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
-      System.out.println("in getavail " + siblingBlockDefinition.name());
       builder.add(siblingBlockDefinition);
       // Stop adding block definitions once we reach this block.
       if (siblingBlockDefinition.id() == blockDefinition.id()) break;
