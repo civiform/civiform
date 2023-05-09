@@ -89,7 +89,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // Revisit if we introduce internationalization because the word order could change in other
     // languages.
     String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
-    Optional<Modal> maybePublishModal = maybeRenderPublishModal(programs, questions, request);
+    Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
     DivTag contentDiv =
@@ -197,7 +197,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         .build();
   }
 
-  private Optional<Modal> maybeRenderPublishModal(
+  private Optional<Modal> maybeRenderPublishAllModal(
       ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
     // We should only render the publish modal / button if there is at least one draft program.
     if (!programs.anyDraft()) {
@@ -314,7 +314,6 @@ public final class ProgramIndexView extends BaseHtmlView {
       Optional<ProgramDefinition> draftProgram,
       Http.Request request,
       Optional<CiviFormProfile> profile) {
-
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
     if (draftProgram.isPresent()) {
@@ -328,6 +327,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
+      draftRowExtraActions.add(renderPublishProgramLink(draftProgram.get(), request));
       Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
@@ -426,6 +426,15 @@ public final class ProgramIndexView extends BaseHtmlView {
         makeSvgTextButton("Manage application statuses", Icons.FLAKY)
             .withClass(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
     return asRedirectElement(button, linkDestination);
+  }
+
+  private ButtonTag renderPublishProgramLink(ProgramDefinition program, Http.Request request) {
+    String linkDestination = routes.AdminProgramController.publishProgram(program.id()).url();
+    return toLinkButtonForPost(
+        makeSvgTextButton("Publish program", Icons.PUBLISH)
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
+        linkDestination,
+        request);
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(

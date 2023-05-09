@@ -25,6 +25,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -167,6 +168,21 @@ public final class AdminProgramController extends CiviFormController {
     try {
       versionRepository.publishNewSynchronizedVersion();
       return redirect(routes.AdminProgramController.index());
+    } catch (Exception e) {
+      return badRequest(e.toString());
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result publishProgram(Long id) {
+    try {
+      ProgramDefinition program = programService.getProgramDefinition(id);
+      requestChecker.throwIfProgramNotDraft(id);
+      versionRepository.publishNewSynchronizedVersion(program.adminName());
+      return redirect(routes.AdminProgramController.index());
+    } catch (CantPublishProgramWithSharedQuestionsException e) {
+      return redirect(routes.AdminProgramController.index())
+          .flashing("error", e.userFacingMessage());
     } catch (Exception e) {
       return badRequest(e.toString());
     }

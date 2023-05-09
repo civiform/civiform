@@ -7,14 +7,20 @@ import static java.util.function.Predicate.not;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
@@ -26,6 +32,7 @@ import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.program.BlockDefinition;
+import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -35,6 +42,7 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.types.QuestionDefinition;
 
 /** A repository object for dealing with versioning of questions and programs. */
 public final class VersionRepository {
@@ -160,6 +168,114 @@ public final class VersionRepository {
       database.commitTransaction();
 
       return draft;
+    } finally {
+      database.endTransaction();
+    }
+  }
+
+  /**
+   * Publish the specified DRAFT program and its modified questions. No other programs/questions
+   * will be published. The DRAFT program and its DRAFT questions will become ACTIVE. The ACTIVE
+   * version of all other programs and questions will be copied to the new ACTIVE version. The DRAFT
+   * version of all other programs and questions will be copied to a new DRAFT version.
+   *
+   * @throws CantPublishProgramWithSharedQuestionsException if any of the program's modified
+   *     questions are referenced by other programs. In that case, this program can't be published
+   *     individually because publishing its questions would affect other programs.
+   */
+  public void publishNewSynchronizedVersion(String programToPublishAdminName)
+      throws CantPublishProgramWithSharedQuestionsException {
+    try {
+      database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
+      Version existingDraft = getDraftVersion();
+      Version active = getActiveVersion();
+      // Any drafts not being published right now will be moved to newDraft.
+      Version newDraft = new Version(LifecycleStage.DRAFT);
+      database.insert(newDraft);
+
+      Optional<Program> programToPublish =
+          existingDraft.getProgramByName(programToPublishAdminName);
+      Preconditions.checkState(
+          programToPublish.isPresent(), "Program being published must be a draft.");
+
+      // Get the names of any questions in programToPublish that have been modified.
+      ImmutableMap<Long, String> questionIdToNameLookup =
+          existingDraft.getQuestions().stream()
+              .map(Question::getQuestionDefinition)
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      QuestionDefinition::getId, QuestionDefinition::getName));
+      ImmutableSet<String> questionsToPublishNames =
+          programToPublish.get().getProgramDefinition().blockDefinitions().stream()
+              .map(BlockDefinition::programQuestionDefinitions)
+              .flatMap(ImmutableList::stream)
+              .map(ProgramQuestionDefinition::id)
+              .filter(questionIdToNameLookup::containsKey)
+              .map(questionIdToNameLookup::get)
+              .collect(ImmutableSet.toImmutableSet());
+
+      // Check if any draft questions referenced by programToPublish are also referenced by other
+      // programs. If so, publishing the program is disallowed.
+      // We only need to look at draft programs because if a question has been modified, any
+      // programs that reference it will have been added to the draft.
+      ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencingDraftProgramsByQuestionName =
+          buildReferencingProgramsMap(existingDraft);
+      boolean anyDraftQuestionIsShared =
+          questionsToPublishNames.stream()
+              .anyMatch(
+                  questionName ->
+                      referencingDraftProgramsByQuestionName.containsKey(questionName)
+                          && referencingDraftProgramsByQuestionName.get(questionName).size() > 1);
+      if (anyDraftQuestionIsShared) {
+        throw new CantPublishProgramWithSharedQuestionsException();
+      }
+
+      // Move everything we're not publishing right now to the new draft.
+      existingDraft.getPrograms().stream()
+          .filter(
+              program ->
+                  !program.getProgramDefinition().adminName().equals(programToPublishAdminName))
+          .forEach(
+              program -> {
+                newDraft.addProgram(program);
+                existingDraft.removeProgram(program);
+              });
+      existingDraft.getQuestions().stream()
+          .filter(
+              question ->
+                  !questionsToPublishNames.contains(question.getQuestionDefinition().getName()))
+          .forEach(
+              question -> {
+                newDraft.addQuestion(question);
+                existingDraft.removeQuestion(question);
+              });
+
+      // Associate any active programs and questions that aren't present in the draft with the
+      // draft.
+      active.getPrograms().stream()
+          .filter(
+              activeProgram ->
+                  !programToPublishAdminName.equals(
+                      activeProgram.getProgramDefinition().adminName()))
+          .forEach(existingDraft::addProgram);
+      active.getQuestions().stream()
+          .filter(
+              activeQuestion ->
+                  !questionsToPublishNames.contains(
+                      activeQuestion.getQuestionDefinition().getName()))
+          .forEach(existingDraft::addQuestion);
+
+      // Move forward the ACTIVE version.
+      active.setLifecycleStage(LifecycleStage.OBSOLETE);
+      existingDraft.setLifecycleStage(LifecycleStage.ACTIVE);
+
+      existingDraft.save();
+      active.save();
+      newDraft.save();
+      existingDraft.refresh();
+      active.refresh();
+      newDraft.refresh();
+      database.commitTransaction();
     } finally {
       database.endTransaction();
     }
@@ -394,5 +510,43 @@ public final class VersionRepository {
                     .getProgramByName(program.getProgramDefinition().adminName())
                     .isEmpty())
         .forEach(programRepository::createOrUpdateDraft);
+  }
+
+  /**
+   * Inspects the provided version and returns a map where the key is the question name and the
+   * value is a set of programs that reference the given question in this version.
+   */
+  public static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+      Version version) {
+    // Different versions of a question can have distinct IDs while still
+    // retaining the same "name". A given program has a reference only to a specific
+    // question ID. This map allows us to easily cache the mapping from a question ID
+    // to a logical question "name".
+    ImmutableMap<Long, String> questionIdToNameLookup =
+        version.getQuestions().stream()
+            .map(Question::getQuestionDefinition)
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    QuestionDefinition::getId, QuestionDefinition::getName));
+    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
+    for (Program program : version.getPrograms()) {
+      ImmutableList<String> programQuestionNames =
+          program.getProgramDefinition().blockDefinitions().stream()
+              .map(BlockDefinition::programQuestionDefinitions)
+              .flatMap(ImmutableList::stream)
+              .map(ProgramQuestionDefinition::id)
+              .filter(questionIdToNameLookup::containsKey)
+              .map(questionIdToNameLookup::get)
+              .collect(ImmutableList.toImmutableList());
+      for (String questionName : programQuestionNames) {
+        if (!result.containsKey(questionName)) {
+          result.put(questionName, Sets.newHashSet());
+        }
+        result.get(questionName).add(program.getProgramDefinition());
+      }
+    }
+    return result.entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
   }
 }
