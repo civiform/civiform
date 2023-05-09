@@ -8,6 +8,7 @@ import {
   PageScreenshotOptions,
   LocatorScreenshotOptions,
   Locator,
+  devices,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
@@ -66,7 +67,10 @@ export enum AuthStrategy {
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
 
-function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
+function makeBrowserContext(
+  browser: Browser,
+  useMobile = false,
+): Promise<BrowserContext> {
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
     // Docs state that videos are only saved upon
@@ -100,6 +104,7 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
     })
   } else {
     return browser.newContext({
+      ...(useMobile ? devices['Pixel 5'] : {}),
       acceptDownloads: true,
     })
   }
@@ -136,6 +141,7 @@ export interface TestContext {
    */
   page: Page
   browserErrorWatcher: BrowserErrorWatcher
+  useMobile: boolean
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
@@ -173,6 +179,7 @@ export interface TestContext {
  * @param clearDb Whether database is cleared between tests. True by default.
  *     It's recommended that database is cleared between tests to keep tests
  *     hermetic.
+ * @param useMobile Whether to use a mobile device. False by default.
  * @return object containing browser page. Context object is reset between tests
  *     so none of its properties should be cached and reused between tests.
  */
@@ -203,7 +210,7 @@ export const createTestContext = (clearDb = true): TestContext => {
         await browserContext.close()
       }
     }
-    browserContext = await makeBrowserContext(browser)
+    browserContext = await makeBrowserContext(browser, ctx.useMobile)
     ctx.page = await browserContext.newPage()
     ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
     // Default timeout is 30s. It's too long given that civiform is not JS
