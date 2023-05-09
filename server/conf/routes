@@ -22,7 +22,7 @@ GET     /admin/programs/:programId/settings/edit                controllers.admi
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
 POST    /admin/programs/publish                                 controllers.admin.AdminProgramController.publish()
-POST    /admin/programs/:programId/publish                      controllers.admin.AdminProgramController.publishProgram(programId: Long)
+POST    /admin/programs/:programId/publish                      controllers.admin.AdminProgramController.publishProgram(request: Request, programId: Long)
 POST    /admin/programs/:programId                              controllers.admin.AdminProgramController.update(request: Request, programId: Long)
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 

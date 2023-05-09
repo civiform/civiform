@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -174,7 +175,11 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result publishProgram(Long id) {
+  public Result publishProgram(Request request, Long id) {
+    if (!featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
+      return redirect(routes.AdminProgramController.index());
+    }
+
     try {
       ProgramDefinition program = programService.getProgramDefinition(id);
       requestChecker.throwIfProgramNotDraft(id);

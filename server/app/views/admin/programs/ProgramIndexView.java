@@ -3,6 +3,7 @@ package views.admin.programs;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
+import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -327,7 +328,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      draftRowExtraActions.add(renderPublishProgramLink(draftProgram.get(), request));
+      if (featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
+        draftRowExtraActions.add(renderPublishProgramLink(draftProgram.get(), request));
+      }
       Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
