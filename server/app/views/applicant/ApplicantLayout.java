@@ -197,12 +197,26 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
-        .withClasses("bg-white", "border-b", "align-middle", "p-1", "grid", "grid-cols-3")
-        .with(branding())
-        .with(maybeRenderTiButton(profile, displayUserName))
+        .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
         .with(
-            div(getLanguageForm(request, profile, messages), authDisplaySection(userName, messages))
-                .withClasses("justify-self-end", "flex", "flex-row"));
+            div()
+                .with(branding())
+                .withClasses(
+                    "items-center", "place-items-center", "flex-shrink-0", "grow", "md:grow-0"))
+        .with(maybeRenderTiButton(profile, displayUserName).withClasses("grow-0", "md:grow"))
+        .with(
+            div()
+                .with(
+                    getLanguageForm(request, profile, messages),
+                    authDisplaySection(userName, messages))
+                .withClasses(
+                    "flex",
+                    "flex-row",
+                    "grow",
+                    "md:grow-0",
+                    "shrink-0",
+                    "md:shrink",
+                    "place-content-center"));
   }
 
   private ContainerTag<?> getLanguageForm(
@@ -274,7 +288,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
-        .withClasses("flex", "flex-row", "items-center")
+        .withClasses("flex", "flex-row", "justify-center", "md:justify-left")
         .with(
             cityImage,
             div()
