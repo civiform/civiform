@@ -480,7 +480,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .url();
 
     Modal loginPromptModal =
-        createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
+        createLoginPromptModal(
+                messages,
+                actionUrl,
+                MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
             .setRepeatOpenBehavior(
                 RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))
             .build();

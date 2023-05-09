@@ -128,7 +128,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantStage.toCompletableFuture().join(), messages)) {
                 Modal loginPromptModal =
                     createLoginPromptModal(
-                            messages, request.uri(), MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
+                            messages,
+                            request.uri(),
+                            MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                            MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
                         .setDisplayOnLoad(true)
                         .build();
                 params.setLoginPromptModal(loginPromptModal);
