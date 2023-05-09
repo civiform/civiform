@@ -42,6 +42,24 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void edit_updatesLanguageCode_usingRequestHeaders() {
+    Http.Request request =
+        addCSRFToken(
+                fakeRequest(routes.ApplicantInformationController.edit(currentApplicant.id))
+                    .header("Accept-Language", "es-US"))
+            .build();
+
+    Result result = controller.edit(request, currentApplicant.id).toCompletableFuture().join();
+
+    currentApplicant =
+        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+    assertThat(currentApplicant.getApplicantData().preferredLocale())
+        .isEqualTo(Locale.forLanguageTag("es-US"));
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.cookie("PLAY_LANG").get().value()).isEqualTo("es-US");
+  }
+
+  @Test
   public void update_differentApplicant_returnsUnauthorizedResult() {
     Result result =
         controller
