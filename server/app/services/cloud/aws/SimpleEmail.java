@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
+import software.amazon.awssdk.http.HttpStatusCode;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.Body;
 import software.amazon.awssdk.services.ses.model.Content;
@@ -103,12 +104,12 @@ public final class SimpleEmail {
       e.printStackTrace();
       if (metricsEnabled) {
         EMAIL_FAIL_COUNT.inc();
-        EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode()));
+        EMAIL_SEND_COUNT.labels(String.valueOf(e.statusCode())).inc();
       }
     } finally {
       if (metricsEnabled) {
         // Increase the count of emails sent.
-        EMAIL_SEND_COUNT.inc();
+        EMAIL_SEND_COUNT.labels(String.valueOf(HttpStatusCode.OK)).inc();
         // Record the execution time of the email sending process.
         timer.observeDuration();
       }
