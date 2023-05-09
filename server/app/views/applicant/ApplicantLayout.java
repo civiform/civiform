@@ -274,7 +274,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
-        .withClasses("flex", "flex-row")
+        .withClasses("flex", "flex-row", "items-center")
         .with(
             cityImage,
             div()
