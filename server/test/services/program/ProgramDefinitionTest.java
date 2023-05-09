@@ -441,6 +441,87 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
+  public void getAvailablePredicateQuestionDefinitions_doesNotDependOnBlockIdOrder()
+      throws ProgramBlockDefinitionNotFoundException {
+    QuestionDefinition questionA = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition questionB = testQuestionBank.applicantAddress().getQuestionDefinition();
+    QuestionDefinition questionC = testQuestionBank.applicantFile().getQuestionDefinition();
+    QuestionDefinition questionD = testQuestionBank.applicantSeason().getQuestionDefinition();
+
+    long programDefinitionId = 123L;
+    // The blocks have their IDs set to non-consecutive numbers. This mimics blocks being re-ordered and deleted.
+    BlockDefinition block1QAQB =
+        BlockDefinition.builder()
+            .setId(2L)
+            .setName("Screen Name")
+            .setDescription("Screen Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    questionB,
+                    Optional.of(programDefinitionId),
+                    /* optional= */ false,
+                    /* addressCorrectionEnabled= */ true))
+            .build();
+    BlockDefinition block2QC =
+        BlockDefinition.builder()
+            .setId(5L)
+            .setName("Screen Name")
+            .setDescription("Screen Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionC, Optional.of(programDefinitionId)))
+            .build();
+    BlockDefinition block3QD =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Screen Name")
+            .setDescription("Screen Description")
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionD, Optional.of(programDefinitionId)))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramDefinition.builder()
+            .setId(programDefinitionId)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(
+                LocalizedStrings.of(Locale.US, "Applicant friendly name", Locale.FRANCE, "test"))
+            .setLocalizedDescription(
+                LocalizedStrings.of(
+                    Locale.US, "English description", Locale.GERMAN, "test", Locale.FRANCE, "test"))
+            .addBlockDefinition(block1QAQB)
+            .addBlockDefinition(block2QC)
+            .addBlockDefinition(block3QD)
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .build();
+
+    // block1
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block1QAQB.id()))
+        .isEmpty();
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block1QAQB.id()))
+        .containsExactly(questionA, questionB);
+    // block2
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block2QC.id()))
+        .containsExactly(questionA, questionB);
+    // Doesn't include the file upload question, which don't support predicates.
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block2QC.id()))
+        .isEmpty();
+    // block3
+    // Doesn't include the file upload question, which don't support predicates.
+    assertThat(programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(block3QD.id()))
+        .containsExactly(questionA, questionB);
+    assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(block3QD.id()))
+        .containsExactly(questionD);
+  }
+
+  @Test
   public void
       getAvailablePredicateQuestionDefinitions_withRepeatedBlocks_onlyIncludesQuestionsWithSameEnumeratorId()
           throws ProgramBlockDefinitionNotFoundException {

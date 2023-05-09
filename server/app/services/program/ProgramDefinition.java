@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Locale;
@@ -553,7 +554,14 @@ public abstract class ProgramDefinition {
       long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Questions through the block before this one are available for this block's visibility
     // conditions.
-    return getAvailablePredicateQuestionDefinitions(blockId - 1);
+    long previousBlockId = -1;
+    for (int i = 1; i < blockDefinitions().size(); i++) {
+      if (blockDefinitions().get(i).id() == blockId) {
+        previousBlockId = blockDefinitions().get(i - 1).id();
+        break;
+      }
+    }
+    return getAvailablePredicateQuestionDefinitions(previousBlockId);
   }
 
   /**
@@ -646,6 +654,7 @@ public abstract class ProgramDefinition {
 
     // Only include block definitions up through the specified block.
     for (BlockDefinition siblingBlockDefinition : siblingBlockDefinitions) {
+      System.out.println("in getavail " + siblingBlockDefinition.name());
       builder.add(siblingBlockDefinition);
       // Stop adding block definitions once we reach this block.
       if (siblingBlockDefinition.id() == blockDefinition.id()) break;
