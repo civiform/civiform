@@ -1095,11 +1095,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id),
             String.format(
                 "%s\n%s",
-                messages.at(
-                    MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
-                    programName,
-                    applicant.id,
-                    application.id),
+                "I'm a US email!",
                 messages.at(
                     MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(),
                     baseUrl + "/admin/tiDash?page=1")));
@@ -1163,11 +1159,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id),
             String.format(
                 "%s\n%s",
-                koMessages.at(
-                    MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
-                    programName,
-                    applicant.id,
-                    application.id),
+                "I'm a KOREAN email!",
                 koMessages.at(
                     MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(),
                     baseUrl + "/admin/tiDash?page=1")));
