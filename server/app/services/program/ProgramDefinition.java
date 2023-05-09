@@ -553,7 +553,14 @@ public abstract class ProgramDefinition {
       long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Questions through the block before this one are available for this block's visibility
     // conditions.
-    return getAvailablePredicateQuestionDefinitions(blockId - 1);
+    long previousBlockId = -1;
+    for (int i = 1; i < blockDefinitions().size(); i++) {
+      if (blockDefinitions().get(i).id() == blockId) {
+        previousBlockId = blockDefinitions().get(i - 1).id();
+        break;
+      }
+    }
+    return getAvailablePredicateQuestionDefinitions(previousBlockId);
   }
 
   /**
