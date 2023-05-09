@@ -141,7 +141,8 @@ public abstract class Modal {
     DivTag divTag = div().withId(modalId()).with(getModalHeader()).with(getContent());
 
     String modalStyles =
-        StyleUtils.joinStyles(ReferenceClasses.MODAL, BaseStyles.MODAL, width().getStyle());
+        StyleUtils.joinStyles(
+            ReferenceClasses.MODAL, BaseStyles.MODAL, "w-11/12", "lg:" + width().getStyle());
     if (displayOnLoad()) {
       modalStyles = StyleUtils.joinStyles(modalStyles, ReferenceClasses.MODAL_DISPLAY_ON_LOAD);
     }
