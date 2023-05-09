@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -15,6 +16,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import services.applicant.question.Scalar;
+import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.predicate.AndNode;
@@ -171,11 +173,14 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testPublishProgram() {
+  public void testPublishProgram() throws Exception {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
     Question secondQuestion = resourceCreator.insertQuestion("second-question");
     secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    // Third question is only a draft.
+    Question thirdQuestion = resourceCreator.insertQuestion("third-question");
+    thirdQuestion.addVersion(versionRepository.getDraftVersion()).save();
 
     Program firstProgramActive =
         ProgramBuilder.newActiveProgram("foo")
@@ -206,13 +211,14 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
 
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
-        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id, thirdProgramActive.id);
+        .containsExactlyInAnyOrder(
+            firstProgramActive.id, secondProgramActive.id, thirdProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
     assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, thirdProgramDraft.id);
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+        .containsExactlyInAnyOrder(secondQuestionUpdated.id, thirdQuestion.id);
 
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
@@ -224,16 +230,66 @@ public class VersionRepositoryTest extends ResetPostgres {
     oldActive.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    // The newly created draft should not contain any questions or programs.
-    assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
-    assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
+    // The newly created draft should contain the remaining draft programs and questions.
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(thirdProgramDraft.id);
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(thirdQuestion.id);
 
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
+        .containsExactlyInAnyOrder(
+            secondProgramDraft.id, firstProgramActive.id, thirdProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
     oldActive.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+  }
+
+  @Test
+  public void testPublishProgramDowNotAllowPublishingWhenQuestionsAreShared() throws Exception {
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .withRequiredQuestion(secondQuestion)
+            .build();
+    Program secondProgramActive =
+        ProgramBuilder.newActiveProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestion)
+            .build();
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+    Program firstProgramDraft =
+        ProgramBuilder.newDraftProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .withRequiredQuestion(secondQuestionUpdated)
+            .build();
+    Program secondProgramDraft =
+        ProgramBuilder.newDraftProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestionUpdated)
+            .build();
+
+    assertThrows(
+        CantPublishProgramWithSharedQuestionsException.class,
+        () -> versionRepository.publishNewSynchronizedVersion("bar"));
+
+    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(firstProgramDraft.id, secondProgramDraft.id);
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
   }
 
   private Question insertActiveQuestion(String name) {
