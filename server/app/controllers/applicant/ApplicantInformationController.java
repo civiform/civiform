@@ -94,7 +94,7 @@ public final class ApplicantInformationController extends CiviFormController {
                     maybeApplicant,
                     applicantId,
                     Locale.forLanguageTag(
-                        layout.languageSelector.getPreferredLangage(request).language())),
+                        layout.languageSelector.getPreferredLangage(request).code())),
             httpExecutionContext.current())
         .thenApplyAsync(
             applicant -> {
