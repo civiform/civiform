@@ -126,9 +126,16 @@ public abstract class EsriClient {
                 Address candidateAddress =
                     Address.builder()
                         .setStreet(attributes.get("Address").asText())
-                        .setLine2(attributes.get("SubAddr").asText())
+                        .setLine2(
+                            attributes.get("SubAddr") == null || attributes.get("SubAddr").isEmpty()
+                                ? address.getLine2()
+                                : attributes.get("SubAddr").asText())
                         .setCity(attributes.get("City").asText())
-                        .setState(attributes.get("RegionAbbr").asText())
+                        .setState(
+                            attributes.get("RegionAbbr") == null
+                                    || attributes.get("RegionAbbr").isEmpty()
+                                ? address.getState()
+                                : attributes.get("RegionAbbr").asText())
                         .setZip(attributes.get("Postal").asText())
                         .build();
                 // Suggestion must be a fully formed address.
