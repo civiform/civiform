@@ -1100,9 +1100,9 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
           '',
-          'Seattle',
-          'WA',
-          '98109',
+          'Redlands',
+          'CA',
+          '92373',
         )
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(true)
