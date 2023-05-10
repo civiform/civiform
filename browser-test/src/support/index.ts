@@ -9,6 +9,7 @@ import {
   LocatorScreenshotOptions,
   Locator,
   devices,
+  BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
@@ -71,6 +72,11 @@ function makeBrowserContext(
   browser: Browser,
   useMobile = false,
 ): Promise<BrowserContext> {
+  const contextOptions: BrowserContextOptions = {
+    ...(useMobile ? devices['Pixel 5'] : {}),
+    acceptDownloads: true,
+  }
+
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
     // Docs state that videos are only saved upon
@@ -96,18 +102,12 @@ function makeBrowserContext(
         dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
-    return browser.newContext({
-      acceptDownloads: true,
-      recordVideo: {
-        dir: path.join(...dirs),
-      },
-    })
-  } else {
-    return browser.newContext({
-      ...(useMobile ? devices['Pixel 5'] : {}),
-      acceptDownloads: true,
-    })
+    contextOptions.recordVideo = {
+      dir: path.join(...dirs),
+    }
   }
+
+  return browser.newContext(contextOptions)
 }
 
 export const startSession = async (
