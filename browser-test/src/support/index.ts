@@ -179,7 +179,6 @@ export interface TestContext {
  * @param clearDb Whether database is cleared between tests. True by default.
  *     It's recommended that database is cleared between tests to keep tests
  *     hermetic.
- * @param useMobile Whether to use a mobile device. False by default.
  * @return object containing browser page. Context object is reset between tests
  *     so none of its properties should be cached and reused between tests.
  */
