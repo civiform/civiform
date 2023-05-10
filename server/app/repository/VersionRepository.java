@@ -185,8 +185,9 @@ public final class VersionRepository {
    */
   public void publishNewSynchronizedVersion(String programToPublishAdminName)
       throws CantPublishProgramWithSharedQuestionsException {
+    Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       Version existingDraft = getDraftVersion();
       Version active = getActiveVersion();
       // Any drafts not being published right now will be moved to newDraft.
@@ -196,7 +197,7 @@ public final class VersionRepository {
       Optional<Program> programToPublish =
           existingDraft.getProgramByName(programToPublishAdminName);
       Preconditions.checkState(
-          programToPublish.isPresent(), "Program being published must be a draft.");
+          programToPublish.isPresent(), "Program being published not found in Draft.");
 
       // Get the names of any questions in programToPublish that have been modified.
       ImmutableMap<Long, String> questionIdToNameLookup =
@@ -275,9 +276,13 @@ public final class VersionRepository {
       existingDraft.refresh();
       active.refresh();
       newDraft.refresh();
-      database.commitTransaction();
+      transaction.commit();
+    } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
+      transaction.rollback(e);
+      transaction.end();
+      publishNewSynchronizedVersion(programToPublishAdminName);
     } finally {
-      database.endTransaction();
+      transaction.end();
     }
   }
 

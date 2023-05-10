@@ -175,21 +175,20 @@ public final class AdminProgramController extends CiviFormController {
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result publishProgram(Request request, Long id) {
+  public Result publishProgram(Request request, long programId) throws ProgramNotFoundException {
     if (!featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
       return redirect(routes.AdminProgramController.index());
     }
 
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
+
     try {
-      ProgramDefinition program = programService.getProgramDefinition(id);
-      requestChecker.throwIfProgramNotDraft(id);
       versionRepository.publishNewSynchronizedVersion(program.adminName());
       return redirect(routes.AdminProgramController.index());
     } catch (CantPublishProgramWithSharedQuestionsException e) {
       return redirect(routes.AdminProgramController.index())
           .flashing("error", e.userFacingMessage());
-    } catch (Exception e) {
-      return badRequest(e.toString());
     }
   }
 

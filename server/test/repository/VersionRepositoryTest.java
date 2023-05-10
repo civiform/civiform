@@ -197,6 +197,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(firstQuestion)
             .build();
+
+    // secondProgramDraft and its question, secondQuestionUpdated, should be published.
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
     Program secondProgramDraft =
@@ -204,12 +206,15 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestionUpdated)
             .build();
+
+    // thirdProgramDraft should not be published.
     Program thirdProgramDraft =
         ProgramBuilder.newDraftProgram("baz")
             .withBlock("Screen 1")
             .withRequiredQuestion(firstQuestion)
             .build();
 
+    // Validate versions are as expected before publishing.
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(
             firstProgramActive.id, secondProgramActive.id, thirdProgramActive.id);
@@ -223,8 +228,10 @@ public class VersionRepositoryTest extends ResetPostgres {
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
 
+    // Publish the second program.
     versionRepository.publishNewSynchronizedVersion("bar");
 
+    // Verify LifecyleStages are updated.
     oldDraft.refresh();
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
     oldActive.refresh();
@@ -236,17 +243,62 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(thirdQuestion.id);
 
+    // The active version should contain the newly published program and question and the existing
+    // active programs and questions.
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(
             secondProgramDraft.id, firstProgramActive.id, thirdProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
-    oldActive.refresh();
-    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
   }
 
   @Test
-  public void testPublishProgramDowNotAllowPublishingWhenQuestionsAreShared() throws Exception {
+  public void testPublishProgramWithNewProgram() throws Exception {
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+
+    // Program being published has no existing active version.
+    Program secondProgramDraft =
+        ProgramBuilder.newDraftProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+
+    Version oldDraft = versionRepository.getDraftVersion();
+    Version oldActive = versionRepository.getActiveVersion();
+
+    versionRepository.publishNewSynchronizedVersion("bar");
+
+    oldDraft.refresh();
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    // The newly created draft should contain the remaining drafts.
+    assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(0);
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+
+    // The active version should contain the newly published program and the existing active
+    // programs and questions.
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+  }
+
+  @Test
+  public void testPublishProgramDoesNotAllowPublishingWhenQuestionsAreShared() throws Exception {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
     Question secondQuestion = resourceCreator.insertQuestion("second-question");
@@ -263,6 +315,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(secondQuestion)
             .build();
+
+    // firstProgram and secondProgram both reference secondQuestionUpdated.
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
     Program firstProgramDraft =
@@ -277,10 +331,12 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(secondQuestionUpdated)
             .build();
 
+    // Trying to publish secondProgram throws an error.
     assertThrows(
         CantPublishProgramWithSharedQuestionsException.class,
         () -> versionRepository.publishNewSynchronizedVersion("bar"));
 
+    // Verify that the versions have not been modified.
     assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(firstProgramDraft.id, secondProgramDraft.id);
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
@@ -290,6 +346,30 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+  }
+
+  @Test
+  public void testPublishProgramDoesNotAllowPublishingNonDraftProgram() throws Exception {
+    Question question = resourceCreator.insertQuestion("first-question");
+    question.addVersion(versionRepository.getActiveVersion()).save();
+
+    Program activeProgram =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(question)
+            .build();
+
+    assertThrows(
+        IllegalStateException.class, () -> versionRepository.publishNewSynchronizedVersion("foo"));
+
+    // Verify that the versions have not been modified.
+    assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(0);
+    assertThat(versionRepository.getDraftVersion().getQuestions()).hasSize(0);
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(activeProgram.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(question.id);
   }
 
   private Question insertActiveQuestion(String name) {
