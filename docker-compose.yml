@@ -38,6 +38,9 @@ services:
       # Use an explicit port to not conflict with other test instances.
       - OIDC_PORT=3390
 
+  mock-web-services:
+    image: civiform/mock-web-services
+
   db:
     image: postgres:12.14
     restart: always
@@ -53,6 +56,7 @@ services:
     links:
       - 'db:database'
       - 'dev-oidc'
+      - 'mock-web-services'
     expose:
       - '9000'
       - '8457'
@@ -109,4 +113,8 @@ services:
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
+      - ESRI_ADDRESS_CORRECTION_ENABLED=true
+      - ESRI_FIND_ADDRESS_CANDIDATES_URL=http://mock-web-services:8000/esri/findAddressCandidates
+      - ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED=true
+      - ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS.0=http://mock-web-services:8000/esri/serviceAreaFeatures
     entrypoint: /bin/bash
