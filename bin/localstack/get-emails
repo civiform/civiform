@@ -5,9 +5,9 @@ source bin/lib.sh
 
 if hash curl 2>/dev/null; then
   if hash jq 2>/dev/null; then
-    curl http://localhost:4566/_aws/ses | jq
+    curl -s http://localhost:4566/_aws/ses | jq
   else
-    curl http://localhost:4566/_aws/ses
+    curl -s http://localhost:4566/_aws/ses
   fi
 else
   echo "You must have 'curl' installed to use this script."
