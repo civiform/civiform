@@ -113,8 +113,4 @@ services:
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL
-      - ESRI_ADDRESS_CORRECTION_ENABLED=true
-      - ESRI_FIND_ADDRESS_CANDIDATES_URL=http://mock-web-services:8000/esri/findAddressCandidates
-      - ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED=true
-      - ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS.0=http://mock-web-services:8000/esri/serviceAreaFeatures
     entrypoint: /bin/bash
