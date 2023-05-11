@@ -44,6 +44,9 @@ services:
     ports:
       - 10000:10000
 
+  mock-web-services:
+    image: civiform-mock-web-services
+
   db:
     image: postgres:12.14
     stdin_open: true

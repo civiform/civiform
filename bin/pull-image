@@ -33,6 +33,7 @@ function pull_all() {
   docker pull docker.io/civiform/civiform-localstack:latest &
   docker pull docker.io/civiform/formatter:latest &
   docker pull docker.io/civiform/civiform-browser-test:latest &
+  docker pull docker.io/civiform/mock-web-services:latest &
 
   wait
 
@@ -82,6 +83,11 @@ while [ "${1:-}" != "" ]; do
     "--browser-tests")
       echo "Pull browser-tests docker image"
       docker pull docker.io/civiform/civiform-browser-test:latest
+      ;;
+
+    "--mock-web-services")
+      echo "Pull mock-web-services docker image"
+      docker pull docker.io/civiform/mock-web-services:latest
       ;;
 
     *)

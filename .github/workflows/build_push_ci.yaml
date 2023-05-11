@@ -58,7 +58,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ['formatter', 'localstack', 'browser_test', 'oidc']
+        version:
+          [
+            'formatter',
+            'localstack',
+            'browser_test',
+            'oidc',
+            'mock-web-services',
+          ]
         include:
           - version: formatter
             image: 'civiform/formatter:latest'
@@ -79,6 +86,11 @@ jobs:
             image: 'civiform/oidc-provider:latest'
             script: 'bin/build-dev-oidc'
             file_pattern: 'test-support/'
+            platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
+          - version: mock-web-services
+            image: 'civiform/mock-web-services:latest'
+            script: 'bin/build-mock-web-services'
+            file_pattern: 'esri-mock-service/'
             platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}

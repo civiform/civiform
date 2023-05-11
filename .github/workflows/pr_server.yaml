@@ -15,6 +15,7 @@ on:
       - 'bin/**'
       - 'browser-test/**'
       - 'test-support/**'
+      - 'mock-web-services/**'
       - 'Dockerfile'
       - 'prod.Dockerfile'
       - '.github/workflows/**'
