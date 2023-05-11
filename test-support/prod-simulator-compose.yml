@@ -9,12 +9,16 @@ services:
     environment:
       POSTGRES_PASSWORD: example
 
+  mock-web-services:
+    image: civiform/mock-web-services
+
   civiform:
     image: civiform:prod
     restart: always
     container_name: play
     links:
       - 'db:database'
+      - 'mock-web-services'
     ports:
       - 9000:9000
     environment:
