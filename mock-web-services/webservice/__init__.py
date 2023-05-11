@@ -13,7 +13,8 @@ class WebService:
 
     def return_json_response(self, jsonstr):
         """Return a string of json as the response as the correct mimetype."""
-        return self.app.response_class(response=jsonstr, mimetype="application/json")
+        return self.app.response_class(
+            response=jsonstr, mimetype="application/json")
 
     def return_json_response_from_file(self, file_path):
         """Reads a file from path and returns a response formatted as json"""

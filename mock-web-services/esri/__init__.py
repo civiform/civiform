@@ -21,9 +21,11 @@ class EsriMockWebService(WebService):
         based on key in put address value.
         """
         if address == "Address In Area" or address == "Legit Address":
-            return self.return_json_response_from_file(self.file_root + "findAddressCandidates.json")
+            return self.return_json_response_from_file(
+                self.file_root + "findAddressCandidates.json")
         elif address == "Bogus Address":
-            return self.return_json_response_from_file(self.file_root + "findAddressCandidatesNoCandidates.json")
+            return self.return_json_response_from_file(
+                self.file_root + "findAddressCandidatesNoCandidates.json")
         else:
             raise Exception("Invalid mock request")
 
@@ -33,10 +35,13 @@ class EsriMockWebService(WebService):
         input value of the latitude
         """
         if latitude == 100.0:
-            return self.return_json_response_from_file(self.file_root + "serviceAreaFeatures.json")
+            return self.return_json_response_from_file(
+                self.file_root + "serviceAreaFeatures.json")
         elif latitude == 101.0:
-            return self.return_json_response_from_file(self.file_root + "serviceAreaFeaturesNoFeatures.json")
+            return self.return_json_response_from_file(
+                self.file_root + "serviceAreaFeaturesNoFeatures.json")
         elif latitude == 102.0:
-            return self.return_json_response_from_file(self.file_root + "serviceAreaFeaturesNotInArea.json")
+            return self.return_json_response_from_file(
+                self.file_root + "serviceAreaFeaturesNotInArea.json")
         else:
             raise Exception("Invalid mock request")
