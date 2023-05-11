@@ -473,18 +473,19 @@ public final class ApplicantService {
               String programName = programDefinition.adminName();
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
                   applicationProgram.getDefaultStatus();
-              Optional<String> applicantEmail = applicantEmailFuture.join();
 
-              CompletableFuture<ApplicationEvent> maybeUpdateStatusFuture =
+              CompletableFuture<ApplicationEvent> updateStatusFuture =
                   maybeDefaultStatus
                       .map(
                           status -> setApplicationStatus(application, status).toCompletableFuture())
                       .orElse(CompletableFuture.completedFuture(null));
+
               CompletableFuture<Void> notifyProgramAdminsFuture =
                   CompletableFuture.runAsync(
                       () ->
                           notifyProgramAdmins(applicantId, programId, application.id, programName));
-              CompletableFuture<Void> maybeNotifyTiSubmitterFuture =
+
+              CompletableFuture<Void> notifyTiSubmitterFuture =
                   tiSubmitterEmail
                       .map(
                           email ->
@@ -496,7 +497,9 @@ public final class ApplicantService {
                                       maybeDefaultStatus)
                                   .toCompletableFuture())
                       .orElse(CompletableFuture.completedFuture(null));
-              CompletableFuture<Void> maybeNotifyApplicantFuture =
+
+              Optional<String> applicantEmail = applicantEmailFuture.join();
+              CompletableFuture<Void> notifyApplicantFuture =
                   applicantEmail
                       .map(
                           email ->
@@ -508,11 +511,12 @@ public final class ApplicantService {
                                       maybeDefaultStatus)
                                   .toCompletableFuture())
                       .orElse(CompletableFuture.completedFuture(null));
+
               return CompletableFuture.allOf(
-                      maybeUpdateStatusFuture,
+                      updateStatusFuture,
                       notifyProgramAdminsFuture,
-                      maybeNotifyApplicantFuture,
-                      maybeNotifyTiSubmitterFuture,
+                      notifyApplicantFuture,
+                      notifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
@@ -592,6 +596,14 @@ public final class ApplicantService {
             httpExecutionContext.current());
   }
 
+  /**
+   * Email the program admins to inform them an application has been submitted.
+   *
+   * @param applicantId the ID of the applicant
+   * @param programId the ID of the program
+   * @param applicationId the ID of the application
+   * @param programName the name of the program that was applied to
+   */
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
     String viewLink =
@@ -612,6 +624,18 @@ public final class ApplicantService {
     }
   }
 
+  /**
+   * Email the Trusted Intermediary with either the default application email or the status' defined
+   * email. Will send the default application email if the status does not have an email body
+   * defined.
+   *
+   * @param tiEmail the email address of the Trusted Intermediary
+   * @param applicantId the ID of the applicant
+   * @param applicationId the ID of the application
+   * @param programName the name of the program that was applied to
+   * @param status the status from which to get the email body to send. Empty if no default status
+   *     is set for the program.
+   */
   private CompletionStage<Void> notifyTiSubmitter(
       String tiEmail,
       long applicantId,
@@ -668,6 +692,7 @@ public final class ApplicantService {
    *
    * @param applicantId the ID of the applicant
    * @param applicationId the ID of the application
+   * @param applicantEmail the applicant's email address
    * @param programDef the ProgramDefinition that the applicant applied for
    * @param status the status from which to get the email body to send. Empty if no default status
    *     is set for the program.
