@@ -13,6 +13,11 @@ container `docker run --name mockweb -p 8000:8000 civiform/mock-web-services:lat
 ## Esri Endpoints
 
 There are currently two endpoints to handle Esri ArcGIS endpoints we leverage.
+One for finding address candidates and one for determining service area
+features.
+
+These endpoints return JSON from files shared with the FakeEsriClient.java and
+unit tests.
 
 ### Find Address Candidates
 
