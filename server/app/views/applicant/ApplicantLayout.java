@@ -199,24 +199,23 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return nav()
         .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
         .with(
-            div()
-                .with(branding())
+            div(branding())
                 .withClasses(
-                    "items-center", "place-items-center", "flex-shrink-0", "grow", "md:grow-0"))
+                    "items-center",
+                    "place-items-center",
+                    "flex-shrink-0",
+                    "grow",
+                    StyleUtils.responsiveMedium("grow-0")))
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
-            div()
-                .with(
-                    getLanguageForm(request, profile, messages),
-                    authDisplaySection(userName, messages))
+            div(getLanguageForm(request, profile, messages), authDisplaySection(userName, messages))
                 .withClasses(
                     "flex",
                     "flex-row",
                     "grow",
-                    "md:grow-0",
                     "shrink-0",
-                    "md:shrink",
-                    "place-content-center"));
+                    "place-content-center",
+                    StyleUtils.responsiveMedium("grow-0", "shrink")));
   }
 
   private ContainerTag<?> getLanguageForm(
@@ -288,7 +287,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
-        .withClasses("flex", "flex-row", "justify-center", "md:justify-left")
+        .withClasses(
+            "flex", "flex-row", "justify-center", StyleUtils.responsiveMedium("justify-left"))
         .with(
             cityImage,
             div()
