@@ -1,3 +1,4 @@
+import {ToastController} from './toast'
 import {addEventListenerToElements, assertNotNull} from './util'
 
 /** Dynamic behavior for ProgramBlockPredicateConfigureView.
@@ -21,6 +22,10 @@ class AdminPredicateConfiguration {
     if (document.querySelector('.predicate-config-value-row') == null) {
       return
     }
+
+    addEventListenerToElements('button[type=submit]', 'click', (event: Event) =>
+      this.validateSubmit(event),
+    )
 
     addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
       this.configurePredicateFormOnScalarChange(event),
@@ -50,6 +55,57 @@ class AdminPredicateConfiguration {
       'click',
       (event: Event) => this.predicateDeleteValueRow(event),
     )
+  }
+
+  validateSubmit(event: Event) {
+    let hasInputErrors = false
+
+    // Check if any scalars are missing a value.
+    Array.from(
+      document.querySelectorAll<HTMLSelectElement>('.cf-scalar-select select'),
+    ).forEach((el: HTMLSelectElement) => {
+      if (el.options[el.options.selectedIndex].value == '') {
+        hasInputErrors = true
+      }
+    })
+
+    // Check if any operators are missing a value.
+    Array.from(
+      document.querySelectorAll<HTMLSelectElement>(
+        '.cf-operator-select select',
+      ),
+    ).forEach((el: HTMLSelectElement) => {
+      if (el.options[el.options.selectedIndex].value == '') {
+        hasInputErrors = true
+      }
+    })
+
+    // Check if any inputs are missing a value.
+    document
+      ?.querySelector('#predicate-config-value-row-container')
+      ?.querySelectorAll('input')
+      .forEach((input) => {
+        if (input.value == '') {
+          hasInputErrors = true
+        }
+      })
+
+    // If there are issues with any of the fields, we show a toast and prevent submit.
+    if (hasInputErrors) {
+      event.preventDefault()
+      // Scroll to the top of the page to ensure the user sees the error message.
+      window.scrollTo(0, 0)
+      ToastController.showToastMessage({
+        id: `predicate-issue-${Math.random()}`,
+        content:
+          'There was an issue with the selections. Please check that you have completed all fields.',
+        duration: -1,
+        type: 'error',
+        condOnStorageKey: null,
+        canDismiss: true,
+        canIgnore: false,
+      })
+    }
   }
 
   configurePredicateFormOnScalarChange(event: Event) {
