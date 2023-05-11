@@ -78,8 +78,8 @@ public class WithMockedProfiles {
   }
 
   protected Applicant createApplicant() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
+    Account account = resourceCreator.insertGuestAccount();
 
     applicant.setAccount(account);
     applicant.save();
@@ -94,7 +94,7 @@ public class WithMockedProfiles {
   }
 
   protected Account createTIWithMockedProfile(Applicant managedApplicant) {
-    Account ti = resourceCreator.insertAccount();
+    Account ti = resourceCreator.insertGuestAccount();
 
     TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
     Account managedAccount = managedApplicant.getAccount();
@@ -109,7 +109,7 @@ public class WithMockedProfiles {
   }
 
   protected Account createProgramAdminWithMockedProfile(Program program) {
-    Account programAdmin = resourceCreator.insertAccount();
+    Account programAdmin = resourceCreator.insertGuestAccount();
 
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();
@@ -120,7 +120,7 @@ public class WithMockedProfiles {
   }
 
   protected Account createGlobalAdminWithMockedProfile() {
-    Account globalAdmin = resourceCreator.insertAccount();
+    Account globalAdmin = resourceCreator.insertGuestAccount();
 
     globalAdmin.setGlobalAdmin(true);
     globalAdmin.save();

@@ -214,9 +214,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_searchById() {
     Program program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    Applicant bob = resourceCreator.insertLoggedInApplicantWithAccount("bob@example.com");
     Application bobApp = makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
-    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    Applicant jane = resourceCreator.insertLoggedInApplicantWithAccount("jane@example.com");
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
 
     PaginationResult<Application> paginationResult =
@@ -271,16 +271,16 @@ public class ProgramRepositoryTest extends ResetPostgres {
       String searchFragment, ImmutableSet<String> wantEmails) {
     Program program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
+    Applicant bob = resourceCreator.insertLoggedInApplicantWithAccount("bob@example.com");
     makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
-    Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
+    Applicant jane = resourceCreator.insertLoggedInApplicantWithAccount("jane@example.com");
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
-    Applicant chris = resourceCreator.insertApplicantWithAccount(Optional.of("chris@exAMPLE.com"));
+    Applicant chris = resourceCreator.insertLoggedInApplicantWithAccount("chris@exAMPLE.com");
     makeApplicationWithName(chris, program, "Chris", "MiddleName", "Person");
 
     Applicant otherApplicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("other@example.com"));
+        resourceCreator.insertLoggedInApplicantWithAccount("other@example.com");
     resourceCreator.insertDraftApplication(otherApplicant, program);
 
     PaginationResult<Application> paginationResult =
@@ -338,20 +338,20 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
 
     Application firstStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     createStatusEvents(
         adminAccount, firstStatusApplication, ImmutableList.of(Optional.of(FIRST_STATUS)));
 
     Application secondStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     createStatusEvents(
         adminAccount, secondStatusApplication, ImmutableList.of(Optional.of(SECOND_STATUS)));
 
     Application thirdStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     // Create a few status events before-hand to ensure that the latest status is used.
     createStatusEvents(
         adminAccount,
@@ -360,10 +360,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
             Optional.of(FIRST_STATUS), Optional.of(SECOND_STATUS), Optional.of(THIRD_STATUS)));
 
     Application noStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
 
     Application backToNoStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     // Application has transitioned through statuses and arrived back at an unset status.
     createStatusEvents(
         adminAccount,
@@ -471,12 +471,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getApplicationsForAllProgramVersions_withDateRange() {
     Program program = resourceCreator.insertActiveProgram("test program");
 
-    Applicant applicantTwo =
-        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    Applicant applicantTwo = resourceCreator.insertLoggedInApplicantWithAccount("two@example.com");
     Applicant applicantThree =
-        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
-    Applicant applicantOne =
-        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+        resourceCreator.insertLoggedInApplicantWithAccount("three@example.com");
+    Applicant applicantOne = resourceCreator.insertLoggedInApplicantWithAccount("one@example.com");
 
     var applicationOne = resourceCreator.insertActiveApplication(applicantOne, program);
     CfTestHelpers.withMockedInstantNow(
@@ -524,8 +522,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_pageNumberBasedPagination() {
-    Applicant applicantOne =
-        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    Applicant applicantOne = resourceCreator.insertLoggedInApplicantWithAccount("one@example.com");
     Program originalVersion = resourceCreator.insertActiveProgram("test program");
 
     resourceCreator.insertActiveApplication(applicantOne, originalVersion);
@@ -533,10 +530,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Program nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
-    Applicant applicantTwo =
-        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    Applicant applicantTwo = resourceCreator.insertLoggedInApplicantWithAccount("two@example.com");
     Applicant applicantThree =
-        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+        resourceCreator.insertLoggedInApplicantWithAccount("three@example.com");
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 
@@ -567,8 +563,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplicationsForAllProgramVersions_multipleVersions_offsetBasedPagination() {
-    Applicant applicantOne =
-        resourceCreator.insertApplicantWithAccount(Optional.of("one@example.com"));
+    Applicant applicantOne = resourceCreator.insertLoggedInApplicantWithAccount("one@example.com");
     Program originalVersion = resourceCreator.insertActiveProgram("test program");
 
     resourceCreator.insertActiveApplication(applicantOne, originalVersion);
@@ -576,10 +571,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Program nextVersion = resourceCreator.insertDraftProgram("test program");
     resourceCreator.publishNewSynchronizedVersion();
 
-    Applicant applicantTwo =
-        resourceCreator.insertApplicantWithAccount(Optional.of("two@example.com"));
+    Applicant applicantTwo = resourceCreator.insertLoggedInApplicantWithAccount("two@example.com");
     Applicant applicantThree =
-        resourceCreator.insertApplicantWithAccount(Optional.of("three@example.com"));
+        resourceCreator.insertLoggedInApplicantWithAccount("three@example.com");
     resourceCreator.insertActiveApplication(applicantTwo, nextVersion);
     resourceCreator.insertActiveApplication(applicantThree, nextVersion);
 

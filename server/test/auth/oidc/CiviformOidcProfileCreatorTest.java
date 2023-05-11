@@ -54,9 +54,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     // Setup.
     // Existing account doesn't have an authority.
     resourceCreator
-        .insertAccount()
+        .insertGuestAccount()
         .setEmailAddress(EMAIL)
-        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
+        .setApplicants(ImmutableList.of(resourceCreator.insertGuestApplicant()))
         .save();
 
     // Current OIDC info has an authority and email.
@@ -86,10 +86,10 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     final String otherEmail = "OTHER@EMAIL.com";
     // Existing account has authority but some other email.
     resourceCreator
-        .insertAccount()
+        .insertGuestAccount()
         .setEmailAddress(otherEmail)
         .setAuthorityId(AUTHORITY_ID)
-        .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
+        .setApplicants(ImmutableList.of(resourceCreator.insertGuestApplicant()))
         .save();
 
     // Current OIDC info has an authority and email.

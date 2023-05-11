@@ -28,7 +28,7 @@ public class ReportingRepositoryTest extends ResetPostgres {
   @Before
   public void setUp() {
     repo = new ReportingRepository(testClock);
-    applicant = resourceCreator.insertApplicantWithAccount();
+    applicant = resourceCreator.insertGuestApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
   }

@@ -30,9 +30,9 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     ApplicationEvent event =
@@ -65,7 +65,7 @@ public class ApplicationTest extends ResetPostgres {
             .build();
 
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     application.setLatestStatusForTest("some-status-value");

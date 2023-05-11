@@ -762,7 +762,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void submitApplication_returnsSavedApplication() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     subject
@@ -792,7 +792,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void submitApplication_addsProgramToStoredFileAcls() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     var fileKey = "test-file-key";
@@ -869,7 +869,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void submitApplication_obsoletesOldApplication() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     subject
@@ -927,7 +927,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
     subject
         .stageAndUpdateIfValid(
@@ -958,12 +958,12 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_sendsEmailsWithoutDefaultStatus() {
-    Account admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account admin = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     admin.addAdministeredProgram(programDefinition);
     admin.save();
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccountWithEmail("user1@example.com"));
+    applicant.setAccount(resourceCreator.insertLoggedInAccountWithEmail("user1@example.com"));
     applicant.save();
 
     subject
@@ -1042,12 +1042,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
-    Account admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account admin = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     admin.addAdministeredProgram(programDefinition);
     admin.save();
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccountWithEmail("user1@example.com"));
+    applicant.setAccount(resourceCreator.insertLoggedInAccountWithEmail("user1@example.com"));
     applicant.save();
     subject
         .stageAndUpdateIfValid(
@@ -1119,7 +1119,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
-    Account tiAccount = resourceCreator.insertAccountWithEmail("ti@example.com");
+    Account tiAccount = resourceCreator.insertLoggedInAccountWithEmail("ti@example.com");
     Applicant tiApplicant = subject.createApplicant().toCompletableFuture().join();
     tiApplicant.setAccount(tiAccount);
     tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
@@ -1128,7 +1128,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .thenReturn(CompletableFuture.completedFuture(tiAccount));
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccountWithEmail("user2@example.com"));
+    applicant.setAccount(resourceCreator.insertLoggedInAccountWithEmail("user2@example.com"));
     applicant.save();
 
     subject
@@ -1188,7 +1188,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
     CiviFormProfile applicantProfile = Mockito.mock(CiviFormProfile.class);
-    Account account = resourceCreator.insertAccountWithEmail("user3@example.com");
+    Account account = resourceCreator.insertLoggedInAccountWithEmail("user3@example.com");
     Mockito.when(applicantProfile.isTrustedIntermediary()).thenReturn(false);
     Mockito.when(applicantProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(account));
@@ -1239,7 +1239,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     subject
@@ -1281,7 +1281,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void submitApplication_failsWithApplicationNotEligibleException() {
     createProgramWithEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // First name is matched for eligibility.
@@ -1318,7 +1318,7 @@ public class ApplicantServiceTest extends ResetPostgres {
       submitApplication_allowsIneligibleApplicationToBeSubmittedWhenEligibilityIsNongating() {
     createProgramWithNongatingEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // First name is matched for eligibility.
@@ -1355,7 +1355,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void submitApplication_respectsEligibilityFeatureFlag() {
     createProgramWithEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // First name is matched for eligibility.
@@ -1394,7 +1394,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void submitApplication_respectsNonGatingEligibilityFeatureFlag() {
     createProgramWithNongatingEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // First name is matched for eligibility.
@@ -1547,7 +1547,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void submitApplication_failsWithApplicationOutOfDateException() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     assertThatExceptionOfType(CompletionException.class)
@@ -1568,8 +1568,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getNameOrEmail_namedApplicantId() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    Applicant applicant = resourceCreator.insertGuestApplicant();
+    Account account = resourceCreator.insertLoggedInAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
@@ -1580,8 +1580,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getNameOrEmail_noName() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    Applicant applicant = resourceCreator.insertGuestApplicant();
+    Account account = resourceCreator.insertLoggedInAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
 
@@ -1591,8 +1591,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getNameOrEmail_noNameNoEmail() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
+    Account account = resourceCreator.insertGuestAccount();
     applicant.setAccount(account);
     applicant.save();
     assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join()).isEmpty();
@@ -1605,13 +1605,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getName_noName() {
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEmpty();
   }
 
   @Test
   public void getName_namedApplicantId() {
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
     assertThat(subject.getName(applicant.id).toCompletableFuture().join())
@@ -1620,7 +1620,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getName_applicantWithThreeNames() {
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
     applicant.save();
     assertThat(subject.getName(applicant.id).toCompletableFuture().join())
@@ -1629,7 +1629,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getName_applicantWithManyNames() {
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
     applicant.save();
     assertThat(subject.getName(applicant.id).toCompletableFuture().join())
@@ -1638,7 +1638,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getName_applicantWithOneName() {
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     applicant.getApplicantData().setUserName("Mononymous");
     applicant.save();
     assertThat(subject.getName(applicant.id).toCompletableFuture().join())
@@ -1652,8 +1652,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getEmail_applicantWithNoEmail_returnsEmpty() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
+    Account account = resourceCreator.insertGuestAccount();
     applicant.setAccount(account);
     applicant.save();
     Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
@@ -1662,8 +1662,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void getEmail_applicantWithEmail() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    Applicant applicant = resourceCreator.insertGuestApplicant();
+    Account account = resourceCreator.insertLoggedInAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
     Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
@@ -1672,7 +1672,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   private Applicant createTestApplicant() {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
     return applicant;
   }
@@ -2118,8 +2118,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void relevantProgramsForApplicant_tiOnly() {
     Applicant applicant = createTestApplicant();
-    Applicant ti = resourceCreator.insertApplicant();
-    Account tiAccount = resourceCreator.insertAccount();
+    Applicant ti = resourceCreator.insertGuestApplicant();
+    Account tiAccount = resourceCreator.insertGuestAccount();
     TrustedIntermediaryGroup tiGroup =
         new TrustedIntermediaryGroup("Super Cool CBO", "Description");
     tiGroup.save();
@@ -2334,7 +2334,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     Application submittedApplication =
         applicationRepository
             .submitApplication(applicant.id, program.id, Optional.empty())
@@ -2369,7 +2369,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .addQuestion(testQuestionBank.applicantFavoriteColor())
         .save();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     Application submittedApplication =
         applicationRepository
             .submitApplication(applicant.id, originalProgram.id, Optional.empty())
@@ -2409,7 +2409,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void maybeEligibleProgramsForApplicant_includesPartiallyEligiblePrograms() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Set up question eligibility
@@ -2499,7 +2499,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void maybeEligibleProgramsForApplicant_doesNotIncludeIneligiblePrograms() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Set up program and questions
@@ -2568,7 +2568,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void maybeEligibleProgramsForApplicant_doesNotIncludeIneligibleSubmittedApplications() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Set up program and questions
@@ -2646,7 +2646,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void maybeEligibleProgramsForApplicant_doesNotIncludeCommonIntake() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Set up common intake form
@@ -2697,7 +2697,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void maybeEligibleProgramsForApplicant_includesProgramsWithoutEligibilityConditions() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Set up program and answer question
@@ -2742,7 +2742,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void maybeEligibleProgramsForApplicant_includesProgramsWithNoAnsweredQuestions() {
     // Set up applicant
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Set up program and don't answer question
@@ -3391,7 +3391,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void getApplicantMayBeEligibleStatus() {
     createProgramWithNongatingEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Applicant's answer is ineligible.
@@ -3431,7 +3431,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void getApplicationEligibilityStatus() {
     createProgramWithNongatingEligibility(questionDefinition);
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.setAccount(resourceCreator.insertGuestAccount());
     applicant.save();
 
     // Application is submitted with an ineligible answer.

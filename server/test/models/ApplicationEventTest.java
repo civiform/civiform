@@ -15,9 +15,9 @@ public class ApplicationEventTest extends ResetPostgres {
   public void createNonStatusEventDoesNothing() {
     Program program = resourceCreator.insertActiveProgram("test program");
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     ApplicationEvent event =
@@ -38,9 +38,9 @@ public class ApplicationEventTest extends ResetPostgres {
   public void createStatusEventUpdatesApplicationLatestStatus() {
     Program program = resourceCreator.insertActiveProgram("test program");
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     new ApplicationEvent(
@@ -75,7 +75,7 @@ public class ApplicationEventTest extends ResetPostgres {
     Program program = resourceCreator.insertActiveProgram("test program");
 
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     new ApplicationEvent(
@@ -96,9 +96,9 @@ public class ApplicationEventTest extends ResetPostgres {
   public void eventTriggerUsesLatestStatusEvent() throws Exception {
     Program program = resourceCreator.insertActiveProgram("test program");
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    Account adminAccount = resourceCreator.insertLoggedInAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(resourceCreator.insertGuestApplicant(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     ApplicationEvent firstEvent =
@@ -135,7 +135,8 @@ public class ApplicationEventTest extends ResetPostgres {
 
     // Update the first event to have a new creator and ensure that we still use the most recently
     // created event to update latest_status.
-    firstEvent.setCreator(resourceCreator.insertAccountWithEmail("someotheraccount@example.com"));
+    firstEvent.setCreator(
+        resourceCreator.insertLoggedInAccountWithEmail("someotheraccount@example.com"));
     firstEvent.save();
 
     application.refresh();

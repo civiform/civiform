@@ -15,6 +15,7 @@ import models.Models;
 import models.Program;
 import models.Question;
 import models.TrustedIntermediaryGroup;
+import org.apache.commons.lang3.tuple.Pair;
 import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
@@ -107,39 +108,50 @@ public class ResourceCreator {
     return Application.create(applicant, program, lifecycleStage);
   }
 
-  public Applicant insertApplicant() {
+  public Applicant insertGuestApplicant() {
     Applicant applicant = new Applicant();
     applicant.save();
     return applicant;
   }
 
-  public Account insertAccount() {
+  public Account insertGuestAccount() {
     Account account = new Account();
     account.save();
     return account;
   }
 
-  public Applicant insertApplicantWithAccount() {
-    return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
+  public Applicant insertGuestApplicantWithAccount() {
+    return insertAccountAndApplicant(/* isLoggedIn*/ false, Optional.empty()).getRight();
   }
 
-  public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
-    Applicant applicant = insertApplicant();
-    Account account = insertAccount();
+  public Applicant insertLoggedInApplicantWithAccount(String accountEmail) {
+    return insertAccountAndApplicant(/* isLoggedIn*/ true, Optional.of(accountEmail)).getRight();
+  }
 
-    accountEmail.ifPresent(account::setEmailAddress);
+  public Account insertLoggedInAccountWithEmail(String email) {
+    return insertAccountAndApplicant(/* isLoggedIn*/ true, Optional.of(email)).getLeft();
+  }
+
+  private Pair<Account, Applicant> insertAccountAndApplicant(
+      boolean isLoggedIn, Optional<String> email) {
+    if (!isLoggedIn && email.isPresent()) {
+      throw new RuntimeException("Can't be guest and have an email address");
+    }
+
+    Account account = new Account();
+    if (isLoggedIn) {
+      account.setAuthorityId(UUID.randomUUID().toString());
+      account.setEmailAddress(email.get());
+    }
     account.save();
+
+    Applicant applicant = new Applicant();
+    applicant.save();
+
     applicant.setAccount(account);
     applicant.save();
 
-    return applicant;
-  }
-
-  public Account insertAccountWithEmail(String email) {
-    Account account = new Account();
-    account.setEmailAddress(email);
-    account.save();
-    return account;
+    return Pair.of(account, applicant);
   }
 
   public TrustedIntermediaryGroup insertTrustedIntermediaryGroup() {

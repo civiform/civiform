@@ -129,7 +129,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
 
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
     Program program = ProgramBuilder.newActiveProgram().build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     applicant.refresh();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
@@ -151,7 +151,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_programNotFound() {
     Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -163,7 +163,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_notAdmin() throws Exception {
     Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -175,13 +175,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_invalidNewStatus_fails() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -209,13 +209,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_invalidCurrentStatus_fails() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -250,7 +250,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -283,7 +283,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -316,7 +316,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -347,13 +347,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_outOfDateCurrentStatus_fails() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
     programAdminApplicationService.setStatus(
@@ -392,14 +392,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateStatus_succeeds() throws Exception {
     // Setup
     Instant start = Instant.now();
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant =
-        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    Applicant applicant = resourceCreator.insertLoggedInApplicantWithAccount("user@example.com");
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -438,13 +437,13 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateStatus_emptySendEmail_succeeds() throws Exception {
     // Setup
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program =
         ProgramBuilder.newActiveProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -479,7 +478,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateNote_programNotFound() {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -491,7 +490,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateNote_notAdmin() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -503,10 +502,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   @Test
   public void updateNote_noNote_fails() throws Exception {
     // Setup.
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -524,10 +523,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     // Setup.
     Instant start = Instant.now();
     String noteText = "Test note content.";
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 
@@ -554,10 +553,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   public void updateNote_emptyNote_succeeds() throws Exception {
     // Setup.
     String noteText = "";
-    Account adminAccount = resourceCreator.insertAccount();
+    Account adminAccount = resourceCreator.insertGuestAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
     Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
-    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicantWithAccount();
     Application application =
         Application.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
 

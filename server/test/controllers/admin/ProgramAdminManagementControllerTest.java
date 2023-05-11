@@ -44,7 +44,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void edit_rendersFormWithExistingAdmins() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram("Existing Admins").buildDefinition();
-    Account existingAdmin = resourceCreator.insertAccount();
+    Account existingAdmin = resourceCreator.insertGuestAccount();
     existingAdmin.setEmailAddress("test@test.com");
     existingAdmin.addAdministeredProgram(program);
     existingAdmin.save();

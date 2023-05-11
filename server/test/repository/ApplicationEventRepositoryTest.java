@@ -28,8 +28,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insert() {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicant();
+    Account actor = resourceCreator.insertGuestAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -54,7 +54,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insertAsync() {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -79,8 +79,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insertMultipleEventsOnApplication() {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicant();
+    Account actor = resourceCreator.insertGuestAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -114,8 +114,8 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Setup
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicant();
+    Account actor = resourceCreator.insertGuestAccount();
+    Applicant applicant = resourceCreator.insertGuestApplicant();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =

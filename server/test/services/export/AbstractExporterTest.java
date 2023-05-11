@@ -146,9 +146,9 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * is a different user in Active state.
    */
   protected void createFakeApplications() throws Exception {
-    Account admin = resourceCreator.insertAccount();
-    Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
-    Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
+    Account admin = resourceCreator.insertGuestAccount();
+    Applicant applicantOne = resourceCreator.insertGuestApplicantWithAccount();
+    Applicant applicantTwo = resourceCreator.insertGuestApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
         .forEach(
             entry ->
@@ -244,7 +244,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getQuestionDefinition()
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     // Applicant five have file uploaded for the optional file upload question
-    applicantFive = resourceCreator.insertApplicantWithAccount();
+    applicantFive = resourceCreator.insertGuestApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantFive.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -262,7 +262,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationFive.setApplicantData(applicantFive.getApplicantData());
     applicationFive.save();
     // Applicant six hasn't uploaded a file for the optional file upload question
-    applicantSix = resourceCreator.insertApplicantWithAccount();
+    applicantSix = resourceCreator.insertGuestApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantSix.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -305,7 +305,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .build();
 
     // First applicant is not eligible.
-    applicantOne = resourceCreator.insertApplicantWithAccount();
+    applicantOne = resourceCreator.insertGuestApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -328,7 +328,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationOne.save();
 
     // Second applicant is eligible.
-    applicantTwo = resourceCreator.insertApplicantWithAccount();
+    applicantTwo = resourceCreator.insertGuestApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -384,7 +384,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .build();
 
     // First applicant has two household members, and the second one has one job.
-    applicantOne = resourceCreator.insertApplicantWithAccount();
+    applicantOne = resourceCreator.insertGuestApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantOne.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -437,7 +437,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationOne.save();
 
     // Second applicant has one household member that has two jobs.
-    applicantTwo = resourceCreator.insertApplicantWithAccount();
+    applicantTwo = resourceCreator.insertGuestApplicantWithAccount();
     QuestionAnswerer.answerNameQuestion(
         applicantTwo.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
