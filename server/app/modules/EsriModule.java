@@ -10,8 +10,10 @@ import play.Environment;
 import services.geo.esri.EsriClient;
 
 /**
- * Configures the class used for the Esri client. When running in a dev or CI environment, the fake
- * client is used to simulate responses from an Esri service.
+ * Configures the class used for the Esri client. When the config value is set for
+ * "esri_find_address_candidates_url" we use the RealEsriClient. If the value is not
+ * set we'll use the FakeEsriClient. This allows the real client to be used whether
+ * we are using an actual Esri endpoint or if using the Mock Web Services.
  */
 public final class EsriModule extends AbstractModule {
   private static final String FAKE_ESRI_CLIENT_CLASS_NAME = "services.geo.esri.FakeEsriClient";

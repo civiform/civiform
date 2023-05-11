@@ -19,6 +19,13 @@ features.
 These endpoints return JSON from files shared with the FakeEsriClient.java and
 unit tests.
 
+## Determining
+
+The EsriModule is used to determine if we load the RealEsriClient or the FakeEsriClient.
+When using the mock service we want to use the RealEsriClient. This is what is
+used when a value is provided for "esri_find_address_candidates_url". If no
+value is configured we fall back to the FakeEsriClient.
+
 ### Find Address Candidates
 
 Endpoint to mock Esri [findAddressCandidates](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm). We use the address as a key in determining which type of response this will return.
