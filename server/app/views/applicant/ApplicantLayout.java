@@ -203,7 +203,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(branding())
                 .withClasses(
                     "items-center", "place-items-center", "flex-shrink-0", "grow", "md:grow-0"))
-        .with(maybeRenderTiButton(profile, displayUserName).withClasses("grow-0", "md:grow"))
+        .with(maybeRenderTiButton(profile, displayUserName))
         .with(
             div()
                 .with(
@@ -299,6 +299,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
+    DivTag div =
+        div()
+            .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
+
     if (profile.isPresent() && profile.get().getRoles().contains(Role.ROLE_TI.toString())) {
       String tiDashboardText = "View and Add Clients";
       String tiDashboardLink =
@@ -307,16 +311,20 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   /* dateQuery= */ Optional.empty(),
                   /* page= */ Optional.of(1))
               .url();
-      return div(
-          a(tiDashboardText)
-              .withId("ti-dashboard-link")
-              .withHref(tiDashboardLink)
-              .withClasses(
-                  "opacity-75", StyleUtils.hover("opacity-100"), ButtonStyles.SOLID_BLUE_TEXT_XL),
-          div("(applying as: " + userName + ")")
-              .withClasses("text-sm", "text-black", "text-center"));
+      div.with(
+              a(tiDashboardText)
+                  .withId("ti-dashboard-link")
+                  .withHref(tiDashboardLink)
+                  .withClasses(
+                      "w-1/2",
+                      "opacity-75",
+                      StyleUtils.hover("opacity-100"),
+                      ButtonStyles.SOLID_BLUE_TEXT_XL))
+          .with(
+              div("(applying as: " + userName + ")")
+                  .withClasses("text-sm", "text-black", "text-center"));
     }
-    return div();
+    return div;
   }
 
   /**
