@@ -19,6 +19,7 @@ import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -360,7 +361,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
 
     assertThrows(
-        IllegalStateException.class, () -> versionRepository.publishNewSynchronizedVersion("foo"));
+        ProgramNotFoundException.class,
+        () -> versionRepository.publishNewSynchronizedVersion("foo"));
 
     // Verify that the versions have not been modified.
     assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(0);
@@ -685,5 +687,59 @@ public class VersionRepositoryTest extends ResetPostgres {
     Program activeProgram = ProgramBuilder.newActiveProgram("active program").build();
     assertThat(versionRepository.isActiveProgram(activeProgram.getProgramDefinition().id()))
         .isEqualTo(true);
+  }
+
+  @Test
+  public void getProgramQuestionNamesInVersion() {
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    // Third question is only a draft.
+    Question thirdQuestion = resourceCreator.insertQuestion("third-question");
+    thirdQuestion.addVersion(versionRepository.getDraftVersion()).save();
+
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+    Program secondProgramActive =
+        ProgramBuilder.newActiveProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestion)
+            .build();
+
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+    Program secondProgramDraft =
+        ProgramBuilder.newDraftProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestionUpdated)
+            .withRequiredQuestion(thirdQuestion)
+            .build();
+
+    Version draft = versionRepository.getDraftVersion();
+    Version active = versionRepository.getActiveVersion();
+
+    assertThat(
+            VersionRepository.getProgramQuestionNamesInVersion(
+                firstProgramActive.getProgramDefinition(), active))
+        .containsExactlyInAnyOrder(firstQuestion.getQuestionDefinition().getName());
+    assertThat(
+            VersionRepository.getProgramQuestionNamesInVersion(
+                firstProgramActive.getProgramDefinition(), draft))
+        .isEmpty();
+
+    assertThat(
+            VersionRepository.getProgramQuestionNamesInVersion(
+                secondProgramActive.getProgramDefinition(), active))
+        .containsExactlyInAnyOrder(secondQuestion.getQuestionDefinition().getName());
+    assertThat(
+            VersionRepository.getProgramQuestionNamesInVersion(
+                secondProgramDraft.getProgramDefinition(), draft))
+        .containsExactlyInAnyOrder(
+            secondQuestionUpdated.getQuestionDefinition().getName(),
+            thirdQuestion.getQuestionDefinition().getName());
   }
 }
