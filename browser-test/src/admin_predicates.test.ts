@@ -237,13 +237,36 @@ describe('create and edit predicates', () => {
       programName,
       'Screen 1',
     )
+    // Add predicate with missing value.
     await adminPredicates.addPredicate(
       'eligibility-predicate-q',
       /* action= */ null,
       'text',
       'is equal to',
-      'eligible',
+      '',
     )
+    await adminPredicates.expectPredicateErrorToast()
+    await validateScreenshot(page, 'predicate-error')
+
+    // Add predicate with missing operator.
+    await adminPredicates.configurePredicate({
+      questionName: 'eligibility-predicate-q',
+      action: null,
+      scalar: 'text',
+      operator: '',
+      value: 'eligible',
+    })
+    await adminPredicates.expectPredicateErrorToast()
+
+    await adminPredicates.configurePredicate({
+      questionName: 'eligibility-predicate-q',
+      action: null,
+      scalar: 'text',
+      operator: 'is equal to',
+      value: 'eligible',
+    })
+
+    await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
