@@ -134,7 +134,7 @@ public final class ProgramAdminApplicationService {
       Optional<String> adminSubmitterEmail = application.getSubmitterEmail();
       if (adminSubmitterEmail.isPresent()) {
         sendAdminSubmitterEmail(
-            program.getProgramDefinition(), applicant, newStatusText, adminSubmitterEmail);
+            program.getProgramDefinition(), applicant, statusDef, adminSubmitterEmail);
       }
       // Notify the applicant.
       Optional<String> applicantEmail =
@@ -174,7 +174,7 @@ public final class ProgramAdminApplicationService {
   private void sendAdminSubmitterEmail(
       ProgramDefinition programDef,
       Applicant applicant,
-      String newStatusText,
+      Status statusDef,
       Optional<String> adminSubmitterEmail) {
     String programName = programDef.localizedName().getDefault();
     String tiDashLink =
@@ -203,11 +203,7 @@ public final class ProgramAdminApplicationService {
     String body =
         String.format(
             "%s\n%s",
-            messages.at(
-                MessageKey.EMAIL_TI_APPLICATION_UPDATE_BODY.getKeyName(),
-                applicant.id,
-                programName,
-                newStatusText),
+            statusDef.localizedEmailBodyText().get().getOrDefault(locale),
             messages.at(MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(), tiDashLink));
 
     emailClient.send(
