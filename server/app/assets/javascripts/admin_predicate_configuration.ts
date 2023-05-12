@@ -23,8 +23,10 @@ class AdminPredicateConfiguration {
       return
     }
 
-    addEventListenerToElements('button[type=submit]', 'click', (event: Event) =>
-      this.validateSubmit(event),
+    addEventListenerToElements(
+      '#predicate-submit-button',
+      'click',
+      (event: Event) => this.validateSubmit(event),
     )
 
     addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
