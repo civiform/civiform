@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
+import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
@@ -25,6 +26,7 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -169,6 +171,24 @@ public final class AdminProgramController extends CiviFormController {
       return redirect(routes.AdminProgramController.index());
     } catch (Exception e) {
       return badRequest(e.toString());
+    }
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result publishProgram(Request request, long programId) throws ProgramNotFoundException {
+    if (!featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
+      return redirect(routes.AdminProgramController.index());
+    }
+
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    requestChecker.throwIfProgramNotDraft(programId);
+
+    try {
+      versionRepository.publishNewSynchronizedVersion(program.adminName());
+      return redirect(routes.AdminProgramController.index());
+    } catch (CantPublishProgramWithSharedQuestionsException e) {
+      return redirect(routes.AdminProgramController.index())
+          .flashing("error", e.userFacingMessage());
     }
   }
 

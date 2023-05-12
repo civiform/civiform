@@ -452,10 +452,16 @@ public final class ApplicantService {
   @VisibleForTesting
   CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
-    return applicationRepository
-        .submitApplication(applicantId, programId, tiSubmitterEmail)
+    CompletableFuture<Optional<String>> applicantEmailFuture =
+        getEmail(applicantId).toCompletableFuture();
+    CompletableFuture<Optional<Application>> applicationFuture =
+        applicationRepository
+            .submitApplication(applicantId, programId, tiSubmitterEmail)
+            .toCompletableFuture();
+    return CompletableFuture.allOf(applicantEmailFuture, applicationFuture)
         .thenComposeAsync(
-            (Optional<Application> applicationMaybe) -> {
+            (v) -> {
+              Optional<Application> applicationMaybe = applicationFuture.join();
               if (applicationMaybe.isEmpty()) {
                 return CompletableFuture.failedFuture(
                     new ApplicationSubmissionException(applicantId, programId));
@@ -465,35 +471,52 @@ public final class ApplicantService {
               Program applicationProgram = application.getProgram();
               ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
               String programName = programDefinition.adminName();
-
-              notifyProgramAdmins(applicantId, programId, application.id, programName);
-
-              CompletableFuture<Void> maybeNotifyTiSubmitterFuture =
-                  tiSubmitterEmail.isPresent()
-                      ? maybeNotifyTiSubmitter(
-                              tiSubmitterEmail.get(), applicantId, application.id, programName)
-                          .toCompletableFuture()
-                      : CompletableFuture.completedFuture(null);
-
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
                   applicationProgram.getDefaultStatus();
-              CompletableFuture<Void> maybeUpdateStatusAndEmailApplicantFuture;
-              if (maybeDefaultStatus.isPresent()) {
-                StatusDefinitions.Status defaultStatus = maybeDefaultStatus.get();
-                maybeUpdateStatusAndEmailApplicantFuture =
-                    CompletableFuture.allOf(
-                        setApplicationStatus(application, defaultStatus).toCompletableFuture(),
-                        maybeNotifyApplicantWithStatus(
-                                applicantId, programDefinition, defaultStatus)
-                            .toCompletableFuture());
-              } else {
-                maybeUpdateStatusAndEmailApplicantFuture =
-                    maybeNotifyApplicant(applicantId, application.id, programName)
-                        .toCompletableFuture();
-              }
+
+              CompletableFuture<ApplicationEvent> updateStatusFuture =
+                  maybeDefaultStatus
+                      .map(
+                          status -> setApplicationStatus(application, status).toCompletableFuture())
+                      .orElse(CompletableFuture.completedFuture(null));
+
+              CompletableFuture<Void> notifyProgramAdminsFuture =
+                  CompletableFuture.runAsync(
+                      () ->
+                          notifyProgramAdmins(applicantId, programId, application.id, programName));
+
+              CompletableFuture<Void> notifyTiSubmitterFuture =
+                  tiSubmitterEmail
+                      .map(
+                          email ->
+                              notifyTiSubmitter(
+                                      email,
+                                      applicantId,
+                                      application.id,
+                                      programName,
+                                      maybeDefaultStatus)
+                                  .toCompletableFuture())
+                      .orElse(CompletableFuture.completedFuture(null));
+
+              Optional<String> applicantEmail = applicantEmailFuture.join();
+              CompletableFuture<Void> notifyApplicantFuture =
+                  applicantEmail
+                      .map(
+                          email ->
+                              notifyApplicant(
+                                      applicantId,
+                                      application.id,
+                                      email,
+                                      programDefinition,
+                                      maybeDefaultStatus)
+                                  .toCompletableFuture())
+                      .orElse(CompletableFuture.completedFuture(null));
+
               return CompletableFuture.allOf(
-                      maybeUpdateStatusAndEmailApplicantFuture,
-                      maybeNotifyTiSubmitterFuture,
+                      updateStatusFuture,
+                      notifyProgramAdminsFuture,
+                      notifyApplicantFuture,
+                      notifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
                   .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
             },
@@ -573,6 +596,14 @@ public final class ApplicantService {
             httpExecutionContext.current());
   }
 
+  /**
+   * Email the program admins to inform them an application has been submitted.
+   *
+   * @param applicantId the ID of the applicant
+   * @param programId the ID of the program
+   * @param applicationId the ID of the application
+   * @param programName the name of the program that was applied to
+   */
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
     String viewLink =
@@ -593,8 +624,24 @@ public final class ApplicantService {
     }
   }
 
-  private CompletionStage<Void> maybeNotifyTiSubmitter(
-      String tiEmail, long applicantId, long applicationId, String programName) {
+  /**
+   * Email the Trusted Intermediary with either the default application email or the status' defined
+   * email. Will send the default application email if the status does not have an email body
+   * defined.
+   *
+   * @param tiEmail the email address of the Trusted Intermediary
+   * @param applicantId the ID of the applicant
+   * @param applicationId the ID of the application
+   * @param programName the name of the program that was applied to
+   * @param status the status from which to get the email body to send. Empty if no default status
+   *     is set for the program.
+   */
+  private CompletionStage<Void> notifyTiSubmitter(
+      String tiEmail,
+      long applicantId,
+      long applicationId,
+      String programName,
+      Optional<StatusDefinitions.Status> status) {
     String tiDashLink =
         baseUrl
             + controllers.ti.routes.TrustedIntermediaryController.dashboard(
@@ -605,10 +652,10 @@ public final class ApplicantService {
     CompletableFuture<Optional<Locale>> localeFuture =
         getPreferredTiLocale(tiEmail).toCompletableFuture();
     return localeFuture
-        .thenRunAsync(
-            () -> {
+        .thenAcceptAsync(
+            (localeMaybe) -> {
               // Not blocking since it already completed
-              Locale locale = localeFuture.join().orElse(LocalizedStrings.DEFAULT_LOCALE);
+              Locale locale = localeMaybe.orElse(LocalizedStrings.DEFAULT_LOCALE);
               Messages messages =
                   messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
               String subject =
@@ -616,14 +663,18 @@ public final class ApplicantService {
                       MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_SUBJECT.getKeyName(),
                       programName,
                       applicantId);
+              boolean useStatusMessage =
+                  status.map(s -> s.localizedEmailBodyText().isPresent()).orElse(false);
               String message =
                   String.format(
                       "%s\n%s",
-                      messages.at(
-                          MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
-                          programName,
-                          applicantId,
-                          applicationId),
+                      useStatusMessage
+                          ? status.get().localizedEmailBodyText().get().getOrDefault(locale)
+                          : messages.at(
+                              MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_BODY.getKeyName(),
+                              programName,
+                              applicantId,
+                              applicationId),
                       messages.at(
                           MessageKey.EMAIL_TI_MANAGE_YOUR_CLIENTS.getKeyName(), tiDashLink));
               if (isStaging) {
@@ -635,87 +686,53 @@ public final class ApplicantService {
         .toCompletableFuture();
   }
 
-  private CompletionStage<Void> maybeNotifyApplicant(
-      long applicantId, long applicationId, String programName) {
-    CompletableFuture<Optional<String>> emailFuture = getEmail(applicantId).toCompletableFuture();
+  /**
+   * Email the applicant with either the default application email or the status' defined email.
+   * Will send the default application email if the status does not have an email body defined.
+   *
+   * @param applicantId the ID of the applicant
+   * @param applicationId the ID of the application
+   * @param applicantEmail the applicant's email address
+   * @param programDef the ProgramDefinition that the applicant applied for
+   * @param status the status from which to get the email body to send. Empty if no default status
+   *     is set for the program.
+   */
+  private CompletionStage<Void> notifyApplicant(
+      long applicantId,
+      long applicationId,
+      String applicantEmail,
+      ProgramDefinition programDef,
+      Optional<StatusDefinitions.Status> status) {
     CompletableFuture<Optional<Locale>> localeFuture =
         getPreferredLocale(applicantId).toCompletableFuture();
-    return CompletableFuture.allOf(emailFuture, localeFuture)
-        .thenRunAsync(
-            () -> {
-              // Not blocking since these are already completed
-              Optional<String> email = emailFuture.join();
-              Locale locale = localeFuture.join().orElse(LocalizedStrings.DEFAULT_LOCALE);
-              if (email.isEmpty()) {
-                return;
-              }
-              String civiformLink = baseUrl;
-              Messages messages =
-                  messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
-              String subject =
-                  messages.at(
-                      MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName);
-              String message =
-                  String.format(
-                      "%s\n%s",
-                      messages.at(
+    return localeFuture.thenAcceptAsync(
+        (localeMaybe) -> {
+          Locale locale = localeMaybe.orElse(LocalizedStrings.DEFAULT_LOCALE);
+          boolean useStatusMessage =
+              status.map(s -> s.localizedEmailBodyText().isPresent()).orElse(false);
+          Messages messages =
+              messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
+          String programName = programDef.localizedName().getOrDefault(locale);
+          String subject =
+              messages.at(MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(), programName);
+          String message =
+              String.format(
+                  "%s\n%s",
+                  useStatusMessage
+                      ? status.get().localizedEmailBodyText().get().getOrDefault(locale)
+                      : messages.at(
                           MessageKey.EMAIL_APPLICATION_RECEIVED_BODY.getKeyName(),
                           programName,
                           applicantId,
                           applicationId),
-                      messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), civiformLink));
-              if (isStaging) {
-                amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
-              } else {
-                amazonSESClient.send(email.get(), subject, message);
-              }
-            },
-            httpExecutionContext.current());
-  }
-
-  /**
-   * Email the applicant with the status' defined email, if the applicant's email address exists and
-   * the status has an email associated with it.
-   *
-   * @param applicantId the ID of the applicant
-   * @param programDef the ProgramDefinition that the applicant applied for
-   * @param status the status from which to get the email body to send
-   */
-  private CompletionStage<Void> maybeNotifyApplicantWithStatus(
-      long applicantId, ProgramDefinition programDef, StatusDefinitions.Status status) {
-    Optional<LocalizedStrings> emailBody = status.localizedEmailBodyText();
-    CompletableFuture<Optional<String>> getEmailFuture =
-        getEmail(applicantId).toCompletableFuture();
-    CompletableFuture<Optional<Locale>> getLocaleFuture =
-        getPreferredLocale(applicantId).toCompletableFuture();
-    return CompletableFuture.allOf(getEmailFuture, getLocaleFuture)
-        .thenRunAsync(
-            () -> {
-              // Not blocking since they've already completed
-              Optional<Locale> maybeLocale = getLocaleFuture.join();
-              Optional<String> maybeEmail = getEmailFuture.join();
-              Locale locale = maybeLocale.orElse(LocalizedStrings.DEFAULT_LOCALE);
-              if (emailBody.isPresent() && maybeEmail.isPresent()) {
-                String programNameForEmail = programDef.localizedName().getOrDefault(locale);
-                Messages messages =
-                    messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
-                String message =
-                    String.format(
-                        "%s\n%s",
-                        emailBody.get().getOrDefault(locale),
-                        messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
-                String subject =
-                    messages.at(
-                        MessageKey.EMAIL_APPLICATION_RECEIVED_SUBJECT.getKeyName(),
-                        programNameForEmail);
-                if (isStaging) {
-                  amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
-                } else {
-                  amazonSESClient.send(maybeEmail.get(), subject, message);
-                }
-              }
-            },
-            httpExecutionContext.current());
+                  messages.at(MessageKey.EMAIL_LOGIN_TO_CIVIFORM.getKeyName(), baseUrl));
+          if (isStaging) {
+            amazonSESClient.send(stagingApplicantNotificationMailingList, subject, message);
+          } else {
+            amazonSESClient.send(applicantEmail, subject, message);
+          }
+        },
+        httpExecutionContext.current());
   }
 
   /** Return the name of the given applicant id. If not available, returns the email. */

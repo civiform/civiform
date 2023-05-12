@@ -197,12 +197,25 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
-        .withClasses("bg-white", "border-b", "align-middle", "p-1", "grid", "grid-cols-3")
-        .with(branding())
+        .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
+        .with(
+            div(branding())
+                .withClasses(
+                    "items-center",
+                    "place-items-center",
+                    "flex-shrink-0",
+                    "grow",
+                    StyleUtils.responsiveMedium("grow-0")))
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
             div(getLanguageForm(request, profile, messages), authDisplaySection(userName, messages))
-                .withClasses("justify-self-end", "flex", "flex-row"));
+                .withClasses(
+                    "flex",
+                    "flex-row",
+                    "grow",
+                    "shrink-0",
+                    "place-content-center",
+                    StyleUtils.responsiveMedium("grow-0", "shrink")));
   }
 
   private ContainerTag<?> getLanguageForm(
@@ -274,7 +287,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
-        .withClasses("flex", "flex-row", "items-center")
+        .withClasses(
+            "flex", "flex-row", "justify-center", StyleUtils.responsiveMedium("justify-left"))
         .with(
             cityImage,
             div()
@@ -285,6 +299,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
+    DivTag div =
+        div()
+            .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
+
     if (profile.isPresent() && profile.get().getRoles().contains(Role.ROLE_TI.toString())) {
       String tiDashboardText = "View and Add Clients";
       String tiDashboardLink =
@@ -293,16 +311,20 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   /* dateQuery= */ Optional.empty(),
                   /* page= */ Optional.of(1))
               .url();
-      return div(
-          a(tiDashboardText)
-              .withId("ti-dashboard-link")
-              .withHref(tiDashboardLink)
-              .withClasses(
-                  "opacity-75", StyleUtils.hover("opacity-100"), ButtonStyles.SOLID_BLUE_TEXT_XL),
-          div("(applying as: " + userName + ")")
-              .withClasses("text-sm", "text-black", "text-center"));
+      div.with(
+              a(tiDashboardText)
+                  .withId("ti-dashboard-link")
+                  .withHref(tiDashboardLink)
+                  .withClasses(
+                      "w-1/2",
+                      "opacity-75",
+                      StyleUtils.hover("opacity-100"),
+                      ButtonStyles.SOLID_BLUE_TEXT_XL))
+          .with(
+              div("(applying as: " + userName + ")")
+                  .withClasses("text-sm", "text-black", "text-center"));
     }
-    return div();
+    return div;
   }
 
   /**
