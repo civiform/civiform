@@ -5,21 +5,14 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
-import models.Program;
 import models.Question;
 import models.Version;
 import repository.VersionRepository;
 import services.DeletionStatus;
-import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
-import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -78,8 +71,9 @@ public final class ActiveAndDraftQuestions {
                     }));
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
-    this.referencingActiveProgramsByName = buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName = buildReferencingProgramsMap(withDraftEdits);
+    this.referencingActiveProgramsByName = VersionRepository.buildReferencingProgramsMap(active);
+    this.referencingDraftProgramsByName =
+        VersionRepository.buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(
@@ -105,44 +99,6 @@ public final class ActiveAndDraftQuestions {
                           ? DeletionStatus.PENDING_DELETION
                           : DeletionStatus.DELETABLE;
                     }));
-  }
-
-  /**
-   * Inspects the provided version and returns a map who's key is the question name and value is a
-   * set of programs that reference the given question in this version.
-   */
-  private static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
-      Version version) {
-    // Different versions of a question can have distinct IDs while still
-    // retaining the same "name". A given program has a reference only to a specific
-    // question ID. This map allows us to easily cache the mapping from a question ID
-    // to a logical question "name".
-    ImmutableMap<Long, String> questionIdToNameLookup =
-        version.getQuestions().stream()
-            .map(Question::getQuestionDefinition)
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    QuestionDefinition::getId, QuestionDefinition::getName));
-    Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
-    for (Program program : version.getPrograms()) {
-      ImmutableList<String> programQuestionNames =
-          program.getProgramDefinition().blockDefinitions().stream()
-              .map(BlockDefinition::programQuestionDefinitions)
-              .flatMap(ImmutableList::stream)
-              .map(ProgramQuestionDefinition::id)
-              .filter(questionIdToNameLookup::containsKey)
-              .map(questionIdToNameLookup::get)
-              .collect(ImmutableList.toImmutableList());
-      for (String questionName : programQuestionNames) {
-        if (!result.containsKey(questionName)) {
-          result.put(questionName, Sets.newHashSet());
-        }
-        result.get(questionName).add(program.getProgramDefinition());
-      }
-    }
-    return result.entrySet().stream()
-        .collect(
-            ImmutableMap.toImmutableMap(Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
   }
 
   public ImmutableList<QuestionDefinition> getActiveQuestions() {
