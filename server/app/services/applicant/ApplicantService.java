@@ -652,12 +652,10 @@ public final class ApplicantService {
     CompletableFuture<Optional<Locale>> localeFuture =
         getPreferredTiLocale(tiEmail).toCompletableFuture();
     return localeFuture
-        .thenRunAsync(
-            () -> {
+        .thenAcceptAsync(
+            (localeMaybe) -> {
               // Not blocking since it already completed
-              Locale locale = localeFuture.join().orElse(LocalizedStrings.DEFAULT_LOCALE);
-              boolean useStatusMessage =
-                  status.map(s -> s.localizedEmailBodyText().isPresent()).orElse(false);
+              Locale locale = localeMaybe.orElse(LocalizedStrings.DEFAULT_LOCALE);
               Messages messages =
                   messagesApi.preferred(ImmutableSet.of(Lang.forCode(locale.toLanguageTag())));
               String subject =
@@ -665,6 +663,8 @@ public final class ApplicantService {
                       MessageKey.EMAIL_TI_APPLICATION_SUBMITTED_SUBJECT.getKeyName(),
                       programName,
                       applicantId);
+              boolean useStatusMessage =
+                  status.map(s -> s.localizedEmailBodyText().isPresent()).orElse(false);
               String message =
                   String.format(
                       "%s\n%s",
@@ -705,11 +705,9 @@ public final class ApplicantService {
       Optional<StatusDefinitions.Status> status) {
     CompletableFuture<Optional<Locale>> localeFuture =
         getPreferredLocale(applicantId).toCompletableFuture();
-    return localeFuture.thenRunAsync(
-        () -> {
-          // Java seems not to like using thenApplyAsync here for some reason I don't understand,
-          // so using thenRunAsync and joining the future.
-          Locale locale = localeFuture.join().orElse(LocalizedStrings.DEFAULT_LOCALE);
+    return localeFuture.thenAcceptAsync(
+        (localeMaybe) -> {
+          Locale locale = localeMaybe.orElse(LocalizedStrings.DEFAULT_LOCALE);
           boolean useStatusMessage =
               status.map(s -> s.localizedEmailBodyText().isPresent()).orElse(false);
           Messages messages =
