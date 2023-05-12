@@ -12,7 +12,6 @@ import java.util.Locale;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import org.junit.Before;
 import org.junit.Test;
 import repository.VersionRepository;
 import services.program.ProgramDefinition;
@@ -55,11 +54,11 @@ public class MetricsControllerTest extends WithMockedProfiles {
   @Test
   public void getMetrics_returns404WhenMetricsNotEnabled() {
     Config config =
-      ConfigFactory.parseMap(
-        ImmutableMap.<String, String>builder().put("server_metrics.enabled", "false").build());
+        ConfigFactory.parseMap(
+            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "false").build());
 
     MetricsController controller =
-      new MetricsController(instanceOf(CollectorRegistry.class), config);
+        new MetricsController(instanceOf(CollectorRegistry.class), config);
     assertThat(controller.getMetrics().status()).isEqualTo(404);
   }
 
