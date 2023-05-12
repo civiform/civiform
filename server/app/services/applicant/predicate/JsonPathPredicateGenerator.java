@@ -126,6 +126,7 @@ public final class JsonPathPredicateGenerator {
                         .substring(1, node.comparedValue().value().length() - 1))
                 .map(String::trim)
                 .map(Long::parseLong)
+                .sorted()
                 .collect(ImmutableList.toImmutableList());
 
         // Check that the date value is between the two age timestamps.
