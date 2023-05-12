@@ -250,6 +250,9 @@ describe('create and edit predicates', () => {
     )
     await validateScreenshot(page, 'eligibility-predicate')
 
+    await page.click(`a:has-text("Back")`)
+    await validateScreenshot(page, 'block-settings-page')
+
     // Publish the program
     await adminPrograms.publishProgram(programName)
 
