@@ -162,6 +162,8 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
     geo += location.getLatitude();
     geo += ",'spatialReference':";
     geo += location.getWellKnownId();
+    geo += "}";
+
     request.addQueryParameter("geometry", geo);
 
     return tryRequest(request, this.ESRI_EXTERNAL_CALL_TRIES)

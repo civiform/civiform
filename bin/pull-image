@@ -8,7 +8,7 @@
 
 source bin/lib.sh
 
-if [[ -n "${USE_LOCAL_CIVIFORM}" ]]; then
+if [[ "${USE_LOCAL_CIVIFORM}" == 1 || "${USE_LOCAL_CIVIFORM}" == "true" ]]; then
   echo "Using local civiform and dependency docker images"
   exit 0
 fi
@@ -33,6 +33,7 @@ function pull_all() {
   docker pull docker.io/civiform/civiform-localstack:latest &
   docker pull docker.io/civiform/formatter:latest &
   docker pull docker.io/civiform/civiform-browser-test:latest &
+  docker pull docker.io/civiform/mock-web-services:latest &
 
   wait
 
@@ -82,6 +83,11 @@ while [ "${1:-}" != "" ]; do
     "--browser-tests")
       echo "Pull browser-tests docker image"
       docker pull docker.io/civiform/civiform-browser-test:latest
+      ;;
+
+    "--mock-web-services")
+      echo "Pull mock-web-services docker image"
+      docker pull docker.io/civiform/mock-web-services:latest
       ;;
 
     *)

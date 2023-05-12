@@ -8,6 +8,8 @@ import {
   PageScreenshotOptions,
   LocatorScreenshotOptions,
   Locator,
+  devices,
+  BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
@@ -66,7 +68,15 @@ export enum AuthStrategy {
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
 
-function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
+function makeBrowserContext(
+  browser: Browser,
+  useMobile = false,
+): Promise<BrowserContext> {
+  const contextOptions: BrowserContextOptions = {
+    ...(useMobile ? devices['Pixel 5'] : {}),
+    acceptDownloads: true,
+  }
+
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
     // Docs state that videos are only saved upon
@@ -92,17 +102,12 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
         dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
-    return browser.newContext({
-      acceptDownloads: true,
-      recordVideo: {
-        dir: path.join(...dirs),
-      },
-    })
-  } else {
-    return browser.newContext({
-      acceptDownloads: true,
-    })
+    contextOptions.recordVideo = {
+      dir: path.join(...dirs),
+    }
   }
+
+  return browser.newContext(contextOptions)
 }
 
 export const startSession = async (
@@ -136,6 +141,7 @@ export interface TestContext {
    */
   page: Page
   browserErrorWatcher: BrowserErrorWatcher
+  useMobile: boolean
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
@@ -203,7 +209,7 @@ export const createTestContext = (clearDb = true): TestContext => {
         await browserContext.close()
       }
     }
-    browserContext = await makeBrowserContext(browser)
+    browserContext = await makeBrowserContext(browser, ctx.useMobile)
     ctx.page = await browserContext.newPage()
     ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
     // Default timeout is 30s. It's too long given that civiform is not JS

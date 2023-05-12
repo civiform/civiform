@@ -70,3 +70,7 @@ env-var-docs/**/*build
 env-var-docs/**/*.egg*
 .coverage
 coverage.xml
+
+# Python
+.venv/
+__pycache__/
