@@ -94,7 +94,7 @@ class AdminPredicateConfiguration {
       })
 
     if (!hasValueMissing && !hasSelectionMissing) {
-      return;
+      return
     }
 
     // If there are issues with any of the fields, we show a toast and prevent submit.
