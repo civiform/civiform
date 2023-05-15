@@ -39,6 +39,7 @@ function pull_all() {
 
   docker tag civiform/civiform-dev:latest civiform-dev
   docker tag civiform/civiform-localstack:latest civiform-localstack
+  docker tag docker.io/civiform/mock-web-services:latest civiform-mock-web-services
 }
 
 if [[ $# -eq 0 ]]; then
@@ -88,6 +89,7 @@ while [ "${1:-}" != "" ]; do
     "--mock-web-services")
       echo "Pull mock-web-services docker image"
       docker pull docker.io/civiform/mock-web-services:latest
+      docker tag docker.io/civiform/mock-web-services:latest civiform-mock-web-services
       ;;
 
     *)
