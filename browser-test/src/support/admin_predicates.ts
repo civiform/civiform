@@ -60,9 +60,9 @@ export class AdminPredicates {
     await this.page.click('button:visible:has-text("Save condition")')
   }
 
-  async expectPredicateErrorToast() {
+  async expectPredicateErrorToast(type: string) {
     const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain('issue with the selections')
+    expect(toastMessages).toContain(`One or more ${type} is missing`)
   }
 
   async getQuestionId(questionName: string): Promise<string> {

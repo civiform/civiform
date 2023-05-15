@@ -245,7 +245,7 @@ describe('create and edit predicates', () => {
       'is equal to',
       '',
     )
-    await adminPredicates.expectPredicateErrorToast()
+    await adminPredicates.expectPredicateErrorToast('form fields')
     await validateScreenshot(page, 'predicate-error')
 
     // Add predicate with missing operator.
@@ -256,7 +256,17 @@ describe('create and edit predicates', () => {
       operator: '',
       value: 'eligible',
     })
-    await adminPredicates.expectPredicateErrorToast()
+    await adminPredicates.expectPredicateErrorToast('dropdowns')
+
+    // Add predicate with missing operator and value.
+    await adminPredicates.configurePredicate({
+      questionName: 'eligibility-predicate-q',
+      action: null,
+      scalar: 'text',
+      operator: '',
+      value: '',
+    })
+    await adminPredicates.expectPredicateErrorToast('form fields or dropdowns')
 
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
