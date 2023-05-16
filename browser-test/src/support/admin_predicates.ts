@@ -33,7 +33,9 @@ export class AdminPredicates {
     )
   }
 
-  async clickRemovePredicateButton(predicateType: 'visibility' | 'eligibility') {
+  async clickRemovePredicateButton(
+    predicateType: 'visibility' | 'eligibility',
+  ) {
     await this.page.click(
       `button:has-text("Remove existing ${predicateType} condition")`,
     )
