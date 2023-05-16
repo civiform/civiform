@@ -7,6 +7,7 @@ import com.typesafe.sbt.web.Import._
 import com.typesafe.sbt.gzip.Import.gzip
 import com.typesafe.sbt.digest.Import.digest
 import com.github.sbt.jacoco.JacocoPlugin.autoImport._
+import scala.sys.process.Process
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
@@ -164,6 +165,16 @@ lazy val root = (project in file("."))
       .withOverwrite(true),
     Test / pushRemoteCacheConfiguration := (Test / pushRemoteCacheConfiguration).value
       .withOverwrite(true),
+
+    Compile / resourceGenerators += Def.task {
+      val file = (Compile / resourceManaged).value / "test"
+
+      Process(
+        "python3 codegen.py", file
+      ) !
+
+      Seq(file)
+    }.taskValue,
 
     // Load the "remote" cache on startup.
     Global / onLoad := {
