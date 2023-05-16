@@ -6,12 +6,14 @@ import {
   loginAsGuest,
   loginAsTestUser,
   logout,
+  resetContext,
   selectApplicantLanguage,
   validateScreenshot,
+  TestContext,
 } from './support'
 
 describe('navigating to a deep link', () => {
-  const ctx = createTestContext()
+  const ctx: TestContext = createTestContext()
 
   const questionText = 'What is your address?'
 
@@ -43,6 +45,7 @@ describe('navigating to a deep link', () => {
   })
 
   it('shows a login prompt for guest users', async () => {
+    await resetContext(ctx)
     const {page} = ctx
 
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -57,6 +60,7 @@ describe('navigating to a deep link', () => {
   })
 
   it('does not show login prompt for logged in users', async () => {
+    await resetContext(ctx)
     const {page} = ctx
 
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -67,6 +71,7 @@ describe('navigating to a deep link', () => {
   })
 
   it('takes guests and logged in users through the flow correctly', async () => {
+    await resetContext(ctx)
     const {page} = ctx
 
     // Exercise guest path
@@ -95,5 +100,26 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
       questionText,
     )
+  })
+
+  it('Non-logged in user should get redirected to the program page and not an error', async () => {
+    await resetContext(ctx)
+    const {page, browserContext} = ctx
+
+    await selectApplicantLanguage(page, 'English')
+
+    await logout(page)
+    await browserContext.clearCookies()
+    await gotoEndpoint(page, '/programs/test-deep-link')
+    await page.click('text="Continue to application"')
+    await selectApplicantLanguage(page, 'English')
+
+    // Assert
+    await page.click('#continue-application-button')
+    expect(await page.innerText('.cf-applicant-question-text')).toContain(
+      questionText,
+    )
+
+    await logout(page)
   })
 })
