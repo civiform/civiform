@@ -247,28 +247,47 @@ describe('create and edit predicates', () => {
       'eligible',
     )
     await adminPredicates.expectPredicateErrorToast('dropdowns')
-    await adminPredicates.dismissToast()
 
-    // Add predicate with missing value.
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
       action: null,
       scalar: 'text',
       operator: 'is equal to',
-      value: '',
+      value: 'eligible',
     })
+    await adminPredicates.clickSaveConditionButton()
+    await adminPredicates.clickRemovePredicateButton('eligibility')
+
+    // Add predicate with missing value.
+    await adminPredicates.addPredicate(
+      'eligibility-predicate-q',
+      /* action= */ null,
+      'text',
+      'is equal to',
+      '',
+    )
     await adminPredicates.expectPredicateErrorToast('form fields')
     await validateScreenshot(page, 'predicate-error')
-    await adminPredicates.dismissToast()
 
-    // Add predicate with missing operator and value.
     await adminPredicates.configurePredicate({
       questionName: 'eligibility-predicate-q',
       action: null,
       scalar: 'text',
-      operator: '',
-      value: '',
+      operator: 'is equal to',
+      value: 'eligible',
     })
+    await adminPredicates.clickSaveConditionButton()
+    await adminPredicates.clickRemovePredicateButton('eligibility')
+
+    // Add predicate with missing operator and value.
+    await adminPredicates.addPredicate(
+      'eligibility-predicate-q',
+      /* action= */ null,
+      'text',
+      '',
+      '',
+    )
+    await adminPredicates.clickSaveConditionButton()
     await adminPredicates.expectPredicateErrorToast('form fields or dropdowns')
 
     await adminPredicates.configurePredicate({
@@ -278,7 +297,6 @@ describe('create and edit predicates', () => {
       operator: 'is equal to',
       value: 'eligible',
     })
-
     await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
