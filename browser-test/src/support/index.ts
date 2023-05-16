@@ -185,9 +185,6 @@ export interface TestContext {
  *     so none of its properties should be cached and reused between tests.
  */
 export const createTestContext = (clearDb = true): TestContext => {
-  // let browser: Browser
-  // let browserContext: BrowserContext
-
   // TestContext properties are set in resetContext() later. For now we just
   // need an object that we can return to caller. Caller is expected to access
   // it only from before/afterX functions or tests.
