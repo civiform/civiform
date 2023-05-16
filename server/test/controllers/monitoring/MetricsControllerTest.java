@@ -21,6 +21,13 @@ public class MetricsControllerTest extends WithMockedProfiles {
 
   @Test
   public void getMetrics_returnsMetricData() {
+    Config config =
+      ConfigFactory.parseMap(
+        ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
+
+    MetricsController controller =
+      new MetricsController(instanceOf(CollectorRegistry.class), config);
+
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -33,16 +40,10 @@ public class MetricsControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
 
-    Config config =
-        ConfigFactory.parseMap(
-            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
-
-    MetricsController controller =
-        new MetricsController(instanceOf(CollectorRegistry.class), config);
-
     String metricsContent = contentAsString(controller.getMetrics());
 
     assertThat(controller.getMetrics().status()).isEqualTo(200);
+    System.out.println(metricsContent);
     assertThat(metricsContent).contains(getEbeanCountName("Program.findList"));
     assertThat(metricsContent).contains(getEbeanCountName("Question.findList"));
     assertThat(metricsContent).contains(getEbeanCountName("Version.byId"));
