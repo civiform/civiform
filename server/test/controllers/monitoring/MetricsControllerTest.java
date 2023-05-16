@@ -1,7 +1,7 @@
 package controllers.monitoring;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.test.Helpers.*;
+import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
