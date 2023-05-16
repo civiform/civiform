@@ -193,7 +193,6 @@ export const createTestContext = (clearDb = true): TestContext => {
   // it only from before/afterX functions or tests.
   const ctx: TestContext = {} as unknown as TestContext
 
-
   beforeAll(async () => {
     ctx.browser = await chromium.launch()
     await resetContext(ctx)

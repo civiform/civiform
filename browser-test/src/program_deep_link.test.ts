@@ -5,13 +5,15 @@ import {
   loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
-  logout, resetContext,
+  logout,
+  resetContext,
   selectApplicantLanguage,
   validateScreenshot,
+  TestContext,
 } from './support'
 
 describe('navigating to a deep link', () => {
-  const ctx = createTestContext()
+  const ctx: TestContext = createTestContext()
 
   const questionText = 'What is your address?'
 
@@ -70,7 +72,7 @@ describe('navigating to a deep link', () => {
 
   it('takes guests and logged in users through the flow correctly', async () => {
     await resetContext(ctx)
-    ctx.browser.close()
+    await ctx.browser.close()
     const {page} = ctx
 
     // Exercise guest path
