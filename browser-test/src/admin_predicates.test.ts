@@ -247,6 +247,7 @@ describe('create and edit predicates', () => {
       'eligible',
     )
     await adminPredicates.expectPredicateErrorToast('dropdowns')
+    await adminPredicates.dismissToast()
 
     // Add predicate with missing value.
     await adminPredicates.configurePredicate({
@@ -258,6 +259,7 @@ describe('create and edit predicates', () => {
     })
     await adminPredicates.expectPredicateErrorToast('form fields')
     await validateScreenshot(page, 'predicate-error')
+    await adminPredicates.dismissToast()
 
     // Add predicate with missing operator and value.
     await adminPredicates.configurePredicate({

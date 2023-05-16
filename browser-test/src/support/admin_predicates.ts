@@ -65,6 +65,11 @@ export class AdminPredicates {
     expect(toastMessages).toContain(`One or more ${type} is missing`)
   }
 
+  async dismissToast() {
+    await this.page.locator('#toast-container div:text("x")').click()
+    await waitForPageJsLoad(this.page)
+  }
+
   async getQuestionId(questionName: string): Promise<string> {
     const questionNameField = this.page.getByTestId(questionName)
     expect((await questionNameField.all()).length).toEqual(1)
