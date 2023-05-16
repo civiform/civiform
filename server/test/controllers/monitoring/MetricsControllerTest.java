@@ -22,11 +22,11 @@ public class MetricsControllerTest extends WithMockedProfiles {
   @Test
   public void getMetrics_returnsMetricData() {
     Config config =
-      ConfigFactory.parseMap(
-        ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
+        ConfigFactory.parseMap(
+            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
 
     MetricsController controller =
-      new MetricsController(instanceOf(CollectorRegistry.class), config);
+        new MetricsController(instanceOf(CollectorRegistry.class), config);
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
