@@ -5,7 +5,7 @@ import {
   loginAsAdmin,
   loginAsGuest,
   loginAsTestUser,
-  logout,
+  logout, resetContext,
   selectApplicantLanguage,
   validateScreenshot,
 } from './support'
@@ -43,6 +43,7 @@ describe('navigating to a deep link', () => {
   })
 
   it('shows a login prompt for guest users', async () => {
+    await resetContext(ctx)
     const {page} = ctx
 
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -57,6 +58,7 @@ describe('navigating to a deep link', () => {
   })
 
   it('does not show login prompt for logged in users', async () => {
+    await resetContext(ctx)
     const {page} = ctx
 
     await gotoEndpoint(page, '/programs/test-deep-link')
@@ -67,6 +69,8 @@ describe('navigating to a deep link', () => {
   })
 
   it('takes guests and logged in users through the flow correctly', async () => {
+    await resetContext(ctx)
+    ctx.browser.close()
     const {page} = ctx
 
     // Exercise guest path

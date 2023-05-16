@@ -140,6 +140,8 @@ export interface TestContext {
    * Methods: https://playwright.dev/docs/api/class-page
    */
   page: Page
+  browser: Browser
+  browserContext: BrowserContext
   browserErrorWatcher: BrowserErrorWatcher
   useMobile: boolean
 
@@ -183,55 +185,18 @@ export interface TestContext {
  *     so none of its properties should be cached and reused between tests.
  */
 export const createTestContext = (clearDb = true): TestContext => {
-  let browser: Browser
-  let browserContext: BrowserContext
+  // let browser: Browser
+  // let browserContext: BrowserContext
 
   // TestContext properties are set in resetContext() later. For now we just
   // need an object that we can return to caller. Caller is expected to access
   // it only from before/afterX functions or tests.
   const ctx: TestContext = {} as unknown as TestContext
 
-  // We create new browser context and session before each test. It's
-  // important to get fresh browser context so that each test gets its own
-  // video file. If we reuse same browser context across multiple test cases -
-  // we'll get one huge video for all tests.
-  async function resetContext() {
-    if (browserContext != null) {
-      try {
-        if (!DISABLE_BROWSER_ERROR_WATCHER) {
-          ctx.browserErrorWatcher.failIfContainsErrors()
-        }
-      } finally {
-        // browserErrorWatcher might throw an error that should bubble up all
-        // the way to the developer. Regardless whether the error is thrown or
-        // not we need to close the browser context. Without that some processes
-        // won't be finished, like saving videos.
-        await browserContext.close()
-      }
-    }
-    browserContext = await makeBrowserContext(browser, ctx.useMobile)
-    ctx.page = await browserContext.newPage()
-    ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
-    // Default timeout is 30s. It's too long given that civiform is not JS
-    // heavy and all elements render quite quickly. Setting it to 5 sec so that
-    // tests fail fast.
-    ctx.page.setDefaultTimeout(8000)
-    ctx.adminQuestions = new AdminQuestions(ctx.page)
-    ctx.adminPrograms = new AdminPrograms(ctx.page)
-    ctx.adminApiKeys = new AdminApiKeys(ctx.page)
-    ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
-    ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
-    ctx.adminPredicates = new AdminPredicates(ctx.page)
-    ctx.adminTranslations = new AdminTranslations(ctx.page)
-    ctx.tiDashboard = new TIDashboard(ctx.page)
-    ctx.adminTiGroups = new AdminTIGroups(ctx.page)
-    await ctx.page.goto(BASE_URL)
-    await closeWarningMessage(ctx.page)
-  }
 
   beforeAll(async () => {
-    browser = await chromium.launch()
-    await resetContext()
+    ctx.browser = await chromium.launch()
+    await resetContext(ctx)
     // clear DB at beginning of each test suite. While data can leak/share
     // between test cases within a test file, data should not be shared
     // between test files.
@@ -240,7 +205,7 @@ export const createTestContext = (clearDb = true): TestContext => {
   })
 
   beforeEach(async () => {
-    await resetContext()
+    await resetContext(ctx)
   })
 
   afterEach(async () => {
@@ -250,14 +215,52 @@ export const createTestContext = (clearDb = true): TestContext => {
     // resetting context here so that afterAll() functions of current describe()
     // block and beforeAll() functions of the next describe() block have fresh
     // result.page object.
-    await resetContext()
+    await resetContext(ctx)
   })
 
   afterAll(async () => {
-    await endSession(browser)
+    await endSession(ctx.browser)
   })
 
   return ctx
+}
+
+// We create new browser context and session before each test. It's
+// important to get fresh browser context so that each test gets its own
+// video file. If we reuse same browser context across multiple test cases -
+// we'll get one huge video for all tests.
+export async function resetContext(ctx: TestContext) {
+  if (ctx.browserContext != null) {
+    try {
+      if (!DISABLE_BROWSER_ERROR_WATCHER) {
+        ctx.browserErrorWatcher.failIfContainsErrors()
+      }
+    } finally {
+      // browserErrorWatcher might throw an error that should bubble up all
+      // the way to the developer. Regardless whether the error is thrown or
+      // not we need to close the browser context. Without that some processes
+      // won't be finished, like saving videos.
+      await ctx.browserContext.close()
+    }
+  }
+  ctx.browserContext = await makeBrowserContext(ctx.browser, ctx.useMobile)
+  ctx.page = await ctx.browserContext.newPage()
+  ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
+  // Default timeout is 30s. It's too long given that civiform is not JS
+  // heavy and all elements render quite quickly. Setting it to 5 sec so that
+  // tests fail fast.
+  ctx.page.setDefaultTimeout(8000)
+  ctx.adminQuestions = new AdminQuestions(ctx.page)
+  ctx.adminPrograms = new AdminPrograms(ctx.page)
+  ctx.adminApiKeys = new AdminApiKeys(ctx.page)
+  ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+  ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
+  ctx.adminPredicates = new AdminPredicates(ctx.page)
+  ctx.adminTranslations = new AdminTranslations(ctx.page)
+  ctx.tiDashboard = new TIDashboard(ctx.page)
+  ctx.adminTiGroups = new AdminTIGroups(ctx.page)
+  await ctx.page.goto(BASE_URL)
+  await closeWarningMessage(ctx.page)
 }
 
 export const endSession = async (browser: Browser) => {
