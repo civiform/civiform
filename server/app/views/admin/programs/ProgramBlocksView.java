@@ -411,7 +411,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!(isIntakeFormFeatureEnabled
-            && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
+        && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
       maybeEligibilityPredicateDisplay =
           Optional.of(
               renderEligibilityPredicate(

@@ -12,7 +12,6 @@ import {
   testUserDisplayName,
   extractEmailsForRecipient,
   validateScreenshot,
-  enableFeatureFlag,
 } from './support'
 
 describe('view program statuses', () => {

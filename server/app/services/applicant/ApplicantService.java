@@ -412,8 +412,7 @@ public final class ApplicantService {
     return getReadOnlyApplicantProgramService(applicantId, programId)
         .thenCompose(
             ro ->
-                validateApplicationForSubmission(
-                    ro, nonGatedEligibilityFeatureEnabled, programId))
+                validateApplicationForSubmission(ro, nonGatedEligibilityFeatureEnabled, programId))
         .thenCompose(
             v ->
                 submitApplication(
