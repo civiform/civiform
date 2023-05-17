@@ -23,7 +23,7 @@ The title of the pull request will be used as the default release notes descript
 
 #### New Features
 
-- [ ] Add new FeatureFlag env vars to `server/conf/application.conf`
+- [ ] Add new FeatureFlag env vars to `server/conf/helper/feature-flags.conf`
 - [ ] Conditioned new functionality on a [FeatureFlag](https://docs.civiform.us/contributor-guide/developer-guide/feature-flags)
 - [ ] Wrote browser tests with the feature flag off and on, etc.
 
