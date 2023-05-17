@@ -3,7 +3,6 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -524,10 +523,6 @@ public final class ProgramIndexView extends BaseHtmlView {
    */
   private boolean shouldShowEligibilityTag(
       Http.Request request, ApplicantService.ApplicantProgramData cardData) {
-    if (!featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)) {
-      return false;
-    }
-
     if (!cardData.isProgramMaybeEligible().isPresent()) {
       return false;
     }

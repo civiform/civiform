@@ -777,7 +777,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
@@ -840,7 +839,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             firstProgram.id,
             trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ false,
             /* nonGatedEligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
@@ -854,7 +852,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             secondProgram.id,
             trustedIntermediaryProfile,
-            /* eligibilityFeatureEnabled= */ false,
             /* nonGatedEligibilityFeatureEnabled= */ false)
         .toCompletableFuture()
         .join();
@@ -884,7 +881,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
@@ -901,7 +897,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled= */ false)
             .toCompletableFuture()
             .join();
@@ -941,7 +936,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled */ false)
             .toCompletableFuture()
             .join();
@@ -978,7 +972,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled */ false)
             .toCompletableFuture()
             .join();
@@ -1061,7 +1054,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled */ false)
             .toCompletableFuture()
             .join();
@@ -1139,7 +1131,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled */ false)
             .toCompletableFuture()
             .join();
@@ -1202,7 +1193,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 applicantProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled */ false)
             .toCompletableFuture()
             .join();
@@ -1246,7 +1236,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled */ false)
             .toCompletableFuture()
             .join();
@@ -1297,7 +1286,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ true,
                         /* nonGatedEligibilityFeatureEnabled= */ true)
                     .toCompletableFuture()
                     .join())
@@ -1332,7 +1320,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ true,
                 /* nonGatedEligibilityFeatureEnabled= */ true)
             .toCompletableFuture()
             .join();
@@ -1371,7 +1358,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ false,
                 /* nonGatedEligibilityFeatureEnabled= */ true)
             .toCompletableFuture()
             .join();
@@ -1412,7 +1398,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ true,
                         /* nonGatedEligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
@@ -1550,7 +1535,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        /* eligibilityFeatureEnabled= */ false,
                         /* nonGatedEligibilityFeatureEnabled= */ false)
                     .toCompletableFuture()
                     .join())
@@ -3444,7 +3428,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ true,
                 /* nonGatedEligibilityFeatureEnabled= */ true)
             .toCompletableFuture()
             .join();
@@ -3465,7 +3448,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programDefinition.id(),
                 trustedIntermediaryProfile,
-                /* eligibilityFeatureEnabled= */ true,
                 /* nonGatedEligibilityFeatureEnabled= */ true)
             .toCompletableFuture()
             .join();

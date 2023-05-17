@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static featureflags.FeatureFlag.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -567,8 +566,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     }
 
     Map<String, String> flashingMap = new HashMap<>();
-    if (featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)
-        && roApplicantProgramService.blockHasEligibilityPredicate(blockId)
+    if (roApplicantProgramService.blockHasEligibilityPredicate(blockId)
         && roApplicantProgramService.isBlockEligible(blockId)) {
       flashingMap.put(
           "success-banner",
@@ -674,9 +672,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {
-    if (!featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)) {
-      return false;
-    }
     if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
         && !programDefinition.eligibilityIsGating()) {
       return false;

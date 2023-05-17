@@ -2,7 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -492,8 +491,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<ButtonTag> maybeRenderSettingsLink(
       Http.Request request, ProgramDefinition program) {
-    if (!(featureFlags.getFlagEnabled(request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED)
-        && featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))) {
+    if (!featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
       return Optional.empty();
     }
     if (program.isCommonIntakeForm()) {

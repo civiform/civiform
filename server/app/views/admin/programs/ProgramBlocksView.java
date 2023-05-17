@@ -5,7 +5,6 @@ import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
-import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
@@ -180,8 +179,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    featureFlags.getFlagEnabled(
-                                        request, PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED),
                                     featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
                                     request))));
 
@@ -390,7 +387,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
       ButtonTag blockDeleteModalButton,
-      boolean isProgramEligibilityConditionsEnabled,
       boolean isIntakeFormFeatureEnabled,
       Request request) {
     // A block can only be deleted when it has no repeated blocks. Same is true for removing the
@@ -414,8 +410,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
-    if (isProgramEligibilityConditionsEnabled
-        && !(isIntakeFormFeatureEnabled
+    if (!(isIntakeFormFeatureEnabled
             && program.programType().equals(ProgramType.COMMON_INTAKE_FORM))) {
       maybeEligibilityPredicateDisplay =
           Optional.of(

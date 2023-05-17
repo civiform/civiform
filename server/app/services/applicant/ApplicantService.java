@@ -392,14 +392,13 @@ public final class ApplicantService {
       long applicantId,
       long programId,
       CiviFormProfile submitterProfile,
-      boolean eligibilityFeatureEnabled,
       boolean nonGatedEligibilityFeatureEnabled) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(
               ro ->
                   validateApplicationForSubmission(
-                      ro, eligibilityFeatureEnabled, nonGatedEligibilityFeatureEnabled, programId))
+                      ro, nonGatedEligibilityFeatureEnabled, programId))
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -414,7 +413,7 @@ public final class ApplicantService {
         .thenCompose(
             ro ->
                 validateApplicationForSubmission(
-                    ro, eligibilityFeatureEnabled, nonGatedEligibilityFeatureEnabled, programId))
+                    ro, nonGatedEligibilityFeatureEnabled, programId))
         .thenCompose(
             v ->
                 submitApplication(
@@ -534,16 +533,11 @@ public final class ApplicantService {
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
       ReadOnlyApplicantProgramService roApplicantProgramService,
-      boolean eligibilityFeatureEnabled,
       boolean nonGatedEligibilityFeatureEnabled,
       long programId) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
-    }
-
-    if (!eligibilityFeatureEnabled) {
-      return CompletableFuture.completedFuture(null);
     }
 
     try {

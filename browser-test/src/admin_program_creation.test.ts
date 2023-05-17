@@ -549,7 +549,6 @@ describe('program creation', () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
     await loginAsAdmin(page)
 
@@ -570,7 +569,6 @@ describe('program creation', () => {
     const {page, adminPrograms} = ctx
 
     await enableFeatureFlag(page, 'intake_form_enabled')
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
     await loginAsAdmin(page)
 

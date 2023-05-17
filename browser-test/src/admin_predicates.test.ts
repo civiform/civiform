@@ -214,7 +214,6 @@ describe('create and edit predicates', () => {
     } = ctx
 
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
     // Add a program with two screens
     await adminQuestions.addTextQuestion({
@@ -260,7 +259,6 @@ describe('create and edit predicates', () => {
     await logout(page)
     await loginAsTestUser(page)
     await selectApplicantLanguage(page, 'English')
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
     await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that it is ineligible
@@ -310,7 +308,6 @@ describe('create and edit predicates', () => {
 
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       // Add a program with two screens
       await adminQuestions.addAddressQuestion({
@@ -397,7 +394,6 @@ describe('create and edit predicates', () => {
       const {page, adminPrograms, adminPredicates} = ctx
 
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       const programName = 'Test multiple question and value predicate config'
       await adminPrograms.addProgram(programName)
@@ -803,7 +799,6 @@ describe('create and edit predicates', () => {
       const {page, adminPrograms, applicantQuestions, adminPredicates} = ctx
 
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       const programName = 'Test all eligibility predicate types'
       await adminPrograms.addProgram(programName)
@@ -1022,7 +1017,6 @@ describe('create and edit predicates', () => {
       await logout(page)
       await loginAsTestUser(page)
       await selectApplicantLanguage(page, 'English')
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await applicantQuestions.applyProgram(programName)
 
       // For each condition:
