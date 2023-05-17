@@ -333,11 +333,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
                     programDisplayName,
                     applicant.id)),
             Mockito.contains(
-                messages.at(
-                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_BODY.getKeyName(),
-                    applicant.id,
-                    programDisplayName,
-                    STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())));
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
@@ -402,11 +398,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
                     programDisplayName,
                     applicant.id)),
             Mockito.contains(
-                koMessages.at(
-                    MessageKey.EMAIL_TI_APPLICATION_UPDATE_BODY.getKeyName(),
-                    applicant.id,
-                    programDisplayName,
-                    STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())));
+                STATUS_WITH_ONLY_ENGLISH_EMAIL.localizedEmailBodyText().get().getDefault()));
     verify(simpleEmail, times(1))
         .send(
             eq(userEmail),
