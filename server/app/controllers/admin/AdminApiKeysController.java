@@ -91,7 +91,12 @@ public class AdminApiKeysController extends CiviFormController {
     ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile.get());
 
     if (result.isSuccessful()) {
-      return created(apiKeyCredentialsView.render(result.getApiKey(), result.getCredentials()));
+      return created(
+          apiKeyCredentialsView.render(
+              result.getApiKey(),
+              result.getEncodedCredentials(),
+              result.getKeyId(),
+              result.getKeySecret()));
     }
 
     return badRequest(

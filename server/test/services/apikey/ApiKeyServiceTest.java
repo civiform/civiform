@@ -138,7 +138,7 @@ public class ApiKeyServiceTest extends ResetPostgres {
 
     assertThat(apiKeyCreationResult.isSuccessful()).isTrue();
 
-    String credentialString = apiKeyCreationResult.getCredentials();
+    String credentialString = apiKeyCreationResult.getEncodedCredentials();
     byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
     String keyId =
         Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
