@@ -1,5 +1,6 @@
 package repository;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
@@ -51,22 +52,23 @@ public final class UserRepository {
   }
 
   public Optional<Account> lookupAccountByAuthorityId(String authorityId) {
-    if (authorityId == null || authorityId.isEmpty()) {
-      return Optional.empty();
-    }
+    checkNotNull(authorityId);
+    checkArgument(!authorityId.isEmpty());
     return database.find(Account.class).where().eq("authority_id", authorityId).findOneOrEmpty();
   }
 
   public Optional<Account> lookupAccountByEmail(String emailAddress) {
-    if (emailAddress == null || emailAddress.isEmpty()) {
-      return Optional.empty();
-    }
+    checkNotNull(emailAddress);
+    checkArgument(!emailAddress.isEmpty());
     return database.find(Account.class).where().eq("email_address", emailAddress).findOneOrEmpty();
   }
 
   public CompletionStage<Optional<Account>> lookupAccountByEmailAsync(String emailAddress) {
-    if (emailAddress == null || emailAddress.isEmpty()) {
-      return CompletableFuture.completedStage(Optional.empty());
+    if (emailAddress == null) {
+      return CompletableFuture.failedStage(new NullPointerException());
+    }
+    if (emailAddress.isEmpty()) {
+      return CompletableFuture.failedStage(new IllegalArgumentException());
     }
     return supplyAsync(
         () ->
