@@ -129,7 +129,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages,
-                            request.uri(),
+                            /*postLoginRedirectTo=*/ controllers.applicant.routes.RedirectController
+                                .programBySlug(
+                                    request.flash().get("redirected-from-program-slug").get())
+                                .url(),
                             MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
                             MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
                         .setDisplayOnLoad(true)
