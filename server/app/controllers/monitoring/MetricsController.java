@@ -2,6 +2,7 @@ package controllers.monitoring;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import io.ebean.DB;
@@ -25,42 +26,22 @@ public final class MetricsController extends CiviFormController {
   private final boolean metricsEnabled;
   private final CollectorRegistry collectorRegistry;
   private final Database database;
+  private static Counter QUERY_METRIC_COUNT;
+  private static Counter QUERY_METRIC_MEAN_LATENCY;
+  private static Counter QUERY_METRIC_MAX_LATENCY;
+  private static Counter QUERY_METRIC_TOTAL_LATENCY;
 
-  private static final Counter queryMetricCount =
-      Counter.build()
-          .name("ebean_queries_total")
-          .help("Count of database queries")
-          .labelNames("name")
-          .register();
-
-  private static final Counter queryMetricMeanLatency =
-      Counter.build()
-          .name("ebean_queries_mean_latency_micros")
-          .help("Mean latency of database queries in micros")
-          .labelNames("name")
-          .register();
-
-  private static final Counter queryMetricMaxLatency =
-      Counter.build()
-          .name("ebean_queries_max_latency_micros")
-          .help("Max latency of database queries in micros")
-          .labelNames("name")
-          .register();
-
-  private static final Counter queryMetricTotalLatency =
-      Counter.build()
-          .name("ebean_queries_total_latency_micros")
-          .help("Total latency of database queries in micros")
-          .labelNames("name")
-          .register();
+  static {
+    initializeCounters();
+  }
 
   // The start index we use for the metric substring. By default, the metric names start with
   // "orm.", which is why we use 4 as the start index.
   private static final int SUBSTRING_INDEX = 4;
 
   @Inject
-  public MetricsController(CollectorRegistry collectorRegistry, Config config) {
-    this.collectorRegistry = checkNotNull(collectorRegistry);
+  public MetricsController(Config config) {
+    this.collectorRegistry = checkNotNull(CollectorRegistry.defaultRegistry);
     this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
     this.database = DB.getDefault();
   }
@@ -84,10 +65,10 @@ public final class MetricsController extends CiviFormController {
           .forEach(
               metric -> {
                 String name = metric.getName().substring(SUBSTRING_INDEX);
-                queryMetricCount.labels(name).inc((double) metric.getCount());
-                queryMetricMeanLatency.labels(name).inc((double) metric.getMean());
-                queryMetricMaxLatency.labels(name).inc((double) metric.getMax());
-                queryMetricTotalLatency.labels(name).inc((double) metric.getTotal());
+                QUERY_METRIC_COUNT.labels(name).inc((double) metric.getCount());
+                QUERY_METRIC_MEAN_LATENCY.labels(name).inc((double) metric.getMean());
+                QUERY_METRIC_MAX_LATENCY.labels(name).inc((double) metric.getMax());
+                QUERY_METRIC_TOTAL_LATENCY.labels(name).inc((double) metric.getTotal());
               });
       TextFormat.write004(writer, collectorRegistry.metricFamilySamples());
     } catch (IOException e) {
@@ -95,5 +76,36 @@ public final class MetricsController extends CiviFormController {
     }
 
     return ok(writer.toString()).as(TextFormat.CONTENT_TYPE_004);
+  }
+
+  @VisibleForTesting
+  static void initializeCounters() {
+    QUERY_METRIC_COUNT =
+        Counter.build()
+            .name("ebean_queries_total")
+            .help("Count of database queries")
+            .labelNames("name")
+            .register();
+
+    QUERY_METRIC_MEAN_LATENCY =
+        Counter.build()
+            .name("ebean_queries_mean_latency_micros")
+            .help("Mean latency of database queries in micros")
+            .labelNames("name")
+            .register();
+
+    QUERY_METRIC_MAX_LATENCY =
+        Counter.build()
+            .name("ebean_queries_max_latency_micros")
+            .help("Max latency of database queries in micros")
+            .labelNames("name")
+            .register();
+
+    QUERY_METRIC_TOTAL_LATENCY =
+        Counter.build()
+            .name("ebean_queries_total_latency_micros")
+            .help("Total latency of database queries in micros")
+            .labelNames("name")
+            .register();
   }
 }

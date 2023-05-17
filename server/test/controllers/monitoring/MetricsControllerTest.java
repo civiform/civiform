@@ -12,21 +12,27 @@ import java.util.Locale;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
+import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Result;
 import repository.VersionRepository;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
 public class MetricsControllerTest extends WithMockedProfiles {
+  @Before
+  public void setUp() {
+    resetDatabase();
+    CollectorRegistry.defaultRegistry.clear();
+    MetricsController.initializeCounters();
+  }
 
   @Test
   public void getMetrics_returnsMetricData() {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
-
-    MetricsController controller =
-        new MetricsController(instanceOf(CollectorRegistry.class), config);
+    MetricsController controllerWithMetricsEnabled = new MetricsController(config);
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
@@ -40,16 +46,17 @@ public class MetricsControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram(programDefinition.adminName());
     versionRepository.publishNewSynchronizedVersion();
 
-    String metricsContent = contentAsString(controller.getMetrics());
+    Result metricsResult = controllerWithMetricsEnabled.getMetrics();
 
-    assertThat(controller.getMetrics().status()).isEqualTo(200);
-    System.out.println(metricsContent);
-    assertThat(metricsContent).contains(getEbeanCountName("Program.findList"));
-    assertThat(metricsContent).contains(getEbeanCountName("Question.findList"));
-    assertThat(metricsContent).contains(getEbeanCountName("Version.byId"));
+    String metricsContent = contentAsString(controllerWithMetricsEnabled.getMetrics());
+
+    assertThat(metricsResult.status()).isEqualTo(200);
     assertThat(metricsContent).contains("ebean_queries_mean_latency_micros");
     assertThat(metricsContent).contains("ebean_queries_max_latency_micros");
     assertThat(metricsContent).contains("ebean_queries_total_latency_micros");
+    assertThat(metricsContent).contains(getEbeanCountName("Program.findList"));
+    assertThat(metricsContent).contains(getEbeanCountName("Question.findList"));
+    assertThat(metricsContent).contains(getEbeanCountName("Version.byId"));
   }
 
   @Test
@@ -57,10 +64,8 @@ public class MetricsControllerTest extends WithMockedProfiles {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder().put("server_metrics.enabled", "false").build());
-
-    MetricsController controller =
-        new MetricsController(instanceOf(CollectorRegistry.class), config);
-    assertThat(controller.getMetrics().status()).isEqualTo(404);
+    MetricsController controllerWithoutMetricsEnabled = new MetricsController(config);
+    assertThat(controllerWithoutMetricsEnabled.getMetrics().status()).isEqualTo(404);
   }
 
   private String getEbeanCountName(String queryName) {
