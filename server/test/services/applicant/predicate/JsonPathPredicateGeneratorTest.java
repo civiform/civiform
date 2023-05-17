@@ -153,6 +153,28 @@ public class JsonPathPredicateGeneratorTest {
   }
 
   @Test
+  public void fromLeafNode_generatesCorrectStringForBetweenAgeValue_wrongOrder() throws Exception {
+    LeafOperationExpressionNode node =
+        LeafOperationExpressionNode.create(
+            dateQuestion.getId(),
+            Scalar.DATE,
+            Operator.AGE_BETWEEN,
+            PredicateValue.listOfLongs(ImmutableList.of(100L, 1L)));
+
+    JsonPathPredicate predicate =
+        JsonPathPredicate.create(
+            "$.applicant.applicant_birth_date[?(1861920000000 >= @.date && -1262304000000 <="
+                + " @.date)]");
+
+    assertThat(generator.fromLeafNode(node)).isEqualTo(predicate);
+
+    ApplicantData data = new ApplicantData();
+    data.putDate(Path.create("applicant.applicant_birth_date.date"), "2022-01-01");
+
+    assertThat(data.evalPredicate(predicate)).isTrue();
+  }
+
+  @Test
   public void fromLeafNode_canBeEvaluated() throws Exception {
     ApplicantData data = new ApplicantData();
     data.putString(Path.create("applicant.applicant_address.city"), "Chicago");

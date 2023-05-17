@@ -2,6 +2,10 @@ package auth;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+import com.typesafe.config.Config;
 import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -49,10 +53,12 @@ public class ApiAuthenticator implements Authenticator {
 
   private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticator.class);
   private final Provider<ApiKeyService> apiKeyService;
+  private final ClientIpType clientIpType;
 
   @Inject
-  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService) {
+  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService, Config config) {
     this.apiKeyService = checkNotNull(apiKeyService);
+    this.clientIpType = checkNotNull(config).getEnum(ClientIpType.class, "client_ip_type");
   }
 
   /**
@@ -94,13 +100,7 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    SubnetUtils allowedSubnet = new SubnetUtils(apiKey.getSubnet());
-    // Setting this to true includes the network and broadcast addresses.
-    // I.e. /31 and /32 will not be considered included in the subnetwork
-    // if this is false.
-    allowedSubnet.setInclusiveHostCount(true);
-
-    if (!allowedSubnet.getInfo().isInRange(context.getRemoteAddr())) {
+    if (!isAllowedIp(apiKey, resolveClientIp(context))) {
       throwUnauthorized(
           context,
           String.format(
@@ -110,6 +110,41 @@ public class ApiAuthenticator implements Authenticator {
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
     if (!saltedCredentialsSecret.equals(apiKey.getSaltedKeySecret())) {
       throwUnauthorized(context, "Invalid secret for key ID: " + keyId);
+    }
+  }
+
+  private boolean isAllowedIp(ApiKey apiKey, String clientIp) {
+    return apiKey.getSubnetSet().stream()
+        .map(SubnetUtils::new)
+        // Setting this to true includes the network and broadcast addresses.
+        // I.e. /31 and /32 will not be considered included in the subnetwork
+        // if this is false.
+        .peek(allowedSubnet -> allowedSubnet.setInclusiveHostCount(true))
+        .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(clientIp));
+  }
+
+  @VisibleForTesting
+  String resolveClientIp(WebContext context) {
+    switch (clientIpType) {
+      case DIRECT:
+        return context.getRemoteAddr();
+      case FORWARDED:
+        String forwardedFor =
+            context
+                .getRequestHeader("X-Forwarded-For")
+                .orElseThrow(
+                    () ->
+                        new RuntimeException(
+                            "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For"
+                                + " header!"));
+        // AWS appends the original client IP to the end of the X-Forwarded-For
+        // header if it is present in the original request.
+        // See
+        // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/x-forwarded-headers.html
+        return Iterables.getLast(Splitter.on(",").split(forwardedFor)).strip();
+      default:
+        throw new IllegalStateException(
+            String.format("Unrecognized ClientIpType: %s", clientIpType));
     }
   }
 

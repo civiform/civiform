@@ -6,10 +6,12 @@ import {
   validateScreenshot,
   TestContext,
 } from './support'
+import {Locator} from 'playwright'
 
 function sharedTests(ctx: TestContext, screenshotName: string) {
   it('matches the expected screenshot', async () => {
-    await validateScreenshot(ctx.page, screenshotName)
+    const footer: Locator = ctx.page.locator('footer')
+    await validateScreenshot(footer, screenshotName)
   })
 
   it('has no accessibility violations', async () => {
@@ -17,7 +19,7 @@ function sharedTests(ctx: TestContext, screenshotName: string) {
   })
 }
 
-describe('the landing page', () => {
+describe('the footer', () => {
   const ctx = createTestContext()
 
   describe('without civiform version feature flag', () => {
@@ -28,7 +30,7 @@ describe('the landing page', () => {
       )
     })
 
-    sharedTests(ctx, 'landing-page-no-version')
+    sharedTests(ctx, 'footer-no-version')
 
     it('does not have civiform version', async () => {
       expect(await ctx.page.textContent('html')).not.toContain(
@@ -45,7 +47,7 @@ describe('the landing page', () => {
       )
     })
 
-    sharedTests(ctx, 'landing-page-with-version')
+    sharedTests(ctx, 'footer-with-version')
 
     it('has civiform version', async () => {
       expect(await ctx.page.textContent('html')).toContain('CiviForm version:')

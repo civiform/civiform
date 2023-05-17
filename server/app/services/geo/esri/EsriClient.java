@@ -8,6 +8,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.ReadContext;
+import com.typesafe.config.Config;
+import io.prometheus.client.Counter;
+import io.prometheus.client.Histogram;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
@@ -29,10 +32,29 @@ public abstract class EsriClient {
   final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final boolean metricsEnabled;
 
-  public EsriClient(Clock clock, EsriServiceAreaValidationConfig esriServiceAreaValidationConfig) {
+  private static final Histogram ESRI_LOOKUP_TIME =
+      Histogram.build()
+          .name("esri_lookup_time_seconds")
+          .help("Execution time of ESRI lookup")
+          .register();
+
+  private static final Counter ESRI_LOOKUP_COUNT =
+      Counter.build()
+          .name("esri_lookup_total")
+          .help("Values retrieved in ESRI lookup")
+          .labelNames("type")
+          .register();
+
+  public EsriClient(
+      Clock clock,
+      EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
+      Optional<Config> maybeConfig) {
     this.clock = checkNotNull(clock);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
+    this.metricsEnabled =
+        maybeConfig.isPresent() ? maybeConfig.get().getBoolean("server_metrics.enabled") : false;
   }
 
   /**
@@ -71,6 +93,7 @@ public abstract class EsriClient {
     addressJson.put("state", address.getState());
     addressJson.put("zip", address.getZip());
 
+    Histogram.Timer timer = ESRI_LOOKUP_TIME.startTimer();
     return fetchAddressSuggestions(addressJson)
         .thenApply(
             (maybeJson) -> {
@@ -79,6 +102,9 @@ public abstract class EsriClient {
                     "EsriClient.fetchAddressSuggestions JSON response is empty. Called by"
                         + " EsriClient.getAddressSuggestions. Address = {}",
                     address);
+                if (metricsEnabled) {
+                  ESRI_LOOKUP_COUNT.labels("No suggestions").inc();
+                }
                 return AddressSuggestionGroup.builder()
                     .setWellKnownId(0)
                     .setOriginalAddress(address)
@@ -100,9 +126,16 @@ public abstract class EsriClient {
                 Address candidateAddress =
                     Address.builder()
                         .setStreet(attributes.get("Address").asText())
-                        .setLine2(attributes.get("SubAddr").asText())
+                        .setLine2(
+                            attributes.get("SubAddr") == null || attributes.get("SubAddr").isEmpty()
+                                ? address.getLine2()
+                                : attributes.get("SubAddr").asText())
                         .setCity(attributes.get("City").asText())
-                        .setState(attributes.get("RegionAbbr").asText())
+                        .setState(
+                            attributes.get("RegionAbbr") == null
+                                    || attributes.get("RegionAbbr").isEmpty()
+                                ? address.getState()
+                                : attributes.get("RegionAbbr").asText())
                         .setZip(attributes.get("Postal").asText())
                         .build();
                 // Suggestion must be a fully formed address.
@@ -111,6 +144,9 @@ public abstract class EsriClient {
                     || candidateAddress.getCity().isEmpty()
                     || candidateAddress.getState().isEmpty()
                     || candidateAddress.getZip().isEmpty()) {
+                  if (metricsEnabled) {
+                    ESRI_LOOKUP_COUNT.labels("Partially formed address").inc();
+                  }
                   continue;
                 }
                 AddressSuggestion addressCandidate =
@@ -120,6 +156,9 @@ public abstract class EsriClient {
                         .setScore(candidateJson.get("score").asInt())
                         .setAddress(candidateAddress)
                         .build();
+                if (metricsEnabled) {
+                  ESRI_LOOKUP_COUNT.labels("Full address").inc();
+                }
                 suggestionBuilder.add(addressCandidate);
               }
 
@@ -129,6 +168,11 @@ public abstract class EsriClient {
                       .setAddressSuggestions(suggestionBuilder.build())
                       .setOriginalAddress(address)
                       .build();
+
+              if (metricsEnabled) {
+                // Record the execution time of the esri lookup process.
+                timer.observeDuration();
+              }
               return addressCandidates;
             });
   }

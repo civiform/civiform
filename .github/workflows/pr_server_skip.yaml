@@ -1,4 +1,4 @@
-name: pr_server
+name: Skip Server - On PR to Main
 
 # This is a pattern for having workflows that only run when specific paths in the
 # repo are edited and are required when they run, but are otherwise skipped.
@@ -14,6 +14,7 @@ on:
       - 'bin/**'
       - 'browser-test/**'
       - 'test-support/**'
+      - 'mock-web-services/**'
       - 'Dockerfile'
       - 'prod.Dockerfile'
       - '.github/workflows/**'

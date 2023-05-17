@@ -25,7 +25,6 @@ public final class DebugContent extends BaseHtmlView {
     return div()
         .withClasses("flex", "flex-col")
         .with(
-            p("DEVELOPMENT MODE TOOLS:").withClasses("text-2xl"),
             redirectButton(
                 "admin",
                 "CiviForm Admin",

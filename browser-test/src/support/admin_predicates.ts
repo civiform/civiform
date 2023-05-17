@@ -33,6 +33,14 @@ export class AdminPredicates {
     )
   }
 
+  async clickRemovePredicateButton(
+    predicateType: 'visibility' | 'eligibility',
+  ) {
+    await this.page.click(
+      `button:has-text("Remove existing ${predicateType} condition")`,
+    )
+  }
+
   async addPredicates(predicateSpecs: PredicateSpec[]) {
     for (const predicateSpec of predicateSpecs) {
       await this.selectQuestionForPredicate(predicateSpec.questionName)
@@ -58,6 +66,11 @@ export class AdminPredicates {
 
   async clickSaveConditionButton() {
     await this.page.click('button:visible:has-text("Save condition")')
+  }
+
+  async expectPredicateErrorToast(type: string) {
+    const toastMessages = await this.page.innerText('#toast-container')
+    expect(toastMessages).toContain(`One or more ${type} is missing`)
   }
 
   async getQuestionId(questionName: string): Promise<string> {

@@ -15,6 +15,7 @@ import org.pac4j.core.util.HttpActionHelper;
  * This class implements a special client that allows logging in without logging in to a real AD
  * account. The feature is only enabled in demo mode.
  */
+// TODO(#4705): make this available without login page
 public class FakeAdminClient extends IndirectClient {
 
   public static final String CLIENT_NAME = "FakeAdminClient";

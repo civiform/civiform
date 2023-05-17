@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import java.util.StringJoiner;
 import java.util.function.Function;
 import models.ApiKey;
 import modules.MainModule;
@@ -117,6 +118,9 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                       .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON)));
     }
 
+    var subnetJoiner = new StringJoiner(", ");
+    apiKey.getSubnetSet().forEach(subnetJoiner::add);
+
     DivTag topRowDiv =
         div()
             .with(
@@ -125,7 +129,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                         p("ID: " + apiKey.getKeyId())
                             .withClasses("text-gray-700", "text-sm")
                             .withClasses(ReferenceClasses.BT_API_KEY_ID),
-                        p("Allowed subnet: " + apiKey.getSubnet())
+                        p("Allowed subnets: " + subnetJoiner.toString())
                             .withClasses("text-gray-700", "text-sm"))),
                 statsDiv)
             .withClasses("flex", "place-content-between");

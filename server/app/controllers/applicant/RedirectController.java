@@ -5,6 +5,7 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
+import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -77,11 +78,14 @@ public final class RedirectController extends CiviFormController {
   public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    if (!featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS)
-        && profile.isEmpty()) {
-      Result result = redirect(routes.HomeController.loginForm(Optional.of("login")));
+    if (profile.isEmpty()) {
+      Result result;
+      if (featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS)) {
+        result = redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url());
+      } else {
+        result = redirect(routes.HomeController.loginForm(Optional.of("login")));
+      }
       result = result.withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
-
       return CompletableFuture.completedFuture(result);
     }
 
@@ -114,9 +118,11 @@ public final class RedirectController extends CiviFormController {
                         if (programForExistingApplication.isPresent()) {
                           return CompletableFuture.completedFuture(
                               redirect(
-                                  controllers.applicant.routes.ApplicantProgramReviewController
-                                      .review(
-                                          applicantId, programForExistingApplication.get().id())));
+                                      controllers.applicant.routes.ApplicantProgramReviewController
+                                          .review(
+                                              applicantId,
+                                              programForExistingApplication.get().id()))
+                                  .flashing("redirected-from-program-slug", "true"));
                         }
 
                         return redirectToActiveProgram(applicantId, programSlug);
@@ -132,8 +138,9 @@ public final class RedirectController extends CiviFormController {
         .thenApplyAsync(
             (activeProgramDefinition) ->
                 redirect(
-                    controllers.applicant.routes.ApplicantProgramReviewController.review(
-                        applicantId, activeProgramDefinition.id())),
+                        controllers.applicant.routes.ApplicantProgramReviewController.review(
+                            applicantId, activeProgramDefinition.id()))
+                    .flashing("redirected-from-program-slug", "true"),
             httpContext.current());
   }
 

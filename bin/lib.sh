@@ -24,3 +24,6 @@ if [[ "${SOURCED_LIB}" != "true" ]]; then
 
   SOURCED_LIB="true"
 fi
+
+SBT_VERSION=$(grep 'sbt.version' ${LIB_DIR}/../../server/project/build.properties)
+export SBT_VERSION=${SBT_VERSION#sbt.version=}

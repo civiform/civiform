@@ -1,4 +1,4 @@
-name: Generate environment variable documentation markdown for release
+name: Env Variable Docs - Generate
 
 on:
   # Need to declare separate inputs for getting manually called (workflow_dispatch) and called by the release.yaml workflow (workflow_call).

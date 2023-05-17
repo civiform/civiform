@@ -3,6 +3,7 @@ package controllers.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
+import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.ToastMessage.ToastType.ALERT;
 import static views.components.ToastMessage.ToastType.SUCCESS;
 
@@ -34,8 +35,10 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import views.ApplicantUtils;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.components.Modal;
 import views.components.ToastMessage;
 
 /**
@@ -108,7 +111,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               } catch (ProgramNotFoundException e) {
                 return notFound(e.toString());
               }
-              ApplicantProgramSummaryView.Params params =
+              ApplicantProgramSummaryView.Params.Builder params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
                       .setApplicantName(applicantStage.toCompletableFuture().join())
@@ -116,9 +119,25 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
                       .setMessages(messages)
                       .setProgramId(programId)
-                      .setRequest(request)
-                      .build();
-              return ok(summaryView.render(params));
+                      .setRequest(request);
+
+              // Show a login prompt on the review page if we were redirected from a program slug
+              // and user is a guest.
+              if (request.flash().get("redirected-from-program-slug").isPresent()
+                  && ApplicantUtils.isGuest(
+                      applicantStage.toCompletableFuture().join(), messages)) {
+                Modal loginPromptModal =
+                    createLoginPromptModal(
+                            messages,
+                            request.uri(),
+                            MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                            MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
+                        .setDisplayOnLoad(true)
+                        .build();
+                params.setLoginPromptModal(loginPromptModal);
+              }
+
+              return ok(summaryView.render(params.build()));
             },
             httpExecutionContext.current())
         .exceptionally(

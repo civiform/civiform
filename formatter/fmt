@@ -102,5 +102,6 @@ else
     --in-place \
     --recursive \
     --exclude env-var-docs/venv \
+    --exclude mock-web-services/.venv \
     .
 fi

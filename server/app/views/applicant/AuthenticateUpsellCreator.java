@@ -16,13 +16,16 @@ import views.components.Modal.Width;
 import views.style.StyleUtils;
 
 /** Helper methods for rendering authentication related upsells. */
-final class AuthenticateUpsellCreator extends BaseHtmlView {
+public final class AuthenticateUpsellCreator extends BaseHtmlView {
 
   /** Creates a Modal that prompts the guest user to log in or create an account. */
-  static Modal createLoginPromptModal(
-      Messages messages, String postLoginRedirectTo, MessageKey bypassMessage) {
+  public static Modal.Builder createLoginPromptModal(
+      Messages messages,
+      String postLoginRedirectTo,
+      MessageKey description,
+      MessageKey bypassMessage) {
     String modalTitle = messages.at(MessageKey.TITLE_CREATE_AN_ACCOUNT.getKeyName());
-    String modalDescription = messages.at(MessageKey.LOGIN_MODAL_PROMPT.getKeyName());
+    String modalDescription = messages.at(description.getKeyName());
 
     // Include randomization in the IDs for this modal since some pages may have
     // multiple modals.
@@ -51,8 +54,7 @@ final class AuthenticateUpsellCreator extends BaseHtmlView {
         .setModalId(Modal.randomModalId())
         .setContent(modalContent)
         .setModalTitle(modalTitle)
-        .setWidth(Width.HALF)
-        .build();
+        .setWidth(Width.HALF);
   }
 
   /** Creates a button that redirects to the account creation page. */

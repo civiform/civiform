@@ -563,11 +563,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag div =
         div()
             .withClasses("my-4")
-            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"));
-    if (predicate.isEmpty()) {
-      div.with(
-          renderEmptyEligibilityPredicate(program, request).withClasses("text-lg", "max-w-prose"));
-    } else {
+            .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
+            .with(
+                renderEmptyEligibilityPredicate(program, request)
+                    .withClasses("text-lg", "max-w-prose"));
+    if (!predicate.isEmpty()) {
       div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
     }
     if (viewAllowsEditingProgram()) {

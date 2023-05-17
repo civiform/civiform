@@ -17,6 +17,7 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
+import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -59,6 +60,7 @@ import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.Modal.RepeatOpenBehavior;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -112,6 +114,13 @@ public final class ProgramIndexView extends BaseHtmlView {
     HtmlBundle bundle = layout.getBundle();
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
+
+    String sessionEndedMessage = messages.at(MessageKey.TOAST_SESSION_ENDED.getKeyName());
+    bundle.addToastMessages(
+        ToastMessage.success(sessionEndedMessage)
+            .setCondOnStorageKey("session_just_ended")
+            .setDuration(5000));
+
     bundle.addMainContent(
         topContent(messages, userName),
         mainContent(
@@ -471,7 +480,14 @@ public final class ProgramIndexView extends BaseHtmlView {
             .url();
 
     Modal loginPromptModal =
-        createLoginPromptModal(messages, actionUrl, MessageKey.BUTTON_CONTINUE_TO_APPLICATION);
+        createLoginPromptModal(
+                messages,
+                actionUrl,
+                MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
+            .setRepeatOpenBehavior(
+                RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))
+            .build();
     bundle.addModals(loginPromptModal);
 
     // If the user is a guest, show the login prompt modal, which has a button

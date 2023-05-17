@@ -61,6 +61,10 @@ export class BrowserErrorWatcher {
   failIfContainsErrors() {
     const errorsToReport = this.errors
       .filter((error) => !this.downloadUrls.has(error.url))
+      // Console errors with the message net::ERR_ABORTED have been a source of test
+      // flakiness. We were unable to find any cases of these errors indicating actual
+      // problems with the app or test system so ignore them here.
+      .filter((error) => !error.message.includes('net::ERR_ABORTED'))
       .filter((error) => {
         return !this.urlsToIgnore.some((regexp) => regexp.test(error.url))
       })

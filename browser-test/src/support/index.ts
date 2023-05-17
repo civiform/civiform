@@ -8,6 +8,8 @@ import {
   PageScreenshotOptions,
   LocatorScreenshotOptions,
   Locator,
+  devices,
+  BrowserContextOptions,
 } from 'playwright'
 import * as path from 'path'
 import {MatchImageSnapshotOptions} from 'jest-image-snapshot'
@@ -66,7 +68,15 @@ export enum AuthStrategy {
 export const isHermeticTestEnvironment = () =>
   TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC
 
-function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
+function makeBrowserContext(
+  browser: Browser,
+  useMobile = false,
+): Promise<BrowserContext> {
+  const contextOptions: BrowserContextOptions = {
+    ...(useMobile ? devices['Pixel 5'] : {}),
+    acceptDownloads: true,
+  }
+
   if (process.env.RECORD_VIDEO) {
     // https://playwright.dev/docs/videos
     // Docs state that videos are only saved upon
@@ -92,17 +102,12 @@ function makeBrowserContext(browser: Browser): Promise<BrowserContext> {
         dirs.push(testName.replaceAll(/[:"<>|*?]/g, ''))
       }
     }
-    return browser.newContext({
-      acceptDownloads: true,
-      recordVideo: {
-        dir: path.join(...dirs),
-      },
-    })
-  } else {
-    return browser.newContext({
-      acceptDownloads: true,
-    })
+    contextOptions.recordVideo = {
+      dir: path.join(...dirs),
+    }
   }
+
+  return browser.newContext(contextOptions)
 }
 
 export const startSession = async (
@@ -135,7 +140,10 @@ export interface TestContext {
    * Methods: https://playwright.dev/docs/api/class-page
    */
   page: Page
+  browser: Browser
+  browserContext: BrowserContext
   browserErrorWatcher: BrowserErrorWatcher
+  useMobile: boolean
 
   adminQuestions: AdminQuestions
   adminPrograms: AdminPrograms
@@ -177,55 +185,14 @@ export interface TestContext {
  *     so none of its properties should be cached and reused between tests.
  */
 export const createTestContext = (clearDb = true): TestContext => {
-  let browser: Browser
-  let browserContext: BrowserContext
-
   // TestContext properties are set in resetContext() later. For now we just
   // need an object that we can return to caller. Caller is expected to access
   // it only from before/afterX functions or tests.
   const ctx: TestContext = {} as unknown as TestContext
 
-  // We create new browser context and session before each test. It's
-  // important to get fresh browser context so that each test gets its own
-  // video file. If we reuse same browser context across multiple test cases -
-  // we'll get one huge video for all tests.
-  async function resetContext() {
-    if (browserContext != null) {
-      try {
-        if (!DISABLE_BROWSER_ERROR_WATCHER) {
-          ctx.browserErrorWatcher.failIfContainsErrors()
-        }
-      } finally {
-        // browserErrorWatcher might throw an error that should bubble up all
-        // the way to the developer. Regardless whether the error is thrown or
-        // not we need to close the browser context. Without that some processes
-        // won't be finished, like saving videos.
-        await browserContext.close()
-      }
-    }
-    browserContext = await makeBrowserContext(browser)
-    ctx.page = await browserContext.newPage()
-    ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
-    // Default timeout is 30s. It's too long given that civiform is not JS
-    // heavy and all elements render quite quickly. Setting it to 5 sec so that
-    // tests fail fast.
-    ctx.page.setDefaultTimeout(8000)
-    ctx.adminQuestions = new AdminQuestions(ctx.page)
-    ctx.adminPrograms = new AdminPrograms(ctx.page)
-    ctx.adminApiKeys = new AdminApiKeys(ctx.page)
-    ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
-    ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
-    ctx.adminPredicates = new AdminPredicates(ctx.page)
-    ctx.adminTranslations = new AdminTranslations(ctx.page)
-    ctx.tiDashboard = new TIDashboard(ctx.page)
-    ctx.adminTiGroups = new AdminTIGroups(ctx.page)
-    await ctx.page.goto(BASE_URL)
-    await closeWarningMessage(ctx.page)
-  }
-
   beforeAll(async () => {
-    browser = await chromium.launch()
-    await resetContext()
+    ctx.browser = await chromium.launch()
+    await resetContext(ctx)
     // clear DB at beginning of each test suite. While data can leak/share
     // between test cases within a test file, data should not be shared
     // between test files.
@@ -234,7 +201,7 @@ export const createTestContext = (clearDb = true): TestContext => {
   })
 
   beforeEach(async () => {
-    await resetContext()
+    await resetContext(ctx)
   })
 
   afterEach(async () => {
@@ -244,14 +211,52 @@ export const createTestContext = (clearDb = true): TestContext => {
     // resetting context here so that afterAll() functions of current describe()
     // block and beforeAll() functions of the next describe() block have fresh
     // result.page object.
-    await resetContext()
+    await resetContext(ctx)
   })
 
   afterAll(async () => {
-    await endSession(browser)
+    await endSession(ctx.browser)
   })
 
   return ctx
+}
+
+// We create new browser context and session before each test. It's
+// important to get fresh browser context so that each test gets its own
+// video file. If we reuse same browser context across multiple test cases -
+// we'll get one huge video for all tests.
+export async function resetContext(ctx: TestContext) {
+  if (ctx.browserContext != null) {
+    try {
+      if (!DISABLE_BROWSER_ERROR_WATCHER) {
+        ctx.browserErrorWatcher.failIfContainsErrors()
+      }
+    } finally {
+      // browserErrorWatcher might throw an error that should bubble up all
+      // the way to the developer. Regardless whether the error is thrown or
+      // not we need to close the browser context. Without that some processes
+      // won't be finished, like saving videos.
+      await ctx.browserContext.close()
+    }
+  }
+  ctx.browserContext = await makeBrowserContext(ctx.browser, ctx.useMobile)
+  ctx.page = await ctx.browserContext.newPage()
+  ctx.browserErrorWatcher = new BrowserErrorWatcher(ctx.page)
+  // Default timeout is 30s. It's too long given that civiform is not JS
+  // heavy and all elements render quite quickly. Setting it to 5 sec so that
+  // tests fail fast.
+  ctx.page.setDefaultTimeout(8000)
+  ctx.adminQuestions = new AdminQuestions(ctx.page)
+  ctx.adminPrograms = new AdminPrograms(ctx.page)
+  ctx.adminApiKeys = new AdminApiKeys(ctx.page)
+  ctx.adminProgramStatuses = new AdminProgramStatuses(ctx.page)
+  ctx.applicantQuestions = new ApplicantQuestions(ctx.page)
+  ctx.adminPredicates = new AdminPredicates(ctx.page)
+  ctx.adminTranslations = new AdminTranslations(ctx.page)
+  ctx.tiDashboard = new TIDashboard(ctx.page)
+  ctx.adminTiGroups = new AdminTIGroups(ctx.page)
+  await ctx.page.goto(BASE_URL)
+  await closeWarningMessage(ctx.page)
 }
 
 export const endSession = async (browser: Browser) => {
@@ -278,27 +283,31 @@ export const logout = async (page: Page) => {
   // Logout is handled by the play framework so it doesn't land on a
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
-  // for the final destination URL (the language selection page,
-  // /applicants/edit/123), to make tests reliable.
+  // for the final destination URL (the programs index page), to make tests reliable.
   await page.waitForURL('**/applicants/**')
+  await validateToastMessage(page, 'Your session has ended.')
 }
 
 export const loginAsAdmin = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#admin')
   await waitForPageJsLoad(page)
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#program-admin')
   await waitForPageJsLoad(page)
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#dual-admin')
   await waitForPageJsLoad(page)
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
+  await page.click('#debug-content-modal-button')
   await page.click('#trusted-intermediary')
   await waitForPageJsLoad(page)
 }
@@ -310,11 +319,6 @@ export const loginAsGuest = async (page: Page) => {
   // CiviForm defaults to the guest user.
 }
 
-export const setLangEsUS = async (page: Page) => {
-  await page.click('text=Español')
-  await page.click('text=Submit')
-}
-
 /**
  * Logs in via an auth provider.
  * @param loginButton Selector of a button on current page that starts auth
@@ -322,8 +326,10 @@ export const setLangEsUS = async (page: Page) => {
  *     login can be initiated from different pages, for example after program
  *     submission.
  */
-export const loginAsTestUser = async (page: Page) => {
-  const loginButton = 'a:has-text("Log in")'
+export const loginAsTestUser = async (
+  page: Page,
+  loginButton = 'a:has-text("Log in")',
+) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
       await loginAsTestUserFakeOidc(page, loginButton)
@@ -422,28 +428,13 @@ export const supportsEmailInspection = () => {
 }
 
 /**
- * The option to select a language is only shown once for a given applicant. If this is
- * the first time they see this page, select the given language. Otherwise continue.
+ * The option to select a language is shown in the header bar as a dropdown. This helper method selects the given language from the dropdown.
  */
-export const selectApplicantLanguage = async (
-  page: Page,
-  language: string,
-  assertProgramIndexPage = false,
-) => {
-  const infoPageRegex = /applicants\/\d+\/edit/
-  const maybeSelectLanguagePage = page.url()
-  if (maybeSelectLanguagePage.match(infoPageRegex)) {
-    const languageOption = `.cf-radio-option:has-text("${language}")`
-    await page.click(languageOption + ' input')
-    await page.click('button:visible')
-  }
-  await waitForPageJsLoad(page)
+export const selectApplicantLanguage = async (page: Page, language: string) => {
+  await page.click('#select-language')
+  await page.selectOption('#select-language', {label: language})
 
-  if (assertProgramIndexPage) {
-    const programIndexRegex = /applicants\/\d+\/programs/
-    const maybeProgramIndexPage = page.url()
-    expect(maybeProgramIndexPage).toMatch(programIndexRegex)
-  }
+  await waitForPageJsLoad(page)
 }
 
 export const dropTables = async (page: Page) => {

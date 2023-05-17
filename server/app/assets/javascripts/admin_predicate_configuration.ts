@@ -1,3 +1,4 @@
+import {ToastController} from './toast'
 import {addEventListenerToElements, assertNotNull} from './util'
 
 /** Dynamic behavior for ProgramBlockPredicateConfigureView.
@@ -21,6 +22,12 @@ class AdminPredicateConfiguration {
     if (document.querySelector('.predicate-config-value-row') == null) {
       return
     }
+
+    addEventListenerToElements(
+      '#predicate-submit-button',
+      'click',
+      (event: Event) => this.validateSubmit(event),
+    )
 
     addEventListenerToElements('.cf-scalar-select', 'input', (event: Event) =>
       this.configurePredicateFormOnScalarChange(event),
@@ -50,6 +57,71 @@ class AdminPredicateConfiguration {
       'click',
       (event: Event) => this.predicateDeleteValueRow(event),
     )
+  }
+
+  validateSubmit(event: Event) {
+    let hasSelectionMissing = false
+    let hasValueMissing = false
+
+    // Check if any scalars are missing a value.
+    Array.from(
+      document.querySelectorAll<HTMLSelectElement>('.cf-scalar-select select'),
+    ).forEach((el: HTMLSelectElement) => {
+      if (el.options[el.options.selectedIndex].value == '') {
+        hasSelectionMissing = true
+      }
+    })
+
+    // Check if any operators are missing a value.
+    Array.from(
+      document.querySelectorAll<HTMLSelectElement>(
+        '.cf-operator-select select',
+      ),
+    ).forEach((el: HTMLSelectElement) => {
+      if (el.options[el.options.selectedIndex].value == '') {
+        hasSelectionMissing = true
+      }
+    })
+
+    // Check if any inputs are missing a value.
+    document
+      ?.querySelector('#predicate-config-value-row-container')
+      ?.querySelectorAll('input')
+      .forEach((input) => {
+        if (input.value == '') {
+          hasValueMissing = true
+        }
+      })
+
+    if (!hasValueMissing && !hasSelectionMissing) {
+      return
+    }
+
+    // If there are issues with any of the fields, we show a toast and prevent submit.
+    event.preventDefault()
+    // Scroll to the top of the page to ensure the user sees the error message.
+    window.scrollTo(0, 0)
+    let errorMessage
+    if (hasSelectionMissing && hasValueMissing) {
+      errorMessage =
+        'One or more form fields or dropdowns is missing an entry. Please fill out all form fields and dropdowns before saving.'
+    } else if (hasSelectionMissing) {
+      errorMessage =
+        'One or more dropdowns is missing a selection. Please fill out all dropdowns before saving.'
+    } else {
+      errorMessage =
+        'One or more form fields is missing an entry. Please fill out all form fields before saving.'
+    }
+
+    ToastController.showToastMessage({
+      id: `predicate-issue-${Math.random()}`,
+      content: errorMessage,
+      duration: -1,
+      type: 'error',
+      condOnStorageKey: null,
+      canDismiss: true,
+      canIgnore: false,
+    })
   }
 
   configurePredicateFormOnScalarChange(event: Event) {

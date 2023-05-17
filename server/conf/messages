@@ -40,6 +40,9 @@ label.languageSr=Choose a language
 # Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=End session
 
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
+toast.sessionEnded=Your session has ended.
+
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=You''re a guest user.
 
@@ -342,7 +345,10 @@ title.createAnAccount=Create an account or sign in
 content.pleaseCreateAccount=Log in to your {0} account or create an account to have your information saved. You''ll be able to return at any time to complete future applications. If you do not already have an account, the login page will allow you to sign up and you won''t lose any data you''ve already entered.
 
 # A message to show on the login prompt modal that encourages users to log in before applying to other programs.
-content.loginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
+content.generalLoginModalPrompt=You are not logged in to an account. Without an account you will not be able to edit an application, check the status of your application, or apply for other benefits quickly.
+
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
+content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
 
 # A button for continuing to apply to other programs without an account.
 button.continueWithoutAnAccount=Continue without an account

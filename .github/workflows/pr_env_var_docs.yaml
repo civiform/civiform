@@ -1,4 +1,4 @@
-name: pr_env_var_docs
+name: Env Variable Docs - Validate
 
 # Cancels in-progress jobs on this pull request when new commits are pushed.
 # This avoids wasted work for old commits.

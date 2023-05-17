@@ -33,6 +33,7 @@ import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
+import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -72,6 +73,10 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
   public Content render(Params params) {
     Messages messages = params.messages();
     HtmlBundle bundle = layout.getBundle();
+
+    if (params.loginPromptModal().isPresent()) {
+      bundle.addModals(params.loginPromptModal().get());
+    }
 
     DivTag applicationSummary = div().withId("application-summary").withClasses("mb-8");
     Optional<RepeatedEntity> previousRepeatedEntity = Optional.empty();
@@ -309,6 +314,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract int totalBlockCount();
 
+    abstract Optional<Modal> loginPromptModal();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -333,6 +340,8 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       public abstract Builder setSummaryData(ImmutableList<AnswerData> summaryData);
 
       public abstract Builder setTotalBlockCount(int totalBlockCount);
+
+      public abstract Builder setLoginPromptModal(Modal loginPromptModal);
 
       abstract Optional<String> applicantName();
 

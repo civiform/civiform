@@ -48,6 +48,19 @@ export class ToastController {
       return
     }
 
+    if (message.condOnStorageKey) {
+      // If showing this message is conditioned on a localStorage key, check if the key is stored.
+      const keyIsStored =
+        localStorage.getItem(message.condOnStorageKey) !== null
+      if (keyIsStored) {
+        // If the key is stored, remove it now and show the message.
+        localStorage.removeItem(message.condOnStorageKey)
+      } else {
+        // If the key is not stored, don't show the message.
+        return
+      }
+    }
+
     const toastMessage = document.createElement('div')
     toastMessage.setAttribute('id', message.id)
     toastMessage.setAttribute('ignorable', String(message.canIgnore))
@@ -167,6 +180,7 @@ export class ToastController {
         canDismiss: element.getAttribute('canDismiss') === 'true',
         canIgnore: element.getAttribute('canIgnore') === 'true',
         content: assertNotNull(element.textContent),
+        condOnStorageKey: element.getAttribute('condOnStorageKey'),
         duration: Number(element.getAttribute('toastDuration')),
         type: element.getAttribute('toastType')!.toLowerCase(),
       }
@@ -230,6 +244,7 @@ type ToastMessage = {
   id: string
   canDismiss: boolean
   canIgnore: boolean
+  condOnStorageKey: string | null
   content: string
   duration: number
   type: string

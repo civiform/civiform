@@ -397,6 +397,11 @@
     "description": "The release version of CiviForm. For example: v1.18.0. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if it a value other than the empty string or 'latest'.",
     "type": "string"
   },
+  "CLIENT_IP_TYPE": {
+    "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
+    "type": "string",
+    "values": ["DIRECT", "FORWARDED"]
+  },
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
@@ -494,6 +499,10 @@
       },
       "BYPASS_LOGIN_LANGUAGE_SCREENS": {
         "description": "Bypasses the login and language screens and takes applicant straight to programs page.",
+        "type": "bool"
+      },
+      "PUBLISH_SINGLE_PROGRAM_ENABLED": {
+        "description": "Enables the feature that allows publishing a single program on its own.",
         "type": "bool"
       }
     }

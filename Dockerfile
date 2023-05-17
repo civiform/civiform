@@ -5,11 +5,11 @@
 # Docker's BuildKit skips unused stages so the image for the platform that isn't used will not be built.
 
 FROM eclipse-temurin:11.0.19_7-jdk-alpine as amd64
-FROM bellsoft/liberica-openjdk-alpine:11.0.18-10 as arm64
+FROM bellsoft/liberica-openjdk-alpine:11.0.19-7 as arm64
 
 FROM ${TARGETARCH}
 
-ENV SBT_VERSION "1.6.2"
+ENV SBT_VERSION "${SBT_VERSION:-1.8.2}"
 ENV INSTALL_DIR /usr/local
 ENV SBT_HOME /usr/local/sbt
 ENV PATH "${PATH}:${SBT_HOME}/bin"

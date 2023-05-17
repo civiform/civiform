@@ -37,9 +37,10 @@ public final class CiviFormProfileMerger {
       BiFunction<Optional<CiviFormProfile>, T, UserProfile> mergeFunction) {
 
     if (applicantInDatabase.isPresent()) {
-      if (guestProfile.isEmpty()) {
-        // Easy merge case - we have an existing applicant, but no guest profile.
-        // This will be the most common.
+      if (guestProfile.isEmpty()
+          || guestProfile.get().getApplicant().join().getApplications().isEmpty()) {
+        // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
+        // with no applications). This will be the most common.
         guestProfile = Optional.of(profileFactory.wrap(applicantInDatabase.get()));
       } else {
         // Merge the two applicants and prefer the newer one.

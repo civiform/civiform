@@ -54,11 +54,7 @@ describe('applicant program index page', () => {
   it('shows log in button for guest users', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
 
@@ -75,30 +71,46 @@ describe('applicant program index page', () => {
   it('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
 
+    // Click Apply on the primary program. This should show the login prompt modal.
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).toContain(
+      'Create an account or sign in',
     )
     await validateScreenshot(page, 'apply-program-login-prompt', {
       fullPage: false,
     })
+
+    // Close the modal and click Apply again. This time, we should not see the login prompt modal.
+    await page.click(`.cf-modal .cf-modal-close`)
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).not.toContain(
+      'Create an account or sign in',
+    )
+
+    // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
+    await logout(page)
+    await loginAsGuest(page)
+    await selectApplicantLanguage(page, 'English')
+    await page.click(
+      `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
+    )
+    expect(await page.textContent('html')).toContain(
+      'Create an account or sign in',
+    )
   })
 
   it('categorizes programs for draft and applied applications', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsTestUser(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     // Navigate to the applicant's program index and validate that both programs appear in the
     // "Not started" section.
@@ -135,11 +147,7 @@ describe('applicant program index page', () => {
     // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
     await logout(page)
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectPrograms({
       wantNotStartedPrograms: [otherProgramName, primaryProgramName],
       wantInProgressPrograms: [],
@@ -152,11 +160,7 @@ describe('applicant program index page', () => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
@@ -180,11 +184,7 @@ describe('applicant program index page', () => {
     await logout(page)
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(primaryProgramName)
     await applicantQuestions.answerTextQuestion('first answer')
@@ -206,11 +206,7 @@ describe('applicant program index page', () => {
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
     expect(await page.innerText('h2')).toContain('Program application summary')
@@ -226,11 +222,7 @@ describe('applicant program index page', () => {
     const {page, applicantQuestions} = ctx
 
     await loginAsGuest(page)
-    await selectApplicantLanguage(
-      page,
-      'English',
-      /* assertProgramIndexPage= */ true,
-    )
+    await selectApplicantLanguage(page, 'English')
 
     // Fill out application with one question and confirm it shows previously answered at the end.
     await applicantQuestions.applyProgram(otherProgramName)

@@ -10,21 +10,56 @@ class ModalController {
     if (modalButton) {
       modalButton.addEventListener('click', (e: Event) => {
         e.stopPropagation()
-        ModalController.toggleModal(modalContainer, modal)
+        ModalController.showModal(modalContainer, modal)
       })
     }
 
     const modalCloses = Array.from(modal.querySelectorAll('.cf-modal-close'))
     modalCloses.forEach((modalCloses) => {
       modalCloses.addEventListener('click', () => {
-        ModalController.toggleModal(modalContainer, modal)
+        ModalController.hideModal(modalContainer, modal)
       })
     })
   }
 
-  static toggleModal(modalContainer: Element, modal: Element) {
-    modalContainer.classList.toggle('hidden')
-    modal.classList.toggle('hidden')
+  static showModal(modalContainer: Element, modal: Element) {
+    if (!this.avoidShowingModalAgain(modal)) {
+      modalContainer.classList.remove('hidden')
+      modal.classList.remove('hidden')
+    }
+  }
+
+  static hideModal(modalContainer: Element, modal: Element) {
+    modalContainer.classList.add('hidden')
+    modal.classList.add('hidden')
+  }
+
+  /**
+   * Checks to see if the modal has an attribute `only-show-once-group`. If so,
+   * we must only show this Modal once. We do this by storing a constant key in localStorage
+   * that indicates the modal has been shown, and checking for it.
+   *
+   * In addition, there are some use cases where modals are a middleman for a redirect, with
+   * a button to bypass the modal. If there is an attribute `bypass-url` then we will use it to
+   * redirect the user to that url, as if they had clicked the bypass element themselves.
+   *
+   * Returns a boolean indicating whether to skip showing the Modal if these cases are met.
+   */
+  private static avoidShowingModalAgain(modal: Element): boolean {
+    const onlyShowOnceGroup = modal.getAttribute('only-show-once-group')
+    if (!onlyShowOnceGroup) return false
+
+    const shownKey = onlyShowOnceGroup
+    const modalHasBeenShown = localStorage.getItem(shownKey)
+    const bypassUrl = modal.getAttribute('bypass-url')
+
+    if (modalHasBeenShown) {
+      if (bypassUrl) window.location.href = bypassUrl
+      return true
+    }
+
+    localStorage.setItem(shownKey, 'true')
+    return false
   }
 
   constructor() {
@@ -47,7 +82,7 @@ class ModalController {
           return
         }
         alreadyDisplayedModalOnLoad = true
-        ModalController.toggleModal(modalContainer, modal)
+        ModalController.showModal(modalContainer, modal)
       }
     })
 

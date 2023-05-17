@@ -1,6 +1,8 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
+import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.br;
@@ -47,6 +49,9 @@ import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.LinkElement;
+import views.components.Modal;
+import views.components.Modal.Width;
+import views.dev.DebugContent;
 import views.html.helper.CSRF;
 import views.style.ApplicantStyles;
 import views.style.BaseStyles;
@@ -57,6 +62,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
 
+  private static final Modal DEBUG_CONTENT_MODAL =
+      Modal.builder()
+          .setModalId("debug-content-modal")
+          .setContent(DebugContent.devTools())
+          .setModalTitle("Debug Tools")
+          .setWidth(Width.THIRD)
+          .build();
+
   private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
@@ -64,6 +77,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final Optional<String> maybeLogoUrl;
   private final String civicEntityFullName;
   private final String civicEntityShortName;
+  private final boolean isDevOrStaging;
+  private final boolean disableDemoModeLogins;
+  private final DebugContent debugContent;
 
   @Inject
   public ApplicantLayout(
@@ -73,7 +89,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
       FeatureFlags featureFlags,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      DebugContent debugContent) {
     super(viewUtils, configuration, featureFlags, deploymentType);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
@@ -85,6 +102,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
             : Optional.empty();
     this.civicEntityFullName = configuration.getString("whitelabel.civic_entity_full_name");
     this.civicEntityShortName = configuration.getString("whitelabel.civic_entity_short_name");
+    this.isDevOrStaging = deploymentType.isDevOrStaging();
+    this.disableDemoModeLogins =
+        this.isDevOrStaging && configuration.getBoolean("staging_disable_demo_mode_logins");
+    this.debugContent = debugContent;
   }
 
   @Override
@@ -92,6 +113,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
     bundle.addBodyStyles(ApplicantStyles.BODY);
 
     bundle.addFooterStyles("mt-24");
+
+    bundle.addModals(DEBUG_CONTENT_MODAL);
 
     Content rendered = super.render(bundle);
     if (!rendered.body().contains("<h1")) {
@@ -138,6 +161,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withClasses("flex", "flex-col")
             .with(
                 div()
+                    .condWith(
+                        featureFlags.getFlagEnabled(
+                            request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE),
+                        debugContent.civiformVersionDiv()),
+                div()
                     .with(
                         span(
                                 text(
@@ -169,12 +197,25 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
-        .withClasses("bg-white", "border-b", "align-middle", "p-1", "grid", "grid-cols-3")
-        .with(branding())
+        .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
+        .with(
+            div(branding())
+                .withClasses(
+                    "items-center",
+                    "place-items-center",
+                    "flex-shrink-0",
+                    "grow",
+                    StyleUtils.responsiveMedium("grow-0")))
         .with(maybeRenderTiButton(profile, displayUserName))
         .with(
             div(getLanguageForm(request, profile, messages), authDisplaySection(userName, messages))
-                .withClasses("justify-self-end", "flex", "flex-row"));
+                .withClasses(
+                    "flex",
+                    "flex-row",
+                    "grow",
+                    "shrink-0",
+                    "place-content-center",
+                    StyleUtils.responsiveMedium("grow-0", "shrink")));
   }
 
   private ContainerTag<?> getLanguageForm(
@@ -210,6 +251,17 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .with(csrfInput)
                     .with(redirectInput)
                     .with(languageDropdown)
+                    .condWith(
+                        featureFlags.getFlagEnabled(request, BYPASS_LOGIN_LANGUAGE_SCREENS)
+                            && isDevOrStaging
+                            && !disableDemoModeLogins,
+                        div()
+                            .withClasses("w-full", "flex", "justify-center")
+                            .with(
+                                a("DevTools")
+                                    .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
+                                    .withClasses(ApplicantStyles.LINK)
+                                    .withStyle("cursor:pointer")))
                     .with(
                         TagCreator.button()
                             .withId("cf-update-lang")
@@ -235,7 +287,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
-        .withClasses("flex", "flex-row")
+        .withClasses(
+            "flex", "flex-row", "justify-center", StyleUtils.responsiveMedium("justify-left"))
         .with(
             cityImage,
             div()
@@ -246,6 +299,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
+    DivTag div =
+        div()
+            .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
+
     if (profile.isPresent() && profile.get().getRoles().contains(Role.ROLE_TI.toString())) {
       String tiDashboardText = "View and Add Clients";
       String tiDashboardLink =
@@ -254,16 +311,20 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   /* dateQuery= */ Optional.empty(),
                   /* page= */ Optional.of(1))
               .url();
-      return div(
-          a(tiDashboardText)
-              .withId("ti-dashboard-link")
-              .withHref(tiDashboardLink)
-              .withClasses(
-                  "opacity-75", StyleUtils.hover("opacity-100"), ButtonStyles.SOLID_BLUE_TEXT_XL),
-          div("(applying as: " + userName + ")")
-              .withClasses("text-sm", "text-black", "text-center"));
+      div.with(
+              a(tiDashboardText)
+                  .withId("ti-dashboard-link")
+                  .withHref(tiDashboardLink)
+                  .withClasses(
+                      "w-1/2",
+                      "opacity-75",
+                      StyleUtils.hover("opacity-100"),
+                      ButtonStyles.SOLID_BLUE_TEXT_XL))
+          .with(
+              div("(applying as: " + userName + ")")
+                  .withClasses("text-sm", "text-black", "text-center"));
     }
-    return div();
+    return div;
   }
 
   /**

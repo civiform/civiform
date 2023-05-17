@@ -315,7 +315,7 @@ export class AdminQuestions {
     await this.page.click(
       this.selectWithinQuestionTableRow(questionName, ':text("Discard Draft")'),
     )
-    await this.page.click(':text("Discard")')
+    await this.page.click('#discard-button')
     await waitForPageJsLoad(this.page)
     await this.expectAdminQuestionsPage()
   }

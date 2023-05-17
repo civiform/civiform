@@ -78,6 +78,13 @@ public class HomeController extends Controller {
     } else if (profile.isProgramAdmin()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.admin.routes.ProgramAdminController.index()));
+    } else if (profile.isTrustedIntermediary()) {
+      return CompletableFuture.completedFuture(
+          redirect(
+              controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                  /* nameQuery= */ Optional.empty(),
+                  /* dateQuery= */ Optional.empty(),
+                  /* page= */ Optional.empty())));
     } else {
       return profile
           .getApplicant()

@@ -127,18 +127,6 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    it('verify language selection page', async () => {
-      const {page} = ctx
-      await loginAsGuest(page)
-
-      // Verify we are on language selection page.
-      expect(await page.innerText('main')).toContain(
-        'Please select your preferred language.',
-      )
-      await validateAccessibility(page)
-      await validateScreenshot(page, 'language-selection')
-    })
-
     it('verify program details page', async () => {
       const {page} = ctx
       await loginAsGuest(page)
@@ -1112,9 +1100,9 @@ describe('Applicant navigation flow', () => {
         await applicantQuestions.answerAddressQuestion(
           'Legit Address',
           '',
-          'Seattle',
-          'WA',
-          '98109',
+          'Redlands',
+          'CA',
+          '92373',
         )
         await applicantQuestions.clickNext()
         await applicantQuestions.expectVerifyAddressPage(true)

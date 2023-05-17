@@ -59,9 +59,11 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
 
     Modal loginPromptModal =
         createLoginPromptModal(
-            messages,
-            redirectTo,
-            /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT);
+                messages,
+                redirectTo,
+                /*description=*/ MessageKey.GENERAL_LOGIN_MODAL_PROMPT,
+                /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
+            .build();
 
     var actionButtonsBuilder = ImmutableList.<DomContent>builder();
     if (shouldUpsell && eligiblePrograms.isEmpty()) {
