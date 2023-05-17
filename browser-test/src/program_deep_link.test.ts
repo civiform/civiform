@@ -122,4 +122,28 @@ describe('navigating to a deep link', () => {
 
     await logout(page)
   })
+
+  it('Logging in to an existing account after opening a deep link in a new browser session', async () => {
+    await resetContext(ctx)
+    const {page, browserContext} = ctx
+
+    await selectApplicantLanguage(page, 'English')
+
+    // Log in and log out to establish the test user in the database.
+    await loginAsTestUser(page)
+    await logout(page)
+    await browserContext.clearCookies()
+
+    // Go to deep link as a guest
+    await gotoEndpoint(page, '/programs/test-deep-link')
+    // Log in as the same test user
+    await loginAsTestUser(page, 'button:has-text("Log in")')
+
+    await page.click('#continue-application-button')
+    expect(await page.innerText('.cf-applicant-question-text')).toContain(
+      questionText,
+    )
+
+    await logout(page)
+  })
 })
