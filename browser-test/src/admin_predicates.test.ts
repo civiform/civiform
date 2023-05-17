@@ -236,13 +236,67 @@ describe('create and edit predicates', () => {
       programName,
       'Screen 1',
     )
+
+    // Add predicate with missing operator.
+    await adminPredicates.addPredicate(
+      'eligibility-predicate-q',
+      /* action= */ null,
+      'text',
+      '',
+      'eligible',
+    )
+    await adminPredicates.expectPredicateErrorToast('dropdowns')
+
+    await adminPredicates.configurePredicate({
+      questionName: 'eligibility-predicate-q',
+      action: null,
+      scalar: 'text',
+      operator: 'is equal to',
+      value: 'eligible',
+    })
+    await adminPredicates.clickSaveConditionButton()
+    await adminPredicates.clickRemovePredicateButton('eligibility')
+
+    // Add predicate with missing value.
     await adminPredicates.addPredicate(
       'eligibility-predicate-q',
       /* action= */ null,
       'text',
       'is equal to',
-      'eligible',
+      '',
     )
+    await adminPredicates.expectPredicateErrorToast('form fields')
+    await validateScreenshot(page, 'predicate-error')
+
+    await adminPredicates.configurePredicate({
+      questionName: 'eligibility-predicate-q',
+      action: null,
+      scalar: 'text',
+      operator: 'is equal to',
+      value: 'eligible',
+    })
+    await adminPredicates.clickSaveConditionButton()
+    await adminPredicates.clickRemovePredicateButton('eligibility')
+
+    // Add predicate with missing operator and value.
+    await adminPredicates.addPredicate(
+      'eligibility-predicate-q',
+      /* action= */ null,
+      'text',
+      '',
+      '',
+    )
+    await adminPredicates.clickSaveConditionButton()
+    await adminPredicates.expectPredicateErrorToast('form fields or dropdowns')
+
+    await adminPredicates.configurePredicate({
+      questionName: 'eligibility-predicate-q',
+      action: null,
+      scalar: 'text',
+      operator: 'is equal to',
+      value: 'eligible',
+    })
+    await adminPredicates.clickSaveConditionButton()
 
     await adminPredicates.expectPredicateDisplayTextContains(
       'Screen 1 is eligible if "eligibility-predicate-q" text is equal to "eligible"',
