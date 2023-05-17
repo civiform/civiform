@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static featureflags.FeatureFlag.PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
+import static views.components.Modal.RepeatOpenBehavior;
+import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 import static views.components.ToastMessage.ToastType.ALERT;
 import static views.components.ToastMessage.ToastType.SUCCESS;
 
@@ -136,6 +138,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                             MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
                             MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
                         .setDisplayOnLoad(true)
+                        .setRepeatOpenBehavior(
+                            RepeatOpenBehavior.showOnlyOnce(PROGRAM_SLUG_LOGIN_PROMPT))
                         .build();
                 params.setLoginPromptModal(loginPromptModal);
               }

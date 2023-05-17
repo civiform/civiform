@@ -121,7 +121,8 @@ public abstract class Modal {
 
     public enum Group {
       NONE,
-      PROGRAMS_INDEX_LOGIN_PROMPT;
+      PROGRAMS_INDEX_LOGIN_PROMPT,
+      PROGRAM_SLUG_LOGIN_PROMPT;
     }
 
     public static RepeatOpenBehavior alwaysShow() {
