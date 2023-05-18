@@ -13,14 +13,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.PersistedDurableJob;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import play.api.inject.BindingKey;
 import repository.PersistedDurableJobRepository;
 import repository.ResetPostgres;
 import services.cloud.aws.SimpleEmail;
+import support.TestRetry;
 
 public class DurableJobRunnerTest extends ResetPostgres {
+
+  @Rule public TestRetry testRetry = new TestRetry(5);
 
   private SimpleEmail simpleEmailMock;
   private DurableJobRunner durableJobRunner;
@@ -120,9 +124,9 @@ public class DurableJobRunnerTest extends ResetPostgres {
     jobB.refresh();
     jobC.refresh();
 
-    // TODO(bion): investigate why runCount is non-deterministic and sometimes
-    // fails GitHub CI checks.
-    // assertThat(runCount).hasValue(2);
+    // This assertion fails occasionally. I've been unable to figure out why
+    // so added RetryTest rule - bionj@google.com 5/18/2023.
+    assertThat(runCount).hasValue(2);
 
     assertThat(jobA.getRemainingAttempts()).isEqualTo(2);
     assertThat(jobB.getRemainingAttempts()).isEqualTo(2);
