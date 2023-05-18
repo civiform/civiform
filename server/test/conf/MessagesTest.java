@@ -2,7 +2,6 @@ package conf;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.google.common.collect.ImmutableSet;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -39,36 +38,14 @@ public class MessagesTest {
 
   private static final String EN_US_LANGUAGE_FILE_PATH = PREFIX_PATH + EN_US_LANGUAGE_FILE_NAME;
 
-  // A set of keys that are present in the primary language file, but for which
-  // we do *not* expect translations to be present. This is useful for keys that
-  // are checked into the primary language file but for which
-  // we are waiting for translations for.
-  private static final ImmutableSet<String> IGNORE_LIST =
-      ImmutableSet.of(
-          // TODO(#4640): Translations Batch 6 - Insert items awaiting translations here
-          "button.continueToApplication", "toast.sessionEnded", "content.initialLoginModalPrompt");
-
   // Slanted quotes like “ and ’ show up as â in tests; this is a common error when
   // copy-pasting text. Check for this error in all messages files.
   private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
 
   @Test
-  public void ignoreListIsUpToDate() throws Exception {
-    // Assert that we don't have keys in the ignore list that aren't in the
-    // primary language file.
-    assertThat(keysInFile(PRIMARY_LANGUAGE_FILE_PATH)).containsAll(IGNORE_LIST);
-  }
-
-  @Test
   @Parameters(method = "otherLanguageFiles")
   public void messages_keysInPrimaryFileInAllOtherFiles(String otherLanguageFile) throws Exception {
     TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
-
-    // Pretend that the keys in IGNORE_LIST are not in the primary message
-    // file. These may be keys for features in development, for example. Keys
-    // should only be in IGNORE_LIST temporarily, until translations come in
-    // and are merged.
-    keysInPrimaryFile.removeAll(IGNORE_LIST);
 
     TreeSet<String> keysInForeignLangFile = keysInFile(otherLanguageFile);
 
