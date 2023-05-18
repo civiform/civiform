@@ -1,188 +1,580 @@
-# ------------------------------------------------------------------------------- #
-# Korean
-#
-#
-# CAUTION: Apostrophes are used as escape characters
-# To type an apostrophe in a message, please type two. Example: can't -> can''t
-# https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
-# ------------------------------------------------------------------------------- #
+# This is the default language for the application. Please provide context for each message for use in translations.
+# If a translation cannot be found for a given language, it will default to this file's text instead.
 
-adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
-ariaLabel.answer={0}에 답변
-ariaLabel.begin=여기서 시작합니다. {0}
-ariaLabel.edit={0} 편집
-banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
-button.addEntity={0} 추가
-button.apply=신청
-button.applySr={0} 신청
-button.applyToPrograms=프로그램 신청
-button.chooseFile=파일 선택
-button.continue=계속
-button.continueCommonIntakeSr={0} 계속 작성
-button.continueSr={0} 신청 계속하기
-button.continueWithoutAnAccount=계정 없이 계속
-button.createAccount=계정 만들기
-button.createAnAccount=계정 만들기
-button.deleteFile=삭제
-button.edit=편집
-button.editAddress=주소 수정
-button.editCommonIntakeSr={0}에 대해 제출한 정보 수정
-button.editSr={0}에 제출된 신청서 편집
-button.goBackAndEdit=돌아가서 수정
-button.guestLogin=게스트로 계속
-button.keepFile=계속
-button.login=로그인
+# NOTES ON THIS FILE
+# 1. Apostrophes in translations must be escaped by another apostrophe. See https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
+# 2. Sections correspond to a single view, such as the applicant's home page or a view of an address question.
+# 3. We use the following key format: ${component_type}.${descriptive_name} - for example, button.nextPage would
+#    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
+#    translation a screen reader could read for the delete button.
+# 4. Keys in this file should be alphabetized within their own section or sub-section.
+# 5. This files contains the strings used in applicant UI as they are seen by translators. To make correct translations as easy as possible,
+#    please include a description that allows someone without knowledge about where this string is being used to understand it fully. For
+#    example, explain where the string is shown and if strings are deployment-specific, specify what each passed through value represents,
+#    such as: "Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal."
+
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
 button.logout=로그아웃
-button.nextScreen=저장 후 다음으로 이동
-button.previousScreen=이전
-button.removeEntity={0} 삭제
-button.review=검토
-button.saveAndConfirm=저장 및 확인
-button.skipFileUpload=건너뛰기
-button.startHere=여기부터 시작
-button.startHereCommonIntakeSr={0} 작성
-button.submit=제출
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-button.viewAllPrograms=모든 프로그램 보기
-content.addressEntered=입력된 주소:
-content.addressEnteredWithQuestionName=입력된 {0}:
-content.adminFooterPrompt=혜택 관리자이신가요?
-content.adminLoginPrompt=다른 내용을 찾고 있나요?
-content.alternativeLoginPrompt=계정이 없나요?
-content.benefits=혜택 받기
-content.cannotCheckEligibility=이 문제를 신속히 해결하기 위해 노력하는 중입니다. 잠시 후 다시 시도해 주세요.
-content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
-content.commonIntakeConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청한 경우 이러한 혜택이 제공될 수도 있습니다.
-content.commonIntakeConfirmationTi='프로그램 신청'을 클릭하여 온라인으로 신청한 경우 고객에게 이러한 혜택이 제공될 수도 있습니다.
-content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
-content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
-content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
-content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수했으며 신청 ID는 {1}입니다.
-content.description=CiviForm을 통해 {0}에서 받을 수 있는 혜택을 확인해 보세요. 먼저 아래에서 신청서를 선택하세요.
-content.doesNotQualify=자격요건을 충족하지 않음
-content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
-content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
-content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 혜택을 신청할 수 없습니다.
-content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
-content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
-content.loginPrompt={0} 계정으로 로그인하세요.
-content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
-content.notEligible=제출을 위해 확인 필요
-content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
-content.or=또는
-content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
-content.previouslyAnsweredOn={0}에 답변됨
-content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
-content.saveTime=혜택을 신청할 때 시간을 절약해 보세요
-content.submittedDate=제출 날짜: {0}
-content.suggestedAddress=추천 주소:
-content.suggestedAddresses=추천 주소:
-dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
-email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
-email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
-email.applicationUpdateSubject={0} 신청서 업데이트
-email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
-email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
-email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
-email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(으)로 변경되었습니다.
-email.tiApplicationUpdateSubject={1} 신청인의 {0} 프로그램 신청서 업데이트
-email.tiManageYourClients={0}에서 고객 관리하기
-error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
-error.notFoundDescriptionLink=홈페이지
-error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
+
+# Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
+
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+# TODO(#1918): Translate.
 guest=게스트
+
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=언어 선택
+
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=세션 종료
+
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
+toast.sessionEnded=Your session has ended.
+
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=게스트 사용자
+
+# Message with user's name to show who you are logged in as.
 header.userName={0}(으)로 로그인됨
+
+# Error message to answer a required question
+validation.isRequired=이 질문은 필수입니다.
+
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=유효한 내용을 입력하세요.
+
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=양식에 오류가 있습니다.
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
+
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# Title of the login page.
+title.login=로그인
+
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt={0} 계정으로 로그인하세요.
+
+# The text on the button an applicant clicks to create an account.
+button.createAnAccount=계정 만들기
+
+# The text on the button an applicant clicks to log in to their session.
+button.login=로그인
+
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=계정이 없나요?
+
+# The text between creating a new account, and becoming a guest
+content.or=또는
+
+# The text on the button for applicants to create a new account.
+button.createAccount=계정 만들기
+
+# The text on the button for guests to log in to their session.
+button.guestLogin=게스트로 계속
+
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=계정 로그인이 현재 사용 중지됨
+
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=다른 내용을 찾고 있나요?
+
+# The footer of the CiviForm site to prompt admins to login if needed.
+content.adminFooterPrompt=혜택 관리자이신가요?
+
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=관리자 로그인
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=업로드된 파일: {0}
+
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=삭제
+
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=계속
+
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=저장 후 다음으로 이동
+
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=이전
+
+# The text on the button an applicant clicks to jump to the review page.
+button.review=검토
+
+# The text on the button an applicant clicks to skip uploading a file.
+button.skipFileUpload=건너뛰기
+
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
+
+# A link that logs out a guest user after they submit an application.
+link.allDone=모두 완료했습니다
+
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
+link.applyToAnotherProgram=다른 프로그램 신청
+
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=계정 만들기 또는 로그인
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=신청
+
+# The text read for screen readers.
+button.applySr={0} 신청
+
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=편집
+
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr={0}에 제출된 신청서 편집
+
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr={0} 신청 계속하기
+
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startHere=여기부터 시작
+
+# The text for the button that allows a guest to bypass the login prompt modal.
+button.continueToApplication=Continue to application
+
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
+button.startHereCommonIntakeSr={0} 작성
+
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
+button.editCommonIntakeSr={0}에 대해 제출한 정보 수정
+
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
+button.continueCommonIntakeSr={0} 계속 작성
+
+# Text describing the date the application was last submitted.
+content.submittedDate=제출 날짜: {0}
+
+# "Get benefits" floating text
+content.benefits=혜택 받기
+
+# Long form description of the CiviForm site shown to the applicant.
+content.description=CiviForm을 통해 {0}에서 받을 수 있는 혜택을 확인해 보세요. 먼저 아래에서 신청서를 선택하세요.
+
+# Title for programs page when applicant is not logged in
+content.saveTime=혜택을 신청할 때 시간을 절약해 보세요
+
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
+content.guestDescription={0} 계정에 로그인하거나 계정을 만들면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 언제든지 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
+
+# Link text to read more about a program.
+link.programDetails=프로그램 세부정보
+
+# The same text, read for screen readers.
+link.programDetailsSr={0}의 프로그램 세부정보
+
+# The title of the page for the list of programs.
+title.programs=프로그램 및 서비스
+
+# The title for the section in the list of programs that contains the pre-screener form.
+title.findServicesSection=유용한 서비스 찾기
+
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
+title.allProgramsSection=모든 프로그램({0})
+
+# For the badge on the program list index denoting the current status of an application
+title.status=상태
+
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=진행 중
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=시작 안 함
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=제출됨
+
+# Badge on an application that has a status assigned to it
+title.status=상태
+
+# A toast message that displays when an applicant submits an application.
+toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
+
+# A toast message that displays when an applicant tries to apply to a previously completed program.
+toast.programCompleted=신청서가 이미 작성되어 있습니다.
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=제출
+
+# Continue application button
+button.continue=계속
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=제출을 위해 확인 필요
+
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=자격요건을 충족하지 않음
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=편집
+link.answer=답변
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn={0}에 답변됨
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
+ariaLabel.answer={0}에 답변
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=여기서 시작합니다. {0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit={0} 편집
+
+# Program Summary Title
+title.programSummary=프로그램 신청 요약
+# Title of the page where applicants can view a summary of the pre-screener form's questions and their answers.
+title.commonIntakeSummary=혜택 사전 선별 요약
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
+title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=자격 기준은 {0}을(를) 참고하세요.
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=이전 페이지로 돌아가 응답을 수정할 수 있습니다. 또는 다른 프로그램을 신청하세요.
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=돌아가서 수정
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=자격요건을 충족할 수 있음
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=현재 {0}에 대한 귀하의 자격을 확인할 수 없습니다.
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
+title.cannotCheckEligibilityTi=현재 {0}에 대한 클라이언트의 자격을 확인할 수 없습니다.
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=이 문제를 신속히 해결하기 위해 노력하는 중입니다. 잠시 후 다시 시도해 주세요.
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=모든 프로그램 보기
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=애플리케이션을 저장하는 중 오류가 발생함
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=애플리케이션 확인
+
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수했으며 신청 ID는 {1}입니다.
+
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=계정 만들기 또는 로그인
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
+content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
+
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
+content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 혜택을 신청할 수 없습니다.
+
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
+content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+
+# A button for continuing to apply to other programs without an account.
+button.continueWithoutAnAccount=계정 없이 계속
+
+# Title on the page after applicant has successfully filled out the common intake form.
+title.commonIntakeConfirmation=다음 혜택의 자격요건에 해당될 수 있습니다
+
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
+title.commonIntakeConfirmationTi=고객이 다음 혜택의 자격요건에 해당될 수 있습니다
+
+# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmation='프로그램 신청'을 클릭하여 온라인으로 신청한 경우 이러한 혜택이 제공될 수도 있습니다.
+
+# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmationTi='프로그램 신청'을 클릭하여 온라인으로 신청한 경우 고객에게 이러한 혜택이 제공될 수도 있습니다.
+
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
+
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
+
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
+content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
+
+# A button prompting users to apply to programs.
+button.applyToPrograms=프로그램 신청
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=아파트 등(선택사항)
 label.city=시/군/구
-label.countryCode=국가
-label.firstName=이름
-label.languageSr=언어 선택
-label.lastName=성
-label.middleName=중간 이름
-label.phoneNumber=전화번호 입력
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default
-label.selectLanguage=Please select your preferred language.
-label.selectState=주 선택
 label.state=주/도
+label.selectState=주 선택
 label.street=주소
 label.zipcode=우편번호
-link.adminLogin=관리자 로그인
-link.allDone=모두 완료했습니다
-link.answer=답변
-link.applyToAnotherProgram=다른 프로그램 신청
-link.createAccountOrSignIn=계정 만들기 또는 로그인
-link.edit=편집
-link.programDetails=프로그램 세부정보
-link.programDetailsSr={0}의 프로그램 세부정보
+
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=유효한 도로명과 번호를 입력하세요.
+validation.cityRequired=시/군/구를 입력하세요.
+validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
+validation.stateRequired=시/도를 입력하세요.
+validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
+validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=주소 확인
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷한 주소를 발견했습니다.
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=입력된 주소:
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName=입력된 {0}:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=추천 주소:
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=추천 주소:
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=주소 수정
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=저장 및 확인
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=유효한 주소를 찾을 수 없습니다
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=제공된 주소를 확인할 수 없습니다. 계속하려면 주소를 수정하세요.
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+label.countryCode=국가
+label.phoneNumber=전화번호 입력
+validation.phoneNumberRequired=전화번호는 필수 항목입니다.
+validation.phoneCountryCodeRequired=국가는 필수 선택 항목입니다.
+validation.phoneNumberMustContainNumbersOnly=전화번호는 숫자로만 구성되어야 합니다.
+validation.invalidPhoneNumberProvided=잘못된 전화번호입니다.
+validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가에 속하지 않습니다.
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity={0} 추가
+
+# Text on a button an applicant would click to delete an entity
+button.removeEntity={0} 삭제
+
+# The confirmation dialog when an applicant deletes an enumerator entry.
+dialog.confirmDelete=이 {0}을(를) 삭제하시겠습니까? '다음'을 클릭하면 이 변경사항이 저장되고 이 {0}에 연결된 모든 데이터가 손실됩니다.
+
+# Validation error that shows when an applicant does not enter a value.
+validation.entityNameRequired=각 줄에 값을 입력하세요.
+
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
+
+# The placeholder text for enumerator fields
 placeholder.entityName={0} 이름
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=파일을 선택하세요.
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=파일 선택
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
+validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
+validation.numberRequired=숫자만 포함해야 합니다.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections={0}개 이상 선택하세요.
+validation.tooManySelections={0}개보다 적게 선택하세요.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=이름
+label.lastName=성
+label.middleName=중간 이름
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=이름
 placeholder.lastName=성
 placeholder.middleName=중간 이름
-placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
-tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
-tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
-tag.mayQualify=자격요건을 충족할 수 있음
-tag.mayQualifyTi=클라이언트가 자격요건을 충족할 수 있음
-title.activeProgramsUpdated=시작 안 함
-title.allProgramsSection=모든 프로그램({0})
-title.applicantNotEligible={0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 답변 때문일 수 있습니다
-title.applicantNotEligibleTi=고객이 {0}의 자격요건을 충족하지 못한 것은 다음 질문에 대한 귀하의 답변 때문일 수 있습니다
-title.applicationConfirmation=애플리케이션 확인
-title.cannotCheckEligibility=현재 {0}에 대한 귀하의 자격을 확인할 수 없습니다.
-title.cannotCheckEligibilityTi=현재 {0}에 대한 클라이언트의 자격을 확인할 수 없습니다.
-title.commonIntakeConfirmation=다음 혜택의 자격요건에 해당될 수 있습니다
-title.commonIntakeConfirmationTi=고객이 다음 혜택의 자격요건에 해당될 수 있습니다
-title.commonIntakeSummary=혜택 사전 선별 요약
-title.createAnAccount=계정 만들기 또는 로그인
-title.findServicesSection=유용한 서비스 찾기
-title.inProgressProgramsUpdated=진행 중
-title.login=로그인
-title.noValidAddress=유효한 주소를 찾을 수 없습니다
-title.programs=프로그램 및 서비스
-title.programSummary=프로그램 신청 요약
-title.status=상태
-title.submittedPrograms=제출됨
-title.verifyAddress=주소 확인
-toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
-toast.applicationSaved=신청서 저장됨: 신청서 ID {0}
-toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
-toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-toast.mayNotQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족하지 않을 수도 있습니다. 클라이언트의 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
-toast.mayQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
-toast.mayQualifyTi=응답을 토대로 클라이언트가 {0}의 자격요건을 충족할 수도 있습니다. 계속하려면 신청서를 이어서 작성하세요.
-toast.programCompleted=신청서가 이미 작성되어 있습니다.
-validation.cityRequired=시/군/구를 입력하세요.
-validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
-validation.dateMisformatted=YYYY/MM/DD 형식으로 날짜를 입력하세요.
-validation.duplicateEntityName=각 줄에 고유한 값을 입력하세요.
-validation.entityNameRequired=각 줄에 값을 입력하세요.
-validation.errorAnnouncementSr=양식에 오류가 있습니다.
-validation.fileRequired=파일을 선택하세요.
+
+# Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=이름을 입력하세요.
-validation.idTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
-validation.idTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
-validation.invalidInput=유효한 내용을 입력하세요.
-validation.invalidPhoneNumberProvided=잘못된 전화번호입니다.
-validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
-validation.isRequired=이 질문은 필수입니다.
 validation.lastNameRequired=성을 입력하세요.
-validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
-validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
-validation.numberRequired=숫자만 포함해야 합니다.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=최댓값은 {0}입니다.
 validation.numberTooSmall=최솟값은 {0}입니다.
-validation.phoneCountryCodeRequired=국가는 필수 선택 항목입니다.
-validation.phoneMustBeLocalToCountry=제공하신 전화번호가 거주 국가에 속하지 않습니다.
-validation.phoneNumberMustContainNumbersOnly=전화번호는 숫자로만 구성되어야 합니다.
-validation.phoneNumberRequired=전화번호는 필수 항목입니다.
-validation.stateRequired=시/도를 입력하세요.
-validation.streetRequired=유효한 도로명과 번호를 입력하세요.
+validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=최대 {0}자(영문 기준)를 포함해야 합니다.
 validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
-validation.tooFewSelections={0}개 이상 선택하세요.
-validation.tooManySelections={0}개보다 적게 선택하세요.
+
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
+error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
+error.notFoundDescriptionLink=홈페이지
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform={0}에서 CiviForm에 로그인합니다.
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject={0} 프로그램 신청서 접수됨
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody={0} 프로그램에 대한 신청서가 접수되었습니다. 귀하의 신청자 ID는 {1}이며 신청서 ID는 {2}입니다.
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject={1} 신청자를 대신하여 {0} 프로그램에 대한 신청서를 제출하셨습니다
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody={1} 신청자로서 제출한 {0} 프로그램에 대한 신청서가 접수되었으며 신청서 ID는 {2}입니다.
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients={0}에서 고객 관리하기
+
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject={0} 신청서 업데이트
+
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject={1} 신청인의 {0} 프로그램 신청서 업데이트
+
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(으)로 변경되었습니다.
