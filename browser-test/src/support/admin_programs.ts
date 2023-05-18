@@ -343,6 +343,12 @@ export class AdminPrograms {
     ).toBe(true)
   }
 
+  async expectDoesNotHaveDraftProgram(programName: string) {
+    expect(
+      await this.page.isVisible(this.programCardSelector(programName, 'Draft')),
+    ).toBe(false)
+  }
+
   async expectActiveProgram(programName: string) {
     expect(
       await this.page.isVisible(

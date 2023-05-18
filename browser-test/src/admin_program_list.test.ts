@@ -74,4 +74,57 @@ describe('Program list page.', () => {
     const programListNames = await adminPrograms.programNames()
     expect(programListNames).toEqual(expectedPrograms)
   }
+
+  it('publishes a single program', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programOne = 'List test program one'
+    await adminPrograms.addProgram(programOne)
+    await adminPrograms.publishAllPrograms()
+    await adminPrograms.createNewVersion(programOne)
+    await adminPrograms.expectDraftProgram(programOne)
+
+    await page.click(
+      adminPrograms.withinProgramCardSelector(
+        programOne,
+        'Draft',
+        '.cf-with-dropdown',
+      ),
+    )
+
+    // Add listener to dismiss dialog after clicking 'Publish program'.
+    page.once('dialog', (dialog) => {
+      void dialog.dismiss()
+      expect(dialog.type()).toEqual('confirm')
+      expect(dialog.message()).toEqual(
+        'Are you sure you want to publish List test program one and all of its draft questions?',
+      )
+    })
+    await page.click(
+      adminPrograms.withinProgramCardSelector(
+        programOne,
+        'Draft',
+        ':text("Publish program")',
+      ),
+    )
+    // Draft not published because dialog was dismissed.
+    await adminPrograms.expectDraftProgram(programOne)
+
+    // Add listener to confirm dialog after clicking 'Publish program'.
+    page.once('dialog', (dialog) => {
+      void dialog.accept()
+    })
+    await page.click(
+      adminPrograms.withinProgramCardSelector(
+        programOne,
+        'Draft',
+        ':text("Publish program")',
+      ),
+    )
+    // Program was published.
+    await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
+    await adminPrograms.expectActiveProgram(programOne)
+  })
 })

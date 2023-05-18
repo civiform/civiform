@@ -433,11 +433,21 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private ButtonTag renderPublishProgramLink(ProgramDefinition program, Http.Request request) {
     String linkDestination = routes.AdminProgramController.publishProgram(program.id()).url();
+    String confirmationMessage =
+        String.format(
+            "Are you sure you want to publish %s and all of its draft questions?",
+            program.localizedName().getDefault());
     return toLinkButtonForPost(
-        makeSvgTextButton("Publish program", Icons.PUBLISH)
-            .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
-        linkDestination,
-        request);
+            makeSvgTextButton("Publish program", Icons.PUBLISH)
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN, "publish-program-link"),
+            linkDestination,
+            request)
+        .attr(
+            "onclick",
+            String.format(
+                "if(confirm('%s')){ return true; } else { var e = arguments[0] ||"
+                    + " window.event; e.stopImmediatePropagation(); return false; }",
+                confirmationMessage));
   }
 
   private Optional<ButtonTag> maybeRenderViewApplicationsLink(
