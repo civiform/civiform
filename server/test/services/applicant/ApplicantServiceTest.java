@@ -2115,7 +2115,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     TrustedIntermediaryGroup tiGroup =
         new TrustedIntermediaryGroup("Super Cool CBO", "Description");
     tiGroup.save();
-    tiAccount.setManagedByGroup(tiGroup);
+    tiAccount.setMemberOfGroup(tiGroup);
     tiAccount.save();
     ti.setAccount(tiAccount);
     ti.save();

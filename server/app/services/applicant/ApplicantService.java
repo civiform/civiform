@@ -846,15 +846,15 @@ public final class ApplicantService {
         userRepository
             .lookupApplicant(applicantId)
             .thenApplyAsync(
-                applicant -> applicant.orElseThrow().getAccount().getManagedByGroup().isPresent())
+                applicant -> applicant.orElseThrow().getAccount())
             .thenApplyAsync(
-                isTi ->
+                account ->
                     versionRepository.getActiveVersion().getPrograms().stream()
                         .map(Program::getProgramDefinition)
                         .filter(
                             pdef ->
                                 pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (isTi && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                                    || (userRepository.isTi(account) && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
                         .collect(ImmutableList.toImmutableList()))
             .toCompletableFuture();
 
