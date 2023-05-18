@@ -27,10 +27,10 @@ import org.junit.runner.RunWith;
 public class MessagesTest {
 
   // The file path of the primary language file.
-  private static final String PRIMARY_LANGUAGE_FILE = "conf/messages";
+  private static final String PRIMARY_LANGUAGE_FILE = "conf/i18n/messages";
 
   // The file path of the en-US file.
-  private static final String EN_US_LANGUAGE_FILE = "conf/messages.en-US";
+  private static final String EN_US_LANGUAGE_FILE = "conf/i18n/messages.en-US";
 
   // A set of keys that are present in the primary language file, but for which
   // we do *not* expect translations to be present. This is useful for keys that
@@ -151,7 +151,7 @@ public class MessagesTest {
 
   // The file paths of all non-primary language files, including `en-US`.
   private static String[] otherLanguageFiles() throws Exception {
-    try (Stream<Path> stream = Files.list(Paths.get("conf/"))) {
+    try (Stream<Path> stream = Files.list(Paths.get("conf/i18n"))) {
       return stream
           .filter(path -> path.getFileName().toString().matches("messages.*"))
           // Exclude primary language file.
