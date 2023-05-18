@@ -145,7 +145,7 @@ class AdminPredicateConfiguration {
   predicateAddOrReplaceCondition(event: Event) {
     const numChecked = Array.from(
       document.querySelectorAll<HTMLInputElement>(
-        '.cf-predicate-question_options',
+        '.cf-predicate-question-options',
       ),
     ).filter((el) => el.checked).length
     if (numChecked != 0 && numChecked <= 4) {
