@@ -1,188 +1,580 @@
-# ------------------------------------------------------------------------------- #
-# Amharic
-#
-#
-# CAUTION: Apostrophes are used as escape characters
-# To type an apostrophe in a message, please type two. Example: can't -> can''t
-# https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
-# ------------------------------------------------------------------------------- #
+# This is the default language for the application. Please provide context for each message for use in translations.
+# If a translation cannot be found for a given language, it will default to this file's text instead.
 
-adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
-ariaLabel.answer=መልስ {0}
-ariaLabel.begin=እዚህ ይጀምሩ። {0}
-ariaLabel.edit={0}ን አርትዕ
-banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
-button.addEntity={0}ን አክል
-button.apply=አመልክት
-button.applySr=ወደ {0} አመልክት
-button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
-button.chooseFile=ፋይል ይምረጡ
-button.continue=ቀጥል
-button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
-button.continueSr=ወደ {0} ማመልከትን ቀጥል
-button.continueWithoutAnAccount=ያለ መለያ ቀጥል
-button.createAccount=መለያ ፍጠር
-button.createAnAccount=መለያ ፍጠር
-button.deleteFile=ሰርዝ
-button.edit=አርትዕ
-button.editAddress=አድራሻን አርትዕ ያድርጉ
-button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
-button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
-button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
-button.guestLogin=እንደ እንግዳ ቀጥል
-button.keepFile=ቀጥል
-button.login=ግባ
+# NOTES ON THIS FILE
+# 1. Apostrophes in translations must be escaped by another apostrophe. See https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
+# 2. Sections correspond to a single view, such as the applicant's home page or a view of an address question.
+# 3. We use the following key format: ${component_type}.${descriptive_name} - for example, button.nextPage would
+#    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
+#    translation a screen reader could read for the delete button.
+# 4. Keys in this file should be alphabetized within their own section or sub-section.
+# 5. This files contains the strings used in applicant UI as they are seen by translators. To make correct translations as easy as possible,
+#    please include a description that allows someone without knowledge about where this string is being used to understand it fully. For
+#    example, explain where the string is shown and if strings are deployment-specific, specify what each passed through value represents,
+#    such as: "Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal."
+
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+# The text on the button an applicant clicks to log out of their session.
 button.logout=ውጣ
-button.nextScreen=አስቀምጥ እና ቀጣይ
-button.previousScreen=ቀዳሚ
-button.removeEntity={0}ን አስወግድ
-button.review=ገምግም
-button.saveAndConfirm=ያስቀምጡ እና ያረጋግጡ
-button.skipFileUpload=ዝለል
-button.startHere=እዚህ ይጀምሩ
-button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
-button.submit=አስገባ
+
+# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
+label.selectLanguage=Please select your preferred language.
+
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
-button.viewAllPrograms=ሁሉንም ፕሮግራሞች ይመልከቱ
-content.addressEntered=የገባ አድራሻ፦
-content.addressEnteredWithQuestionName={0} ገብቷል፦
-content.adminFooterPrompt=እርስዎ የጥቅማጥቅሞች አስተዳዳሪ ነዎት?
-content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
-content.alternativeLoginPrompt=መለያ የለዎትም?
-content.benefits=ጥቅማጥቅሞችን ያግኙ
-content.cannotCheckEligibility=ይህን ችግር በፍጥነት ለማስተካከል እየሰራን ነው። በኋላ ላይ እንደገና ይሞክሩ።
-content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
-content.commonIntakeConfirmation=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ እርስዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
-content.commonIntakeConfirmationTi=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
-content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
-content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
-content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
-content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማመልከቻዎ ደርሷል፣ እና የማመልከቻ መታወቂያዎ {1} ነው።
-content.description=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ጥቅማጥቅሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
-content.doesNotQualify=ብቁ አይደለም
-content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
-content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
-content.generalLoginModalPrompt=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ጥቅማጥቅሞች በፍጥነት ማመልከት አይችሉም።
-content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ጥቅማጥቅሞች ያመልክቱ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች ማረጋገጥ ይችላሉ።
-content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
-content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
-content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
-content.notEligible=ብቁ አይደለም
-content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
-content.or=ወይም
-content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
-content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
-content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
-content.saveTime=ለጥቅማጥቅሞች ሲያመለክቱ ጊዜ ይቆጥቡ
-content.submittedDate={0} ገብቷል
-content.suggestedAddress=የተጠቆመው አድራሻ፦
-content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
-dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
-email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
-email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
-email.applicationUpdateSubject=በእርስዎ ማምልከቻ {0} ላይ ዝማኔ
-email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
-email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
-email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
-email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁኔታው ወደ {2} ተለውጧል።
-email.tiApplicationUpdateSubject=አመልካች {1}ን በመወከል ለፕሮግራም {0} በማመልከቻ ላይ ዝማኔ
-email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።
-error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
-error.notFoundDescriptionLink=መነሻ ገጽ
-error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
+
+# Message displayed before the support email address in the page footer for applicants.
 footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
+
+# Placeholder message when an applicant clicked the "Continue as Guest".
+# This should be consistent with button.guestLogin.
+# TODO(#1918): Translate.
 guest=እንግዳ
+
+# Label read by screen readers for the language dropdown shown in the page header.
+label.languageSr=ቋንቋ ይምረጡ
+
+# Message for guest users to end their session. Technically this logs out the user from the guest profile, but we use different phrasing in order to not imply that they are currently logged in from a product perspective.
 header.endSession=ክፍለ-ጊዜን አብቃ
+
+# Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
+toast.sessionEnded=Your session has ended.
+
+# Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=እንግዳ ተጠቃሚ ነዎት
+
+# Message with user's name to show who you are logged in as.
 header.userName=እንደ {0} ሆነው ገብተዋል
+
+# Error message to answer a required question
+validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
+
+# Validation error that is shown when the user input couldn't be converted for any reason.
+validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
+
+# Error message announced to screen reader when there are errors on the current page.
+validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
+
+# Message displayed at the top of a question page denoting fields with a * are required.
+content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
+
+# Message displayed below "Choose File" button to say that on the phone users can use their camera.
+content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+# Title of the login page.
+title.login=ግባ
+
+# Prompt for applicant to log in, input is the full civic entity name.
+content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
+
+# The text on the button an applicant clicks to create an account.
+button.createAnAccount=መለያ ፍጠር
+
+# The text on the button an applicant clicks to log in to their session.
+button.login=ግባ
+
+# Prompt for applicant to create a new account or become a guest
+content.alternativeLoginPrompt=መለያ የለዎትም?
+
+# The text between creating a new account, and becoming a guest
+content.or=ወይም
+
+# The text on the button for applicants to create a new account.
+button.createAccount=መለያ ፍጠር
+
+# The text on the button for guests to log in to their session.
+button.guestLogin=እንደ እንግዳ ቀጥል
+
+# Prompt for whem applicant account login is disabled. Replaces loginPrompt and alternativeLoginPrompt.
+content.loginDisabledPrompt=በመለያ መግባት በአሁኑ ጊዜ ተሰናክሏል
+
+# The words leading up to the admin login anchor
+content.adminLoginPrompt=ሌላ ነገር እየፈለጉ ነው?
+
+# The footer of the CiviForm site to prompt admins to login if needed.
+content.adminFooterPrompt=እርስዎ የጥቅማጥቅሞች አስተዳዳሪ ነዎት?
+
+# The text on the anchor for admins to log in to their session.
+link.adminLogin=የአስተዳዳሪ መግቢያ
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+# The text displayed when a file has already been uploaded and the name is being displayed.
 input.fileAlreadyUploaded=የተሰቀለ ፋይል፦ {0}
+
+# The text on the button an applicant clicks to delete an uploaded file.
+button.deleteFile=ሰርዝ
+
+# The text on the button an applicant clicks to skip uploading a new file while there is already an uploaded file.
+button.keepFile=ቀጥል
+
+# The button text for saving the current applicant-entered data and continuing to the next screen in the form.
+button.nextScreen=አስቀምጥ እና ቀጣይ
+
+# The button text for navigating to the previous screen in the form.
+button.previousScreen=ቀዳሚ
+
+# The text on the button an applicant clicks to jump to the review page.
+button.review=ገምግም
+
+# The text on the button an applicant clicks to skip uploading a file.
+button.skipFileUpload=ዝለል
+
+# A toast message that displays when a program is not fully localized to the applicant's preferred locale.
+toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ ወደ እንግሊዝኛ አልተተረጎመም።
+
+# A link that logs out a guest user after they submit an application.
+link.allDone=ሁሉንም ጨርሼያለሁ
+
+# A link that appears next to the create account button that offers applicants the option to not create an account right now.
+link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
+
+# A link that offers applicants the option to create an account.
+link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+# The text on the button an applicant clicks to apply to a specific program.
+button.apply=አመልክት
+
+# The text read for screen readers.
+button.applySr=ወደ {0} አመልክት
+
+# The text on the button an applicant clicks to edit the application for a specific program.
+button.edit=አርትዕ
+
+# The screen reader text for a button allowing an applicant to edit a submitted application for a given program.
+button.editSr=ወደ {0} ያስገቡትን ማመልከቻ ያርትዑ
+
+# The screen reader text for a button allowing an applicant to continue editing an in-progress application for a given program.
+button.continueSr=ወደ {0} ማመልከትን ቀጥል
+
+# The text on the button an applicant clicks to start filling out a pre-screener form.
+button.startHere=እዚህ ይጀምሩ
+
+# The text for the button that allows a guest to bypass the login prompt modal.
+button.continueToApplication=Continue to application
+
+# The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
+button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
+
+# The screen reader text for a button an applicant clicks to edit their responses to a pre-screener form.
+button.editCommonIntakeSr=ለ{0} የገባ መረጃን ያርትዑ
+
+# The screen reader text for a button an applicant clicks to continue filling out a pre-screener form.
+button.continueCommonIntakeSr={0}ን መሙላት ይቀጥሉ
+
+# Text describing the date the application was last submitted.
+content.submittedDate={0} ገብቷል
+
+# "Get benefits" floating text
+content.benefits=ጥቅማጥቅሞችን ያግኙ
+
+# Long form description of the CiviForm site shown to the applicant.
+content.description=CiviForm በ{0} ውስጥ ብቁ ሊሆኑ የሚችሉባቸውን ጥቅማጥቅሞች እንዲያገኙ ያግዝዎታል። ከታች አንድ ማመልከቻ በመምረጥ ይጀምሩ።
+
+# Title for programs page when applicant is not logged in
+content.saveTime=ለጥቅማጥቅሞች ሲያመለክቱ ጊዜ ይቆጥቡ
+
+# Long form description of the site shown to the applicant when they are not logged in.
+# {0} represents the authentication provider's name
+content.guestDescription=ወደ {0} መለያዎ ይግቡ ወይም መለያ ይፍጠሩ እና ተመሳሳዩን መረጃ እንደገና ሳያስገቡ ለብዙ ጥቅማጥቅሞች ያመልክቱ። እንዲሁም ማመልከቻዎችን በማንኛውም ጊዜ ማርትዕ እና የመተግበሪያዎን ሁኔታዎች ማረጋገጥ ይችላሉ።
+
+# Link text to read more about a program.
+link.programDetails=የፕሮግራም ዝርዝሮች
+
+# The same text, read for screen readers.
+link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
+
+# The title of the page for the list of programs.
+title.programs=ፕሮግራሞች እና አገልግሎቶች
+
+# The title for the section in the list of programs that contains the pre-screener form.
+title.findServicesSection=የሚያግዙዎትን አገልግሎቶች ያግኙ
+
+# The title for the section in the list of programs that contains all regular, non-pre-screener programs.
+title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
+
+# For the badge on the program list index denoting the current status of an application
+title.status=ሁኔታ
+
+# Subtitle for the list of programs with draft applications
+title.inProgressProgramsUpdated=በሂደት ላይ
+
+# Subtitle for the list of programs for which the applicant has no draft applications
+title.activeProgramsUpdated=ያልተጀመሩ
+
+# Subtitle for the list of programs for which the applicant has already submitted an application
+title.submittedPrograms=የገቡ
+
+# Badge on an application that has a status assigned to it
+title.status=ሁኔታ
+
+# A toast message that displays when an applicant submits an application.
+toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
+
+# A toast message that displays when an applicant tries to apply to a previously completed program.
+toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+# Submit application button
+button.submit=አስገባ
+
+# Continue application button
+button.continue=ቀጥል
+
+# A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
+toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
+
+# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
+content.notEligible=ብቁ አይደለም
+
+# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
+content.doesNotQualify=ብቁ አይደለም
+
+# The text that appears next to an answered question that the applicant can click on to modify the response.
+link.edit=አርትዕ
+link.answer=መልስ
+
+# The text that appears next to a question that was answered in another program to let the user know the date it was previously answered on.
+content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥቷል
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Answer What is your name?". The {0} variable is the question text.
+ariaLabel.answer=መልስ {0}
+
+# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
+# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
+ariaLabel.begin=እዚህ ይጀምሩ። {0}
+
+# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
+# question, so this might say "Edit What is your name?". The {0} variable is the question text.
+ariaLabel.edit={0}ን አርትዕ
+
+# Program Summary Title
+title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
+# Title of the page where applicants can view a summary of the pre-screener form's questions and their answers.
+title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+# Title on the page after it has been determined that the applicant is not eligible for a program. This text includes the program name.
+title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
+
+# Title on the page after it has been determined that the client is not eligible for a program, when someone else is filling out the application on a client''s behalf. This text includes the program name.
+title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
+
+# Text shown that allows the users to click on a program details link to find out more about the eligibility criteria for the program.
+content.eligibilityCriteria=ለብቁነት መስፈርት እባክዎ {0}ን ዋቢ ያድርጉ
+
+# Text shown to explain what the user can do since they are not eligible for the program with their current answers.
+content.changeAnswersForEligibility=መልሶችዎን ለማርትዕ ወደ ቀዳሚ ገጽ መመለስ ይችላሉ። ወይም ለሌላ ፕሮግራም ያመልክቱ።
+
+# Button for the applicant to go back and edit their responses.
+button.goBackAndEdit=ይመለሱ እና አርትዕ ያድርጉ
+
+# Toast message that shows that a client is likely eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
+
+# Toast message that shows that an applicant is likely eligible for a program, based on their responses.
+toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
+
+# Tag on the top of a program card, that lets the applicant know they may qualify for the program, based on their responses in other programs.
+tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
+
+# Tag on the top of a program card, that lets the person know their client may qualify for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
+
+# Tag on the top of a program card, that lets the applicant know they are likely not eligible for the program, based on their responses in other programs.
+tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
+
+# Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
+tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
+
+# Title of page when there is a system outage and eligibility can't be determined for the applicant.
+title.cannotCheckEligibility=በዚህ ጊዜ ለ{0} የእርስዎን ብቁነት ማረጋገጥ አንችልም።
+
+# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
+title.cannotCheckEligibilityTi=በዚህ ጊዜ ለ{0} የደንበኛዎን ብቁነት ማረጋገጥ አንችልም።
+
+# Content of page when there is a system outage and eligibility can't be determined for the applicant.
+content.cannotCheckEligibility=ይህን ችግር በፍጥነት ለማስተካከል እየሰራን ነው። በኋላ ላይ እንደገና ይሞክሩ።
+
+# Button that allows an applicant to view all programs.
+button.viewAllPrograms=ሁሉንም ፕሮግራሞች ይመልከቱ
+
+# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
+toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+
+# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
+toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
+
+# Error when there was an exception while submitting the application
+banner.errorSavingApplication=ማመልከቻን በማስቀመጥ ላይ ስህተት
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+# Title on the page after the applicant has successfully submitted an application.
+title.applicationConfirmation=የማመልከቻ ማረጋገጫ
+
+# A confirmation message that shows after an applicant has submitted their application.
+content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማመልከቻዎ ደርሷል፣ እና የማመልከቻ መታወቂያዎ {1} ነው።
+
+# Title (not a main page title) on section prompting an applicant to create an account or sign in to save their data.
+title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
+
+# Shown to applicants to encourage login; {0} represents the authentication provider's name
+content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
+
+# A message to show on the login prompt modal that encourages users to log in before applying to other programs.
+content.generalLoginModalPrompt=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ጥቅማጥቅሞች በፍጥነት ማመልከት አይችሉም።
+
+# A message to show on the login prompt modal that encourages users to log in before applying to a program from the programs index page.
+content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+
+# A button for continuing to apply to other programs without an account.
+button.continueWithoutAnAccount=ያለ መለያ ቀጥል
+
+# Title on the page after applicant has successfully filled out the common intake form.
+title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
+
+# Title on the page after a trusted intermediary has successfully filled out the common intake form.
+title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
+
+# A message explaining that the applicant may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmation=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ እርስዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
+
+# A message explaining that the trusted intermediary's client may be eligible for the preceding list of programs, and that they need to apply to them.
+content.commonIntakeConfirmationTi=«ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በመስመር ላይ ማመልከቻው በኩል ካመለከቱ ደንበኛዎ እነዚህን ጥቅማጥቅሞች ሊያገኙ ይችላሉ።
+
+# A message explaining that there were no programs the applicant is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+
+# A message explaining that there were no programs the trusted intermediary's client is currently eligible for. The {0} parameter is a link to another website, where the text is the name of that site. It may read "Access Arkansas", for example.
+content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
+
+# A message explaining a second option when there are no eligible programs, which is to edit your responses.
+content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
+
+# A button prompting users to apply to programs.
+button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+# Address question labels - these are shown as the field label before an input box.
 label.addressLine2=አፓርታማ፣ ጥቅል፣ ወዘተ (አማራጭ)
 label.city=ከተማ
-label.countryCode=አገር
-label.firstName=መጠሪያ ስም
-label.languageSr=ቋንቋ ይምረጡ
-label.lastName=የአያት ስም
-label.middleName=የአባት ስም
-label.phoneNumber=ስልክ ቁጥር ያስገቡ
-# NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default
-label.selectLanguage=Please select your preferred language.
-label.selectState=ክልል ይምረጡ
 label.state=ግዛት
+label.selectState=ክልል ይምረጡ
 label.street=አድራሻ
 label.zipcode=ዚፕ ኮድ
-link.adminLogin=የአስተዳዳሪ መግቢያ
-link.allDone=ሁሉንም ጨርሼያለሁ
-link.answer=መልስ
-link.applyToAnotherProgram=ወደ ሌላ ፕሮግራም ያመልክቱ
-link.createAccountOrSignIn=መለያ ይፍጠሩ ወይም ይግቡ
-link.edit=አርትዕ
-link.programDetails=የፕሮግራም ዝርዝሮች
-link.programDetailsSr=የ{0} ፕሮግራም ዝርዝሮች
+
+# Validation errors that are shown when a user enters an invalid address.
+validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
+validation.cityRequired=እባክዎ ከተማ ያስገቡ።
+validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
+validation.stateRequired=እባክዎ ክልል ያስገቡ።
+validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
+validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
+
+# Title on address correction dialog asking the user to verify their address.
+title.verifyAddress=አድራሻን ያረጋግጡ
+
+# Content on address correction dialog that asks the user to check a similar address.
+content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም ነገር ግን የሆነ ተመሳሳይ ነገር አግኝተናል።
+
+# Text on address correction dialog that shows what address the user had entered.
+content.addressEntered=የገባ አድራሻ፦
+
+# Text on address correction dialog that shows what address the user had entered, with the address question name.
+content.addressEnteredWithQuestionName={0} ገብቷል፦
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=የተጠቆመው አድራሻ፦
+
+# Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
+content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
+
+# Button to close the address correction dialog and allow applicant to edit address manually.
+button.editAddress=አድራሻን አርትዕ ያድርጉ
+
+# Button for applicant to save and confirm the address suggested in the dialog.
+button.saveAndConfirm=ያስቀምጡ እና ያረጋግጡ
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
+
+# Content on address correction dialog when no address is found.
+content.noValidAddress=የሰጡትን አድራሻ ማረጋገጥ አልቻልንም። እባክዎ ለመቀጠል አድራሻዎን ያርትዑ።
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+# Placeholder text shown in a dropdown selector before the user has made a selection.
+placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ፡-
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+label.countryCode=አገር
+label.phoneNumber=ስልክ ቁጥር ያስገቡ
+validation.phoneNumberRequired=ስልክ ቁጥር ያስፈልጋል
+validation.phoneCountryCodeRequired=አገር መመረጥ አለበት
+validation.phoneNumberMustContainNumbersOnly=ስልክ ቁጥር ቁጥር ያልሆኑ ቁምፊዎችን ሊይዝ አይችልም
+validation.invalidPhoneNumberProvided=ይህ ስልክ ቁጥር ልክ ያልሆነ ነው
+validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አይደለም።
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+# Text on a button an applicant would click to add another entity
+button.addEntity={0}ን አክል
+
+# Text on a button an applicant would click to delete an entity
+button.removeEntity={0}ን አስወግድ
+
+# The confirmation dialog when an applicant deletes an enumerator entry.
+dialog.confirmDelete=ይህን {0} ማስወገድ እንደሚፈልጉ እርግጠኛ ነዎት? ይህ ለውጥ «ቀጣይ»ን ከተጫኑ በኋላ ይቀመጣል፣ እና ከዚህ {0} ጋር የተጎዳኘ ሁሉም ውሂብ ይጠፋል።
+
+# Validation error that shows when an applicant does not enter a value.
+validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
+
+# Validation error that shows when an applicant uses a duplicate entity name
+validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
+
+# The placeholder text for enumerator fields
 placeholder.entityName={0} ስም
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+# Validation error that shows when an applicant does not select a file to upload
+validation.fileRequired=እባክዎ ፋይል ይምረጡ።
+
+# Button text that prompts the user to select a file to upload.
+button.chooseFile=ፋይል ይምረጡ
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
+validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
+validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
+validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+# Validation errors that are shown if a user selects too many or too few answers.
+validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
+validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+# Name question labels - these are shown as the field label before an input box.
+label.firstName=መጠሪያ ስም
+label.lastName=የአያት ስም
+label.middleName=የአባት ስም
+
+# Placeholder text - this is shown inside the input box, before a user enters an answer.
 placeholder.firstName=መጠሪያ ስም
 placeholder.lastName=የአያት ስም
 placeholder.middleName=የአባት ስም
-placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ፡-
-tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
-tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
-tag.mayQualify=ብቁ ሊሆኑ ይችላሉ
-tag.mayQualifyTi=ደንበኛዎ ብቁ ሊሆኑ ይችላሉ
-title.activeProgramsUpdated=ያልተጀመሩ
-title.allProgramsSection=ሁሉም ፕሮግራሞች ({0})
-title.applicantNotEligible=እርስዎ ጥያቄዎች በሰጧቸው ምላሾች መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ።
-title.applicantNotEligibleTi=እርስዎ ለሚከተሉት ጥያቄዎች በሰጧቸው ምላሾች መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ።
-title.applicationConfirmation=የማመልከቻ ማረጋገጫ
-title.cannotCheckEligibility=በዚህ ጊዜ ለ{0} የእርስዎን ብቁነት ማረጋገጥ አንችልም።
-title.cannotCheckEligibilityTi=በዚህ ጊዜ ለ{0} የደንበኛዎን ብቁነት ማረጋገጥ አንችልም።
-title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
-title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
-title.commonIntakeSummary=የጥቅማጥቅሞች ቅድመ-ማጣሪያ ማጠቃለያ
-title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
-title.findServicesSection=የሚያግዙዎትን አገልግሎቶች ያግኙ
-title.inProgressProgramsUpdated=በሂደት ላይ
-title.login=ግባ
-title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም
-title.programs=ፕሮግራሞች እና አገልግሎቶች
-title.programSummary=የፕሮግራም ማመልከቻ ማጠቃለያ
-title.status=ሁኔታ
-title.submittedPrograms=የገቡ
-title.verifyAddress=አድራሻን ያረጋግጡ
-toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
-toast.applicationSaved=በተሳካ ሁኔታ የተቀመጠ ማመልከቻ፦ የማመልከቻ መታወቂያ {0}
-toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ ወደ እንግሊዝኛ አልተተረጎመም።
-toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
-toast.mayNotQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ላይሆኑ ይችላሉ። የደንበኛዎ መረጃ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
-toast.mayQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
-toast.mayQualifyTi=በምላሾችዎ መሰረት ደንበኛዎ ለ{0} ብቁ ሊሆኑ ይችላሉ። ለመቀጠል ማመልከቻውን መሙላትዎን ይቀጥሉ።
-toast.programCompleted=ማመልከቻው ቀድሞውኑ ተጠናቅቋል።
-validation.cityRequired=እባክዎ ከተማ ያስገቡ።
-validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
-validation.dateMisformatted=እባክዎ በዓዓዓዓ/ወወ/ቀቀ ቅርጸት ቀን ያስገቡ።
-validation.duplicateEntityName=እባክዎ ለእያንዳንዱ መስመር ልዩ እሴት ያስገቡ።
-validation.entityNameRequired=እባክዎ ለእያንዳንዱ መስመር እሴት ያስገቡ።
-validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
-validation.fileRequired=እባክዎ ፋይል ይምረጡ።
+
+# Validation errors - these are shown if a user enters an invalid name.
 validation.firstNameRequired=እባክዎ የመጠሪያ ስምዎን ያስገቡ።
-validation.idTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
-validation.idTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
-validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
-validation.invalidPhoneNumberProvided=ይህ ስልክ ቁጥር ልክ ያልሆነ ነው
-validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
-validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ።
-validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
-validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
-validation.numberRequired=ቁጥሮችን ብቻ መያዝ አለበት።
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+# Validation errors that are shown when a user enters a number that is too big or too small, or a non-integer.
 validation.numberTooBig=ቢበዛ {0} መሆን አለበት።
 validation.numberTooSmall=ቢያንስ {0} መሆን አለበት።
-validation.phoneCountryCodeRequired=አገር መመረጥ አለበት
-validation.phoneMustBeLocalToCountry=ያቀረቡት ስልክ የአገሩ አይደለም።
-validation.phoneNumberMustContainNumbersOnly=ስልክ ቁጥር ቁጥር ያልሆኑ ቁምፊዎችን ሊይዝ አይችልም
-validation.phoneNumberRequired=ስልክ ቁጥር ያስፈልጋል
-validation.stateRequired=እባክዎ ክልል ያስገቡ።
-validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
+validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if a user enters an answer that is too long or too short.
 validation.textTooLong=ቢበዛ {0} ቁምፊዎችን መያዝ አለበት።
 validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበት።
-validation.tooFewSelections=እባክዎ ቢያንስ {0} ይምረጡ።
-validation.tooManySelections=እባክዎ ከ{0} ያነሰ ይምረጡ።
+
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+# Validation errors that appear if an admin leaves a multi option question blank.
+adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
+
+#-------------------------------------------------------#
+# 404 PAGE ERROR - error messages displayed on 404 page #
+#-------------------------------------------------------#
+error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
+error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
+error.notFoundDescriptionLink=መነሻ ገጽ
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+# Bottom of the body of the email sent automatically on application submission
+email.loginToCiviform=ወደ CiviForm {0} ላይ በመለያ ይግቡ
+
+# Subject of the email sent automatically on application submission
+email.applicationReceivedSubject=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል
+
+# Body of the email sent automatically on application submission
+email.applicationReceivedBody=የ{0} ፕሮግራም ማመልከቻዎ ደርሷል። የአመልካች መታወቂያዎ {1} ነው፣ እና የማመልከቻ መታወቂያው {2} ነው
+
+# Subject of the email sent to the TI on application submission
+email.tiApplicationSubmittedSubject=ለ{0} ፕሮግራም አመልካች {1}ን በመወከል ማመልከቻ አስገብተዋል
+
+# Body of the email sent to the TI on application submission
+email.tiApplicationSubmittedBody=እንደ {1} ያስገቡት የ{0} ፕሮግራም ማመልከቻ ደርሷል፣ እና የማመልከቻ መታወቂያው {2} ነው።
+
+# Link at the bottom of the email sent to the TI on application submission
+email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድሩ።
+
+# Subject of the email sent to an applicant when the status of their application has changed
+email.applicationUpdateSubject=በእርስዎ ማምልከቻ {0} ላይ ዝማኔ
+
+# Subject of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateSubject=አመልካች {1}ን በመወከል ለፕሮግራም {0} በማመልከቻ ላይ ዝማኔ
+
+# Body of the email sent to a TI when they change the status of an application
+email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁኔታው ወደ {2} ተለውጧል።
