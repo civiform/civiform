@@ -26,11 +26,18 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitParamsRunner.class)
 public class MessagesTest {
 
-  // The file path of the primary language file.
-  private static final String PRIMARY_LANGUAGE_FILE = "conf/i18n/messages";
+  // The directory where messages files are stored.
+  private static final String PREFIX_PATH = "conf/i18n/";
 
-  // The file path of the en-US file.
-  private static final String EN_US_LANGUAGE_FILE = "conf/i18n/messages.en-US";
+  // The file name of the primary language file.
+  private static final String PRIMARY_LANGUAGE_FILE_NAME = "messages";
+
+  // The file name of the en-US file.
+  private static final String EN_US_LANGUAGE_FILE_NAME = "messages.en-US";
+
+  private static final String PRIMARY_LANGUAGE_FILE_PATH = PREFIX_PATH + PRIMARY_LANGUAGE_FILE_NAME;
+
+  private static final String EN_US_LANGUAGE_FILE_PATH = PREFIX_PATH + EN_US_LANGUAGE_FILE_NAME;
 
   // A set of keys that are present in the primary language file, but for which
   // we do *not* expect translations to be present. This is useful for keys that
@@ -49,13 +56,13 @@ public class MessagesTest {
   public void ignoreListIsUpToDate() throws Exception {
     // Assert that we don't have keys in the ignore list that aren't in the
     // primary language file.
-    assertThat(keysInFile(PRIMARY_LANGUAGE_FILE)).containsAll(IGNORE_LIST);
+    assertThat(keysInFile(PRIMARY_LANGUAGE_FILE_PATH)).containsAll(IGNORE_LIST);
   }
 
   @Test
   @Parameters(method = "otherLanguageFiles")
   public void messages_keysInPrimaryFileInAllOtherFiles(String otherLanguageFile) throws Exception {
-    TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE);
+    TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
 
     // Pretend that the keys in IGNORE_LIST are not in the primary message
     // file. These may be keys for features in development, for example. Keys
@@ -73,33 +80,17 @@ public class MessagesTest {
   }
 
   @Test
-  public void messages_valuesEqualMessagesEnUsValues() throws Exception {
-    TreeMap<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE);
-    TreeMap<String, String> entriesInEnUsLanguageFile = entriesInFile(EN_US_LANGUAGE_FILE);
+  public void messages_MessagesEnUs_isEmpty() throws Exception {
+    TreeMap<String, String> entriesInEnUsLanguageFile = entriesInFile(EN_US_LANGUAGE_FILE_PATH);
 
-    assertThat(entriesInPrimaryLanguageFile)
-        .withFailMessage(
-            () -> {
-              TreeMap<String, String> primaryLangKeysEntriesCopy =
-                  new TreeMap<>(entriesInPrimaryLanguageFile);
-              entriesInEnUsLanguageFile.forEach(primaryLangKeysEntriesCopy::remove);
-              if (!primaryLangKeysEntriesCopy.isEmpty()) {
-                return String.format(
-                    "Entries with keys %s differ between primary language file and message.en-US."
-                        + " Make sure these entries match to resolve this issue.",
-                    primaryLangKeysEntriesCopy.keySet());
-              }
-              return "Could not generate failure message.";
-            })
-        // Check that all entries in messages.en-US are in messages (key and value match). We don't
-        // check on the other way around because entries may be on the IGNORE_LIST (and therefore
-        // intentionally missing from messages.en-US).
-        .containsAllEntriesOf(entriesInEnUsLanguageFile);
+    // messages.en-US should be empty and allow all keys to fall back to the messages file.
+    assertThat(entriesInEnUsLanguageFile).isEmpty();
   }
 
   @Test
   public void messages_primaryFile_containsNoProhibitedCharacters() throws Exception {
-    TreeMap<String, String> entriesInPrimaryLanguageFile = entriesInFile(PRIMARY_LANGUAGE_FILE);
+    TreeMap<String, String> entriesInPrimaryLanguageFile =
+        entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
 
     assertThat(entriesInPrimaryLanguageFile)
         .withFailMessage("Prohibited characters found in primary language file..")
@@ -151,11 +142,13 @@ public class MessagesTest {
 
   // The file paths of all non-primary language files, including `en-US`.
   private static String[] otherLanguageFiles() throws Exception {
-    try (Stream<Path> stream = Files.list(Paths.get("conf/i18n"))) {
+    try (Stream<Path> stream = Files.list(Paths.get(PREFIX_PATH))) {
       return stream
           .filter(path -> path.getFileName().toString().matches("messages.*"))
           // Exclude primary language file.
-          .filter(path -> !path.getFileName().toString().equals("messages"))
+          .filter(path -> !path.getFileName().toString().equals(PRIMARY_LANGUAGE_FILE_NAME))
+          // Exclude messages.en-US, which should be empty
+          .filter(path -> !path.getFileName().toString().equals(EN_US_LANGUAGE_FILE_NAME))
           .map(Path::toString)
           .toArray(String[]::new);
     }
