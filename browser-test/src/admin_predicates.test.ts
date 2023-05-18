@@ -52,7 +52,6 @@ describe('create and edit predicates', () => {
     await adminPredicates.clickAddConditionButton()
     await validateToastMessage(page, 'Please select a question')
 
-
     await adminPredicates.addPredicate(
       'hide-predicate-q',
       'hidden if',
@@ -462,12 +461,12 @@ describe('create and edit predicates', () => {
       await adminPrograms.addProgram(programName)
 
       const questions = [
-                                'predicate-date-is-earlier-than',
-                                'predicate-currency',
-                                'list of longs',
-                                'list of strings',
-                                'predicate-date-age-older-than'
-                              ]
+        'predicate-date-is-earlier-than',
+        'predicate-currency',
+        'list of longs',
+        'list of strings',
+        'predicate-date-age-older-than',
+      ]
 
       await adminPrograms.editProgramBlock(programName, 'test-block', questions)
 
@@ -481,7 +480,7 @@ describe('create and edit predicates', () => {
         await adminPredicates.selectQuestionForPredicate(question)
       }
       await adminPredicates.clickAddConditionButton()
-      validateToastMessage(page, 'select less than 5 questions')
+      await validateToastMessage(page, 'select less than 5 questions')
 
       // Unselect all questions
       for (const question of questions) {
