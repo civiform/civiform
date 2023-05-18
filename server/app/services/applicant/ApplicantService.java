@@ -845,8 +845,7 @@ public final class ApplicantService {
     CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
         userRepository
             .lookupApplicant(applicantId)
-            .thenApplyAsync(
-                applicant -> applicant.orElseThrow().getAccount())
+            .thenApplyAsync(applicant -> applicant.orElseThrow().getAccount())
             .thenApplyAsync(
                 account ->
                     versionRepository.getActiveVersion().getPrograms().stream()
@@ -854,7 +853,8 @@ public final class ApplicantService {
                         .filter(
                             pdef ->
                                 pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (userRepository.isTi(account) && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                                    || (userRepository.isTi(account)
+                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
                         .collect(ImmutableList.toImmutableList()))
             .toCompletableFuture();
 

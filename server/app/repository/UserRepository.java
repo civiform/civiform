@@ -300,12 +300,10 @@ public final class UserRepository {
         database.find(Account.class).where().eq("global_admin", true).findList());
   }
   /**
-   * Checks if the account belongs to a TI
-   * In the past we have had difficulties in identifying which is a TI account
-   * and which is a TIClient account. This method help clarify it.
+   * Checks if the account belongs to a TI In the past we have had difficulties in identifying which
+   * is a TI account and which is a TIClient account. This method help clarify it.
    */
-  public boolean isTi(Account account)
-  {
+  public boolean isTi(Account account) {
     return account.getMemberOfGroup().isPresent();
   }
 }
