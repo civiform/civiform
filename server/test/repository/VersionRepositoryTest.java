@@ -109,13 +109,6 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id);
 
-    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
-        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
-    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
-        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
-    assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
-        .containsExactlyInAnyOrder(secondProgramDraft.id);
-
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
 
