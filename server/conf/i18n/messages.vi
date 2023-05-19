@@ -41,7 +41,7 @@ label.languageSr=Chọn một ngôn ngữ
 header.endSession=Kết thúc phiên truy cập
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=Phiên của bạn đã kết thúc.
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=Bạn là người dùng khách
