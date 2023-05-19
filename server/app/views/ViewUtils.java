@@ -101,7 +101,8 @@ public final class ViewUtils {
    */
   public enum ProgramDisplayType {
     ACTIVE,
-    DRAFT
+    DRAFT,
+    PENDING_DELETION
   }
 
   public static DivTag makeSvgToolTipRightAnchored(String toolTipText, Icons icon) {
@@ -165,15 +166,24 @@ public final class ViewUtils {
    *     overwrite existing classes due to how Jhtml works.
    */
   public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
-    String badgeText = status == ProgramDisplayType.ACTIVE ? "Active" : "Draft";
-    String badgeBGColor =
-        status == ProgramDisplayType.ACTIVE
-            ? BaseStyles.BG_CIVIFORM_GREEN_LIGHT
-            : BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
-    String badgeFillColor =
-        status == ProgramDisplayType.ACTIVE
-            ? BaseStyles.TEXT_CIVIFORM_GREEN
-            : BaseStyles.TEXT_CIVIFORM_PURPLE;
+    String badgeText = "", badgeBGColor = "", badgeFillColor = "";
+    switch (status) {
+      case ACTIVE:
+        badgeText = "Active";
+        badgeBGColor = BaseStyles.BG_CIVIFORM_GREEN_LIGHT;
+        badgeFillColor = BaseStyles.TEXT_CIVIFORM_GREEN;
+        break;
+      case DRAFT:
+        badgeText = "Draft";
+        badgeBGColor = BaseStyles.BG_CIVIFORM_PURPLE_LIGHT;
+        badgeFillColor = BaseStyles.TEXT_CIVIFORM_PURPLE;
+        break;
+      case PENDING_DELETION:
+        badgeText = "Archived";
+        badgeBGColor = BaseStyles.BG_CIVIFORM_YELLOW_LIGHT;
+        badgeFillColor = BaseStyles.TEXT_CIVIFORM_YELLOW;
+        break;
+    }
     return p().withClasses(
             badgeBGColor,
             badgeFillColor,
@@ -188,8 +198,8 @@ public final class ViewUtils {
             Joiner.on(" ").join(extraClasses))
         .withStyle("width: 100px")
         .with(
-            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "ml-3.5", "w-5", "h-5"),
-            span(badgeText).withClass("mr-4"));
+            Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "w-5", "h-5"),
+            span(badgeText));
   }
 
   /**

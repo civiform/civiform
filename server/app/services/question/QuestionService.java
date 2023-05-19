@@ -183,8 +183,11 @@ public final class QuestionService {
         .equals(DeletionStatus.DELETABLE)) {
       throw new InvalidUpdateException("Question is not archivable.");
     }
+
+    Question draftQuestion =
+        questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    if (!draftVersion.addTombstoneForQuestion(question.get())) {
+    if (!draftVersion.addTombstoneForQuestion(draftQuestion)) {
       throw new InvalidUpdateException("Already tombstoned.");
     }
     draftVersion.save();
