@@ -1,7 +1,6 @@
 import {
   ClientInformation,
   createTestContext,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
@@ -139,7 +138,6 @@ describe('Trusted intermediaries', () => {
         tiDashboard,
       } = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       await adminQuestions.addNumberQuestion({
         questionName: eligibilityQuestionId,
@@ -196,7 +194,6 @@ describe('Trusted intermediaries', () => {
     it('correctly handles eligibility', async () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await loginAsTrustedIntermediary(page)
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnApplicantDashboard()
 

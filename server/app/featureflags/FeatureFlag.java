@@ -21,9 +21,6 @@ public enum FeatureFlag {
   ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS,
   SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE,
 
-  // Launch Flags, these will eventually be removed.
-  PROGRAM_ELIGIBILITY_CONDITIONS_ENABLED,
-
   // Address correction and verification flags
   ESRI_ADDRESS_CORRECTION_ENABLED,
   ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED,

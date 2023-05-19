@@ -12,7 +12,6 @@ import {
   testUserDisplayName,
   extractEmailsForRecipient,
   validateScreenshot,
-  enableFeatureFlag,
 } from './support'
 
 describe('view program statuses', () => {
@@ -626,7 +625,6 @@ describe('view program statuses', () => {
         adminPrograms,
       } = ctx
       await loginAsAdmin(page)
-      await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
 
       // Create a program without eligibility
       await adminQuestions.addNumberQuestion({

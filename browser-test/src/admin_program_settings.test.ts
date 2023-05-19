@@ -14,7 +14,6 @@ describe('program settings', () => {
   it('program settings page', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
     await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -41,7 +40,6 @@ describe('program settings', () => {
   it('program index shows settings in dropdown', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
     await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -79,7 +77,6 @@ describe('program settings', () => {
   it('back button on program settings page navigates correctly', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
     await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
@@ -145,7 +142,6 @@ describe('program settings', () => {
   it('program index hides settings in dropdown for common intake form', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'program_eligibility_conditions_enabled')
     await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
