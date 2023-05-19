@@ -12,4 +12,4 @@ files:
 
 options:
   ignore_draft: true
-  enable_group_assignment: false
+  enable_group_assignment: true
