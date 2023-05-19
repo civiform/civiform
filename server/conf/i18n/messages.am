@@ -8,7 +8,7 @@
 button.logout=ውጣ
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
-label.selectLanguage=Please select your preferred language.
+label.selectLanguage=Please select your preferred language. Test change
 
 # NO TRANSLATION NEEDED - this appears before applicants select their preferred language, so we always use the default.
 button.untranslatedSubmit=Submit
