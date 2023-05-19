@@ -196,10 +196,10 @@ public final class ViewUtils {
             "justify-center",
             "h-10",
             Joiner.on(" ").join(extraClasses))
-        .withStyle("width: 100px")
+        .withStyle("width: 115px")
         .with(
             Icons.svg(Icons.NOISE_CONTROL_OFF).withClasses("inline-block", "w-5", "h-5"),
-            span(badgeText));
+            span(badgeText).withClass("mr-1"));
   }
 
   /**

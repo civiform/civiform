@@ -274,6 +274,23 @@ public class QuestionServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void archiveQuestion_createsDraftIfNoneExists() throws Exception {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+
+    assertThat(versionRepository.getDraftVersion().getQuestionNames())
+        .doesNotContain(addressQuestion.getQuestionDefinition().getName());
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .doesNotContain(addressQuestion.getQuestionDefinition().getName());
+
+    questionService.archiveQuestion(addressQuestion.id);
+
+    assertThat(versionRepository.getDraftVersion().getQuestionNames())
+        .contains(addressQuestion.getQuestionDefinition().getName());
+    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+        .contains(addressQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
   public void restoreQuestion_pendingDeletionSucceeds() throws Exception {
     Question addressQuestion = testQuestionBank.applicantAddress();
     questionService.archiveQuestion(addressQuestion.id);

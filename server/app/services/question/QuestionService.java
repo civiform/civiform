@@ -187,8 +187,13 @@ public final class QuestionService {
     Question draftQuestion =
         questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    if (!draftVersion.addTombstoneForQuestion(draftQuestion)) {
-      throw new InvalidUpdateException("Already tombstoned.");
+    try {
+      if (!draftVersion.addTombstoneForQuestion(draftQuestion)) {
+        throw new InvalidUpdateException("Already tombstoned.");
+      }
+    } catch (QuestionNotFoundException e) {
+      // Shouldn't happen because we call createOrUpdateDraft before archiving.
+      throw new RuntimeException(e);
     }
     draftVersion.save();
   }

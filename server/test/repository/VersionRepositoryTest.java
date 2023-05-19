@@ -41,7 +41,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testPublish_tombstonesProgramsAndQuestionsOnlyCreatedInTheDraftVersion() {
+  public void testPublish_tombstonesProgramsAndQuestionsOnlyCreatedInTheDraftVersion()
+      throws Exception {
     Question draftOnlyQuestion = resourceCreator.insertQuestion("draft-only-question");
     draftOnlyQuestion.addVersion(versionRepository.getDraftVersion()).save();
 
