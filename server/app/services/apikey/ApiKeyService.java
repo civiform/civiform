@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -180,9 +179,6 @@ public final class ApiKeyService {
     String keyId = generateSecret(KEY_ID_LENGTH);
     String keySecret = generateSecret(KEY_SECRET_LENGTH);
     String saltedSecret = salt(keySecret);
-    String rawCredentials = keyId + ":" + keySecret;
-    String credentials =
-        Base64.getEncoder().encodeToString(rawCredentials.getBytes(StandardCharsets.UTF_8));
 
     apiKey.setKeyId(keyId);
     apiKey.setSaltedKeySecret(saltedSecret);
@@ -190,7 +186,7 @@ public final class ApiKeyService {
 
     apiKey = repository.insert(apiKey).toCompletableFuture().join();
 
-    return ApiKeyCreationResult.success(apiKey, credentials);
+    return ApiKeyCreationResult.success(apiKey, keyId, keySecret);
   }
 
   // {@code apiKey} is mutable and modified here, {@code form} is immutable so a new instance is
