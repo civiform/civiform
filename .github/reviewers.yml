@@ -1,8 +1,6 @@
 reviewers:
   groups:
     i18n-reviewers:
-      -  # TODO(#4891): remove Michael once i18n process is established
-      - MichaelZetune
       - team:Developers # CiviForm Developers GitHub team
 
   per_author:
@@ -18,5 +16,4 @@ options:
   ignore_draft: true
   enable_group_assignment: false
 
-  # TODO(#4891): set to 1 once i18n process is established
-  number_of_reviewers: 2
+  number_of_reviewers: 1
