@@ -3,6 +3,7 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -41,6 +42,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import play.mvc.Http;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
@@ -106,6 +108,7 @@ public final class ApplicantService {
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
+  ProfileUtils profileUtils;
 
   @Inject
   public ApplicantService(
@@ -123,7 +126,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      ProfileUtils profileUtils) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -146,6 +150,7 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
   /** Create a new {@link Applicant}. */
@@ -383,7 +388,7 @@ public final class ApplicantService {
    * <p>An application is a snapshot of all the answers the applicant has filled in so far, along
    * with association with the applicant and a program that the applicant is applying to.
    *
-   * @param submitterProfile the user that submitted the application, iff it is a TI the application
+   * @param submitterProfile the user that submitted the application, if it is a TI the application
    *     is associated with this profile too.
    * @return the saved {@link Application}. If the submission failed, a {@link
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
@@ -834,31 +839,24 @@ public final class ApplicantService {
    *   <li>Any other programs that are public
    * </ul>
    */
-  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(long applicantId) {
+  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(long applicantId, CiviFormProfile requesterProfile) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-
-    CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
-        userRepository
-            .lookupApplicant(applicantId)
-            .thenApplyAsync(applicant -> applicant.orElseThrow().getAccount())
-            .thenApplyAsync(
-                account ->
-                    versionRepository.getActiveVersion().getPrograms().stream()
+    ImmutableList<ProgramDefinition> activeProgramDefinitionsFuture =
+                     versionRepository.getActiveVersion().getPrograms().stream()
                         .map(Program::getProgramDefinition)
                         .filter(
                             pdef ->
                                 pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (userRepository.isTi(account)
-                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
-                        .collect(ImmutableList.toImmutableList()))
-            .toCompletableFuture();
+                                    || (requesterProfile.isTrustedIntermediary()
+                                  && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                        .collect(ImmutableList.toImmutableList());
 
-    return CompletableFuture.allOf(applicationsFuture, activeProgramDefinitionsFuture)
+    return CompletableFuture.allOf(applicationsFuture)
         .thenComposeAsync(
             v -> {
               ImmutableSet<Application> applications = applicationsFuture.join();
@@ -866,7 +864,7 @@ public final class ApplicantService {
                   applications.stream()
                       .map(application -> application.getProgram().getProgramDefinition())
                       .collect(Collectors.toList());
-              programDefinitionsList.addAll(activeProgramDefinitionsFuture.join());
+              programDefinitionsList.addAll(activeProgramDefinitionsFuture);
               return programService.syncQuestionsToProgramDefinitions(
                   programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
             })
@@ -875,7 +873,7 @@ public final class ApplicantService {
               ImmutableSet<Application> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitionsFuture.join(), applications, allPrograms);
+                  activeProgramDefinitionsFuture, applications, allPrograms);
             },
             httpExecutionContext.current());
   }
@@ -890,11 +888,11 @@ public final class ApplicantService {
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
    *     <p>Does not include the Common Intake Form.
-   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long)}.
+   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long, play.mvc.Http.Request)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
-      long applicantId) {
-    return relevantProgramsForApplicant(applicantId)
+    long applicantId, CiviFormProfile requesterProfile) {
+    return relevantProgramsForApplicant(applicantId, requesterProfile)
         .thenApplyAsync(
             relevantPrograms ->
                 Stream.of(

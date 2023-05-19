@@ -109,7 +109,7 @@ public final class RedirectController extends CiviFormController {
                             request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }
 
-              return getProgramVersionForApplicant(applicantId, programSlug)
+              return getProgramVersionForApplicant(applicantId, programSlug,request)
                   .thenComposeAsync(
                       (Optional<ProgramDefinition> programForExistingApplication) -> {
                         // Check to see if the applicant already has an application
@@ -145,11 +145,12 @@ public final class RedirectController extends CiviFormController {
   }
 
   private CompletionStage<Optional<ProgramDefinition>> getProgramVersionForApplicant(
-      long applicantId, String programSlug) {
+    long applicantId, String programSlug, Http.Request request) {
     // Find all applicant's DRAFT applications for programs of the same slug
     // redirect to the newest program version with a DRAFT application.
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantService
-        .relevantProgramsForApplicant(applicantId)
+        .relevantProgramsForApplicant(applicantId, requesterProfile)
         .thenApplyAsync(
             (ApplicationPrograms relevantPrograms) ->
                 relevantPrograms.inProgress().stream()
@@ -209,7 +210,8 @@ public final class RedirectController extends CiviFormController {
                   .thenComposeAsync(
                       v -> checkApplicantAuthorization(profileUtils, request, applicantId))
                   .thenComposeAsync(
-                      v -> applicantService.maybeEligibleProgramsForApplicant(applicantId),
+                     //we are already checking if profile is empty
+                      v -> applicantService.maybeEligibleProgramsForApplicant(applicantId,profile.get()),
                       httpContext.current())
                   .thenApplyAsync(Optional::of);
             })
