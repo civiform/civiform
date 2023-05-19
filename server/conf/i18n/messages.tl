@@ -32,7 +32,7 @@ footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 # TODO(#1918): Translate.
-guest=Guest
+guest=Bisita
 
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Pumili ng wika
