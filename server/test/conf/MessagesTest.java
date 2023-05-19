@@ -142,8 +142,8 @@ public class MessagesTest {
     if (!keysInForeignLangFileCopy.isEmpty()) {
       return String.format(
           "%s found in %s file but not in primary language file. Add these keys to primary"
-              + " language file or to the ignore list in %s to resolve this issue.",
-          keysInForeignLangFileCopy, foreignLanguageFile, getClass().getName());
+              + " language file to resolve this issue.",
+          keysInForeignLangFileCopy, foreignLanguageFile);
     }
 
     return "No fail message available";
