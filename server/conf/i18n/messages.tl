@@ -41,7 +41,7 @@ label.languageSr=Pumili ng wika
 header.endSession=Tapusin ang session
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=Natapos na ang iyong session.
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=Bisitang user ka
