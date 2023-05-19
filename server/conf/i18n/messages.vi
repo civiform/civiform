@@ -130,7 +130,7 @@ button.review=Xem lại
 button.skipFileUpload=Bỏ qua
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hết sang tiếng Việt.
+toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=Tôi đã hoàn thành
