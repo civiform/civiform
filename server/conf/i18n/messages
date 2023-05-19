@@ -542,12 +542,18 @@ validation.textTooShort=Must contain at least {0} characters.
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=We were unable to find the page you tried to visit
 error.notFoundDescription=Please go back or return to the {0}
 error.notFoundDescriptionLink=homepage
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
