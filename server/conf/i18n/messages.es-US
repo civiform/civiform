@@ -1,17 +1,4 @@
-# This is the default language for the application. Please provide context for each message for use in translations.
-# If a translation cannot be found for a given language, it will default to this file's text instead.
-
-# NOTES ON THIS FILE
-# 1. Apostrophes in translations must be escaped by another apostrophe. See https://www.playframework.com/documentation/2.8.x/JavaI18N#Notes-on-apostrophes
-# 2. Sections correspond to a single view, such as the applicant's home page or a view of an address question.
-# 3. We use the following key format: ${component_type}.${descriptive_name} - for example, button.nextPage would
-#    contain a translation for a button used to go to the next page. button.ariaLabel.delete would contain a
-#    translation a screen reader could read for the delete button.
-# 4. Keys in this file should be alphabetized within their own section or sub-section.
-# 5. This files contains the strings used in applicant UI as they are seen by translators. To make correct translations as easy as possible,
-#    please include a description that allows someone without knowledge about where this string is being used to understand it fully. For
-#    example, explain where the string is shown and if strings are deployment-specific, specify what each passed through value represents,
-#    such as: "Shown to applicants to encourage login; {0} represents the civic entity's name, in reference to their login portal."
+# Please see the README.md in the same directory for more information on localization.
 
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
