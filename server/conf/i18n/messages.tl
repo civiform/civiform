@@ -3,7 +3,7 @@
 #-------------------------------------------------------------#
 # GENERAL - contains text that corresponds to multiple views. #
 #-------------------------------------------------------------#
-
+# test change
 # The text on the button an applicant clicks to log out of their session.
 button.logout=Mag-logout
 
