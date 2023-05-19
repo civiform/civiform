@@ -1,0 +1,22 @@
+reviewers:
+  groups:
+    i18n-reviewers:
+      -  # TODO(#4891): remove Michael once i18n process is established
+      - MichaelZetune
+      - team:Developers # CiviForm Developers GitHub team
+
+  per_author:
+    transifex-bot:
+      - transifex-integration # The Transifex bot's username
+
+files:
+  # The foreign language files, not including `messages`.
+  'server/conf/i18n/messages.*':
+    - i18n-reviewers
+
+options:
+  ignore_draft: true
+  enable_group_assignment: false
+
+  # TODO(#4891): set to 1 once i18n process is established
+  number_of_reviewers: 2
