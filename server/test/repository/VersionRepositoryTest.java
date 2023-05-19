@@ -220,6 +220,48 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void testPublishWithOnlyQuestions() {
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    Version draftForTombstoning = versionRepository.getDraftVersion();
+    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+
+    assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+    assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(secondQuestionUpdated.id);
+
+    Version oldDraft = versionRepository.getDraftVersion();
+    Version oldActive = versionRepository.getActiveVersion();
+
+    versionRepository.publishNewSynchronizedVersion();
+
+    oldDraft.refresh();
+    assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+
+    // The newly created draft should not contain any questions or programs.
+    assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
+    assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
+
+    assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty()
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+    oldActive.refresh();
+    assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
+  }
+
+
+
+  @Test
   public void testPublishProgram() throws Exception {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
