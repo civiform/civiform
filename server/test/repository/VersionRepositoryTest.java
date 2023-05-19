@@ -222,7 +222,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testPublishWithDraftQuestionsAndNoActiveOrDraftPrograms() {
+  public void testPublishWithDraftQuestionsAndNoActiveOrDraftPrograms() throws Exception {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
     Question secondQuestion = resourceCreator.insertQuestion("second-question");
