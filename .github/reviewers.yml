@@ -2,7 +2,7 @@ reviewers:
   groups:
     i18n-reviewers:
       # TODO(#4891): remove Michael once i18n process is established
-      - MichaelZetune
+      - dkatzz
       - team:developers # CiviForm Developers GitHub team
 
 files:
