@@ -5,13 +5,13 @@ reviewers:
       - MichaelZetune
       - team:developers # CiviForm Developers GitHub team
 
-  per_author:
-    transifex-integration: # The Transifex bot's username
-      - i18n-reviewers
+files:
+  # The foreign language files, not including `messages`.
+  'server/conf/i18n/messages.*':
+    - i18n-reviewers
 
 options:
   ignore_draft: true
   enable_group_assignment: false
-
   # TODO(#4891): set to 1 once i18n process is established
   number_of_reviewers: 2
