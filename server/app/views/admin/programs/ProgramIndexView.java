@@ -200,8 +200,8 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<Modal> maybeRenderPublishAllModal(
       ActiveAndDraftPrograms programs, ActiveAndDraftQuestions questions, Http.Request request) {
-    // We should only render the publish modal / button if there is at least one draft program.
-    if (!programs.anyDraft()) {
+    // We should only render the publish modal / button if there is at least one draft.
+    if (!programs.anyDraft() && !questions.draftVersionHasAnyEdits()) {
       return Optional.empty();
     }
 
