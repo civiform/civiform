@@ -164,7 +164,7 @@ button.continueSr=U sii wad codsiga ila {0}
 button.startHere=Halkan ka bilow.
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=Ku sii soco codsiga
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Ka bilow halkan addoo buuxinaya {0}
