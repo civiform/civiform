@@ -28,7 +28,7 @@ label.languageSr=언어 선택
 header.endSession=세션 종료
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=세션이 종료되었습니다.
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=게스트 사용자
@@ -117,7 +117,7 @@ button.review=검토
 button.skipFileUpload=건너뛰기
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
+toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=모두 완료했습니다
@@ -151,7 +151,7 @@ button.continueSr={0} 신청 계속하기
 button.startHere=여기부터 시작
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=애플리케이션으로 계속하기
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr={0} 작성
@@ -529,12 +529,18 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
 error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
 error.notFoundDescriptionLink=홈페이지
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

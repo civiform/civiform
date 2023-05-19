@@ -28,7 +28,7 @@ label.languageSr=Elegir un idioma
 header.endSession=Finalizar sesión
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=Finalizó la sesión.
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=Eres un usuario de invitado
@@ -117,7 +117,7 @@ button.review=Revisar
 button.skipFileUpload=Omitir
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo al inglés.
+toast.localeNotSupported=Lo sentimos, este programa no está traducido por completo a tu idioma preferido.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=Listo
@@ -151,7 +151,7 @@ button.continueSr=Continuar la solicitud para {0}
 button.startHere=Comenzar aquí
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=Continuar a la solicitud
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Comenzar aquí completando la solicitud {0}
@@ -529,12 +529,18 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
 error.notFoundDescription=Regresa a {0}
 error.notFoundDescriptionLink=página de inicio
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

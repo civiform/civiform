@@ -374,7 +374,7 @@ describe('Admin can manage translations', () => {
     // Check that a toast appears warning the program is not fully translated
     await validateToastMessage(
       page,
-      'Lo sentimos, este programa no está traducido por completo al inglés.',
+      'Lo sentimos, este programa no está traducido por completo a tu idioma preferido.',
     )
 
     await validateScreenshot(page, 'applicant-toast-error')

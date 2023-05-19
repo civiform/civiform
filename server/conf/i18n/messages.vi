@@ -28,7 +28,7 @@ label.languageSr=Chọn một ngôn ngữ
 header.endSession=Kết thúc phiên truy cập
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=Phiên của bạn đã kết thúc.
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=Bạn là người dùng khách
@@ -117,7 +117,7 @@ button.review=Xem lại
 button.skipFileUpload=Bỏ qua
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hết sang tiếng Việt.
+toast.localeNotSupported=Rất tiếc, chương trình này chưa được dịch hoàn toàn sang ngôn ngữ bạn ưa dùng.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=Tôi đã hoàn thành
@@ -151,7 +151,7 @@ button.continueSr=Tiếp tục đăng ký {0}
 button.startHere=Bắt đầu tại đây
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền vào {0}
@@ -529,12 +529,18 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng truy cập
 error.notFoundDescription=Vui lòng quay lại hoặc chuyển đến {0}
 error.notFoundDescriptionLink=trang chủ
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

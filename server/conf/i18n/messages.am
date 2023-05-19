@@ -28,7 +28,7 @@ label.languageSr=ቋንቋ ይምረጡ
 header.endSession=ክፍለ-ጊዜን አብቃ
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=የእርስዎ ክፍለ-ጊዜ አብቅቷል።
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=እንግዳ ተጠቃሚ ነዎት
@@ -117,7 +117,7 @@ button.review=ገምግም
 button.skipFileUpload=ዝለል
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=እናዝናለን፣ ይህ ፕሮግራም ሙሉ በሙሉ ወደ እንግሊዝኛ አልተተረጎመም።
+toast.localeNotSupported=ይቅርታ እንጠይቃለን፣ ይህ ፕሮግራም ሙሉ በሙሉ እርስዎ ወደሚፈልጉት ቋንቋ አልተተረጎመም።
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=ሁሉንም ጨርሼያለሁ
@@ -151,7 +151,7 @@ button.continueSr=ወደ {0} ማመልከትን ቀጥል
 button.startHere=እዚህ ይጀምሩ
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=ወደ ማመልከቻ ይቀጥሉ
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr={0}ን በመሙላት እዚህ ይጀምሩ
@@ -529,12 +529,18 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
 error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

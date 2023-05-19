@@ -199,9 +199,11 @@ export class ApplicantQuestions {
 
     // If we are as a guest, we will get a prompt to log in before continuing to the
     // application. Bypass this to continue as a guest.
-    const pageContent = await this.page.textContent('html')
-    if (pageContent!.includes('Continue to application')) {
-      await this.page.click('button:text("Continue to application"):visible')
+    const loginPromptButton = await this.page.$(
+      `[id^="bypass-login-prompt-button-"]:visible`,
+    )
+    if (loginPromptButton !== null) {
+      await loginPromptButton.click()
     }
 
     await waitForPageJsLoad(this.page)

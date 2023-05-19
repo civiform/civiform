@@ -19,7 +19,7 @@ footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 # TODO(#1918): Translate.
-guest=Guest
+guest=Bisita
 
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Pumili ng wika
@@ -28,7 +28,7 @@ label.languageSr=Pumili ng wika
 header.endSession=Tapusin ang session
 
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
-toast.sessionEnded=Your session has ended.
+toast.sessionEnded=Natapos na ang iyong session.
 
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
 header.guestIndicator=Bisitang user ka
@@ -117,7 +117,7 @@ button.review=Pagsusuri
 button.skipFileUpload=Laktawan
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=Ikinalulungkot namin, Ang programa na ito ay hindi lubos na naisalin sa inyong ninanais na wika.
+toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=Ako ay tapos na
@@ -151,7 +151,7 @@ button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 button.startHere=Magsimula rito
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=Magpatuloy sa application
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
@@ -529,12 +529,18 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
 error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
