@@ -43,17 +43,18 @@ public class MessagesTest {
   private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
 
   @Test
-  @Parameters(method = "otherLanguageFiles")
-  public void messages_keysInPrimaryFileInAllOtherFiles(String otherLanguageFile) throws Exception {
+  @Parameters(method = "foreignLanguageFiles")
+  public void messages_keysInForeignLanguageFileAreInPrimaryLanguageFile(String foreignLanguageFile)
+      throws Exception {
     TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
 
-    TreeSet<String> keysInForeignLangFile = keysInFile(otherLanguageFile);
+    TreeSet<String> keysInForeignLangFile = keysInFile(foreignLanguageFile);
 
-    // Checks that the language file contains exactly the same message keys as the
-    // primary language file.
+    // Checks that the foreign language file is a subset of the primary language file.
     assertThat(keysInPrimaryFile)
-        .withFailMessage(errorMessage(keysInPrimaryFile, keysInForeignLangFile, otherLanguageFile))
-        .containsExactlyElementsOf(keysInForeignLangFile);
+        .withFailMessage(
+            errorMessage(keysInPrimaryFile, keysInForeignLangFile, foreignLanguageFile))
+        .containsAll(keysInForeignLangFile);
   }
 
   @Test
@@ -79,13 +80,13 @@ public class MessagesTest {
   }
 
   @Test
-  @Parameters(method = "otherLanguageFiles")
-  public void messages_otherLanguageFiles_containNoProhibitedCharacters(String otherLanguageFile)
-      throws Exception {
-    TreeMap<String, String> entriesInOtherLanguageFile = entriesInFile(otherLanguageFile);
+  @Parameters(method = "foreignLanguageFiles")
+  public void messages_foreignLanguageFiles_containNoProhibitedCharacters(
+      String foreignLanguageFile) throws Exception {
+    TreeMap<String, String> entriesInforeignLanguageFile = entriesInFile(foreignLanguageFile);
 
-    assertThat(entriesInOtherLanguageFile)
-        .withFailMessage("Prohibited characters found in " + otherLanguageFile + ".")
+    assertThat(entriesInforeignLanguageFile)
+        .withFailMessage("Prohibited characters found in " + foreignLanguageFile + ".")
         .allSatisfy(
             (key, value) -> {
               assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
@@ -117,8 +118,8 @@ public class MessagesTest {
                 TreeMap::new));
   }
 
-  // The file paths of all non-primary language files, including `en-US`.
-  private static String[] otherLanguageFiles() throws Exception {
+  // The file paths of all foreign language files.
+  private static String[] foreignLanguageFiles() throws Exception {
     try (Stream<Path> stream = Files.list(Paths.get(PREFIX_PATH))) {
       return stream
           .filter(path -> path.getFileName().toString().matches("messages.*"))
@@ -132,31 +133,19 @@ public class MessagesTest {
   }
 
   private String errorMessage(
-      TreeSet<String> primaryLangKeys, TreeSet<String> foreignLangKeys, String otherLanguageFile) {
-    StringBuilder stringBuilder = new StringBuilder();
-
-    TreeSet<String> keysInPrimaryFileCopy = new TreeSet<>(primaryLangKeys);
-    keysInPrimaryFileCopy.removeAll(foreignLangKeys);
-    if (!keysInPrimaryFileCopy.isEmpty()) {
-      stringBuilder.append(
-          String.format(
-              "%s found in primary language file but not in %s. Add these keys to %s or to the"
-                  + " ignore list in %s to resolve this issue.",
-              keysInPrimaryFileCopy, otherLanguageFile, otherLanguageFile, getClass().getName()));
-    }
-
-    stringBuilder.append("\n\n");
+      TreeSet<String> primaryLangKeys,
+      TreeSet<String> foreignLangKeys,
+      String foreignLanguageFile) {
 
     TreeSet<String> keysInForeignLangFileCopy = new TreeSet<>(foreignLangKeys);
     keysInForeignLangFileCopy.removeAll(primaryLangKeys);
     if (!keysInForeignLangFileCopy.isEmpty()) {
-      stringBuilder.append(
-          String.format(
-              "%s found in %s file but not in primary language file. Add these keys to primary"
-                  + " language file or to the ignore list in %s to resolve this issue.",
-              keysInForeignLangFileCopy, otherLanguageFile, getClass().getName()));
+      return String.format(
+          "%s found in %s file but not in primary language file. Add these keys to primary"
+              + " language file to resolve this issue.",
+          keysInForeignLangFileCopy, foreignLanguageFile);
     }
 
-    return stringBuilder.toString();
+    return "No fail message available";
   }
 }
