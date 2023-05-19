@@ -252,14 +252,12 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getPrograms()).isEmpty();
     assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
 
-    assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty()
+    assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
     oldActive.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
   }
-
-
 
   @Test
   public void testPublishProgram() throws Exception {
