@@ -542,12 +542,18 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 # Validation errors that appear if an admin leaves a multi option question blank.
 adminValidation.multiOptionEmpty=多選題不得留空。
 
-#-------------------------------------------------------#
-# 404 PAGE ERROR - error messages displayed on 404 page #
-#-------------------------------------------------------#
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
+
+# This occurs when an unhandled exception happens.
+error.internalServerTitle=An error occurred
+
+# Message to user that an error happened. %s will be replaced with tech support email address. {0} is replaced by the exception id we use to look up the error in the logs.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
