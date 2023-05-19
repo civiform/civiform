@@ -32,7 +32,7 @@ footer.supportLinkDescription=Taageero farsamo, la xidhiidh# TODO(#1918): Transl
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
 # TODO(#1918): Translate.
-guest=Guest
+guest=Marti
 
 # Label read by screen readers for the language dropdown shown in the page header.
 label.languageSr=Dooro luqad
