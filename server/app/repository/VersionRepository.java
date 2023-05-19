@@ -155,7 +155,8 @@ public final class VersionRepository {
       switch (publishMode) {
         case PUBLISH_CHANGES:
           Preconditions.checkState(
-              draft.getPrograms().size() > 0, "Must have at least 1 program in the draft version.");
+              !draft.getPrograms().isEmpty() || !draft.getQuestions().isEmpty(),
+              "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
           draft.refresh();
