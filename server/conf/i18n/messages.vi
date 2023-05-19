@@ -164,7 +164,7 @@ button.continueSr=Tiếp tục đăng ký {0}
 button.startHere=Bắt đầu tại đây
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=Tiếp tục chuyển đến đơn đăng ký
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Bắt đầu tại đây bằng cách điền vào {0}
