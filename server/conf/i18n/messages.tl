@@ -130,7 +130,7 @@ button.review=Pagsusuri
 button.skipFileUpload=Laktawan
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=Ikinalulungkot namin, Ang programa na ito ay hindi lubos na naisalin sa inyong ninanais na wika.
+toast.localeNotSupported=Pasensya na, hindi ganap na nakasalin ang program na ito sa iyong mas gustong wika.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=Ako ay tapos na
