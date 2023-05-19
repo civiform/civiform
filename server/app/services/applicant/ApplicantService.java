@@ -3,7 +3,6 @@ package services.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
-import auth.ProfileUtils;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -107,7 +106,6 @@ public final class ApplicantService {
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
-  ProfileUtils profileUtils;
 
   @Inject
   public ApplicantService(
@@ -125,8 +123,7 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi,
-      ProfileUtils profileUtils) {
+      MessagesApi messagesApi) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -149,7 +146,6 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   /** Create a new {@link Applicant}. */
