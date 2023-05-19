@@ -130,7 +130,7 @@ button.review=검토
 button.skipFileUpload=건너뛰기
 
 # A toast message that displays when a program is not fully localized to the applicant's preferred locale.
-toast.localeNotSupported=이 프로그램은 영어로 완전히 번역되어 있지 않습니다.
+toast.localeNotSupported=죄송합니다. 이 프로그램은 사용자의 선호 언어로 번역되지 않습니다.
 
 # A link that logs out a guest user after they submit an application.
 link.allDone=모두 완료했습니다
