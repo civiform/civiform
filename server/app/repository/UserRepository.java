@@ -299,5 +299,4 @@ public final class UserRepository {
     return ImmutableSet.copyOf(
         database.find(Account.class).where().eq("global_admin", true).findList());
   }
-
 }

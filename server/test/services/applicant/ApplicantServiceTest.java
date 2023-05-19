@@ -33,7 +33,6 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.mvc.Http;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
@@ -126,9 +125,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(applicantProfile.isTrustedIntermediary()).thenReturn(false);
     Account applicantAccount = new Account();
     applicantAccount.setEmailAddress("applicant@example.com");
-    Mockito.when(applicantProfile.getAccount()).thenReturn(CompletableFuture.completedFuture(applicantAccount));
+    Mockito.when(applicantProfile.getAccount())
+        .thenReturn(CompletableFuture.completedFuture(applicantAccount));
     Mockito.when(applicantProfile.getEmailAddress())
-      .thenReturn(CompletableFuture.completedFuture("applicant@example.com"));
+        .thenReturn(CompletableFuture.completedFuture("applicant@example.com"));
 
     programService = instanceOf(ProgramServiceImpl.class);
 
@@ -1710,7 +1710,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
@@ -1764,7 +1767,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
@@ -1799,7 +1805,10 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     // No CIF application started.
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied()).isEmpty();
@@ -1813,7 +1822,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .createOrUpdateDraft(applicant.id, commonIntakeForm.id)
         .toCompletableFuture()
         .join();
-    result = subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+    result =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied()).isEmpty();
@@ -1829,7 +1842,11 @@ public class ApplicantServiceTest extends ResetPostgres {
         .submitApplication(applicant.id, commonIntakeForm.id, Optional.empty())
         .toCompletableFuture()
         .join();
-    result = subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+    result =
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied()).isEmpty();
@@ -1869,7 +1886,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
@@ -1931,7 +1951,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
@@ -1984,7 +2007,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(otherApplicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(otherApplicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
@@ -2035,7 +2061,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     // Drafts always use the version of the program they were
     // started on.
@@ -2103,7 +2132,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(originalProgramForDraftApp.id);
@@ -2173,9 +2205,15 @@ public class ApplicantServiceTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
 
     ApplicantService.ApplicationPrograms applicantResult =
-        subject.relevantProgramsForApplicant(applicant.id, applicantProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, applicantProfile)
+            .toCompletableFuture()
+            .join();
     ApplicantService.ApplicationPrograms tiResult =
-        subject.relevantProgramsForApplicant(ti.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(ti.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(applicantResult.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(originalProgramForDraftApp.id);
@@ -2231,7 +2269,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     Instant secondAppSubmitTime = secondApp.orElseThrow().getSubmitTime();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraftApp.id);
@@ -2309,7 +2350,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     firstDraft.setLifecycleStage(LifecycleStage.DRAFT).setCreateTimeForTest(draftLater).save();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.submitted().stream().map(p -> p.program().id()))
         .containsExactly(programForSubmitted.id);
@@ -2345,7 +2389,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     addStatusEvent(submittedApplication, APPROVED_STATUS, adminAccount);
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted().stream().map(p -> p.program().id())).containsExactly(program.id);
@@ -2395,7 +2442,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     ApplicantService.ApplicationPrograms result =
-        subject.relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted().stream().map(p -> p.program().id()))
@@ -2485,7 +2535,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     // Asset results contained expected program IDs
     var matchingProgramIds =
@@ -2558,7 +2611,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2636,7 +2692,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2687,7 +2746,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2732,7 +2794,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());
@@ -2767,7 +2832,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
     var result =
-        subject.maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile).toCompletableFuture().join();
+        subject
+            .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
+            .toCompletableFuture()
+            .join();
 
     var matchingProgramIds =
         result.stream().map(pd -> pd.program().id()).collect(ImmutableList.toImmutableList());

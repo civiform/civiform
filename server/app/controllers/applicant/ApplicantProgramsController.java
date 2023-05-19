@@ -66,7 +66,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
+            httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
               return ok(
@@ -98,7 +99,8 @@ public final class ApplicantProgramsController extends CiviFormController {
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
+            httpContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =

@@ -42,7 +42,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Http;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
@@ -839,7 +838,8 @@ public final class ApplicantService {
    *   <li>Any other programs that are public
    * </ul>
    */
-  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(long applicantId, CiviFormProfile requesterProfile) {
+  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
+      long applicantId, CiviFormProfile requesterProfile) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
@@ -847,14 +847,14 @@ public final class ApplicantService {
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitionsFuture =
-                     versionRepository.getActiveVersion().getPrograms().stream()
-                        .map(Program::getProgramDefinition)
-                        .filter(
-                            pdef ->
-                                pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (requesterProfile.isTrustedIntermediary()
-                                  && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
-                        .collect(ImmutableList.toImmutableList());
+        versionRepository.getActiveVersion().getPrograms().stream()
+            .map(Program::getProgramDefinition)
+            .filter(
+                pdef ->
+                    pdef.displayMode().equals(DisplayMode.PUBLIC)
+                        || (requesterProfile.isTrustedIntermediary()
+                            && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+            .collect(ImmutableList.toImmutableList());
 
     return CompletableFuture.allOf(applicationsFuture)
         .thenComposeAsync(
@@ -888,10 +888,11 @@ public final class ApplicantService {
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
    *     <p>Does not include the Common Intake Form.
-   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long, play.mvc.Http.Request)}.
+   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
+   *     play.mvc.Http.Request)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
-    long applicantId, CiviFormProfile requesterProfile) {
+      long applicantId, CiviFormProfile requesterProfile) {
     return relevantProgramsForApplicant(applicantId, requesterProfile)
         .thenApplyAsync(
             relevantPrograms ->
