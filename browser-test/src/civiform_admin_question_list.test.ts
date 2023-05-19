@@ -134,7 +134,10 @@ describe('Admin question list', () => {
     await adminPrograms.publishAllPrograms()
 
     await adminQuestions.createNewVersion(questionTwo)
-    await adminQuestions.archiveQuestion({questionName: questionThree, expectModal: false})
+    await adminQuestions.archiveQuestion({
+      questionName: questionThree,
+      expectModal: false,
+    })
 
     await validateScreenshot(page, 'questions-list-with-archived-questions')
   })
