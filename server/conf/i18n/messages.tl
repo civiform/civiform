@@ -164,7 +164,7 @@ button.continueSr=Ipagpatuloy ang aplikasyon sa {0}
 button.startHere=Magsimula rito
 
 # The text for the button that allows a guest to bypass the login prompt modal.
-button.continueToApplication=Continue to application
+button.continueToApplication=Magpatuloy sa application
 
 # The screen reader text for a button an applicant clicks to start filling out a pre-screener form.
 button.startHereCommonIntakeSr=Magsimula rito sa pamamagitan ng pagsasagot sa {0}
