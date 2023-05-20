@@ -14,7 +14,7 @@ label.selectLanguage=Please select your preferred language.
 button.untranslatedSubmit=Submit
 
 # Message displayed before the support email address in the page footer for applicants.
-footer.supportLinkDescription=Taageero farsamo, la xidhiidh# TODO(#1918): Translate.
+footer.supportLinkDescription=Taageero farsamo, la xidhiidh
 
 # Placeholder message when an applicant clicked the "Continue as Guest".
 # This should be consistent with button.guestLogin.
