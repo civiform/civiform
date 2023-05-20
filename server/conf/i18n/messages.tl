@@ -227,9 +227,6 @@ button.continue=Magsimula dito
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=Nagkaroon ng update sa application, pakisuri at sagutan ang mga sagot para magpatuloy
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=Hindi Kwalipikado
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Hindi kwalipikado
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn=Sinagutan noong {0}
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=Sagot {0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=Magsimula rito. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -293,18 +286,6 @@ tag.mayNotQualify=Posibleng hindi ka kwalipikado
 
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Posibleng hindi kwalipikado ang iyong kliyente
-
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=Sa ngayon, hindi namin masuri ang pagiging kwalipikado mo para sa {0}.
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=Sa ngayon, hindi namin masuri ang pagiging kwalipikado ng iyong kliyente para sa {0}.
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=Nagsisikap kami para mabilis na maayos ang isyung ito. Subukan ulit sa ibang pagkakataon.
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=Tingnan ang lahat ng programa
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=Batay sa iyong mga tugon, posibleng hindi ka kwalipikado para sa {0}. Kung nagbago ang iyong impormasyon, puwede mong i-edit ang iyong mga sagot at pagkatapos ay magpatuloy sa application.
@@ -393,20 +374,11 @@ content.foundSimilarAddress=Hindi namin ma-verify ang ibinigay mong address, per
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=Inilagay na address:
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName=Inilagay na {0}:
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Iminumungkahing address:
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=Mga iminumungkahing address:
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=I-edit ang address
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=I-save at kumpirmahin
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=Walang nakitang valid na address

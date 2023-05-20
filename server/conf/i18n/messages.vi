@@ -227,9 +227,6 @@ button.continue=Tiếp tục
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=Ứng dụng này đã có bản cập nhật. Vui lòng xem và trả lời các câu hỏi để tiếp tục
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=Không đủ điều kiện
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Không đủ tiêu chuẩn
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn=Trước đây đã trả lời vào {0}
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=Câu trả lời {0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=Bắt đầu tại đây. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -294,17 +287,6 @@ tag.mayNotQualify=Bạn có thể không đủ tiêu chuẩn
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Khách hàng của bạn có thể không đủ tiêu chuẩn
 
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=Hiện tại, chúng tôi không thể kiểm tra xem bạn có đủ điều kiện tham gia {0} hay không.
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=Hiện tại, chúng tôi không thể kiểm tra xem khách hàng của bạn có đủ điều kiện tham gia {0} hay không.
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=Chúng tôi đang nỗ lực để nhanh chóng khắc phục sự cố này. Hãy thử lại sau.
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=Xem tất cả chương trình
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=Dựa trên câu trả lời của bạn, bạn có thể không đủ tiêu chuẩn tham gia {0}. Nếu thông tin của bạn đã thay đổi, bạn có thể chỉnh sửa câu trả lời rồi sau đó tiếp tục điền vào đơn đăng ký.
@@ -393,20 +375,11 @@ content.foundSimilarAddress=Chúng tôi không thể xác minh địa chỉ do b
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=Địa chỉ đã nhập:
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName={0} đã nhập:
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Địa chỉ được đề xuất:
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=Các địa chỉ được đề xuất:
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=Chỉnh sửa địa chỉ
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=Lưu và xác nhận
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=Không tìm thấy địa chỉ hợp lệ

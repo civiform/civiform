@@ -227,9 +227,6 @@ button.continue=Continue
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=Not Eligible
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Does not qualify
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn=Previously answered on {0}
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=Answer {0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=Start here. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -293,18 +286,6 @@ tag.mayNotQualify=You may not qualify
 
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Your client may not qualify
-
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=At this time, we are unable to check your eligibility for the {0}.
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=At this time, we are unable to check your client''s eligibility for the {0}.
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=We're working to fix this issue quickly. Try again at a later time.
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=View all programs
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If your information has changed you can edit your answers and then proceed with the application.
@@ -393,20 +374,11 @@ content.foundSimilarAddress=We could not verify the address that you provided, b
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=Address entered:
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName={0} entered:
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Suggested address:
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=Suggested addresses:
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=Edit address
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=Save and confirm
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=No valid address found

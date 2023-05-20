@@ -227,9 +227,6 @@ button.continue=繼續
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=申請內容有所更新，如要繼續操作，請查看並回答問題
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=不符合資格
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=不符合資格
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn=已於 {0}回答
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=回答以下問題：{0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=從這裡開始作答。{0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -293,18 +286,6 @@ tag.mayNotQualify=您可能不符合資格
 
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=您的客戶可能不符合資格
-
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=我們目前無法判斷您是否符合「{0}」的資格。
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=我們目前無法判斷您的客戶是否符合「{0}」的資格。
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=我們會盡力在短時間內修正這個問題，請稍後再試。
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=查看所有計畫
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=根據您的回覆，您可能不符合「{0}」的資格。如果您的資訊有所變更，可以編輯回答並繼續進行申請流程。
@@ -393,20 +374,11 @@ content.foundSimilarAddress=我們無法驗證您提供的地址，但找到了�
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=您輸入的地址：
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName=您輸入的{0}：
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=建議的地址：
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=建議的地址：
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=編輯地址
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=儲存並確認
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=找不到有效的網址

@@ -227,9 +227,6 @@ button.continue=계속
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=신청서가 업데이트되었습니다. 계속하려면 질문을 검토하고 답변해 주세요.
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=제출을 위해 확인 필요
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=자격요건을 충족하지 않음
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn={0}에 답변됨
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer={0}에 답변
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=여기서 시작합니다. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -293,18 +286,6 @@ tag.mayNotQualify=자격요건을 충족하지 않을 수 있음
 
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=클라이언트가 자격요건을 충족하지 않을 수 있음
-
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=현재 {0}에 대한 귀하의 자격을 확인할 수 없습니다.
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=현재 {0}에 대한 클라이언트의 자격을 확인할 수 없습니다.
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=이 문제를 신속히 해결하기 위해 노력하는 중입니다. 잠시 후 다시 시도해 주세요.
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=모든 프로그램 보기
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=응답을 토대로 귀하는 {0}의 자격요건을 충족하지 않을 수도 있습니다. 정보가 변경된 경우 응답을 수정한 후 계속 신청서를 작성할 수 있습니다.
@@ -393,20 +374,11 @@ content.foundSimilarAddress=제공된 주소를 확인할 수 없지만 비슷�
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=입력된 주소:
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName=입력된 {0}:
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=추천 주소:
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=추천 주소:
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=주소 수정
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=저장 및 확인
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=유효한 주소를 찾을 수 없습니다

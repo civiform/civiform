@@ -227,9 +227,6 @@ button.continue=Sii wad
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=Waxaa jirtay cusboonaysiin lagu sameeyay app-ka, fadlan dib u eeg oo ka jawaab su'aalaha si aad horay ugu sii socoto
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=Uma Qalmo
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Uma qalmo
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn=Hore loogaga jawaabay {0}
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=Jawaab {0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=Halkan ka bilow. {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -293,18 +286,6 @@ tag.mayNotQualify=Waxa dhici karta inaanad u qalmin
 
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=Macmiilkaaga waxa dhici karta inuusan u qalmin
-
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=Wakhtigan, ma awoodno hubinta u qalmidaada {0}.
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=Wakhtigan, ma awoodno hubinta u qalmida macmiilkaaga {0}.
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=Waxaanu ka shaqaynaynaa hagaajinta dhibkan si degdeg ah. Isku day mar kale wakhti dambe.
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=Arag barnaamijyada oo dhan
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=Iyaddoo ku salaysan jawaabahaaga, waxa dhici karta inaanad u qalmin {0}. Haddi imacluumaadkaagu uu is beddelay waxaad wax ka beddeli kartaa jawaabahaaga oo ka dib sii wad codsiga.
@@ -393,20 +374,11 @@ content.foundSimilarAddress=Waanu xaqiijin kari waynay cinwaanka aad bixisay, la
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=Cinwaanka waa la geliyay:
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName={0} la geliyay:
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=Cinwaanka la soo jeediyay:
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=Cinwaanada la soo jeediyay:
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=Wax ka beddel cinwaanka
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=Kaydi oo xaqiiji
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=Lama helin cinwaan ansax ah
