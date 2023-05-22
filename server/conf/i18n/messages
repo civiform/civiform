@@ -96,15 +96,12 @@ button.submit=Submit
 button.continue=Continue
 toast.applicationOutOfDate=There''s been an update to the application, please review and answer questions to proceed
 
-# Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=Does not qualify
 link.edit=Edit
 link.answer=Answer
 content.previouslyAnsweredOn=Previously answered on {0}
 ariaLabel.answer=Answer {0}
 
-# An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
-# question, so this might say "Edit What is your name?". The {0} variable is the question text.
 ariaLabel.edit=Edit {0}
 title.programSummary=Program application summary
 title.commonIntakeSummary=Benefits pre-screener summary
@@ -125,10 +122,8 @@ tag.mayQualifyTi=Your client may qualify
 tag.mayNotQualify=You may not qualify
 tag.mayNotQualifyTi=Your client may not qualify
 
-# Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=Based on your responses, you may not qualify for the {0}. If your information has changed you can edit your answers and then proceed with the application.
 
-# Toast message that shows that a client may not be eligible for a program, when someone else is filling out the application on a client''s behalf.
 toast.mayNotQualifyTi=Based on your responses, your client may not qualify for the {0}. If your client''s information has changed you can edit your answers and then proceed with the application.
 banner.errorSavingApplication=Error saving application
 
