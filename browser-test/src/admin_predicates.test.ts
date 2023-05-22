@@ -480,7 +480,7 @@ describe('create and edit predicates', () => {
         await adminPredicates.selectQuestionForPredicate(question)
       }
       await adminPredicates.clickAddConditionButton()
-      await validateToastMessage(page, 'select less than 5 questions')
+      await validateToastMessage(page, 'select fewer than 5 questions')
 
       // Unselect all questions
       for (const question of questions) {
