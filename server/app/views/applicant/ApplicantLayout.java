@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
@@ -252,9 +251,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     .with(redirectInput)
                     .with(languageDropdown)
                     .condWith(
-                        featureFlags.getFlagEnabled(request, BYPASS_LOGIN_LANGUAGE_SCREENS)
-                            && isDevOrStaging
-                            && !disableDemoModeLogins,
+                        isDevOrStaging && !disableDemoModeLogins,
                         div()
                             .withClasses("w-full", "flex", "justify-center")
                             .with(

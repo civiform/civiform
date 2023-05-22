@@ -4,10 +4,7 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -19,7 +16,6 @@ import models.Applicant;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -30,7 +26,6 @@ import repository.UserRepository;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.exception.ApplicantNotFoundException;
-import views.applicant.ApplicantInformationView;
 import views.applicant.ApplicantLayout;
 
 /**
@@ -41,34 +36,28 @@ public final class ApplicantInformationController extends CiviFormController {
 
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
-  private final ApplicantInformationView informationView;
   private final UserRepository repository;
   private final FormFactory formFactory;
   private final ProfileUtils profileUtils;
   private final ApplicantService applicantService;
   private final ApplicantLayout layout;
-  private final FeatureFlags featureFlags;
 
   @Inject
   public ApplicantInformationController(
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
-      ApplicantInformationView informationView,
       UserRepository repository,
       FormFactory formFactory,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
-      ApplicantLayout layout,
-      FeatureFlags featureFlags) {
+      ApplicantLayout layout) {
     this.httpExecutionContext = httpExecutionContext;
     this.messagesApi = messagesApi;
-    this.informationView = informationView;
     this.repository = repository;
     this.formFactory = formFactory;
     this.profileUtils = profileUtils;
     this.applicantService = applicantService;
     this.layout = layout;
-    this.featureFlags = featureFlags;
   }
 
   /**
@@ -77,10 +66,6 @@ public final class ApplicantInformationController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> edit(Http.Request request, long applicantId) {
-    // If we haven't enabled the new login changes, use the old edit logic.
-    if (!featureFlags.getFlagEnabled(request, FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS)) {
-      return legacyEdit(request, applicantId);
-    }
 
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
@@ -128,46 +113,6 @@ public final class ApplicantInformationController extends CiviFormController {
 
                 if (ex.getCause() instanceof ApplicantNotFoundException) {
                   return badRequest(ex.getCause().getMessage());
-                }
-              }
-
-              throw new RuntimeException(ex);
-            });
-  }
-
-  /**
-   * Used for the language selection screen. Does not set the applicant's language based on browser
-   * session; instead asks them to specify it themselves.
-   */
-  // TODO(#4705): remove this method when BYPASS_LOGIN_LANGUAGE_SCREENS flag is removed.
-  private CompletionStage<Result> legacyEdit(Http.Request request, long applicantId) {
-    Optional<String> redirectTo =
-        request.session().data().containsKey(REDIRECT_TO_SESSION_KEY)
-            ? Optional.of(request.session().data().get(REDIRECT_TO_SESSION_KEY))
-            : Optional.empty();
-
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
-
-    return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
-        .thenApplyAsync(
-            // Since this is before we set the applicant's preferred language, use
-            // the default language for now.
-            v ->
-                ok(
-                    informationView.render(
-                        request,
-                        applicantStage.toCompletableFuture().join(),
-                        messagesApi.preferred(ImmutableSet.of(Lang.defaultLang())),
-                        applicantId,
-                        redirectTo,
-                        profileUtils.currentUserProfile(request).get().isTrustedIntermediary())),
-            httpExecutionContext.current())
-        .exceptionally(
-            ex -> {
-              if (ex instanceof CompletionException) {
-                if (ex.getCause() instanceof SecurityException) {
-                  return unauthorized();
                 }
               }
 

@@ -7,7 +7,6 @@ import static play.test.Helpers.fakeRequest;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import models.Applicant;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +17,6 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
 import repository.UserRepository;
-import views.LoginForm;
 
 public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
@@ -47,12 +45,10 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     HomeController controller =
         new HomeController(
             instanceOf(Config.class),
-            instanceOf(LoginForm.class),
             instanceOf(ProfileUtils.class),
             instanceOf(MessagesApi.class),
             instanceOf(HttpExecutionContext.class),
-            languageUtils,
-            instanceOf(FeatureFlags.class));
+            languageUtils);
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
     assertThat(result.redirectLocation())
         .contains(

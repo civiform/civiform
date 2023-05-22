@@ -493,10 +493,6 @@
         "description": "Enables the phone number question type.",
         "type": "bool"
       },
-      "BYPASS_LOGIN_LANGUAGE_SCREENS": {
-        "description": "Bypasses the login and language screens and takes applicant straight to programs page.",
-        "type": "bool"
-      },
       "PUBLISH_SINGLE_PROGRAM_ENABLED": {
         "description": "Enables the feature that allows publishing a single program on its own.",
         "type": "bool"
