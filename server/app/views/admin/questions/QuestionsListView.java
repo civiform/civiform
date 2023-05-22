@@ -160,12 +160,12 @@ public final class QuestionsListView extends BaseHtmlView {
     return cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
   }
 
-  private static boolean questionIsPendingDeletion(
+  private static boolean isQuestionPendingDeletion(
       QuestionCardData card, ActiveAndDraftQuestions activeAndDraftQuestions) {
-    return questionIsPendingDeletion(getDisplayQuestion(card), activeAndDraftQuestions);
+    return isQuestionPendingDeletion(getDisplayQuestion(card), activeAndDraftQuestions);
   }
 
-  private static boolean questionIsPendingDeletion(
+  private static boolean isQuestionPendingDeletion(
       QuestionDefinition question, ActiveAndDraftQuestions activeAndDraftQuestions) {
     return activeAndDraftQuestions.getDeletionStatus(question.getName())
         == DeletionStatus.PENDING_DELETION;
@@ -198,7 +198,7 @@ public final class QuestionsListView extends BaseHtmlView {
     for (QuestionCardData card : cards) {
       Pair<DivTag, ImmutableList<Modal>> rowAndModals =
           renderQuestionCard(card, activeAndDraftQuestions, request);
-      if (questionIsPendingDeletion(card, activeAndDraftQuestions)) {
+      if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
         archivedQuestionRows.add(rowAndModals.getLeft());
       } else {
         nonArchivedQuestionRows.add(rowAndModals.getLeft());
@@ -329,7 +329,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ProgramDisplayType displayType = ProgramDisplayType.ACTIVE;
     if (!isActive) {
       displayType =
-          questionIsPendingDeletion(question, activeAndDraftQuestions)
+          isQuestionPendingDeletion(question, activeAndDraftQuestions)
               ? ProgramDisplayType.PENDING_DELETION
               : ProgramDisplayType.DRAFT;
     }
