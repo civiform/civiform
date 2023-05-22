@@ -148,13 +148,13 @@ class AdminPredicateConfiguration {
         '.cf-predicate-question-options',
       ),
     ).filter((el) => el.checked).length
-    if (numChecked == 0 || numChecked > 4) {
+    if (numChecked == 0) {
       event.preventDefault()
-      const errorMessage =
-        numChecked > 4
-          ? 'Please select fewer than 5 questions.'
-          : 'Please select a question.'
-      this.showErrorMessage(errorMessage)
+      this.showErrorMessage('Please select a question.')
+    }
+    if (numChecked > 4) {
+      event.preventDefault()
+      this.showErrorMessage('Please select fewer than 5 questions.')
     }
   }
 
