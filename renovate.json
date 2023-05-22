@@ -29,7 +29,7 @@
     {
       "groupName": "playwright",
       "matchPackagePrefixes": ["playwright", "mcr.microsoft.com/playwright"]
-    },    
+    },
     {
       "matchPaths": [
         ".github/workflows/**",
