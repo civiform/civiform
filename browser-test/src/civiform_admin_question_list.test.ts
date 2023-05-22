@@ -3,6 +3,7 @@ import {
   AdminQuestions,
   createTestContext,
   loginAsAdmin,
+  validateScreenshot,
 } from './support'
 describe('Admin question list', () => {
   const ctx = createTestContext()
@@ -107,6 +108,38 @@ describe('Admin question list', () => {
       'second question',
       'first question',
     ])
+  })
+
+  it('shows if questions are marked for archival', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const questionOne = 'question list test question one'
+    const questionTwo = 'question list test question two'
+    const questionThree = 'question list test question three'
+    await adminQuestions.addNameQuestion({
+      questionName: questionOne,
+      questionText: questionOne,
+    })
+    await adminQuestions.addNameQuestion({
+      questionName: questionTwo,
+      questionText: questionTwo,
+    })
+    await adminQuestions.addNameQuestion({
+      questionName: questionThree,
+      questionText: questionThree,
+    })
+
+    // Publish questions
+    await adminPrograms.publishAllPrograms()
+
+    await adminQuestions.createNewVersion(questionTwo)
+    await adminQuestions.archiveQuestion({
+      questionName: questionThree,
+      expectModal: false,
+    })
+
+    await validateScreenshot(page, 'questions-list-with-archived-questions')
   })
 
   async function expectQuestionListElements(

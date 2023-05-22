@@ -7,6 +7,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
@@ -33,6 +34,7 @@ import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.DeletionStatus;
 import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
@@ -158,9 +160,21 @@ public final class QuestionsListView extends BaseHtmlView {
     return cardData.draftQuestion().orElseGet(cardData.activeQuestion()::get);
   }
 
+  private static boolean isQuestionPendingDeletion(
+      QuestionCardData card, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    return isQuestionPendingDeletion(getDisplayQuestion(card), activeAndDraftQuestions);
+  }
+
+  private static boolean isQuestionPendingDeletion(
+      QuestionDefinition question, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    return activeAndDraftQuestions.getDeletionStatus(question.getName())
+        == DeletionStatus.PENDING_DELETION;
+  }
+
   private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    ImmutableList.Builder<DomContent> rows = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> nonArchivedQuestionRows = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> archivedQuestionRows = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     ImmutableList<QuestionCardData> cards =
         activeAndDraftQuestions.getQuestionNames().stream()
@@ -184,10 +198,22 @@ public final class QuestionsListView extends BaseHtmlView {
     for (QuestionCardData card : cards) {
       Pair<DivTag, ImmutableList<Modal>> rowAndModals =
           renderQuestionCard(card, activeAndDraftQuestions, request);
-      rows.add(rowAndModals.getLeft());
+      if (isQuestionPendingDeletion(card, activeAndDraftQuestions)) {
+        archivedQuestionRows.add(rowAndModals.getLeft());
+      } else {
+        nonArchivedQuestionRows.add(rowAndModals.getLeft());
+      }
       modals.addAll(rowAndModals.getRight());
     }
-    return Pair.of(div().with(rows.build()), modals.build());
+
+    DivTag questionContent = div(div().with(nonArchivedQuestionRows.build()));
+    if (!archivedQuestionRows.build().isEmpty()) {
+      questionContent.with(
+          div()
+              .with(h2("Marked for archival").withClasses("mt-8", "font-semibold"))
+              .with(archivedQuestionRows.build()));
+    }
+    return Pair.of(questionContent, modals.build());
   }
 
   @AutoValue
@@ -300,11 +326,14 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> actionsCellAndModal =
         renderActionsCell(isActive, question, activeAndDraftQuestions, request);
 
-    PTag badge =
-        ViewUtils.makeBadge(
-            isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
-            "ml-2",
-            StyleUtils.responsiveXLarge("ml-8"));
+    ProgramDisplayType displayType = ProgramDisplayType.ACTIVE;
+    if (!isActive) {
+      displayType =
+          isQuestionPendingDeletion(question, activeAndDraftQuestions)
+              ? ProgramDisplayType.PENDING_DELETION
+              : ProgramDisplayType.DRAFT;
+    }
+    PTag badge = ViewUtils.makeBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()

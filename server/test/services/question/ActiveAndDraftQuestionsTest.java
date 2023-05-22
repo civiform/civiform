@@ -28,7 +28,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
-  public void getQuestionNames() {
+  public void getQuestionNames() throws Exception {
     Question tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
 
@@ -56,7 +56,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
-  public void getActiveOrDraftQuestionDefinition() {
+  public void getActiveOrDraftQuestionDefinition() throws Exception {
     Question tombstonedQuestionFromActiveVersion =
         resourceCreator.insertQuestion("tombstoned-question");
     Question activeAndDraftQuestion = resourceCreator.insertQuestion("active-and-draft-question");
@@ -156,26 +156,21 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   @Test
-  public void getDeletionStatus_tombstoned() {
+  public void getDeletionStatus_tombstoned() throws Exception {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
-    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
-
-    assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
-        .isEqualTo(DeletionStatus.PENDING_DELETION);
-
-    // Create an edited version of the question in the draft version
-    // and ensure that it's still considered as pending deletion.
     versionRepository
         .getDraftVersion()
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
+    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
+
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
   }
 
   @Test
-  public void getDeletionStatus_createdAndTombstonedInDraftVersion() {
+  public void getDeletionStatus_createdAndTombstonedInDraftVersion() throws Exception {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersion().addQuestion(question).save();
     addTombstoneToVersion(versionRepository.getDraftVersion(), question);
@@ -396,7 +391,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     return ActiveAndDraftQuestions.buildFromCurrentVersions(versionRepository);
   }
 
-  private void addTombstoneToVersion(Version version, Question question) {
+  private void addTombstoneToVersion(Version version, Question question) throws Exception {
     assertThat(version.addTombstoneForQuestion(question)).isTrue();
     version.save();
   }

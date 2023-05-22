@@ -28,6 +28,8 @@ public final class BaseStyles {
   public static final String BG_CIVIFORM_GREEN_LIGHT = "bg-civiform-green-light";
   public static final String TEXT_CIVIFORM_PURPLE = "text-civiform-purple";
   public static final String BG_CIVIFORM_PURPLE_LIGHT = "bg-civiform-purple-light";
+  public static final String TEXT_CIVIFORM_YELLOW = "text-civiform-yellow";
+  public static final String BG_CIVIFORM_YELLOW_LIGHT = "bg-civiform-yellow-light";
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Form style classes
