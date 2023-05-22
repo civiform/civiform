@@ -80,12 +80,12 @@ describe('applicant auth', () => {
 
   it('toast is shown when either guest or logged-in user end their session', async () => {
     const {page} = ctx
-    await logout(page)
+    await logout(page, /* closeToast=*/ false)
     await validateScreenshot(page, 'guest-just-ended-session')
     await validateAccessibility(page)
 
     await loginAsTestUser(page)
-    await logout(page)
+    await logout(page, /* closeToast=*/ false)
     await validateScreenshot(page, 'user-just-ended-session')
     await validateAccessibility(page)
   })
