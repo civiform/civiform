@@ -2,7 +2,6 @@ import {
   createTestContext,
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -29,8 +28,6 @@ describe('Date question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'date')
@@ -38,8 +35,6 @@ describe('Date question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -47,9 +42,7 @@ describe('Date question for applicant flow', () => {
     })
 
     it('with filled in date submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-05-02')
       await applicantQuestions.clickNext()
@@ -59,8 +52,6 @@ describe('Date question for applicant flow', () => {
 
     it('with no answer does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
@@ -96,9 +87,7 @@ describe('Date question for applicant flow', () => {
     })
 
     it('with valid dates submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('2022-07-04', 0)
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
@@ -108,9 +97,7 @@ describe('Date question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer second question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDateQuestion('1990-10-10', 1)
@@ -121,8 +108,6 @@ describe('Date question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

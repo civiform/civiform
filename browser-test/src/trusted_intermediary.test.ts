@@ -4,7 +4,6 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
-  selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
   logout,
@@ -60,7 +59,6 @@ describe('Trusted intermediaries', () => {
   it('ti landing page is the TI Dashboard', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
-    await selectApplicantLanguage(page, 'English')
     await validateScreenshot(page, 'ti')
   })
 

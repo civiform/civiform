@@ -2,7 +2,6 @@ import {
   createTestContext,
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -29,8 +28,6 @@ describe('Email question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'email')
@@ -38,8 +35,6 @@ describe('Email question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -47,9 +42,7 @@ describe('Email question for applicant flow', () => {
     })
 
     it('with email input submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov')
       await applicantQuestions.clickNext()
@@ -59,8 +52,6 @@ describe('Email question for applicant flow', () => {
 
     it('with no email input does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       // Click next without inputting anything.
       await applicantQuestions.clickNext()
@@ -95,9 +86,7 @@ describe('Email question for applicant flow', () => {
     })
 
     it('with email inputs submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('your_email@civiform.gov', 0)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
@@ -107,9 +96,7 @@ describe('Email question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerEmailQuestion('my_email@civiform.gov', 1)
@@ -120,8 +107,6 @@ describe('Email question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

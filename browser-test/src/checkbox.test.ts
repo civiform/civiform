@@ -2,7 +2,6 @@ import {
   createTestContext,
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -73,8 +72,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'checkbox')
@@ -82,8 +79,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -91,9 +86,7 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('with single checked box submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.clickNext()
@@ -103,8 +96,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('with no checked boxes does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       // No validation errors on first page load.
@@ -124,8 +115,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('with greater than max allowed checked boxes does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       const checkBoxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
@@ -177,9 +166,7 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('with valid checkboxes submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['blue'])
       await applicantQuestions.answerCheckboxQuestion(['beach'])
@@ -189,9 +176,7 @@ describe('Checkbox question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerCheckboxQuestion(['red'])
@@ -202,8 +187,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
@@ -223,8 +206,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       const checkboxError = '.cf-applicant-question-errors'
       // No validation errors on first page load.
@@ -244,8 +225,6 @@ describe('Checkbox question for applicant flow', () => {
 
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

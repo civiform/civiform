@@ -2,7 +2,6 @@ import {
   createTestContext,
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -71,8 +70,6 @@ describe('Dropdown question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'dropdown')
@@ -80,8 +77,6 @@ describe('Dropdown question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -89,9 +84,7 @@ describe('Dropdown question for applicant flow', () => {
     })
 
     it('with selected option submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('green')
       await applicantQuestions.clickNext()
@@ -101,8 +94,6 @@ describe('Dropdown question for applicant flow', () => {
 
     it('with no selection does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       // Click next without selecting anything.
       await applicantQuestions.clickNext()
@@ -143,9 +134,7 @@ describe('Dropdown question for applicant flow', () => {
     })
 
     it('with selected options submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('beach', 0)
       await applicantQuestions.answerDropdownQuestion('blue', 1)
@@ -155,9 +144,7 @@ describe('Dropdown question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerDropdownQuestion('red', 1)
@@ -168,8 +155,6 @@ describe('Dropdown question for applicant flow', () => {
 
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

@@ -6,7 +6,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguage,
   supportsEmailInspection,
   testUserDisplayName,
   extractEmailsForRecipient,
@@ -29,7 +28,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
       )
@@ -86,14 +84,12 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
 
       // Submit an application as the logged in test user.
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
       await logout(page)
@@ -367,7 +363,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(
         programWithDefaultStatusName,
       )
@@ -376,7 +371,6 @@ describe('view program statuses', () => {
 
       // Submit an application as the logged in test user.
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(
         programWithDefaultStatusName,
       )
@@ -463,7 +457,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programForFilteringName)
       await applicantQuestions.answerTextQuestion(favoriteColorAnswer)
       await applicantQuestions.clickNext()
@@ -639,7 +632,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Before eligibility conditions are added, submit ineligible app
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(eligibilityProgramName)
 
       // Fill out application and submit.
@@ -669,7 +661,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit eligible app
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(eligibilityProgramName)
       await applicantQuestions.answerNumberQuestion('5')
       await applicantQuestions.answerTextQuestion('Red')

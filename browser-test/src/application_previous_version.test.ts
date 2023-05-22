@@ -5,7 +5,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguage,
   testUserDisplayName,
 } from './support'
 
@@ -27,7 +26,6 @@ describe('view an application in an older version', () => {
 
     await logout(page)
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
     const applicantQuestions = new ApplicantQuestions(page)
     await applicantQuestions.validateHeader('en-US')
 

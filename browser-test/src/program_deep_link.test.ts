@@ -6,7 +6,6 @@ import {
   loginAsTestUser,
   logout,
   resetContext,
-  selectApplicantLanguage,
   validateScreenshot,
   TestContext,
 } from './support'
@@ -76,8 +75,6 @@ describe('navigating to a deep link', () => {
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
     await page.click('text="Continue to application"')
-    await selectApplicantLanguage(page, 'English')
-
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -90,8 +87,6 @@ describe('navigating to a deep link', () => {
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
     await loginAsTestUser(page, 'button:has-text("Log in")')
-    await selectApplicantLanguage(page, 'English')
-
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -103,14 +98,10 @@ describe('navigating to a deep link', () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
 
-    await selectApplicantLanguage(page, 'English')
-
     await logout(page)
     await browserContext.clearCookies()
     await gotoEndpoint(page, '/programs/test-deep-link')
     await page.click('text="Continue to application"')
-    await selectApplicantLanguage(page, 'English')
-
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -123,8 +114,6 @@ describe('navigating to a deep link', () => {
   it('Logging in to an existing account after opening a deep link in a new browser session', async () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
-
-    await selectApplicantLanguage(page, 'English')
 
     // Log in and log out to establish the test user in the database.
     await loginAsTestUser(page)

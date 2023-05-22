@@ -6,7 +6,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguage,
   testUserDisplayName,
   waitForPageJsLoad,
   validateScreenshot,
@@ -113,8 +112,6 @@ describe('Program admin review of submitted applications', () => {
 
     await logout(page)
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
-
     await applicantQuestions.validateHeader('en-US')
 
     // fill 1st application block.
@@ -310,8 +307,6 @@ describe('Program admin review of submitted applications', () => {
     // Submit applications from different users.
     const answers = ['apple', 'banana', 'cherry', 'durian']
     for (const answer of answers) {
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(answer)
       await applicantQuestions.clickNext()

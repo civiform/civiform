@@ -5,7 +5,6 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   logout,
-  selectApplicantLanguage,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -31,7 +30,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
 
     // Login as applicant
     await logout(page)
-    await selectApplicantLanguage(page, 'English')
     const applicantQuestions = new ApplicantQuestions(page)
     await applicantQuestions.validateHeader('en-US')
 
@@ -62,7 +60,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
 
     // Verify applicants can now see the program
     const applicantQuestions = new ApplicantQuestions(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectProgramPublic(
       programName,
       programDescription,
@@ -88,7 +85,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     // Login as applicant, verify program is hidden
     await logout(page)
     const applicantQuestions = new ApplicantQuestions(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(
       page,
@@ -98,7 +94,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     // Login as TI, verify program is visible
     await logout(page)
     await loginAsTrustedIntermediary(page)
-    await selectApplicantLanguage(page, 'English')
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {

@@ -4,7 +4,6 @@ import {
   loginAsAdmin,
   logout,
   seedCanonicalQuestions,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -40,8 +39,6 @@ describe('file upload applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'file')
@@ -49,8 +46,6 @@ describe('file upload applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -59,8 +54,6 @@ describe('file upload applicant flow', () => {
 
     it('does not show errors initially', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerFileUploadQuestion('file key')
       const error = await page.$('.cf-fileupload-error')
@@ -69,16 +62,12 @@ describe('file upload applicant flow', () => {
 
     it('does not show skip button for required question', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       expect(await page.$('#fileupload-skip-button')).toBeNull()
     })
 
     it('with valid file does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       const fileContent = 'some sample text'
       await applicantQuestions.answerFileUploadQuestion(fileContent)
@@ -92,8 +81,6 @@ describe('file upload applicant flow', () => {
 
     it('with no file does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -103,8 +90,6 @@ describe('file upload applicant flow', () => {
 
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -136,8 +121,6 @@ describe('file upload applicant flow', () => {
 
     it('with missing file can be skipped', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       // Initially clicking upload with no file provided generates
       // an error. Then we click skip to ensure that the question
@@ -151,9 +134,7 @@ describe('file upload applicant flow', () => {
     })
 
     it('can be skipped', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickSkip()
       await applicantQuestions.submitFromReviewPage()

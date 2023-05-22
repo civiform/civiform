@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsTestUser,
-  selectApplicantLanguage,
   validateScreenshot,
   testUserDisplayName,
   AuthStrategy,
@@ -17,8 +16,6 @@ describe('applicant auth', () => {
   it('applicant can login', async () => {
     const {page} = ctx
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
-
     await validateScreenshot(page, 'logged-in')
 
     expect(await ctx.page.textContent('html')).toContain(
@@ -29,8 +26,6 @@ describe('applicant auth', () => {
 
   it('applicant can login as guest', async () => {
     const {page} = ctx
-    await selectApplicantLanguage(page, 'English')
-
     await validateScreenshot(page, 'logged-in-guest')
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
     expect(await ctx.page.textContent('html')).toContain('End session')
@@ -43,7 +38,6 @@ describe('applicant auth', () => {
     it('applicant can confirm central provider logout', async () => {
       const {page} = ctx
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'English')
       expect(await ctx.page.textContent('html')).toContain(
         `Logged in as ${testUserDisplayName()}`,
       )
@@ -60,7 +54,6 @@ describe('applicant auth', () => {
   it('applicant can logout', async () => {
     const {page} = ctx
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
     expect(await ctx.page.textContent('html')).toContain(
       `Logged in as ${testUserDisplayName()}`,
     )
@@ -79,7 +72,6 @@ describe('applicant auth', () => {
 
   it('applicant can logout (end session) from guest', async () => {
     const {page} = ctx
-    await selectApplicantLanguage(page, 'English')
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
 
     await page.click('text=End session')
@@ -88,8 +80,6 @@ describe('applicant auth', () => {
 
   it('toast is shown when either guest or logged-in user end their session', async () => {
     const {page} = ctx
-    await selectApplicantLanguage(page, 'English')
-
     await logout(page)
     await validateScreenshot(page, 'guest-just-ended-session')
     await validateAccessibility(page)
@@ -108,8 +98,6 @@ describe('applicant auth', () => {
     await adminPrograms.publishAllPrograms()
 
     await logout(page)
-    await selectApplicantLanguage(page, 'English')
-
     await applicantQuestions.clickApplyProgramButton(programName)
     await applicantQuestions.submitFromReviewPage()
     await loginAsTestUser(page)

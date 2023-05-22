@@ -7,7 +7,6 @@ import {
   loginAsTestUser,
   logout,
   seedCanonicalQuestions,
-  selectApplicantLanguage,
   validateScreenshot,
 } from './support'
 
@@ -46,8 +45,6 @@ describe('normal application flow', () => {
 
     await logout(page)
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
-
     await applicantQuestions.applyProgram(programName)
 
     // Applicant fills out first application block.
@@ -89,7 +86,6 @@ describe('normal application flow', () => {
     await logout(page)
 
     // Apply to the program again, this time a different user
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
     await applicantQuestions.answerNameQuestion('Gus', 'Guest')
     await applicantQuestions.answerDropdownQuestion('op2')

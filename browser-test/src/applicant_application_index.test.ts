@@ -4,7 +4,6 @@ import {
   loginAsAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -52,8 +51,6 @@ describe('applicant program index page', () => {
 
   it('shows log in button for guest users', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
-
     await validateAccessibility(page)
 
     // We cannot check that the login/create account buttons redirect the user to a particular
@@ -68,8 +65,6 @@ describe('applicant program index page', () => {
 
   it('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
-    await selectApplicantLanguage(page, 'English')
-
     await validateAccessibility(page)
 
     // Click Apply on the primary program. This should show the login prompt modal.
@@ -94,7 +89,6 @@ describe('applicant program index page', () => {
 
     // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
     await logout(page)
-    await selectApplicantLanguage(page, 'English')
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
     )
@@ -106,8 +100,6 @@ describe('applicant program index page', () => {
   it('categorizes programs for draft and applied applications', async () => {
     const {page, applicantQuestions} = ctx
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
-
     // Navigate to the applicant's program index and validate that both programs appear in the
     // "Not started" section.
     await applicantQuestions.expectPrograms({
@@ -142,7 +134,6 @@ describe('applicant program index page', () => {
 
     // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
     await logout(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectPrograms({
       wantNotStartedPrograms: [otherProgramName, primaryProgramName],
       wantInProgressPrograms: [],
@@ -153,8 +144,6 @@ describe('applicant program index page', () => {
   it('common intake form enabled but not present', async () => {
     const {page} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
-
-    await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'common-intake-form-not-set')
     await validateAccessibility(page)
@@ -177,8 +166,6 @@ describe('applicant program index page', () => {
     await adminPrograms.publishAllPrograms()
     await logout(page)
 
-    await selectApplicantLanguage(page, 'English')
-
     await applicantQuestions.applyProgram(primaryProgramName)
     await applicantQuestions.answerTextQuestion('first answer')
     await applicantQuestions.clickNext()
@@ -198,8 +185,6 @@ describe('applicant program index page', () => {
     const {page, applicantQuestions} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
 
-    await selectApplicantLanguage(page, 'English')
-
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
     expect(await page.innerText('h2')).toContain('Program application summary')
 
@@ -212,8 +197,6 @@ describe('applicant program index page', () => {
 
   it('shows previously answered on text for questions that had been answered', async () => {
     const {page, applicantQuestions} = ctx
-
-    await selectApplicantLanguage(page, 'English')
 
     // Fill out application with one question and confirm it shows previously answered at the end.
     await applicantQuestions.applyProgram(otherProgramName)

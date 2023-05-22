@@ -4,7 +4,6 @@ import {
   createTestContext,
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -165,7 +164,6 @@ describe('End to end enumerator test', () => {
 
   it('has no accessibility violations', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -193,7 +191,6 @@ describe('End to end enumerator test', () => {
 
   it('validate screenshot', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -206,7 +203,6 @@ describe('End to end enumerator test', () => {
 
   it('validate screenshot with errors', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.answerNameQuestion('Porky', 'Pig')
@@ -219,7 +215,6 @@ describe('End to end enumerator test', () => {
 
   it('Renders the correct indexes for labels and buttons', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -239,7 +234,6 @@ describe('End to end enumerator test', () => {
 
   it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question
@@ -371,7 +365,6 @@ describe('End to end enumerator test', () => {
 
   it('Applicant can navigate to previous blocks', async () => {
     const {page, applicantQuestions} = ctx
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     // Fill in name question

@@ -2,7 +2,6 @@ import {
   createTestContext,
   loginAsAdmin,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -30,8 +29,6 @@ describe('address applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'address')
@@ -39,8 +36,6 @@ describe('address applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -49,8 +44,6 @@ describe('address applicant flow', () => {
 
     it('does not show errors initially', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -70,9 +63,7 @@ describe('address applicant flow', () => {
     })
 
     it('with valid address does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -88,8 +79,6 @@ describe('address applicant flow', () => {
 
     it('with empty address does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '')
       await applicantQuestions.clickNext()
@@ -106,8 +95,6 @@ describe('address applicant flow', () => {
 
     it('with invalid address does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -145,9 +132,7 @@ describe('address applicant flow', () => {
     })
 
     it('with valid addresses does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -172,8 +157,6 @@ describe('address applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion('', '', '', '', '', 0)
       await applicantQuestions.answerAddressQuestion(
@@ -209,8 +192,6 @@ describe('address applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -246,8 +227,6 @@ describe('address applicant flow', () => {
 
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -281,9 +260,7 @@ describe('address applicant flow', () => {
     })
 
     it('with valid required address does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -300,8 +277,6 @@ describe('address applicant flow', () => {
 
     it('with invalid optional address does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
@@ -332,9 +307,7 @@ describe('address applicant flow', () => {
 
     describe('with invalid required address', () => {
       beforeEach(async () => {
-        const {page, applicantQuestions} = ctx
-        await selectApplicantLanguage(page, 'English')
-
+        const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerAddressQuestion('', '', '', '', '', 1)
         await applicantQuestions.clickNext()
