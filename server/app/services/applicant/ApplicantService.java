@@ -842,17 +842,22 @@ public final class ApplicantService {
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-    ImmutableList<ProgramDefinition> activeProgramDefinitionsFuture =
-        versionRepository.getActiveVersion().getPrograms().stream()
-            .map(Program::getProgramDefinition)
-            .filter(
-                pdef ->
-                    pdef.displayMode().equals(DisplayMode.PUBLIC)
-                        || (requesterProfile.isTrustedIntermediary()
-                            && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
-            .collect(ImmutableList.toImmutableList());
+    CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
+        userRepository
+            .lookupApplicant(applicantId)
+            .thenApplyAsync(
+                applicant ->
+                    versionRepository.getActiveVersion().getPrograms().stream()
+                        .map(Program::getProgramDefinition)
+                        .filter(
+                            pdef ->
+                                pdef.displayMode().equals(DisplayMode.PUBLIC)
+                                    || (requesterProfile.isTrustedIntermediary()
+                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                        .collect(ImmutableList.toImmutableList()))
+            .toCompletableFuture();
 
-    return CompletableFuture.allOf(applicationsFuture)
+    return CompletableFuture.allOf(applicationsFuture, activeProgramDefinitionsFuture)
         .thenComposeAsync(
             v -> {
               ImmutableSet<Application> applications = applicationsFuture.join();
@@ -860,7 +865,7 @@ public final class ApplicantService {
                   applications.stream()
                       .map(application -> application.getProgram().getProgramDefinition())
                       .collect(Collectors.toList());
-              programDefinitionsList.addAll(activeProgramDefinitionsFuture);
+              programDefinitionsList.addAll(activeProgramDefinitionsFuture.join());
               return programService.syncQuestionsToProgramDefinitions(
                   programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
             })
@@ -869,7 +874,7 @@ public final class ApplicantService {
               ImmutableSet<Application> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitionsFuture, applications, allPrograms);
+                  activeProgramDefinitionsFuture.join(), applications, allPrograms);
             },
             httpExecutionContext.current());
   }
