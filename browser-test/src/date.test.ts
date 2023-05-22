@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -30,7 +29,6 @@ describe('Date question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -40,7 +38,6 @@ describe('Date question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -51,7 +48,6 @@ describe('Date question for applicant flow', () => {
 
     it('with filled in date submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -63,7 +59,6 @@ describe('Date question for applicant flow', () => {
 
     it('with no answer does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -102,7 +97,6 @@ describe('Date question for applicant flow', () => {
 
     it('with valid dates submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -115,7 +109,6 @@ describe('Date question for applicant flow', () => {
 
     it('with unanswered optional question submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Only answer second question.
@@ -128,7 +121,6 @@ describe('Date question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)

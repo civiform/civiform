@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -32,7 +31,6 @@ describe('currency applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -42,7 +40,6 @@ describe('currency applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -53,7 +50,6 @@ describe('currency applicant flow', () => {
 
     it('with valid currency does submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -65,7 +61,6 @@ describe('currency applicant flow', () => {
 
     it('with invalid currency does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -110,7 +105,6 @@ describe('currency applicant flow', () => {
 
     it('with valid currencies does submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -123,7 +117,6 @@ describe('currency applicant flow', () => {
 
     it('with unanswered optional question submits', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -135,7 +128,6 @@ describe('currency applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -152,7 +144,6 @@ describe('currency applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -169,7 +160,6 @@ describe('currency applicant flow', () => {
 
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)

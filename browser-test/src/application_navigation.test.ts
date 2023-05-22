@@ -6,7 +6,6 @@ import {
   disableFeatureFlag,
   dropTables,
   loginAsAdmin,
-  loginAsGuest,
   loginAsTestUser,
   loginAsTrustedIntermediary,
   logout,
@@ -68,7 +67,6 @@ describe('Applicant navigation flow', () => {
 
     it('clicking previous on first block goes to summary page', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -80,7 +78,6 @@ describe('Applicant navigation flow', () => {
 
     it('clicking previous on later blocks goes to previous blocks', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -129,7 +126,6 @@ describe('Applicant navigation flow', () => {
 
     it('verify program details page', async () => {
       const {page} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Begin waiting for the popup before clicking the link, otherwise
@@ -157,7 +153,6 @@ describe('Applicant navigation flow', () => {
       )
       await adminPrograms.publishProgram(programWithExternalLink)
       await logout(page)
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Verify we are on program list page.
@@ -179,7 +174,6 @@ describe('Applicant navigation flow', () => {
 
     it('verify program preview page', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
 
@@ -191,7 +185,6 @@ describe('Applicant navigation flow', () => {
 
     it('can answer third question directly', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
       await page.click(
@@ -215,7 +208,6 @@ describe('Applicant navigation flow', () => {
 
     it('verify program review page', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programName)
 
@@ -248,7 +240,6 @@ describe('Applicant navigation flow', () => {
 
     it('verify program submission page for guest', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programName)
 
@@ -326,7 +317,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows error with incomplete submission', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programName)
 
@@ -486,7 +476,6 @@ describe('Applicant navigation flow', () => {
       await enableFeatureFlag(page, 'intake_form_enabled')
       await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Fill out common intake form, with non-eligible response
@@ -511,7 +500,6 @@ describe('Applicant navigation flow', () => {
       await enableFeatureFlag(page, 'intake_form_enabled')
       await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Fill out common intake form, with eligible response
@@ -655,7 +643,6 @@ describe('Applicant navigation flow', () => {
 
     it('does not show Not Eligible when there is no answer', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(fullProgramName)
 
@@ -666,7 +653,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows not eligible with ineligible answer', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
@@ -694,7 +680,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows may be eligible with an eligible answer', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
@@ -744,7 +729,6 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(overlappingOneQProgramName)
       await logout(page)
 
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(overlappingOneQProgramName)
@@ -771,7 +755,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows not eligible upon submit with ineligible answer', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
@@ -804,7 +787,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await enableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
@@ -845,7 +827,6 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(fullProgramName)
       await logout(page)
 
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(fullProgramName)
 
@@ -871,7 +852,6 @@ describe('Applicant navigation flow', () => {
       await adminPrograms.publishProgram(fullProgramName)
       await logout(page)
 
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(fullProgramName)
@@ -1003,7 +983,6 @@ describe('Applicant navigation flow', () => {
       it('can correct address multi-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(multiBlockMultiAddressProgram)
 
@@ -1040,7 +1019,6 @@ describe('Applicant navigation flow', () => {
       it('can correct address single-block, multi-address program', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockMultiAddressProgram)
 
@@ -1075,7 +1053,6 @@ describe('Applicant navigation flow', () => {
       it('can correct address single-block, single-address program', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -1107,7 +1084,6 @@ describe('Applicant navigation flow', () => {
       it('prompts user to edit if no suggestions are returned', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -1136,7 +1112,6 @@ describe('Applicant navigation flow', () => {
         // We may change this later.
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -1163,7 +1138,6 @@ describe('Applicant navigation flow', () => {
       it('skips the address correction screen if the user enters an address that exactly matches one of the returned suggestions', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
         // Fill out application with address that is contained in findAddressCandidates.json (the list of suggestions returned from FakeEsriClient.fetchAddressSuggestions())
@@ -1183,7 +1157,6 @@ describe('Applicant navigation flow', () => {
       it('clicking previous on address correction page takes you back to address entry page', async () => {
         const {page, applicantQuestions} = ctx
         await enableFeatureFlag(page, 'esri_address_correction_enabled')
-        await loginAsGuest(page)
         await selectApplicantLanguage(page, 'English')
         await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 
@@ -1208,7 +1181,6 @@ describe('Applicant navigation flow', () => {
     it('address correction page does not show if feature is disabled', async () => {
       const {page, applicantQuestions} = ctx
       await disableFeatureFlag(page, 'esri_address_correction_enabled')
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(singleBlockSingleAddressProgram)
 

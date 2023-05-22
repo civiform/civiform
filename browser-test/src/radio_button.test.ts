@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -72,7 +71,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -82,7 +80,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -93,7 +90,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('with selection submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -105,7 +101,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('with empty selection does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -151,7 +146,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('with both selections submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -164,7 +158,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('with unanswered optional question submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Only answer second question. First is optional.
@@ -177,7 +170,6 @@ describe('Radio button question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)

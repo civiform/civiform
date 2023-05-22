@@ -2,7 +2,6 @@ import {
   createTestContext,
   dropTables,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   seedCanonicalQuestions,
   selectApplicantLanguage,
@@ -41,7 +40,6 @@ describe('file upload applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -51,7 +49,6 @@ describe('file upload applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -62,7 +59,6 @@ describe('file upload applicant flow', () => {
 
     it('does not show errors initially', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -73,7 +69,6 @@ describe('file upload applicant flow', () => {
 
     it('does not show skip button for required question', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -82,7 +77,6 @@ describe('file upload applicant flow', () => {
 
     it('with valid file does submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -98,7 +92,6 @@ describe('file upload applicant flow', () => {
 
     it('with no file does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -110,7 +103,6 @@ describe('file upload applicant flow', () => {
 
     it('has no accessibility violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -144,7 +136,6 @@ describe('file upload applicant flow', () => {
 
     it('with missing file can be skipped', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -161,7 +152,6 @@ describe('file upload applicant flow', () => {
 
     it('can be skipped', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)

@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsTestUser,
-  loginAsGuest,
   selectApplicantLanguage,
   validateScreenshot,
   testUserDisplayName,
@@ -30,7 +29,6 @@ describe('applicant auth', () => {
 
   it('applicant can login as guest', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'logged-in-guest')
@@ -81,7 +79,6 @@ describe('applicant auth', () => {
 
   it('applicant can logout (end session) from guest', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     expect(await ctx.page.textContent('html')).toContain("You're a guest user.")
 
@@ -91,7 +88,6 @@ describe('applicant auth', () => {
 
   it('toast is shown when either guest or logged-in user end their session', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await logout(page)
@@ -112,7 +108,6 @@ describe('applicant auth', () => {
     await adminPrograms.publishAllPrograms()
 
     await logout(page)
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.clickApplyProgramButton(programName)

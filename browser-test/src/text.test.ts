@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -34,7 +33,6 @@ describe('Text question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -44,7 +42,6 @@ describe('Text question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -55,7 +52,6 @@ describe('Text question for applicant flow', () => {
 
     it('with text submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -67,7 +63,6 @@ describe('Text question for applicant flow', () => {
 
     it('with empty text does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -83,7 +78,6 @@ describe('Text question for applicant flow', () => {
 
     it('with too short text does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -98,7 +92,6 @@ describe('Text question for applicant flow', () => {
 
     it('with too long text does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -115,7 +108,6 @@ describe('Text question for applicant flow', () => {
 
     it('hitting enter on text does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -164,7 +156,6 @@ describe('Text question for applicant flow', () => {
 
     it('text that is too long is cut off at 10k characters', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -221,7 +212,6 @@ describe('Text question for applicant flow', () => {
 
     it('with both selections submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -234,7 +224,6 @@ describe('Text question for applicant flow', () => {
 
     it('with unanswered optional question submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       // Only answer second question. First is optional.
@@ -247,7 +236,6 @@ describe('Text question for applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -266,7 +254,6 @@ describe('Text question for applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)
@@ -285,7 +272,6 @@ describe('Text question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)

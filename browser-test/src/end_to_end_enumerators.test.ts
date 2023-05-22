@@ -3,7 +3,6 @@ import {
   AdminQuestions,
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -166,7 +165,6 @@ describe('End to end enumerator test', () => {
 
   it('has no accessibility violations', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
@@ -195,7 +193,6 @@ describe('End to end enumerator test', () => {
 
   it('validate screenshot', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
@@ -209,7 +206,6 @@ describe('End to end enumerator test', () => {
 
   it('validate screenshot with errors', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
@@ -223,7 +219,6 @@ describe('End to end enumerator test', () => {
 
   it('Renders the correct indexes for labels and buttons', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
@@ -244,7 +239,6 @@ describe('End to end enumerator test', () => {
 
   it('Applicant can fill in lots of blocks, and then go back and delete some repeated entities', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
@@ -377,7 +371,6 @@ describe('End to end enumerator test', () => {
 
   it('Applicant can navigate to previous blocks', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 

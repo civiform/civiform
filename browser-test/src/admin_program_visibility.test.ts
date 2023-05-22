@@ -3,7 +3,6 @@ import {
   ClientInformation,
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   loginAsTrustedIntermediary,
   logout,
   selectApplicantLanguage,
@@ -32,7 +31,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
 
     // Login as applicant
     await logout(page)
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     const applicantQuestions = new ApplicantQuestions(page)
     await applicantQuestions.validateHeader('en-US')
@@ -63,7 +61,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await logout(page)
 
     // Verify applicants can now see the program
-    await loginAsGuest(page)
     const applicantQuestions = new ApplicantQuestions(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectProgramPublic(
@@ -90,7 +87,6 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
 
     // Login as applicant, verify program is hidden
     await logout(page)
-    await loginAsGuest(page)
     const applicantQuestions = new ApplicantQuestions(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectProgramHidden(programName)

@@ -4,7 +4,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateAccessibility,
@@ -51,7 +50,6 @@ describe('views render well on mobile', () => {
 
   it('initial load of CiviForm', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
@@ -61,7 +59,6 @@ describe('views render well on mobile', () => {
 
   it('modal', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
@@ -76,7 +73,6 @@ describe('views render well on mobile', () => {
 
   it('apply page', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)

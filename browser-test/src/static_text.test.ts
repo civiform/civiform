@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
@@ -31,7 +30,6 @@ describe('Static text question for applicant flow', () => {
 
   it('validate screenshot', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(programName)
@@ -41,7 +39,6 @@ describe('Static text question for applicant flow', () => {
 
   it('displays static text', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(programName)
@@ -51,7 +48,6 @@ describe('Static text question for applicant flow', () => {
 
   it('has no accessiblity violations', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(programName)

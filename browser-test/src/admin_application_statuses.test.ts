@@ -3,7 +3,6 @@ import {
   createTestContext,
   dismissModal,
   loginAsAdmin,
-  loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
@@ -30,7 +29,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(
         programWithoutStatusesName,
@@ -88,7 +86,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(programWithStatusesName)
       await applicantQuestions.submitFromReviewPage()
@@ -370,7 +367,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.clickApplyProgramButton(
         programWithDefaultStatusName,
@@ -467,7 +463,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit an application as a guest.
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programForFilteringName)
       await applicantQuestions.answerTextQuestion(favoriteColorAnswer)
@@ -644,7 +639,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Before eligibility conditions are added, submit ineligible app
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(eligibilityProgramName)
 
@@ -675,7 +669,6 @@ describe('view program statuses', () => {
       await logout(page)
 
       // Submit eligible app
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(eligibilityProgramName)
       await applicantQuestions.answerNumberQuestion('5')

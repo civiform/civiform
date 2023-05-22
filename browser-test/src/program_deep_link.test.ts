@@ -3,7 +3,6 @@ import {
   enableFeatureFlag,
   gotoEndpoint,
   loginAsAdmin,
-  loginAsGuest,
   loginAsTestUser,
   logout,
   resetContext,
@@ -49,7 +48,6 @@ describe('navigating to a deep link', () => {
     const {page} = ctx
 
     await gotoEndpoint(page, '/programs/test-deep-link')
-    await loginAsGuest(page)
     expect(await page.innerText('html')).toContain(
       'Create an account or sign in',
     )
@@ -77,7 +75,6 @@ describe('navigating to a deep link', () => {
     // Exercise guest path
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
-    await loginAsGuest(page)
     await page.click('text="Continue to application"')
     await selectApplicantLanguage(page, 'English')
 

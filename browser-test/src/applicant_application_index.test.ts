@@ -2,7 +2,6 @@ import {
   createTestContext,
   enableFeatureFlag,
   loginAsAdmin,
-  loginAsGuest,
   loginAsTestUser,
   logout,
   selectApplicantLanguage,
@@ -53,7 +52,6 @@ describe('applicant program index page', () => {
 
   it('shows log in button for guest users', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
@@ -70,7 +68,6 @@ describe('applicant program index page', () => {
 
   it('shows login prompt for guest users when they click apply', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateAccessibility(page)
@@ -97,7 +94,6 @@ describe('applicant program index page', () => {
 
     // End guest session and start a new one. Login prompt should show this time upon clicking Apply.
     await logout(page)
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await page.click(
       `.cf-application-card:has-text("${primaryProgramName}") .cf-apply-button`,
@@ -146,7 +142,6 @@ describe('applicant program index page', () => {
 
     // Logout, then login as guest and confirm that everything appears unsubmitted (https://github.com/civiform/civiform/pull/3487).
     await logout(page)
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.expectPrograms({
       wantNotStartedPrograms: [otherProgramName, primaryProgramName],
@@ -159,7 +154,6 @@ describe('applicant program index page', () => {
     const {page} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
 
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(page, 'common-intake-form-not-set')
@@ -183,7 +177,6 @@ describe('applicant program index page', () => {
     await adminPrograms.publishAllPrograms()
     await logout(page)
 
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.applyProgram(primaryProgramName)
@@ -205,7 +198,6 @@ describe('applicant program index page', () => {
     const {page, applicantQuestions} = ctx
     await enableFeatureFlag(page, 'intake_form_enabled')
 
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await applicantQuestions.clickApplyProgramButton(primaryProgramName)
@@ -221,7 +213,6 @@ describe('applicant program index page', () => {
   it('shows previously answered on text for questions that had been answered', async () => {
     const {page, applicantQuestions} = ctx
 
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     // Fill out application with one question and confirm it shows previously answered at the end.

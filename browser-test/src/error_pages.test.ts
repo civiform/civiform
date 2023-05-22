@@ -1,7 +1,6 @@
 import {
   createTestContext,
   gotoEndpoint,
-  loginAsGuest,
   NotFoundPage,
   selectApplicantLanguage,
 } from './support'
@@ -17,7 +16,6 @@ describe('error pages', () => {
     await notFound.checkPageHeader()
 
     await gotoEndpoint(page, '/')
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'Español')
     await notFound.gotoNonExistentPage(page)
     await notFound.checkPageHeader('es-US')

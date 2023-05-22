@@ -3,7 +3,6 @@ import {
   isHermeticTestEnvironment,
   loginAsAdmin,
   loginAsCiviformAndProgramAdmin,
-  loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
@@ -311,7 +310,6 @@ describe('Program admin review of submitted applications', () => {
     // Submit applications from different users.
     const answers = ['apple', 'banana', 'cherry', 'durian']
     for (const answer of answers) {
-      await loginAsGuest(page)
       await selectApplicantLanguage(page, 'English')
 
       await applicantQuestions.applyProgram(programName)

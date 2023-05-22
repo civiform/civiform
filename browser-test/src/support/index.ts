@@ -312,13 +312,6 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
   await waitForPageJsLoad(page)
 }
 
-// TODO(#4705): remove this method.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const loginAsGuest = async (page: Page) => {
-  // Logging in as a guest is a no-op, because loading the index page of
-  // CiviForm defaults to the guest user.
-}
-
 /**
  * Logs in via an auth provider.
  * @param loginButton Selector of a button on current page that starts auth

@@ -3,7 +3,6 @@ import {
   dropTables,
   isLocalDevEnvironment,
   loginAsAdmin,
-  loginAsGuest,
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
@@ -90,7 +89,6 @@ describe('normal application flow', () => {
     await logout(page)
 
     // Apply to the program again, this time a different user
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
     await applicantQuestions.answerNameQuestion('Gus', 'Guest')

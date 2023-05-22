@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  loginAsGuest,
   loginAsTestUser,
   selectApplicantLanguage,
   validateScreenshot,
@@ -11,7 +10,6 @@ describe('Header', () => {
 
   it('Not logged in, guest mode enabled', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'English')
 
     await validateScreenshot(
