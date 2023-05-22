@@ -890,7 +890,7 @@ public final class ApplicantService {
    *     criteria.
    *     <p>Does not include the Common Intake Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
-   *     play.mvc.Http.Request)}.
+   *     auth.CiviFormProfile)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
       long applicantId, CiviFormProfile requesterProfile) {
