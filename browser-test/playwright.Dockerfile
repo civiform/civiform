@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/playwright:v1.33.0-focal
+FROM mcr.microsoft.com/playwright:v1.34.0-jammy
 
 ENV PROJECT_DIR /usr/src/civiform-browser-tests
 # Store playwright browsers within node_modules directory. This way playwright
