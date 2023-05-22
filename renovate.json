@@ -27,6 +27,10 @@
       "matchPackagePrefixes": ["org.pac4j:pac4j"]
     },
     {
+      "groupName": "playwright",
+      "matchPackagePrefixes": ["playwright", "mcr.microsoft.com/playwright"]
+    },
+    {
       "matchPaths": [
         ".github/workflows/**",
         "browser-test/**",
