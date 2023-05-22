@@ -1,22 +1,22 @@
 package conf;
 
+import static com.google.auto.common.MoreStreams.toImmutableList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import services.MessageKey;
 
 /**
  * Tests that the messages files are in sync. Reads in the keys from the primary language file,
@@ -92,6 +92,16 @@ public class MessagesTest {
               assertThat(key).doesNotContain(PROHIBITED_CHARACTERS);
               assertThat(value).doesNotContain(PROHIBITED_CHARACTERS);
             });
+  }
+
+  @Test
+  public void messageKeyValuesAndMessagesFileKeysAreIdentical() throws Exception {
+    TreeSet<String> keysInPrimaryFile = keysInFile(PRIMARY_LANGUAGE_FILE_PATH);
+
+    ImmutableList<String> messageKeys =
+        Arrays.stream(MessageKey.values()).map(MessageKey::getKeyName).collect(toImmutableList());
+
+    assertThat(keysInPrimaryFile).containsExactlyInAnyOrderElementsOf(messageKeys);
   }
 
   private static TreeSet<String> keysInFile(String filePath) throws Exception {

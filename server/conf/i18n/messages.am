@@ -227,9 +227,6 @@ button.continue=ቀጥል
 # A toast message shown after submitting an application when it's been determined the application is incomplete typically due to external changes.
 toast.applicationOutOfDate=በመተግበሪያው ላይ ዝማኔ ተደርጓል፣ ለመቀጠል እባክዎ ይገምግሙ እና ጥያቄዎችን ይመልሱ
 
-# Text shown next to a question indicating that due to it, the application is not eligible to be submitted.
-content.notEligible=ብቁ አይደለም
-
 # Text shown next to a question indicating that due to it, the application does not qualify or is not eligible.
 content.doesNotQualify=ብቁ አይደለም
 
@@ -243,10 +240,6 @@ content.previouslyAnsweredOn=ቀደም ሲል በ{0} ላይ መልስ ተሰጥ�
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Answer What is your name?". The {0} variable is the question text.
 ariaLabel.answer=መልስ {0}
-
-# An aria-label for screen readers that helps provide context for the associated "start here" link. The link is for a specific
-# question, so this might say "Start here. What is your name?". The {0} variable is the question text.
-ariaLabel.begin=እዚህ ይጀምሩ። {0}
 
 # An aria-label for screen readers that helps provide context for the associated edit link. The edit link is for a specific
 # question, so this might say "Edit What is your name?". The {0} variable is the question text.
@@ -293,18 +286,6 @@ tag.mayNotQualify=ብቁ ላይሆኑ ይችላሉ
 
 # Tag on the top of a program card, that lets the person know their client is likely not eligible for the program, based on their responses in other programs. This is in the case when someone is filling out applications on their client''s behalf.
 tag.mayNotQualifyTi=ደንበኛዎ ብቁ ላይሆኑ ይችላሉ
-
-# Title of page when there is a system outage and eligibility can't be determined for the applicant.
-title.cannotCheckEligibility=በዚህ ጊዜ ለ{0} የእርስዎን ብቁነት ማረጋገጥ አንችልም።
-
-# Title of page when there is a system outage and eligibility can't be determined for the client, when someone is filling out an application on a client''s behalf.
-title.cannotCheckEligibilityTi=በዚህ ጊዜ ለ{0} የደንበኛዎን ብቁነት ማረጋገጥ አንችልም።
-
-# Content of page when there is a system outage and eligibility can't be determined for the applicant.
-content.cannotCheckEligibility=ይህን ችግር በፍጥነት ለማስተካከል እየሰራን ነው። በኋላ ላይ እንደገና ይሞክሩ።
-
-# Button that allows an applicant to view all programs.
-button.viewAllPrograms=ሁሉንም ፕሮግራሞች ይመልከቱ
 
 # Toast message that shows that an applicant may not be eligible for a program, based on their responses.
 toast.mayNotQualify=በምላሾችዎ መሰረት ለ{0} ብቁ ላይሆኑ ይችላሉ። መረጃዎ ከተለወጠ መልሶችዎን አርትዕ ማድረግ እና ማመልከት መቀጠል ይችላሉ።
@@ -393,20 +374,11 @@ content.foundSimilarAddress=የሰጡትን አድራሻ ማረጋገጥ አል�
 # Text on address correction dialog that shows what address the user had entered.
 content.addressEntered=የገባ አድራሻ፦
 
-# Text on address correction dialog that shows what address the user had entered, with the address question name.
-content.addressEnteredWithQuestionName={0} ገብቷል፦
-
 # Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
 content.suggestedAddress=የተጠቆመው አድራሻ፦
 
 # Text on dialog that shows a suggestions for the user's correct address when entered incorrectly (and there is more than one).
 content.suggestedAddresses=የተጠቆሙ አድራሻዎች፦
-
-# Button to close the address correction dialog and allow applicant to edit address manually.
-button.editAddress=አድራሻን አርትዕ ያድርጉ
-
-# Button for applicant to save and confirm the address suggested in the dialog.
-button.saveAndConfirm=ያስቀምጡ እና ያረጋግጡ
 
 # Title on address correction dialog when no address is found.
 title.noValidAddress=ምንም የሚሠሩ አድራሻዎች አልተገኙም

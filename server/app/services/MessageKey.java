@@ -79,6 +79,8 @@ public enum MessageKey {
   ERROR_NOT_FOUND_TITLE("error.notFoundTitle"),
   ERROR_NOT_FOUND_DESCRIPTION("error.notFoundDescription"),
   ERROR_NOT_FOUND_DESCRIPTION_LINK("error.notFoundDescriptionLink"),
+  ERROR_INTERNAL_SERVER_TITLE("error.internalServerTitle"),
+  ERROR_INTERNAL_SERVER_DESCRIPTION("error.internalServerDescription"),
   DATE_VALIDATION_MISFORMATTED("validation.dateMisformatted"),
   DROPDOWN_PLACEHOLDER("placeholder.noDropdownSelection"),
   END_SESSION("header.endSession"),
