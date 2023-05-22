@@ -225,7 +225,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       long userId = profile.get().getApplicant().join().id;
 
       String updateLanguageAction =
-          controllers.applicant.routes.ApplicantInformationController.update(userId).url();
+          controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(userId)
+              .url();
 
       String csrfToken = CSRF.getToken(request.asScala()).value();
       InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
