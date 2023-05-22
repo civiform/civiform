@@ -232,6 +232,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                                             hasExistingPredicate
                                                 ? "Replace condition"
                                                 : "Add condition")
+                                        .withId("add-replace-predicate-condition")
                                         .withClasses(ButtonStyles.SOLID_BLUE))
                                 .withAction(configureNewPredicateUrl)
                                 .withMethod(POST)));
@@ -265,7 +266,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
     InputTag checkbox =
         input()
             .withType("checkbox")
-            .withClasses("mx-2")
+            .withClasses("mx-2", ReferenceClasses.PREDICATE_QUESTION_OPTIONS)
             .withName(String.format("question-%d", questionDefinition.getId()));
 
     return label()

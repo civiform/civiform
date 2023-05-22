@@ -48,6 +48,10 @@ describe('create and edit predicates', () => {
       programName,
       'Screen 2',
     )
+
+    await adminPredicates.clickAddConditionButton()
+    await validateToastMessage(page, 'Please select a question')
+
     await adminPredicates.addPredicate(
       'hide-predicate-q',
       'hidden if',
@@ -452,17 +456,32 @@ describe('create and edit predicates', () => {
       const programName = 'Test multiple question and value predicate config'
       await adminPrograms.addProgram(programName)
 
-      await adminPrograms.editProgramBlock(programName, 'test-block', [
+      const questions = [
         'predicate-date-is-earlier-than',
         'predicate-currency',
         'list of longs',
         'list of strings',
-      ])
+        'predicate-date-age-older-than',
+      ]
+
+      await adminPrograms.editProgramBlock(programName, 'test-block', questions)
 
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
       )
+
+      // Select all questions
+      for (const question of questions) {
+        await adminPredicates.selectQuestionForPredicate(question)
+      }
+      await adminPredicates.clickAddConditionButton()
+      await validateToastMessage(page, 'select fewer than 5 questions')
+
+      // Unselect all questions
+      for (const question of questions) {
+        await adminPredicates.selectQuestionForPredicate(question)
+      }
 
       await adminPredicates.addPredicates([
         {

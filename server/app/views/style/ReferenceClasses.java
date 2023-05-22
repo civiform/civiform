@@ -45,6 +45,7 @@ public final class ReferenceClasses {
   public static final String PREDICATE_VALUE_BETWEEN_HELP_TEXT =
       "cf-predicate-value-between-help-text";
   public static final String PREDICATE_VALUE_COMMA_HELP_TEXT = "cf-predicate-value-comma-help-text";
+  public static final String PREDICATE_QUESTION_OPTIONS = "cf-predicate-question-options";
 
   public static final String QUESTION_BANK_ELEMENT = "cf-question-bank-element";
   public static final String QUESTION_BANK_HIDDEN = "cf-question-bank-hidden";
