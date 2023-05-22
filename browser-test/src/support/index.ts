@@ -267,6 +267,11 @@ export const gotoEndpoint = async (page: Page, endpoint = '') => {
   return await page.goto(BASE_URL + endpoint)
 }
 
+export const dismissToast = async (page: Page) => {
+  await page.locator('#toast-container div:text("x")').click()
+  await waitForPageJsLoad(page)
+}
+
 export const logout = async (page: Page) => {
   await page.click('#logout-button')
   // If the user logged in through OIDC previously - during logout they are
@@ -286,6 +291,7 @@ export const logout = async (page: Page) => {
   // for the final destination URL (the programs index page), to make tests reliable.
   await page.waitForURL('**/applicants/**')
   await validateToastMessage(page, 'Your session has ended.')
+  await dismissToast(page)
 }
 
 export const loginAsAdmin = async (page: Page) => {

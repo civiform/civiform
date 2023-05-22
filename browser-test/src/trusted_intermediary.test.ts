@@ -8,6 +8,7 @@ import {
   validateToastMessage,
   logout,
   AdminQuestions,
+  dismissToast,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -222,7 +223,7 @@ describe('Trusted intermediaries', () => {
       await applicantQuestions.clickNext()
       await validateToastMessage(page, 'may qualify')
       await validateScreenshot(page, 'eligible-toast')
-      await tiDashboard.dismissToast()
+      await dismissToast(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnApplicantDashboard()
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)
