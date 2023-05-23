@@ -169,7 +169,7 @@ fi
 # loading its edit-refresh resources to save developer time.
 for i in {1..60}; do
   sleep 5
-  if curl --output /dev/null --silent --fail http://localhost:9999/loginForm; then
+  if curl --output /dev/null --silent --fail http://localhost:9999; then
     break
   fi
 done &
