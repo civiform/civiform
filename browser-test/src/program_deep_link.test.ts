@@ -6,6 +6,7 @@ import {
   loginAsTestUser,
   logout,
   resetContext,
+  selectApplicantLanguage,
   validateScreenshot,
   TestContext,
 } from './support'
@@ -102,6 +103,8 @@ describe('navigating to a deep link', () => {
     await browserContext.clearCookies()
     await gotoEndpoint(page, '/programs/test-deep-link')
     await page.click('text="Continue to application"')
+    await selectApplicantLanguage(page, 'English')
+
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
