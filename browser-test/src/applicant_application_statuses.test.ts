@@ -4,7 +4,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -29,7 +28,6 @@ describe('with program statuses', () => {
 
     // Submit an application as a test user so that we can navigate back to the applications page.
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.clickApplyProgramButton(programName)
     await applicantQuestions.submitFromReviewPage()
     await logout(page)

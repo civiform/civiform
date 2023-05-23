@@ -1,9 +1,7 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -33,9 +31,6 @@ describe('name applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'name')
@@ -43,9 +38,6 @@ describe('name applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -54,9 +46,6 @@ describe('name applicant flow', () => {
 
     it('does not show errors initially', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       let error = await page.$(`${NAME_FIRST}-error`)
@@ -66,10 +55,7 @@ describe('name applicant flow', () => {
     })
 
     it('with valid name does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '')
       await applicantQuestions.clickNext()
@@ -79,9 +65,6 @@ describe('name applicant flow', () => {
 
     it('with empty name does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '')
       await applicantQuestions.clickNext()
@@ -115,10 +98,7 @@ describe('name applicant flow', () => {
     })
 
     it('with valid name does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
       await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
@@ -129,9 +109,6 @@ describe('name applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('', '', '', 0)
       await applicantQuestions.answerNameQuestion('Chuckie', 'Finster', '', 1)
@@ -152,9 +129,6 @@ describe('name applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 0)
       await applicantQuestions.answerNameQuestion('', '', '', 1)
@@ -175,9 +149,6 @@ describe('name applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -211,10 +182,7 @@ describe('name applicant flow', () => {
     })
 
     it('with valid required name does submit', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
       await applicantQuestions.clickNext()
@@ -224,9 +192,6 @@ describe('name applicant flow', () => {
 
     it('with invalid optional name does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNameQuestion('Tommy', '', '', 0)
       await applicantQuestions.answerNameQuestion('Tommy', 'Pickles', '', 1)
@@ -239,10 +204,7 @@ describe('name applicant flow', () => {
 
     describe('with invalid required name', () => {
       beforeEach(async () => {
-        const {page, applicantQuestions} = ctx
-        await loginAsGuest(page)
-        await selectApplicantLanguage(page, 'English')
-
+        const {applicantQuestions} = ctx
         await applicantQuestions.applyProgram(programName)
         await applicantQuestions.answerNameQuestion('', '', '', 1)
         await applicantQuestions.clickNext()

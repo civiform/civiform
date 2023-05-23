@@ -1,9 +1,7 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -34,9 +32,6 @@ describe('Text question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'text')
@@ -44,9 +39,6 @@ describe('Text question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -54,10 +46,7 @@ describe('Text question for applicant flow', () => {
     })
 
     it('with text submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!')
       await applicantQuestions.clickNext()
@@ -67,9 +56,6 @@ describe('Text question for applicant flow', () => {
 
     it('with empty text does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -83,9 +69,6 @@ describe('Text question for applicant flow', () => {
 
     it('with too short text does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('hi')
       await applicantQuestions.clickNext()
@@ -98,9 +81,6 @@ describe('Text question for applicant flow', () => {
 
     it('with too long text does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
@@ -115,9 +95,6 @@ describe('Text question for applicant flow', () => {
 
     it('hitting enter on text does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
 
@@ -164,9 +141,6 @@ describe('Text question for applicant flow', () => {
 
     it('text that is too long is cut off at 10k characters', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       let largeString = ''
       for (let i = 0; i < 1000; i++) {
@@ -220,10 +194,7 @@ describe('Text question for applicant flow', () => {
     })
 
     it('with both selections submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
@@ -233,10 +204,7 @@ describe('Text question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('You love CiviForm!', 1)
@@ -247,9 +215,6 @@ describe('Text question for applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion(
         'A long string that exceeds the character limit',
@@ -266,9 +231,6 @@ describe('Text question for applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('I love CiviForm!', 0)
       await applicantQuestions.answerTextQuestion(
@@ -285,9 +247,6 @@ describe('Text question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

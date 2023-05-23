@@ -1,9 +1,7 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -33,9 +31,6 @@ describe('Number question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'number')
@@ -43,9 +38,6 @@ describe('Number question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -53,10 +45,7 @@ describe('Number question for applicant flow', () => {
     })
 
     it('with valid number submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('8')
       await applicantQuestions.clickNext()
@@ -66,9 +55,6 @@ describe('Number question for applicant flow', () => {
 
     it('with no input does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       // Leave field blank.
       await applicantQuestions.clickNext()
@@ -81,9 +67,6 @@ describe('Number question for applicant flow', () => {
 
     it('with non-numeric inputs does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       const testValues = ['12e3', '12E3', '-123', '1.23']
 
@@ -123,10 +106,7 @@ describe('Number question for applicant flow', () => {
     })
 
     it('with valid numbers submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('100', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
@@ -136,10 +116,7 @@ describe('Number question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer required question.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('33', 1)
@@ -150,9 +127,6 @@ describe('Number question for applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('-10', 0)
       await applicantQuestions.answerNumberQuestion('33', 1)
@@ -163,9 +137,6 @@ describe('Number question for applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerNumberQuestion('10', 0)
       await applicantQuestions.answerNumberQuestion('-5', 1)
@@ -176,9 +147,6 @@ describe('Number question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

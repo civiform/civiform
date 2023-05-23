@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.BYPASS_LOGIN_LANGUAGE_SCREENS;
 import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
@@ -225,49 +224,37 @@ public class ApplicantLayout extends BaseHtmlLayout {
     if (profile.isPresent()) { // Show language switcher.
       long userId = profile.get().getApplicant().join().id;
 
-      String applicantInfoUrl =
-          controllers.applicant.routes.ApplicantInformationController.edit(userId).url();
       String updateLanguageAction =
           controllers.applicant.routes.ApplicantInformationController.update(userId).url();
 
-      // Show language switcher if we're not on the applicant info page.
-      boolean showLanguageSwitcher = !request.uri().equals(applicantInfoUrl);
-      if (showLanguageSwitcher) {
-        String csrfToken = CSRF.getToken(request.asScala()).value();
-        InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-        InputTag redirectInput =
-            input().isHidden().withValue(request.uri()).withName("redirectLink");
-        String preferredLanguage = languageSelector.getPreferredLangage(request).code();
-        SelectTag languageDropdown =
-            languageSelector
-                .renderDropdown(preferredLanguage)
-                .attr("onchange", "this.form.submit()")
-                .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
-        languageFormDiv =
-            languageFormDiv.with(
-                form()
-                    .withAction(updateLanguageAction)
-                    .withMethod(Http.HttpVerbs.POST)
-                    .with(csrfInput)
-                    .with(redirectInput)
-                    .with(languageDropdown)
-                    .condWith(
-                        featureFlags.getFlagEnabled(request, BYPASS_LOGIN_LANGUAGE_SCREENS)
-                            && isDevOrStaging
-                            && !disableDemoModeLogins,
-                        div()
-                            .withClasses("w-full", "flex", "justify-center")
-                            .with(
-                                a("DevTools")
-                                    .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
-                                    .withClasses(ApplicantStyles.LINK)
-                                    .withStyle("cursor:pointer")))
-                    .with(
-                        TagCreator.button()
-                            .withId("cf-update-lang")
-                            .withType("submit")
-                            .isHidden()));
-      }
+      String csrfToken = CSRF.getToken(request.asScala()).value();
+      InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+      InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+      String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+      SelectTag languageDropdown =
+          languageSelector
+              .renderDropdown(preferredLanguage)
+              .attr("onchange", "this.form.submit()")
+              .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
+      languageFormDiv =
+          languageFormDiv.with(
+              form()
+                  .withAction(updateLanguageAction)
+                  .withMethod(Http.HttpVerbs.POST)
+                  .with(csrfInput)
+                  .with(redirectInput)
+                  .with(languageDropdown)
+                  .condWith(
+                      isDevOrStaging && !disableDemoModeLogins,
+                      div()
+                          .withClasses("w-full", "flex", "justify-center")
+                          .with(
+                              a("DevTools")
+                                  .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
+                                  .withClasses(ApplicantStyles.LINK)
+                                  .withStyle("cursor:pointer")))
+                  .with(
+                      TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
     }
     return languageFormDiv;
   }

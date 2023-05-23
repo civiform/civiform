@@ -1,7 +1,6 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
   selectApplicantLanguage,
   validateScreenshot,
@@ -48,7 +47,6 @@ describe('Admin can manage translations', () => {
 
     // View the applicant program page in Spanish and check that the translations are present
     await logout(page)
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'Español')
     const cardText = await page.innerText(
       '.cf-application-card:has-text("' + publicName + '")',
@@ -186,7 +184,6 @@ describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.validateHeader('es-US')
 
@@ -241,7 +238,6 @@ describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
 
@@ -280,7 +276,6 @@ describe('Admin can manage translations', () => {
     await logout(page)
 
     // Log in as an applicant and view the translated question
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
 
@@ -367,7 +362,6 @@ describe('Admin can manage translations', () => {
     // Set applicant preferred language to Spanish
     // DO NOT LOG IN AS TEST USER. We want a fresh guest so we can guarantee
     // the language has not yet been set.
-    await loginAsGuest(page)
     await selectApplicantLanguage(page, 'Español')
     await applicantQuestions.applyProgram(programName)
 

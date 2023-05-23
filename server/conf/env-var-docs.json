@@ -485,16 +485,8 @@
         "description": "If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page.",
         "type": "bool"
       },
-      "STAGING_DISABLE_APPLICANT_GUEST_LOGIN": {
-        "description": "If this is a staging deployment and this variable is set to true, the 'CONTINUE AS GUEST' button is not shown on the login page.",
-        "type": "bool"
-      },
       "PHONE_QUESTION_TYPE_ENABLED": {
         "description": "Enables the phone number question type.",
-        "type": "bool"
-      },
-      "BYPASS_LOGIN_LANGUAGE_SCREENS": {
-        "description": "Bypasses the login and language screens and takes applicant straight to programs page.",
         "type": "bool"
       },
       "PUBLISH_SINGLE_PROGRAM_ENABLED": {

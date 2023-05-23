@@ -3,7 +3,6 @@ import {
   enableFeatureFlag,
   gotoEndpoint,
   loginAsAdmin,
-  loginAsGuest,
   loginAsTestUser,
   logout,
   resetContext,
@@ -49,7 +48,6 @@ describe('navigating to a deep link', () => {
     const {page} = ctx
 
     await gotoEndpoint(page, '/programs/test-deep-link')
-    await loginAsGuest(page)
     expect(await page.innerText('html')).toContain(
       'Create an account or sign in',
     )
@@ -77,10 +75,7 @@ describe('navigating to a deep link', () => {
     // Exercise guest path
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
-    await loginAsGuest(page)
     await page.click('text="Continue to application"')
-    await selectApplicantLanguage(page, 'English')
-
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -93,8 +88,6 @@ describe('navigating to a deep link', () => {
     // Act
     await gotoEndpoint(page, '/programs/test-deep-link')
     await loginAsTestUser(page, 'button:has-text("Log in")')
-    await selectApplicantLanguage(page, 'English')
-
     // Assert
     await page.click('#continue-application-button')
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -105,8 +98,6 @@ describe('navigating to a deep link', () => {
   it('Non-logged in user should get redirected to the program page and not an error', async () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
-
-    await selectApplicantLanguage(page, 'English')
 
     await logout(page)
     await browserContext.clearCookies()
@@ -126,8 +117,6 @@ describe('navigating to a deep link', () => {
   it('Logging in to an existing account after opening a deep link in a new browser session', async () => {
     await resetContext(ctx)
     const {page, browserContext} = ctx
-
-    await selectApplicantLanguage(page, 'English')
 
     // Log in and log out to establish the test user in the database.
     await loginAsTestUser(page)

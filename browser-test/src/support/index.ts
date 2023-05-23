@@ -267,7 +267,12 @@ export const gotoEndpoint = async (page: Page, endpoint = '') => {
   return await page.goto(BASE_URL + endpoint)
 }
 
-export const logout = async (page: Page) => {
+export const dismissToast = async (page: Page) => {
+  await page.locator('#toast-container div:text("x")').click()
+  await waitForPageJsLoad(page)
+}
+
+export const logout = async (page: Page, closeToast = true) => {
   await page.click('#logout-button')
   // If the user logged in through OIDC previously - during logout they are
   // redirected to dev-oidc:PORT/session/end page. There they need to confirm
@@ -286,6 +291,7 @@ export const logout = async (page: Page) => {
   // for the final destination URL (the programs index page), to make tests reliable.
   await page.waitForURL('**/applicants/**')
   await validateToastMessage(page, 'Your session has ended.')
+  if (closeToast) await dismissToast(page)
 }
 
 export const loginAsAdmin = async (page: Page) => {
@@ -310,13 +316,6 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
   await page.click('#debug-content-modal-button')
   await page.click('#trusted-intermediary')
   await waitForPageJsLoad(page)
-}
-
-// TODO(#4705): remove this method.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const loginAsGuest = async (page: Page) => {
-  // Logging in as a guest is a no-op, because loading the index page of
-  // CiviForm defaults to the guest user.
 }
 
 /**

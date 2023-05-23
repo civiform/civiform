@@ -1,9 +1,7 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
   enableFeatureFlag,
@@ -34,9 +32,6 @@ describe('phone question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'phone')
@@ -44,9 +39,6 @@ describe('phone question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -55,9 +47,6 @@ describe('phone question for applicant flow', () => {
 
     it('with phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
@@ -70,9 +59,6 @@ describe('phone question for applicant flow', () => {
     })
     it('with canada phone submits successfully', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('Canada', '2507274212')
 
@@ -84,9 +70,6 @@ describe('phone question for applicant flow', () => {
 
     it('with empty phone does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -99,9 +82,6 @@ describe('phone question for applicant flow', () => {
     })
     it('with empty country code does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -115,9 +95,6 @@ describe('phone question for applicant flow', () => {
 
     it('invalid phone numbers', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
@@ -134,9 +111,6 @@ describe('phone question for applicant flow', () => {
 
     it('invalid phone numbers for the country', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
@@ -153,9 +127,6 @@ describe('phone question for applicant flow', () => {
 
     it('555 fake phone numbers', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
@@ -170,9 +141,6 @@ describe('phone question for applicant flow', () => {
     })
     it('invalid characters in phone numbers', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
@@ -187,9 +155,6 @@ describe('phone question for applicant flow', () => {
     })
     it('incorrect length of phone number', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('United States', '615974')
 
@@ -201,9 +166,6 @@ describe('phone question for applicant flow', () => {
     })
     it('hitting enter on phone does not trigger submission', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('Canada', '2507274212.')
 
@@ -227,9 +189,6 @@ describe('phone question for applicant flow', () => {
     })
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)
@@ -264,10 +223,7 @@ describe('phone question for applicant flow', () => {
     })
 
     it('with both selections submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion('Canada', '2507274212', 0)
       await applicantQuestions.answerPhoneQuestion(
@@ -281,10 +237,7 @@ describe('phone question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
@@ -299,9 +252,6 @@ describe('phone question for applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',
@@ -323,9 +273,6 @@ describe('phone question for applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerPhoneQuestion(
         'United States',

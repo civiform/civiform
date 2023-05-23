@@ -4,11 +4,11 @@ import {
   loginAsAdmin,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
-  selectApplicantLanguage,
   validateScreenshot,
   validateToastMessage,
   logout,
   AdminQuestions,
+  dismissToast,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -60,7 +60,6 @@ describe('Trusted intermediaries', () => {
   it('ti landing page is the TI Dashboard', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
-    await selectApplicantLanguage(page, 'English')
     await validateScreenshot(page, 'ti')
   })
 
@@ -224,7 +223,7 @@ describe('Trusted intermediaries', () => {
       await applicantQuestions.clickNext()
       await validateToastMessage(page, 'may qualify')
       await validateScreenshot(page, 'eligible-toast')
-      await tiDashboard.dismissToast()
+      await dismissToast(page)
       await tiDashboard.gotoTIDashboardPage(page)
       await tiDashboard.clickOnApplicantDashboard()
       await applicantQuestions.seeEligibilityTag(fullProgramName, true)

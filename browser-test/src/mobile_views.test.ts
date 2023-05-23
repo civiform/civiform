@@ -4,9 +4,7 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -51,9 +49,6 @@ describe('views render well on mobile', () => {
 
   it('initial load of CiviForm', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
-    await selectApplicantLanguage(page, 'English')
-
     await validateAccessibility(page)
 
     await validateScreenshot(page, 'mobile-initial-load')
@@ -61,9 +56,6 @@ describe('views render well on mobile', () => {
 
   it('modal', async () => {
     const {page} = ctx
-    await loginAsGuest(page)
-    await selectApplicantLanguage(page, 'English')
-
     await validateAccessibility(page)
 
     // Click the apply button but don't click through the login prompt modal
@@ -76,9 +68,6 @@ describe('views render well on mobile', () => {
 
   it('apply page', async () => {
     const {page, applicantQuestions} = ctx
-    await loginAsGuest(page)
-    await selectApplicantLanguage(page, 'English')
-
     await validateAccessibility(page)
 
     // Click the apply button and click through the login prompt modal

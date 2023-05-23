@@ -1,9 +1,7 @@
 import {
   createTestContext,
   loginAsAdmin,
-  loginAsGuest,
   logout,
-  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -34,9 +32,6 @@ describe('Id question for applicant flow', () => {
 
     it('validate screenshot', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateScreenshot(page, 'id')
@@ -44,9 +39,6 @@ describe('Id question for applicant flow', () => {
 
     it('validate screenshot with errors', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.clickNext()
 
@@ -54,10 +46,7 @@ describe('Id question for applicant flow', () => {
     })
 
     it('with id submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345')
       await applicantQuestions.clickNext()
@@ -67,9 +56,6 @@ describe('Id question for applicant flow', () => {
 
     it('with empty id does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       // Click next without inputting anything
@@ -83,9 +69,6 @@ describe('Id question for applicant flow', () => {
 
     it('with too short id does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123')
       await applicantQuestions.clickNext()
@@ -98,9 +81,6 @@ describe('Id question for applicant flow', () => {
 
     it('with too long id does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('123456')
       await applicantQuestions.clickNext()
@@ -113,9 +93,6 @@ describe('Id question for applicant flow', () => {
 
     it('with non-numeric characters does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde')
       await applicantQuestions.clickNext()
@@ -154,10 +131,7 @@ describe('Id question for applicant flow', () => {
     })
 
     it('with both id inputs submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('12345', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
@@ -167,10 +141,7 @@ describe('Id question for applicant flow', () => {
     })
 
     it('with unanswered optional question submits successfully', async () => {
-      const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
+      const {applicantQuestions} = ctx
       // Only answer second question. First is optional.
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 1)
@@ -181,9 +152,6 @@ describe('Id question for applicant flow', () => {
 
     it('with first invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('abcde', 0)
       await applicantQuestions.answerIdQuestion('67890', 1)
@@ -197,9 +165,6 @@ describe('Id question for applicant flow', () => {
 
     it('with second invalid does not submit', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerIdQuestion('67890', 0)
       await applicantQuestions.answerIdQuestion('abcde', 1)
@@ -213,9 +178,6 @@ describe('Id question for applicant flow', () => {
 
     it('has no accessiblity violations', async () => {
       const {page, applicantQuestions} = ctx
-      await loginAsGuest(page)
-      await selectApplicantLanguage(page, 'English')
-
       await applicantQuestions.applyProgram(programName)
 
       await validateAccessibility(page)

@@ -6,7 +6,6 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  selectApplicantLanguage,
   testUserDisplayName,
   validateAccessibility,
   validateScreenshot,
@@ -70,7 +69,6 @@ describe('create and edit predicates', () => {
     // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that the next screen will be shown
@@ -163,7 +161,6 @@ describe('create and edit predicates', () => {
     // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that the next screen will be hidden
@@ -316,7 +313,6 @@ describe('create and edit predicates', () => {
     // Switch to the applicantQuestions.view and apply to the program
     await logout(page)
     await loginAsTestUser(page)
-    await selectApplicantLanguage(page, 'English')
     await applicantQuestions.applyProgram(programName)
 
     // Initially fill out the first screen so that it is ineligible
@@ -788,7 +784,6 @@ describe('create and edit predicates', () => {
       // the next screen will be shown.
       await logout(page)
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programName)
 
       // For each condition:
@@ -1089,7 +1084,6 @@ describe('create and edit predicates', () => {
       // the next screen will be shown.
       await logout(page)
       await loginAsTestUser(page)
-      await selectApplicantLanguage(page, 'English')
       await applicantQuestions.applyProgram(programName)
 
       // For each condition:
