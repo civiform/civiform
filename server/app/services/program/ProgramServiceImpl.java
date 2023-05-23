@@ -759,8 +759,7 @@ public final class ProgramServiceImpl implements ProgramService {
     // Add existing block questions.
     updatedBlockQuestions.addAll(blockDefinition.programQuestionDefinitions());
 
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService();
 
     for (long questionId : questionIds) {
       ProgramQuestionDefinition question =
@@ -1170,18 +1169,17 @@ public final class ProgramServiceImpl implements ProgramService {
       ProgramDefinition programDefinition) {
     // Note: This method is also used for non question updates.  It'd likely be
     // good to have a focused method for that.
-    return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            roQuestionService -> {
-              try {
-                return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
-              } catch (QuestionNotFoundException e) {
-                throw new RuntimeException(
-                    String.format("Question not found for Program %s", programDefinition.id()), e);
-              }
-            },
-            httpExecutionContext.current());
+    return CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            return syncProgramDefinitionQuestions(
+                programDefinition, questionService.getReadOnlyQuestionService());
+          } catch (QuestionNotFoundException e) {
+            throw new RuntimeException(
+                String.format("Question not found for Program %s", programDefinition.id()), e);
+          }
+        },
+        httpExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(

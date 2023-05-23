@@ -92,19 +92,17 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
 
-    return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyQuestionService -> {
-              try {
-                QuestionDefinition definition =
-                    readOnlyQuestionService.getQuestionDefinition(questionId);
-                return ok(translationView.render(request, localeToEdit, definition));
-              } catch (QuestionNotFoundException e) {
-                return notFound(e.getMessage());
-              }
-            },
-            httpExecutionContext.current());
+    return CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            QuestionDefinition definition =
+                questionService.getReadOnlyQuestionService().getQuestionDefinition(questionId);
+            return ok(translationView.render(request, localeToEdit, definition));
+          } catch (QuestionNotFoundException e) {
+            return notFound(e.getMessage());
+          }
+        },
+        httpExecutionContext.current());
   }
 
   /**
@@ -125,39 +123,40 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     }
     Locale localeToUpdate = maybeLocaleToUpdate.get();
 
-    return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyQuestionService -> {
-              try {
-                QuestionDefinition toUpdate =
-                    readOnlyQuestionService.getQuestionDefinition(questionId);
-                QuestionTranslationForm form =
-                    buildFormFromRequest(request, toUpdate.getQuestionType());
-                QuestionDefinition definitionWithUpdates =
-                    form.builderWithUpdates(toUpdate, localeToUpdate).build();
+    return CompletableFuture.supplyAsync(
+        () -> {
+          try {
+            QuestionDefinition toUpdate =
+                questionService.getReadOnlyQuestionService().getQuestionDefinition(questionId);
+            QuestionTranslationForm form =
+                buildFormFromRequest(request, toUpdate.getQuestionType());
+            QuestionDefinition definitionWithUpdates =
+                form.builderWithUpdates(toUpdate, localeToUpdate).build();
 
-                ErrorAnd<QuestionDefinition, CiviFormError> result =
-                    questionService.update(definitionWithUpdates);
+            ErrorAnd<QuestionDefinition, CiviFormError> result =
+                questionService.update(definitionWithUpdates);
 
-                if (result.isError()) {
-                  ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
-                  return ok(
-                      translationView.renderErrors(
-                          request, localeToUpdate, definitionWithUpdates, message));
-                }
+            if (result.isError()) {
+              ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+              return ok(
+                  translationView.renderErrors(
+                      request, localeToUpdate, definitionWithUpdates, message));
+            }
+            // This is pulled out of the redirect() call here to satisfy
+            // VSCode's intellisense getting confused about 'routes' and
+            // then being confused about what supplyAsync returns.
+            String url = routes.AdminQuestionController.index().url();
+            return redirect(url);
 
-                return redirect(routes.AdminQuestionController.index().url());
-
-              } catch (QuestionNotFoundException e) {
-                return notFound(e.getMessage());
-              } catch (UnsupportedQuestionTypeException e) {
-                return badRequest(e.getMessage());
-              } catch (InvalidUpdateException e) {
-                return internalServerError(e.getMessage());
-              }
-            },
-            httpExecutionContext.current());
+          } catch (QuestionNotFoundException e) {
+            return notFound(e.getMessage());
+          } catch (UnsupportedQuestionTypeException e) {
+            return badRequest(e.getMessage());
+          } catch (InvalidUpdateException e) {
+            return internalServerError(e.getMessage());
+          }
+        },
+        httpExecutionContext.current());
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {

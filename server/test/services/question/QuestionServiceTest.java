@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
@@ -81,20 +80,14 @@ public class QuestionServiceTest extends ResetPostgres {
   public void getReadOnlyQuestionService() {
     questionService.create(questionDefinition);
 
-    CompletionStage<ReadOnlyQuestionService> completionStage =
-        questionService.getReadOnlyQuestionService();
-
-    ReadOnlyQuestionService roService = completionStage.toCompletableFuture().join();
+    ReadOnlyQuestionService roService = questionService.getReadOnlyQuestionService();
 
     assertThat(roService.getAllQuestions().size()).isEqualTo(1);
   }
 
   @Test
   public void getReadOnlyQuestionService_empty() {
-    CompletionStage<ReadOnlyQuestionService> completionStage =
-        questionService.getReadOnlyQuestionService();
-
-    ReadOnlyQuestionService emptyService = completionStage.toCompletableFuture().join();
+    ReadOnlyQuestionService emptyService = questionService.getReadOnlyQuestionService();
 
     assertThat(emptyService.getAllQuestions()).isEmpty();
   }

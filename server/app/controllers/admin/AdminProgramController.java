@@ -89,7 +89,7 @@ public final class AdminProgramController extends CiviFormController {
     return ok(
         listView.render(
             programService.getActiveAndDraftProgramsWithoutQuestionLoad(),
-            questionService.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(),
+            questionService.getReadOnlyQuestionService().getActiveAndDraftQuestions(),
             request,
             profileMaybe));
   }

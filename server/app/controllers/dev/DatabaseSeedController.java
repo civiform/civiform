@@ -85,7 +85,7 @@ public class DatabaseSeedController extends Controller {
     }
     ActiveAndDraftPrograms activeAndDraftPrograms = programService.getActiveAndDraftPrograms();
     ImmutableList<QuestionDefinition> questionDefinitions =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join().getAllQuestions();
+        questionService.getReadOnlyQuestionService().getAllQuestions();
     return ok(
         view.render(
             request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));

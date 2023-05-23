@@ -9,8 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import models.Question;
 import models.QuestionTag;
 import models.Version;
@@ -83,16 +81,8 @@ public final class QuestionService {
    * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
    * questions in current active and draft versions.
    */
-  public ReadOnlyQuestionService getReadOnlyQuestionServiceSync() {
+  public ReadOnlyQuestionService getReadOnlyQuestionService() {
     return readOnlyQuestionService();
-  }
-
-  /**
-   * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
-   * questions in current active and draft versions.
-   */
-  public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
-    return CompletableFuture.completedStage(readOnlyQuestionService());
   }
 
   private ReadOnlyQuestionService readOnlyQuestionService() {
