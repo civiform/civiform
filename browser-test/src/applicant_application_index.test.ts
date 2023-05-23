@@ -245,4 +245,25 @@ describe('applicant program index page', () => {
     await applicantQuestions.validatePreviouslyAnsweredText(firstQuestionText)
     await validateScreenshot(page, 'other-program-shows-previously-answered')
   })
+
+  it('does not run into the bug from #4507', async () => {
+    const {page, applicantQuestions, adminQuestions, adminPrograms} = ctx
+
+    // Test user has already applied in 'categorizes programs for draft and applied applications'
+    await loginAsAdmin(page)
+    await adminQuestions.gotoQuestionEditPage('first-q')
+    await adminQuestions.updateQuestionText('new version of question')
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminPrograms.publishAllPrograms()
+    await logout(page)
+
+    // CiviForm would throw an exception when this bug was present,
+    // so if we can log in and see the program, we're in good shape.
+    await loginAsTestUser(page)
+    await applicantQuestions.expectPrograms({
+      wantNotStartedPrograms: [otherProgramName],
+      wantInProgressPrograms: [],
+      wantSubmittedPrograms: [primaryProgramName],
+    })
+  })
 })
