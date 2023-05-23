@@ -131,31 +131,32 @@ public final class ProgramServiceImpl implements ProgramService {
   public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
       ImmutableList<ProgramDefinition> programDefinitions) {
 
-    /* TEMP BUG FIX
-     * Because some of the programs are not in the active version,
+    /* Because some of the programs are not in the active version,
      * and we need to sync the questions for each program to calculate
      * eligibility state, we must sync each program with a version it
      * is associated with. This diverges from previous behavior where
      * we did not need to sync the programs because the contents of their
      * questions was not needed in the index view.
      */
-    return CompletableFuture.completedFuture(
-        programDefinitions.stream()
-            .map(
-                programDef -> {
-                  Program p = programDef.toProgram();
-                  p.refresh();
-                  Version v = p.getVersions().stream().findAny().orElseThrow();
-                  try {
-                    return syncProgramDefinitionQuestions(
-                        programDef, questionService.getReadOnlyVersionedQuestionService(v));
-                    /* END TEMP BUG FIX */
-                  } catch (QuestionNotFoundException e) {
-                    throw new RuntimeException(
-                        String.format("Question not found for Program %s", programDef.id()), e);
-                  }
-                })
-            .collect(ImmutableList.toImmutableList()));
+    return CompletableFuture.supplyAsync(
+        () -> {
+          return programDefinitions.stream()
+              .map(
+                  programDef -> {
+                    Program p = programDef.toProgram();
+                    p.refresh();
+                    Version v = p.getVersions().stream().findAny().orElseThrow();
+                    try {
+                      return syncProgramDefinitionQuestions(
+                          programDef, questionService.getReadOnlyVersionedQuestionService(v));
+                    } catch (QuestionNotFoundException e) {
+                      throw new RuntimeException(
+                          String.format("Question not found for Program %s", programDef.id()), e);
+                    }
+                  })
+              .collect(ImmutableList.toImmutableList());
+        },
+        httpExecutionContext.current());
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
