@@ -1,9 +1,7 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -20,8 +18,10 @@ import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.Scalar;
+import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
@@ -81,23 +81,21 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
             .with(hiddenDeleteInputTemplate())
             .with(enumeratorFields)
             .with(
-                button()
+                ViewUtils.makeSvgTextButton(
+                        messages.at(
+                            MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
+                            localizedEntityType),
+                        Icons.PLUS)
                     .withId(ADD_ELEMENT_BUTTON_ID)
                     // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .withClasses(
-                        ButtonStyles.SOLID_BLUE,
+                        ButtonStyles.SOLID_BLUE_WITH_ICON,
                         "normal-case",
                         "font-normal",
                         "px-4",
-                        StyleUtils.disabled("bg-gray-200", "text-gray-400"))
-                    .with(
-                        span("＋ ").attr("aria-hidden", "true"),
-                        span(
-                            messages.at(
-                                MessageKey.ENUMERATOR_BUTTON_ADD_ENTITY.getKeyName(),
-                                localizedEntityType))))
+                        StyleUtils.disabled("bg-gray-200", "text-gray-400")))
             .with(
                 // Add the hidden enumerator field template.
                 enumeratorField(
