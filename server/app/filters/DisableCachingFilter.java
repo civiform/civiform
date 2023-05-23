@@ -3,6 +3,7 @@ package filters;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.concurrent.Executor;
 import javax.inject.Inject;
 import play.mvc.EssentialAction;
@@ -33,7 +34,7 @@ public class DisableCachingFilter extends EssentialFilter {
                 .map(
                     result -> {
                       final Integer status = result.status();
-                      final String path = request.uri().toLowerCase();
+                      final String path = request.uri().toLowerCase(Locale.ROOT);
 
                       if (ASSET_PATH_PREFIXES.stream().anyMatch(path::startsWith)
                           && OK_STATUS_CODES.contains(status)) {

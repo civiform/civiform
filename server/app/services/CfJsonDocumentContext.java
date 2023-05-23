@@ -509,7 +509,7 @@ public class CfJsonDocumentContext {
   public boolean deleteRepeatedEntities(Path path, ImmutableList<Integer> indices) {
     checkLocked();
 
-    /** Early return if there's nothing to delete */
+    // Early return if there's nothing to delete
     if (indices.isEmpty()) {
       return false;
     }

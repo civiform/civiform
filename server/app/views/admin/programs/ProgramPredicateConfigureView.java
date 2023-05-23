@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -522,7 +523,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                           .withValue(scalar.name())
                           // Add the scalar type as data so we can determine which operators to
                           // allow.
-                          .withData("type", scalar.toScalarType().name().toLowerCase());
+                          .withData("type", scalar.toScalarType().name().toLowerCase(Locale.ROOT));
 
                   if (maybeSelectedScalar.isPresent()
                       && maybeSelectedScalar.get().name().equals(scalar.name())) {
@@ -614,7 +615,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                       option(operator.toDisplayString()).withValue(operator.name());
                   operator
                       .getOperableTypes()
-                      .forEach(type -> optionTag.withData(type.name().toLowerCase(), ""));
+                      .forEach(
+                          type -> optionTag.withData(type.name().toLowerCase(Locale.ROOT), ""));
 
                   if (maybeSelectedOperator.isPresent()
                       && operator.name().equals(maybeSelectedOperator.get().name())) {

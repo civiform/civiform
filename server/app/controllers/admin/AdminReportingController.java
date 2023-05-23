@@ -6,6 +6,7 @@ import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
+import java.util.Locale;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import org.pac4j.play.java.Secure;
@@ -124,6 +125,6 @@ public final class AdminReportingController extends CiviFormController {
             "Content-Disposition",
             String.format(
                 "attachment; filename=\"%s\"",
-                String.format("CiviForm_%s.csv", dataSetName.toLowerCase())));
+                String.format("CiviForm_%s.csv", dataSetName.toLowerCase(Locale.ROOT))));
   }
 }

@@ -13,6 +13,7 @@ import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -420,7 +421,7 @@ public final class AdminQuestionController extends CiviFormController {
   private String invalidQuestionTypeMessage(String questionType) {
     return String.format(
         "unrecognized question type: '%s', accepted values include: %s",
-        questionType.toUpperCase(), Arrays.toString(QuestionType.values()));
+        questionType.toUpperCase(Locale.ROOT), Arrays.toString(QuestionType.values()));
   }
 
   /**

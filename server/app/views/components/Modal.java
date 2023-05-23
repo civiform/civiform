@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import views.style.BaseStyles;
@@ -149,7 +150,8 @@ public abstract class Modal {
     }
     divTag.withClasses(modalStyles);
     if (repeatOpenBehavior().showOnlyOnce()) {
-      divTag.attr("only-show-once-group", repeatOpenBehavior().group().name().toLowerCase());
+      divTag.attr(
+          "only-show-once-group", repeatOpenBehavior().group().name().toLowerCase(Locale.ROOT));
       if (repeatOpenBehavior().bypassUrl().isPresent()) {
         divTag.attr("bypass-url", repeatOpenBehavior().bypassUrl().get());
       }
