@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static views.components.ToastMessage.ToastType.ALERT;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -61,10 +62,12 @@ public final class ApplicantProgramsController extends CiviFormController {
     CompletionStage<Optional<String>> applicantStage =
         this.applicantService.getNameOrEmail(applicantId);
 
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
+            httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
               return ok(
@@ -92,10 +95,12 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> view(Request request, long applicantId, long programId) {
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
+    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId), httpContext.current())
+            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
+            httpContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
               Optional<ProgramDefinition> programDefinition =

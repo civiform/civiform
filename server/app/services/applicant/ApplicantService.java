@@ -383,7 +383,7 @@ public final class ApplicantService {
    * <p>An application is a snapshot of all the answers the applicant has filled in so far, along
    * with association with the applicant and a program that the applicant is applying to.
    *
-   * @param submitterProfile the user that submitted the application, iff it is a TI the application
+   * @param submitterProfile the user that submitted the application, if it is a TI the application
    *     is associated with this profile too.
    * @return the saved {@link Application}. If the submission failed, a {@link
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
@@ -827,27 +827,26 @@ public final class ApplicantService {
    *   <li>Any other programs that are public
    * </ul>
    */
-  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(long applicantId) {
+  public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
+      long applicantId, CiviFormProfile requesterProfile) {
     // Note: The Program model associated with the application is eagerly loaded.
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-
     CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
         userRepository
             .lookupApplicant(applicantId)
             .thenApplyAsync(
-                applicant -> applicant.orElseThrow().getAccount().getManagedByGroup().isPresent())
-            .thenApplyAsync(
-                isTi ->
+                applicant ->
                     versionRepository.getActiveVersion().getPrograms().stream()
                         .map(Program::getProgramDefinition)
                         .filter(
                             pdef ->
                                 pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (isTi && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                                    || (requesterProfile.isTrustedIntermediary()
+                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
                         .collect(ImmutableList.toImmutableList()))
             .toCompletableFuture();
 
@@ -883,11 +882,12 @@ public final class ApplicantService {
    *     may be eligible for. Includes programs with matching eligibility criteria or no eligibility
    *     criteria.
    *     <p>Does not include the Common Intake Form.
-   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long)}.
+   *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
+   *     auth.CiviFormProfile)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
-      long applicantId) {
-    return relevantProgramsForApplicant(applicantId)
+      long applicantId, CiviFormProfile requesterProfile) {
+    return relevantProgramsForApplicant(applicantId, requesterProfile)
         .thenApplyAsync(
             relevantPrograms ->
                 Stream.of(
