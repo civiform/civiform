@@ -8,6 +8,7 @@ import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.UlTag;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
@@ -53,14 +54,15 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     ATag infoLink =
         new LinkElement()
             .setStyles("mb-4", "underline")
-            .setText(messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase())
+            .setText(
+                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT))
             .setHref(programDetailsLink)
             .opensInNewTab()
             .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
             .asAnchorText()
             .attr(
                 "aria-label",
-                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase());
+                messages.at(MessageKey.LINK_PROGRAM_DETAILS.getKeyName()).toLowerCase(Locale.ROOT));
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     roApplicantProgramService
         .getIneligibleQuestions()

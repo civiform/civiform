@@ -19,6 +19,7 @@ import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import java.util.Locale;
 import java.util.Optional;
 import models.QuestionTag;
 import play.i18n.Lang;
@@ -98,7 +99,8 @@ public final class QuestionEditView extends BaseHtmlView {
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions,
       Optional<ToastMessage> message) {
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("New %s question", questionType.getLabel().toLowerCase());
+    String title =
+        String.format("New %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
         buildQuestionContainer(title, questionForm)
@@ -148,7 +150,8 @@ public final class QuestionEditView extends BaseHtmlView {
       Optional<ToastMessage> message) {
 
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("Edit %s question", questionType.getLabel().toLowerCase());
+    String title =
+        String.format("Edit %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
         buildQuestionContainer(title, questionForm)
@@ -171,7 +174,8 @@ public final class QuestionEditView extends BaseHtmlView {
       throws InvalidQuestionTypeException {
     QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
     QuestionType questionType = questionForm.getQuestionType();
-    String title = String.format("View %s question", questionType.toString().toLowerCase());
+    String title =
+        String.format("View %s question", questionType.toString().toLowerCase(Locale.ROOT));
 
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);

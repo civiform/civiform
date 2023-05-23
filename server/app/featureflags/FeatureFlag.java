@@ -1,5 +1,7 @@
 package featureflags;
 
+import java.util.Locale;
+
 /**
  * An enum to represent feature flags used in CiviForm.
  *
@@ -57,6 +59,6 @@ public enum FeatureFlag {
   /** Returns a configuration-friendly version of the flag value in lower_camel_case. */
   @Override
   public String toString() {
-    return name().toLowerCase();
+    return name().toLowerCase(Locale.ROOT);
   }
 }

@@ -8,6 +8,7 @@ import static j2html.TagCreator.p;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
+import java.util.Locale;
 import services.question.types.QuestionType;
 import views.style.StyleUtils;
 
@@ -49,7 +50,7 @@ public final class CreateQuestionButton {
       if (!phoneQuestionTypeEnabled && QuestionType.PHONE.equals(type)) {
         continue;
       }
-      String typeString = type.toString().toLowerCase();
+      String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
           controllers.admin.routes.AdminQuestionController.newOne(
                   typeString, questionCreateRedirectUrl)
