@@ -86,8 +86,8 @@ public class HomeController extends Controller {
                       .withLang(data.preferredLocale(), messagesApi);
                 } else {
                   return redirect(
-                      controllers.applicant.routes.ApplicantInformationController.edit(
-                          applicant.id));
+                      controllers.applicant.routes.ApplicantInformationController
+                          .setLangFromBrowser(applicant.id));
                 }
               },
               httpExecutionContext.current());

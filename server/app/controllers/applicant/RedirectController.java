@@ -93,8 +93,8 @@ public final class RedirectController extends CiviFormController {
               if (!applicant.getApplicantData().hasPreferredLocale()) {
                 return CompletableFuture.completedFuture(
                     redirect(
-                            controllers.applicant.routes.ApplicantInformationController.edit(
-                                applicantId))
+                            controllers.applicant.routes.ApplicantInformationController
+                                .setLangFromBrowser(applicantId))
                         .withSession(
                             request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }

@@ -65,7 +65,7 @@ public final class ApplicantInformationController extends CiviFormController {
    * accordingly.
    */
   @Secure
-  public CompletionStage<Result> edit(Http.Request request, long applicantId) {
+  public CompletionStage<Result> setLangFromBrowser(Http.Request request, long applicantId) {
 
     CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
 
@@ -120,8 +120,12 @@ public final class ApplicantInformationController extends CiviFormController {
             });
   }
 
+  /**
+   * Sets the applicant's preferred language based on their language form selection, then redirects
+   * them.
+   */
   @Secure
-  public CompletionStage<Result> update(Http.Request request, long applicantId) {
+  public CompletionStage<Result> setLangFromSwitcher(Http.Request request, long applicantId) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
 
     if (form.hasErrors()) {
