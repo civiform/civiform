@@ -6,7 +6,7 @@ changelog:
       - infrastructure
 
   categories:
-    - title: Database
+    - title: Database Changes
       labels:
         - database
 
