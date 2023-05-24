@@ -93,7 +93,7 @@ Here is an example environment variable documentation file (validated in
             "TITLE": {
                 "description": "Sets the CiviForm title.",
                 "type": "string",
-                "mode": "ADMIN_WRITEABLE"
+                "mode": "ADMIN_READABLE"
             },
             "LOGO_URL": {
                 "description": "URL of the logo.",
