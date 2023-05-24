@@ -161,14 +161,16 @@ class TestVarsFromDocs(unittest.TestCase):
     {
         "MY_VAR": {
             "description": "A var",
-            "type": "string"
+            "type": "string",
+            "mode": "HIDDEN"
         },
         "A group": {
             "group_description": "Some group",
             "members": {
                 "MY_OTHER_VAR": {
                     "description": "Another var",
-                    "type": "string"
+                    "type": "string",
+                    "mode": "HIDDEN"
                 }
             }
         }
@@ -200,7 +202,8 @@ class TestMain(unittest.TestCase):
     {
         "MY_VAR": {
             "description": "A var",
-            "type": "string"
+            "type": "string",
+            "mode": "HIDDEN"
         }
     }
     """
@@ -208,7 +211,8 @@ class TestMain(unittest.TestCase):
     {
         "MY_VAR": {
           "description": "A var",
-          "type": "not my type"
+          "type": "not my type",
+          "mode": "BUMMER"
         }
     }
     """

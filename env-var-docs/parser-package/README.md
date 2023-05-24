@@ -92,7 +92,8 @@ Here is an example environment variable documentation file (validated in
         "members": {
             "TITLE": {
                 "description": "Sets the CiviForm title.",
-                "type": "string"
+                "type": "string",
+                "mode": "ADMIN_WRITEABLE"
             },
             "LOGO_URL": {
                 "description": "URL of the logo.",
@@ -102,23 +103,27 @@ Here is an example environment variable documentation file (validated in
                     { "val": "http://mylogo.png", "should_match": true },
                     { "val": "https://my-secure-logo.png", "should_match": true },
                     { "val": "props-not-a-valid-URL", "should_match": false }
-                ]
+                ],
+                "mode": "ADMIN_READABLE"
             }
         }
     },
     "SOME_NUMBER": {
         "description": "Sets a very important number.",
         "type": "int",
-        "required": true
+        "required": true,
+        "mode": "HIDDEN"
     },
     "CLOUD_PROVIDER": {
         "description": "What cloud services to connect to.",
         "type": "string",
-        "values": ["aws", "azure", "gcp"]
+        "values": ["aws", "azure", "gcp"],
+        "mode": "HIDDEN"
     },
     "LANGUAGES": {
         "description": "Supported languages.",
-        "type": "index-list"
+        "type": "index-list",
+        "mode": "ADMIN_READABLE"
     }
 }
 ```
