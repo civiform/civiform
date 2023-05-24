@@ -6,6 +6,10 @@ changelog:
       - infrastructure
 
   categories:
+    - title: Database
+      labels:
+        - database
+
     - title: Features
       labels:
         - feature
