@@ -47,6 +47,9 @@ Variables have the following fields:
   configures.
 - `type`: The value type expected. Can be 'string', 'int', 'bool', or
   '[index-list(#index-lists)'.
+- `mode`: Determines where the variable is set and displayed. `HIDDEN` vars are
+  set in the environment and not visible to admins, `ADMIN_READABLE` vars are set
+  in the environment and displayed to the admin in the Settings UI.
 - `required`: If the environment variable is required to be set. If the
   `required` field is not set, the environment variable is not required.
 - `values`: If `type` is string, a list of valid strings can be provided. If
@@ -66,7 +69,7 @@ Variables have the following fields:
   complexity of `regex`, many more tests should be specified that test the
   corner-cases.
 
-The `description` and `type` fields must be defined for each variable.
+The `description`, `type`, and `mode` fields must be defined for each variable.
 
 ### Index lists
 
