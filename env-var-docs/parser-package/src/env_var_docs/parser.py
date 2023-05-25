@@ -7,10 +7,13 @@ See parser-package/README.md for a description of the expected structure.
 """
 
 import dataclasses
+from enum import Enum
 import typing
 import json
 
 UnparsedJSON = dict[str, typing.Any]
+
+Mode = Enum('Mode', ['HIDDEN', 'ADMIN_READABLE'])
 
 
 @dataclasses.dataclass
@@ -49,6 +52,7 @@ class Variable:
     values: list[str] | None
     regex: str | None
     regex_tests: list[RegexTest] | None
+    mode: Mode
 
 
 @dataclasses.dataclass
@@ -283,6 +287,21 @@ def _try_parse_variable(
         default=False)
     errors.extend(errs)
 
+    # Parse the 'mode' field.
+    def extract_mode(obj: UnparsedJSON) -> Mode:
+        return Mode[obj["mode"]]
+
+    mode, errs = _parse_field(
+        parent_path=parent_path,
+        key="mode",
+        json_type=str,
+        required=True,
+        return_type=Mode,
+        extract_fn=extract_mode,
+        obj=obj,
+        checks=[_variable_check_mode_is_valid])
+    errors.extend(errs)
+
     # Parse the 'values' field. Get out a list[str] instead of a JSON list.
     def convert_values(obj: UnparsedJSON) -> list[str]:
         out = []
@@ -339,7 +358,7 @@ def _try_parse_variable(
         _ensure_no_extra_fields(
             parent_path, obj, [
                 "description", "type", "required", "values", "regex",
-                "regex_tests"
+                "regex_tests", "mode"
             ]))
 
     if len(errors) != 0:
@@ -349,8 +368,9 @@ def _try_parse_variable(
         assert description is not None
         assert type is not None
         assert required is not None
+        assert mode is not None
         return Variable(
-            description, type, required, values, regex, regex_tests), []
+            description, type, required, values, regex, regex_tests, mode), []
 
 
 CheckFn = typing.Callable[[str, UnparsedJSON], ParseErrors]
@@ -435,9 +455,7 @@ def _parse_field(
             for check in checks:
                 errors.extend(check(parent_path, obj))
             if len(errors) == 0:
-                value = obj[key]
-                if extract_fn is not None:
-                    value = extract_fn(obj)
+                value = obj[key] if extract_fn is None else extract_fn(obj)
 
     return value, errors
 
@@ -482,6 +500,22 @@ def _variable_check_type_is_valid(
             ParseError(
                 _path(parent_path, "type"),
                 f"'{t}' is an invalid value, valid values are {valid}"))
+    return errors
+
+
+def _variable_check_mode_is_valid(
+        parent_path: str, obj: UnparsedJSON) -> ParseErrors:
+    errors = []
+
+    raw_mode = obj["mode"]
+    try:
+        Mode[raw_mode]
+    except (KeyError) as e:
+        valid = [m.value for m in Mode]
+        errors.append(
+            ParseError(
+                _path(parent_path, "mode"),
+                f"'{raw_mode}' is an invalid mode, valid modes are {valid}"))
     return errors
 
 

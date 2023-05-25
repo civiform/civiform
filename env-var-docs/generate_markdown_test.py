@@ -111,7 +111,8 @@ class TestGenerateMarkdown(unittest.TestCase):
         {
             "MY_VAR": {
                 "description": "A var.",
-                "type": "string"
+                "type": "string",
+                "mode": "HIDDEN"
             }
         }
         """
@@ -134,7 +135,8 @@ class TestGenerateMarkdown(unittest.TestCase):
             "MY_VAR": {
                 "description": "A var.",
                 "type": "string",
-                "required": true
+                "required": true,
+                "mode": "HIDDEN"
             }
         }
         """
@@ -157,7 +159,8 @@ class TestGenerateMarkdown(unittest.TestCase):
             "MY_VAR": {
                 "description": "A var.",
                 "type": "string",
-                "values": ["one", "two"]
+                "values": ["one", "two"],
+                "mode": "HIDDEN"
             }
         }
         """
@@ -187,7 +190,8 @@ class TestGenerateMarkdown(unittest.TestCase):
                 "regex_tests": [
                     { "val": "must_match", "should_match": true },
                     { "val": "can_match", "should_match": false }
-                ]
+                ],
+                "mode": "HIDDEN"
             }
         }
         """
@@ -265,7 +269,8 @@ class TestGenerateMarkdown(unittest.TestCase):
                 "members": {
                     "MY_VAR": {
                         "description": "A var.",
-                        "type": "string"
+                        "type": "string",
+                        "mode": "HIDDEN"
                     }
                 }
             }
