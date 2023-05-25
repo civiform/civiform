@@ -30,7 +30,7 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+    CurrencyQuestion currencyQuestion = question.createQuestion(CurrencyQuestion.class);
 
     FieldWithLabel currencyField =
         FieldWithLabel.currency()

@@ -55,7 +55,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
     Messages messages = params.messages();
-    EnumeratorQuestion enumeratorQuestion = question.createEnumeratorQuestion();
+    EnumeratorQuestion enumeratorQuestion = question.createQuestion(EnumeratorQuestion.class);
     String localizedEntityType = enumeratorQuestion.getEntityType();
     ImmutableList<String> entityNames = enumeratorQuestion.getEntityNames();
     boolean hasErrors = !validationErrors.isEmpty();

@@ -33,7 +33,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
 
   public static DivTag renderFileKeyField(
       ApplicantQuestion question, ApplicantQuestionRendererParams params, boolean clearData) {
-    FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
+    FileUploadQuestion fileUploadQuestion = question.createQuestion(FileUploadQuestion.class);
     String value = fileUploadQuestion.getFileKeyValue().orElse("");
     if (clearData) {
       value = "";
@@ -47,7 +47,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
   public FileUploadQuestionRenderer(
       ApplicantQuestion question, FileUploadViewStrategy fileUploadViewStrategy) {
     super(question);
-    this.fileUploadQuestion = question.createFileUploadQuestion();
+    this.fileUploadQuestion = question.createQuestion(FileUploadQuestion.class);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.fileInputId = RandomStringUtils.randomAlphabetic(8);
   }

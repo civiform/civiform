@@ -45,7 +45,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
     Messages messages = params.messages();
-    AddressQuestion addressQuestion = question.createAddressQuestion();
+    AddressQuestion addressQuestion = question.createQuestion(AddressQuestion.class);
 
     FieldWithLabel streetAddressField =
         FieldWithLabel.input()

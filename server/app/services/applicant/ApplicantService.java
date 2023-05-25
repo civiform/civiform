@@ -1477,7 +1477,8 @@ public final class ApplicantService {
 
               ApplicantQuestion applicantQuestion =
                   getFirstAddressCorrectionEnabledApplicantQuestion(blockMaybe.get());
-              AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+              AddressQuestion addressQuestion =
+                  applicantQuestion.createQuestion(AddressQuestion.class);
 
               Optional<AddressSuggestion> suggestionMaybe =
                   addressSuggestions.stream()
@@ -1571,7 +1572,7 @@ public final class ApplicantService {
   /** Gets address suggestions */
   public CompletionStage<AddressSuggestionGroup> getAddressSuggestionGroup(Block block) {
     ApplicantQuestion applicantQuestion = getFirstAddressCorrectionEnabledApplicantQuestion(block);
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
     return esriClient.getAddressSuggestions(addressQuestion.getAddress());
   }
 
@@ -1603,7 +1604,8 @@ public final class ApplicantService {
                 return CompletableFuture.completedFuture(formData);
               }
 
-              AddressQuestion addressQuestion = addressQuestionMaybe.get().createAddressQuestion();
+              AddressQuestion addressQuestion =
+                  addressQuestionMaybe.get().createQuestion(AddressQuestion.class);
 
               if (addressQuestion.hasChanges(formData)) {
                 return CompletableFuture.completedFuture(

@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import services.DateConverter;
 import services.applicant.ApplicantData;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
@@ -52,10 +53,11 @@ public class PredicateEvaluatorTest {
     PredicateExpressionNode node = PredicateExpressionNode.create(leafNode);
 
     applicantData.putString(
-        applicantQuestion.createAddressQuestion().getStreetPath(), "123 Rhode St.");
+        applicantQuestion.createQuestion(AddressQuestion.class).getStreetPath(), "123 Rhode St.");
     assertThat(evaluator.evaluate(node)).isTrue();
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStreetPath(), "different");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStreetPath(), "different");
     assertThat(evaluator.evaluate(node)).isFalse();
   }
 
@@ -70,7 +72,7 @@ public class PredicateEvaluatorTest {
     PredicateExpressionNode node = PredicateExpressionNode.create(leafNode);
 
     applicantData.putString(
-        applicantQuestion.createAddressQuestion().getStreetPath(), "123 Rhode St.");
+        applicantQuestion.createQuestion(AddressQuestion.class).getStreetPath(), "123 Rhode St.");
 
     assertThat(evaluator.evaluate(node)).isFalse();
   }
@@ -84,8 +86,10 @@ public class PredicateEvaluatorTest {
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Seattle");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "Seattle");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "WA");
 
     AndNode andNode =
         AndNode.create(
@@ -104,8 +108,10 @@ public class PredicateEvaluatorTest {
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "Spokane");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "WA");
 
     AndNode andNode =
         AndNode.create(
@@ -124,8 +130,10 @@ public class PredicateEvaluatorTest {
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "Spokane");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "WA");
 
     OrNode orNode =
         OrNode.create(
@@ -144,8 +152,10 @@ public class PredicateEvaluatorTest {
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.STATE, Operator.EQUAL_TO, PredicateValue.of("WA"));
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Minneapolis");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "MN");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "Minneapolis");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "MN");
 
     OrNode orNode =
         OrNode.create(
@@ -167,9 +177,12 @@ public class PredicateEvaluatorTest {
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("55555"));
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getZipPath(), "55555");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "Spokane");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "WA");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getZipPath(), "55555");
 
     OrNode orNode =
         OrNode.create(
@@ -195,10 +208,13 @@ public class PredicateEvaluatorTest {
         LeafOperationExpressionNode.create(
             addressQuestion.getId(), Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("55555"));
 
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "Spokane");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "WA");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "Spokane");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "WA");
     // Mismatched AND data.
-    applicantData.putString(applicantQuestion.createAddressQuestion().getZipPath(), "NOT 55555");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getZipPath(), "NOT 55555");
 
     OrNode orNode =
         OrNode.create(
@@ -225,9 +241,12 @@ public class PredicateEvaluatorTest {
             addressQuestion.getId(), Scalar.ZIP, Operator.EQUAL_TO, PredicateValue.of("55555"));
 
     // Mismatched Or data.
-    applicantData.putString(applicantQuestion.createAddressQuestion().getCityPath(), "NOT Spokane");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getStatePath(), "NOT WA");
-    applicantData.putString(applicantQuestion.createAddressQuestion().getZipPath(), "55555");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getCityPath(), "NOT Spokane");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getStatePath(), "NOT WA");
+    applicantData.putString(
+        applicantQuestion.createQuestion(AddressQuestion.class).getZipPath(), "55555");
 
     OrNode orNode =
         OrNode.create(

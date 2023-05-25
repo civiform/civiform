@@ -65,7 +65,7 @@ public class NameQuestionTest {
     QuestionAnswerer.answerNameQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
-    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.createQuestion(NameQuestion.class);
 
     assertThat(nameQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(nameQuestion.getFirstNameValue().get()).isEqualTo(firstName);
@@ -84,7 +84,7 @@ public class NameQuestionTest {
     QuestionAnswerer.answerNameQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
-    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.createQuestion(NameQuestion.class);
 
     assertThat(nameQuestion.getValidationErrors().isEmpty()).isFalse();
     assertThat(

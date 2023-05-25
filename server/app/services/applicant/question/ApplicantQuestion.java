@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -211,101 +213,59 @@ public final class ApplicantQuestion {
     return getContextualizedPath().join(metadataScalar);
   }
 
-  public AddressQuestion createAddressQuestion() {
-    return new AddressQuestion(this);
+  public <T extends Question> T createQuestion(Class<T> questionClass) {
+    try {
+      // Get the constructor for T that has a single parameter of type ApplicantQuestion.
+      Constructor<T> constructor = questionClass.getDeclaredConstructor(this.getClass());
+      return constructor.newInstance(this);
+    } catch (InstantiationException
+        | IllegalAccessException
+        | NoSuchMethodException
+        | InvocationTargetException e) {
+      throw new RuntimeException(
+          "Could not find appropriate constructor for " + questionClass.getName(), e);
+    }
   }
 
   public boolean isAddressCorrectionEnabled() {
     return programQuestionDefinition.addressCorrectionEnabled();
   }
 
-  public CurrencyQuestion createCurrencyQuestion() {
-    return new CurrencyQuestion(this);
-  }
-
-  public DateQuestion createDateQuestion() {
-    return new DateQuestion(this);
-  }
-
-  public EmailQuestion createEmailQuestion() {
-    return new EmailQuestion(this);
-  }
-
-  public FileUploadQuestion createFileUploadQuestion() {
-    return new FileUploadQuestion(this);
-  }
-
   public boolean isFileUploadQuestion() {
     return getType().equals(QuestionType.FILEUPLOAD);
-  }
-
-  public IdQuestion createIdQuestion() {
-    return new IdQuestion(this);
-  }
-
-  public MultiSelectQuestion createMultiSelectQuestion() {
-    return new MultiSelectQuestion(this);
-  }
-
-  public NameQuestion createNameQuestion() {
-    return new NameQuestion(this);
-  }
-
-  public NumberQuestion createNumberQuestion() {
-    return new NumberQuestion(this);
-  }
-
-  public EnumeratorQuestion createEnumeratorQuestion() {
-    return new EnumeratorQuestion(this);
-  }
-
-  public SingleSelectQuestion createSingleSelectQuestion() {
-    return new SingleSelectQuestion(this);
-  }
-
-  public PhoneQuestion createPhoneQuestion() {
-    return new PhoneQuestion(this);
-  }
-
-  public StaticContentQuestion createStaticContentQuestion() {
-    return new StaticContentQuestion(this);
-  }
-
-  public TextQuestion createTextQuestion() {
-    return new TextQuestion(this);
   }
 
   public Question errorsPresenter() {
     switch (getType()) {
       case ADDRESS:
-        return createAddressQuestion();
+        return createQuestion(AddressQuestion.class);
       case CHECKBOX:
-        return createMultiSelectQuestion();
+        return createQuestion(MultiSelectQuestion.class);
       case CURRENCY:
-        return createCurrencyQuestion();
+        return createQuestion(CurrencyQuestion.class);
       case DATE:
-        return createDateQuestion();
+        return createQuestion(DateQuestion.class);
       case EMAIL:
-        return createEmailQuestion();
+        return createQuestion(EmailQuestion.class);
       case FILEUPLOAD:
-        return createFileUploadQuestion();
+        return createQuestion(FileUploadQuestion.class);
       case ID:
-        return createIdQuestion();
+        return createQuestion(IdQuestion.class);
       case NAME:
-        return createNameQuestion();
+        return createQuestion(NameQuestion.class);
       case NUMBER:
-        return createNumberQuestion();
+        return createQuestion(NumberQuestion.class);
       case DROPDOWN: // fallthrough to RADIO_BUTTON
       case RADIO_BUTTON:
-        return createSingleSelectQuestion();
+        return createQuestion(SingleSelectQuestion.class);
       case ENUMERATOR:
-        return createEnumeratorQuestion();
+        return createQuestion(EnumeratorQuestion.class);
       case TEXT:
-        return createTextQuestion();
+        return createQuestion(TextQuestion.class);
       case STATIC:
-        return createStaticContentQuestion();
+        return createQuestion(StaticContentQuestion.class);
       case PHONE:
-        return createPhoneQuestion();
+        return createQuestion(PhoneQuestion.class);
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }

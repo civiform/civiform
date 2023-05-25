@@ -64,7 +64,7 @@ public class PhoneQuestionTest {
         new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", "(615) 717-1234");
-    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createQuestion(PhoneQuestion.class);
 
     assertThat(phoneQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("6157171234");
@@ -77,7 +77,7 @@ public class PhoneQuestionTest {
         new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "", "");
-    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createQuestion(PhoneQuestion.class);
     assertThat(phoneQuestion.getValidationErrors())
         .isEqualTo(
             ImmutableMap.of(
@@ -103,7 +103,7 @@ public class PhoneQuestionTest {
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", number);
 
-    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createQuestion(PhoneQuestion.class);
 
     assertThat(phoneQuestion.getValidationErrors())
         .isEqualTo(
@@ -123,7 +123,7 @@ public class PhoneQuestionTest {
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", number);
 
-    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createQuestion(PhoneQuestion.class);
 
     assertThat(phoneQuestion.getValidationErrors())
         .isEqualTo(
@@ -142,7 +142,7 @@ public class PhoneQuestionTest {
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "CA", number);
 
-    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createQuestion(PhoneQuestion.class);
 
     assertThat(phoneQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(phoneQuestion.getPhoneNumberValue().get()).isEqualTo("2505550199");

@@ -38,7 +38,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean isOptional) {
 
     boolean hasErrors = !validationErrors.isEmpty();
-    MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
+    MultiSelectQuestion multiOptionQuestion = question.createQuestion(MultiSelectQuestion.class);
 
     DivTag checkboxQuestionFormContent =
         div()

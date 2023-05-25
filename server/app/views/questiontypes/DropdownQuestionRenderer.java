@@ -35,7 +35,7 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
     Messages messages = params.messages();
-    SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion = question.createQuestion(SingleSelectQuestion.class);
 
     SelectWithLabel select =
         new SelectWithLabel()

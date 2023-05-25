@@ -75,7 +75,7 @@ public class DateQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
 
-    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+    DateQuestion dateQuestion = applicantQuestion.createQuestion(DateQuestion.class);
 
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(

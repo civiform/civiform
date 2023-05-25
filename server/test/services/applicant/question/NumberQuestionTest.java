@@ -79,7 +79,7 @@ public class NumberQuestionTest extends ResetPostgres {
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createQuestion(NumberQuestion.class);
 
     assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue()).isEmpty();
@@ -92,7 +92,7 @@ public class NumberQuestionTest extends ResetPostgres {
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 800);
 
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createQuestion(NumberQuestion.class);
 
     assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(800);
@@ -106,7 +106,7 @@ public class NumberQuestionTest extends ResetPostgres {
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createQuestion(NumberQuestion.class);
 
     assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(numberQuestion.getNumberValue().get()).isEqualTo(value);
@@ -127,7 +127,7 @@ public class NumberQuestionTest extends ResetPostgres {
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createQuestion(NumberQuestion.class);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
         numberQuestion.getValidationErrors();
@@ -147,7 +147,7 @@ public class NumberQuestionTest extends ResetPostgres {
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createQuestion(NumberQuestion.class);
 
     assertThat(numberQuestion.getValidationErrors().isEmpty()).isTrue();
   }
@@ -162,7 +162,7 @@ public class NumberQuestionTest extends ResetPostgres {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
 
-    NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
+    NumberQuestion numberQuestion = applicantQuestion.createQuestion(NumberQuestion.class);
 
     assertThat(numberQuestion.getValidationErrors())
         .isEqualTo(

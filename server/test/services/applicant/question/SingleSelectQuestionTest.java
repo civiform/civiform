@@ -63,7 +63,8 @@ public class SingleSelectQuestionTest {
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 1L);
 
-    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.createQuestion(SingleSelectQuestion.class);
 
     assertThat(singleSelectQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
@@ -77,7 +78,8 @@ public class SingleSelectQuestionTest {
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 9L);
 
-    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.createQuestion(SingleSelectQuestion.class);
 
     assertThat(singleSelectQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
@@ -89,7 +91,8 @@ public class SingleSelectQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
 
-    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion =
+        applicantQuestion.createQuestion(SingleSelectQuestion.class);
 
     assertThat(singleSelectQuestion.getOptions()).isNotEmpty();
     assertThat(singleSelectQuestion.getOptions().get(0).locale())

@@ -2989,7 +2989,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     AddressSuggestion addressSuggestion1 =
         AddressSuggestion.builder()
@@ -3096,7 +3096,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     AddressSuggestion addressSuggestion1 =
         AddressSuggestion.builder()
@@ -3185,7 +3185,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     AddressSuggestion addressSuggestion1 =
         AddressSuggestion.builder()

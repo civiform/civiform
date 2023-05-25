@@ -71,7 +71,7 @@ public class CsvExporterTest extends AbstractExporterTest {
 
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
-            .createNameQuestion();
+            .createQuestion(NameQuestion.class);
     String firstNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     String lastNameHeader =
@@ -79,7 +79,8 @@ public class CsvExporterTest extends AbstractExporterTest {
     Question phoneQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.PHONE);
     PhoneQuestion phoneQuestion1 =
-        getApplicantQuestion(phoneQuestion.getQuestionDefinition()).createPhoneQuestion();
+        getApplicantQuestion(phoneQuestion.getQuestionDefinition())
+            .createQuestion(PhoneQuestion.class);
     String phoneHeader = CsvExporterService.pathToHeader(phoneQuestion1.getPhoneNumberPath());
     String countryCodeHeader = CsvExporterService.pathToHeader(phoneQuestion1.getCountryCodePath());
     assertThat(records.get(1).get(phoneHeader)).contains("6157571010");
@@ -94,7 +95,8 @@ public class CsvExporterTest extends AbstractExporterTest {
     Question checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
     MultiSelectQuestion multiSelectApplicantQuestion =
-        getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
+        getApplicantQuestion(checkboxQuestion.getQuestionDefinition())
+            .createQuestion(MultiSelectQuestion.class);
     String multiSelectHeader =
         CsvExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
     assertThat(records.get(1).get(multiSelectHeader)).isEqualTo("[toaster, pepper grinder]");
@@ -102,7 +104,8 @@ public class CsvExporterTest extends AbstractExporterTest {
     Question fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
     FileUploadQuestion fileuploadApplicantQuestion =
-        getApplicantQuestion(fileuploadQuestion.getQuestionDefinition()).createFileUploadQuestion();
+        getApplicantQuestion(fileuploadQuestion.getQuestionDefinition())
+            .createQuestion(FileUploadQuestion.class);
     String fileKeyHeader =
         CsvExporterService.pathToHeader(fileuploadApplicantQuestion.getFileKeyPath());
     assertThat(records.get(1).get(fileKeyHeader))
@@ -135,9 +138,9 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant name (last_name)",
             "applicant favorite color (text)");
 
-    NameQuestion nameApplicantQuestion =
-        getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())
-            .createNameQuestion();
+    ApplicantQuestion applicantQuestion =
+        getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition());
+    NameQuestion nameApplicantQuestion = applicantQuestion.createQuestion(NameQuestion.class);
     String firstNameHeader =
         CsvExporterService.pathToHeader(nameApplicantQuestion.getFirstNamePath());
     // Applications should appear most recent first.

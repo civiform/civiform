@@ -31,7 +31,7 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    NumberQuestion numberQuestion = question.createNumberQuestion();
+    NumberQuestion numberQuestion = question.createQuestion(NumberQuestion.class);
 
     FieldWithLabel numberField =
         FieldWithLabel.number()

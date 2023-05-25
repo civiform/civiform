@@ -83,7 +83,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantAddress().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(addressApplicantQuestion.createAddressQuestion())
+    assertThat(addressApplicantQuestion.createQuestion(AddressQuestion.class))
         .isInstanceOf(AddressQuestion.class);
 
     ApplicantQuestion checkboxApplicantQuestion =
@@ -91,7 +91,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
+    assertThat(checkboxApplicantQuestion.createQuestion(MultiSelectQuestion.class))
         .isInstanceOf(MultiSelectQuestion.class);
 
     ApplicantQuestion dropdownApplicantQuestion =
@@ -99,7 +99,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantIceCream().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
+    assertThat(dropdownApplicantQuestion.createQuestion(SingleSelectQuestion.class))
         .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion enumeratorApplicantQuestion =
@@ -107,7 +107,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(enumeratorApplicantQuestion.createEnumeratorQuestion())
+    assertThat(enumeratorApplicantQuestion.createQuestion(EnumeratorQuestion.class))
         .isInstanceOf(EnumeratorQuestion.class);
 
     ApplicantQuestion nameApplicantQuestion =
@@ -115,21 +115,23 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantName().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
+    assertThat(nameApplicantQuestion.createQuestion(NameQuestion.class))
+        .isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
+    assertThat(numberApplicantQuestion.createQuestion(NumberQuestion.class))
+        .isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantSeason().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(radioApplicantQuestion.createSingleSelectQuestion())
+    assertThat(radioApplicantQuestion.createQuestion(SingleSelectQuestion.class))
         .isInstanceOf(SingleSelectQuestion.class);
 
     ApplicantQuestion textApplicantQuestion =
@@ -137,14 +139,15 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
+    assertThat(textApplicantQuestion.createQuestion(TextQuestion.class))
+        .isInstanceOf(TextQuestion.class);
 
     ApplicantQuestion phoneQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantPhone().getQuestionDefinition(),
             new ApplicantData(),
             Optional.empty());
-    assertThat(phoneQuestion.createPhoneQuestion()).isInstanceOf(PhoneQuestion.class);
+    assertThat(phoneQuestion.createQuestion(PhoneQuestion.class)).isInstanceOf(PhoneQuestion.class);
   }
 
   @Test

@@ -28,7 +28,7 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    TextQuestion textQuestion = question.createTextQuestion();
+    TextQuestion textQuestion = question.createQuestion(TextQuestion.class);
 
     FieldWithLabel textField =
         FieldWithLabel.input()

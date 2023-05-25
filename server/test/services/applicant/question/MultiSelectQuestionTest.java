@@ -104,7 +104,8 @@ public class MultiSelectQuestionTest {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 0L);
 
-    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+    MultiSelectQuestion multiSelectQuestion =
+        applicantQuestion.createQuestion(MultiSelectQuestion.class);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
         multiSelectQuestion.getValidationErrors();
@@ -129,7 +130,8 @@ public class MultiSelectQuestionTest {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 3, 4L);
 
-    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+    MultiSelectQuestion multiSelectQuestion =
+        applicantQuestion.createQuestion(MultiSelectQuestion.class);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
         multiSelectQuestion.getValidationErrors();
@@ -150,7 +152,8 @@ public class MultiSelectQuestionTest {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
 
-    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+    MultiSelectQuestion multiSelectQuestion =
+        applicantQuestion.createQuestion(MultiSelectQuestion.class);
 
     assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
   }
@@ -161,7 +164,8 @@ public class MultiSelectQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
 
-    MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
+    MultiSelectQuestion multiSelectQuestion =
+        applicantQuestion.createQuestion(MultiSelectQuestion.class);
 
     assertThat(multiSelectQuestion.getOptions()).isNotEmpty();
     assertThat(multiSelectQuestion.getOptions().get(0).locale())

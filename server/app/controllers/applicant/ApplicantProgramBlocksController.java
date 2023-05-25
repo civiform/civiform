@@ -43,6 +43,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.StorageClient;
 import services.geo.AddressSuggestion;
@@ -394,7 +395,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       .filter(question -> question.getType().equals(QuestionType.FILEUPLOAD))
                       .findAny()
                       .get()
-                      .createFileUploadQuestion();
+                      .createQuestion(FileUploadQuestion.class);
 
               ImmutableMap.Builder<String, String> fileUploadQuestionFormData =
                   new ImmutableMap.Builder<>();
@@ -519,10 +520,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     if (featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
-      AddressQuestion addressQuestion =
-          applicantService
-              .getFirstAddressCorrectionEnabledApplicantQuestion(thisBlockUpdated)
-              .createAddressQuestion();
+      ApplicantQuestion applicantQuestion =
+          applicantService.getFirstAddressCorrectionEnabledApplicantQuestion(thisBlockUpdated);
+      AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
       if (addressQuestion.needsAddressCorrection()) {
 

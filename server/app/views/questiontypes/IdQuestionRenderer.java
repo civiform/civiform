@@ -28,7 +28,7 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    IdQuestion idQuestion = question.createIdQuestion();
+    IdQuestion idQuestion = question.createQuestion(IdQuestion.class);
 
     FieldWithLabel idField =
         FieldWithLabel.input()

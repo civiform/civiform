@@ -31,7 +31,7 @@ public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    DateQuestion dateQuestion = question.createDateQuestion();
+    DateQuestion dateQuestion = question.createQuestion(DateQuestion.class);
 
     FieldWithLabel dateField =
         FieldWithLabel.date()

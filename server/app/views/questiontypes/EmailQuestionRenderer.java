@@ -30,7 +30,7 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    EmailQuestion emailQuestion = question.createEmailQuestion();
+    EmailQuestion emailQuestion = question.createQuestion(EmailQuestion.class);
 
     FieldWithLabel emailField =
         FieldWithLabel.email()

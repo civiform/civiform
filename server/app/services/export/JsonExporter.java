@@ -25,6 +25,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.MultiSelectQuestion;
@@ -130,8 +131,9 @@ public final class JsonExporter {
       switch (answerData.questionDefinition().getQuestionType()) {
         case CHECKBOX:
           {
+            ApplicantQuestion applicantQuestion = answerData.applicantQuestion();
             MultiSelectQuestion multiSelectQuestion =
-                answerData.applicantQuestion().createMultiSelectQuestion();
+                applicantQuestion.createQuestion(MultiSelectQuestion.class);
             Path path = multiSelectQuestion.getSelectionPath().asApplicationPath();
 
             if (multiSelectQuestion.getSelectedOptionsValue().isPresent()) {
@@ -146,8 +148,9 @@ public final class JsonExporter {
           }
         case CURRENCY:
           {
+            ApplicantQuestion applicantQuestion = answerData.applicantQuestion();
             CurrencyQuestion currencyQuestion =
-                answerData.applicantQuestion().createCurrencyQuestion();
+                applicantQuestion.createQuestion(CurrencyQuestion.class);
             Path path =
                 currencyQuestion
                     .getCurrencyPath()
@@ -166,7 +169,8 @@ public final class JsonExporter {
           }
         case NUMBER:
           {
-            NumberQuestion numberQuestion = answerData.applicantQuestion().createNumberQuestion();
+            NumberQuestion numberQuestion =
+                answerData.applicantQuestion().createQuestion(NumberQuestion.class);
             Path path = numberQuestion.getNumberPath().asApplicationPath();
 
             if (numberQuestion.getNumberValue().isPresent()) {
@@ -179,7 +183,8 @@ public final class JsonExporter {
           }
         case DATE:
           {
-            DateQuestion dateQuestion = answerData.applicantQuestion().createDateQuestion();
+            DateQuestion dateQuestion =
+                answerData.applicantQuestion().createQuestion(DateQuestion.class);
             Path path = dateQuestion.getDatePath().asApplicationPath();
 
             if (dateQuestion.getDateValue().isPresent()) {
@@ -193,7 +198,8 @@ public final class JsonExporter {
           }
         case PHONE:
           {
-            PhoneQuestion phoneQuestion = answerData.applicantQuestion().createPhoneQuestion();
+            PhoneQuestion phoneQuestion =
+                answerData.applicantQuestion().createQuestion(PhoneQuestion.class);
             Path path = phoneQuestion.getPhoneNumberPath().asApplicationPath();
 
             if (phoneQuestion.getPhoneNumberValue().isPresent()

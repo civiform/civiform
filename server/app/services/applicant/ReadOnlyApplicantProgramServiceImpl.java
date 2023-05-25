@@ -21,8 +21,11 @@ import services.applicant.predicate.PredicateEvaluator;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
+import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.Scalar;
+import services.applicant.question.SingleSelectQuestion;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -110,7 +113,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         .flatMap(block -> block.getQuestions().stream())
         .filter(ApplicantQuestion::isAnswered)
         .filter(ApplicantQuestion::isFileUploadQuestion)
-        .map(ApplicantQuestion::createFileUploadQuestion)
+        .map(applicantQuestion -> applicantQuestion.createQuestion(FileUploadQuestion.class))
         .map(FileUploadQuestion::getFileKeyValue)
         .flatMap(Optional::stream)
         .collect(ImmutableList.toImmutableList());
@@ -282,7 +285,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         Optional<String> originalFileName = Optional.empty();
         Optional<String> encodedFileKey = Optional.empty();
         if (isAnswered && question.isFileUploadQuestion()) {
-          FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
+          FileUploadQuestion fileUploadQuestion = question.createQuestion(FileUploadQuestion.class);
           originalFileName = fileUploadQuestion.getOriginalFileName();
           encodedFileKey =
               fileUploadQuestion
@@ -458,19 +461,19 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.SELECTION),
             question
-                .createSingleSelectQuestion()
+                .createQuestion(SingleSelectQuestion.class)
                 .getSelectedOptionValue(locale)
                 .map(LocalizedQuestionOption::optionText)
                 .orElse(""));
       case CURRENCY:
-        CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+        CurrencyQuestion currencyQuestion = question.createQuestion(CurrencyQuestion.class);
         return ImmutableMap.of(
             currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.SELECTIONS),
             question
-                .createMultiSelectQuestion()
+                .createQuestion(MultiSelectQuestion.class)
                 .getSelectedOptionsValue(locale)
                 .map(
                     selectedOptions ->
@@ -482,7 +485,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),
             question
-                .createFileUploadQuestion()
+                .createQuestion(FileUploadQuestion.class)
                 .getFileKeyValue()
                 .map(
                     fileKey ->
@@ -495,9 +498,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       case ENUMERATOR:
         return ImmutableMap.of(
             question.getContextualizedPath(),
-            question.createEnumeratorQuestion().getAnswerString());
+            question.createQuestion(EnumeratorQuestion.class).getAnswerString());
       case DATE:
-        DateQuestion dateQuestion = question.createDateQuestion();
+        DateQuestion dateQuestion = question.createQuestion(DateQuestion.class);
         return ImmutableMap.of(dateQuestion.getDatePath(), dateQuestion.getAnswerString());
       default:
         return question.getContextualizedScalars().keySet().stream()

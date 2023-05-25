@@ -84,7 +84,7 @@ public class AddressQuestionTest {
         "WA",
         "98101");
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
@@ -112,7 +112,7 @@ public class AddressQuestionTest {
         1000L,
         "Seattle_InArea_1234");
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(addressQuestion.getStreetValue().get()).isEqualTo("PO Box 123");
@@ -137,7 +137,7 @@ public class AddressQuestionTest {
         new ApplicantQuestion(noPoBoxAddressQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerAddressQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "", "", "", "", "");
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     assertThat(addressQuestion.getValidationErrors())
         .isEqualTo(
@@ -173,7 +173,7 @@ public class AddressQuestionTest {
         "WA",
         zipValue);
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     assertThat(addressQuestion.getValidationErrors())
         .isEqualTo(
@@ -197,7 +197,7 @@ public class AddressQuestionTest {
         "WA",
         "98107");
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     assertThat(addressQuestion.getValidationErrors().isEmpty()).isTrue();
   }
@@ -227,7 +227,7 @@ public class AddressQuestionTest {
         "WA",
         "98107");
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors =
         addressQuestion.getValidationErrors();
@@ -258,7 +258,7 @@ public class AddressQuestionTest {
         stateValue,
         zipValue);
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     assertThat(addressQuestion.getAnswerString()).isEqualTo(expected);
   }
@@ -293,7 +293,7 @@ public class AddressQuestionTest {
         1000L,
         "Seattle_InArea_1234");
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     ImmutableMap<String, String> formData =
         new ImmutableMap.Builder<String, String>()
@@ -325,7 +325,7 @@ public class AddressQuestionTest {
         1000L,
         "Seattle_InArea_1234");
 
-    AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
+    AddressQuestion addressQuestion = applicantQuestion.createQuestion(AddressQuestion.class);
 
     ImmutableMap<String, String> formData =
         new ImmutableMap.Builder<String, String>()

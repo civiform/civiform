@@ -74,7 +74,7 @@ public class CurrencyQuestionTest {
     QuestionAnswerer.answerCurrencyQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), dollars);
 
-    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
+    CurrencyQuestion currencyQuestion = applicantQuestion.createQuestion(CurrencyQuestion.class);
 
     assertThat(currencyQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(currencyQuestion.getCurrencyValue().isPresent()).isTrue();
@@ -91,7 +91,7 @@ public class CurrencyQuestionTest {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(currencyQuestionDefinition, applicantData, Optional.empty());
 
-    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
+    CurrencyQuestion currencyQuestion = applicantQuestion.createQuestion(CurrencyQuestion.class);
 
     assertThat(currencyQuestion.getValidationErrors())
         .isEqualTo(
