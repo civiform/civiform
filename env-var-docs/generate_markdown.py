@@ -22,7 +22,7 @@ import sys
 import typing
 
 
-def errorexit(msg):
+def error_exit(msg):
     """Logs a message and exits"""
     sys.stderr.write(msg + "\n")
     exit(1)
@@ -45,12 +45,12 @@ def make_config() -> Config:
     Exits if any there are any validation errors.
     """
     if "ENV_VAR_DOCS_PATH" not in os.environ:
-        errorexit(
+        error_exit(
             "ENV_VAR_DOCS_PATH must be present in the environment variables")
 
     docs = os.environ["ENV_VAR_DOCS_PATH"]
     if not os.path.isfile(docs):
-        errorexit(f"'{docs}' does not point to a file")
+        error_exit(f"'{docs}' does not point to a file")
 
     local = (os.environ.get("LOCAL_OUTPUT", "false") == "true")
     if local:
@@ -62,11 +62,11 @@ def make_config() -> Config:
             repo = os.environ["TARGET_REPO"]
             path = os.environ["TARGET_PATH"]
             if path[0:1] == "/":
-                errorexit(
+                error_exit(
                     "f{path} must be a relative path starting from the repository root."
                 )
         except KeyError as e:
-            errorexit(
+            error_exit(
                 f"Either LOCAL_OUTPUT=true must be set or {e.args[0]} must be present in the environment variables"
             )
 
@@ -80,7 +80,7 @@ def main():
         if len(parse_errors) != 0:
             msg = f"{config.docs_path} is invalid:\n"
             msg += env_var_docs.errors_formatter.format(parse_errors)
-            errorexit(msg)
+            error_exit(msg)
 
     if config.local_output:
         print(markdown)
@@ -94,7 +94,7 @@ def main():
     try:
         file = repo.get_contents(path)
         if isinstance(file, list):
-            errorexit(f"{path} returns multiple files in the repo, aborting")
+            error_exit(f"{path} returns multiple files in the repo, aborting")
 
         if file.decoded_content.decode() == markdown:
             print(f"{path} already exists and does not need to be updated.")

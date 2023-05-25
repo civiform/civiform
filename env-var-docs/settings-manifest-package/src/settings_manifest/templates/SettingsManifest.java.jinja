@@ -1,0 +1,13 @@
+package services.settings;
+
+import com.google.auto.value.AutoValue;
+
+public final class SettingsManifest extends AbstractSettingsManifest {
+  {{ honk }}
+
+  {{for group in groups}}:
+  new SettingsGroup({{group.name}}, [
+
+  ])
+
+}
