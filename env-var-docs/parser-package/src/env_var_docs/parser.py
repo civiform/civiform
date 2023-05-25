@@ -368,6 +368,7 @@ def _try_parse_variable(
         assert description is not None
         assert type is not None
         assert required is not None
+        assert mode is not None
         return Variable(
             description, type, required, values, regex, regex_tests, mode), []
 
