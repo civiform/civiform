@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1
-# For production images, use the adoptium.net official JRE & JDK docker images.
-FROM --platform=$BUILDPLATFORM eclipse-temurin:11.0.19_7-jdk-jammy AS stage1
+FROM alpine:3.18.0 AS stage1
 
 ENV SBT_VERSION "${SBT_VERSION:-1.8.2}"
 ENV INSTALL_DIR /usr/local
@@ -8,16 +7,14 @@ ENV SBT_HOME /usr/local/sbt
 ENV PATH "${PATH}:${SBT_HOME}/bin"
 ENV SBT_URL "https://github.com/sbt/sbt/releases/download/v$SBT_VERSION/sbt-$SBT_VERSION.tgz"
 
-RUN apt update && \
-    apt upgrade -y && \
-    apt install -y bash wget curl git openssh-server unzip && \
+RUN set -o pipefail && \
+    apk update && \
+    apk add --upgrade apk-tools && \
+    apk upgrade --available && \
+    apk add --no-cache --update bash wget npm git openssh openjdk11 && \
     mkdir -p "$SBT_HOME" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt $SBT_VERSION\n" >> /root/.built
-
-RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - && \
-    apt install -y nodejs
-
 
 ENV PROJECT_HOME /usr/src
 ENV PROJECT_NAME server
@@ -25,6 +22,7 @@ ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
+    npm install -g npm@8.5.1 && \
     npm install && \
     sbt update && \
     sbt dist && \
@@ -33,13 +31,14 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM eclipse-temurin:11.0.19_7-jre-jammy AS stage2
+FROM alpine:3.18.0 AS stage2
 
 # Upgrade packages for stage2 to include latest versions.
-RUN apt update && \
-    apt upgrade -y && \
-    apt install -y bash openssh-server && \
-    rm -rf /var/lib/apt/lists/*
+RUN set -o pipefail && \
+    apk update && \
+    apk add --upgrade apk-tools && \
+    apk upgrade --available && \
+    apk add --no-cache --update bash openssh openjdk11-jre
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag

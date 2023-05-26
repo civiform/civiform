@@ -1,16 +1,12 @@
 # syntax=docker/dockerfile:1
 
-FROM eclipse-temurin:11.0.19_7-jdk-jammy
+FROM alpine:3.18.0
 
 ENV JAVA_FORMATTER_URL "https://github.com/google/google-java-format/releases/download/google-java-format-1.9/google-java-format-1.9-all-deps.jar"
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar
 
-RUN apt update && apt install -y \
-  openjdk-11-jdk bash curl wget shfmt git python3-pip
-
-# Install nodejs
-RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-RUN apt install -y nodejs
+RUN apk update && apk add --no-cache --update \
+  openjdk11 bash wget npm shfmt git py3-pip
 
 # Install python formatter
 RUN pip install yapf

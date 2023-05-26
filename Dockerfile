@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM eclipse-temurin:11.0.19_7-jdk-jammy
+FROM alpine:3.18.0
 
 ENV SBT_VERSION "${SBT_VERSION:-1.8.2}"
 ENV INSTALL_DIR /usr/local
@@ -18,20 +18,18 @@ ENV PROJECT_LOC "${PROJECT_HOME}/${PROJECT_NAME}"
 ########################################################
 
 # Update and add system dependancies
-
-RUN apt update && \
-  apt upgrade -y && \
-  apt install -y openjdk-11-jdk bash curl wget git openssh-server ncurses-bin
-
-# Install nodejs
-RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
-RUN apt install -y nodejs
+RUN set -o pipefail && \
+  apk update && \
+  apk add --upgrade apk-tools && \
+  apk upgrade --available && \
+  apk add --no-cache --update openjdk11 bash wget npm git openssh ncurses
 
 # Install npm (node)
-#RUN npm install -g npm@8.5.1
+RUN npm install -g npm@8.5.1
 
 # Download sbt
-RUN mkdir -p "${SBT_HOME}" && \
+RUN set -o pipefail && \
+  mkdir -p "${SBT_HOME}" && \
   wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
   echo -ne "- with sbt ${SBT_VERSION}\n" >> /root/.built
 
