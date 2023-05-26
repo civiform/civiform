@@ -2,12 +2,21 @@ package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableList;
+import javax.inject.Inject;
 
 public final class SettingsManifest extends AbstractSettingsManifest {
 
   private final ImmutableMap<String, SettingsSection> settingsSections;
 
+  @Inject
+  public SettingsManifest() {
+    this.settingsSections = GENERATED_SECTIONS;
+  }
+
+  @VisibleForTesting
   public SettingsManifest(ImmutableMap<String, SettingsSection> settingsSections) {
     this.settingsSections = checkNotNull(settingsSections);
   }
@@ -16,4 +25,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   public ImmutableMap<String, SettingsSection> getSections() {
     return settingsSections;
   }
+
+  private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
+    {{sections}};
 }

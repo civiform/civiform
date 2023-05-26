@@ -6,7 +6,11 @@ import com.google.common.collect.ImmutableList;
 @AutoValue
 public abstract class SettingsSection {
 
-  public static SettingsSection create(String sectionName, String sectionDescription, ImmutableList<SettingsSection> subsections, ImmutableList<SettingDescription> settings) {
+  public static SettingsSection create(
+      String sectionName,
+      String sectionDescription,
+      ImmutableList<SettingsSection> subsections,
+      ImmutableList<SettingDescription> settings) {
     return new AutoValue_SettingsSection(sectionName, sectionDescription, subsections, settings);
   }
 
