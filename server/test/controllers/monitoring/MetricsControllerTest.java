@@ -31,7 +31,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
   public void getMetrics_returnsMetricData() {
     Config config =
         ConfigFactory.parseMap(
-            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "true").build());
+            ImmutableMap.<String, String>builder()
+                .put("civiform_server_metrics_enabled", "true")
+                .build());
     MetricsController controllerWithMetricsEnabled = new MetricsController(config);
 
     ProgramDefinition programDefinition =
@@ -63,7 +65,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
   public void getMetrics_returns404WhenMetricsNotEnabled() {
     Config config =
         ConfigFactory.parseMap(
-            ImmutableMap.<String, String>builder().put("server_metrics.enabled", "false").build());
+            ImmutableMap.<String, String>builder()
+                .put("civiform_server_metrics_enabled", "false")
+                .build());
     MetricsController controllerWithoutMetricsEnabled = new MetricsController(config);
     assertThat(controllerWithoutMetricsEnabled.getMetrics().status()).isEqualTo(404);
   }

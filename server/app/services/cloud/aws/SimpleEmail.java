@@ -60,7 +60,7 @@ public final class SimpleEmail {
   public SimpleEmail(
       AwsRegion region, Config config, Environment environment, ApplicationLifecycle appLifecycle) {
     this.sender = checkNotNull(config).getString(AWS_SES_SENDER_CONF_PATH);
-    this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
+    this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
 
     if (environment.isDev()) {
       client = new LocalStackClient(region, config);

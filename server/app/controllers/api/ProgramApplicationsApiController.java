@@ -54,7 +54,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);
     this.programService = checkNotNull(programService);
-    this.maxPageSize = checkNotNull(config).getInt("api_applications_list_max_page_size");
+    this.maxPageSize = checkNotNull(config).getInt("civiform_api_applications_list_max_page_size");
   }
 
   public CompletionStage<Result> list(

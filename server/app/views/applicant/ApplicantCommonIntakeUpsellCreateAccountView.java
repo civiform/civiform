@@ -11,6 +11,7 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
+import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -35,12 +36,16 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
 
   private final ApplicantLayout layout;
   private final Config configuration;
+  private final String authProviderName;
 
   @Inject
   public ApplicantCommonIntakeUpsellCreateAccountView(
-      ApplicantLayout layout, Config configuration) {
+      ApplicantLayout layout,
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
+      Config configuration) {
     this.layout = checkNotNull(layout);
     this.configuration = checkNotNull(configuration);
+    this.authProviderName = checkNotNull(authProviderName);
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
@@ -103,7 +108,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
-            configuration.getString("auth.applicant_auth_provider_name"),
+            authProviderName,
             actionButtonsBuilder.build());
     return layout.renderWithNav(
         request,

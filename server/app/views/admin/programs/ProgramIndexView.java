@@ -71,7 +71,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.civicEntityShortName = config.getString("whitelabel.civic_entity_short_name");
+    this.civicEntityShortName = config.getString("whitelabel_civic_entity_short_name");
     this.featureFlags = checkNotNull(featureFlags);
   }
 

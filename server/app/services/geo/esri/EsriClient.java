@@ -54,7 +54,9 @@ public abstract class EsriClient {
     this.clock = checkNotNull(clock);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.metricsEnabled =
-        maybeConfig.isPresent() ? maybeConfig.get().getBoolean("server_metrics.enabled") : false;
+        maybeConfig.isPresent()
+            ? maybeConfig.get().getBoolean("civiform_server_metrics_enabled")
+            : false;
   }
 
   /**
