@@ -110,50 +110,60 @@ my_var_6 = ${?MY_VAR_6}"""
 
     def test_no_vars(self):
         got = vars_from_application_conf(self.temp_path("no_vars"))
-        self.assertSetEqual(got, set())
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, set())
 
     def test_vars_1(self):
         got = vars_from_application_conf(self.temp_path("vars_1"))
-        self.assertSetEqual(got, self.vars_1_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set)
 
     def test_vars_2(self):
         got = vars_from_application_conf(self.temp_path("vars_2"))
-        self.assertSetEqual(got, self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_2_set)
 
     def test_blank_imports_no_vars(self):
         got = vars_from_application_conf(
             self.temp_path("blank_imports_no_vars"))
-        self.assertSetEqual(got, set())
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, set())
 
     def test_blank_imports_vars_1(self):
         got = vars_from_application_conf(self.temp_path("blank_imports_vars_1"))
-        self.assertSetEqual(got, self.vars_1_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set)
 
     def test_vars_1_imports_no_vars(self):
         got = vars_from_application_conf(
             self.temp_path("vars_1_imports_no_vars"))
-        self.assertSetEqual(got, self.vars_1_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set)
 
     def test_vars_1_imports_vars_2(self):
         got = vars_from_application_conf(
             self.temp_path("vars_1_imports_vars_2"))
-        self.assertSetEqual(got, self.vars_1_set | self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set | self.vars_2_set)
 
     def test_vars_2_imports_vars_1(self):
         got = vars_from_application_conf(
             self.temp_path("vars_2_imports_vars_1"))
-        self.assertSetEqual(got, self.vars_1_set | self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set | self.vars_2_set)
 
     def test_blank_imports_vars_1_and_vars_2(self):
         got = vars_from_application_conf(
             self.temp_path("blank_imports_vars_1_and_vars_2"))
-        self.assertSetEqual(got, self.vars_1_set | self.vars_2_set)
+        result_set = set(got.keys())
+        self.assertSetEqual(result_set, self.vars_1_set | self.vars_2_set)
 
     def test_vars_3_imports_vars_1_and_vars_2(self):
         got = vars_from_application_conf(
             self.temp_path("vars_3_imports_vars_1_and_vars_2"))
+        result_set = set(got.keys())
         self.assertSetEqual(
-            got, self.vars_1_set | self.vars_2_set | self.vars_3_set)
+            result_set, self.vars_1_set | self.vars_2_set | self.vars_3_set)
 
 
 class TestVarsFromDocs(unittest.TestCase):
@@ -181,13 +191,13 @@ class TestVarsFromDocs(unittest.TestCase):
         with io.StringIO("{}") as f:
             got, gotErrors = vars_from_docs(f)
             self.assertEqual(gotErrors, [])
-            self.assertSetEqual(got, set())
+            self.assertSetEqual(set(got.values()), set())
 
     def test_some_vars(self):
         with io.StringIO(self.env_var_docs) as f:
             got, gotErrors = vars_from_docs(f)
             self.assertEqual(gotErrors, [])
-            self.assertSetEqual(got, set(["MY_VAR", "MY_OTHER_VAR"]))
+            self.assertSetEqual(set(got.keys()), set(["MY_VAR", "MY_OTHER_VAR"]))
 
 
 class TestMain(unittest.TestCase):

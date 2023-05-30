@@ -81,8 +81,8 @@ def main():
                 errors = True
                 msg += f"\nAdmin-accessible vars must have a HOCON name matching the lower case env var name:\n\tVar name:   {server_var.name}\n\tHOCON name: {server_var.hocon_name}\n\tFile:       {server_var.file_path}\n"
 
-    documented_var_names = {name for name, var in documented_vars.items()}
-    server_var_names = {var.name for var in server_vars.values()}
+    documented_var_names = set(documented_vars.keys())
+    server_var_names = set([var.name for var in server_vars.values()])
     undocumented = server_var_names - documented_var_names
     overdocumented = documented_var_names - server_var_names
 
@@ -97,7 +97,7 @@ def main():
 
 
 def vars_from_application_conf(
-        app_conf_path: str) -> tuple[dict[str, ServerVar] | None, list[str]]:
+        app_conf_path: str) -> dict[str, ServerVar]:
     """Parses an application.conf file and returns the set of referenced environment variables.
 
     If the application.conf file includes other conf files, those files will
