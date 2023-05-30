@@ -150,15 +150,6 @@ def vars_from_application_conf(app_conf_path: str) -> dict[str, ServerVar]:
     return vars
 
 
-def _validate_variable_assignment(path: str, line: str, var: str) -> list[str]:
-    if line.startswith(f"{var.lower()} ="):
-        return []
-
-    return [
-        f"Variable {var} in {path} does not have matching config name.\nConfig name must match lower case env var name:\n\t{line}"
-    ]
-
-
 def vars_from_docs(
     docs_file: typing.TextIO
 ) -> tuple[dict[str, env_var_docs.parser.Variable] | None,
