@@ -197,7 +197,8 @@ class TestVarsFromDocs(unittest.TestCase):
         with io.StringIO(self.env_var_docs) as f:
             got, gotErrors = vars_from_docs(f)
             self.assertEqual(gotErrors, [])
-            self.assertSetEqual(set(got.keys()), set(["MY_VAR", "MY_OTHER_VAR"]))
+            self.assertSetEqual(
+                set(got.keys()), set(["MY_VAR", "MY_OTHER_VAR"]))
 
 
 class TestMain(unittest.TestCase):

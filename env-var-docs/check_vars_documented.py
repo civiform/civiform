@@ -96,8 +96,7 @@ def main():
         errorexit(msg)
 
 
-def vars_from_application_conf(
-        app_conf_path: str) -> dict[str, ServerVar]:
+def vars_from_application_conf(app_conf_path: str) -> dict[str, ServerVar]:
     """Parses an application.conf file and returns the set of referenced environment variables.
 
     If the application.conf file includes other conf files, those files will
