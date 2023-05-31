@@ -58,12 +58,12 @@ public class QuestionServiceTest extends ResetPostgres {
     assertThat(errorAndResult.isError()).isTrue();
     assertThat(errorAndResult.getErrors())
         .containsOnly(
+            CiviFormError.of("Administrative identifier can only contain letters and spaces"),
             CiviFormError.of(
                 String.format(
-                    "Question '%s' with Enumerator ID %d conflicts with question id: %d",
-                    questionDefinition.getQuestionPathSegment(),
-                    householdMemberName.getEnumeratorId().get(),
-                    householdMemberName.getId())));
+                    "Administrative identifier '%s' with Enumerator ID %d conflicts with an"
+                        + " existing question",
+                    questionDefinition.getName(), householdMemberName.getEnumeratorId().get())));
   }
 
   @Test

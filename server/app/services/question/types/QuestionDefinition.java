@@ -237,6 +237,13 @@ public abstract class QuestionDefinition {
     if (name.isBlank()) {
       errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
     }
+    // Check if any characters were stripped out, which only happens if they are not alphabetic or
+    // spaces.
+    System.out.println(name);
+    System.out.println(getQuestionPathSegment());
+    if (!name.matches("^[a-zA-Z ]*$")) {
+      errors.add(CiviFormError.of("Administrative identifier can only contain letters and spaces"));
+    }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
           (EnumeratorQuestionDefinition) this;

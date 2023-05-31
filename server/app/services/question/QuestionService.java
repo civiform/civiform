@@ -53,6 +53,8 @@ public final class QuestionService {
    * <p>NOTE: This does not update the version.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
+    System.out.println(questionDefinition.getName());
+    System.out.println(questionDefinition.getQuestionPathSegment());
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
     ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
     ImmutableSet<CiviFormError> errors =
@@ -302,20 +304,18 @@ public final class QuestionService {
     Optional<Question> maybeConflict =
         questionRepository.findConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
-      Question conflict = maybeConflict.get();
       String errorMessage;
       if (questionDefinition.getEnumeratorId().isEmpty()) {
         errorMessage =
             String.format(
-                "Question '%s' conflicts with question id: %s",
-                questionDefinition.getQuestionPathSegment(), conflict.id);
+                "Administrative identifier '%s' conflicts with an existing question",
+                questionDefinition.getName());
       } else {
         errorMessage =
             String.format(
-                "Question '%s' with Enumerator ID %d conflicts with question id: %d",
-                questionDefinition.getQuestionPathSegment(),
-                questionDefinition.getEnumeratorId().get(),
-                conflict.id);
+                "Administrative identifier '%s' with Enumerator ID %d conflicts with an existing"
+                    + " question",
+                questionDefinition.getName(), questionDefinition.getEnumeratorId().get());
       }
       return ImmutableSet.of(CiviFormError.of(errorMessage));
     }
