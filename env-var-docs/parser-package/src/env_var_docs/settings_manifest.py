@@ -3,6 +3,7 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
 import env_var_docs.errors_formatter
 import typing
+import string
 import os
 import sys
 from io import StringIO
@@ -122,10 +123,53 @@ def _escape_double_quotes(string: str) -> str:
     return string.replace('"', '\\"')
 
 
+class GetterMethodSpec:
+    name: str
+    variable: Variable
+
+    def __init__(self, name: str, variable: Variable):
+        self.name = name
+        self.variable = variable
+
+    def method_name(self):
+        return string.capwords(self.name, "_").replace("_", "")
+
+    def variable_name(self):
+        return self.name
+
+    def doc(self):
+        return self.variable.description
+
+    def internal_getter(self):
+        # yapf cannot handle match/case statements so we use if/else instead
+        # https://github.com/google/yapf/issues/1045
+        if self.variable.type == "string":
+            return "getString"
+        elif self.variable.type == "bool":
+            return "getBool"
+        elif self.variable.type == "int":
+            return "getInt"
+        elif self.variable.type == "index-list":
+            return "getListOfStrings"
+
+    def return_type(self):
+        # yapf cannot handle match/case statements so we use if/else instead
+        # https://github.com/google/yapf/issues/1045
+        if self.variable.type == "string":
+            return "String"
+        elif self.variable.type == "bool":
+            return "boolean"
+        elif self.variable.type == "int":
+            return "int"
+        elif self.variable.type == "index-list":
+            return "ImmutableList<String>"
+
+
 def generate_manifest(
         docs_file: typing.TextIO) -> tuple[str | None, list[NodeParseError]]:
     root_group = ParsedGroup("ROOT", "ROOT")
     docs: dict[str, ParsedGroup | Variable] = {"file": root_group}
+    getter_method_specs: list[GetterMethodSpec] = []
 
     def visitor(node: Node):
         nonlocal docs
@@ -137,6 +181,8 @@ def generate_manifest(
             docs[node.json_path + "." + node.name] = group
         else:
             parent = typing.cast(ParsedGroup, docs[node.json_path])
+            getter_method_specs.append(
+                GetterMethodSpec(node.name, node.details))
             parent.variables[node.name] = node.details
 
     errors = visit(docs_file, visitor)
@@ -152,7 +198,8 @@ def generate_manifest(
 
     template = env.get_template("SettingsManifest.java.jinja")
 
-    return template.render(sections=sections), []
+    return template.render(
+        sections=sections, getter_method_specs=getter_method_specs), []
 
 
 if __name__ == "__main__":

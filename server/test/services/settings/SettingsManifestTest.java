@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.junit.Test;
 
 public class SettingsManifestTest {
 
+  Config config = ConfigFactory.parseMap(ImmutableMap.of());
   private ImmutableMap<String, SettingsSection> sections =
       ImmutableMap.of(
           "TEST_SECTION",
@@ -27,7 +30,7 @@ public class SettingsManifestTest {
               ImmutableList.of(
                   SettingDescription.create(
                       "String variable", "Fake string variable for testing", SettingType.STRING))));
-  private SettingsManifest testManifest = new SettingsManifest(sections);
+  private SettingsManifest testManifest = new SettingsManifest(sections, config);
 
   @Test
   public void gettingSections() {

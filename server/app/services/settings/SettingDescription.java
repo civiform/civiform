@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+/** A server setting. Settings are defined in server/conf/env_var_docs.json */
 @AutoValue
 public abstract class SettingDescription {
 
@@ -44,15 +45,20 @@ public abstract class SettingDescription {
         /* validationRegex= */ Optional.of(validationRegex));
   }
 
+  /** Variable name of the setting. Will always be in SCREAMING_SNAKE_CASE. */
   public abstract String variableName();
 
-  public abstract String variableDescription();
+  /** A sentence or two describing the setting. */
+  public abstract String settingDescription();
 
+  /** The type of this setting. */
   public abstract SettingType settingType();
 
-  // Present if variable is an ENUM
+  // Present if variable is an ENUM. Defines the list of values this setting
+  // may have.
   public abstract Optional<ImmutableList<String>> allowableValues();
 
-  // Present if variable is a STRING and has a validation regex
+  // Present if variable is a STRING and has a validation regex. If present
+  // the value of this setting must match the regex.
   public abstract Optional<Pattern> validationRegex();
 }

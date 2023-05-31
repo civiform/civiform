@@ -1,0 +1,10 @@
+#! /usr/bin/env bash
+
+# DOC: Generates the SettingsManifest.java file based on the contents of env_var_docs.json
+
+source bin/lib.sh
+
+ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json \
+  python3 env-var-docs/parser-package/src/env_var_docs/settings_manifest.py
+
+echo "Wrote server/app/services/settings/SettingsManifest.java"
