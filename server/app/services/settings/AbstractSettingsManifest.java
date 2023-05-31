@@ -6,13 +6,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.util.Locale;
-import javax.inject.Inject;
 
+/** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
 
   private final Config config;
 
-  @Inject
   public AbstractSettingsManifest(Config config) {
     this.config = checkNotNull(config);
   }
