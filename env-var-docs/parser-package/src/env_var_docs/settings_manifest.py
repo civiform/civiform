@@ -99,20 +99,24 @@ def render_variable(name: str, variable: Variable) -> str:
     setting_type = _get_java_setting_type(variable)
     return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type})'
 
+
 def _get_java_setting_type(variable: Variable) -> str:
-    match variable.type:
-        case "string":
-            if variable.values:
-                return "ENUM"
-            else:
-                return "STRING"
-        case "bool":
-            return "BOOLEAN"
-        case "int":
-            return "INT"
-        case "index-list":
-            return "LIST_OF_STRINGS"
-    raise ValueError(f"Unrecognized variable type: {variable.type}")
+    # yapf cannot handle match/case statements so we use if/else instead
+    # https://github.com/google/yapf/issues/1045
+    if variable.type == "string":
+        if variable.values:
+            return "ENUM"
+        else:
+            return "STRING"
+    elif variable.type == "bool":
+        return "BOOLEAN"
+    elif variable.type == "int":
+        return "INT"
+    elif variable.type == "index-list":
+        return "LIST_OF_STRINGS"
+    else:
+        raise ValueError(f"Unrecognized variable type: {variable.type}")
+
 
 def _escape_double_quotes(string: str) -> str:
     return string.replace('"', '\\"')
