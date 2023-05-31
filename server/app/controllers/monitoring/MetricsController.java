@@ -42,7 +42,7 @@ public final class MetricsController extends CiviFormController {
   @Inject
   public MetricsController(Config config) {
     this.collectorRegistry = checkNotNull(CollectorRegistry.defaultRegistry);
-    this.metricsEnabled = checkNotNull(config).getBoolean("server_metrics.enabled");
+    this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
     this.database = DB.getDefault();
   }
 

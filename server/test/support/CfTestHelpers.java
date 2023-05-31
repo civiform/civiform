@@ -34,7 +34,7 @@ public class CfTestHelpers {
 
   public static ImmutableMap<String, Object> oidcConfig(String host, int port) {
     return new ImmutableMap.Builder<String, Object>()
-        .put("auth.applicant_idp", "idcs")
+        .put("civiform_applicant_idp", "idcs")
         .put("idcs.client_id", "idcs-fake-oidc-client")
         .put("idcs.secret", "idcs-fake-oidc-secret")
         .put(

@@ -18,6 +18,7 @@ import static j2html.TagCreator.text;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
+import annotations.BindingAnnotations;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -83,13 +84,14 @@ public final class ProgramIndexView extends BaseHtmlView {
       ZoneId zoneId,
       Config config,
       FeatureFlags featureFlags,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
     this.featureFlags = checkNotNull(featureFlags);
     this.profileUtils = checkNotNull(profileUtils);
     this.civicEntityShortName =
-        checkNotNull(config).getString("whitelabel.civic_entity_short_name");
-    this.authProviderName = config.getString("auth.applicant_auth_provider_name");
+        checkNotNull(config).getString("whitelabel_civic_entity_short_name");
+    this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
   }
 

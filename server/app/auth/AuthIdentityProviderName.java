@@ -14,7 +14,7 @@ public enum AuthIdentityProviderName {
   AUTH0_APPLICANT("auth0"),
   DISABLED_APPLICANT("disabled");
 
-  public static final String AUTH_APPLICANT_CONFIG_PATH = "auth.applicant_idp";
+  public static final String AUTH_APPLICANT_CONFIG_PATH = "civiform_applicant_idp";
 
   private final String authIdentityProviderNameString;
 
@@ -38,7 +38,7 @@ public enum AuthIdentityProviderName {
             .map(AuthIdentityProviderName::getValue)
             .collect(Collectors.joining(", "));
     throw new IllegalArgumentException(
-        "Unsupported auth.applicant_idp value: "
+        "Unsupported civiform_applicant_idp value: "
             + providerName
             + ". Supported values are "
             + supportedOptions);

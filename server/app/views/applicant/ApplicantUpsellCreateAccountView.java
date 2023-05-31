@@ -7,9 +7,9 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
+import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;
@@ -31,9 +31,11 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
   private final String authProviderName;
 
   @Inject
-  public ApplicantUpsellCreateAccountView(ApplicantLayout layout, Config config) {
+  public ApplicantUpsellCreateAccountView(
+      ApplicantLayout layout,
+      @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
-    this.authProviderName = config.getString("auth.applicant_auth_provider_name");
+    this.authProviderName = checkNotNull(authProviderName);
   }
 
   /** Renders a sign-up page with a baked-in redirect. */
