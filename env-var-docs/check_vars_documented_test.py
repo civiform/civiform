@@ -207,14 +207,17 @@ class TestMain(unittest.TestCase):
         os.environ = {}
 
     app_conf = """
-    mykey = ${?MY_VAR}
+    my_var = ${?MY_VAR}
+    """
+    app_conf_with_invalid_hocon_name = """
+    myvar = ${?MY_VAR}
     """
     env_var_docs = """
     {
         "MY_VAR": {
             "description": "A var",
             "type": "string",
-            "mode": "HIDDEN"
+            "mode": "ADMIN_READABLE"
         }
     }
     """
@@ -227,6 +230,25 @@ class TestMain(unittest.TestCase):
         }
     }
     """
+
+    def test_hocon_name_mismatch(self):
+        with tempfile.NamedTemporaryFile(
+                mode='w') as appconf, tempfile.NamedTemporaryFile(
+                    mode='w') as envvar:
+            appconf.write(self.app_conf_with_invalid_hocon_name)
+            appconf.flush()
+            envvar.write(self.env_var_docs)
+            envvar.flush()
+            os.environ["APPLICATION_CONF_PATH"] = appconf.name
+            os.environ["ENV_VAR_DOCS_PATH"] = envvar.name
+
+            stderr = io.StringIO()
+            with self.assertRaises(SystemExit), contextlib.redirect_stderr(
+                    stderr):
+                main()
+            self.assertTrue(
+                "Admin-accessible vars must have a HOCON name matching" in
+                stderr.getvalue())
 
     def test_invalid_env_var_docs_file(self):
         with tempfile.NamedTemporaryFile(

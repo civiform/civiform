@@ -76,10 +76,15 @@ def main():
 
     for name, var in documented_vars.items():
         if var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
-            server_var = server_vars[name]
-            if name.lower() != server_var.hocon_name:
+            try:
+                server_var = server_vars[name]
+                if name.lower() != server_var.hocon_name:
+                    errors = True
+                    msg += f"\nAdmin-accessible vars must have a HOCON name matching the lower case env var name:\n\tVar name:   {server_var.name}\n\tHOCON name: {server_var.hocon_name}\n\tFile:       {server_var.file_path}\n"
+
+            except KeyError:
                 errors = True
-                msg += f"\nAdmin-accessible vars must have a HOCON name matching the lower case env var name:\n\tVar name:   {server_var.name}\n\tHOCON name: {server_var.hocon_name}\n\tFile:       {server_var.file_path}\n"
+                msg += f"\nAdmin-accessible vars must have a HOCON name matching the lower case env var name:\n\tVar name:   {name}"
 
     documented_var_names = set(documented_vars.keys())
     server_var_names = set([var.name for var in server_vars.values()])
