@@ -43,11 +43,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("WHITELABEL_SMALL_LOGO_URL");
   }
 
-  /** Logo with civic entity name used on the applicant-facing program index page. */
-  public String getWhitelabelLogoWithNameUrl() {
-    return getString("WHITELABEL_LOGO_WITH_NAME_URL");
-  }
-
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
   public String getWhitelabelCivicEntityShortName() {
     return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME");
@@ -720,11 +715,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "WHITELABEL_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
-                      SettingType.STRING),
-                  SettingDescription.create(
-                      "WHITELABEL_LOGO_WITH_NAME_URL",
-                      "Logo with civic entity name used on the applicant-facing program index"
-                          + " page.",
                       SettingType.STRING),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",

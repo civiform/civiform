@@ -1,15 +1,17 @@
-"""Generates a settings manifest in Java for use in the CiviForm server based
+"""Code generation for server/app/services/settings/SettingsManifest.java
+
+Generates a settings manifest in Java for use in the CiviForm server based
 on the contents of env_var_docs.json
 """
 
-import dataclasses
-from jinja2 import Environment, PackageLoader, select_autoescape
-from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
-import env_var_docs.errors_formatter
 import typing
 import string
 import os
 import sys
+import dataclasses
+import env_var_docs.errors_formatter
+from jinja2 import Environment, PackageLoader, select_autoescape
+from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
 from io import StringIO
 
 
@@ -52,9 +54,8 @@ def main():
     with open(config.docs_path) as docs_file:
         manifest, parse_errors = generate_manifest(docs_file)
 
-        if len(parse_errors) != 0:
-            msg = f"{config.docs_path} is invalid:\n"
-            msg += env_var_docs.errors_formatter.format(parse_errors)
+        if parse_errors:
+            msg = f"{config.docs_path} is invalid:\n{env_var_docs.errors_formatter.format(parse_errors)}"
             error_exit(msg)
 
     if config.local_output:
@@ -76,7 +77,7 @@ def render_sections(root_group: ParsedGroup) -> str:
             f'"{group.group_name}", {render_group(group)}'
             for group in root_group.sub_groups
         ])
-    if groups != "":
+    if groups:
         out.write(groups)
 
     if root_group.variables:
@@ -182,7 +183,7 @@ def generate_manifest(
             group = ParsedGroup(node.name, node.details.group_description)
             parent = typing.cast(ParsedGroup, docs[node.json_path])
             parent.sub_groups.append(group)
-            docs[node.json_path + "." + node.name] = group
+            docs[f'{node.json_path}.{node.name}'] = group
         else:
             parent = typing.cast(ParsedGroup, docs[node.json_path])
             getter_method_specs.append(
@@ -191,7 +192,7 @@ def generate_manifest(
 
     errors = visit(docs_file, visitor)
 
-    if len(errors) != 0:
+    if errors:
         return None, errors
 
     sections = render_sections(root_group)
