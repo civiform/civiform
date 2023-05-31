@@ -66,7 +66,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
       WSClient ws) {
     super(clock, esriServiceAreaValidationConfig, Optional.of(configuration));
     this.ws = checkNotNull(ws);
-    this.metricsEnabled = checkNotNull(configuration).getBoolean("server_metrics.enabled");
+    this.metricsEnabled = checkNotNull(configuration).getBoolean("civiform_server_metrics_enabled");
     this.ESRI_FIND_ADDRESS_CANDIDATES_URL =
         configuration.hasPath("esri_find_address_candidates_url")
             ? Optional.of(configuration.getString("esri_find_address_candidates_url"))

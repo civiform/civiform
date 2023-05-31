@@ -21,7 +21,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
           "base_url", "http://localhost",
           "staging_hostname", "localhost",
           "civiform_image_tag", "image",
-          "whitelabel.favicon_url", "favicon");
+          "favicon_url", "favicon");
 
   private BaseHtmlLayout layout;
 
