@@ -1,3 +1,7 @@
+"""Generates a settings manifest in Java for use in the CiviForm server based
+on the contents of env_var_docs.json
+"""
+
 import dataclasses
 from jinja2 import Environment, PackageLoader, select_autoescape
 from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
