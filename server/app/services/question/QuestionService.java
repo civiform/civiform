@@ -53,8 +53,6 @@ public final class QuestionService {
    * <p>NOTE: This does not update the version.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
-    System.out.println(questionDefinition.getName());
-    System.out.println(questionDefinition.getQuestionPathSegment());
     ImmutableSet<CiviFormError> validationErrors = questionDefinition.validate();
     ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
     ImmutableSet<CiviFormError> errors =
