@@ -5,20 +5,17 @@
       "WHITELABEL_SMALL_LOGO_URL": {
         "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_READABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
         "mode": "ADMIN_READABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "FAVICON_URL": {
         "mode": "ADMIN_READABLE",
@@ -301,8 +298,7 @@
       "AWS_SES_SENDER": {
         "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
@@ -393,8 +389,7 @@
       "SUPPORT_EMAIL_ADDRESS": {
         "mode": "ADMIN_READABLE",
         "description": "This email address is listed in the footer for applicants to contact support.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "IT_EMAIL_ADDRESS": {
         "mode": "ADMIN_READABLE",
@@ -404,20 +399,17 @@
       "STAGING_ADMIN_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the program administrator's email address.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "STAGING_TI_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the trusted intermediary's email address.",
-        "type": "string",
-        "required": true
+        "type": "string"
       },
       "STAGING_APPLICANT_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the applicant's email address.",
-        "type": "string",
-        "required": true
+        "type": "string"
       }
     }
   },
