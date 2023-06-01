@@ -332,20 +332,6 @@ public class QuestionDefinitionTest {
   }
 
   @Test
-  public void validate_withInvalidCharactersInPath_returnsError() throws Exception {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            "text123",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "question?"),
-            LocalizedStrings.empty());
-    assertThat(question.validate())
-        .containsOnly(
-            CiviFormError.of("Administrative identifier can only contain letters and spaces"));
-  }
-
-  @Test
   public void validate_withEnumerator_withEmptyEntityString_returnsErrors() throws Exception {
     QuestionDefinition question =
         new QuestionDefinitionBuilder()

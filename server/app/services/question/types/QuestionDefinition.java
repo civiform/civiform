@@ -24,10 +24,6 @@ import services.question.QuestionOption;
 /** Superclass for all question types. */
 public abstract class QuestionDefinition {
 
-  private static final String VALID_QUESTION_NAME_CHARS = "a-zA-Z ";
-  private static final String VALID_QUESTION_NAME_REGEX =
-      String.format("^[%s]*$", VALID_QUESTION_NAME_CHARS);
-
   private final OptionalLong id;
   private final String name;
   private final Optional<Long> enumeratorId;
@@ -121,8 +117,7 @@ public abstract class QuestionDefinition {
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
   public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
-    final String CHARS_TO_REMOVE_REGEX = String.format("[^%s]", VALID_QUESTION_NAME_CHARS);
-    String formattedName = name.replaceAll(CHARS_TO_REMOVE_REGEX, "").replaceAll("\\s", "_");
+    String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       return formattedName + Path.ARRAY_SUFFIX;
     }
@@ -242,10 +237,6 @@ public abstract class QuestionDefinition {
     }
     if (name.isBlank()) {
       errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
-    }
-    // Question names should not contain characters we can't handle in question paths.
-    if (!name.matches(VALID_QUESTION_NAME_REGEX)) {
-      errors.add(CiviFormError.of("Administrative identifier can only contain letters and spaces"));
     }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
