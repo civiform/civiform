@@ -23,7 +23,6 @@ import services.question.QuestionOption;
 
 /** Superclass for all question types. */
 public abstract class QuestionDefinition {
-
   private final OptionalLong id;
   private final String name;
   private final Optional<Long> enumeratorId;

@@ -302,6 +302,7 @@ public final class QuestionService {
     Optional<Question> maybeConflict =
         questionRepository.findConflictingQuestion(questionDefinition);
     if (maybeConflict.isPresent()) {
+      Question conflict = maybeConflict.get();
       String errorMessage;
       if (questionDefinition.getEnumeratorId().isEmpty()) {
         errorMessage =
@@ -310,7 +311,7 @@ public final class QuestionService {
                     + " the existing question with admin ID '%s'",
                 questionDefinition.getName(),
                 questionDefinition.getQuestionPathSegment(),
-                maybeConflict.get().getQuestionDefinition().getName());
+                conflict.getQuestionDefinition().getName());
       } else {
         errorMessage =
             String.format(
@@ -319,7 +320,7 @@ public final class QuestionService {
                 questionDefinition.getName(),
                 questionDefinition.getEnumeratorId().get(),
                 questionDefinition.getQuestionPathSegment(),
-                maybeConflict.get().getQuestionDefinition().getName());
+                conflict.getQuestionDefinition().getName());
       }
       return ImmutableSet.of(CiviFormError.of(errorMessage));
     }
