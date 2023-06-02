@@ -9,6 +9,7 @@ import io.ebean.DB;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
