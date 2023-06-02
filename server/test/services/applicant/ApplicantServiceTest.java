@@ -2219,7 +2219,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     HashSet<Long> tiAcls = new HashSet<>();
-    tiAcls.add(tiProfile.getAccount().join().id);
+    tiAcls.add(tiProfile.getAccount().join().getMemberOfGroup().get().id);
     // Create a new program version.
     Program updatedProgramForDraftApp =
         ProgramBuilder.newDraftProgram("program_for_draft")
@@ -2264,7 +2264,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // As part of test setup, a "test program" is initialized.
     // When calling publish, this will become active. This provides
     // confidence that the draft version created above is actually published.
-    // Additionally, this ensures the applicant can not see the TI-only programs.
+    // Additionally, this ensures the applicant can not see the SELECT_TI programs.
     assertThat(applicantResult.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
 

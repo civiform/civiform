@@ -102,6 +102,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(program.getBlockDefinitionByIndex(0)).isEmpty();
