@@ -892,7 +892,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void getProgramDefinitionAsync_getsRequestedProgram() {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
         ps.getActiveProgramDefinitionAsync(programDefinition.id());
@@ -902,8 +902,21 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
+  public void getProgramDefinitionAsync_doesNotGetDraftProgram() {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveProgramDefinitionAsync(programDefinition.id());
+
+    assertThatThrownBy(() -> found.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
         ps.getActiveProgramDefinitionAsync(programDefinition.id() + 1);
