@@ -164,7 +164,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     assertThatThrownBy(() -> repo.getActiveProgram(program.id).toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
-        .hasCauseInstanceOf(ProgramNotFoundException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID");
   }
 
