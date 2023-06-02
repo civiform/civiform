@@ -128,6 +128,41 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_returnsNewProgramWithAcls() {
+    RequestBuilder requestBuilder =
+        addCSRFToken(
+            Helpers.fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "adminName",
+                        "internal-program-with-acls",
+                        "adminDescription",
+                        "Internal program description with acls",
+                        "localizedDisplayName",
+                        "External program name with acls",
+                        "localizedDisplayDescription",
+                        "External program description with acls",
+                        "externalLink",
+                        "https://external.program.link",
+                        "displayMode",
+                        DisplayMode.SELECT_TI.getValue(),
+                        "tiGroups[]",
+                        "1")));
+
+    Result result = controller.create(requestBuilder.build());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    long programId =
+        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+
+    assertThat(result.redirectLocation())
+        .hasValue(routes.AdminProgramBlocksController.index(programId).url());
+    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    assertThat(contentAsString(redirectResult)).contains("External program name with acls");
+    assertThat(contentAsString(redirectResult)).contains("External program description with acls");
+  }
+
+  @Test
   public void create_includesNewAndExistingProgramsInList()
       throws ExecutionException, InterruptedException {
     ProgramBuilder.newActiveProgram("Existing One").build();
@@ -294,7 +329,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                         "isCommonIntakeForm",
                         "true",
                         "confirmedChangeCommonIntakeForm",
-                        "true")));
+                        "true",
+                        "tiGroups[]",
+                        "1")));
 
     Result result = controller.create(requestBuilder.build());
 

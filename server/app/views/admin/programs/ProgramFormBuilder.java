@@ -231,12 +231,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .with(
                 input()
                     .withType("checkbox")
-                    /**
-                     * For multi-select, we must append {@code []} to the field name so that the
-                     * Play framework allows multiple form keys with the same value. For more
-                     * information, see
-                     * https://www.playframework.com/documentation/2.8.x/JavaFormHelpers#Handling-repeated-values
-                     */
                     .withName("tiGroups" + Path.ARRAY_SUFFIX)
                     .withValue("")
                     .withCondChecked(true)

@@ -2185,19 +2185,10 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void relevantProgramsForApplicant_SELECT_TI_Mode() {
+  public void relevantProgramsForApplicant_In_SelectTi_Mode() {
     Applicant applicant = createTestApplicant();
-    // Applicant ti = resourceCreator.insertApplicant();
-    // Account tiAccount = resourceCreator.insertAccount();
     CiviFormProfile tiProfile =
         profileFactory.wrapProfileData(profileFactory.createFakeTrustedIntermediary());
-    //    TrustedIntermediaryGroup tiGroup =
-    //      new TrustedIntermediaryGroup("CBO1", "Description");
-    //    tiGroup.save();
-    //    tiAccount.setMemberOfGroup(tiGroup);
-    //    tiAccount.save();
-    //    ti.setAccount(tiAccount);
-    //    ti.save();
 
     // Create a submitted application based on the original version of a program.
     Program originalProgramForDraftApp =
