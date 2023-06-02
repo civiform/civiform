@@ -1,5 +1,8 @@
 package forms;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /** Form for updating name and description of a program. */
 public final class ProgramForm {
   private String adminName;
@@ -14,6 +17,7 @@ public final class ProgramForm {
   // Represents whether or not the user has confirmed that they want to change which program is
   // marked as the common intake form.
   private Boolean confirmedChangeCommonIntakeForm;
+  private List<Long> tiGroups;
 
   public ProgramForm() {
     adminName = "";
@@ -25,6 +29,11 @@ public final class ProgramForm {
     displayMode = "";
     isCommonIntakeForm = false;
     confirmedChangeCommonIntakeForm = false;
+    tiGroups = new ArrayList<>();
+  }
+
+  public void setTiGroups(List<Long> tiGroups) {
+    this.tiGroups = tiGroups;
   }
 
   public String getAdminName() {
@@ -97,5 +106,9 @@ public final class ProgramForm {
 
   public void setLocalizedConfirmationMessage(String localizedConfirmationMessage) {
     this.localizedConfirmationMessage = localizedConfirmationMessage;
+  }
+
+  public List<Long> getTiGroups() {
+    return this.tiGroups;
   }
 }

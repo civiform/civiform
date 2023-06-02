@@ -15,7 +15,9 @@ import com.google.common.collect.ImmutableSet;
 import controllers.BadRequestException;
 import forms.BlockForm;
 import io.ebean.DB;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
@@ -155,7 +157,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().id()).isNotNull();
@@ -173,7 +176,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult().blockDefinitions()).hasSize(1);
@@ -187,7 +191,16 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void createProgram_returnsErrors() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
-            "", "", "", "", "", "", DisplayMode.PUBLIC.getValue(), ProgramType.DEFAULT, false);
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ProgramType.DEFAULT,
+            false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -207,11 +220,12 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "description",
             "name",
             "description",
-            "",
+            "confirm",
             "https://usa.gov",
             "",
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            /* tiGroup */ new ArrayList<>());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -230,7 +244,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.DEFAULT,
-        /* isIntakeFormFeatureEnabled= */ false);
+        /* isIntakeFormFeatureEnabled= */ false,
+        new ArrayList<>());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
@@ -242,7 +257,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -263,7 +279,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -288,7 +305,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
-                /* isIntakeFormFeatureEnabled= */ false)
+                /* isIntakeFormFeatureEnabled= */ false,
+                new ArrayList<>())
             .getResult();
     // Program name here is missing the extra space
     // so that the names are different but the resulting
@@ -308,7 +326,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
     assertThat(result.getErrors())
@@ -327,7 +346,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.DEFAULT);
@@ -344,7 +364,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true);
+        /* isIntakeFormFeatureEnabled= */ true,
+        new ArrayList<>());
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(
             "name-two",
@@ -355,7 +376,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -373,7 +395,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true);
+        /* isIntakeFormFeatureEnabled= */ true,
+        new ArrayList<>());
 
     Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
     assertThat(commonIntakeForm).isPresent();
@@ -389,7 +412,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
     assertThat(result.getResult().programType()).isEqualTo(ProgramType.COMMON_INTAKE_FORM);
@@ -406,7 +430,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
   @Test
   public void validateProgramDataForCreate_returnsErrors() {
     ImmutableSet<CiviFormError> result =
-        ps.validateProgramDataForCreate("", "", "", "", "", DisplayMode.PUBLIC.getValue());
+        ps.validateProgramDataForCreate(
+            "", "", "", "", "", DisplayMode.PUBLIC.getValue(), new ArrayList<>());
 
     assertThat(result)
         .containsExactlyInAnyOrder(
@@ -426,12 +451,46 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "display name",
             "display desc",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            new ArrayList<>());
 
     assertThat(result)
         .containsExactly(
             CiviFormError.of(
                 "A program URL may only contain lowercase letters, numbers, and dashes"));
+  }
+
+  @Test
+  public void validateProgramDataForCreate_requiresTIListInSelectTiMode() {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "program",
+            "description",
+            "display name",
+            "display desc",
+            "https://usa.gov",
+            DisplayMode.SELECT_TI.getValue(),
+            new ArrayList<>());
+
+    assertThat(result)
+        .containsExactly(
+            CiviFormError.of("One or more TI Org must be selected for program visibility"));
+  }
+
+  @Test
+  public void validateProgramDataForUpdate_requiresTIListInSELECT_TIMode() {
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForUpdate(
+            "program",
+            "description",
+            "display name",
+            "https://usa.gov",
+            DisplayMode.SELECT_TI.getValue(),
+            new ArrayList<>());
+
+    assertThat(result)
+        .containsExactly(
+            CiviFormError.of("One or more TI Org must be selected for program visibility"));
   }
 
   @Test
@@ -449,7 +508,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
-                /* isIntakeFormFeatureEnabled= */ false)
+                /* isIntakeFormFeatureEnabled= */ false,
+                new ArrayList<>())
             .getResult();
     // Program name here is missing the extra space
     // so that the names are different but the resulting
@@ -466,7 +526,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "display name",
             "display desc",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            new ArrayList<>());
     assertThat(result)
         .containsExactly(CiviFormError.of("A program URL of name-one already exists"));
   }
@@ -480,7 +541,26 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "display name",
             "display description",
             "https://usa.gov",
-            DisplayMode.PUBLIC.getValue());
+            DisplayMode.PUBLIC.getValue(),
+            new ArrayList<>());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void validateProgramDataForCreate_returnsNoErrorsInSELECT_TIMode() {
+    List<Long> tiGroups = new ArrayList<>();
+    tiGroups.add(1L);
+    tiGroups.add(3L);
+    ImmutableSet<CiviFormError> result =
+        ps.validateProgramDataForCreate(
+            "name-two",
+            "description",
+            "display name",
+            "display description",
+            "https://usa.gov",
+            DisplayMode.SELECT_TI.getValue(),
+            tiGroups);
 
     assertThat(result).isEmpty();
   }
@@ -499,7 +579,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
                     "https://usa.gov",
                     DisplayMode.PUBLIC.getValue(),
                     ProgramType.DEFAULT,
-                    /* isIntakeFormFeatureEnabled= */ false))
+                    /* isIntakeFormFeatureEnabled= */ false,
+                    new ArrayList<>()))
         .isInstanceOf(ProgramNotFoundException.class)
         .hasMessage("Program not found for ID: 1");
   }
@@ -519,7 +600,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     ProgramDefinition updatedProgram = result.getResult();
@@ -552,7 +634,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
-                /* isIntakeFormFeatureEnabled= */ false)
+                /* isIntakeFormFeatureEnabled= */ false,
+                new ArrayList<>())
             .getResult();
 
     QuestionDefinition foundQuestion =
@@ -575,7 +658,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isFalse();
     assertThat(result.isError()).isTrue();
@@ -601,7 +685,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            false);
+            false,
+            new ArrayList<>());
 
     // check that the confirmation screen message saved
     LocalizedStrings expectedUsString =
@@ -621,7 +706,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            false);
+            false,
+            new ArrayList<>());
     ProgramDefinition secondProgramUpdate = resultTwo.getResult();
     assertThat(secondProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(
@@ -640,7 +726,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            false);
+            false,
+            new ArrayList<>());
     ProgramDefinition thirdProgramUpdate = resultThree.getResult();
     assertThat(thirdProgramUpdate.localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
@@ -669,7 +756,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ false);
+            /* isIntakeFormFeatureEnabled= */ false,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -687,7 +775,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
         "https://usa.gov",
         DisplayMode.PUBLIC.getValue(),
         ProgramType.COMMON_INTAKE_FORM,
-        /* isIntakeFormFeatureEnabled= */ true);
+        /* isIntakeFormFeatureEnabled= */ true,
+        new ArrayList<>());
 
     Optional<ProgramDefinition> commonIntakeForm = ps.getCommonIntakeForm();
     assertThat(commonIntakeForm).isPresent();
@@ -705,7 +794,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -731,7 +821,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
@@ -744,7 +835,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -762,7 +854,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.updateProgramDefinition(
@@ -775,7 +868,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -817,7 +911,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.COMMON_INTAKE_FORM,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -861,7 +956,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ProgramType.DEFAULT,
-            /* isIntakeFormFeatureEnabled= */ true);
+            /* isIntakeFormFeatureEnabled= */ true,
+            new ArrayList<>());
 
     assertThat(result.hasResult()).isTrue();
     assertThat(result.isError()).isFalse();
@@ -1181,7 +1277,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
                 "https://usa.gov",
                 DisplayMode.PUBLIC.getValue(),
                 ProgramType.DEFAULT,
-                false)
+                false,
+                new ArrayList<>())
             .getResult();
     assertThatThrownBy(() -> ps.setBlockQuestions(p.id(), 100L, ImmutableList.of()))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class)

@@ -1,5 +1,6 @@
 package support;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -83,7 +84,8 @@ public class ProgramBuilder {
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getDraftVersion(),
-            ProgramType.DEFAULT);
+            ProgramType.DEFAULT,
+            new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -163,7 +165,8 @@ public class ProgramBuilder {
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             versionRepository.getActiveVersion(),
-            programType);
+            programType,
+            new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -188,7 +191,8 @@ public class ProgramBuilder {
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
             obsoleteVersion,
-            ProgramType.DEFAULT);
+            ProgramType.DEFAULT,
+            new ProgramAcls());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

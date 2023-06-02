@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.ArrayList;
 import java.util.Optional;
 import models.DisplayMode;
 import models.LifecycleStage;
@@ -348,7 +349,8 @@ public class DatabaseSeedController extends Controller {
               "https://github.com/seattle-uat/civiform",
               DisplayMode.PUBLIC.getValue(),
               /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false);
+              /* isIntakeFormFeatureEnabled= */ false,
+              new ArrayList<>());
       if (programDefinitionResult.isError()) {
         throw new Exception(programDefinitionResult.getErrors().toString());
       }

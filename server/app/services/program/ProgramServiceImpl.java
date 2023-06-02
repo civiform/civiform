@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProgramAcls;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -11,6 +12,7 @@ import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import forms.BlockForm;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -63,6 +65,8 @@ public final class ProgramServiceImpl implements ProgramService {
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
 
+  private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
+      "One or more TI Org must be selected for program visibility";
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -196,11 +200,17 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode) {
+      String displayMode,
+      List<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
-            adminDescription, displayName, displayDescription, externalLink, displayMode));
+            adminDescription,
+            displayName,
+            displayDescription,
+            externalLink,
+            displayMode,
+            tiGroups));
     if (adminName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
     } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
@@ -221,7 +231,8 @@ public final class ProgramServiceImpl implements ProgramService {
       String externalLink,
       String displayMode,
       ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled) {
+      Boolean isIntakeFormFeatureEnabled,
+      List<Long> tiGroups) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -229,7 +240,8 @@ public final class ProgramServiceImpl implements ProgramService {
             defaultDisplayName,
             defaultDisplayDescription,
             externalLink,
-            displayMode);
+            displayMode,
+            tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -247,7 +259,7 @@ public final class ProgramServiceImpl implements ProgramService {
     if (programType.equals(ProgramType.COMMON_INTAKE_FORM) && getCommonIntakeForm().isPresent()) {
       clearCommonIntakeForm();
     }
-
+    ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
     Program program =
         new Program(
@@ -260,7 +272,8 @@ public final class ProgramServiceImpl implements ProgramService {
             displayMode,
             ImmutableList.of(emptyBlock),
             versionRepository.getDraftVersion(),
-            programType);
+            programType,
+            programAcls);
 
     return ErrorAnd.of(programRepository.insertProgramSync(program).getProgramDefinition());
   }
@@ -271,9 +284,10 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode) {
+      String displayMode,
+      List<Long> tiGroups) {
     return validateProgramData(
-        adminDescription, displayName, displayDescription, externalLink, displayMode);
+        adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
   }
 
   @Override
@@ -287,12 +301,13 @@ public final class ProgramServiceImpl implements ProgramService {
       String externalLink,
       String displayMode,
       ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled)
+      Boolean isIntakeFormFeatureEnabled,
+      List<Long> tiGroups)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
-            adminDescription, displayName, displayDescription, externalLink, displayMode);
+            adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
     if (!errors.isEmpty()) {
       return ErrorAnd.error(errors);
     }
@@ -329,6 +344,7 @@ public final class ProgramServiceImpl implements ProgramService {
             .setExternalLink(externalLink)
             .setDisplayMode(DisplayMode.valueOf(displayMode))
             .setProgramType(programType)
+            .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .build()
             .toProgram();
 
@@ -1270,13 +1286,16 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode) {
+      String displayMode,
+      List<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     if (displayName.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
     }
     if (displayDescription.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
+    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
     }
     if (displayMode.isBlank()) {
       errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
@@ -1287,6 +1306,7 @@ public final class ProgramServiceImpl implements ProgramService {
     if (!isValidAbsoluteLink(externalLink)) {
       errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
     }
+
     return errorsBuilder.build();
   }
 }

@@ -5,12 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import auth.CiviFormProfile;
+import auth.ProfileFactory;
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -100,9 +103,11 @@ public class ApplicantServiceTest extends ResetPostgres {
   private SimpleEmail amazonSESClient;
   private MessagesApi messagesApi;
   private CiviFormProfile applicantProfile;
+  private ProfileFactory profileFactory;
 
   @Before
   public void setUp() throws Exception {
+    profileFactory = instanceOf(ProfileFactory.class);
     Config config = ConfigFactory.load();
     baseUrl = config.getString("base_url");
     subject = instanceOf(ApplicantService.class);
@@ -2180,6 +2185,95 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void relevantProgramsForApplicant_SELECT_TI_Mode() {
+    Applicant applicant = createTestApplicant();
+    // Applicant ti = resourceCreator.insertApplicant();
+    // Account tiAccount = resourceCreator.insertAccount();
+    CiviFormProfile tiProfile =
+        profileFactory.wrapProfileData(profileFactory.createFakeTrustedIntermediary());
+    //    TrustedIntermediaryGroup tiGroup =
+    //      new TrustedIntermediaryGroup("CBO1", "Description");
+    //    tiGroup.save();
+    //    tiAccount.setMemberOfGroup(tiGroup);
+    //    tiAccount.save();
+    //    ti.setAccount(tiAccount);
+    //    ti.save();
+
+    // Create a submitted application based on the original version of a program.
+    Program originalProgramForDraftApp =
+        ProgramBuilder.newActiveProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    Program originalProgramForSubmittedApp =
+        ProgramBuilder.newActiveProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    applicationRepository
+        .createOrUpdateDraft(applicant.id, originalProgramForDraftApp.id)
+        .toCompletableFuture()
+        .join();
+    applicationRepository
+        .submitApplication(applicant.id, originalProgramForSubmittedApp.id, Optional.empty())
+        .toCompletableFuture()
+        .join();
+    HashSet<Long> tiAcls = new HashSet<>();
+    tiAcls.add(tiProfile.getAccount().join().id);
+    // Create a new program version.
+    Program updatedProgramForDraftApp =
+        ProgramBuilder.newDraftProgram("program_for_draft")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    updatedProgramForDraftApp.getProgramDefinition().toBuilder()
+        .setDisplayMode(DisplayMode.SELECT_TI)
+        .setAcls(new ProgramAcls(tiAcls))
+        .build()
+        .toProgram()
+        .update();
+    Program updatedProgramForSubmittedApp =
+        ProgramBuilder.newDraftProgram("program_for_application")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantName())
+            .build();
+    updatedProgramForSubmittedApp.getProgramDefinition().toBuilder()
+        .setDisplayMode(DisplayMode.SELECT_TI)
+        .setAcls(new ProgramAcls(tiAcls))
+        .build()
+        .toProgram()
+        .update();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ApplicantService.ApplicationPrograms applicantResult =
+        subject
+            .relevantProgramsForApplicant(applicant.id, applicantProfile)
+            .toCompletableFuture()
+            .join();
+    ApplicantService.ApplicationPrograms tiResult =
+        subject
+            .relevantProgramsForApplicant(tiProfile.getApplicant().join().id, tiProfile)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(applicantResult.inProgress().stream().map(p -> p.program().id()))
+        .containsExactly(originalProgramForDraftApp.id);
+    // TODO(#3477): Determine if already submitted applications for hidden
+    // programs should show in the index, similar to draft applications.
+    assertThat(applicantResult.submitted()).isEmpty();
+    // As part of test setup, a "test program" is initialized.
+    // When calling publish, this will become active. This provides
+    // confidence that the draft version created above is actually published.
+    // Additionally, this ensures the applicant can not see the TI-only programs.
+    assertThat(applicantResult.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
+
+    assertThat(tiResult.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(
+            programDefinition.id(), updatedProgramForDraftApp.id, updatedProgramForSubmittedApp.id);
+  }
+
+  @Test
   public void relevantProgramsForApplicant_submittedTimestamp() {
     // Creates an app + draft app for a program as well as
     // an application for another program and ensures that
@@ -2594,6 +2688,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
+                    .setAcls(new ProgramAcls())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
@@ -2668,6 +2763,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setProgramType(ProgramType.COMMON_INTAKE_FORM)
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
+                    .setAcls(new ProgramAcls())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinition(question)
@@ -2951,6 +3047,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .setProgramType(ProgramType.DEFAULT)
                     .setEligibilityIsGating(false)
                     .setStatusDefinitions(new StatusDefinitions())
+                    .setAcls(new ProgramAcls())
                     .build())
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))

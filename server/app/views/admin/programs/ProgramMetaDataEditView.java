@@ -12,6 +12,7 @@ import j2html.tags.specialized.FormTag;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.UserRepository;
 import services.program.ProgramDefinition;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -27,8 +28,11 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
   @Inject
   public ProgramMetaDataEditView(
-      AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
-    super(configuration, featureFlags);
+      AdminLayoutFactory layoutFactory,
+      Config configuration,
+      FeatureFlags featureFlags,
+      UserRepository userRepository) {
+    super(configuration, featureFlags, userRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 

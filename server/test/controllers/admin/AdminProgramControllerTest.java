@@ -431,7 +431,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
                     "displayMode",
                     DisplayMode.PUBLIC.getValue(),
                     "isCommonIntakeForm",
-                    "true"));
+                    "true",
+                    "tiGroups[]",
+                    "1"));
 
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 

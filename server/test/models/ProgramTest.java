@@ -2,7 +2,9 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
 import org.junit.Before;
@@ -60,7 +62,9 @@ public class ProgramTest extends ResetPostgres {
                     ProgramQuestionDefinition.create(
                         questionDefinition, Optional.of(programDefinitionId))))
             .build();
-
+    HashSet<Long> tiOrgList = new HashSet<>();
+    tiOrgList.add(1L);
+    tiOrgList.add(3L);
     ProgramDefinition definition =
         ProgramDefinition.builder()
             .setId(programDefinitionId)
@@ -76,6 +80,7 @@ public class ProgramTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls(tiOrgList))
             .build();
     Program program = new Program(definition);
 
@@ -92,6 +97,8 @@ public class ProgramTest extends ResetPostgres {
         .isEqualTo("First Block");
     assertThat(found.getProgramDefinition().programType())
         .isEqualTo(ProgramType.COMMON_INTAKE_FORM);
+    assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(1L);
+    assertThat(found.getProgramDefinition().acls().getTiProgramViewAcls()).contains(3L);
 
     assertThat(
             found
@@ -152,6 +159,7 @@ public class ProgramTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
             .build();
     Program program = new Program(definition);
     program.save();
@@ -208,6 +216,7 @@ public class ProgramTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
             .build();
     Program program = new Program(definition);
     program.save();
@@ -308,6 +317,7 @@ public class ProgramTest extends ResetPostgres {
             .setBlockDefinitions(unorderedBlocks)
             .setProgramType(ProgramType.DEFAULT)
             .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
             .build();
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
@@ -365,6 +375,7 @@ public class ProgramTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
             .build();
     Program program = new Program(definition);
     program.save();
@@ -387,6 +398,7 @@ public class ProgramTest extends ResetPostgres {
             .setDisplayMode(DisplayMode.PUBLIC)
             .setProgramType(ProgramType.COMMON_INTAKE_FORM)
             .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
             .build();
     Program program2 = new Program(definition2);
     program2.save();

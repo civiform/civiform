@@ -3,6 +3,7 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -95,10 +96,12 @@ public interface ProgramService {
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
    * @param programType ProgramType for this Program. If this is set to COMMON_INTAKE_FORM and there
-   *     is already another active or draft program with {@link ProgramType#COMMON_INTAKE_FORM},
-   *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
-   *     draft of it if necessary.
+   *     is already another active or draft program with {@link
+   *     services.program.ProgramType#COMMON_INTAKE_FORM}, that program's ProgramType will be
+   *     changed to {@link services.program.ProgramType#DEFAULT}, creating a new draft of it if
+   *     necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake form feature is enabled.
+   * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return the {@link ProgramDefinition} that was created if succeeded, or a set of errors if
    *     failed
    */
@@ -111,7 +114,8 @@ public interface ProgramService {
       String externalLink,
       String displayMode,
       ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled);
+      Boolean isIntakeFormFeatureEnabled,
+      List<Long> tiGroups);
 
   /**
    * Checks if the provided data is valid for a new program. Does not actually create the program.
@@ -123,6 +127,7 @@ public interface ProgramService {
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    * @return a set of errors representing any issues with the provided data.
    */
   ImmutableSet<CiviFormError> validateProgramDataForCreate(
@@ -131,7 +136,8 @@ public interface ProgramService {
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode);
+      String displayMode,
+      List<Long> tiGroups);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -152,6 +158,7 @@ public interface ProgramService {
    *     that program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new
    *     draft of it if necessary.
    * @param isIntakeFormFeatureEnabled whether or not the common intake for feature is enabled.
+   * @param tiGroups the TI Orgs having visibility to the program for SELECT_TI display_mode
    * @return the {@link ProgramDefinition} that was updated if succeeded, or a set of errors if
    *     failed
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
@@ -166,7 +173,8 @@ public interface ProgramService {
       String externalLink,
       String displayMode,
       ProgramType programType,
-      Boolean isIntakeFormFeatureEnabled)
+      Boolean isIntakeFormFeatureEnabled,
+      List<Long> tiGroups)
       throws ProgramNotFoundException;
 
   /**
@@ -178,13 +186,15 @@ public interface ProgramService {
    * @param displayDescription the description of what the program provides
    * @param externalLink A link to an external page containing additional program details
    * @param displayMode The display mode for the program
+   * @param tiGroups The List of TiOrgs who have visibility to program in SELECT_TI display mode
    */
   ImmutableSet<CiviFormError> validateProgramDataForUpdate(
       String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
-      String displayMode);
+      String displayMode,
+      List<Long> tiGroups);
 
   /**
    * Add or update a localization of the program's publicly-visible display name and description.

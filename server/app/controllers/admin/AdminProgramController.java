@@ -114,7 +114,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            programData.getTiGroups());
     if (!errors.isEmpty()) {
       ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
       return ok(newOneView.render(request, programData, message));
@@ -133,6 +134,8 @@ public final class AdminProgramController extends CiviFormController {
       }
     }
 
+    while (programData.getTiGroups().remove(null)) {}
+
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         programService.createProgramDefinition(
             programData.getAdminName(),
@@ -145,7 +148,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+            programData.getTiGroups());
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -233,7 +237,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            programData.getTiGroups());
     if (!validationErrors.isEmpty()) {
       ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
       return ok(editView.render(request, programDefinition, programData, message));
@@ -266,7 +271,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getExternalLink(),
         programData.getDisplayMode(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+        programData.getTiGroups());
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 

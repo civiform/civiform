@@ -846,7 +846,9 @@ public final class ApplicantService {
                             pdef ->
                                 pdef.displayMode().equals(DisplayMode.PUBLIC)
                                     || (requesterProfile.isTrustedIntermediary()
-                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY)))
+                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY))
+                                    || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
+                                        && pdef.acls().hasProgramViewPermission(requesterProfile)))
                         .collect(ImmutableList.toImmutableList()))
             .toCompletableFuture();
 
