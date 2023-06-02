@@ -100,11 +100,13 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    if (!isAllowedIp(apiKey, resolveClientIp(context))) {
+    String resolvedIp = resolveClientIp(context);
+    if (!isAllowedIp(apiKey, resolvedIp)) {
       throwUnauthorized(
           context,
           String.format(
-              "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
+              "Resolved IP %s is not in allowed range for key ID: %s, which is \"%s\"",
+              resolvedIp, keyId, String.join(",", apiKey.getSubnetSet())));
     }
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
@@ -151,8 +153,13 @@ public class ApiAuthenticator implements Authenticator {
   private void throwUnauthorized(WebContext context, String cause) {
     logger.warn(
         String.format(
-            "UnauthorizedApiRequest(resource: \"%s\", ip: \"%s\", cause: \"%s\")",
-            context.getPath(), context.getRemoteAddr(), cause));
+            "UnauthorizedApiRequest(resource: \"%s\", Remote Address: \"%s\", X-Forwarded-For:"
+                + " \"%s\", CLIENT_IP_TYPE: \"%s\", cause: \"%s\")",
+            context.getPath(),
+            context.getRemoteAddr(),
+            context.getRequestHeader("X-Forwarded-For").orElse(""),
+            clientIpType.toString(),
+            cause));
 
     throw new BadCredentialsException(cause);
   }
