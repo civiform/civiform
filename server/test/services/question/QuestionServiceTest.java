@@ -60,10 +60,12 @@ public class QuestionServiceTest extends ResetPostgres {
         .containsOnly(
             CiviFormError.of(
                 String.format(
-                    "Question '%s' with Enumerator ID %d conflicts with question id: %d",
-                    questionDefinition.getQuestionPathSegment(),
+                    "Administrative identifier '%s' with Enumerator ID %d generates JSON path '%s'"
+                        + " which would conflict with the existing question with admin ID '%s'",
+                    questionDefinition.getName(),
                     householdMemberName.getEnumeratorId().get(),
-                    householdMemberName.getId())));
+                    questionDefinition.getQuestionPathSegment(),
+                    householdMemberName.getName())));
   }
 
   @Test
