@@ -97,16 +97,16 @@ public final class ProgramServiceImpl implements ProgramService {
 
   private CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
     return programRepository
-    .lookupProgram(id)
-    .thenComposeAsync(
-        programMaybe -> {
-          if (programMaybe.isEmpty()) {
-            return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
-          }
+        .lookupProgram(id)
+        .thenComposeAsync(
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
 
-          return syncProgramAssociations(programMaybe.get());
-        },
-        httpExecutionContext.current());
+              return syncProgramAssociations(programMaybe.get());
+            },
+            httpExecutionContext.current());
   }
 
   @Override
