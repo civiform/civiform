@@ -928,7 +928,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getActiverogramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
+  public void getActiveProgramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram()
