@@ -34,7 +34,8 @@ public class ResourceCreator {
   }
 
   /**
-   * Create an API key with subnet of "1.1.1.1/32" and an expiration date one year in the future.
+   * Create an API key with subnet of "8.8.8.8/32,1.1.1.1/32" and an expiration date one year in the
+   * future.
    */
   public ApiKey createActiveApiKey(String name, String keyId, String keySecret) {
     ApiKey apiKey =
