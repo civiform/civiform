@@ -19,6 +19,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.components.Icons;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -36,7 +37,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     QUESTIONS,
     INTERMEDIARIES,
     REPORTING,
-    API_KEYS
+    API_KEYS,
+    SETTINGS
   }
 
   private final NavPage activeNavPage;
@@ -112,6 +114,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
+    String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
     String activeNavStyle =
         StyleUtils.joinStyles(
@@ -164,7 +167,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     }
 
     return adminHeader.with(
-        headerLink("Logout", logoutLink, "float-right").withId("logout-button"));
+        headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
+        a(Icons.svg(Icons.COG).withClasses("h-6 w-6")).withHref(settingsLink).withClasses("float-right"));
   }
 
   private ATag headerLink(String text, String href, String... styles) {

@@ -5,6 +5,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.span;
 
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import javax.inject.Inject;
 import play.twirl.api.Content;
@@ -14,6 +15,7 @@ import services.settings.SettingsSection;
 import views.BaseHtmlView;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
+import views.components.TextFormatter;
 
 /** Displays application settings for the CiviForm Admin role. */
 public final class AdminSettingsIndexView extends BaseHtmlView {
@@ -25,7 +27,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   public AdminSettingsIndexView(
       SettingsManifest settingsManifest, AdminLayoutFactory layoutFactory) {
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.REPORTING);
+    this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.SETTINGS);
   }
 
   public Content render() {
@@ -74,8 +76,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private DivTag renderSetting(SettingDescription settingDescription) {
     return div(
-        span(settingDescription.variableName()),
-        span(settingDescription.settingDescription()),
-        span(settingsManifest.getSettingDisplayValue(settingDescription).orElse("-")));
+        div(settingDescription.variableName()),
+        div(TextFormatter.formatText(settingDescription.settingDescription(), /* preserveEmptyLines= */ false).toArray(DomContent[]::new)),
+        div(settingsManifest.getSettingDisplayValue(settingDescription).orElse("-")));
   }
 }
