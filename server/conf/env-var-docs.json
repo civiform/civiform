@@ -24,7 +24,7 @@
       }
     }
   },
-  "External service dependencies": {
+  "External Services": {
     "group_description": "Configures connections to external services the CiviForm server relies on.",
     "members": {
       "Applicant Identity Provider": {
@@ -383,7 +383,7 @@
       }
     }
   },
-  "Email addresses": {
+  "Email Addresses": {
     "group_description": "Configuration options for [CiviForm email usage](https://docs.civiform.us/it-manual/sre-playbook/email-configuration).",
     "members": {
       "SUPPORT_EMAIL_ADDRESS": {

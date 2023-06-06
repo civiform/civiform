@@ -163,9 +163,9 @@ class GetterMethodSpec:
         if self.variable.type == "string":
             return "String"
         elif self.variable.type == "bool":
-            return "boolean"
+            return "Boolean"
         elif self.variable.type == "int":
-            return "int"
+            return "Integer"
         elif self.variable.type == "index-list":
             return "ImmutableList<String>"
 

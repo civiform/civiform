@@ -5,7 +5,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import java.util.Locale;
+import java.util.Optional;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
@@ -18,36 +20,87 @@ public abstract class AbstractSettingsManifest {
 
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
-  protected boolean getBool(SettingDescription settingDescription) {
-    return config.getBoolean(getHoconName(settingDescription));
+  public Optional<String> getSettingDisplayValue(SettingDescription settingDescription) {
+    switch (settingDescription.settingType()) {
+      case BOOLEAN:
+        return getBool(settingDescription).map(String::valueOf);
+      case INT:
+        return getInt(settingDescription).map(String::valueOf);
+      case LIST_OF_STRINGS:
+        return getListOfStrings(settingDescription).map(ImmutableList::toString);
+      case ENUM:
+      case STRING:
+        return getString(settingDescription).map(String::valueOf);
+      default:
+        throw new IllegalStateException(
+            "Unknown setting type: " + settingDescription.settingType());
+    }
   }
 
-  protected boolean getBool(String variableName) {
-    return config.getBoolean(getHoconName(variableName));
+  protected Optional<Boolean> getBool(SettingDescription settingDescription) {
+    try {
+      return Optional.of(config.getBoolean(getHoconName(settingDescription)));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
-  protected String getString(SettingDescription settingDescription) {
-    return config.getString(getHoconName(settingDescription));
+  protected Optional<Boolean> getBool(String variableName) {
+    try {
+      return Optional.of(config.getBoolean(getHoconName(variableName)));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
-  protected String getString(String variableName) {
-    return config.getString(getHoconName(variableName));
+  protected Optional<String> getString(SettingDescription settingDescription) {
+    try {
+      return Optional.of(config.getString(getHoconName(settingDescription)));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
-  protected int getInt(SettingDescription settingDescription) {
-    return config.getInt(getHoconName(settingDescription));
+  protected Optional<String> getString(String variableName) {
+    try {
+      return Optional.of(config.getString(getHoconName(variableName)));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
-  protected int getInt(String variableName) {
-    return config.getInt(getHoconName(variableName));
+  protected Optional<Integer> getInt(SettingDescription settingDescription) {
+    try {
+      return Optional.of(config.getInt(getHoconName(settingDescription)));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
-  protected ImmutableList<String> getListOfStrings(SettingDescription settingDescription) {
-    return ImmutableList.copyOf(config.getStringList(getHoconName(settingDescription)));
+  protected Optional<Integer> getInt(String variableName) {
+    try {
+      return Optional.of(config.getInt(getHoconName(variableName)));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
-  protected ImmutableList<String> getListOfStrings(String variableName) {
-    return ImmutableList.copyOf(config.getStringList(getHoconName(variableName)));
+  protected Optional<ImmutableList<String>> getListOfStrings(
+      SettingDescription settingDescription) {
+    try {
+      return Optional.of(
+          ImmutableList.copyOf(config.getStringList(getHoconName(settingDescription))));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
+  }
+
+  protected Optional<ImmutableList<String>> getListOfStrings(String variableName) {
+    try {
+      return Optional.of(ImmutableList.copyOf(config.getStringList(getHoconName(variableName))));
+    } catch (ConfigException.Missing e) {
+      return Optional.empty();
+    }
   }
 
   private static String getHoconName(String variableName) {
