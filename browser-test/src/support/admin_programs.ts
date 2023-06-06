@@ -1037,8 +1037,8 @@ export class AdminPrograms {
       .locator('button:has-text("Address correction")')
       .click()
     await this.page.waitForResponse((response) => {
-       // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
-       return response.url().includes('edit')
+      // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
+      return response.url().includes('edit')
     })
   }
 
