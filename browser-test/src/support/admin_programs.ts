@@ -1022,25 +1022,24 @@ export class AdminPrograms {
       )
   }
   async clickAddressCorrectionToggle() {
-    const responsePromise = this.page.waitForResponse((response) => {
+    await this.page.click(':is(button:has-text("Address correction"))')
+    await this.page.waitForResponse((response) => {
       // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
       return response.url().includes('edit')
     })
-    await this.page.click(':is(button:has-text("Address correction"))')
-    return await responsePromise
   }
 
   async clickAddressCorrectionToggleByName(questionName: string) {
     const toggleLocator = this.getAddressCorrectionToggleByName(questionName)
-    const responsePromise = this.page.waitForResponse((response) => {
-      // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
-      return response.url().includes('edit')
-    })
+
     await toggleLocator
       .locator('..')
       .locator('button:has-text("Address correction")')
       .click()
-    return await responsePromise
+    await this.page.waitForResponse((response) => {
+       // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
+       return response.url().includes('edit')
+    })
   }
 
   getCommonIntakeFormToggle() {
