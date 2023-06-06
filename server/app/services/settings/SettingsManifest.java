@@ -638,6 +638,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
+  /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
+  public Optional<Boolean> getAdminSettingsPanelEnabled() {
+    return getBool("ADMIN_SETTINGS_PANEL_ENABLED");
+  }
+
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
   public Optional<Boolean> getCfOptionalQuestions() {
     return getBool("CF_OPTIONAL_QUESTIONS");
@@ -1224,6 +1229,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               "Configuration options to enable or disable optional or in-development features.",
               ImmutableList.of(),
               ImmutableList.of(
+                  SettingDescription.create(
+                      "ADMIN_SETTINGS_PANEL_ENABLED",
+                      "If enabled, adds a page in the CiviForm Admin UI for accessing application"
+                          + " settings.",
+                      SettingType.BOOLEAN),
                   SettingDescription.create(
                       "CF_OPTIONAL_QUESTIONS",
                       "If enabled, allows questions to be optional in programs. Is enabled by"

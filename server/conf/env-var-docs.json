@@ -540,6 +540,11 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
+      "ADMIN_SETTINGS_PANEL_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "If enabled, adds a page in the CiviForm Admin UI for accessing application settings.",
+        "type": "bool"
+      },
       "CF_OPTIONAL_QUESTIONS": {
         "mode": "ADMIN_READABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
