@@ -1,8 +1,7 @@
 package views.components;
 
-import services.question.types.QuestionType;
-
 import java.util.Optional;
+import services.question.types.QuestionType;
 
 /**
  * Class to hold constants for icons and provide methods for rendering SVG components. You can see
@@ -490,11 +489,10 @@ public enum Icons {
    * classes like any other element.
    */
   public static SvgTag svg(Icons icon) {
-    var thisViewBox = icon.viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", icon.size, icon.size));
+    var thisViewBox =
+        icon.viewBox.orElseGet(() -> String.format("0 0 %1$d %2$d", icon.size, icon.size));
 
-    return svg()
-        .with(path(icon.path))
-        .attr("viewBox", thisViewBox);
+    return svg().with(path(icon.path)).attr("viewBox", thisViewBox);
   }
 
   private static SvgTag svg() {
