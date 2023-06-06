@@ -102,6 +102,8 @@ jobs:
         run: browser-test/bin/fmt
       - name: show Browsertest diff
         run: git add .; git diff --exit-code HEAD
+      - name: Set up python venv
+        run: bin/env-var-docs-create-venv
       - name: run bin/fmt
         run: bin/fmt
       - name: show bin/fmt diff
