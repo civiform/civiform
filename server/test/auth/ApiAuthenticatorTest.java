@@ -2,7 +2,6 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -14,9 +13,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Base64;
 import java.util.Optional;
 import models.ApiKey;
 import org.junit.After;
@@ -102,48 +99,6 @@ public class ApiAuthenticatorTest {
   }
 
   @Test
-  public void resolveClientIp_direct() {
-    var authenticator =
-        new ApiAuthenticator(
-            injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "DIRECT")));
-
-    var request =
-        new FakeRequestBuilder()
-            .withRemoteAddress("4.4.4.4")
-            .withXForwadedFor("3.3.3.3, 2.2.2.2")
-            .build();
-
-    assertThat(authenticator.resolveClientIp(new PlayWebContext(request))).isEqualTo("4.4.4.4");
-  }
-
-  @Test
-  public void resolveClientIp_forwarded() {
-    var authenticator =
-        new ApiAuthenticator(
-            injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
-
-    var request = new FakeRequestBuilder().withXForwadedFor("3.3.3.3, 2.2.2.2").build();
-
-    assertThat(authenticator.resolveClientIp(new PlayWebContext(request))).isEqualTo("2.2.2.2");
-  }
-
-  @Test
-  public void resolveClientIp_forwarded_no_header() {
-    var authenticator =
-        new ApiAuthenticator(
-            injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
-
-    var request = new FakeRequestBuilder().withRemoteAddress("3.3.3.3").build();
-
-    assertThatThrownBy(() -> authenticator.resolveClientIp(new PlayWebContext(request)))
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For header!");
-  }
-
-  @Test
   public void validate_success_direct() {
     apiAuthenticator.validate(
         new UsernamePasswordCredentials(keyId, secret),
@@ -158,10 +113,12 @@ public class ApiAuthenticatorTest {
 
   @Test
   public void validate_success_forwarded() {
+
     var authenticator =
         new ApiAuthenticator(
             injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
+            new ClientIpResolver(
+                ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED"))));
     apiKey.setSubnet("3.3.3.3/32");
     apiKey.save();
 
@@ -170,7 +127,7 @@ public class ApiAuthenticatorTest {
         new PlayWebContext(
             new FakeRequestBuilder()
                 .withRawCredentials(validRawCredentials)
-                .withXForwadedFor("2.2.2.2, 3.3.3.3")
+                .withXForwardedFor("2.2.2.2, 3.3.3.3")
                 .build()),
         MOCK_SESSION_STORE);
 
@@ -230,7 +187,8 @@ public class ApiAuthenticatorTest {
     var authenticator =
         new ApiAuthenticator(
             injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
+            new ClientIpResolver(
+                ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED"))));
 
     apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
     apiKey.save();
@@ -238,7 +196,7 @@ public class ApiAuthenticatorTest {
     assertBadCredentialsException(
         authenticator,
         new FakeRequestBuilder()
-            .withXForwadedFor("5.5.5.5, 6.6.6.6")
+            .withXForwardedFor("5.5.5.5, 6.6.6.6")
             .withRawCredentials(validRawCredentials)
             .build(),
         String.format(
@@ -256,7 +214,8 @@ public class ApiAuthenticatorTest {
     var authenticator =
         new ApiAuthenticator(
             injector.getProvider(ApiKeyService.class),
-            ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED")));
+            new ClientIpResolver(
+                ConfigFactory.parseMap(ImmutableMap.of("client_ip_type", "FORWARDED"))));
 
     apiKey.setSubnet("2.2.2.2/30,3.3.3.3/32");
     apiKey.save();
@@ -268,7 +227,7 @@ public class ApiAuthenticatorTest {
                     new PlayWebContext(
                         new FakeRequestBuilder()
                             .withRemoteAddress("7.7.7.7")
-                            .withXForwadedFor("5.5.5.5, 6.6.6.6")
+                            .withXForwardedFor("5.5.5.5, 6.6.6.6")
                             .withRawCredentials(validRawCredentials)
                             .build()),
                     MOCK_SESSION_STORE))
@@ -320,40 +279,5 @@ public class ApiAuthenticatorTest {
                     credentials, new PlayWebContext(request), MOCK_SESSION_STORE))
         .isInstanceOf(BadCredentialsException.class)
         .hasMessage(expectedMessage);
-  }
-
-  private static class FakeRequestBuilder {
-    String remoteAddress = "1.1.1.1";
-    Optional<String> xForwardedFor = Optional.empty();
-    Optional<String> rawCredentials = Optional.empty();
-
-    public FakeRequestBuilder() {}
-
-    public FakeRequestBuilder withRemoteAddress(String remoteAddress) {
-      this.remoteAddress = remoteAddress;
-      return this;
-    }
-
-    public FakeRequestBuilder withXForwadedFor(String xForwadedFor) {
-      this.xForwardedFor = Optional.of(xForwadedFor);
-      return this;
-    }
-
-    public FakeRequestBuilder withRawCredentials(String rawCredentials) {
-      this.rawCredentials = Optional.of(rawCredentials);
-      return this;
-    }
-
-    public Http.Request build() {
-      Http.RequestBuilder fakeRequest = fakeRequest().remoteAddress(this.remoteAddress);
-      xForwardedFor.ifPresent(
-          xForwardedFor -> fakeRequest.header("X-Forwarded-For", xForwardedFor));
-      rawCredentials
-          .map(
-              rawCreds ->
-                  Base64.getEncoder().encodeToString(rawCreds.getBytes(StandardCharsets.UTF_8)))
-          .ifPresent(creds -> fakeRequest.header("Authorization", "Basic " + creds));
-      return fakeRequest.build();
-    }
   }
 }
