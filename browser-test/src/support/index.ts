@@ -328,16 +328,17 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
 export const loginAsTestUser = async (
   page: Page,
   loginButton = 'a:has-text("Log in")',
+  isTi = false,
 ) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page, loginButton)
+      await loginAsTestUserFakeOidc(page, loginButton, isTi)
       break
     case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page, loginButton)
+      await loginAsTestUserAwsStaging(page, loginButton, isTi)
       break
     case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page, loginButton)
+      await loginAsTestUserSeattleStaging(page, loginButton, isTi)
       break
     default:
       throw new Error(
@@ -350,7 +351,11 @@ export const loginAsTestUser = async (
   )
 }
 
-async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
+async function loginAsTestUserSeattleStaging(
+  page: Page,
+  loginButton: string,
+  isTi: boolean,
+) {
   await page.click(loginButton)
   // Wait for the IDCS login page to make sure we've followed all redirects.
   // If running this against a site with a real IDCS (i.e. staging) and this
@@ -364,7 +369,11 @@ async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
   await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-async function loginAsTestUserAwsStaging(page: Page, loginButton: string) {
+async function loginAsTestUserAwsStaging(
+  page: Page,
+  loginButton: string,
+  isTi: boolean,
+) {
   await Promise.all([
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
@@ -372,13 +381,23 @@ async function loginAsTestUserAwsStaging(page: Page, loginButton: string) {
 
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
+  const urlText = ''
+  if (!isTi) {
+    const urlText = '**/applicants/**'
+  } else {
+    const urlText = '**/admin/**'
+  }
   await Promise.all([
-    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.waitForURL(urlText, {waitUntil: 'networkidle'}),
     page.click('button:has-text("Continue")'),
   ])
 }
 
-async function loginAsTestUserFakeOidc(page: Page, loginButton: string) {
+async function loginAsTestUserFakeOidc(
+  page: Page,
+  loginButton: string,
+  isTi: boolean,
+) {
   await Promise.all([
     page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
@@ -405,10 +424,16 @@ async function loginAsTestUserFakeOidc(page: Page, loginButton: string) {
     page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
     page.click('button:has-text("Sign-in"):not([disabled])'),
   ])
+  const urlText = ''
+  if (!isTi) {
+    const urlText = '**/applicants/**'
+  } else {
+    const urlText = '**/admin/**'
+  }
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await Promise.all([
-    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.waitForURL(urlText, {waitUntil: 'networkidle'}),
     page.click('button:has-text("Continue")'),
   ])
 }
