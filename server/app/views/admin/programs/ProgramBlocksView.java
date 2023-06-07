@@ -102,7 +102,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       FeatureFlags featureFlags) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.featureFlags = checkNotNull(featureFlags);
-    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf.optional_questions");
+    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf_optional_questions");
     this.programDisplayType = programViewType;
   }
 

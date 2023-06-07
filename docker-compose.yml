@@ -3,7 +3,7 @@ version: '3.4'
 
 services:
   localstack:
-    image: localstack/localstack:2.0.2
+    image: localstack/localstack:2.1.0
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
@@ -109,7 +109,6 @@ services:
       - LOGIN_GOV_ACR_VALUE
       - CF_OPTIONAL_QUESTIONS
       - WHITELABEL_SMALL_LOGO_URL
-      - WHITELABEL_LOGO_WITH_NAME_URL
       - WHITELABEL_CIVIC_ENTITY_SHORT_NAME
       - WHITELABEL_CIVIC_ENTITY_FULL_NAME
       - FAVICON_URL

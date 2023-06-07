@@ -381,7 +381,9 @@ async function loginAsTestUserAwsStaging(
     page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
       waitUntil: 'networkidle',
     }),
-    page.click('button:has-text("Continue")'),
+    // Auth0 has an additional hidden "Continue" button that does nothing for some reason
+    page.click('button:visible:has-text("Continue")'),
+
   ])
 }
 

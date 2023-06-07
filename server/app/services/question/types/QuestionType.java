@@ -1,5 +1,6 @@
 package services.question.types;
 
+import java.util.Locale;
 import services.question.exceptions.InvalidQuestionTypeException;
 
 /** Defines types of questions supported. */
@@ -37,7 +38,7 @@ public enum QuestionType {
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
-    String upperName = name.toUpperCase();
+    String upperName = name.toUpperCase(Locale.ROOT);
     try {
       return valueOf(upperName);
     } catch (IllegalArgumentException e) {

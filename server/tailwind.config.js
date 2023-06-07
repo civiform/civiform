@@ -53,7 +53,7 @@ module.exports = {
         },
         'civiform-yellow': {
           light: '#ffefc9',
-          DEFAULT: '#9e6f02',
+          DEFAULT: '#6b4b00',
         },
       },
       spacing: {

@@ -19,6 +19,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import java.util.Locale;
 import java.util.UUID;
 import javax.inject.Inject;
 import play.mvc.Http;
@@ -174,7 +175,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                 submitButton(
                         String.format(
                             "Remove existing %s condition",
-                            predicateTypeNameTitleCase.toLowerCase()))
+                            predicateTypeNameTitleCase.toLowerCase(Locale.ROOT)))
                     .withClasses(ButtonStyles.SOLID_BLUE)
                     .withForm(removePredicateFormId)
                     .withCondDisabled(!hasExistingPredicate));
@@ -209,7 +210,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
                             "edit-condition-button",
                             String.format(
                                 "Edit existing %s condition",
-                                predicateTypeNameTitleCase.toLowerCase()),
+                                predicateTypeNameTitleCase.toLowerCase(Locale.ROOT)),
                             configureExistingPredicateUrl)
                         .withCondDisabled(!hasExistingPredicate)
                         .withClasses(ButtonStyles.SOLID_BLUE)))

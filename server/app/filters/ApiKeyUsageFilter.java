@@ -2,6 +2,7 @@ package filters;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ClientIpResolver;
 import auth.ProfileUtils;
 import java.time.Duration;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
   private final Provider<ApiKeyService> apiKeyServiceProvider;
   private final Executor exec;
   private final Provider<ProfileUtils> profileUtilsProvider;
+  private final ClientIpResolver clientIpResolver;
   private static final Logger LOGGER = LoggerFactory.getLogger(ApiKeyUsageFilter.class);
 
   @Inject
@@ -38,11 +40,13 @@ public class ApiKeyUsageFilter extends EssentialFilter {
       AkkaSchedulerProvider akkaSchedulerProvider,
       Provider<ApiKeyService> apiKeyServiceProvider,
       Executor exec,
-      Provider<ProfileUtils> profileUtilsProvider) {
+      Provider<ProfileUtils> profileUtilsProvider,
+      ClientIpResolver clientIpResolver) {
     this.akkaSchedulerProvider = checkNotNull(akkaSchedulerProvider);
     this.apiKeyServiceProvider = checkNotNull(apiKeyServiceProvider);
     this.exec = checkNotNull(exec);
     this.profileUtilsProvider = checkNotNull(profileUtilsProvider);
+    this.clientIpResolver = checkNotNull(clientIpResolver);
   }
 
   @Override
@@ -60,7 +64,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
                           // If the key ID is not present then the request was not
                           // authenticated and does not need to be recorded.
                           if (maybeApiKeyId.isPresent()) {
-                            String remoteAddress = request.remoteAddress();
+                            String remoteAddress = clientIpResolver.resolveClientIp(request);
 
                             akkaSchedulerProvider
                                 .get()

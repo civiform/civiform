@@ -59,7 +59,7 @@ public class BaseHtmlLayout {
         this.isDevOrStaging && configuration.getBoolean("staging_add_noindex_meta_tag");
 
     civiformImageTag = configuration.getString("civiform_image_tag");
-    civiformFaviconUrl = configuration.getString("whitelabel.favicon_url");
+    civiformFaviconUrl = configuration.getString("favicon_url");
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */

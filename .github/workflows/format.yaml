@@ -30,7 +30,7 @@ jobs:
           distribution: 'zulu'
 
       - id: file_changes
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v36
         with:
           json: 'true'
 
@@ -83,7 +83,7 @@ jobs:
         with:
           fetch-depth: 0 # get main
       - id: file_changes
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v36
         with:
           json: 'true'
       - name: Set up Docker Buildx
@@ -103,7 +103,10 @@ jobs:
       - name: show Browsertest diff
         run: git add .; git diff --exit-code HEAD
       - name: run bin/fmt
-        run: bin/fmt
+        run: |
+          bin/env-var-docs-create-venv
+          source env-var-docs/venv/bin/activate
+          bin/fmt
       - name: show bin/fmt diff
         run: git add .; git diff --exit-code HEAD
 
@@ -114,7 +117,7 @@ jobs:
         with:
           fetch-depth: 0 # get main
       - id: file_changes
-        uses: tj-actions/changed-files@v35
+        uses: tj-actions/changed-files@v36
         with:
           json: 'true'
       - name: Set up Docker Buildx

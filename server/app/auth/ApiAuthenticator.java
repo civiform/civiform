@@ -2,10 +2,6 @@ package auth;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Iterables;
-import com.typesafe.config.Config;
 import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -53,12 +49,13 @@ public class ApiAuthenticator implements Authenticator {
 
   private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticator.class);
   private final Provider<ApiKeyService> apiKeyService;
-  private final ClientIpType clientIpType;
+  private final ClientIpResolver clientIpResolver;
 
   @Inject
-  public ApiAuthenticator(Provider<ApiKeyService> apiKeyService, Config config) {
+  public ApiAuthenticator(
+      Provider<ApiKeyService> apiKeyService, ClientIpResolver clientIpResolver) {
     this.apiKeyService = checkNotNull(apiKeyService);
-    this.clientIpType = checkNotNull(config).getEnum(ClientIpType.class, "client_ip_type");
+    this.clientIpResolver = clientIpResolver;
   }
 
   /**
@@ -100,11 +97,13 @@ public class ApiAuthenticator implements Authenticator {
       throwUnauthorized(context, "API key is expired: " + keyId);
     }
 
-    if (!isAllowedIp(apiKey, resolveClientIp(context))) {
+    String resolvedIp = clientIpResolver.resolveClientIp(context);
+    if (!isAllowedIp(apiKey, resolvedIp)) {
       throwUnauthorized(
           context,
           String.format(
-              "IP %s not in allowed range for key ID: %s", context.getRemoteAddr(), keyId));
+              "Resolved IP %s is not in allowed range for key ID: %s, which is \"%s\"",
+              resolvedIp, keyId, String.join(",", apiKey.getSubnetSet())));
     }
 
     String saltedCredentialsSecret = apiKeyService.get().salt(credentials.getPassword());
@@ -123,36 +122,16 @@ public class ApiAuthenticator implements Authenticator {
         .anyMatch(allowedSubnet -> allowedSubnet.getInfo().isInRange(clientIp));
   }
 
-  @VisibleForTesting
-  String resolveClientIp(WebContext context) {
-    switch (clientIpType) {
-      case DIRECT:
-        return context.getRemoteAddr();
-      case FORWARDED:
-        String forwardedFor =
-            context
-                .getRequestHeader("X-Forwarded-For")
-                .orElseThrow(
-                    () ->
-                        new RuntimeException(
-                            "CLIENT_IP_TYPE is FORWARDED but no value found for X-Forwarded-For"
-                                + " header!"));
-        // AWS appends the original client IP to the end of the X-Forwarded-For
-        // header if it is present in the original request.
-        // See
-        // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/x-forwarded-headers.html
-        return Iterables.getLast(Splitter.on(",").split(forwardedFor)).strip();
-      default:
-        throw new IllegalStateException(
-            String.format("Unrecognized ClientIpType: %s", clientIpType));
-    }
-  }
-
   private void throwUnauthorized(WebContext context, String cause) {
     logger.warn(
         String.format(
-            "UnauthorizedApiRequest(resource: \"%s\", ip: \"%s\", cause: \"%s\")",
-            context.getPath(), context.getRemoteAddr(), cause));
+            "UnauthorizedApiRequest(resource: \"%s\", Remote Address: \"%s\", X-Forwarded-For:"
+                + " \"%s\", CLIENT_IP_TYPE: \"%s\", cause: \"%s\")",
+            context.getPath(),
+            context.getRemoteAddr(),
+            context.getRequestHeader("X-Forwarded-For").orElse(""),
+            clientIpResolver.getClientIpType().toString(),
+            cause));
 
     throw new BadCredentialsException(cause);
   }

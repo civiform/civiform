@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -62,7 +63,7 @@ public final class CsvExporterService {
   private static final String HEADER_SPACER_SCALAR = " ";
 
   private static final String CURRENCY_CENTS_TYPE_STRING =
-      ScalarType.CURRENCY_CENTS.toString().toLowerCase();
+      ScalarType.CURRENCY_CENTS.toString().toLowerCase(Locale.ROOT);
 
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);

@@ -14,6 +14,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
@@ -194,7 +195,8 @@ public final class ProgramCardFactory {
             cardData -> getDisplayProgram(cardData).lastModifiedTime().orElse(Instant.EPOCH),
             Comparator.reverseOrder())
         .thenComparing(
-            cardData -> getDisplayProgram(cardData).localizedName().getDefault().toLowerCase());
+            cardData ->
+                getDisplayProgram(cardData).localizedName().getDefault().toLowerCase(Locale.ROOT));
   }
 
   @AutoValue

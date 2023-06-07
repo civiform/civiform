@@ -1054,7 +1054,8 @@ export class AdminPrograms {
       return response.url().includes('edit')
     })
     await this.page.click(':is(button:has-text("Address correction"))')
-    return await responsePromise
+    await responsePromise
+    await this.page.waitForLoadState()
   }
 
   async clickAddressCorrectionToggleByName(questionName: string) {
@@ -1063,11 +1064,13 @@ export class AdminPrograms {
       // The setAddressCorrectionEnabled action either redirects to the edit page or returns an error, in which case the response url remains the same.
       return response.url().includes('edit')
     })
+
     await toggleLocator
       .locator('..')
       .locator('button:has-text("Address correction")')
       .click()
-    return await responsePromise
+    await responsePromise
+    await this.page.waitForLoadState()
   }
 
   getCommonIntakeFormToggle() {

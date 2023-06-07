@@ -1,0 +1,10 @@
+# Used by the labeler.yaml github action to automatically apply
+# labels based on rules
+
+# Label PRs with database if it contains evolution file(s)
+database:
+  - 'server/conf/evolutions/default/*.sql'
+
+# Label PRs with i18n if it changes the i18n directory
+i18n:
+  - 'server/conf/i18n/*'

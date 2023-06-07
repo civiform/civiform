@@ -22,6 +22,7 @@ import j2html.tags.specialized.PTag;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
@@ -167,7 +168,7 @@ public final class QuestionBank {
                 Comparator.<QuestionDefinition, Instant>comparing(
                         qdef -> qdef.getLastModifiedTime().orElse(Instant.EPOCH))
                     .reversed()
-                    .thenComparing(qdef -> qdef.getName().toLowerCase()))
+                    .thenComparing(qdef -> qdef.getName().toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
 
     contentDiv.with(

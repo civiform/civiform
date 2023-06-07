@@ -117,7 +117,9 @@ public class RedirectControllerTest extends WithMockedProfiles {
 
     assertThat(result.redirectLocation())
         .contains(
-            controllers.applicant.routes.ApplicantInformationController.edit(applicant.id).url());
+            controllers.applicant.routes.ApplicantInformationController.setLangFromBrowser(
+                    applicant.id)
+                .url());
   }
 
   @Test

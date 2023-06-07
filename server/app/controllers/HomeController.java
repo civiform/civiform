@@ -41,7 +41,7 @@ public class HomeController extends Controller {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.languageUtils = checkNotNull(languageUtils);
     this.faviconURL =
-        Optional.ofNullable(Strings.emptyToNull(configuration.getString("whitelabel.favicon_url")));
+        Optional.ofNullable(Strings.emptyToNull(configuration.getString("favicon_url")));
   }
 
   public CompletionStage<Result> index(Http.Request request) {
@@ -86,8 +86,8 @@ public class HomeController extends Controller {
                       .withLang(data.preferredLocale(), messagesApi);
                 } else {
                   return redirect(
-                      controllers.applicant.routes.ApplicantInformationController.edit(
-                          applicant.id));
+                      controllers.applicant.routes.ApplicantInformationController
+                          .setLangFromBrowser(applicant.id));
                 }
               },
               httpExecutionContext.current());

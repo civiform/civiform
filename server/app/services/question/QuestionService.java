@@ -307,15 +307,20 @@ public final class QuestionService {
       if (questionDefinition.getEnumeratorId().isEmpty()) {
         errorMessage =
             String.format(
-                "Question '%s' conflicts with question id: %s",
-                questionDefinition.getQuestionPathSegment(), conflict.id);
+                "Administrative identifier '%s' generates JSON path '%s' which would conflict with"
+                    + " the existing question with admin ID '%s'",
+                questionDefinition.getName(),
+                questionDefinition.getQuestionPathSegment(),
+                conflict.getQuestionDefinition().getName());
       } else {
         errorMessage =
             String.format(
-                "Question '%s' with Enumerator ID %d conflicts with question id: %d",
-                questionDefinition.getQuestionPathSegment(),
+                "Administrative identifier '%s' with Enumerator ID %d generates JSON path '%s'"
+                    + " which would conflict with the existing question with admin ID '%s'",
+                questionDefinition.getName(),
                 questionDefinition.getEnumeratorId().get(),
-                conflict.id);
+                questionDefinition.getQuestionPathSegment(),
+                conflict.getQuestionDefinition().getName());
       }
       return ImmutableSet.of(CiviFormError.of(errorMessage));
     }

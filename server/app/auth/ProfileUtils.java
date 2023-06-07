@@ -1,6 +1,7 @@
 package auth;
 
 import com.google.common.base.Preconditions;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
@@ -63,10 +64,10 @@ public class ProfileUtils {
 
   // A temporary placeholder email value, used while the user needs to verify their account.
   private static final String IDCS_PLACEHOLDER_EMAIL_LOWERCASE =
-      "ITD_UCSS_UAT@seattle.gov".toLowerCase();
+      "ITD_UCSS_UAT@seattle.gov".toLowerCase(Locale.ROOT);
   // Testing account to allow for manual verification of the check.
   private static final String IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE =
-      "CiviFormStagingTest@gmail.com".toLowerCase();
+      "CiviFormStagingTest@gmail.com".toLowerCase(Locale.ROOT);
 
   /** Return true if the account is not a fully usable account to the City of Seattle. */
   public boolean accountIsIdcsPlaceholder(CiviFormProfile profile) {
@@ -76,7 +77,7 @@ public class ProfileUtils {
       return false;
     }
 
-    String userEmailLowercase = userEmail.get().toLowerCase();
+    String userEmailLowercase = userEmail.get().toLowerCase(Locale.ROOT);
 
     return IDCS_PLACEHOLDER_EMAIL_LOWERCASE.equals(userEmailLowercase)
         || IDCS_PLACEHOLDER_TEST_EMAIL_LOWERCASE.equals(userEmailLowercase);

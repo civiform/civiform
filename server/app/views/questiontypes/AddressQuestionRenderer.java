@@ -127,11 +127,11 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
     DivTag addressQuestionFormContent =
         div()
             .with(
-                /** First line of address entry: Address line 1 AKA street address */
+                // First line of address entry: Address line 1 AKA street address
                 streetAddressField.getInputTag(),
-                /** Second line of address entry: Address line 2 AKA apartment, unit, etc. */
+                // Second line of address entry: Address line 2 AKA apartment, unit, etc.
                 addressOptionalField.getInputTag(),
-                /** Third line of address entry: City, State, Zip */
+                // Third line of address entry: City, State, Zip
                 div()
                     .withClasses("grid", "grid-cols-3", "gap-3")
                     .with(

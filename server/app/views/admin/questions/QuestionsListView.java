@@ -28,6 +28,7 @@ import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -192,7 +193,10 @@ public final class QuestionsListView extends BaseHtmlView {
                     .reversed()
                     .thenComparing(
                         card ->
-                            getDisplayQuestion(card).getQuestionText().getDefault().toLowerCase()))
+                            getDisplayQuestion(card)
+                                .getQuestionText()
+                                .getDefault()
+                                .toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
 
     for (QuestionCardData card : cards) {

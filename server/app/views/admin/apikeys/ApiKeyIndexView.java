@@ -130,7 +130,9 @@ public final class ApiKeyIndexView extends BaseHtmlView {
                             .withClasses("text-gray-700", "text-sm")
                             .withClasses(ReferenceClasses.BT_API_KEY_ID),
                         p("Allowed subnets: " + subnetJoiner.toString())
-                            .withClasses("text-gray-700", "text-sm"))),
+                            .withClasses("text-gray-700", "text-sm"),
+                        p("Expires on: " + dateConverter.renderDate(apiKey.getExpiration()))
+                            .withClasses("text-gray-700", "text-sm", ReferenceClasses.BT_DATE))),
                 statsDiv)
             .withClasses("flex", "place-content-between");
 

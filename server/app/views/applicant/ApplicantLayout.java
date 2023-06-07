@@ -96,11 +96,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = checkNotNull(configuration).getString("support_email_address");
     this.maybeLogoUrl =
-        checkNotNull(configuration).hasPath("whitelabel.small_logo_url")
-            ? Optional.of(configuration.getString("whitelabel.small_logo_url"))
+        checkNotNull(configuration).hasPath("whitelabel_small_logo_url")
+            ? Optional.of(configuration.getString("whitelabel_small_logo_url"))
             : Optional.empty();
-    this.civicEntityFullName = configuration.getString("whitelabel.civic_entity_full_name");
-    this.civicEntityShortName = configuration.getString("whitelabel.civic_entity_short_name");
+    this.civicEntityFullName = configuration.getString("whitelabel_civic_entity_full_name");
+    this.civicEntityShortName = configuration.getString("whitelabel_civic_entity_short_name");
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && configuration.getBoolean("staging_disable_demo_mode_logins");
@@ -225,7 +225,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
       long userId = profile.get().getApplicant().join().id;
 
       String updateLanguageAction =
-          controllers.applicant.routes.ApplicantInformationController.update(userId).url();
+          controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(userId)
+              .url();
 
       String csrfToken = CSRF.getToken(request.asScala()).value();
       InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");

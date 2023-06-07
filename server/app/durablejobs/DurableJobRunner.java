@@ -62,7 +62,10 @@ public final class DurableJobRunner {
         config.getString("base_url").replace("https", "").replace("http", "").replace("://", "");
     this.durableJobExecutionContext = Preconditions.checkNotNull(durableJobExecutionContext);
     this.durableJobRegistry = Preconditions.checkNotNull(durableJobRegistry);
-    this.itEmailAddress = config.getString("it_email_address");
+    this.itEmailAddress =
+        config.getString("it_email_address").isBlank()
+            ? config.getString("support_email_address")
+            : config.getString("it_email_address");
     this.jobTimeoutMinutes = config.getInt("durable_jobs.job_timeout_minutes");
     this.persistedDurableJobRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
     this.runnerLifespanSeconds = config.getInt("durable_jobs.poll_interval_seconds");

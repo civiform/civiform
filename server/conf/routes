@@ -131,8 +131,8 @@ GET     /applicants/:applicantId/files/:fileKey     controllers.FileController.s
 GET     /assets/*file               controllers.Assets.versioned(file)
 
 # Methods for applicants
-GET     /applicants/:applicantId/edit                                       controllers.applicant.ApplicantInformationController.edit(request: Request, applicantId: Long)
-POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.update(request: Request, applicantId: Long)
+GET     /applicants/:applicantId/edit                                       controllers.applicant.ApplicantInformationController.setLangFromBrowser(request: Request, applicantId: Long)
+POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.setLangFromSwitcher(request: Request, applicantId: Long)
 
 # Program methods for applicants
 GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
