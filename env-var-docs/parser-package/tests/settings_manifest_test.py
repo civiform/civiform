@@ -38,7 +38,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                         values=None,
                         regex=None,
                         regex_tests=None,
-                        mode=Mode.HIDDEN)
+                        mode=Mode.ADMIN_READABLE)
             })
 
         result = render_sections(root_group)
@@ -46,6 +46,6 @@ class TestGenerateSettingsManifest(unittest.TestCase):
         self.assertEqual(
             result,
             """ImmutableMap.of("Test section", SettingsSection.create("Test section", "Fake section for testing.",\
- ImmutableList.of(SettingsSection.create("Test subsection", "Fake subsection for testing", ImmutableList.of(), ImmutableList.of(SettingDescription.create("SUBSECTION_VARIABLE", "Fake subsection variable for testing", SettingType.STRING)))),\
- ImmutableList.of()), "ROOT", SettingsSection.create("ROOT", "Top level vars", ImmutableList.of(), ImmutableList.of(SettingDescription.create("STRING_VARIABLE", "Fake string variable for testing", SettingType.STRING))))"""
+ ImmutableList.of(SettingsSection.create("Test subsection", "Fake subsection for testing", ImmutableList.of(), ImmutableList.of(SettingDescription.create("SUBSECTION_VARIABLE", "Fake subsection variable for testing", SettingType.STRING, SettingMode.HIDDEN)))),\
+ ImmutableList.of()), "ROOT", SettingsSection.create("ROOT", "Top level vars", ImmutableList.of(), ImmutableList.of(SettingDescription.create("STRING_VARIABLE", "Fake string variable for testing", SettingType.STRING, SettingMode.ADMIN_READABLE))))"""
         )
