@@ -11,6 +11,7 @@ import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.StorageClient;
 import views.components.ButtonStyles;
@@ -82,7 +83,7 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract String baseUrl();
 
-    public abstract Optional<String> applicantName();
+    public abstract ApplicantPersonalInfo applicantPersonalInfo();
 
     public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
 
@@ -119,18 +120,9 @@ public class ApplicationBaseView extends BaseHtmlView {
 
       public abstract Builder setBannerMessage(Optional<ToastMessage> banner);
 
-      public abstract Builder setApplicantName(Optional<String> applicantName);
+      public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
-      abstract Optional<String> applicantName();
-
-      abstract Messages messages();
-
-      abstract Params autoBuild();
-
-      public final Params build() {
-        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
-        return autoBuild();
-      }
+      public abstract Params build();
     }
   }
 

@@ -77,7 +77,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                     params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
                 content);
 
-    return layout.renderWithNav(params.request(), params.applicantName(), messages, bundle);
+    return layout.renderWithNav(params.request(), params.applicantPersonalInfo(), messages, bundle);
   }
 
   private FormTag renderForm(

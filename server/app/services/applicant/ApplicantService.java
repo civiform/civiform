@@ -52,6 +52,8 @@ import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantPersonalInfo.ApplicantType;
+import services.applicant.ApplicantPersonalInfo.LoggedInRepresentation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -450,13 +452,13 @@ public final class ApplicantService {
   @VisibleForTesting
   CompletionStage<Application> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
-    CompletableFuture<Optional<String>> applicantEmailFuture =
-        getEmail(applicantId).toCompletableFuture();
+    CompletableFuture<ApplicantPersonalInfo> applicantLabelFuture =
+        getPersonalInfo(applicantId).toCompletableFuture();
     CompletableFuture<Optional<Application>> applicationFuture =
         applicationRepository
             .submitApplication(applicantId, programId, tiSubmitterEmail)
             .toCompletableFuture();
-    return CompletableFuture.allOf(applicantEmailFuture, applicationFuture)
+    return CompletableFuture.allOf(applicantLabelFuture, applicationFuture)
         .thenComposeAsync(
             (v) -> {
               Optional<Application> applicationMaybe = applicationFuture.join();
@@ -496,7 +498,12 @@ public final class ApplicantService {
                                   .toCompletableFuture())
                       .orElse(CompletableFuture.completedFuture(null));
 
-              Optional<String> applicantEmail = applicantEmailFuture.join();
+              ApplicantPersonalInfo applicantPersonalInfo = applicantLabelFuture.join();
+              Optional<String> applicantEmail =
+                  applicantPersonalInfo.getType() == ApplicantType.LOGGED_IN
+                      ? applicantPersonalInfo.loggedIn().email()
+                      : Optional.empty();
+
               CompletableFuture<Void> notifyApplicantFuture =
                   applicantEmail
                       .map(
@@ -728,56 +735,32 @@ public final class ApplicantService {
         httpExecutionContext.current());
   }
 
-  /** Return the name of the given applicant id. If not available, returns the email. */
-  public CompletionStage<Optional<String>> getNameOrEmail(long applicantId) {
+  /**
+   * Returns an ApplicantPersonalInfo, which represents some human-readable version of the
+   * applicant.
+   */
+  public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return userRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
-              if (applicant.isEmpty()) {
-                return Optional.empty();
+              if (applicant.isEmpty()
+                  || Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId())) {
+                return ApplicantPersonalInfo.ofGuestUser();
               }
+
+              LoggedInRepresentation.Builder builder = LoggedInRepresentation.builder();
+
               Optional<String> name = applicant.get().getApplicantData().getApplicantName();
               if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
-                return name;
+                builder.setName(name.get());
               }
               String emailAddress = applicant.get().getAccount().getEmailAddress();
               if (!Strings.isNullOrEmpty(emailAddress)) {
-                return Optional.of(emailAddress);
+                builder.setEmail(emailAddress);
               }
-              return Optional.empty();
-            },
-            httpExecutionContext.current());
-  }
 
-  /** Return the name of the given applicant id. */
-  public CompletionStage<Optional<String>> getName(long applicantId) {
-    return userRepository
-        .lookupApplicant(applicantId)
-        .thenApplyAsync(
-            applicant -> {
-              if (applicant.isEmpty()) {
-                return Optional.empty();
-              }
-              return applicant.get().getApplicantData().getApplicantName();
-            },
-            httpExecutionContext.current());
-  }
-
-  /** Return the email of the given applicant id if they have one. */
-  public CompletionStage<Optional<String>> getEmail(long applicantId) {
-    return userRepository
-        .lookupApplicant(applicantId)
-        .thenApplyAsync(
-            applicant -> {
-              if (applicant.isEmpty()) {
-                return Optional.empty();
-              }
-              String emailAddress = applicant.get().getAccount().getEmailAddress();
-              if (Strings.isNullOrEmpty(emailAddress)) {
-                return Optional.empty();
-              }
-              return Optional.of(emailAddress);
+              return ApplicantPersonalInfo.ofLoggedInUser(builder.build());
             },
             httpExecutionContext.current());
   }

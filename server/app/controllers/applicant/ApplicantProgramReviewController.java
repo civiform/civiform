@@ -28,6 +28,8 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.MessageKey;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -36,7 +38,6 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import views.ApplicantUtils;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.Modal;
@@ -86,7 +87,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
     Optional<ToastMessage> flashSuccessBanner =
         request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
-    CompletionStage<Optional<String>> applicantStage = applicantService.getName(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
@@ -115,7 +117,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               ApplicantProgramSummaryView.Params.Builder params =
                   this.generateParamsBuilder(roApplicantProgramService)
                       .setApplicantId(applicantId)
-                      .setApplicantName(applicantStage.toCompletableFuture().join())
+                      .setApplicantPersonalInfo(applicantStage.toCompletableFuture().join())
                       .setBannerMessages(
                           ImmutableList.of(flashBanner, flashSuccessBanner, notEligibleBanner))
                       .setMessages(messages)
@@ -125,8 +127,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               // Show a login prompt on the review page if we were redirected from a program slug
               // and user is a guest.
               if (request.flash().get("redirected-from-program-slug").isPresent()
-                  && ApplicantUtils.isGuest(
-                      applicantStage.toCompletableFuture().join(), messages)) {
+                  && applicantStage.toCompletableFuture().join().getType() == ApplicantType.GUEST) {
                 Modal loginPromptModal =
                     createLoginPromptModal(
                             messages,

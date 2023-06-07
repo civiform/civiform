@@ -37,6 +37,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -178,11 +179,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       String selectedAddress,
       ImmutableList<AddressSuggestion> suggestions) {
-    CompletableFuture<Optional<String>> applicantNameStage =
-        applicantService.getName(applicantId).toCompletableFuture();
+    CompletableFuture<ApplicantPersonalInfo> applicantStage =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     return CompletableFuture.allOf(
-            checkApplicantAuthorization(profileUtils, request, applicantId), applicantNameStage)
+            checkApplicantAuthorization(profileUtils, request, applicantId), applicantStage)
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(
@@ -206,7 +207,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantId,
                   programId,
                   blockId,
-                  applicantNameStage.join(),
+                  applicantStage.join(),
                   inReview,
                   roApplicantProgramService);
             },
@@ -230,7 +231,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> previous(
       Request request, long applicantId, long programId, int previousBlockIndex, boolean inReview) {
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
     CompletableFuture<Void> applicantAuthCompletableFuture =
         applicantStage
@@ -257,7 +259,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
-                Optional<String> applicantName = applicantStage.toCompletableFuture().join();
+                ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
                         buildApplicationBaseViewParams(
@@ -268,7 +270,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             inReview,
                             roApplicantProgramService,
                             block.get(),
-                            applicantName,
+                            personalInfo,
                             ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)));
               } else {
                 return notFound();
@@ -294,7 +296,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   private CompletionStage<Result> editOrReview(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
     Optional<ToastMessage> flashSuccessBanner =
         request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
@@ -311,7 +314,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               Optional<Block> block = roApplicantProgramService.getBlock(blockId);
 
               if (block.isPresent()) {
-                Optional<String> applicantName = applicantStage.toCompletableFuture().join();
+                ApplicantPersonalInfo personalInfo = applicantStage.toCompletableFuture().join();
                 return ok(
                     editView.render(
                         applicationBaseViewParamsBuilder(
@@ -322,7 +325,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 inReview,
                                 roApplicantProgramService,
                                 block.get(),
-                                applicantName,
+                                personalInfo,
                                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
                             .setBannerMessage(flashSuccessBanner)
                             .build()));
@@ -356,7 +359,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> updateFile(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -446,7 +450,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> update(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
     return applicantStage
         .thenComposeAsync(
@@ -489,7 +494,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      Optional<String> applicantName,
+      ApplicantPersonalInfo personalInfo,
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService) {
     Optional<Block> thisBlockUpdatedMaybe = roApplicantProgramService.getBlock(blockId);
@@ -512,7 +517,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           inReview,
                           roApplicantProgramService,
                           thisBlockUpdated,
-                          applicantName,
+                          personalInfo,
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
@@ -540,7 +545,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         inReview,
                         roApplicantProgramService,
                         thisBlockUpdated,
-                        applicantName));
+                        personalInfo));
       }
     }
 
@@ -624,7 +629,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block thisBlockUpdated,
-      Optional<String> applicantName) {
+      ApplicantPersonalInfo personalInfo) {
     ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
 
     AddressSuggestion[] suggestionMatch =
@@ -657,7 +662,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       inReview,
                       roApplicantProgramService,
                       thisBlockUpdated,
-                      applicantName,
+                      personalInfo,
                       ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS),
                   messagesApi.preferred(request),
                   addressSuggestionGroup,
@@ -693,7 +698,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
-      Optional<String> applicantName,
+      ApplicantPersonalInfo personalInfo,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
     return ApplicationBaseView.Params.builder()
         .setRequest(request)
@@ -705,7 +710,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setInReview(inReview)
         .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
         .setTotalBlockCount(roApplicantProgramService.getAllActiveBlocks().size())
-        .setApplicantName(applicantName)
+        .setApplicantPersonalInfo(personalInfo)
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
@@ -720,7 +725,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
-      Optional<String> applicantName,
+      ApplicantPersonalInfo personalInfo,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
     return applicationBaseViewParamsBuilder(
             request,
@@ -730,7 +735,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             inReview,
             roApplicantProgramService,
             block,
-            applicantName,
+            personalInfo,
             errorDisplayMode)
         .build();
   }

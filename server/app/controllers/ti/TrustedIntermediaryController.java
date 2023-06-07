@@ -27,6 +27,8 @@ import play.mvc.Result;
 import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantPersonalInfo.LoggedInRepresentation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
@@ -92,10 +94,18 @@ public final class TrustedIntermediaryController {
         PaginationInfo.paginate(
             trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
 
+    Optional<String> applicantName =
+        civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName();
+
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
-            civiformProfile.get().getApplicant().join().getApplicantData().getApplicantName(),
+            // TODO(#4976): Don't show the "Applying as" message if the TI hasn't gone to the
+            // applicant dashboard yet.
+            applicantName.isPresent()
+                ? ApplicantPersonalInfo.ofLoggedInUser(
+                    LoggedInRepresentation.builder().setName(applicantName).build())
+                : ApplicantPersonalInfo.ofGuestUser(),
             pageInfo.getPageItems(),
             pageInfo.getPageCount(),
             pageInfo.getPage(),
