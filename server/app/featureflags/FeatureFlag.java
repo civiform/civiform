@@ -35,7 +35,8 @@ public enum FeatureFlag {
   PHONE_QUESTION_TYPE_ENABLED,
 
   // Single program publishing feature flag.
-  PUBLISH_SINGLE_PROGRAM_ENABLED;
+  PUBLISH_SINGLE_PROGRAM_ENABLED,
+  ADMIN_SETTINGS_PANEL_ENABLED;
 
   /**
    * Returns a {@link FeatureFlag} for the given name. Matches based on the first matching flag,

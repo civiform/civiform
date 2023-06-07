@@ -1,5 +1,6 @@
 package views.admin;
 
+import static featureflags.FeatureFlag.ADMIN_SETTINGS_PANEL_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
@@ -168,9 +169,11 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     return adminHeader.with(
         headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
-        a(Icons.svg(Icons.COG).withClasses("h-6 w-6"))
-            .withHref(settingsLink)
-            .withClasses("float-right"));
+        featureFlags.getFlagEnabledFromConfig(ADMIN_SETTINGS_PANEL_ENABLED).orElse(false)
+            ? a(Icons.svg(Icons.COG).withClasses("h-6 w-6"))
+                .withHref(settingsLink)
+                .withClasses("float-right")
+            : null);
   }
 
   private ATag headerLink(String text, String href, String... styles) {
