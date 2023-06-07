@@ -124,6 +124,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
       if (node instanceof Link) {
         attributes.put("class", "text-blue-600");
+        attributes.put("target", "_blank");
       }
     }
   }
