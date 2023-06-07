@@ -67,7 +67,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void index_withPrograms_returnsOnlyRelevantPrograms() {
     resourceCreator().insertActiveProgram("one");
     resourceCreator().insertActiveProgram("two");
-    resourceCreator().insertDraftProgram("three");
+    resourceCreator().insertActiveProgram("three");
 
     Request request = addCSRFToken(fakeRequest()).build();
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
@@ -87,7 +87,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
     app.save();
 
-    resourceCreator().insertDraftProgram(programName);
+    resourceCreator().insertActiveProgram(programName);
 
     this.versionRepository.publishNewSynchronizedVersion();
 
