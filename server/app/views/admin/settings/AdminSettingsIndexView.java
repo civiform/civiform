@@ -32,6 +32,7 @@ import views.style.StyleUtils;
 /** Displays application settings for the CiviForm Admin role. */
 public final class AdminSettingsIndexView extends BaseHtmlView {
 
+  public static final String SECTION_STYLES = "grid grid-flow-row-dense grid-cols-2 gap-8";
   private final SettingsManifest settingsManifest;
   private final AdminLayout layout;
 
@@ -87,7 +88,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     var container = div().withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()));
 
     container.with(h3(settingsSection.sectionName()).withClasses("text-xl font-bold py-4"));
-    var settingsContainer = div().withClasses("grid grid-flow-row-dense grid-cols-2 gap-8");
+    var settingsContainer = div().withClasses(SECTION_STYLES);
     container.with(settingsContainer);
     settingsSection.settings().stream()
         .filter(SettingDescription::shouldDisplay)
@@ -104,7 +105,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     var container = div();
 
     container.with(h3(settingsSection.sectionName()).withClasses("text-l font-bold py-4"));
-    var settingsContainer = div().withClasses("grid grid-flow-row-dense grid-cols-2 gap-8");
+    var settingsContainer = div().withClasses(SECTION_STYLES);
     container.with(settingsContainer);
 
     settingsSection.settings().stream()
