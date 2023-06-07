@@ -42,6 +42,12 @@ public class SettingsManifestTest {
           "Fake subsection variable for testing",
           SettingType.INT,
           SettingMode.ADMIN_READABLE);
+  private static SettingDescription UNSET_STRING_VARIABLE =
+      SettingDescription.create(
+          "UNSET_STRING_VARIABLE",
+          "Fake subsection variable for testing",
+          SettingType.INT,
+          SettingMode.ADMIN_READABLE);
 
   private static Config CONFIG =
       ConfigFactory.parseMap(
@@ -91,5 +97,7 @@ public class SettingsManifestTest {
         .isEqualTo(Optional.of("one, two, three"));
     assertThat(testManifest.getSettingDisplayValue(BOOL_VARIABLE)).isEqualTo(Optional.of("TRUE"));
     assertThat(testManifest.getSettingDisplayValue(ENUM_VARIABLE)).isEqualTo(Optional.of("foo"));
+    assertThat(testManifest.getSettingDisplayValue(UNSET_STRING_VARIABLE))
+        .isEqualTo(Optional.empty());
   }
 }

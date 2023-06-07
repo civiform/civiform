@@ -8,6 +8,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Function;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
@@ -38,66 +39,43 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {
-    try {
-      return Optional.of(config.getBoolean(getHoconName(settingDescription)));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(config::getBoolean, getHoconName(settingDescription));
   }
 
   protected Optional<Boolean> getBool(String variableName) {
-    try {
-      return Optional.of(config.getBoolean(getHoconName(variableName)));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(config::getBoolean, getHoconName(variableName));
   }
 
   protected Optional<String> getString(SettingDescription settingDescription) {
-    try {
-      return Optional.of(config.getString(getHoconName(settingDescription)));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(config::getString, getHoconName(settingDescription));
   }
 
   protected Optional<String> getString(String variableName) {
-    try {
-      return Optional.of(config.getString(getHoconName(variableName)));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(config::getString, getHoconName(variableName));
   }
 
   protected Optional<Integer> getInt(SettingDescription settingDescription) {
-    try {
-      return Optional.of(config.getInt(getHoconName(settingDescription)));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(config::getInt, getHoconName(settingDescription));
   }
 
   protected Optional<Integer> getInt(String variableName) {
-    try {
-      return Optional.of(config.getInt(getHoconName(variableName)));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(config::getInt, getHoconName(variableName));
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(
       SettingDescription settingDescription) {
-    try {
-      return Optional.of(
-          ImmutableList.copyOf(config.getStringList(getHoconName(settingDescription))));
-    } catch (ConfigException.Missing e) {
-      return Optional.empty();
-    }
+    return getConfigVal(
+        name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(settingDescription));
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(String variableName) {
+    return getConfigVal(
+        name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(variableName));
+  }
+
+  private <T> Optional<T> getConfigVal(Function<String, T> configGetter, String hoconName) {
     try {
-      return Optional.of(ImmutableList.copyOf(config.getStringList(getHoconName(variableName))));
+      return Optional.of(configGetter.apply(hoconName));
     } catch (ConfigException.Missing e) {
       return Optional.empty();
     }
