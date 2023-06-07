@@ -168,7 +168,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await tiDashboard.clickOnApplicantDashboard()
     await applicantQuestions.expectProgramHidden(programName)
     await validateScreenshot(page, 'program-visibility-hidden-from-other-tis')
-    logout(page)
+    await logout(page)
 
     await loginAsTestUser(page, 'a:has-text("Log in")', true)
     const clientTwo: ClientInformation = {
@@ -245,12 +245,14 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       page,
       'program-visibility-hidden-from-other-tis-in-selectti-mode',
     )
-    logout(page)
+    await logout(page)
 
     // login again as Admin and change the visibility to TI_Only, check if they can see the program
     await loginAsAdmin(page)
     await adminPrograms.editProgram(programName, ProgramVisibility.TI_ONLY)
     await adminPrograms.publishAllPrograms()
+    await logout(page)
+
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
@@ -265,6 +267,5 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       page,
       'program-visibility-changes-all-ti-can-see-program',
     )
-    logout(page)
   })
 })

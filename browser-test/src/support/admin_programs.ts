@@ -122,7 +122,8 @@ export class AdminPrograms {
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
-      await validateScreenshot(page, 'List-of-all-available-tis')
+      const screenshotname = programName.replaceAll(' ', '-').toLowerCase()
+      await validateScreenshot(this.page, screenshotname)
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
@@ -140,11 +141,9 @@ export class AdminPrograms {
     selectedTI = 'none',
   ) {
     await this.gotoAdminProgramsPage()
-    await this.page.click('#View')
-    await waitForPageJsLoad(this.page)
-    await this.page.click('#Edit program')
-    await waitForPageJsLoad(this.page)
-    await this.page.click('#Edit program details')
+    await this.page.click('button :text("View")')
+    await this.page.click('#header_edit_button')
+    await this.page.click('#header_edit_button')
     await waitForPageJsLoad(this.page)
 
     await this.page.check(`label:has-text("${visibility}")`)
@@ -152,9 +151,8 @@ export class AdminPrograms {
       await this.page.check(`label:has-text("${selectedTI}")`)
     }
 
-    await this.page.click('#Save')
+    await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
-    await this.expectProgramBlockEditPage(programName)
   }
 
   async programNames() {

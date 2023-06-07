@@ -338,7 +338,7 @@ export const loginAsTestUser = async (
       await loginAsTestUserAwsStaging(page, loginButton, isTi)
       break
     case AuthStrategy.SEATTLE_STAGING:
-      await loginAsTestUserSeattleStaging(page, loginButton, isTi)
+      await loginAsTestUserSeattleStaging(page, loginButton)
       break
     default:
       throw new Error(
@@ -351,11 +351,7 @@ export const loginAsTestUser = async (
   )
 }
 
-async function loginAsTestUserSeattleStaging(
-  page: Page,
-  loginButton: string,
-  isTi: boolean,
-) {
+async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
   await page.click(loginButton)
   // Wait for the IDCS login page to make sure we've followed all redirects.
   // If running this against a site with a real IDCS (i.e. staging) and this
@@ -381,14 +377,10 @@ async function loginAsTestUserAwsStaging(
 
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
-  const urlText = ''
-  if (!isTi) {
-    const urlText = '**/applicants/**'
-  } else {
-    const urlText = '**/admin/**'
-  }
   await Promise.all([
-    page.waitForURL(urlText, {waitUntil: 'networkidle'}),
+    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+      waitUntil: 'networkidle',
+    }),
     page.click('button:has-text("Continue")'),
   ])
 }
@@ -424,16 +416,12 @@ async function loginAsTestUserFakeOidc(
     page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
     page.click('button:has-text("Sign-in"):not([disabled])'),
   ])
-  const urlText = ''
-  if (!isTi) {
-    const urlText = '**/applicants/**'
-  } else {
-    const urlText = '**/admin/**'
-  }
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await Promise.all([
-    page.waitForURL(urlText, {waitUntil: 'networkidle'}),
+    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+      waitUntil: 'networkidle',
+    }),
     page.click('button:has-text("Continue")'),
   ])
 }
