@@ -23,11 +23,11 @@ public abstract class AbstractSettingsManifest {
   public Optional<String> getSettingDisplayValue(SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
       case BOOLEAN:
-        return getBool(settingDescription).map(String::valueOf);
+        return getBool(settingDescription).map(String::valueOf).map(String::toUpperCase);
       case INT:
         return getInt(settingDescription).map(String::valueOf);
       case LIST_OF_STRINGS:
-        return getListOfStrings(settingDescription).map(ImmutableList::toString);
+        return getListOfStrings(settingDescription).map(list -> String.join(", ", list));
       case ENUM:
       case STRING:
         return getString(settingDescription).map(String::valueOf);

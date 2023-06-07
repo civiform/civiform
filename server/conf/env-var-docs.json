@@ -562,7 +562,7 @@
       },
       "FEATURE_FLAG_OVERRIDES_ENABLED": {
         "mode": "ADMIN_READABLE",
-        "description": "Allows feature flags to be overridden via request cookies. Is used by browswer tests. Should only be enabled in test and staging deployments.",
+        "description": "Allows feature flags to be overridden via request cookies. Is used by browser tests. Should only be enabled in test and staging deployments.",
         "type": "bool"
       },
       "INTAKE_FORM_ENABLED": {

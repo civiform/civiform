@@ -103,7 +103,8 @@ def render_group(group: ParsedGroup) -> str:
 
 def render_variable(name: str, variable: Variable) -> str:
     setting_type = _get_java_setting_type(variable)
-    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type})'
+    setting_mode = str(variable.mode).replace("Mode.", "")
+    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{mode})'
 
 
 def _get_java_setting_type(variable: Variable) -> str:
