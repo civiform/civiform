@@ -6,6 +6,8 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.input;
+import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -16,9 +18,15 @@ import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import j2html.tags.specialized.LabelTag;
+import java.util.ArrayList;
+import java.util.List;
 import models.DisplayMode;
+import models.TrustedIntermediaryGroup;
 import modules.MainModule;
 import play.mvc.Http.Request;
+import repository.UserRepository;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import views.BaseHtmlView;
@@ -29,6 +37,8 @@ import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.style.BaseStyles;
+import views.style.ReferenceClasses;
+import views.style.StyleUtils;
 
 /**
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
@@ -38,10 +48,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private final FeatureFlags featureFlags;
   private final String baseUrl;
+  private final UserRepository userRepository;
 
-  ProgramFormBuilder(Config configuration, FeatureFlags featureFlags) {
+  ProgramFormBuilder(
+      Config configuration, FeatureFlags featureFlags, UserRepository userRepository) {
     this.featureFlags = featureFlags;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.userRepository = checkNotNull(userRepository);
   }
 
   /** Builds the form using program form data. */
@@ -57,7 +70,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.getLocalizedConfirmationMessage(),
         program.getDisplayMode(),
         program.getIsCommonIntakeForm(),
-        editExistingProgram);
+        editExistingProgram,
+        program.getTiGroups());
   }
 
   /** Builds the form using program definition data. */
@@ -73,7 +87,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
         program.localizedConfirmationMessage().getDefault(),
         program.displayMode().getValue(),
         program.programType().equals(ProgramType.COMMON_INTAKE_FORM),
-        editExistingProgram);
+        editExistingProgram,
+        new ArrayList<>(program.acls().getTiProgramViewAcls()));
   }
 
   private FormTag buildProgramForm(
@@ -86,7 +101,8 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
       String confirmationSceen,
       String displayMode,
       Boolean isCommonIntakeForm,
-      boolean editExistingProgram) {
+      boolean editExistingProgram,
+      List<Long> selectedTi) {
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
     formTag.with(
         requiredFieldsExplanationContent(),
@@ -154,6 +170,15 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setValue(DisplayMode.TI_ONLY.getValue())
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
+        FieldWithLabel.radio()
+            .setId("program-display-mode-select-ti-only")
+            .setFieldName("displayMode")
+            .setAriaRequired(true)
+            .setLabelText("Visible to Selected Trusted Intermediaries ONLY")
+            .setValue(DisplayMode.SELECT_TI.getValue())
+            .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
+            .getRadioTag(),
+        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
@@ -196,6 +221,53 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .withClasses(ButtonStyles.SOLID_BLUE, "mt-6"));
 
     return formTag;
+  }
+
+  private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
+    List<TrustedIntermediaryGroup> tiGroups = userRepository.listTrustedIntermediaryGroups();
+    DivTag tiSelectionRenderer =
+        div()
+            // Hidden input that's always selected to allow for clearing multi-select data.
+            .with(
+                input()
+                    .withType("checkbox")
+                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
+                    .withValue("")
+                    .withCondChecked(true)
+                    .withClasses(ReferenceClasses.RADIO_DEFAULT, "hidden"))
+            .with(
+                tiGroups.stream()
+                    .map(
+                        option ->
+                            renderCheckboxOption(
+                                option.getName(), option.id, selectedTi.contains(option.id))));
+    DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TiList").with(tiSelectionRenderer);
+
+    return selectTiChecked ? returnDivTag : returnDivTag.isHidden();
+  }
+
+  private DivTag renderCheckboxOption(String tiName, Long tiId, boolean selected) {
+    String id = tiId.toString();
+    LabelTag labelTag =
+        label()
+            .withClasses(
+                ReferenceClasses.RADIO_OPTION,
+                BaseStyles.CHECKBOX_LABEL,
+                true ? BaseStyles.BORDER_SEATTLE_BLUE : "")
+            .with(
+                input()
+                    .withId(id)
+                    .withType("checkbox")
+                    .withName("tiGroups" + Path.ARRAY_SUFFIX)
+                    .withValue(String.valueOf(tiId))
+                    .withCondChecked(selected)
+                    .withClasses(
+                        StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
+                span(tiName).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+
+    return div()
+        .withClasses(ReferenceClasses.MULTI_OPTION_QUESTION_OPTION, "my-2", "relative")
+        .with(labelTag);
   }
 
   private DomContent programUrlField(String adminName, boolean editExistingProgram) {

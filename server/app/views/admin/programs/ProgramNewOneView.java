@@ -11,6 +11,7 @@ import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import repository.UserRepository;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -24,8 +25,11 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
 
   @Inject
   public ProgramNewOneView(
-      AdminLayoutFactory layoutFactory, Config configuration, FeatureFlags featureFlags) {
-    super(configuration, featureFlags);
+      AdminLayoutFactory layoutFactory,
+      Config configuration,
+      FeatureFlags featureFlags,
+      UserRepository userRepository) {
+    super(configuration, featureFlags, userRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 

@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
@@ -181,7 +182,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
             versionRepo.getDraftVersion(),
-            ProgramType.DEFAULT);
+            ProgramType.DEFAULT,
+            new ProgramAcls());
     Program withId = repo.insertProgramSync(program);
 
     Program found = repo.lookupProgram(withId.id).toCompletableFuture().join().get();

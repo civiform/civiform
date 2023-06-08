@@ -3,6 +3,7 @@ package services.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.AbstractMap;
@@ -924,6 +925,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 .setDisplayMode(DisplayMode.PUBLIC)
                 .setProgramType(ProgramType.DEFAULT)
                 .setEligibilityIsGating(true)
+                .setAcls(new ProgramAcls())
                 .build(),
             FAKE_BASE_URL);
 

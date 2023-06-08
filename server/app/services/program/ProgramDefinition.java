@@ -2,6 +2,7 @@ package services.program;
 
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
+import auth.ProgramAcls;
 import com.google.auto.value.AutoValue;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
@@ -92,6 +93,8 @@ public abstract class ProgramDefinition {
    * submitted.
    */
   public abstract Boolean eligibilityIsGating();
+
+  public abstract ProgramAcls acls();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -735,6 +738,8 @@ public abstract class ProgramDefinition {
     public abstract Builder setProgramType(ProgramType programType);
 
     public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
+
+    public abstract Builder setAcls(ProgramAcls programAcls);
 
     public abstract ProgramDefinition build();
 

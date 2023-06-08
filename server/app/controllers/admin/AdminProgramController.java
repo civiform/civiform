@@ -9,6 +9,7 @@ import static views.components.ToastMessage.ToastType.ERROR;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
@@ -106,6 +107,9 @@ public final class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
+    // a null element gets added as we always have a hidden
+    // option as part of the checkbox display
+    while (programData.getTiGroups().remove(null)) {}
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> errors =
         programService.validateProgramDataForCreate(
@@ -114,7 +118,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
       ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
       return ok(newOneView.render(request, programData, message));
@@ -145,7 +150,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+            ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -226,6 +232,10 @@ public final class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
+    // a null element gets added as we always have a hidden
+    // option as part of the checkbox display
+    while (programData.getTiGroups().remove(null)) {}
+
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> validationErrors =
         programService.validateProgramDataForUpdate(
@@ -233,7 +243,8 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayName(),
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
-            programData.getDisplayMode());
+            programData.getDisplayMode(),
+            ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
       ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
       return ok(editView.render(request, programDefinition, programData, message));
@@ -266,7 +277,8 @@ public final class AdminProgramController extends CiviFormController {
         programData.getExternalLink(),
         programData.getDisplayMode(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED));
+        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+        ImmutableList.copyOf(programData.getTiGroups()));
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 

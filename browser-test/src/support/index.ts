@@ -328,13 +328,14 @@ export const loginAsTrustedIntermediary = async (page: Page) => {
 export const loginAsTestUser = async (
   page: Page,
   loginButton = 'a:has-text("Log in")',
+  isTi = false,
 ) => {
   switch (TEST_USER_AUTH_STRATEGY) {
     case AuthStrategy.FAKE_OIDC:
-      await loginAsTestUserFakeOidc(page, loginButton)
+      await loginAsTestUserFakeOidc(page, loginButton, isTi)
       break
     case AuthStrategy.AWS_STAGING:
-      await loginAsTestUserAwsStaging(page, loginButton)
+      await loginAsTestUserAwsStaging(page, loginButton, isTi)
       break
     case AuthStrategy.SEATTLE_STAGING:
       await loginAsTestUserSeattleStaging(page, loginButton)
@@ -364,7 +365,11 @@ async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
   await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
-async function loginAsTestUserAwsStaging(page: Page, loginButton: string) {
+async function loginAsTestUserAwsStaging(
+  page: Page,
+  loginButton: string,
+  isTi: boolean,
+) {
   await Promise.all([
     page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
@@ -373,13 +378,19 @@ async function loginAsTestUserAwsStaging(page: Page, loginButton: string) {
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
-    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+      waitUntil: 'networkidle',
+    }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
     page.click('button:visible:has-text("Continue")'),
   ])
 }
 
-async function loginAsTestUserFakeOidc(page: Page, loginButton: string) {
+async function loginAsTestUserFakeOidc(
+  page: Page,
+  loginButton: string,
+  isTi: boolean,
+) {
   await Promise.all([
     page.waitForURL('**/interaction/*', {waitUntil: 'networkidle'}),
     page.click(loginButton),
@@ -409,7 +420,9 @@ async function loginAsTestUserFakeOidc(page: Page, loginButton: string) {
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await Promise.all([
-    page.waitForURL('**/applicants/**', {waitUntil: 'networkidle'}),
+    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+      waitUntil: 'networkidle',
+    }),
     page.click('button:has-text("Continue")'),
   ])
 }

@@ -8,6 +8,7 @@ import {
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {validateScreenshot} from '.'
 
 /**
  * JSON object representing downloaded application. It can be retrieved by
@@ -35,6 +36,7 @@ export enum ProgramVisibility {
   HIDDEN = 'Hide from applicants.',
   PUBLIC = 'Publicly visible',
   TI_ONLY = 'Trusted Intermediaries ONLY',
+  SELECT_TI = 'Visible to Selected Trusted Intermediaries ONLY',
 }
 
 function slugify(value: string): string {
@@ -105,6 +107,7 @@ export class AdminPrograms {
     visibility = ProgramVisibility.PUBLIC,
     adminDescription = 'admin description',
     isCommonIntake = false,
+    selectedTI = 'none',
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -118,6 +121,11 @@ export class AdminPrograms {
     await this.page.fill('#program-external-link-input', externalLink)
 
     await this.page.check(`label:has-text("${visibility}")`)
+    if (visibility == ProgramVisibility.SELECT_TI) {
+      const screenshotname = programName.replaceAll(' ', '-').toLowerCase()
+      await validateScreenshot(this.page, screenshotname)
+      await this.page.check(`label:has-text("${selectedTI}")`)
+    }
 
     if (isCommonIntake && this.getCommonIntakeFormToggle != null) {
       await this.clickCommonIntakeFormToggle()
@@ -126,6 +134,25 @@ export class AdminPrograms {
     await this.page.click('#program-update-button')
     await waitForPageJsLoad(this.page)
     await this.expectProgramBlockEditPage(programName)
+  }
+  async editProgram(
+    programName: string,
+    visibility = ProgramVisibility.PUBLIC,
+    selectedTI = 'none',
+  ) {
+    await this.gotoAdminProgramsPage()
+    await this.page.click('button :text("View")')
+    await this.page.click('#header_edit_button')
+    await this.page.click('#header_edit_button')
+    await waitForPageJsLoad(this.page)
+
+    await this.page.check(`label:has-text("${visibility}")`)
+    if (visibility == ProgramVisibility.SELECT_TI) {
+      await this.page.check(`label:has-text("${selectedTI}")`)
+    }
+
+    await this.page.click('#program-update-button')
+    await waitForPageJsLoad(this.page)
   }
 
   async programNames() {
