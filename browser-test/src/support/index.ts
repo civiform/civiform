@@ -383,7 +383,6 @@ async function loginAsTestUserAwsStaging(
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
     page.click('button:visible:has-text("Continue")'),
-
   ])
 }
 
