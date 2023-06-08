@@ -24,9 +24,9 @@ import play.twirl.api.Content;
 import services.DateConverter;
 import services.MessageKey;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
-import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -145,7 +145,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     return layout.renderWithNav(
-        params.request(), params.applicantName(), params.messages(), bundle);
+        params.request(), params.applicantPersonalInfo(), params.messages(), bundle);
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
@@ -296,7 +296,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     abstract long applicantId();
 
-    abstract Optional<String> applicantName();
+    abstract ApplicantPersonalInfo applicantPersonalInfo();
 
     abstract ImmutableList<Optional<ToastMessage>> bannerMessages();
 
@@ -323,7 +323,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setApplicantId(long applicantId);
 
-      public abstract Builder setApplicantName(Optional<String> applicantName);
+      public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setBannerMessages(ImmutableList<Optional<ToastMessage>> banners);
 
@@ -343,16 +343,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
       public abstract Builder setLoginPromptModal(Modal loginPromptModal);
 
-      abstract Optional<String> applicantName();
-
-      abstract Messages messages();
-
-      abstract Params autoBuild();
-
-      public final Params build() {
-        setApplicantName(Optional.of(ApplicantUtils.getApplicantName(applicantName(), messages())));
-        return autoBuild();
-      }
+      public abstract Params build();
     }
   }
 }

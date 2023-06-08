@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.ToastMessage;
@@ -46,7 +47,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       Locale locale,
       String programTitle,
       LocalizedStrings customConfirmationMessage,
-      Optional<String> applicantName,
+      ApplicantPersonalInfo personalInfo,
       Long applicantId,
       Long applicationId,
       Messages messages,
@@ -90,7 +91,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
             actionButtons);
     return layout.renderWithNav(
         request,
-        applicantName,
+        personalInfo,
         messages,
         createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
   }

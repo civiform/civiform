@@ -41,6 +41,7 @@ import services.Address;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -1515,107 +1516,98 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getNameOrEmail_namedApplicantId() {
+  public void getPersonalInfo_applicantWithEmailAndName() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
 
-    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("World, Hello"));
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail("test@example.com")
+                    .setName("World, Hello")
+                    .build()));
   }
 
   @Test
-  public void getNameOrEmail_noName() {
+  public void getPersonalInfo_applicantWithEmailNoName() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
 
-    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("test@example.com"));
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setEmail("test@example.com").build()));
   }
 
   @Test
-  public void getNameOrEmail_noNameNoEmail() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
-    applicant.setAccount(account);
-    applicant.save();
-    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void getName_invalidApplicantId_doesNotFail() {
-    assertThat(subject.getName(9999L).toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void getName_noName() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void getName_namedApplicantId() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("Hello World");
-    applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("World, Hello"));
-  }
-
-  @Test
-  public void getName_applicantWithThreeNames() {
+  public void getPersonalInfo_applicantWithThreeNames() {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("Last, First"));
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail("test@example.com")
+                    .setName("Last, First")
+                    .build()));
   }
 
   @Test
-  public void getName_applicantWithManyNames() {
+  public void getPersonalInfo_applicantWithManyNames() {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("First Second Third Fourth"));
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail("test@example.com")
+                    .setName("First Second Third Fourth")
+                    .build()));
   }
 
   @Test
-  public void getName_applicantWithOneName() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("Mononymous");
-    applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("Mononymous"));
-  }
-
-  @Test
-  public void getEmail_invalidApplicantId_doesNotFail() {
-    subject.getEmail(9999L).toCompletableFuture().join();
-  }
-
-  @Test
-  public void getEmail_applicantWithNoEmail_returnsEmpty() {
+  public void getPersonalInfo_applicantNoAuthorityId_isGuest() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccount();
     applicant.setAccount(account);
     applicant.save();
-    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
-    assertThat(email).isEmpty();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
   }
 
   @Test
-  public void getEmail_applicantWithEmail() {
+  public void getPersonalInfo_applicantNoAuthorityIdIsManaged_isTiPartiallyCreated() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    Account account = resourceCreator.insertAccount();
+    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    account.setManagedByGroup(group);
     applicant.setAccount(account);
     applicant.save();
-    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
-    assertThat(email).hasValue("test@example.com");
+    account.save();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofTiPartiallyCreated(Representation.builder().build()));
+  }
+
+  @Test
+  public void getPersonalInfo_invalidApplicantId_defaultsToGuest() {
+    assertThat(subject.getPersonalInfo(9999L).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
   }
 
   private Applicant createTestApplicant() {

@@ -15,6 +15,8 @@ import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
@@ -42,8 +44,6 @@ public final class IneligibleBlockView extends ApplicationBaseView {
       Messages messages,
       long applicantId,
       ProgramDefinition programDefinition) {
-    Optional<String> applicantName =
-        roApplicantProgramService.getApplicantData().getApplicantName();
     long programId = roApplicantProgramService.getProgramId();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     // Use external link if it is present else use the default Program details page
@@ -117,6 +117,15 @@ public final class IneligibleBlockView extends ApplicationBaseView {
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), content);
 
-    return layout.renderWithNav(request, applicantName, messages, bundle);
+    Optional<String> applicantName =
+        roApplicantProgramService.getApplicantData().getApplicantName();
+    return layout.renderWithNav(
+        request,
+        applicantName.isPresent()
+            ? ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build())
+            : ApplicantPersonalInfo.ofGuestUser(),
+        messages,
+        bundle);
   }
 }

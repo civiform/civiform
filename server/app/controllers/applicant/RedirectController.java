@@ -24,6 +24,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
@@ -170,11 +171,11 @@ public final class RedirectController extends CiviFormController {
             .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
             .toCompletableFuture();
 
-    CompletableFuture<Optional<String>> applicantName =
-        applicantService.getName(applicantId).toCompletableFuture();
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     CompletableFuture<Account> account =
-        applicantName
+        applicantPersonalInfo
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(profileUtils, request, applicantId),
                 httpContext.current())
@@ -196,7 +197,7 @@ public final class RedirectController extends CiviFormController {
                 return CompletableFuture.completedFuture(result);
               }
 
-              return applicantName
+              return applicantPersonalInfo
                   .thenComposeAsync(
                       v -> checkApplicantAuthorization(profileUtils, request, applicantId))
                   .thenComposeAsync(
@@ -218,7 +219,7 @@ public final class RedirectController extends CiviFormController {
                         request,
                         redirectTo,
                         account.join(),
-                        applicantName.join(),
+                        applicantPersonalInfo.join(),
                         applicantId,
                         programId,
                         profileUtils
@@ -238,7 +239,7 @@ public final class RedirectController extends CiviFormController {
                       roApplicantProgramService.join().getApplicantData().preferredLocale(),
                       roApplicantProgramService.join().getProgramTitle(),
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
-                      applicantName.join(),
+                      applicantPersonalInfo.join(),
                       applicantId,
                       applicationId,
                       messagesApi.preferred(request),

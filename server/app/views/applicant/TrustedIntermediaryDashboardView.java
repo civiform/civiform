@@ -35,6 +35,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SearchParameters;
 import services.DateConverter;
+import services.applicant.ApplicantPersonalInfo;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
@@ -58,7 +59,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
 
   public Content render(
       TrustedIntermediaryGroup tiGroup,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       ImmutableList<Account> managedAccounts,
       int totalPageCount,
       int page,
@@ -93,7 +94,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     } else if (flash.get("success").isPresent()) {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
-    return layout.renderWithNav(request, userName, messages, bundle);
+    return layout.renderWithNav(request, personalInfo, messages, bundle);
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {

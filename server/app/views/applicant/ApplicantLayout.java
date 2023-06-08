@@ -14,6 +14,7 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -41,7 +42,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
-import views.ApplicantUtils;
+import services.applicant.ApplicantPersonalInfo;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
@@ -127,19 +128,22 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
   // Same as renderWithNav, but defaults to no admin login link.
   public Content renderWithNav(
-      Http.Request request, Optional<String> userName, Messages messages, HtmlBundle bundle) {
-    return renderWithNav(request, userName, messages, bundle, /*includeAdminLogin=*/ false);
+      Http.Request request,
+      ApplicantPersonalInfo personalInfo,
+      Messages messages,
+      HtmlBundle bundle) {
+    return renderWithNav(request, personalInfo, messages, bundle, /*includeAdminLogin=*/ false);
   }
 
   public Content renderWithNav(
       Http.Request request,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       Messages messages,
       HtmlBundle bundle,
       boolean includeAdminLogin) {
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBar(request, userName, messages));
+    bundle.addHeaderContent(renderNavBar(request, personalInfo, messages));
 
     ATag emailAction =
         new LinkElement()
@@ -191,10 +195,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return render(bundle);
   }
 
-  private NavTag renderNavBar(Http.Request request, Optional<String> userName, Messages messages) {
+  private NavTag renderNavBar(
+      Http.Request request, ApplicantPersonalInfo applicantPersonalInfo, Messages messages) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
-    String displayUserName = ApplicantUtils.getApplicantName(userName, messages);
     return nav()
         .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
         .with(
@@ -205,9 +209,11 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     "flex-shrink-0",
                     "grow",
                     StyleUtils.responsiveMedium("grow-0")))
-        .with(maybeRenderTiButton(profile, displayUserName))
+        .with(maybeRenderTiButton(profile, applicantPersonalInfo.getDisplayString(messages)))
         .with(
-            div(getLanguageForm(request, profile, messages), authDisplaySection(userName, messages))
+            div(
+                    getLanguageForm(request, profile, messages),
+                    authDisplaySection(applicantPersonalInfo, messages))
                 .withClasses(
                     "flex",
                     "flex-row",
@@ -286,7 +292,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
   }
 
-  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String userName) {
+  private DivTag maybeRenderTiButton(
+      Optional<CiviFormProfile> profile, String applicantDisplayString) {
     DivTag div =
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
@@ -309,7 +316,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                       StyleUtils.hover("opacity-100"),
                       ButtonStyles.SOLID_BLUE_TEXT_XL))
           .with(
-              div("(applying as: " + userName + ")")
+              div("(applying as: " + applicantDisplayString + ")")
                   .withClasses("text-sm", "text-black", "text-center"));
     }
     return div;
@@ -321,10 +328,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * <p>If the user is a guest, we show a "Log in" and a "Create an account" button. If they are
    * logged in, we show a "Logout" button.
    */
-  private DivTag authDisplaySection(Optional<String> userName, Messages messages) {
+  private DivTag authDisplaySection(ApplicantPersonalInfo personalInfo, Messages messages) {
     DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
 
-    if (ApplicantUtils.isGuest(userName, messages)) {
+    if (personalInfo.getType() == GUEST) {
       String loggedInAsMessage = messages.at(MessageKey.GUEST_INDICATOR.getKeyName());
       String endSessionMessage = messages.at(MessageKey.END_SESSION.getKeyName());
       // Ending a guest session is equivalent to "logging out" the guest.
@@ -349,10 +356,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   .withHref(createAnAccountLink)
                   .withClasses(ApplicantStyles.LINK)));
     } else {
-      // TODO(#4626): make this a more robust check. userName should always be present here,
-      // but a more foolproof solution would be better.
       String loggedInAsMessage =
-          messages.at(MessageKey.USER_NAME.getKeyName(), userName.orElse("user"));
+          messages.at(MessageKey.USER_NAME.getKeyName(), personalInfo.getDisplayString(messages));
       String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
       return outsideDiv.with(
           div(loggedInAsMessage).withClasses("text-sm"),

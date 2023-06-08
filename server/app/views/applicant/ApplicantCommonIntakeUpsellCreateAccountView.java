@@ -23,6 +23,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import views.components.ButtonStyles;
 import views.components.Icons;
@@ -53,7 +54,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
       Http.Request request,
       String redirectTo,
       Account account,
-      Optional<String> applicantName,
+      ApplicantPersonalInfo personalInfo,
       Long applicantId,
       Long programId,
       boolean isTrustedIntermediary,
@@ -112,7 +113,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
             actionButtonsBuilder.build());
     return layout.renderWithNav(
         request,
-        applicantName,
+        personalInfo,
         messages,
         createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
   }
