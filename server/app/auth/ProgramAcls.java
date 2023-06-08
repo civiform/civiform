@@ -50,8 +50,4 @@ public final class ProgramAcls {
     }
     return false;
   }
-  //  public boolean hasProgramAcls() {
-  //    return tiProgramViewAcls.size()>0;
-  //  }
-
 }

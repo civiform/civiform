@@ -178,7 +178,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setValue(DisplayMode.SELECT_TI.getValue())
             .setChecked(displayMode.equals(DisplayMode.SELECT_TI.getValue()))
             .getRadioTag(),
-        showTISelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
+        showTiSelectionList(selectedTi, displayMode.equals(DisplayMode.SELECT_TI.getValue())),
         FieldWithLabel.textArea()
             .setId("program-description-textarea")
             .setFieldName("adminDescription")
@@ -223,7 +223,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     return formTag;
   }
 
-  private DomContent showTISelectionList(List<Long> selectedTi, boolean selectTIChecked) {
+  private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
     List<TrustedIntermediaryGroup> tiGroups = userRepository.listTrustedIntermediaryGroups();
     DivTag tiSelectionRenderer =
         div()
@@ -243,7 +243,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                                 option.getName(), option.id, selectedTi.contains(option.id))));
     DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TIList").with(tiSelectionRenderer);
 
-    return selectTIChecked ? returnDivTag : returnDivTag.isHidden();
+    return selectTiChecked ? returnDivTag : returnDivTag.isHidden();
   }
 
   private DivTag renderCheckboxOption(String tiName, Long tiId, boolean selected) {
@@ -261,8 +261,6 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .withName("tiGroups" + Path.ARRAY_SUFFIX)
                     .withValue(String.valueOf(tiId))
                     .withCondChecked(selected)
-                    //  .condAttr("aria-invalid", "true")
-                    // .condAttr( "aria-required", "true")
                     .withClasses(
                         StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.CHECKBOX)),
                 span(tiName).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
