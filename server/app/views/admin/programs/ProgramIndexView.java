@@ -319,6 +319,9 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
+      if (featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
+        draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
+      }
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
@@ -327,9 +330,6 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      if (featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
-        draftRowExtraActions.add(renderPublishProgramLink(draftProgram.get(), request));
-      }
       Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
@@ -437,7 +437,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             "Are you sure you want to publish %s and all of its draft questions?",
             program.localizedName().getDefault());
     return toLinkButtonForPost(
-            makeSvgTextButton("Publish program", Icons.PUBLISH)
+            makeSvgTextButton("Publish ", Icons.PUBLISH)
                 .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN, "publish-program-link"),
             linkDestination,
             request)
