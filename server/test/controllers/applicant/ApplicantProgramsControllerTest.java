@@ -187,16 +187,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void view_invalidProgram_returnsBadRequest() {
-    assertThatThrownBy(
-            () ->
-                controller
-                    .view(fakeRequest().build(), currentApplicant.id, 9999L)
-                    .toCompletableFuture()
-                    .join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
+  public void view_invalidProgram_returnsNotFound() {
+    Result result =
+        controller
+            .view(fakeRequest().build(), currentApplicant.id, 9999L)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
@@ -208,14 +206,16 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_invalidProgram_returnsBadRequest() {
-    Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, 9999L)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  public void edit_invalidProgram_returnsNotFound() {
+    assertThatThrownBy(
+            () ->
+                controller
+                    .edit(fakeRequest().build(), currentApplicant.id, 9999L)
+                    .toCompletableFuture()
+                    .join())
+        .isInstanceOf(CompletionException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
