@@ -44,6 +44,7 @@ import services.Address;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -393,7 +394,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_forEnumeratorBlock_withEmptyUpdates_doesNotDeleteRealData() {
     programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
+        ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
             .buildDefinition();
@@ -659,7 +660,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .join());
 
     assertThat(thrown).isInstanceOf(CompletionException.class);
-    assertThat(thrown).hasCauseInstanceOf(ProgramNotFoundException.class);
+    assertThat(thrown).hasRootCauseInstanceOf(ProgramNotFoundException.class);
   }
 
   @Test
@@ -828,14 +829,14 @@ public class ApplicantServiceTest extends ResetPostgres {
             .getResult();
 
     Program firstProgram =
-        ProgramBuilder.newDraftProgram("first test program", "desc")
+        ProgramBuilder.newActiveProgram("first test program", "desc")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(fileUploadQuestion))
             .build();
     firstProgram.save();
 
     Program secondProgram =
-        ProgramBuilder.newDraftProgram("second test program", "desc")
+        ProgramBuilder.newActiveProgram("second test program", "desc")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(fileUploadQuestion))
             .build();
@@ -1396,7 +1397,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
+        ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
             .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
             .withEligibilityDefinition(eligibilityDef)
@@ -1452,7 +1453,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     ProgramDefinition programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
+        ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
             .withRequiredCorrectedAddressQuestion(testQuestionBank.applicantAddress())
             .withEligibilityDefinition(eligibilityDef)
@@ -1520,107 +1521,98 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getNameOrEmail_namedApplicantId() {
+  public void getPersonalInfo_applicantWithEmailAndName() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
 
-    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("World, Hello"));
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail("test@example.com")
+                    .setName("World, Hello")
+                    .build()));
   }
 
   @Test
-  public void getNameOrEmail_noName() {
+  public void getPersonalInfo_applicantWithEmailNoName() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
 
-    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("test@example.com"));
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setEmail("test@example.com").build()));
   }
 
   @Test
-  public void getNameOrEmail_noNameNoEmail() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
-    applicant.setAccount(account);
-    applicant.save();
-    assertThat(subject.getNameOrEmail(applicant.id).toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void getName_invalidApplicantId_doesNotFail() {
-    assertThat(subject.getName(9999L).toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void getName_noName() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join()).isEmpty();
-  }
-
-  @Test
-  public void getName_namedApplicantId() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("Hello World");
-    applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("World, Hello"));
-  }
-
-  @Test
-  public void getName_applicantWithThreeNames() {
+  public void getPersonalInfo_applicantWithThreeNames() {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("Last, First"));
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail("test@example.com")
+                    .setName("Last, First")
+                    .build()));
   }
 
   @Test
-  public void getName_applicantWithManyNames() {
+  public void getPersonalInfo_applicantWithManyNames() {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
+    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    applicant.setAccount(account);
     applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("First Second Third Fourth"));
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder()
+                    .setEmail("test@example.com")
+                    .setName("First Second Third Fourth")
+                    .build()));
   }
 
   @Test
-  public void getName_applicantWithOneName() {
-    Applicant applicant = resourceCreator.insertApplicant();
-    applicant.getApplicantData().setUserName("Mononymous");
-    applicant.save();
-    assertThat(subject.getName(applicant.id).toCompletableFuture().join())
-        .isEqualTo(Optional.of("Mononymous"));
-  }
-
-  @Test
-  public void getEmail_invalidApplicantId_doesNotFail() {
-    subject.getEmail(9999L).toCompletableFuture().join();
-  }
-
-  @Test
-  public void getEmail_applicantWithNoEmail_returnsEmpty() {
+  public void getPersonalInfo_applicantNoAuthorityId_isGuest() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccount();
     applicant.setAccount(account);
     applicant.save();
-    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
-    assertThat(email).isEmpty();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
   }
 
   @Test
-  public void getEmail_applicantWithEmail() {
+  public void getPersonalInfo_applicantNoAuthorityIdIsManaged_isTiPartiallyCreated() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    Account account = resourceCreator.insertAccount();
+    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    account.setManagedByGroup(group);
     applicant.setAccount(account);
     applicant.save();
-    Optional<String> email = subject.getEmail(applicant.id).toCompletableFuture().join();
-    assertThat(email).hasValue("test@example.com");
+    account.save();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofTiPartiallyCreated(Representation.builder().build()));
+  }
+
+  @Test
+  public void getPersonalInfo_invalidApplicantId_defaultsToGuest() {
+    assertThat(subject.getPersonalInfo(9999L).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
   }
 
   private Applicant createTestApplicant() {
@@ -1677,11 +1669,12 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
+    // programDefinition is the program created during test set up.
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
-        .containsExactly(programForUnapplied.id);
+        .containsExactlyInAnyOrder(programForUnapplied.id, programDefinition.id());
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.allPrograms())
@@ -1689,7 +1682,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.commonIntakeForm().get(),
             result.inProgress().get(0),
             result.submitted().get(0),
-            result.unapplied().get(0));
+            result.unapplied().get(0),
+            result.unapplied().get(1));
   }
 
   @Test
@@ -1735,14 +1729,17 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
-        .containsExactly(programForUnapplied.id);
+        .containsExactlyInAnyOrder(programForUnapplied.id, programDefinition.id());
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
     assertThat(result.commonIntakeForm().isPresent()).isFalse();
     assertThat(result.allPrograms())
         .containsExactlyInAnyOrder(
-            result.inProgress().get(0), result.submitted().get(0), result.unapplied().get(0));
+            result.inProgress().get(0),
+            result.submitted().get(0),
+            result.unapplied().get(0),
+            result.unapplied().get(1));
   }
 
   @Test
@@ -1762,7 +1759,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
-    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(programDefinition.id());
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
@@ -1780,7 +1778,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
-    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(programDefinition.id());
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
@@ -1800,7 +1799,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted()).isEmpty();
-    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactlyInAnyOrder(programDefinition.id());
     assertThat(result.commonIntakeForm().isPresent()).isTrue();
     assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
     assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
@@ -1820,12 +1820,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withEligibilityDefinition(eligibilityDef)
             .build();
     Program programForSubmitted =
-        ProgramBuilder.newActiveProgram("program_for_submitted")
+        ProgramBuilder.newDraftProgram("program_for_submitted")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
     Program programForUnapplied =
-        ProgramBuilder.newActiveProgram("program_for_unapplied").withBlock().build();
+        ProgramBuilder.newDraftProgram("program_for_unapplied").withBlock().build();
+    versionRepository.publishNewSynchronizedVersion();
 
     applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraft.id)
@@ -1858,12 +1859,12 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
-        .containsExactly(programForUnapplied.id);
+        .containsExactlyInAnyOrder(programForUnapplied.id, programDefinition.id());
     assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
-        .containsExactly(Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
   }
 
   @Test
@@ -1877,20 +1878,17 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withEligibilityDefinition(eligibilityDef)
             .build();
     Program programForSubmitted =
-        ProgramBuilder.newActiveProgram("program_for_submitted")
+        ProgramBuilder.newDraftProgram("program_for_submitted")
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
     Program programForUnapplied =
-        ProgramBuilder.newActiveProgram("program_for_unapplied")
+        ProgramBuilder.newDraftProgram("program_for_unapplied")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .withEligibilityDefinition(eligibilityDef)
             .build();
-
-    Question q = new Question(questionDefinition);
-    q.refresh();
-    versionRepository.getActiveVersion().addQuestion(q).save();
+    versionRepository.publishNewSynchronizedVersion();
 
     applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraft.id)
@@ -1923,12 +1921,12 @@ public class ApplicantServiceTest extends ResetPostgres {
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.empty());
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
-        .containsExactly(programForUnapplied.id);
+        .containsExactlyInAnyOrder(programForUnapplied.id, programDefinition.id());
     assertThat(result.unapplied().stream().map(ApplicantProgramData::isProgramMaybeEligible))
-        .containsExactly(Optional.of(true));
+        .containsExactlyInAnyOrder(Optional.of(true), Optional.empty());
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
   }
 
   @Test
@@ -1967,10 +1965,13 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.submitted()).isEmpty();
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(
-            programForDraft.id, programForUnapplied.id, programForSubmitted.id);
+            programForDraft.id,
+            programForUnapplied.id,
+            programForSubmitted.id,
+            programDefinition.id());
     assertThat(
             result.unapplied().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
-        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
   }
 
   @Test
@@ -2181,7 +2182,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(tiResult.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(
             programDefinition.id(), updatedProgramForDraftApp.id, updatedProgramForSubmittedApp.id);
-    // assertThat(tiResult.submitted()).
   }
 
   @Test
@@ -2315,7 +2315,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationTime))
         .containsExactly(Optional.of(secondAppSubmitTime));
-    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
   }
 
   @Test
@@ -2394,8 +2395,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(firstDraft.getProgram().id);
     // As part of test setup, a "test program" is initialized.
-    // When calling publish, this will become active. This provides
-    // confidence that the draft version created above is actually published.
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactly(programDefinition.id());
   }
@@ -2430,7 +2429,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.of(APPROVED_STATUS));
-    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
   }
 
   @Test
@@ -2484,7 +2484,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(
             result.submitted().stream().map(ApplicantProgramData::latestSubmittedApplicationStatus))
         .containsExactly(Optional.of(APPROVED_STATUS));
-    assertThat(result.unapplied()).isEmpty();
+    assertThat(result.unapplied().stream().map(p -> p.program().id()))
+        .containsExactly(programDefinition.id());
   }
 
   @Test
@@ -2509,6 +2510,43 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(eligibleQuestion)
             .build();
+
+    // Set up program for draft application.
+    Program programForDraftApp =
+        ProgramBuilder.newDraftProgram("program_for_draft_app")
+            .withBlock()
+            .withRequiredQuestionDefinition(eligibleQuestion)
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withBlock()
+            .withRequiredQuestionDefinition(unansweredQuestion)
+            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
+            .build();
+
+    // Set up program for submitted application.
+    Program programForSubmittedApp =
+        ProgramBuilder.newDraftProgram("program_for_submitted_app")
+            .withBlock()
+            .withRequiredQuestionDefinition(eligibleQuestion)
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withBlock()
+            .withRequiredQuestionDefinition(unansweredQuestion)
+            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
+            .build();
+
+    // Set up unapplied program.
+    Program programForUnappliedApp =
+        ProgramBuilder.newDraftProgram("program_for_unapplied_app")
+            .withBlock()
+            .withRequiredQuestionDefinition(eligibleQuestion)
+            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
+            .withBlock()
+            .withRequiredQuestionDefinition(unansweredQuestion)
+            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
+            .build();
+
+    versionRepository.publishNewSynchronizedVersion();
+
+    // Answer questions.
     answerNameQuestion(
         eligibleQuestion,
         "Taylor",
@@ -2522,49 +2560,18 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         programForAnsweringQuestions.id);
 
-    // Set up draft program and answer question
-    Program programForDraftApp =
-        ProgramBuilder.newDraftProgram("program_for_draft_app")
-            .withBlock()
-            .withRequiredQuestionDefinition(eligibleQuestion)
-            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
-            .withBlock()
-            .withRequiredQuestionDefinition(unansweredQuestion)
-            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
-            .build();
+    // Start a draft application.
     applicationRepository
         .createOrUpdateDraft(applicant.id, programForDraftApp.id)
         .toCompletableFuture()
         .join();
 
-    // Set up submitted program
-    Program programForSubmittedApp =
-        ProgramBuilder.newDraftProgram("program_for_submitted_app")
-            .withBlock()
-            .withRequiredQuestionDefinition(eligibleQuestion)
-            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
-            .withBlock()
-            .withRequiredQuestionDefinition(unansweredQuestion)
-            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
-            .build();
+    // Submit an application.
     applicationRepository
         .submitApplication(applicant.id, programForSubmittedApp.id, Optional.empty())
         .toCompletableFuture()
         .join();
 
-    // Set up unapplied program
-    Program programForUnappliedApp =
-        ProgramBuilder.newDraftProgram("program_for_unapplied_app")
-            .withBlock()
-            .withRequiredQuestionDefinition(eligibleQuestion)
-            .withEligibilityDefinition(eligibleQuestionEligibilityDefinition)
-            .withBlock()
-            .withRequiredQuestionDefinition(unansweredQuestion)
-            .withEligibilityDefinition(unansweredQuestionEligibilityDefinition)
-            .build();
-
-    // Publish version and fetch results
-    versionRepository.publishNewSynchronizedVersion();
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2605,6 +2612,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(ineligibleQuestion)
             .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
             .build();
+    versionRepository.publishNewSynchronizedVersion();
 
     // Fill out application
     answerNameQuestion(
@@ -2635,7 +2643,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newActiveProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2659,6 +2667,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicant.setAccount(resourceCreator.insertAccount());
     applicant.save();
 
+    System.out.println("reemax setting up pqs");
     // Set up program and questions
     NameQuestionDefinition eligibleQuestion =
         createNameQuestion("question_with_matching_eligibility");
@@ -2688,6 +2697,9 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(ineligibleQuestion)
             .withEligibilityDefinition(ineligibleQuestionEligibilityDefinition)
             .build();
+    programWithEligibleAndIneligibleAnswers.save();
+    versionRepository.publishNewSynchronizedVersion();
+    System.out.println("published 1");
 
     // Fill out application
     answerNameQuestion(
@@ -2702,6 +2714,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .id(),
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
+    System.out.println("answered 1");
     answerNameQuestion(
         ineligibleQuestion,
         "Solána",
@@ -2715,14 +2728,18 @@ public class ApplicantServiceTest extends ResetPostgres {
         applicant.id,
         programWithEligibleAndIneligibleAnswers.id);
 
+    System.out.println("answered 2");
+
     applicationRepository
         .submitApplication(
             applicant.id, programWithEligibleAndIneligibleAnswers.id, Optional.empty())
         .toCompletableFuture()
         .join();
+    System.out.println("submitted ");
 
     // Publish version and fetch results
     versionRepository.publishNewSynchronizedVersion();
+    System.out.println("publish2");
     var result =
         subject
             .maybeEligibleProgramsForApplicant(applicant.id, trustedIntermediaryProfile)
@@ -2759,6 +2776,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .build();
+    versionRepository.publishNewSynchronizedVersion();
 
     answerNameQuestion(
         question,
@@ -2772,7 +2790,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newActiveProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2803,6 +2821,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .build();
+    versionRepository.publishNewSynchronizedVersion();
 
     answerNameQuestion(
         question,
@@ -2820,7 +2839,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newActiveProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2858,7 +2877,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // We need at least one application for the ApplicantService to bother filling eligibility
     // statuses. It doesn't have to be the same one we're filling out.
     applicationRepository
-        .createOrUpdateDraft(applicant.id, ProgramBuilder.newDraftProgram("throwaway").build().id)
+        .createOrUpdateDraft(applicant.id, ProgramBuilder.newActiveProgram("throwaway").build().id)
         .toCompletableFuture()
         .join();
 
@@ -2940,6 +2959,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.copyOf(questions))
             .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
   }
 
   private void createProgramWithStatusDefinitions(StatusDefinitions statuses) {
@@ -2949,6 +2969,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(questionDefinition))
             .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
   }
 
   private void createProgramWithOptionalQuestion(QuestionDefinition question) {
@@ -2957,6 +2978,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withBlock()
             .withOptionalQuestion(question)
             .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
   }
 
   /**
@@ -3007,7 +3029,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                     PredicateAction.ELIGIBLE_BLOCK))
             .build();
     programDefinition =
-        ProgramBuilder.newDraftProgram("test program", "desc")
+        ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
             .withEligibilityDefinition(eligibilityDef)
@@ -3044,6 +3066,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinitions(ImmutableList.of(question))
             .withEligibilityDefinition(eligibilityDef)
             .buildDefinition();
+    versionRepository.publishNewSynchronizedVersion();
   }
 
   private Messages getMessages(Locale locale) {

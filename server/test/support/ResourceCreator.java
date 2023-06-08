@@ -124,11 +124,21 @@ public class ResourceCreator {
     return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
   }
 
+  /**
+   * Inserts and Applicant and accompanying Account into the database.
+   *
+   * @param accountEmail an Optional representing the email address of the account. If empty, we
+   *     also don't populate the authority ID, which makes this test user a guest.
+   * @return the applicant
+   */
   public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
     Applicant applicant = insertApplicant();
     Account account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);
+    // If the account has an email, it is an authorized user and should have an
+    // authority ID.
+    accountEmail.ifPresent(unused -> account.setAuthorityId(UUID.randomUUID().toString()));
     account.save();
     applicant.setAccount(account);
     applicant.save();
@@ -136,9 +146,18 @@ public class ResourceCreator {
     return applicant;
   }
 
+  /**
+   * Inserts an Account with the given email address into the database. Sets an authority ID such
+   * that the user will be "logged in".
+   *
+   * @param email the email address to use for the account
+   * @return the account
+   */
   public Account insertAccountWithEmail(String email) {
     Account account = new Account();
     account.setEmailAddress(email);
+    // User is not a guest, so they should have an authority ID.
+    account.setAuthorityId(UUID.randomUUID().toString());
     account.save();
     return account;
   }

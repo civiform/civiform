@@ -15,6 +15,7 @@ import static j2html.TagCreator.ol;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
@@ -49,10 +50,10 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
-import views.ApplicantUtils;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.TranslationUtils;
@@ -109,7 +110,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       Messages messages,
       Http.Request request,
       long applicantId,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<ToastMessage> bannerMessage) {
     HtmlBundle bundle = layout.getBundle();
@@ -123,24 +124,25 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setDuration(5000));
 
     bundle.addMainContent(
-        topContent(messages, userName),
+        topContent(messages, personalInfo),
         mainContent(
             request,
             messages,
-            userName,
+            personalInfo,
             applicationPrograms,
             applicantId,
             messages.lang().toLocale(),
             bundle));
 
-    return layout.renderWithNav(request, userName, messages, bundle, /*includeAdminLogin=*/ true);
+    return layout.renderWithNav(
+        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true);
   }
 
-  private DivTag topContent(Messages messages, Optional<String> userName) {
+  private DivTag topContent(Messages messages, ApplicantPersonalInfo personalInfo) {
 
     String h1Text, infoDivText, widthClass;
 
-    if (ApplicantUtils.isGuest(userName, messages)) {
+    if (personalInfo.getType() == GUEST) {
       // "Save time when applying for benefits"
       h1Text = messages.at(MessageKey.CONTENT_SAVE_TIME.getKeyName());
       infoDivText =
@@ -180,7 +182,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             "items-center")
         .with(programIndexH1, infoDiv)
         .condWith(
-            ApplicantUtils.isGuest(userName, messages),
+            personalInfo.getType() == GUEST,
             // Log in and Create account buttons if user is a guest.
             div()
                 .with(
@@ -212,7 +214,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag mainContent(
       Http.Request request,
       Messages messages,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
       long applicantId,
       Locale preferredLocale,
@@ -236,7 +238,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           findServicesSection(
               request,
               messages,
-              userName,
+              personalInfo,
               relevantPrograms,
               cardContainerStyles,
               applicantId,
@@ -258,7 +260,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardsSection(
               request,
               messages,
-              userName,
+              personalInfo,
               Optional.of(MessageKey.TITLE_PROGRAMS_IN_PROGRESS_UPDATED),
               cardContainerStyles,
               applicantId,
@@ -273,7 +275,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardsSection(
               request,
               messages,
-              userName,
+              personalInfo,
               Optional.of(MessageKey.TITLE_PROGRAMS_SUBMITTED),
               cardContainerStyles,
               applicantId,
@@ -288,7 +290,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardsSection(
               request,
               messages,
-              userName,
+              personalInfo,
               Optional.of(MessageKey.TITLE_PROGRAMS_ACTIVE_UPDATED),
               cardContainerStyles,
               applicantId,
@@ -305,7 +307,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag findServicesSection(
       Http.Request request,
       Messages messages,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms relevantPrograms,
       String cardContainerStyles,
       long applicantId,
@@ -336,7 +338,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             programCardsSection(
                 request,
                 messages,
-                userName,
+                personalInfo,
                 Optional.empty(),
                 cardContainerStyles,
                 applicantId,
@@ -364,7 +366,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private DivTag programCardsSection(
       Http.Request request,
       Messages messages,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       Optional<MessageKey> sectionTitle,
       String cardContainerStyles,
       long applicantId,
@@ -391,7 +393,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                         programCard(
                             request,
                             messages,
-                            userName,
+                            personalInfo,
                             card,
                             applicantId,
                             preferredLocale,
@@ -404,7 +406,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private LiTag programCard(
       Http.Request request,
       Messages messages,
-      Optional<String> userName,
+      ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicantProgramData cardData,
       Long applicantId,
       Locale preferredLocale,
@@ -495,7 +497,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // to continue on to the application. Otherwise, show the button to go to the
     // application directly.
     ContainerTag content =
-        ApplicantUtils.isGuest(userName, messages)
+        personalInfo.getType() == GUEST
             ? TagCreator.button().withId(loginPromptModal.getTriggerButtonId())
             : a().withHref(actionUrl).withId(baseId + "-apply");
 

@@ -16,6 +16,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.Block;
@@ -59,8 +60,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> index(Request request, long applicantId) {
     Optional<ToastMessage> banner =
         request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
-    CompletionStage<Optional<String>> applicantStage =
-        this.applicantService.getNameOrEmail(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
@@ -93,7 +94,8 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> view(Request request, long applicantId, long programId) {
-    CompletionStage<Optional<String>> applicantStage = this.applicantService.getName(applicantId);
+    CompletionStage<ApplicantPersonalInfo> applicantStage =
+        this.applicantService.getPersonalInfo(applicantId);
 
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage

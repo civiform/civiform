@@ -10,6 +10,7 @@ import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import services.MessageKey;
 
+// TODO(#4626): remove this class and use ApplicantPersonalInfo as a better abstraction.
 public final class ApplicantUtils {
 
   private final MessagesApi messagesApi;
@@ -28,14 +29,5 @@ public final class ApplicantUtils {
   /** Get the applicant's name or the GUEST message in the provided messages. */
   public static String getApplicantName(Optional<String> maybeName, Messages messages) {
     return maybeName.orElse(messages.at(MessageKey.GUEST.getKeyName()));
-  }
-
-  // TODO(#4626): make this a more robust check.
-  public static boolean isGuest(Optional<String> maybeName, Messages messages) {
-    String userName = maybeName.orElse(messages.at(MessageKey.GUEST.getKeyName()));
-
-    String guestUserName = messages.at(MessageKey.GUEST.getKeyName());
-
-    return userName.equals(guestUserName);
   }
 }

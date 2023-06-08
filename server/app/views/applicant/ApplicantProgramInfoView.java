@@ -14,11 +14,11 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import java.util.Locale;
-import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -42,7 +42,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
       ProgramDefinition program,
       Http.Request request,
       long applicantId,
-      Optional<String> userName) {
+      ApplicantPersonalInfo personalInfo) {
 
     Locale preferredLocale = messages.lang().toLocale();
     String programTitle = program.localizedName().getOrDefault(preferredLocale);
@@ -55,7 +55,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
             .addMainContent(topContent(programTitle, programInfo, messages))
             .addMainContent(createButtons(applicantId, program.id(), messages));
 
-    return layout.renderWithNav(request, userName, messages, bundle);
+    return layout.renderWithNav(request, personalInfo, messages, bundle);
   }
 
   private DivTag topContent(String programTitle, String programInfo, Messages messages) {

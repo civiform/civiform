@@ -22,6 +22,8 @@ import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.ApplicantPersonalInfo.ApplicantType;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.NoteEvent;
@@ -137,8 +139,12 @@ public final class ProgramAdminApplicationService {
             program.getProgramDefinition(), applicant, statusDef, adminSubmitterEmail);
       }
       // Notify the applicant.
+      ApplicantPersonalInfo personalInfo =
+          applicantService.getPersonalInfo(applicant.id).toCompletableFuture().join();
       Optional<String> applicantEmail =
-          applicantService.getEmail(application.getApplicant().id).toCompletableFuture().join();
+          personalInfo.getType() == ApplicantType.LOGGED_IN
+              ? personalInfo.loggedIn().email()
+              : Optional.empty();
       if (applicantEmail.isPresent()) {
         sendApplicantEmail(program.getProgramDefinition(), applicant, statusDef, applicantEmail);
       } else {
