@@ -9,6 +9,7 @@ import static views.components.ToastMessage.ToastType.ERROR;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import featureflags.FeatureFlags;
@@ -115,7 +116,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
-            programData.getTiGroups());
+            ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
       ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
       return ok(newOneView.render(request, programData, message));
@@ -150,7 +151,7 @@ public final class AdminProgramController extends CiviFormController {
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
             featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
-            programData.getTiGroups());
+            ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
@@ -243,7 +244,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getLocalizedDisplayDescription(),
             programData.getExternalLink(),
             programData.getDisplayMode(),
-            programData.getTiGroups());
+            ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
       ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
       return ok(editView.render(request, programDefinition, programData, message));
@@ -277,7 +278,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getDisplayMode(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
         featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
-        programData.getTiGroups());
+        ImmutableList.copyOf(programData.getTiGroups()));
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
 

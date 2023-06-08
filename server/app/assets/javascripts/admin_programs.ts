@@ -26,7 +26,7 @@ class AdminPrograms {
       '#program-display-mode-select-ti-only',
       'click',
       () => {
-        const tiSelect = <HTMLInputElement>document.querySelector('#TIList')
+        const tiSelect = <HTMLInputElement>document.querySelector('#TiList')
         if (tiSelect.hidden) tiSelect.hidden = false
         else {
           tiSelect.hidden = true
@@ -34,7 +34,24 @@ class AdminPrograms {
       },
     )
   }
-
+  static attachEventListenersToHideEditTiInPublicMode() {
+    addEventListenerToElements('#program-display-mode-public', 'click', () => {
+      const tiSelect = <HTMLInputElement>document.querySelector('#TiList')
+      if (!tiSelect.hidden) tiSelect.hidden = true
+    })
+  }
+  static attachEventListenersToHideEditTiInTIOnlyMode() {
+    addEventListenerToElements('#program-display-mode-ti-only', 'click', () => {
+      const tiSelect = <HTMLInputElement>document.querySelector('#TiList')
+      if (!tiSelect.hidden) tiSelect.hidden = true
+    })
+  }
+  static attachEventListenersToHideEditTiInHiddenMode() {
+    addEventListenerToElements('#program-display-mode-hidden', 'click', () => {
+      const tiSelect = <HTMLInputElement>document.querySelector('#TiList')
+      if (!tiSelect.hidden) tiSelect.hidden = true
+    })
+  }
   static attachCopyProgramLinkListeners() {
     const withCopyableProgramLink = Array.from(
       document.querySelectorAll(
@@ -102,4 +119,7 @@ export function init() {
   AdminPrograms.attachCopyProgramLinkListeners()
   AdminPrograms.attachConfirmCommonIntakeChangeListener()
   AdminPrograms.attachEventListenersToEditTIButton()
+  AdminPrograms.attachEventListenersToHideEditTiInPublicMode()
+  AdminPrograms.attachEventListenersToHideEditTiInTIOnlyMode()
+  AdminPrograms.attachEventListenersToHideEditTiInHiddenMode()
 }

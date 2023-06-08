@@ -201,7 +201,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
-      List<Long> tiGroups) {
+      ImmutableList<Long> tiGroups) {
     ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
     errorsBuilder.addAll(
         validateProgramData(
@@ -232,7 +232,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
-      List<Long> tiGroups) {
+      ImmutableList<Long> tiGroups) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -285,7 +285,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
-      List<Long> tiGroups) {
+      ImmutableList<Long> tiGroups) {
     return validateProgramData(
         adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
   }
@@ -302,7 +302,7 @@ public final class ProgramServiceImpl implements ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
-      List<Long> tiGroups)
+      ImmutableList<Long> tiGroups)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =

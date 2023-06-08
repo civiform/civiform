@@ -3,7 +3,6 @@ package services.program;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.BlockForm;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -115,7 +114,7 @@ public interface ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
-      List<Long> tiGroups);
+      ImmutableList<Long> tiGroups);
 
   /**
    * Checks if the provided data is valid for a new program. Does not actually create the program.
@@ -137,7 +136,7 @@ public interface ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
-      List<Long> tiGroups);
+      ImmutableList<Long> tiGroups);
 
   /**
    * Update a program's mutable fields: admin description, display name and description for
@@ -174,7 +173,7 @@ public interface ProgramService {
       String displayMode,
       ProgramType programType,
       Boolean isIntakeFormFeatureEnabled,
-      List<Long> tiGroups)
+      ImmutableList<Long> tiGroups)
       throws ProgramNotFoundException;
 
   /**
@@ -194,7 +193,7 @@ public interface ProgramService {
       String displayDescription,
       String externalLink,
       String displayMode,
-      List<Long> tiGroups);
+      ImmutableList<Long> tiGroups);
 
   /**
    * Add or update a localization of the program's publicly-visible display name and description.

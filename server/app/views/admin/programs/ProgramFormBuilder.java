@@ -241,7 +241,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                         option ->
                             renderCheckboxOption(
                                 option.getName(), option.id, selectedTi.contains(option.id))));
-    DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TIList").with(tiSelectionRenderer);
+    DivTag returnDivTag = div().withClasses("px-4 py-2").withId("TiList").with(tiSelectionRenderer);
 
     return selectTiChecked ? returnDivTag : returnDivTag.isHidden();
   }

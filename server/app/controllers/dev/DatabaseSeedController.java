@@ -350,7 +350,7 @@ public class DatabaseSeedController extends Controller {
               DisplayMode.PUBLIC.getValue(),
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
-              new ArrayList<>());
+              ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
         throw new Exception(programDefinitionResult.getErrors().toString());
       }
