@@ -1,12 +1,14 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.*;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
+import java.util.concurrent.CompletionException;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
@@ -15,13 +17,14 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.Path;
 import services.applicant.question.Scalar;
+import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
-  private Program draftProgram;
+  private Program activeProgram;
   public Applicant applicant;
 
   @Before
@@ -30,8 +33,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     subject = instanceOf(ApplicantProgramReviewController.class);
     blockController = instanceOf(ApplicantProgramBlocksController.class);
-    draftProgram =
-        ProgramBuilder.newDraftProgram()
+    activeProgram =
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -41,27 +44,29 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    Result result = this.review(badApplicantId, draftProgram.id);
+    Result result = this.review(badApplicantId, activeProgram.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void review_toAProgramThatDoesNotExist_returns404() {
-    long badProgramId = draftProgram.id + 1000;
-    Result result = this.review(applicant.id, badProgramId);
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    long badProgramId = activeProgram.id + 1000;
+    assertThatThrownBy(() -> this.review(applicant.id, badProgramId))
+        .isInstanceOf(CompletionException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
   public void review_rendersSummaryView() {
-    Result result = this.review(applicant.id, draftProgram.id);
+    Result result = this.review(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
   public void submit_invalid_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    Result result = this.submit(badApplicantId, draftProgram.id);
+    Result result = this.submit(badApplicantId, activeProgram.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 

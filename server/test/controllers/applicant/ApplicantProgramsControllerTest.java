@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
@@ -13,6 +14,7 @@ import static play.test.Helpers.stubMessagesApi;
 import controllers.WithMockedProfiles;
 import featureflags.FeatureFlag;
 import java.util.Locale;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.Applicant;
@@ -28,6 +30,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.program.ProgramNotFoundException;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
@@ -67,7 +70,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void index_withPrograms_returnsOnlyRelevantPrograms() {
     resourceCreator().insertActiveProgram("one");
     resourceCreator().insertActiveProgram("two");
-    resourceCreator().insertActiveProgram("three");
+    resourceCreator().insertDraftProgram("three");
 
     Request request = addCSRFToken(fakeRequest()).build();
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
@@ -87,8 +90,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Application app = new Application(currentApplicant, program, LifecycleStage.DRAFT);
     app.save();
 
-    resourceCreator().insertActiveProgram(programName);
-
+    resourceCreator().insertDraftProgram(programName);
     this.versionRepository.publishNewSynchronizedVersion();
 
     Request request = addCSRFToken(fakeRequest()).build();
@@ -186,13 +188,15 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void view_invalidProgram_returnsBadRequest() {
-    Result result =
-        controller
-            .view(fakeRequest().build(), currentApplicant.id, 9999L)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    assertThatThrownBy(
+            () ->
+                controller
+                    .view(fakeRequest().build(), currentApplicant.id, 9999L)
+                    .toCompletableFuture()
+                    .join())
+        .isInstanceOf(CompletionException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
