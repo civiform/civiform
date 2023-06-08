@@ -109,6 +109,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   protected CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+
+    // If the civiformProfile is a trusted intermediary, bypass all merging because
+    // we don't want to actually merge the guest profile into theirs.
+    if (isTrustedIntermediary(civiformProfile)) {
+      return civiformProfile.getProfileData();
+    }
+
     String emailAddress =
         getEmail(oidcProfile)
             .orElseThrow(

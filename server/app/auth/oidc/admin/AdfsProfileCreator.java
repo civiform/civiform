@@ -44,8 +44,7 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       return ImmutableSet.of(Role.ROLE_CIVIFORM_ADMIN);
     }
     if (isTrustedIntermediary(profile)) {
-      // If the user is a TI and logging in with ADFS, we need to give them both ROLE_APPLICANT and
-      // ROLE_TI. The former is so that they can perform applicant actions.
+      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
       return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_PROGRAM_ADMIN);
