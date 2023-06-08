@@ -41,7 +41,7 @@ import services.Address;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
-import services.applicant.ApplicantPersonalInfo.LoggedInRepresentation;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
@@ -1526,7 +1526,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
-                LoggedInRepresentation.builder()
+                Representation.builder()
                     .setEmail("test@example.com")
                     .setName("World, Hello")
                     .build()));
@@ -1542,7 +1542,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
-                LoggedInRepresentation.builder().setEmail("test@example.com").build()));
+                Representation.builder().setEmail("test@example.com").build()));
   }
 
   @Test
@@ -1556,7 +1556,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
-                LoggedInRepresentation.builder()
+                Representation.builder()
                     .setEmail("test@example.com")
                     .setName("Last, First")
                     .build()));
@@ -1573,14 +1573,14 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(
             ApplicantPersonalInfo.ofLoggedInUser(
-                LoggedInRepresentation.builder()
+                Representation.builder()
                     .setEmail("test@example.com")
                     .setName("First Second Third Fourth")
                     .build()));
   }
 
   @Test
-  public void getPersonalInfo_applicantNoNameNoEmail_isGuest() {
+  public void getPersonalInfo_applicantNoAuthorityId_isGuest() {
     Applicant applicant = resourceCreator.insertApplicant();
     Account account = resourceCreator.insertAccount();
     applicant.setAccount(account);
@@ -1588,6 +1588,20 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
         .isEqualTo(ApplicantPersonalInfo.ofGuestUser());
+  }
+
+  @Test
+  public void getPersonalInfo_applicantNoAuthorityIdIsManaged_isTiPartiallyCreated() {
+    Applicant applicant = resourceCreator.insertApplicant();
+    Account account = resourceCreator.insertAccount();
+    TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
+    account.setManagedByGroup(group);
+    applicant.setAccount(account);
+    applicant.save();
+    account.save();
+
+    assertThat(subject.getPersonalInfo(applicant.id).toCompletableFuture().join())
+        .isEqualTo(ApplicantPersonalInfo.ofTiPartiallyCreated(Representation.builder().build()));
   }
 
   @Test

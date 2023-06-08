@@ -53,7 +53,7 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantPersonalInfo.ApplicantType;
-import services.applicant.ApplicantPersonalInfo.LoggedInRepresentation;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
@@ -736,20 +736,28 @@ public final class ApplicantService {
   }
 
   /**
-   * Returns an ApplicantPersonalInfo, which represents some human-readable version of the
-   * applicant.
+   * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
   public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
     return userRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
-              if (applicant.isEmpty()
-                  || Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId())) {
+              boolean hasAuthorityId =
+                  applicant.isPresent()
+                      && !Strings.isNullOrEmpty(applicant.get().getAccount().getAuthorityId());
+              boolean isManagedByTi =
+                  applicant.isPresent()
+                      && applicant.get().getAccount().getManagedByGroup().isPresent();
+
+              if (!hasAuthorityId && !isManagedByTi) {
+                // The authority ID is the source of truth for whether a user is logged in. However,
+                // if they were created by a TI, we skip this return and return later on with a more
+                // specific oneof value.
                 return ApplicantPersonalInfo.ofGuestUser();
               }
 
-              LoggedInRepresentation.Builder builder = LoggedInRepresentation.builder();
+              Representation.Builder builder = Representation.builder();
 
               Optional<String> name = applicant.get().getApplicantData().getApplicantName();
               if (name.isPresent() && !Strings.isNullOrEmpty(name.get())) {
@@ -760,7 +768,11 @@ public final class ApplicantService {
                 builder.setEmail(emailAddress);
               }
 
-              return ApplicantPersonalInfo.ofLoggedInUser(builder.build());
+              if (hasAuthorityId) {
+                return ApplicantPersonalInfo.ofLoggedInUser(builder.build());
+              } else {
+                return ApplicantPersonalInfo.ofTiPartiallyCreated(builder.build());
+              }
             },
             httpExecutionContext.current());
   }

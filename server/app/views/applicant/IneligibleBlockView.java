@@ -16,7 +16,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantPersonalInfo.LoggedInRepresentation;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import views.ApplicationBaseView;
@@ -121,8 +121,10 @@ public final class IneligibleBlockView extends ApplicationBaseView {
         roApplicantProgramService.getApplicantData().getApplicantName();
     return layout.renderWithNav(
         request,
-        ApplicantPersonalInfo.ofLoggedInUser(
-            LoggedInRepresentation.builder().setName(applicantName).build()),
+        applicantName.isPresent()
+            ? ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build())
+            : ApplicantPersonalInfo.ofGuestUser(),
         messages,
         bundle);
   }

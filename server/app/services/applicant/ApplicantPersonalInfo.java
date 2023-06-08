@@ -1,5 +1,7 @@
 package services.applicant;
 
+import static services.applicant.ApplicantPersonalInfo.ApplicantType.LOGGED_IN;
+
 import com.google.auto.value.AutoOneOf;
 import com.google.auto.value.AutoValue;
 import java.util.Optional;
@@ -13,7 +15,14 @@ import services.MessageKey;
 @AutoOneOf(ApplicantPersonalInfo.ApplicantType.class)
 public abstract class ApplicantPersonalInfo {
   public enum ApplicantType {
+    // A canonical logged-in user. A user is logged in if and only if they have an authority ID.
     LOGGED_IN,
+    // When a TI creates a user, they are assigned an email but not an authority ID - that gets
+    // assigned when the user logs in themselves. For display pursposes, we need to make the
+    // distinction between guest users without an authority ID and TI-created users that don't yet
+    // have an authority ID.
+    TI_PARTIALLY_CREATED,
+    // A guest does not have an authority ID, and they were not created by a TI.
     GUEST
   }
 
@@ -25,11 +34,13 @@ public abstract class ApplicantPersonalInfo {
         return messages.at(MessageKey.GUEST.getKeyName());
 
       case LOGGED_IN:
-        LoggedInRepresentation loggedIn = loggedIn();
-        if (loggedIn.name().isPresent()) {
-          return loggedIn.name().get();
-        } else if (loggedIn.email().isPresent()) {
-          return loggedIn.email().get();
+      case TI_PARTIALLY_CREATED:
+        Representation representation = getType() == LOGGED_IN ? loggedIn() : tiPartiallyCreated();
+
+        if (representation.name().isPresent()) {
+          return representation.name().get();
+        } else if (representation.email().isPresent()) {
+          return representation.email().get();
         }
 
         // Fall through
@@ -41,25 +52,30 @@ public abstract class ApplicantPersonalInfo {
 
   public abstract void guest();
 
-  public abstract LoggedInRepresentation loggedIn();
+  public abstract Representation loggedIn();
+
+  public abstract Representation tiPartiallyCreated();
 
   public static ApplicantPersonalInfo ofGuestUser() {
     return AutoOneOf_ApplicantPersonalInfo.guest();
   }
 
-  public static ApplicantPersonalInfo ofLoggedInUser(
-      LoggedInRepresentation loggedInRepresentation) {
-    return AutoOneOf_ApplicantPersonalInfo.loggedIn(loggedInRepresentation);
+  public static ApplicantPersonalInfo ofLoggedInUser(Representation representation) {
+    return AutoOneOf_ApplicantPersonalInfo.loggedIn(representation);
+  }
+
+  public static ApplicantPersonalInfo ofTiPartiallyCreated(Representation representation) {
+    return AutoOneOf_ApplicantPersonalInfo.tiPartiallyCreated(representation);
   }
 
   @AutoValue
-  public abstract static class LoggedInRepresentation {
+  public abstract static class Representation {
     public abstract Optional<String> name();
 
     public abstract Optional<String> email();
 
     public static Builder builder() {
-      return new AutoValue_ApplicantPersonalInfo_LoggedInRepresentation.Builder();
+      return new AutoValue_ApplicantPersonalInfo_Representation.Builder();
     }
 
     @AutoValue.Builder
@@ -70,7 +86,7 @@ public abstract class ApplicantPersonalInfo {
 
       public abstract Builder setEmail(String email);
 
-      public abstract LoggedInRepresentation build();
+      public abstract Representation build();
     }
   }
 }

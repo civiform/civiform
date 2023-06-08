@@ -28,7 +28,7 @@ import repository.SearchParameters;
 import repository.UserRepository;
 import services.PaginationInfo;
 import services.applicant.ApplicantPersonalInfo;
-import services.applicant.ApplicantPersonalInfo.LoggedInRepresentation;
+import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
@@ -104,7 +104,7 @@ public final class TrustedIntermediaryController {
             // applicant dashboard yet.
             applicantName.isPresent()
                 ? ApplicantPersonalInfo.ofLoggedInUser(
-                    LoggedInRepresentation.builder().setName(applicantName).build())
+                    Representation.builder().setName(applicantName).build())
                 : ApplicantPersonalInfo.ofGuestUser(),
             pageInfo.getPageItems(),
             pageInfo.getPageCount(),

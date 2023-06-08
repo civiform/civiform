@@ -292,7 +292,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
   }
 
-  private DivTag maybeRenderTiButton(Optional<CiviFormProfile> profile, String applicantDisplayString) {
+  private DivTag maybeRenderTiButton(
+      Optional<CiviFormProfile> profile, String applicantDisplayString) {
     DivTag div =
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
