@@ -107,6 +107,9 @@ public final class AdminProgramController extends CiviFormController {
     Form<ProgramForm> programForm = formFactory.form(ProgramForm.class);
     ProgramForm programData = programForm.bindFromRequest(request).get();
 
+    // a null element gets added as we always have a hidden
+    // option as part of the checkbox display
+    while (programData.getTiGroups().remove(null)) {}
     // Display any errors with the form input to the user.
     ImmutableSet<CiviFormError> errors =
         programService.validateProgramDataForCreate(
@@ -134,9 +137,6 @@ public final class AdminProgramController extends CiviFormController {
                 request, programData, maybeCommonIntakeForm.get().localizedName().getDefault()));
       }
     }
-    // a null element gets added as we always have a hidden
-    // option as part of the checkbox display
-    while (programData.getTiGroups().remove(null)) {}
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         programService.createProgramDefinition(
