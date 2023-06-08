@@ -187,7 +187,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void view_invalidProgram_returnsNotFound() {
+  public void view_invalidProgram_returnsBadRequest() {
     Result result =
         controller
             .view(fakeRequest().build(), currentApplicant.id, 9999L)
