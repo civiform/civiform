@@ -191,4 +191,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .toCompletableFuture()
         .join();
   }
+
+  protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
+    return profile.getAccount().join().getMemberOfGroup().isPresent();
+  }
 }
