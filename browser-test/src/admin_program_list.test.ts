@@ -95,7 +95,7 @@ describe('Program list page.', () => {
       )
     })
 
-    await page.click('button:has-text("Publish")')
+    await page.click('#publish-program-button')
 
     // Draft not published because dialog was dismissed.
     await adminPrograms.expectDraftProgram(programOne)
@@ -105,7 +105,7 @@ describe('Program list page.', () => {
       void dialog.accept()
     })
 
-    await page.click('button:has-text("Publish")')
+    await page.click('#publish-program-button')
 
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
