@@ -1,0 +1,296 @@
+# Please see the README.md in the same directory for more information on localization.
+#
+# ALWAYS add context strings to the Transifex dashboard immediately after
+# merging changes to this file. See
+# https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings
+
+#-------------------------------------------------------------#
+# GENERAL - contains text that corresponds to multiple views. #
+#-------------------------------------------------------------#
+
+button.logout=ອອກຈາກລະບົບ
+label.selectLanguage=ກະລຸນາເລືອກພາສາທີ່ທ່ານຕ້ອງການ.
+button.untranslatedSubmit=ສົ່ງ
+footer.supportLinkDescription=ສຳລັບການຊ່ວຍເຫຼືອດ້ານເທັກນິກ, ໃຫ້ຕິດຕໍ່
+guest=ແຂກ
+label.languageSr=ເລືອກພາສາ
+header.endSession=ສິ້ນສຸດເຊດຊັນ
+toast.sessionEnded=ເຊດຊັນຂອງທ່ານສິ້ນສຸດແລ້ວ.
+header.guestIndicator=ທ່ານເປັນຜູ້ໃຊ້ທີ່ເປັນແຂກ.
+header.userName=ເຂົ້າສູ່ລະບົບໃນຖານະ {0} ແລ້ວ
+validation.isRequired=ຕ້ອງຕອບຄຳຖາມນີ້.
+validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຖືກຕ້ອງ.
+validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບຟອມ. ກະລຸນາແກ້ໄຂກ່ອນສືບຕໍ່.
+content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
+content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
+
+#-------------------------------------------------------------#
+# LOGIN - contains text that for login page.                  #
+#-------------------------------------------------------------#
+
+title.login=ເຂົ້າສູ່ລະບົບ
+content.loginPrompt=ກະລຸນາເຂົ້າສູ່ລະບົບດ້ວຍບັນຊີ {0} ຂອງທ່ານ
+button.createAnAccount=ສ້າງບັນຊີ
+button.login=ເຂົ້າສູ່ລະບົບ
+content.alternativeLoginPrompt=ບໍ່ມີບັນຊີບໍ?
+content.or=ຫຼື
+button.createAccount=ສ້າງບັນຊີ
+button.guestLogin=ສືບຕໍ່ໃນຖານະແຂກ
+content.loginDisabledPrompt=ການເຂົ້າສູ່ລະບົບບັນຊີຖືກປິດການນຳໃຊ້ໃນປັດຈຸບັນ
+content.adminLoginPrompt=ກຳລັງຊອກຫາສິ່ງອື່ນຢູ່ບໍ?
+content.adminFooterPrompt=ທ່ານເປັນຜູ້ເບິ່ງແຍງສິດທິປະໂຫຍດບໍ?
+link.adminLogin=ການເຂົ້າສູ່ລະບົບຂອງຜູ້ເບິ່ງແຍງ
+
+#--------------------------------------------------------------------------#
+# PROGRAM FORM - contains text shown when filling out an application form. #
+#--------------------------------------------------------------------------#
+
+input.fileAlreadyUploaded=ອັບໂຫຼດໄຟລ໌ແລ້ວ: {0}
+button.deleteFile=ລຶບ
+button.keepFile=ສືບຕໍ່
+button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
+button.previousScreen=ກ່ອນໜ້າ
+button.review=ກວດສອບ
+button.skipFileUpload=ຂ້າມ
+toast.localeNotSupported=ພວກເຮົາຂໍອະໄພ, ໂຄງການນີ້ບໍ່ໄດ້ແປເປັນພາສາທີ່ທ່ານຕ້ອງການຢ່າງສົມບູນຄົບຖ້ວນ.
+link.allDone=ຂ້ອຍແລ້ວໆ
+link.applyToAnotherProgram=ສະໝັກໂຄງການອື່ນ
+link.createAccountOrSignIn=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+
+#----------------------------------------------------------------------------#
+# APPLICANT HOME PAGE - contains text specific to the applicant's home page. #
+#----------------------------------------------------------------------------#
+
+button.apply=ສະໝັກ
+button.applySr=ສະໝັກ {0}
+button.edit=ແກ້ໄຂ
+button.editSr=ແກ້ໄຂໃບສະໝັກທີ່ສົ່ງຫາ {0}
+button.continueSr=ສືບຕໍ່ສະໝັກ {0}
+button.startHere=ເລີ່ມຕົ້ນບ່ອນນີ້
+button.continueToApplication=ສືບຕໍ່ສະໝັກ
+button.startHereCommonIntakeSr=ເລີ່ມຕົ້ນບ່ອນນີ້ໂດຍການຕື່ມຂໍ້ມູນ {0}
+button.editCommonIntakeSr=ແກ້ໄຂຂໍ້ມູນທີ່ສົ່ງສຳລັບ {0}
+button.continueCommonIntakeSr=ສືບຕໍ່ຕື່ມຂໍ້ມູນ {0}
+content.submittedDate=ສົ່ງ {0} ແລ້ວ
+content.benefits=ຮັບສິດທິປະໂຫຍດ
+content.description=CiviForm ຊ່ວຍໃຫ້ທ່ານຊອກຫາສິດທິປະໂຫຍດທີ່ທ່ານອາດມີສິດຮັບໃນ {0}. ເລີ່ມຕົ້ນໂດຍເລືອກໃບສະໝັກທາງລຸ່ມ.
+content.saveTime=ປະຢັດເມື່ອສະໝັກຂໍຮັບສິດທິປະໂຫຍດ
+content.guestDescription=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ ແລະ ສະໝັກຂໍຮັບສິດທິປະໂຫຍດຫຼາຍຢ່າງໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າຄືນໃໝ່. ນອກຈາກນັ້ນ, ທ່ານສາມາດແກ້ໄຂໃບສະໝັກໄດ້ທຸກເວລາ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້ນຳ.
+link.programDetails=ລາຍລະອຽດໂຄງການ
+link.programDetailsSr=ລາຍລະອຽດໂຄງການສຳລັບ {0}
+title.programs=ໂຄງການ ແລະ ບໍລິການ
+title.findServicesSection=ຊອກຫາບໍລິການທີ່ສາມາດຊ່ວຍທ່ານໄດ້
+title.allProgramsSection=ໂຄງການທັງໝົດ ({0})
+title.status=ສະຖານະ
+title.inProgressProgramsUpdated=ຢູ່ລະຫວ່າງດຳເນີນການ
+title.activeProgramsUpdated=ບໍ່ໄດ້ເລີ່ມຕົ້ນ
+title.submittedPrograms=ສົ່ງແລ້ວ
+toast.applicationSaved=ບັນທຶກໃບສະໝັກສຳເລັດແລ້ວ: ລະຫັດໃບສະໝັກ {0}
+toast.programCompleted=ການສະໝັກສຳລັບສົມບູນແລ້ວ.
+
+#------------------------------------------------------------------------#
+# APPLICANT APPLICATION REVIEW PAGE - text when reviewing an application #
+#------------------------------------------------------------------------#
+
+button.submit=ສົ່ງ
+button.continue=ສືບຕໍ່
+toast.applicationOutOfDate=ມີການອັບເດດໃບສະໝັກ, ກະລຸນາກວດສອບ ແລະ ຕອບຄຳຖາມເພື່ອດຳເນີນການຕໍ່
+
+content.doesNotQualify=ຂາດຄຸນສົມບັດ
+link.edit=ແກ້ໄຂ
+link.answer=ຄຳຕອບ
+content.previouslyAnsweredOn=ຕອບກ່ອນໜ້ານີ້ເມື່ອ {0}
+ariaLabel.answer=ຕອບ {0}
+
+ariaLabel.edit=ແກ້ໄຂ {0}
+title.programSummary=ສະຫຼຸບການສະໝັກໂຄງການ
+title.commonIntakeSummary=ສະຫຼຸບສິດທິປະໂຫຍດກວດສອບລ່ວງໜ້າ
+
+#------------------------------------------------------------------------#
+# APPLICANT ELIGIBILITY - text related to applicant eligibility #
+#------------------------------------------------------------------------#
+
+title.applicantNotEligible=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
+title.applicantNotEligibleTi=ໂດຍອີງຕາມການຕອບຄຳຖາມຕໍ່ໄປນີ້ຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}.
+content.eligibilityCriteria=ສຳລັບເກນການມີສິດ ກະລຸນາເຂົ້າເບິ່ງ {0}
+content.changeAnswersForEligibility=ທ່ານສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້າເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້. ຫຼື ສະໝັກໂຄງການອື່ນ.
+button.goBackAndEdit=ກັບຄືນ ແລະ ແກ້ໄຂ
+toast.mayQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
+toast.mayQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ເພື່ອດຳເນີນການຕໍ່, ໃຫ້ສືບຕໍ່ຕື່ມຂໍ້ມູນໃບສະໝັກ.
+tag.mayQualify=ທ່ານອາດມີຄຸນສົມບັດ
+tag.mayQualifyTi=ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດ
+tag.mayNotQualify=ທ່ານອາດຂາດຄຸນສົມບັດ
+tag.mayNotQualifyTi=ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດ
+
+toast.mayNotQualify=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
+
+toast.mayNotQualifyTi=ໂດຍອີງຕາມຄຳຕອບຂອງທ່ານ, ລູກຄ້າຂອງທ່ານອາດຂາດຄຸນສົມບັດເຂົ້າຮ່ວມ {0}. ຫາກຂໍ້ມູນລູກຄ້າຂອງທ່ານມີການປ່ຽນແປງ ທ່ານສາມາດແກ້ໄຂຄຳຕອບຂອງທ່ານ ແລ້ວຈາກນັ້ນດຳເນີນການສະໝັກຕໍ່ໄດ້.
+banner.errorSavingApplication=ເກີດຂໍ້ຜິດພາດໃນການບັນທຶກໃບສະໝັກ
+
+#---------------------------------------------------------------------------------------------#
+# APPLICANT APPLICATION CONFIRMATION PAGE - text for a page confirming application submission #
+#---------------------------------------------------------------------------------------------#
+
+title.applicationConfirmation=ການຢືນຢັນການສະໝັກ
+content.confirmed=ຂໍຂອບໃຈສຳລັບການສະໝັກເຂົ້າຮ່ວມ {0}.  ໄດ້ຮັບໃບສະໝັກຂອງທ່ານແລ້ວ ແລະ ລະຫັດການສະໝັກຂອງທ່ານແມ່ນ {1}.
+title.createAnAccount=ສ້າງບັນຊີ ຫຼື ເຂົ້າສູ່ລະບົບ
+content.pleaseCreateAccount=ເຂົ້າສູ່ລະບົບບັນຊີ {0} ຂອງທ່ານ ຫຼື ສ້າງບັນຊີເພື່ອບັນທຶກຂໍ້ມູນຂອງທ່ານໄວ້. ທ່ານຈະສາມາດກັບຄືນມາໄດ້ທຸກເວລາເພື່ອຕື່ມໃບສະໝັກໃຫ້ຄົບຖ້ວນໃນອະນາຄົດ. ຫາກທ່ານຍັງບໍ່ມີບັນຊີ, ໜ້າເຂົ້າສູ່ລະບົບຈະອະນຸຍາດໃຫ້ທ່ານລົງທະບຽນ ແລະ ທ່ານຈະບໍ່ສູນເສຍຂໍ້ມູນໃດກໍຕາມທີ່ທ່ານເຄີຍປ້ອນໄປແລ້ວ.
+content.generalLoginModalPrompt=ທ່ານບໍ່ໄດ້ເຂົ້າສູ່ລະບົບບັນຊີ. ຫາກບໍ່ມີບັນຊີ ທ່ານຈະບໍ່ສາມາດແກ້ໄຂໃບສະໝັກໄດ້, ກະລຸນາກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານ ຫຼື ສະໝັກຂໍຮັບສິດທິປະໂຫຍດອື່ນໆໄດ້ຢ່າງວ່ອງໄວ.
+content.initialLoginModalPrompt=ກ່ອນທ່ານສືບຕໍ່, ໃຫ້ເຂົ້າສູ່ລະບົບບັນຊີ City of Seattle ຂອງທ່ານ ຫຼື ສ້າງບັນຊີ. ທ່ານຈະສາມາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດຫຼາຍຢ່າງໄດ້ໂດຍບໍ່ຕ້ອງປ້ອນຂໍ້ມູນເກົ່າອີກຄັ້ງ. ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດແກ້ໄຂໃບສະໝັກ ແລະ ກວດສອບສະຖານະໃບສະໝັກຂອງທ່ານໄດ້.
+button.continueWithoutAnAccount=ສືບຕໍ່ໂດຍບໍ່ຕ້ອງມີບັນຊີ
+title.commonIntakeConfirmation=ສິດທິປະໂຫຍດທີ່ທ່ານອາດມີຄຸນສົມບັດໄດ້ຮັບ
+title.commonIntakeConfirmationTi=ສິດທິປະໂຫຍດທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດໄດ້ຮັບ
+content.commonIntakeConfirmation=ທ່ານອາດຈະສາມາດໄດ້ຮັບສິດທິປະໂຫຍດເຫຼົ່ານີ້ຫາກທ່ານສະໝັກຜ່ານໃບສະໝັກທາງອອນລາຍໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.
+content.commonIntakeConfirmationTi=ລູກຄ້າຂອງທ່ານອາດຈະສາມາດໄດ້ຮັບສິດທິປະໂຫຍດເຫຼົ່ານີ້ຫາກທ່ານສະໝັກຜ່ານໃບສະໝັກທາງອອນລາຍໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.
+content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
+content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
+content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
+button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
+
+#----------------------------------------------------------#
+# ADDRESS QUESTION - text when viewing an address question #
+#----------------------------------------------------------#
+
+label.addressLine2=ອະພາດເມັນ, ຫ້ອງຊຸດ ແລະ ອື່ນໆ. (ບໍ່ບັງຄັບ)
+label.city=ເມືອງ
+label.state=ລັດ
+label.selectState=ເລືອກລັດ
+label.street=ທີ່ຢູ່
+label.zipcode=ລະຫັດ ZIP
+
+validation.streetRequired=ກະລຸນາໃສ່ຊື່ ແລະ ໝາຍເລກຖະໜົນທີ່ຖືກຕ້ອງ.
+validation.cityRequired=ກະລຸນາໃສ່ເມືອງ.
+validation.currencyMisformatted=ສະກຸນເງິນຕ້ອງເປັນໜຶ່ງໃນຮູບແບບຕໍ່ໄປນີ້: 1000 1,000 1000.30 1,000.30
+validation.stateRequired=ກະລຸນາໃສ່ລັດ.
+validation.invalidZipcode=ກະລຸນາໃສ່ລະຫັດ ZIP 5 ຕົວເລກທີ່ຖືກຕ້ອງ.
+validation.noPoBox=ກະລຸນາໃສ່ທີ່ຢູ່ທີ່ຖືກຕ້ອງ. ພວກເຮົາບໍ່ຮັບຂໍ້ມູນຕູ້ໄປສະນີ.
+
+title.verifyAddress=ຢັ້ງຢືນທີ່ຢູ່
+
+content.foundSimilarAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້, ແຕ່ພົບທີ່ຢູ່ທີ່ຄ້າຍຄືກັນ.
+content.addressEntered=ທີ່ຢູ່ທີ່ປ້ອນເຂົ້າ:
+
+# Text on dialog that shows a suggestion for the user's correct address when entered incorrectly.
+content.suggestedAddress=ທີ່ຢູ່ທີ່ແນະນຳ:
+content.suggestedAddresses=ທີ່ຢູ່ທີ່ແນະນຳ:
+
+# Title on address correction dialog when no address is found.
+title.noValidAddress=ບໍ່ພົບທີ່ຢູ່ທີ່ຖືກຕ້ອງ
+content.noValidAddress=ພວກເຮົາບໍ່ສາມາດຢັ້ງຢືນທີ່ຢູ່ທີ່ທ່ານລະບຸໄດ້. ກະລຸນາແກ້ໄຂທີ່ຢູ່ຂອງທ່ານເພື່ອສືບຕໍ່.
+
+#----------------------------------------------------------------------------------------------------------#
+# DROPDOWN QUESTION - text shown when answering a question where a user must select an option from a list. #
+#----------------------------------------------------------------------------------------------------------#
+
+placeholder.noDropdownSelection=ເລືອກຕົວເລືອກ:
+
+#------------------------------------------------------------------------------------------------------------------------------#
+# PHONE QUESTION - text shown when answering a question where a user must select an option for country and enter phone number. #
+#------------------------------------------------------------------------------------------------------------------------------#
+
+label.countryCode=ປະເທດ
+label.phoneNumber=ໃສ່ເບີໂທລະສັບ
+validation.phoneNumberRequired=ຕ້ອງລະບຸເບີໂທລະສັບ
+validation.phoneCountryCodeRequired=ຕ້ອງເລືອກປະເທດ
+validation.phoneNumberMustContainNumbersOnly=ເບີໂທລະສັບບໍ່ສາມາດມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກໄດ້
+validation.invalidPhoneNumberProvided=ເບີໂທລະສັບນີ້ບໍ່ຖືກຕ້ອງ
+validation.phoneMustBeLocalToCountry=ເບີໂທລະສັບທີ່ທ່ານລະບຸບໍ່ໄດ້ເປັນຂອງປະເທດດັ່ງກ່າວ
+
+#----------------------------------------------------------------------------------------------------------#
+# DATE QUESTION - text shown when answering a question where a user must select date. #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.dateMisformatted=ກະລຸນາໃສ່ວັນທີໃນຮູບແບບ ປປປປ/ດດ/ວວ.
+
+#--------------------------------------------------------------------------------------------------------#
+# ENUMERATION QUESTION - text when viewing a question where a user must name entities, such as children. #
+#--------------------------------------------------------------------------------------------------------#
+
+button.addEntity=ເພີ່ມ {0}
+button.removeEntity=ລຶບ {0} ອອກ
+dialog.confirmDelete=ທ່ານແນ່ໃຈບໍ່ວ່າຕ້ອງການລຶບ {0} ນີ້ອອກ? ການປ່ຽນແປງນີ້ຈະຖືກບັນທຶກໄວ້ຫຼັງຈາກທ່ານຄລິກ "ຕໍ່ໄປ" ແລະ ຂໍ້ມູນທັງໝົດທີ່ກ່ຽວຂ້ອງກັບ {0} ນີ້ຈະສູນເສຍ.
+validation.entityNameRequired=ກະລຸນາປ້ອນຄ່າສຳລັບແຕ່ລະແຖວ.
+validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່ບໍ່ຊ້ຳກັນສຳລັບແຕ່ລະແຖວ.
+placeholder.entityName=ຊື່ {0}
+
+#---------------------------------------------------------------------------------#
+# FILEUPLOAD QUESTION - text when viewing a question where a user uploads a file. #
+#---------------------------------------------------------------------------------#
+
+validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
+button.chooseFile=ເລືອກໄຟລ໌
+
+#---------------------------------------------------------------------#
+# ID QUESTION - id specific to filling out a question. #
+#---------------------------------------------------------------------#
+
+validation.idTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັກສອນ.
+validation.idTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
+validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ່ານັ້ນ.
+
+#----------------------------------------------------------------------------------------------------------#
+# MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
+#----------------------------------------------------------------------------------------------------------#
+
+validation.tooFewSelections=ກະລຸນາເລືອກຢ່າງໜ້ອຍ {0} ຂໍ້.
+validation.tooManySelections=ກະລຸນາເລືອກໜ້ອຍກວ່າ {0} ຂໍ້.
+
+#---------------------------------------------------#
+# NAME QUESTION - text when viewing a name question #
+#---------------------------------------------------#
+
+label.firstName=ຊື່
+label.lastName=ນາມສະກຸນ
+label.middleName=ຊື່ກາງ
+
+placeholder.firstName=ຊື່
+placeholder.lastName=ນາມສະກຸນ
+placeholder.middleName=ຊື່ກາງ
+
+validation.firstNameRequired=ກະລຸນາໃສ່ຊື່ຂອງທ່ານ.
+validation.lastNameRequired=ກະລຸນາໃສ່ນາມສະກຸນຂອງທ່ານ.
+
+#------------------------------------------------------------------------#
+# NUMBER QUESTION - text specific to answering a question with a number. #
+#------------------------------------------------------------------------#
+
+validation.numberTooBig=ຕ້ອງບໍ່ເກີນ {0}.
+validation.numberTooSmall=ຕ້ອງບໍ່ຕ່ຳກວ່າ {0}.
+validation.numberNonInteger=ຕົວເລກຕ້ອງເປັນຈຳນວນເຕັມບວກ ແລະ ສາມາດມີໄດ້ສະເພາະຕົວອັກສອນທີ່ເປັນຕົວເລກ 0-9 ເທົ່ານັ້ນ.
+
+#---------------------------------------------------------------------#
+# TEXT QUESTION - text specific to filling out a question with words. #
+#---------------------------------------------------------------------#
+
+validation.textTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັກສອນ.
+validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
+
+#---------------------------------------------------------------------#
+# MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
+#---------------------------------------------------------------------#
+
+adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
+
+#----------------------------------#
+# ERRORS - various error messages  #
+#----------------------------------#
+
+error.notFoundTitle=ພວກເຮົາບໍ່ສາມາດຊອກຫາໜ້າທີ່ທ່ານພະຍາຍາມເຂົ້າເບິ່ງໄດ້
+error.notFoundDescription=ກະລຸນາກັບຄືນ ຫຼື ກັບໄປຫາ {0}
+error.notFoundDescriptionLink=ໜ້າຫຼັກ
+error.internalServerTitle=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
+error.internalServerDescription=ກະລຸນາຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອທາງເທັກນິກເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອຢູ່ %s ແລະ ລະບຸລະຫັດຂໍ້ຜິດພາດນີ້ {0}.
+
+#-------------------------------------------------------------#
+# EMAILS - boilerplate text contained in emails sent to users #
+#-------------------------------------------------------------#
+
+email.loginToCiviform=ເຂົ້າສູ່ລະບົບ Civiform ຢູ່ {0}
+email.applicationReceivedSubject=ໄດ້ຮັບໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ຂອງທ່ານແລ້ວ
+email.applicationReceivedBody=ໄດ້ຮັບໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ຂອງທ່ານແລ້ວ. ລະຫັດໃບສະໝັກຂອງທ່ານແມ່ນ {1} ແລະ ລະຫັດໃບສະໝັກດັ່ງກ່າວແມ່ນ {2}
+email.tiApplicationSubmittedSubject=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນນາມຂອງຜູ້ສະໝັກ {1}
+email.tiApplicationSubmittedBody=ໄດ້ຮັບໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນຖານະຜູ້ສະໝັກ {1} ແລ້ວ ແລະ ລະຫັດໃບສະໝັກແມ່ນ {2}.
+email.tiManageYourClients=ຈັດການລູກຄ້າຂອງທ່ານໄດ້ຢູ່ {0}.
+email.applicationUpdateSubject=ການອັບເດດໃບສະໝັກ {0} ຂອງທ່ານ
+email.tiApplicationUpdateSubject=ການອັບເດດໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນນາມຂອງຜູ້ສະໝັກ {1}
+email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັກ {0} ໃນໂຄງການ {1} ໄດ້ປ່ຽນເປັນ {2}.
