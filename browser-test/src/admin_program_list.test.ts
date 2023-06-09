@@ -86,14 +86,6 @@ describe('Program list page.', () => {
     await adminPrograms.createNewVersion(programOne)
     await adminPrograms.expectDraftProgram(programOne)
 
-    await page.click(
-      adminPrograms.withinProgramCardSelector(
-        programOne,
-        'Draft',
-        '.cf-with-dropdown',
-      ),
-    )
-
     // Add listener to dismiss dialog after clicking 'Publish program'.
     page.once('dialog', (dialog) => {
       void dialog.dismiss()
@@ -102,13 +94,9 @@ describe('Program list page.', () => {
         'Are you sure you want to publish List test program one and all of its draft questions?',
       )
     })
-    await page.click(
-      adminPrograms.withinProgramCardSelector(
-        programOne,
-        'Draft',
-        ':text("Publish program")',
-      ),
-    )
+
+    await page.click('#publish-program-button')
+
     // Draft not published because dialog was dismissed.
     await adminPrograms.expectDraftProgram(programOne)
 
@@ -116,13 +104,9 @@ describe('Program list page.', () => {
     page.once('dialog', (dialog) => {
       void dialog.accept()
     })
-    await page.click(
-      adminPrograms.withinProgramCardSelector(
-        programOne,
-        'Draft',
-        ':text("Publish program")',
-      ),
-    )
+
+    await page.click('#publish-program-button')
+
     // Program was published.
     await adminPrograms.expectDoesNotHaveDraftProgram(programOne)
     await adminPrograms.expectActiveProgram(programOne)
