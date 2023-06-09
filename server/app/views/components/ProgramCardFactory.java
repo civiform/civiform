@@ -2,9 +2,7 @@ package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
+import static j2html.TagCreator.*;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -98,8 +96,14 @@ public final class ProgramCardFactory {
         .with(titleAndStatus)
         .condWith(
             !adminNoteText.isBlank(),
-            p().withClasses("w-3/4", "mb-8", "pt-4", "line-clamp-3", "text-gray-700", "text-base")
-                .with(span("Admin note: ").withClasses("font-semibold"), span(adminNoteText)));
+            div()
+                .withClasses("py-7")
+                .with(
+                    span("Admin note: ").withClasses("font-bold"),
+                    span(adminNoteText),
+                    br(),
+                    span("Visibility state: ").withClasses("font-bold"),
+                    span(displayProgram.displayMode().getValue())));
   }
 
   private DivTag renderProgramRow(

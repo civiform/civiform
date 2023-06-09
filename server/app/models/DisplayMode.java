@@ -17,7 +17,8 @@ public enum DisplayMode {
   TI_ONLY,
   // The program should not appear in the applicant's index screen.
   HIDDEN_IN_INDEX,
-  SELECT_TI;
+  SELECT_TI,
+  DISABLED;
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {

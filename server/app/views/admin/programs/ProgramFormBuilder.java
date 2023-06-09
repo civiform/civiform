@@ -171,6 +171,14 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                     .setChecked(displayMode.equals(DisplayMode.TI_ONLY.getValue()))
                     .getRadioTag()),
         FieldWithLabel.radio()
+            .setId("program-display-mode-disabled")
+            .setFieldName("displayMode")
+            .setAriaRequired(true)
+            .setLabelText("Disable Program")
+            .setValue(DisplayMode.DISABLED.getValue())
+            .setChecked(displayMode.equals(DisplayMode.DISABLED.getValue()))
+            .getRadioTag(),
+        FieldWithLabel.radio()
             .setId("program-display-mode-select-ti-only")
             .setFieldName("displayMode")
             .setAriaRequired(true)

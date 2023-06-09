@@ -839,7 +839,8 @@ public final class ApplicantService {
                         .map(Program::getProgramDefinition)
                         .filter(
                             pdef ->
-                                pdef.displayMode().equals(DisplayMode.PUBLIC)
+                                !pdef.displayMode().equals(DisplayMode.DISABLED)
+                                    || pdef.displayMode().equals(DisplayMode.PUBLIC)
                                     || (requesterProfile.isTrustedIntermediary()
                                         && pdef.displayMode().equals(DisplayMode.TI_ONLY))
                                     || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
