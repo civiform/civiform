@@ -61,6 +61,8 @@ public final class DatabaseSeedTask {
                           "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
                           Lang.forCode("so").toLocale(),
                           "Magaca (magaca koowaad iyo kan dambe okay)",
+                          Lang.forCode("lo").toLocale(),
+                          "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
                           Lang.forCode("tl").toLocale(),
                           "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
                           Lang.forCode("vi").toLocale(),
