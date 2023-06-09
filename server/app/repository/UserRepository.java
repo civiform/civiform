@@ -26,6 +26,7 @@ import services.program.ProgramDefinition;
 import services.ti.EmailAddressExistsException;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
+import services.ti.NotEligibleToBecomeTiError;
 
 /**
  * UserRepository performs complicated operations on {@link Account} and {@link Applicant} that
@@ -175,7 +176,7 @@ public final class UserRepository {
    * signs in for the first time.
    */
   public void addTrustedIntermediaryToGroup(long id, String emailAddress)
-      throws NoSuchTrustedIntermediaryGroupError {
+      throws NoSuchTrustedIntermediaryGroupError, NotEligibleToBecomeTiError {
     Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
@@ -189,6 +190,11 @@ public final class UserRepository {
               a.save();
               return a;
             });
+
+    if (account.getGlobalAdmin() || !account.getAdministeredProgramNames().isEmpty()) {
+      throw new NotEligibleToBecomeTiError();
+    }
+
     account.setMemberOfGroup(tiGroup.get());
     account.save();
   }
