@@ -439,7 +439,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return toLinkButtonForPost(
             makeSvgTextButton("Publish ", Icons.PUBLISH)
                 .withId("publish-program-button")
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON),
             linkDestination,
             request)
         .attr(

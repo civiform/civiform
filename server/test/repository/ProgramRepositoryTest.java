@@ -1,7 +1,6 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -10,7 +9,6 @@ import io.ebean.DB;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -148,25 +146,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Program found = repo.getForSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
-  }
-
-  @Test
-  public void getActiveProgram_findsCorrectProgram() {
-    Program program = resourceCreator.insertActiveProgram("Something With A Name");
-
-    Program found = repo.getActiveProgram(program.id).toCompletableFuture().join();
-
-    assertThat(found).isEqualTo(program);
-  }
-
-  @Test
-  public void getActiveProgram_doesNotFindDraftProgram() {
-    Program program = resourceCreator.insertDraftProgram("Something With A Name");
-
-    assertThatThrownBy(() -> repo.getActiveProgram(program.id).toCompletableFuture().join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
