@@ -209,7 +209,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                     "flex-shrink-0",
                     "grow",
                     StyleUtils.responsiveMedium("grow-0")))
-        .with(maybeRenderTiButton(profile, applicantPersonalInfo.getDisplayString(messages)))
+        .with(
+            maybeRenderTiButton(profile, applicantPersonalInfo.getDisplayString(messages), request))
         .with(
             div(
                     getLanguageForm(request, profile, messages),
@@ -293,7 +294,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private DivTag maybeRenderTiButton(
-      Optional<CiviFormProfile> profile, String applicantDisplayString) {
+      Optional<CiviFormProfile> profile, String applicantDisplayString, Http.Request request) {
     DivTag div =
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
@@ -315,7 +316,8 @@ public class ApplicantLayout extends BaseHtmlLayout {
                       "opacity-75",
                       StyleUtils.hover("opacity-100"),
                       ButtonStyles.SOLID_BLUE_TEXT_XL))
-          .with(
+          .condWith(
+              !request.uri().contains("admin/tiDash"),
               div("(applying as: " + applicantDisplayString + ")")
                   .withClasses("text-sm", "text-black", "text-center"));
     }
