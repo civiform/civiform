@@ -593,7 +593,7 @@ public final class QuestionsListView extends BaseHtmlView {
     ButtonTag button =
         asRedirectElement(
             makeSvgTextButton("Manage Translations", Icons.TRANSLATE)
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON),
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
             link);
     return Optional.of(button);
   }
@@ -685,7 +685,8 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("p-6", "flex-row", "space-y-6");
 
     ButtonTag discardMenuButton =
-        makeSvgTextButton("Discard Draft", Icons.DELETE).withClasses(ButtonStyles.CLEAR_WITH_ICON);
+        makeSvgTextButton("Discard Draft", Icons.DELETE)
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
 
     Modal modal =
         Modal.builder()
@@ -710,7 +711,7 @@ public final class QuestionsListView extends BaseHtmlView {
         ButtonTag unarchiveButton =
             toLinkButtonForPost(
                 makeSvgTextButton("Restore Archived", Icons.UNARCHIVE)
-                    .withClasses(ButtonStyles.CLEAR_WITH_ICON),
+                    .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 restoreLink,
                 request);
         return Pair.of(unarchiveButton, Optional.empty());
@@ -720,7 +721,7 @@ public final class QuestionsListView extends BaseHtmlView {
         ButtonTag archiveButton =
             toLinkButtonForPost(
                 makeSvgTextButton("Archive", Icons.ARCHIVE)
-                    .withClasses(ButtonStyles.CLEAR_WITH_ICON),
+                    .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN),
                 archiveLink,
                 request);
         return Pair.of(archiveButton, Optional.empty());
@@ -743,7 +744,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 definition.getName(), referencingPrograms, Optional.of(modalHeader));
         ButtonTag cantArchiveButton =
             makeSvgTextButton("Archive", Icons.ARCHIVE)
-                .withClasses(ButtonStyles.CLEAR_WITH_ICON)
+                .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN)
                 .withId(maybeModal.get().getTriggerButtonId());
 
         return Pair.of(cantArchiveButton, maybeModal);
