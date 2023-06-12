@@ -9,6 +9,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {TEST_USER_DISPLAY_NAME} from './support/config'
 import {ProgramVisibility} from './support/admin_programs'
 
 describe('Validate program visibility is correct for applicants and TIs', () => {
@@ -124,8 +125,8 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await adminTiGroups.addGroupMember('groupOne@bar.com')
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.editGroup('groupTwo')
-    // GroupTwo will have the TestUser as the TI, so it will be visible to this TI only
-    await adminTiGroups.addGroupMember('testuser@example.com')
+    // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
+    await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
     await logout(page)
 
     await loginAsAdmin(page)
@@ -198,8 +199,8 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await adminTiGroups.addGroupMember('groupOne@bar.com')
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.editGroup('groupTwo')
-    // GroupTwo will have the TestUser as the TI, so it will be visible to this TI only
-    await adminTiGroups.addGroupMember('testuser@example.com')
+    // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
+    await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
     await logout(page)
 
     await loginAsAdmin(page)
