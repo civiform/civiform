@@ -170,7 +170,9 @@ public final class AdminLayout extends BaseHtmlLayout {
     return adminHeader.with(
         headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
         featureFlags.getFlagEnabledFromConfig(ADMIN_SETTINGS_PANEL_ENABLED).orElse(false)
-            ? a(Icons.svg(Icons.COG).withClasses("h-6 w-6"))
+                && primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
+            ? a(Icons.svg(Icons.COG)
+                    .withClasses("h-6", "w-6", "opacity-75", StyleUtils.hover("opacity-100")))
                 .withHref(settingsLink)
                 .withClasses("float-right")
             : null);

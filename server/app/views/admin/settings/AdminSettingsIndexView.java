@@ -92,7 +92,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     container.with(
         h2(settingsSection.sectionName())
             .withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()))
-            .withClasses("text-xl font-bold mt-4 pt-4"));
+            .withClasses("text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"));
     return renderSectionContents(settingsSection, container);
   }
 
@@ -124,7 +124,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
         civiFormMarkdown.render(settingDescription.settingDescription());
 
     return div(
-            div(settingDescription.variableName()).withClasses("font-semibold"),
+            div(settingDescription.variableName()).withClasses("font-semibold", "break-all"),
             div(rawHtml(renderedDescriptionHtml)).withClasses("text-sm"),
             input()
                 .withValue(value.orElse("empty"))

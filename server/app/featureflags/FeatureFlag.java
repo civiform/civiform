@@ -36,6 +36,7 @@ public enum FeatureFlag {
 
   // Single program publishing feature flag.
   PUBLISH_SINGLE_PROGRAM_ENABLED,
+
   ADMIN_SETTINGS_PANEL_ENABLED;
 
   /**

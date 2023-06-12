@@ -11,5 +11,15 @@ describe('Managing system-wide settings', () => {
 
     await page.waitForSelector('h1:has-text("Settings")')
     await validateScreenshot(page, 'admin-settings-page')
+
+    // Jump to a specfific section
+    await page.click('a:has-text("Branding")')
+    await validateScreenshot(
+      page,
+      'admin-settings-page-scrolled',
+      /* screenshotOptions=  */ undefined,
+      /* matchImageSnapshotOptions */ undefined,
+      /* fullPage= */ false,
+    )
   })
 })
