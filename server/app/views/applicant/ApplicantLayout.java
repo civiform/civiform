@@ -213,7 +213,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .with(
             div(
                     getLanguageForm(request, profile, messages),
-                    authDisplaySection(applicantPersonalInfo, messages))
+                    authDisplaySection(applicantPersonalInfo, profile, messages))
                 .withClasses(
                     "flex",
                     "flex-row",
@@ -328,10 +328,14 @@ public class ApplicantLayout extends BaseHtmlLayout {
    * <p>If the user is a guest, we show a "Log in" and a "Create an account" button. If they are
    * logged in, we show a "Logout" button.
    */
-  private DivTag authDisplaySection(ApplicantPersonalInfo personalInfo, Messages messages) {
+  private DivTag authDisplaySection(
+      ApplicantPersonalInfo personalInfo, Optional<CiviFormProfile> profile, Messages messages) {
     DivTag outsideDiv = div().withClasses("flex", "flex-col", "justify-center", "pr-4");
 
-    if (personalInfo.getType() == GUEST) {
+    boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
+    boolean isGuest = personalInfo.getType() == GUEST && !isTi;
+
+    if (isGuest) {
       String loggedInAsMessage = messages.at(MessageKey.GUEST_INDICATOR.getKeyName());
       String endSessionMessage = messages.at(MessageKey.END_SESSION.getKeyName());
       // Ending a guest session is equivalent to "logging out" the guest.
