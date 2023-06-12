@@ -9,8 +9,8 @@
 #-------------------------------------------------------------#
 
 button.logout=Mag-logout
-label.selectLanguage=Please select your preferred language.
-button.untranslatedSubmit=Submit
+label.selectLanguage=Pakipili ang iyong gustong wika.
+button.untranslatedSubmit=Isumite
 footer.supportLinkDescription=Para sa suporta na pang teknikal, tawagan
 guest=Bisita
 label.languageSr=Pumili ng wika
@@ -136,7 +136,7 @@ content.confirmed=Salamat sa pag-aplay sa {0}.  Ang inyong aplikasyon ay natangg
 title.createAnAccount=Gumawa ng account o magsign-in
 content.pleaseCreateAccount=Kung kayo ay magsign-in ngayon sa isang account ng lungsod, ang inyong impormasyon ay maitatabi at maaring balikan anumang oras upang makumpleto ang mga aplikasyon sa hinaharap. Kung kayo ay wala pang account, pahihintulutan kayo ng pahina ng log-in upang makapagrehistro. Hindi kayo mawawalan ng anumang data na inyo nang nailagay.
 content.generalLoginModalPrompt=Hindi ka naka-log in sa isang account. Hindi mo magagawang mabilis na mag-edit ng aplikasyon, tingnan ang status ng iyong aplikasyon, o mag-apply para sa iba pang benepisyo nang walang account.
-content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=Bago ka magpatuloy, mag-log in sa iyong account sa Lungsod ng Seattle o gumawa ng account. Magagawa mong mag-apply para sa maraming benepisyo nang hindi kailangang ilagay ulit ang parehong impormasyon. Puwede ka ring mag-edit ng mga aplikasyon at tumingin ng mga status ng iyong aplikasyon.
 button.continueWithoutAnAccount=Magpatuloy nang walang account
 title.commonIntakeConfirmation=Mga benepisyo kung saan puwede kang maging kwalipikado
 title.commonIntakeConfirmationTi=Mga benepisyo kung saan puwedeng maging kwalipikado ang iyong client
@@ -278,8 +278,8 @@ adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang ops
 error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
 error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
-error.internalServerTitle=An error occurred
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
+error.internalServerTitle=Nagkaroon ng error
+error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa %s at isama itong error ID na {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
