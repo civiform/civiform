@@ -90,27 +90,13 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
     try {
-      return getProgramDefinitionAsync(id).toCompletableFuture().join();
+      return getActiveProgramDefinitionAsync(id).toCompletableFuture().join();
     } catch (CompletionException e) {
       if (e.getCause() instanceof ProgramNotFoundException) {
         throw new ProgramNotFoundException(id);
       }
       throw new RuntimeException(e);
     }
-  }
-
-  private CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
-    return programRepository
-        .lookupProgram(id)
-        .thenComposeAsync(
-            programMaybe -> {
-              if (programMaybe.isEmpty()) {
-                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
-              }
-
-              return syncProgramAssociations(programMaybe.get());
-            },
-            httpExecutionContext.current());
   }
 
   @Override
@@ -126,8 +112,16 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id) {
     return programRepository
-        .getActiveProgram(id)
-        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+        .lookupProgram(id)
+        .thenComposeAsync(
+            programMaybe -> {
+              if (programMaybe.isEmpty()) {
+                return CompletableFuture.failedFuture(new ProgramNotFoundException(id));
+              }
+
+              return syncProgramAssociations(programMaybe.get());
+            },
+            httpExecutionContext.current());
   }
 
   @Override
