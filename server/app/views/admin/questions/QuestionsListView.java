@@ -685,7 +685,8 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("p-6", "flex-row", "space-y-6");
 
     ButtonTag discardMenuButton =
-        makeSvgTextButton("Discard Draft", Icons.DELETE).withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
+        makeSvgTextButton("Discard Draft", Icons.DELETE)
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN);
 
     Modal modal =
         Modal.builder()
