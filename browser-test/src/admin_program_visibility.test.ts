@@ -125,7 +125,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await adminTiGroups.addGroupMember('groupOne@bar.com')
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.editGroup('groupTwo')
-    // GroupTwo will have the TestUser as the TI, so it will be visible to this TI only
+    // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
     await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
     await logout(page)
 
@@ -199,7 +199,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await adminTiGroups.addGroupMember('groupOne@bar.com')
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.editGroup('groupTwo')
-    // GroupTwo will have the TestUser as the TI, so it will be visible to this TI only
+    // Add the TEST_USER_DISPLAY_NAME user to GroupTwo, which is the user that gets logged into upon calling loginAsTestUser()
     await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
     await logout(page)
 
