@@ -10,7 +10,7 @@ The title of the pull request will be used as the default release notes descript
 
 #### General
 
-- [ ] Added the correct label: < feature | bug | dependencies | infrastructure | ignore-for-release >
+- [ ] Added the correct label: < feature | bug | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Created tests which fail without the change (if possible)
 - [ ] Extended the README / documentation, if necessary
 
