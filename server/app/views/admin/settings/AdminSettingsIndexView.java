@@ -71,7 +71,10 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private DivTag renderSideNav() {
     var container = div().withClasses("relative", "p-6", "w-2/12");
-    var subContainer = div(h1("Settings").withClasses("text-3xl", "py-6")).withClasses("fixed");
+    var subContainer =
+        div(h1("Settings").withClasses("text-3xl", "py-6"))
+            .withId("admin-settings-side-nav")
+            .withClasses("fixed");
 
     SECTIONS.forEach(
         sectionName ->
