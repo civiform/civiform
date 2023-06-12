@@ -9,6 +9,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
+import {TEST_USER_DISPLAY_NAME} from './support/config'
 import {ProgramVisibility} from './support/admin_programs'
 
 describe('Validate program visibility is correct for applicants and TIs', () => {
@@ -125,7 +126,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.editGroup('groupTwo')
     // GroupTwo will have the TestUser as the TI, so it will be visible to this TI only
-    await adminTiGroups.addGroupMember('testuser@example.com')
+    await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
     await logout(page)
 
     await loginAsAdmin(page)
@@ -199,7 +200,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await adminTiGroups.gotoAdminTIPage()
     await adminTiGroups.editGroup('groupTwo')
     // GroupTwo will have the TestUser as the TI, so it will be visible to this TI only
-    await adminTiGroups.addGroupMember('testuser@example.com')
+    await adminTiGroups.addGroupMember(TEST_USER_DISPLAY_NAME)
     await logout(page)
 
     await loginAsAdmin(page)
