@@ -29,7 +29,7 @@ public final class CiviFormMarkdown {
     @Override
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
       if (node instanceof Link) {
-        attributes.put("class", "text-blue-600");
+        attributes.put("class", BaseStyles.LINK_TEXT);
         attributes.put("target", "_blank");
       }
     }
