@@ -78,13 +78,10 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
     return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
-  protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
-    return profile.getAccount().join().getMemberOfGroup().isPresent();
-  }
-
   @Override
   protected final ImmutableSet<Role> roles(CiviFormProfile profile, OidcProfile oidcProfile) {
     if (isTrustedIntermediary(profile)) {
+      // Give ROLE_APPLICANT in addition to ROLE_TI so that the TI can perform applicant actions.
       return ImmutableSet.of(Role.ROLE_APPLICANT, Role.ROLE_TI);
     }
     return ImmutableSet.of(Role.ROLE_APPLICANT);

@@ -109,6 +109,20 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   protected CiviFormProfileData mergeCiviFormProfile(
       CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+
+    // Meaning: whatever you signed in with most recently is the role you have.
+    ImmutableSet<Role> roles = roles(civiformProfile, oidcProfile);
+    roles.stream()
+        .map(Role::toString)
+        .forEach(role -> civiformProfile.getProfileData().addRole(role));
+    adaptForRole(civiformProfile, roles);
+
+    // If the civiformProfile is a trusted intermediary, bypass remaining merging because
+    // we don't want to actually merge the guest profile into theirs.
+    if (isTrustedIntermediary(civiformProfile)) {
+      return civiformProfile.getProfileData();
+    }
+
     String emailAddress =
         getEmail(oidcProfile)
             .orElseThrow(
@@ -124,12 +138,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
-    // Meaning: whatever you signed in with most recently is the role you have.
-    ImmutableSet<Role> roles = roles(civiformProfile, oidcProfile);
-    roles.stream()
-        .map(Role::toString)
-        .forEach(role -> civiformProfile.getProfileData().addRole(role));
-    adaptForRole(civiformProfile, roles);
     return civiformProfile.getProfileData();
   }
 
@@ -190,5 +198,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .lookupApplicantByEmail(userEmail)
         .toCompletableFuture()
         .join();
+  }
+
+  protected final boolean isTrustedIntermediary(CiviFormProfile profile) {
+    return profile.getAccount().join().getMemberOfGroup().isPresent();
   }
 }
