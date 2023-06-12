@@ -34,9 +34,6 @@ public enum FeatureFlag {
   // Phone number question type.
   PHONE_QUESTION_TYPE_ENABLED,
 
-  // Single program publishing feature flag.
-  PUBLISH_SINGLE_PROGRAM_ENABLED,
-
   ADMIN_SETTINGS_PANEL_ENABLED;
 
   /**
