@@ -9,8 +9,8 @@
 #-------------------------------------------------------------#
 
 button.logout=ውጣ
-label.selectLanguage=Please select your preferred language.
-button.untranslatedSubmit=Submit
+label.selectLanguage=እባክዎ የእርስዎን ተመራጭ ቋንቋ ይምረጡ።
+button.untranslatedSubmit=ያስገቡ
 footer.supportLinkDescription=ለቴክኒካዊ ድጋፍ፣ እውቂያ
 guest=እንግዳ
 label.languageSr=ቋንቋ ይምረጡ
@@ -136,7 +136,7 @@ content.confirmed=ለ{0} በማመልከትዎ እናመሰግናለን። ማ�
 title.createAnAccount=መለያ ይፍጠሩ ወይም ይግቡ
 content.pleaseCreateAccount=አሁን ወደ የከተማ መለያ ውስጥ ከገቡ መረጃዎ ይቀመጥ እና በማንኛውም ጊዜ በመመለስ የወደፊት ማመልከቻዎችን ማጠናቀቅ ይችላሉ። አስቀድመው መለያ ከሌለዎት የመግቢያ ገጹ እንዲመዘገቡ ያስችልዎታል። አስቀድመው ያስገቡትን ማንኛውም ውሂብ አያጡም።
 content.generalLoginModalPrompt=ወደ መለያ አልገቡም። ያለ መለያ ማመልከቻን ማርትዕ፣ የማመልከቻዎን ሁኔታ መፈተሽ ወይም ለሌላ ጥቅማጥቅሞች በፍጥነት ማመልከት አይችሉም።
-content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=ከመቀጠልዎ በፊት ወደ የእርስዎ የሲያትል ከተማ መለያ ይግቡ ወይም መለያ ይፍጠሩ። ተመሳሳይ መረጃ እንደገና ማስገባት ሳይኖርብዎ ለብዙ ጥቅማጥቅሞች ማመልከት ይችላሉ። እንዲሁም ማመልከቻዎችን ማርትዕ እና የማመልከቻ ሁኔታዎችዎን መፈተሽ ይችላሉ።
 button.continueWithoutAnAccount=ያለ መለያ ቀጥል
 title.commonIntakeConfirmation=እርስዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
 title.commonIntakeConfirmationTi=ደንበኛዎ ብቁ ሊሆኑ የሚችሉባቸው ጥቅማጥቅሞች
@@ -278,8 +278,8 @@ adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባ�
 error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት አልቻልንም
 error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
-error.internalServerTitle=An error occurred
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
+error.internalServerTitle=ስህተት ተከስቷል
+error.internalServerDescription=እባክዎ ለእርዳታ %s ላይ ቴክኒካዊ ድጋፍን ያነጋግሩ እና ይህን የስህተት መታወቂያ {0} ያካትቱ።
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
