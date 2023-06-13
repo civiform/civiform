@@ -14,6 +14,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
+import java.util.Optional;
 import javax.inject.Inject;
 
 /** Data class providing access to server settings. */
@@ -41,7 +42,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   {% for method_spec in getter_method_specs %}
   /** {{method_spec.doc()}} */
-  public {{method_spec.return_type()}} get{{method_spec.method_name()}}() {
+  public Optional<{{method_spec.return_type()}}> get{{method_spec.method_name()}}() {
     return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}");
   }
   {% endfor %}

@@ -29,4 +29,10 @@ public abstract class SettingsSection {
 
   /** Settings in this section. */
   public abstract ImmutableList<SettingDescription> settings();
+
+  /** True if any of this section's or this section's subsections' settings should be displayed. */
+  public boolean shouldDisplay() {
+    return settings().stream().anyMatch(SettingDescription::shouldDisplay)
+        || subsections().stream().anyMatch(SettingsSection::shouldDisplay);
+  }
 }

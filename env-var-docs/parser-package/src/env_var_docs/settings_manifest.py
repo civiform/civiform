@@ -103,7 +103,8 @@ def render_group(group: ParsedGroup) -> str:
 
 def render_variable(name: str, variable: Variable) -> str:
     setting_type = _get_java_setting_type(variable)
-    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type})'
+    setting_mode = str(variable.mode).replace("Mode.", "")
+    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode})'
 
 
 def _get_java_setting_type(variable: Variable) -> str:
@@ -163,9 +164,9 @@ class GetterMethodSpec:
         if self.variable.type == "string":
             return "String"
         elif self.variable.type == "bool":
-            return "boolean"
+            return "Boolean"
         elif self.variable.type == "int":
-            return "int"
+            return "Integer"
         elif self.variable.type == "index-list":
             return "ImmutableList<String>"
 
