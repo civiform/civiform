@@ -24,7 +24,7 @@
       }
     }
   },
-  "External service dependencies": {
+  "External Services": {
     "group_description": "Configures connections to external services the CiviForm server relies on.",
     "members": {
       "Applicant Identity Provider": {
@@ -383,7 +383,7 @@
       }
     }
   },
-  "Email addresses": {
+  "Email Addresses": {
     "group_description": "Configuration options for [CiviForm email usage](https://docs.civiform.us/it-manual/sre-playbook/email-configuration).",
     "members": {
       "SUPPORT_EMAIL_ADDRESS": {
@@ -540,6 +540,11 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
+      "ADMIN_SETTINGS_PANEL_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "If enabled, adds a page in the CiviForm Admin UI for accessing application settings.",
+        "type": "bool"
+      },
       "CF_OPTIONAL_QUESTIONS": {
         "mode": "ADMIN_READABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
@@ -557,7 +562,7 @@
       },
       "FEATURE_FLAG_OVERRIDES_ENABLED": {
         "mode": "ADMIN_READABLE",
-        "description": "Allows feature flags to be overridden via request cookies. Is used by browswer tests. Should only be enabled in test and staging deployments.",
+        "description": "Allows feature flags to be overridden via request cookies. Is used by browser tests. Should only be enabled in test and staging deployments.",
         "type": "bool"
       },
       "INTAKE_FORM_ENABLED": {

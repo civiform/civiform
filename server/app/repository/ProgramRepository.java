@@ -153,20 +153,6 @@ public final class ProgramRepository {
     }
   }
 
-  /** Get the current active program with the provided id. */
-  public CompletableFuture<Program> getActiveProgram(Long id) {
-    return supplyAsync(
-        () -> {
-          ImmutableList<Program> activePrograms =
-              versionRepository.get().getActiveVersion().getPrograms();
-          return activePrograms.stream()
-              .filter(p -> p.id.equals(id))
-              .findFirst()
-              .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(id)));
-        },
-        executionContext.current());
-  }
-
   /** Get the current active program with the provided slug. */
   public CompletableFuture<Program> getForSlug(String slug) {
     return supplyAsync(

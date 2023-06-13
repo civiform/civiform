@@ -1,5 +1,6 @@
 package views.admin;
 
+import static featureflags.FeatureFlag.ADMIN_SETTINGS_PANEL_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
@@ -19,6 +20,7 @@ import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
 import views.ViewUtils;
+import views.components.Icons;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
@@ -36,7 +38,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     QUESTIONS,
     INTERMEDIARIES,
     REPORTING,
-    API_KEYS
+    API_KEYS,
+    SETTINGS
   }
 
   private final NavPage activeNavPage;
@@ -112,6 +115,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
+    String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
     String activeNavStyle =
         StyleUtils.joinStyles(
@@ -164,7 +168,14 @@ public final class AdminLayout extends BaseHtmlLayout {
     }
 
     return adminHeader.with(
-        headerLink("Logout", logoutLink, "float-right").withId("logout-button"));
+        headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
+        featureFlags.getFlagEnabledFromConfig(ADMIN_SETTINGS_PANEL_ENABLED).orElse(false)
+                && primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
+            ? a(Icons.svg(Icons.COG)
+                    .withClasses("h-6", "w-6", "opacity-75", StyleUtils.hover("opacity-100")))
+                .withHref(settingsLink)
+                .withClasses("float-right")
+            : null);
   }
 
   private ATag headerLink(String text, String href, String... styles) {

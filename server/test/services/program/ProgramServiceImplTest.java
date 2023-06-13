@@ -993,8 +993,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getActiveProgramDefinitionAsync_getsRequestedProgram() {
-    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
+  public void getProgramDefinitionAsync_getsRequestedProgram() {
+    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
         ps.getActiveProgramDefinitionAsync(programDefinition.id());
@@ -1004,36 +1004,23 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getActiveProgramDefinitionAsync_doesNotGetDraftProgram() {
+  public void getProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-
-    CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync(programDefinition.id());
-
-    assertThatThrownBy(() -> found.toCompletableFuture().join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
-  }
-
-  @Test
-  public void getActiveProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
-    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
         ps.getActiveProgramDefinitionAsync(programDefinition.id() + 1);
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasCauseInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID");
   }
 
   @Test
-  public void getActiveProgramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
+  public void getProgramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program =
-        ProgramBuilder.newActiveProgram()
+        ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .buildDefinition();

@@ -9,8 +9,8 @@
 #-------------------------------------------------------------#
 
 button.logout=로그아웃
-label.selectLanguage=Please select your preferred language.
-button.untranslatedSubmit=Submit
+label.selectLanguage=선호하는 언어를 선택해 주세요.
+button.untranslatedSubmit=제출
 footer.supportLinkDescription=기술 지원 관련 문의는 다음으로 문의하세요
 guest=게스트
 label.languageSr=언어 선택
@@ -136,7 +136,7 @@ content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수�
 title.createAnAccount=계정 만들기 또는 로그인
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
 content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 혜택을 신청할 수 없습니다.
-content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=계속하기 전에 시애틀시 공식 웹사이트 계정에 로그인하거나 계정을 만드세요. 그러면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 신청서를 수정하고 신청서 상태를 확인할 수도 있습니다.
 button.continueWithoutAnAccount=계정 없이 계속
 title.commonIntakeConfirmation=다음 혜택의 자격요건에 해당될 수 있습니다
 title.commonIntakeConfirmationTi=고객이 다음 혜택의 자격요건에 해당될 수 있습니다
@@ -278,8 +278,8 @@ adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없
 error.notFoundTitle=방문하려는 페이지를 찾지 못했습니다
 error.notFoundDescription=뒤로 이동하거나 {0} 페이지로 돌아가세요.
 error.notFoundDescriptionLink=홈페이지
-error.internalServerTitle=An error occurred
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
+error.internalServerTitle=오류가 발생했습니다.
+error.internalServerDescription=도움이 필요한 경우 오류 ID({0})를 포함하여 기술 지원팀(%s)에 문의하세요.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

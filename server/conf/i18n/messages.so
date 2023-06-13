@@ -9,8 +9,8 @@
 #-------------------------------------------------------------#
 
 button.logout=ka bixida
-label.selectLanguage=Please select your preferred language.
-button.untranslatedSubmit=Submit
+label.selectLanguage=Fadlan dooro luqadda aad doorbidayso.
+button.untranslatedSubmit=Gudbi
 footer.supportLinkDescription=Taageero farsamo, la xidhiidh
 guest=Marti
 label.languageSr=Dooro luqad
@@ -136,7 +136,7 @@ content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsiga
 title.createAnAccount=Akoon samee ama gal oo sign in garee
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
 content.generalLoginModalPrompt=Maad soo gelin koonto. Markaadan koonto qabin awood uma yeelan doontid inaad wax ka beddesho codsiga, hubiso heerka codsigaaga ama codsato dheefaha kale si degdeg ah.
-content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, si aad u gasho koontadaada Magaalada Seattle ama samayso koonto. Waxaad awood u yeelan doontaa inaad codsato dheefo badan addoona gelineynin isla macluumaadka mar kale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
 title.commonIntakeConfirmation=Faa'iidooyinka aad u qalmi karto
 title.commonIntakeConfirmationTi=Faa'iidooyinka macmiilkaagu u qalmi karo
@@ -278,8 +278,8 @@ adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikh
 error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad booqato
 error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
 error.notFoundDescriptionLink=bogga internatka
-error.internalServerTitle=An error occurred
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
+error.internalServerTitle=Khalad ayaa dhacay
+error.internalServerDescription=Fadlan la xidhiidh taageerada farsamada ee kaalmada xaga%s oo ku dar aqoonsiga khaladkan {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

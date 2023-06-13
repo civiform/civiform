@@ -9,8 +9,8 @@
 #-------------------------------------------------------------#
 
 button.logout=登出
-label.selectLanguage=Please select your preferred language.
-button.untranslatedSubmit=Submit
+label.selectLanguage=請選取您偏好的語言。
+button.untranslatedSubmit=提交
 footer.supportLinkDescription=如需技術支援，請洽詢
 guest=訪客
 label.languageSr=選擇語言
@@ -136,7 +136,7 @@ content.confirmed=感謝你申請「{0}」。我們已收到相關申請資料�
 title.createAnAccount=建立或登入帳戶
 content.pleaseCreateAccount=如果現在登入城市帳戶，系統會儲存你的資訊，你之後隨時能使用這些資訊提出其他申請。如果你還沒有帳戶，可以在登入頁面註冊。已經輸入的資料並不會遺失。
 content.generalLoginModalPrompt=您尚未登入帳戶。如未登入帳戶，將無法編輯申請書、查看申請狀態，或是快速申請其他福利。
-content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=請先登入西雅圖市帳戶或建立帳戶，再繼續操作。這樣一來，您就不必在針對不同福利提出申請時一再輸入相同的資訊，還可編輯申請書及查看申請狀態。
 button.continueWithoutAnAccount=在不登入帳戶的狀態下繼續操作
 title.commonIntakeConfirmation=您可能符合資格的福利
 title.commonIntakeConfirmationTi=您的客戶可能符合資格的福利
@@ -278,8 +278,8 @@ adminValidation.multiOptionEmpty=多選題不得留空。
 error.notFoundTitle=我們找不到你嘗試前往的頁面
 error.notFoundDescription=請回到上一個頁面或返回 {0}
 error.notFoundDescriptionLink=首頁
-error.internalServerTitle=An error occurred
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
+error.internalServerTitle=發生錯誤
+error.internalServerDescription=請前往 %s 向技術支援團隊尋求協助，並提供以下錯誤 ID：{0}。
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

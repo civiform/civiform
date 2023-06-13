@@ -9,8 +9,8 @@
 #-------------------------------------------------------------#
 
 button.logout=Salir
-label.selectLanguage=Please select your preferred language.
-button.untranslatedSubmit=Submit
+label.selectLanguage=Selecciona tu idioma preferido.
+button.untranslatedSubmit=Enviar
 footer.supportLinkDescription=Para recibir asistencia técnica, comunícate con
 guest=Invitado
 label.languageSr=Elegir un idioma
@@ -136,7 +136,7 @@ content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de l
 title.createAnAccount=Crea una cuenta o accede
 content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
 content.generalLoginModalPrompt=No accediste a una cuenta. Si no tienes una cuenta, no podrás editar solicitudes, verificar el estado de tu solicitud o solicitar otros beneficios rápidamente.
-content.initialLoginModalPrompt=Before you continue, log in to your City of Seattle account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=Antes de continuar, ingresa a tu cuenta de la ciudad de Seattle o crea una. Podrás solicitar muchos beneficios sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
 button.continueWithoutAnAccount=Continuar sin una cuenta
 title.commonIntakeConfirmation=Beneficios para los que reúnes los requisitos
 title.commonIntakeConfirmationTi=Beneficios para los que tu cliente reúne los requisitos
@@ -278,8 +278,8 @@ adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden t
 error.notFoundTitle=No Pudimos encontrar la página que intentó visitar
 error.notFoundDescription=Regresa a {0}
 error.notFoundDescriptionLink=página de inicio
-error.internalServerTitle=An error occurred
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error id {0}.
+error.internalServerTitle=Se produjo un error.
+error.internalServerDescription=Comunícate con la asistencia técnica para recibir ayuda escribiendo a %s y utiliza el ID {0} del error.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #

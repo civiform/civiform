@@ -1,15 +1,20 @@
 package auth.oidc;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import models.Account;
 import models.Applicant;
+import models.TrustedIntermediaryGroup;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
@@ -26,6 +31,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
+
+  private static OidcProfile profile;
 
   private CiviformOidcProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
@@ -44,6 +51,13 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
             client,
             profileFactory,
             CfTestHelpers.userRepositoryProvider(userRepository));
+
+    profile = new OidcProfile();
+    profile.addAttribute("user_emailid", EMAIL);
+    profile.addAttribute("user_displayname", NAME);
+    profile.addAttribute("user_locale", "fr");
+    profile.addAttribute("iss", ISSUER);
+    profile.setId(SUBJECT);
   }
 
   @Test
@@ -58,12 +72,6 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .setEmailAddress(EMAIL)
         .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
         .save();
-
-    // Current OIDC info has an authority and email.
-    OidcProfile profile = new OidcProfile();
-    profile.addAttribute("user_emailid", EMAIL);
-    profile.addAttribute("iss", ISSUER);
-    profile.setId(SUBJECT);
 
     // Execute.
     Optional<Applicant> applicant = oidcProfileAdapter.getExistingApplicant(profile);
@@ -92,12 +100,6 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .setApplicants(ImmutableList.of(resourceCreator.insertApplicant()))
         .save();
 
-    // Current OIDC info has an authority and email.
-    OidcProfile profile = new OidcProfile();
-    profile.addAttribute("user_emailid", EMAIL);
-    profile.addAttribute("iss", ISSUER);
-    profile.setId(SUBJECT);
-
     // Execute.
     Optional<Applicant> applicant = oidcProfileAdapter.getExistingApplicant(profile);
 
@@ -113,13 +115,6 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   @Test
   public void mergeCiviFormProfile_succeeds_new_user() {
-    OidcProfile profile = new OidcProfile();
-    profile.addAttribute("user_emailid", EMAIL);
-    profile.addAttribute("user_displayname", NAME);
-    profile.addAttribute("user_locale", "fr");
-    profile.addAttribute("iss", ISSUER);
-    profile.setId(SUBJECT);
-
     // Execute.
     CiviFormProfileData profileData =
         oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
@@ -140,5 +135,35 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.FRENCH);
+  }
+
+  @Test
+  public void mergeCiviFormProfile_skipped_forTrustedIntermediaries() {
+    // Setup.
+    Account accountWithTiGroup = new Account();
+    accountWithTiGroup.setMemberOfGroup(new TrustedIntermediaryGroup("name", "description"));
+    CiviFormProfile trustedIntermediary = mock(CiviFormProfile.class);
+    when(trustedIntermediary.getAccount())
+        .thenReturn(CompletableFuture.completedFuture(accountWithTiGroup));
+    when(trustedIntermediary.getApplicant())
+        .thenReturn(CompletableFuture.completedFuture(new Applicant()));
+
+    CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L);
+    when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
+
+    // Execute.
+    CiviFormProfileData profileData =
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
+
+    // Verify.
+    // Profile data should still be present after the no-op merge.
+    assertThat(profileData).isNotNull();
+    assertThat(profileData).isEqualTo(fakeProfileData);
+
+    assertThat(profileData.getEmail()).isNull();
+    assertThat(profileData.getDisplayName()).isNull();
+
+    Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);
+    assertThat(maybeApplicant).isNotPresent();
   }
 }

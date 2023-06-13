@@ -19,6 +19,7 @@ import play.mvc.Result;
 import repository.UserRepository;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
+import services.ti.NotEligibleToBecomeTiError;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
@@ -123,6 +124,9 @@ public class TrustedIntermediaryManagementController extends Controller {
       userRepository.addTrustedIntermediaryToGroup(id, form.get().getEmailAddress());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return flashAddTIFieldValuesWithError("No such TI group.", form, id);
+    } catch (NotEligibleToBecomeTiError e) {
+      return flashAddTIFieldValuesWithError(
+          "Users that are CiviForm Admins or Program Admins may not become a TI.", form, id);
     }
 
     return redirect(routes.TrustedIntermediaryManagementController.edit(id));
