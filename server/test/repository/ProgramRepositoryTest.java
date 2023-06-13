@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -9,6 +10,7 @@ import io.ebean.DB;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -133,7 +135,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 + "(select id from programs where name = 'Old Schema Entry'));")
         .execute();
 
-    Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();
+    Program found = repo.getActiveProgramFromSlug("old-schema-entry").toCompletableFuture().join();
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
     assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
@@ -143,7 +145,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getForSlug_findsCorrectProgram() {
     Program program = resourceCreator.insertActiveProgram("Something With A Name");
 
-    Program found = repo.getForSlug("something-with-a-name").toCompletableFuture().join();
+    Program found =
+        repo.getActiveProgramFromSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
   }

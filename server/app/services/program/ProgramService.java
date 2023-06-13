@@ -63,14 +63,15 @@ public interface ProgramService {
       ImmutableList<ProgramDefinition> programDefinitions);
 
   /**
-   * Get the definition of a given program asynchronously.
+   * Get the definition of a given program asynchronously. The returned program may correspond to
+   * any version.
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
    *     ProgramNotFoundException is thrown when the future completes and ID does not correspond to
    *     a real Program
    */
-  CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id);
+  CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id);
 
   /**
    * Get the definition of a given program asynchronously. Gets the active version for the slug.

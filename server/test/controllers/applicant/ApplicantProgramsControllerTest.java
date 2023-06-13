@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
@@ -13,6 +14,7 @@ import static play.test.Helpers.stubMessagesApi;
 import controllers.WithMockedProfiles;
 import featureflags.FeatureFlag;
 import java.util.Locale;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.Applicant;
@@ -28,6 +30,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.program.ProgramNotFoundException;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
@@ -88,7 +91,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     app.save();
 
     resourceCreator().insertDraftProgram(programName);
-
     this.versionRepository.publishNewSynchronizedVersion();
 
     Request request = addCSRFToken(fakeRequest()).build();
@@ -204,20 +206,22 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_invalidProgram_returnsBadRequest() {
-    Result result =
-        controller
-            .edit(fakeRequest().build(), currentApplicant.id, 9999L)
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  public void edit_invalidProgram_returnsNotFound() {
+    assertThatThrownBy(
+            () ->
+                controller
+                    .edit(fakeRequest().build(), currentApplicant.id, 9999L)
+                    .toCompletableFuture()
+                    .join())
+        .isInstanceOf(CompletionException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID");
   }
 
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Program program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -238,7 +242,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     QuestionDefinition colorQuestion =
         testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()

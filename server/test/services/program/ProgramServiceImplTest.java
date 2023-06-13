@@ -993,26 +993,35 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getProgramDefinitionAsync_getsRequestedProgram() {
+  public void getProgramDefinitionAsync_getsDraftProgram() {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
 
-    CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync(programDefinition.id());
+    CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
 
     assertThat(found.toCompletableFuture().join().adminName())
         .isEqualTo(programDefinition.adminName());
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getProgramDefinitionAsync_getsActiveProgram() {
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
+
+    CompletionStage<ProgramDefinition> found = ps.getProgramDefinitionAsync(programDefinition.id());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
   }
 
   @Test
   public void getProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
+    ProgramDefinition programDefinition = ProgramBuilder.newActiveProgram().buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
-        ps.getActiveProgramDefinitionAsync(programDefinition.id() + 1);
+        ps.getProgramDefinitionAsync(programDefinition.id() + 1);
 
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
-        .hasCauseInstanceOf(ProgramNotFoundException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for ID");
   }
 
@@ -1020,13 +1029,13 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void getProgramDefinitionAsync_constructsQuestionDefinitions() throws Exception {
     QuestionDefinition question = nameQuestion;
     ProgramDefinition program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(question)
             .buildDefinition();
 
     ProgramDefinition found =
-        ps.getActiveProgramDefinitionAsync(program.id()).toCompletableFuture().join();
+        ps.getProgramDefinitionAsync(program.id()).toCompletableFuture().join();
 
     QuestionDefinition foundQuestion =
         found.blockDefinitions().get(0).programQuestionDefinitions().get(0).getQuestionDefinition();
@@ -2362,8 +2371,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
             mapper.writeValueAsString(unorderedBlockDefinitions), programId);
     DB.sqlUpdate(updateString).execute();
 
-    ProgramDefinition found =
-        ps.getActiveProgramDefinitionAsync(programId).toCompletableFuture().get();
+    ProgramDefinition found = ps.getProgramDefinitionAsync(programId).toCompletableFuture().get();
 
     assertThat(found.hasOrderedBlockDefinitions()).isTrue();
   }
