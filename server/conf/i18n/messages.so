@@ -279,7 +279,7 @@ error.notFoundTitle=Waanu awoodi waynay inaan helno bogga aad isku dayday inaad 
 error.notFoundDescription=Fadlan dib ugu noqo ama ku noqo {0}
 error.notFoundDescriptionLink=bogga internatka
 error.internalServerTitle=Khalad ayaa dhacay
-error.internalServerDescription=Fadlan la xidhiidh taageerada farsamada ee kaalmada xaga%s oo ku dar aqoonsiga khaladkan {0}.
+error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
