@@ -206,16 +206,14 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_invalidProgram_returnsNotFound() {
-    assertThatThrownBy(
-            () ->
-                controller
-                    .edit(fakeRequest().build(), currentApplicant.id, 9999L)
-                    .toCompletableFuture()
-                    .join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
+  public void edit_invalidProgram_returnsBadRequest() {
+    Result result =
+        controller
+            .edit(fakeRequest().build(), currentApplicant.id, 9999L)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test

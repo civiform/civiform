@@ -51,10 +51,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_toAProgramThatDoesNotExist_returns404() {
     long badProgramId = activeProgram.id + 1000;
-    assertThatThrownBy(() -> this.review(applicant.id, badProgramId))
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
+    Result result = this.review(applicant.id, badProgramId);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
