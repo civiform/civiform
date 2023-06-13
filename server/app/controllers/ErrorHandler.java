@@ -16,6 +16,7 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 import play.Environment;
 import play.api.OptionalSourceMapper;
+import play.api.UsefulException;
 import play.api.routing.Router;
 import play.http.DefaultHttpErrorHandler;
 import play.i18n.MessagesApi;
@@ -30,6 +31,7 @@ import services.program.InvalidQuestionPositionException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.StatusNotFoundException;
+import views.errors.InternalServerError;
 import views.errors.NotFound;
 
 /**
@@ -43,6 +45,7 @@ import views.errors.NotFound;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
+  private final InternalServerError internalServerErrorPage;
   private final NotFound notFoundPage;
   private final MessagesApi messagesApi;
 
@@ -69,9 +72,11 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Environment environment,
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
+      InternalServerError internalServerErrorPage,
       NotFound notFoundPage,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
+    this.internalServerErrorPage = checkNotNull(internalServerErrorPage);
     this.notFoundPage = checkNotNull(notFoundPage);
     this.messagesApi = checkNotNull(messagesApi);
   }
@@ -126,5 +131,13 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
     return CompletableFuture.completedFuture(
         Results.notFound(notFoundPage.render(request, messagesApi.preferred(request))));
+  }
+
+  @Override
+  protected CompletionStage<Result> onProdServerError(
+      RequestHeader request, UsefulException exception) {
+    return CompletableFuture.completedFuture(
+        Results.internalServerError(
+            internalServerErrorPage.render(request, messagesApi.preferred(request), exception.id)));
   }
 }
