@@ -16,6 +16,7 @@ import play.mvc.Http;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
+  private static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSettingsManifest.class);
 
@@ -41,11 +42,11 @@ public abstract class AbstractSettingsManifest {
   }
 
   private ImmutableList<SettingDescription> getAllFeatureFlags() {
-    if (!getSections().containsKey("Feature Flags")) {
+    if (!getSections().containsKey(FEATURE_FLAG_SETTING_SECTION_NAME)) {
       return ImmutableList.of();
     }
 
-    return getSettingDescriptions(getSections().get("Feature Flags"));
+    return getSettingDescriptions(getSections().get(FEATURE_FLAG_SETTING_SECTION_NAME));
   }
 
   private ImmutableList<SettingDescription> getSettingDescriptions(SettingsSection section) {
