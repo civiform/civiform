@@ -140,17 +140,17 @@ class GetterMethodSpec:
     def method_name(self):
         return string.capwords(self.name, "_").replace("_", "")
 
-    def doc(self):
-        return self.variable.description
-
     def variable_name(self):
         return self.name
+
+    def doc(self):
+        return self.variable.description
 
     def internal_getter(self):
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
-            return f"getString"
+            return "getString"
         elif self.variable.type == "bool":
             return "getBool"
         elif self.variable.type == "int":

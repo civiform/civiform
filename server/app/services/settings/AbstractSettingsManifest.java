@@ -25,6 +25,10 @@ public abstract class AbstractSettingsManifest {
     this.config = checkNotNull(config);
   }
 
+  /**
+   * Returns a map containing the names of the settings in the "Feature Flags" section mapped to
+   * their current values.
+   */
   public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.Request request) {
     ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
 
@@ -55,6 +59,7 @@ public abstract class AbstractSettingsManifest {
     return result.build();
   }
 
+  /** True if the "FEATURE_FLAG_OVERRIDES_ENABLED" config value is present and true. */
   public boolean overridesEnabled() {
     return getBool("FEATURE_FLAG_OVERRIDES_ENABLED");
   }
@@ -78,16 +83,21 @@ public abstract class AbstractSettingsManifest {
     }
   }
 
-  public boolean getBool(String flagName, Http.Request request) {
-    Boolean configValue = getBool(flagName);
+  /**
+   * Gets the config value for the given setting name. If overrides are enabled and the request
+   * contains an override for the setting, returns that value, otherwise uses the value from the
+   * application config.
+   */
+  public boolean getBool(String settingName, Http.Request request) {
+    Boolean configValue = getBool(settingName);
 
     if (!overridesEnabled()) {
       return configValue;
     }
 
-    Optional<Boolean> sessionValue = request.session().get(flagName).map(Boolean::parseBoolean);
+    Optional<Boolean> sessionValue = request.session().get(settingName).map(Boolean::parseBoolean);
     if (sessionValue.isPresent()) {
-      LOGGER.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), flagName);
+      LOGGER.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), settingName);
       return sessionValue.get();
     }
 
