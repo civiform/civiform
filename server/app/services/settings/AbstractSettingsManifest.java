@@ -4,15 +4,19 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import featureflags.FeatureFlag;
+
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
+import scala.reflect.runtime.Settings;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
@@ -25,34 +29,38 @@ public abstract class AbstractSettingsManifest {
     this.config = checkNotNull(config);
   }
 
-  public boolean getBool(String flagName, Http.Request request) {
-    Boolean configValue = getBool(flagName);
+  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.Request request) {
+    ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
 
-    if (!overridesEnabled()) {
-      return configValue;
+    for (SettingDescription settingDescription : getAllFeatureFlags()) {
+      String name = settingDescription.variableName();
+      map.put(name, getBool(name, request));
     }
 
-    Optional<Boolean> sessionValue = request.session().get(flagName).map(Boolean::parseBoolean);
-    if (sessionValue.isPresent()) {
-      LOGGER.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), flagName);
-      return sessionValue.get();
-    }
-
-    return configValue;
+    return map.build();
   }
 
-  /** Returns the current setting for {@code flag} from {@link Config} if present. */
-  public Optional<Boolean> getFlagEnabledFromConfig(FeatureFlag flag) {
-    if (!config.hasPath(flag.toString())) {
-      LOGGER.warn("Feature flag requested for unconfigured flag: {}", flag);
-      return Optional.empty();
+  private ImmutableList<SettingDescription> getAllFeatureFlags() {
+    if (!getSections().containsKey("Feature Flags")) {
+      return ImmutableList.of();
     }
-    return Optional.of(config.getBoolean(flag.toString()));
+
+    return getSettingDescriptions(getSections().get("Feature Flags"));
+  }
+
+  private ImmutableList<SettingDescription> getSettingDescriptions(SettingsSection section) {
+    ImmutableList.Builder<SettingDescription> result = ImmutableList.builder();
+
+    result.addAll(section.settings());
+    for (SettingsSection subsection : section.subsections()) {
+      result.addAll(getSettingDescriptions(subsection));
+    }
+
+    return result.build();
   }
 
   public boolean overridesEnabled() {
-    return config.hasPath(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString())
-        && config.getBoolean(FeatureFlag.FEATURE_FLAG_OVERRIDES_ENABLED.toString());
+    return getBool("FEATURE_FLAG_OVERRIDES_ENABLED");
   }
 
   public abstract ImmutableMap<String, SettingsSection> getSections();
@@ -74,11 +82,27 @@ public abstract class AbstractSettingsManifest {
     }
   }
 
+  public boolean getBool(String flagName, Http.Request request) {
+    Boolean configValue = getBool(flagName);
+
+    if (!overridesEnabled()) {
+      return configValue;
+    }
+
+    Optional<Boolean> sessionValue = request.session().get(flagName).map(Boolean::parseBoolean);
+    if (sessionValue.isPresent()) {
+      LOGGER.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), flagName);
+      return sessionValue.get();
+    }
+
+    return configValue;
+  }
+
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {
     return getConfigVal(config::getBoolean, getHoconName(settingDescription));
   }
 
-  protected boolean getBool(String variableName) {
+  public boolean getBool(String variableName) {
     return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
   }
 
