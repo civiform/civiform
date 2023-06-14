@@ -32,6 +32,8 @@ import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.NavTag;
 import j2html.tags.specialized.SelectTag;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -317,7 +319,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
                       StyleUtils.hover("opacity-100"),
                       ButtonStyles.SOLID_BLUE_TEXT_XL))
           .condWith(
-              !request.uri().contains("admin/tiDash"),
+              !onTiDashboardPage(request),
               div("(applying as: " + applicantDisplayString + ")")
                   .withClasses("text-sm", "text-black", "text-center"));
     }
@@ -468,5 +470,29 @@ public class ApplicantLayout extends BaseHtmlLayout {
     double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
 
     return (int) (numerator / denominator * 100.0);
+  }
+
+  /**
+   * Returns true if the request object points to a URI that is the Trusted Intermediary Dashboard.
+   * When a TI is impersonating an applicant to apply for them, this method will return false.
+   */
+  private static boolean onTiDashboardPage(Http.Request request) {
+    String currentPath = null;
+    String tiDashboardPath = null;
+    try {
+      URI currentPathUri = new URI(request.uri());
+      currentPath = currentPathUri.getPath();
+
+      URI tiDashboardUri =
+          new URI(
+              controllers.ti.routes.TrustedIntermediaryController.dashboard(
+                      Optional.empty(), Optional.empty(), Optional.empty())
+                  .url());
+      tiDashboardPath = tiDashboardUri.getPath();
+    } catch (URISyntaxException e) {
+      logger.error("Could not get the path for uri {}", request.uri());
+    }
+
+    return currentPath != null && currentPath.equals(tiDashboardPath);
   }
 }
