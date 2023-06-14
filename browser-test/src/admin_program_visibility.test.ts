@@ -157,14 +157,16 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
+
     const client: ClientInformation = {
-      emailAddress: 'fake@sample.com',
+      emailAddress: 'fakeOne@sample.com',
       firstName: 'first',
       middleName: 'middle',
       lastName: 'last',
       dobDate: '2021-05-10',
     }
     await tiDashboard.createClient(client)
+
     await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.clickOnApplicantDashboard()
     await applicantQuestions.expectProgramHidden(programName)
@@ -232,7 +234,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
-      emailAddress: 'fake@sample.com',
+      emailAddress: 'fakeThree@sample.com',
       firstName: 'first',
       middleName: 'middle',
       lastName: 'last',
