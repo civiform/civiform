@@ -279,7 +279,7 @@ error.notFoundTitle=Hindi namin nahanap ang page na sinubukan mong puntahan
 error.notFoundDescription=Bumalik o pumunta ulit sa {0}
 error.notFoundDescriptionLink=homepage
 error.internalServerTitle=Nagkaroon ng error
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
+error.internalServerDescription=Makipag-ugnayan sa technical support para sa tulong sa %s at isama itong error ID na {0}
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
