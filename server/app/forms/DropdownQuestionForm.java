@@ -1,6 +1,6 @@
 package forms;
 
-import services.question.types.DropdownQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Form for updating a dropdown question. */
@@ -10,7 +10,7 @@ public class DropdownQuestionForm extends MultiOptionQuestionForm {
     super();
   }
 
-  public DropdownQuestionForm(DropdownQuestionDefinition qd) {
+  public DropdownQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
   }
 

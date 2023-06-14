@@ -17,30 +17,37 @@ import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
 import services.question.QuestionOption;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import support.QuestionAnswerer;
 
 public class MultiSelectQuestionTest {
 
+  private static final MultiOptionQuestionDefinitionConfig CONFIG =
+      MultiOptionQuestionDefinitionConfig.builder()
+          .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+          .setId(OptionalLong.of(1))
+          .setName("name")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setQuestionOptions(
+              ImmutableList.of(
+                  QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "valid")),
+                  QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "ok")),
+                  QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "third")),
+                  QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fourth"))))
+          .setValidationPredicates(
+              MultiOptionValidationPredicates.builder()
+                  .setMinChoicesRequired(2)
+                  .setMaxChoicesAllowed(3)
+                  .build())
+          .setLastModifiedTime(Optional.empty())
+          .build();
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
-      new CheckboxQuestionDefinition(
-          OptionalLong.of(1),
-          "name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "valid")),
-              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "ok")),
-              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "third")),
-              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fourth"))),
-          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder()
-              .setMinChoicesRequired(2)
-              .setMaxChoicesAllowed(3)
-              .build(),
-          /* lastModifiedTime= */ Optional.empty());
+      new MultiOptionQuestionDefinition(CONFIG);
 
   private ApplicantData applicantData;
 

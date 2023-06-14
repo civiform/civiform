@@ -15,6 +15,7 @@ import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.*;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 
 /**
  * A cached {@link Question} bank for testing.
@@ -220,36 +221,44 @@ public class TestQuestionBank {
 
   // Checkbox
   private Question applicantKitchenTools(QuestionEnum ignore) {
-    QuestionDefinition definition =
-        new CheckboxQuestionDefinition(
-            "kitchen tools",
-            Optional.empty(),
-            "Kitchen instruments you own",
-            LocalizedStrings.of(
-                Locale.US, "Which of the following kitchen instruments do you own?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
-            ImmutableList.of(
-                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
-                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
-                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press"))));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+            .setName("kitchen tools")
+            .setDescription("Kitchen instruments you own")
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "Which of the following kitchen instruments do you own?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press"))))
+            .build();
+    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
     return maybeSave(definition);
   }
 
   // Dropdown
   private Question applicantIceCream(QuestionEnum ignore) {
-    QuestionDefinition definition =
-        new DropdownQuestionDefinition(
-            "applicant ice cream",
-            Optional.empty(),
-            "Select your favorite ice cream flavor",
-            LocalizedStrings.of(
-                Locale.US, "Select your favorite ice cream flavor from the following"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
-            ImmutableList.of(
-                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
-                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
-                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
-                QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee"))));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+            .setName("applicant ice cream")
+            .setDescription("Select your favorite ice cream flavor")
+            .setQuestionText(
+                LocalizedStrings.of(
+                    Locale.US, "Select your favorite ice cream flavor from the following"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
+                    QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee"))))
+            .build();
+    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
     return maybeSave(definition);
   }
 
@@ -394,18 +403,21 @@ public class TestQuestionBank {
 
   // Radio button
   private Question applicantSeason(QuestionEnum ignore) {
-    QuestionDefinition definition =
-        new RadioButtonQuestionDefinition(
-            "radio",
-            Optional.empty(),
-            "Favorite season in the year",
-            LocalizedStrings.of(Locale.US, "What is your favorite season?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
-            ImmutableList.of(
-                QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "winter")),
-                QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
-                QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
-                QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "fall"))));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
+            .setName("radio")
+            .setDescription("Favorite season in the year")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite season?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "winter")),
+                    QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
+                    QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
+                    QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "fall"))))
+            .build();
+    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
     return maybeSave(definition);
   }
 
