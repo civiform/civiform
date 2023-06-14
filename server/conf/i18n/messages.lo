@@ -279,7 +279,7 @@ error.notFoundTitle=ພວກເຮົາບໍ່ສາມາດຊອກຫາ
 error.notFoundDescription=ກະລຸນາກັບຄືນ ຫຼື ກັບໄປຫາ {0}
 error.notFoundDescriptionLink=ໜ້າຫຼັກ
 error.internalServerTitle=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
+error.internalServerDescription=ກະລຸນາຕິດຕໍ່ທີມງານຊ່ວຍເຫຼືອທາງເທັກນິກເພື່ອຂໍຄວາມຊ່ວຍເຫຼືອຢູ່ %s ແລະ ລະບຸລະຫັດຂໍ້ຜິດພາດນີ້ {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
