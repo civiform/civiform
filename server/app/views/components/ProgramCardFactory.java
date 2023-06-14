@@ -103,7 +103,7 @@ public final class ProgramCardFactory {
                     span(adminNoteText),
                     br(),
                     span("Visibility state: ").withClasses("font-bold"),
-                    span(displayProgram.displayMode().getValue().replace("_"," "))));
+                    span(displayProgram.displayMode().getValue().replace("_", " "))));
   }
 
   private DivTag renderProgramRow(
