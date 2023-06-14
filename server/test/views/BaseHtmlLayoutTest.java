@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.LinkTag;
 import java.util.HashMap;
 import org.junit.Before;
@@ -13,6 +12,7 @@ import org.junit.Test;
 import play.twirl.api.Content;
 import repository.ResetPostgres;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 
 public class BaseHtmlLayoutTest extends ResetPostgres {
 
@@ -31,7 +31,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
             ConfigFactory.parseMap(DEFAULT_CONFIG),
-            instanceOf(FeatureFlags.class),
+            instanceOf(SettingsManifest.class),
             instanceOf(DeploymentType.class));
   }
 
@@ -62,7 +62,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
             ConfigFactory.parseMap(config),
-            instanceOf(FeatureFlags.class),
+            instanceOf(SettingsManifest.class),
             instanceOf(DeploymentType.class));
     HtmlBundle bundle = layout.getBundle();
     Content content = layout.render(bundle);

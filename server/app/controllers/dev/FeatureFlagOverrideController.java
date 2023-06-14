@@ -1,6 +1,5 @@
 package controllers.dev;
 
-import featureflags.FeatureFlags;
 import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http.HeaderNames;
@@ -13,8 +12,8 @@ import views.dev.FeatureFlagView;
 /**
  * Allows for overriding of feature flags by an Admin via HTTP request.
  *
- * <p>Overrides are stored in the session cookie and used by {@link FeatureFlags} to control system
- * behavior
+ * <p>Overrides are stored in the session cookie and used by {@link SettingsManifest} to control
+ * system behavior
  */
 public final class FeatureFlagOverrideController extends Controller {
 

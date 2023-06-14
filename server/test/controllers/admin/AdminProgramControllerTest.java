@@ -8,7 +8,6 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 
 import com.google.common.collect.ImmutableMap;
-import featureflags.FeatureFlag;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import models.DisplayMode;
@@ -204,7 +203,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -237,7 +236,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -268,7 +267,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -311,7 +310,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -493,7 +492,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -526,7 +525,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -557,7 +556,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -597,7 +596,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     RequestBuilder requestBuilder =
         addCSRFToken(
             Helpers.fakeRequest()
-                .session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true")
+                .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -636,7 +635,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder request =
         Helpers.fakeRequest()
-            .session(FeatureFlag.NONGATED_ELIGIBILITY_ENABLED.toString(), "true")
+            .session("NONGATED_ELIGIBILITY_ENABLED", "true")
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 
@@ -656,7 +655,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder request =
         Helpers.fakeRequest()
-            .session(FeatureFlag.NONGATED_ELIGIBILITY_ENABLED.toString(), "false")
+            .session("NONGATED_ELIGIBILITY_ENABLED", "false")
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 
@@ -682,8 +681,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void publishProgram() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("one").build();
     RequestBuilder request =
-        Helpers.fakeRequest()
-            .session(FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED.toString(), "true");
+        Helpers.fakeRequest().session("PUBLISH_SINGLE_PROGRAM_ENABLED", "true");
     Result result = controller.publishProgram(addCSRFToken(request).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -696,8 +694,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void publishProgram_featureDisabled() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("one").build();
     RequestBuilder request =
-        Helpers.fakeRequest()
-            .session(FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED.toString(), "false");
+        Helpers.fakeRequest().session("PUBLISH_SINGLE_PROGRAM_ENABLED", "false");
     Result result = controller.publishProgram(addCSRFToken(request).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -710,8 +707,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void publishProgram_nonDraftProgram_throwsException() throws Exception {
     Program program = ProgramBuilder.newActiveProgram("active").build();
     RequestBuilder request =
-        Helpers.fakeRequest()
-            .session(FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED.toString(), "true");
+        Helpers.fakeRequest().session("PUBLISH_SINGLE_PROGRAM_ENABLED", "true");
     assertThatThrownBy(() -> controller.publishProgram(addCSRFToken(request).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }

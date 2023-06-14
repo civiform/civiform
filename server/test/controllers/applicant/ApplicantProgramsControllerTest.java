@@ -11,7 +11,6 @@ import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import controllers.WithMockedProfiles;
-import featureflags.FeatureFlag;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -128,9 +127,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void index_withCommonIntakeform_includesStartHereButtonWithRedirect() {
     Program program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
-    Request request =
-        addCSRFToken(fakeRequest().session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true"))
-            .build();
+    Request request = addCSRFToken(fakeRequest().session("INTAKE_FORM_ENABLED", "true")).build();
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
