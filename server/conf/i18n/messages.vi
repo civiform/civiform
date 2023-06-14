@@ -279,7 +279,7 @@ error.notFoundTitle=Chúng tôi không tìm thấy trang mà bạn cố gắng t
 error.notFoundDescription=Vui lòng quay lại hoặc chuyển đến {0}
 error.notFoundDescriptionLink=trang chủ
 error.internalServerTitle=Đã xảy ra lỗi
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
+error.internalServerDescription=Vui lòng liên hệ với bộ phận hỗ trợ kỹ thuật để được trợ giúp theo địa chỉ %s và cung cấp mã lỗi này {0}.
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
