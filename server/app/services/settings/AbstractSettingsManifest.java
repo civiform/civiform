@@ -7,16 +7,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
-import featureflags.FeatureFlag;
-
-import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
-import scala.reflect.runtime.Settings;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
