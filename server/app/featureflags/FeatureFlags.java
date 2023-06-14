@@ -48,6 +48,7 @@ public final class FeatureFlags {
    *
    * <p>Returns false if the flag is not present in the config.
    */
+  @Deprecated
   public boolean getFlagEnabled(Request request, FeatureFlag flag) {
     return getFlagEnabled(Optional.of(request), flag);
   }

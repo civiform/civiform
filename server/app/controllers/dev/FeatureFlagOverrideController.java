@@ -1,6 +1,5 @@
 package controllers.dev;
 
-import featureflags.FeatureFlag;
 import featureflags.FeatureFlags;
 import javax.inject.Inject;
 import play.mvc.Controller;
@@ -8,6 +7,7 @@ import play.mvc.Http.HeaderNames;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 import views.dev.FeatureFlagView;
 
 /**
@@ -18,14 +18,16 @@ import views.dev.FeatureFlagView;
  */
 public final class FeatureFlagOverrideController extends Controller {
 
-  private final FeatureFlags featureFlags;
   private final FeatureFlagView featureFlagView;
+  private final SettingsManifest settingsManifest;
   private final boolean isDevOrStaging;
 
   @Inject
   public FeatureFlagOverrideController(
-      FeatureFlags featureFlags, FeatureFlagView featureFlagView, DeploymentType deploymentType) {
-    this.featureFlags = featureFlags;
+      SettingsManifest settingsManifest,
+      FeatureFlagView featureFlagView,
+      DeploymentType deploymentType) {
+    this.settingsManifest = settingsManifest;
     this.featureFlagView = featureFlagView;
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
@@ -52,8 +54,7 @@ public final class FeatureFlagOverrideController extends Controller {
   }
 
   /** Returns the status of a feature flag. */
-  public Result status(Request request, String FlagName) {
-    return ok(
-        featureFlags.getFlagEnabled(request, FeatureFlag.getByName(FlagName)) ? "true" : "false");
+  public Result status(Request request, String flagName) {
+    return ok(settingsManifest.getBool(flagName, request) ? "true" : "false");
   }
 }

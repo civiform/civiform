@@ -140,17 +140,17 @@ class GetterMethodSpec:
     def method_name(self):
         return string.capwords(self.name, "_").replace("_", "")
 
-    def variable_name(self):
-        return self.name
-
     def doc(self):
         return self.variable.description
+
+    def variable_name(self):
+        return self.name
 
     def internal_getter(self):
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
-            return "getString"
+            return f"getString"
         elif self.variable.type == "bool":
             return "getBool"
         elif self.variable.type == "int":
@@ -162,13 +162,13 @@ class GetterMethodSpec:
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
-            return "String"
+            return "Optional<String>"
         elif self.variable.type == "bool":
-            return "Boolean"
+            return "boolean"
         elif self.variable.type == "int":
-            return "Integer"
+            return "Optional<Integer>"
         elif self.variable.type == "index-list":
-            return "ImmutableList<String>"
+            return "Optional<ImmutableList<String>>"
 
 
 def generate_manifest(

@@ -1,14 +1,12 @@
 package views.components;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
@@ -20,6 +18,7 @@ import javax.inject.Inject;
 import play.mvc.Http.Request;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.style.ReferenceClasses;
@@ -29,12 +28,12 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
 
   private final ViewUtils viewUtils;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(ViewUtils viewUtils, FeatureFlags featureFlags) {
+  public ProgramCardFactory(ViewUtils viewUtils, SettingsManifest settingsManifest) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = featureFlags;
+    this.settingsManifest = settingsManifest;
   }
 
   public DivTag renderCard(Request request, ProgramCardData cardData) {
@@ -173,7 +172,7 @@ public final class ProgramCardFactory {
 
   private boolean shouldShowCommonIntakeFormIndicator(
       Request request, ProgramDefinition displayProgram) {
-    return featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    return settingsManifest.getIntakeFormEnabled(request)
         && displayProgram.programType().equals(ProgramType.COMMON_INTAKE_FORM);
   }
 

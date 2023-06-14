@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
@@ -13,7 +12,6 @@ import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
 
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -29,6 +27,7 @@ import repository.UserRepository;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.components.ButtonStyles;
@@ -46,13 +45,13 @@ import views.style.StyleUtils;
  */
 abstract class ProgramFormBuilder extends BaseHtmlView {
 
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final UserRepository userRepository;
 
   ProgramFormBuilder(
-      Config configuration, FeatureFlags featureFlags, UserRepository userRepository) {
-    this.featureFlags = featureFlags;
+      Config configuration, SettingsManifest settingsManifest, UserRepository userRepository) {
+    this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.userRepository = checkNotNull(userRepository);
   }
@@ -186,7 +185,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
             .setRequired(true)
             .setValue(adminDescription)
             .getTextareaTag());
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)) {
+    if (settingsManifest.getIntakeFormEnabled(request)) {
       formTag
           .with(
               FieldWithLabel.checkbox()

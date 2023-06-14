@@ -1,9 +1,6 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
-import static featureflags.FeatureFlag.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -17,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.geo.AddressSuggestionJsonSerializer;
-import featureflags.FeatureFlags;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -54,6 +50,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.applicant.AddressCorrectionBlockView;
@@ -80,7 +77,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
   private final ProfileUtils profileUtils;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
@@ -100,7 +97,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
@@ -114,7 +111,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
@@ -196,8 +193,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     cleanForm(questionPathToValueMap),
-                    featureFlags.getFlagEnabled(
-                        request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -417,8 +413,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               programId,
                               blockId,
                               fileUploadQuestionFormData.build(),
-                              featureFlags.getFlagEnabled(
-                                  request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)));
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(
+                                  request)));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -472,8 +468,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     formData,
-                    featureFlags.getFlagEnabled(
-                        request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService ->
@@ -521,7 +516,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
+    if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
       AddressQuestion addressQuestion =
@@ -677,7 +672,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {
-    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
+    if (settingsManifest.getNongatedEligibilityEnabled(request)
         && !programDefinition.eligibilityIsGating()) {
       return false;
     }

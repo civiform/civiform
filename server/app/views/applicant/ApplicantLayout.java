@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.br;
@@ -21,7 +20,6 @@ import auth.ProfileUtils;
 import auth.Role;
 import com.typesafe.config.Config;
 import controllers.routes;
-import featureflags.FeatureFlags;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -43,6 +41,7 @@ import play.twirl.api.Content;
 import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.LanguageSelector;
@@ -88,10 +87,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent) {
-    super(viewUtils, configuration, featureFlags, deploymentType);
+    super(viewUtils, configuration, settingsManifest, deploymentType);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
@@ -165,8 +164,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .with(
                 div()
                     .condWith(
-                        featureFlags.getFlagEnabled(
-                            request, SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE),
+                        getSettingsManifest().getShowCiviformImageTagOnLandingPage(request),
                         debugContent.civiformVersionDiv()),
                 div()
                     .with(

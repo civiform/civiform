@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http.Request;
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -143,8 +144,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables [central
    * logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).
    */
-  public Optional<Boolean> getApplicantOidcProviderLogout() {
+  public boolean getApplicantOidcProviderLogout() {
     return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT");
+  }
+
+  /**
+   * Enables [central
+   * logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).
+   */
+  public boolean getApplicantOidcProviderLogout(Request request) {
+    return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT", request);
   }
 
   /**
@@ -331,8 +340,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions#Evolutions-scripts)
    * are automatically applied on server start if needed.
    */
-  public Optional<Boolean> getDatabaseApplyDestructiveChanges() {
+  public boolean getDatabaseApplyDestructiveChanges() {
     return getBool("DATABASE_APPLY_DESTRUCTIVE_CHANGES");
+  }
+
+  /**
+   * If enabled, [playframework down
+   * evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions#Evolutions-scripts)
+   * are automatically applied on server start if needed.
+   */
+  public boolean getDatabaseApplyDestructiveChanges(Request request) {
+    return getBool("DATABASE_APPLY_DESTRUCTIVE_CHANGES", request);
   }
 
   /** Sets how many connections to the database are maintained. */
@@ -403,8 +421,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the feature that allows address correction for address questions. */
-  public Optional<Boolean> getEsriAddressCorrectionEnabled() {
+  public boolean getEsriAddressCorrectionEnabled() {
     return getBool("ESRI_ADDRESS_CORRECTION_ENABLED");
+  }
+
+  /** Enables the feature that allows address correction for address questions. */
+  public boolean getEsriAddressCorrectionEnabled(Request request) {
+    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
   }
 
   /**
@@ -419,8 +442,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
    */
-  public Optional<Boolean> getEsriAddressServiceAreaValidationEnabled() {
+  public boolean getEsriAddressServiceAreaValidationEnabled() {
     return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
+  }
+
+  /**
+   * Enables the feature that allows for service area validation of a corrected address.
+   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
+   */
+  public boolean getEsriAddressServiceAreaValidationEnabled(Request request) {
+    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
   }
 
   /**
@@ -574,8 +605,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
    * disabled, '/metrics' returns a 404.
    */
-  public Optional<Boolean> getCiviformServerMetricsEnabled() {
+  public boolean getCiviformServerMetricsEnabled() {
     return getBool("CIVIFORM_SERVER_METRICS_ENABLED");
+  }
+
+  /**
+   * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
+   * disabled, '/metrics' returns a 404.
+   */
+  public boolean getCiviformServerMetricsEnabled(Request request) {
+    return getBool("CIVIFORM_SERVER_METRICS_ENABLED", request);
   }
 
   /**
@@ -600,8 +639,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * When true prevents the CiviForm admin from issuing API keys that allow callers from all IP
    * addresses (i.e. a CIDR mask of /0).
    */
-  public Optional<Boolean> getCiviformApiKeysBanGlobalSubnet() {
+  public boolean getCiviformApiKeysBanGlobalSubnet() {
     return getBool("CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET");
+  }
+
+  /**
+   * When true prevents the CiviForm admin from issuing API keys that allow callers from all IP
+   * addresses (i.e. a CIDR mask of /0).
+   */
+  public boolean getCiviformApiKeysBanGlobalSubnet(Request request) {
+    return getBool("CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET", request);
   }
 
   /**
@@ -639,47 +686,91 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
-  public Optional<Boolean> getAdminSettingsPanelEnabled() {
+  public boolean getAdminSettingsPanelEnabled() {
     return getBool("ADMIN_SETTINGS_PANEL_ENABLED");
   }
 
+  /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
+  public boolean getAdminSettingsPanelEnabled(Request request) {
+    return getBool("ADMIN_SETTINGS_PANEL_ENABLED", request);
+  }
+
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
-  public Optional<Boolean> getCfOptionalQuestions() {
+  public boolean getCfOptionalQuestions() {
     return getBool("CF_OPTIONAL_QUESTIONS");
+  }
+
+  /** If enabled, allows questions to be optional in programs. Is enabled by default. */
+  public boolean getCfOptionalQuestions(Request request) {
+    return getBool("CF_OPTIONAL_QUESTIONS", request);
   }
 
   /**
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
    */
-  public Optional<Boolean> getAllowCiviformAdminAccessPrograms() {
+  public boolean getAllowCiviformAdminAccessPrograms() {
     return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS");
+  }
+
+  /**
+   * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
+   * default.
+   */
+  public boolean getAllowCiviformAdminAccessPrograms(Request request) {
+    return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
   }
 
   /**
    * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
    * default.
    */
-  public Optional<Boolean> getShowCiviformImageTagOnLandingPage() {
+  public boolean getShowCiviformImageTagOnLandingPage() {
     return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE");
+  }
+
+  /**
+   * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
+   * default.
+   */
+  public boolean getShowCiviformImageTagOnLandingPage(Request request) {
+    return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
   /**
    * Allows feature flags to be overridden via request cookies. Is used by browser tests. Should
    * only be enabled in test and staging deployments.
    */
-  public Optional<Boolean> getFeatureFlagOverridesEnabled() {
+  public boolean getFeatureFlagOverridesEnabled() {
     return getBool("FEATURE_FLAG_OVERRIDES_ENABLED");
   }
 
+  /**
+   * Allows feature flags to be overridden via request cookies. Is used by browser tests. Should
+   * only be enabled in test and staging deployments.
+   */
+  public boolean getFeatureFlagOverridesEnabled(Request request) {
+    return getBool("FEATURE_FLAG_OVERRIDES_ENABLED", request);
+  }
+
   /** Enables the Common Intake Form feature. */
-  public Optional<Boolean> getIntakeFormEnabled() {
+  public boolean getIntakeFormEnabled() {
     return getBool("INTAKE_FORM_ENABLED");
   }
 
+  /** Enables the Common Intake Form feature. */
+  public boolean getIntakeFormEnabled(Request request) {
+    return getBool("INTAKE_FORM_ENABLED", request);
+  }
+
   /** Enables the feature that allows setting eligibility criteria to non-gating. */
-  public Optional<Boolean> getNongatedEligibilityEnabled() {
+  public boolean getNongatedEligibilityEnabled() {
     return getBool("NONGATED_ELIGIBILITY_ENABLED");
+  }
+
+  /** Enables the feature that allows setting eligibility criteria to non-gating. */
+  public boolean getNongatedEligibilityEnabled(Request request) {
+    return getBool("NONGATED_ELIGIBILITY_ENABLED", request);
   }
 
   /**
@@ -688,26 +779,54 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * tag is added to the CiviForm pages. This causes the staging site to not be listed on search
    * engines.
    */
-  public Optional<Boolean> getStagingAddNoindexMetaTag() {
+  public boolean getStagingAddNoindexMetaTag() {
     return getBool("STAGING_ADD_NOINDEX_META_TAG");
+  }
+
+  /**
+   * If this is a staging deployment and this variable is set to true, a [robots
+   * noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata
+   * tag is added to the CiviForm pages. This causes the staging site to not be listed on search
+   * engines.
+   */
+  public boolean getStagingAddNoindexMetaTag(Request request) {
+    return getBool("STAGING_ADD_NOINDEX_META_TAG", request);
   }
 
   /**
    * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
    * buttons are not shown on the login page.
    */
-  public Optional<Boolean> getStagingDisableDemoModeLogins() {
+  public boolean getStagingDisableDemoModeLogins() {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
   }
 
+  /**
+   * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
+   * buttons are not shown on the login page.
+   */
+  public boolean getStagingDisableDemoModeLogins(Request request) {
+    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
+  }
+
   /** Enables the phone number question type. */
-  public Optional<Boolean> getPhoneQuestionTypeEnabled() {
+  public boolean getPhoneQuestionTypeEnabled() {
     return getBool("PHONE_QUESTION_TYPE_ENABLED");
   }
 
+  /** Enables the phone number question type. */
+  public boolean getPhoneQuestionTypeEnabled(Request request) {
+    return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
+  }
+
   /** Enables the feature that allows publishing a single program on its own. */
-  public Optional<Boolean> getPublishSingleProgramEnabled() {
+  public boolean getPublishSingleProgramEnabled() {
     return getBool("PUBLISH_SINGLE_PROGRAM_ENABLED");
+  }
+
+  /** Enables the feature that allows publishing a single program on its own. */
+  public boolean getPublishSingleProgramEnabled(Request request) {
+    return getBool("PUBLISH_SINGLE_PROGRAM_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
