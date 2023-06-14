@@ -114,6 +114,7 @@ public class DatabaseSeedController extends Controller {
             .findFirst()
             .orElseThrow();
     insertProgramWithBlocks("mock-program", "Mock program", canonicalNameQuestion);
+    insertSimpleProgram("simple-program", "Simple program", canonicalNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -456,6 +457,44 @@ public class DatabaseSeedController extends Controller {
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
+
+      return programDefinition;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private ProgramDefinition insertSimpleProgram(
+      String adminName, String displayName, QuestionDefinition nameQuestion) {
+    try {
+      ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
+          programService.createProgramDefinition(
+              adminName,
+              "desc",
+              displayName,
+              "display description",
+              /* defaultConfirmationMessage= */ "",
+              /* externalLink= */ "https://github.com/seattle-uat/civiform",
+              DisplayMode.PUBLIC.getValue(),
+              /* programType= */ ProgramType.DEFAULT,
+              /* isIntakeFormFeatureEnabled= */ false,
+              ImmutableList.copyOf(new ArrayList<>()));
+      if (programDefinitionResult.isError()) {
+        throw new Exception(programDefinitionResult.getErrors().toString());
+      }
+      ProgramDefinition programDefinition = programDefinitionResult.getResult();
+      long programId = programDefinition.id();
+
+      long blockId = 1L;
+      BlockForm blockForm = new BlockForm();
+      blockForm.setName("Block 1");
+      blockForm.setDescription("Block 1");
+      programService.updateBlock(programId, blockId, blockForm).getResult();
+
+      programService.addQuestionsToBlock(
+          programId, blockId, ImmutableList.of(nameQuestion.getId()));
+      programService.setProgramQuestionDefinitionOptionality(
+          programId, blockId, nameQuestion.getId(), true);
 
       return programDefinition;
     } catch (Exception e) {

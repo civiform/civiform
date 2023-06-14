@@ -179,10 +179,6 @@ public final class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publishProgram(Request request, long programId) throws ProgramNotFoundException {
-    if (!settingsManifest.getPublishSingleProgramEnabled(request)) {
-      return redirect(routes.AdminProgramController.index());
-    }
-
     ProgramDefinition program = programService.getProgramDefinition(programId);
     requestChecker.throwIfProgramNotDraft(programId);
 

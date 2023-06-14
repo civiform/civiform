@@ -589,11 +589,6 @@
         "mode": "ADMIN_READABLE",
         "description": "Enables the phone number question type.",
         "type": "bool"
-      },
-      "PUBLISH_SINGLE_PROGRAM_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables the feature that allows publishing a single program on its own.",
-        "type": "bool"
       }
     }
   }

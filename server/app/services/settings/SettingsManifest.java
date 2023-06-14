@@ -819,16 +819,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
   }
 
-  /** Enables the feature that allows publishing a single program on its own. */
-  public boolean getPublishSingleProgramEnabled() {
-    return getBool("PUBLISH_SINGLE_PROGRAM_ENABLED");
-  }
-
-  /** Enables the feature that allows publishing a single program on its own. */
-  public boolean getPublishSingleProgramEnabled(Request request) {
-    return getBool("PUBLISH_SINGLE_PROGRAM_ENABLED", request);
-  }
-
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1485,11 +1475,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "PHONE_QUESTION_TYPE_ENABLED",
                       "Enables the phone number question type.",
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
-                  SettingDescription.create(
-                      "PUBLISH_SINGLE_PROGRAM_ENABLED",
-                      "Enables the feature that allows publishing a single program on its own.",
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE))),
           "ROOT",

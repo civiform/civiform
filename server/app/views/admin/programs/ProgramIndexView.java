@@ -316,9 +316,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      if (settingsManifest.getPublishSingleProgramEnabled(request)) {
-        draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
-      }
+      draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =

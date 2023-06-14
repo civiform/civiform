@@ -680,9 +680,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void publishProgram() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("one").build();
-    RequestBuilder request =
-        Helpers.fakeRequest().session("PUBLISH_SINGLE_PROGRAM_ENABLED", "true");
-    Result result = controller.publishProgram(addCSRFToken(request).build(), program.id);
+    Result result =
+        controller.publishProgram(addCSRFToken(Helpers.fakeRequest()).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
@@ -691,24 +690,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void publishProgram_featureDisabled() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("one").build();
-    RequestBuilder request =
-        Helpers.fakeRequest().session("PUBLISH_SINGLE_PROGRAM_ENABLED", "false");
-    Result result = controller.publishProgram(addCSRFToken(request).build(), program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
-
-    assertThat(versionRepository.isDraft(program)).isTrue();
-  }
-
-  @Test
   public void publishProgram_nonDraftProgram_throwsException() throws Exception {
     Program program = ProgramBuilder.newActiveProgram("active").build();
-    RequestBuilder request =
-        Helpers.fakeRequest().session("PUBLISH_SINGLE_PROGRAM_ENABLED", "true");
-    assertThatThrownBy(() -> controller.publishProgram(addCSRFToken(request).build(), program.id))
+    assertThatThrownBy(
+            () ->
+                controller.publishProgram(addCSRFToken(Helpers.fakeRequest()).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 }
