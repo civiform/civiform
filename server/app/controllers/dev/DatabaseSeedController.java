@@ -463,6 +463,7 @@ public class DatabaseSeedController extends Controller {
       throw new RuntimeException(e);
     }
   }
+
   private ProgramDefinition insertSimpleProgram(
       String adminName, String displayName, QuestionDefinition nameQuestion) {
     try {
@@ -473,7 +474,7 @@ public class DatabaseSeedController extends Controller {
               displayName,
               "display description",
               /* defaultConfirmationMessage= */ "",
-              /* externalLink= */"https://github.com/seattle-uat/civiform",
+              /* externalLink= */ "https://github.com/seattle-uat/civiform",
               DisplayMode.PUBLIC.getValue(),
               /* programType= */ ProgramType.DEFAULT,
               /* isIntakeFormFeatureEnabled= */ false,
@@ -491,10 +492,7 @@ public class DatabaseSeedController extends Controller {
       programService.updateBlock(programId, blockId, blockForm).getResult();
 
       programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-            nameQuestion.getId()));
+          programId, blockId, ImmutableList.of(nameQuestion.getId()));
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestion.getId(), true);
 
