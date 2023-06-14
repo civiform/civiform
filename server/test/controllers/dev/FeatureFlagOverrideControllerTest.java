@@ -19,7 +19,7 @@ import play.test.Helpers;
 
 public class FeatureFlagOverrideControllerTest {
 
-  private static final String FLAG_NAME = "flag";
+  private static final String FLAG_NAME = "FLAG";
   private Optional<Application> maybeApp = Optional.empty();
   private FeatureFlagOverrideController controller;
 
