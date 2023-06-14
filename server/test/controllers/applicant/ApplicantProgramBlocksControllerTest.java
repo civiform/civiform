@@ -2,7 +2,6 @@ package controllers.applicant;
 
 import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -17,7 +16,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 import models.Applicant;
 import models.Program;
@@ -30,7 +28,6 @@ import play.mvc.Result;
 import repository.StoredFileRepository;
 import services.Path;
 import services.applicant.question.Scalar;
-import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
@@ -76,15 +73,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id + 1000, "1")))
             .build();
 
-    assertThatThrownBy(
-            () ->
-                subject
-                    .edit(request, applicant.id, program.id + 1000, "1")
-                    .toCompletableFuture()
-                    .join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
+    Result result =
+        subject.edit(request, applicant.id, program.id + 1000, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
@@ -164,7 +156,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void update_invalidProgram_returnsNotFound() {
+  public void update_invalidProgram_returnsBadRequest() {
     long badProgramId = program.id + 1000;
     Request request =
         fakeRequest(
@@ -172,20 +164,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false))
             .build();
 
-    assertThatThrownBy(
-            () ->
-                subject
-                    .update(
-                        request,
-                        applicant.id,
-                        badProgramId,
-                        /* blockId = */ "1",
-                        /* inReview = */ false)
-                    .toCompletableFuture()
-                    .join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
+    Result result =
+        subject
+            .update(
+                request, applicant.id, badProgramId, /* blockId = */ "1", /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test
@@ -416,7 +402,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void updateFile_invalidProgram_returnsNotFound() {
+  public void updateFile_invalidProgram_returnsBadRequest() {
     long badProgramId = program.id + 1000;
     RequestBuilder request =
         fakeRequest(
@@ -424,20 +410,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id, badProgramId, /* blockId = */ "2", /* inReview = */ false));
     addQueryString(request, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
 
-    assertThatThrownBy(
-            () ->
-                subject
-                    .updateFile(
-                        request.build(),
-                        applicant.id,
-                        badProgramId,
-                        /* blockId = */ "2",
-                        /* inReview = */ false)
-                    .toCompletableFuture()
-                    .join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program not found for ID");
+    Result result =
+        subject
+            .updateFile(
+                request.build(),
+                applicant.id,
+                badProgramId,
+                /* blockId = */ "2",
+                /* inReview = */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   @Test

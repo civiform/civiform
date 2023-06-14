@@ -1,14 +1,12 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.*;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
-import java.util.concurrent.CompletionException;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
@@ -17,7 +15,6 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.Path;
 import services.applicant.question.Scalar;
-import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {

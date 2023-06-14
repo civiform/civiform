@@ -1,7 +1,6 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
@@ -14,7 +13,6 @@ import static play.test.Helpers.stubMessagesApi;
 import controllers.WithMockedProfiles;
 import featureflags.FeatureFlag;
 import java.util.Locale;
-import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.Applicant;
@@ -30,7 +28,6 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.program.ProgramNotFoundException;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import support.QuestionAnswerer;
