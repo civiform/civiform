@@ -34,9 +34,9 @@ public interface ProgramService {
   /** Get the slugs for all programs. */
   ImmutableSet<String> getAllProgramSlugs();
 
+  /** Get the names for active programs. */
   ImmutableSet<String> getActiveProgramNames();
 
-  /** Get the names for active programs. */
   /** Get the data object about the programs that are in the active or draft version. */
   ActiveAndDraftPrograms getActiveAndDraftPrograms();
 
