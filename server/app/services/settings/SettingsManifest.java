@@ -420,38 +420,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AZURE_LOCAL_CONNECTION_STRING");
   }
 
-  /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled() {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED");
-  }
-
-  /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled(Request request) {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
-  }
-
   /**
    * The URL CiviForm will use to call Esri’s [findAddressCandidates
    * service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).
    */
   public Optional<String> getEsriFindAddressCandidatesUrl() {
     return getString("ESRI_FIND_ADDRESS_CANDIDATES_URL");
-  }
-
-  /**
-   * Enables the feature that allows for service area validation of a corrected address.
-   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
-   */
-  public boolean getEsriAddressServiceAreaValidationEnabled() {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
-  }
-
-  /**
-   * Enables the feature that allows for service area validation of a corrected address.
-   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
-   */
-  public boolean getEsriAddressServiceAreaValidationEnabled(Request request) {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
   }
 
   /**
@@ -683,6 +657,32 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public Optional<Integer> getDurableJobsThreadPoolSize() {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
+  }
+
+  /**
+   * Enables the feature that allows for service area validation of a corrected address.
+   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
+   */
+  public boolean getEsriAddressServiceAreaValidationEnabled() {
+    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
+  }
+
+  /**
+   * Enables the feature that allows for service area validation of a corrected address.
+   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
+   */
+  public boolean getEsriAddressServiceAreaValidationEnabled(Request request) {
+    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
+  }
+
+  /** Enables the feature that allows address correction for address questions. */
+  public boolean getEsriAddressCorrectionEnabled() {
+    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED");
+  }
+
+  /** Enables the feature that allows address correction for address questions. */
+  public boolean getEsriAddressCorrectionEnabled(Request request) {
+    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
   }
 
   /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
@@ -1213,23 +1213,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       ImmutableList.of(),
                       ImmutableList.of(
                           SettingDescription.create(
-                              "ESRI_ADDRESS_CORRECTION_ENABLED",
-                              "Enables the feature that allows address correction for address"
-                                  + " questions.",
-                              SettingType.BOOLEAN,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
                               "ESRI_FIND_ADDRESS_CANDIDATES_URL",
                               "The URL CiviForm will use to call Esri’s [findAddressCandidates"
                                   + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
                               SettingType.STRING,
-                              SettingMode.ADMIN_READABLE),
-                          SettingDescription.create(
-                              "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
-                              "Enables the feature that allows for service area validation of a"
-                                  + " corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to"
-                                  + " be enabled.",
-                              SettingType.BOOLEAN,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",
@@ -1417,6 +1404,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               "Configuration options to enable or disable optional or in-development features.",
               ImmutableList.of(),
               ImmutableList.of(
+                  SettingDescription.create(
+                      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
+                      "Enables the feature that allows for service area validation of a corrected"
+                          + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
+                  SettingDescription.create(
+                      "ESRI_ADDRESS_CORRECTION_ENABLED",
+                      "Enables the feature that allows address correction for address questions.",
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "ADMIN_SETTINGS_PANEL_ENABLED",
                       "If enabled, adds a page in the CiviForm Admin UI for accessing application"
