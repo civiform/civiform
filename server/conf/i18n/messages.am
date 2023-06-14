@@ -279,7 +279,7 @@ error.notFoundTitle=ለመጎብኘት የሞከሩትን ገጽ ማግኘት �
 error.notFoundDescription=እባክዎ ወደ ኋላ ይመለሱ ወይም ወደ {0} ይመለሱ
 error.notFoundDescriptionLink=መነሻ ገጽ
 error.internalServerTitle=ስህተት ተከስቷል
-error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
+error.internalServerDescription=እባክዎ ለእርዳታ %s ላይ ቴክኒካዊ ድጋፍን ያነጋግሩ እና ይህን የስህተት መታወቂያ {0} ያካትቱ።
 
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
