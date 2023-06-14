@@ -173,17 +173,26 @@ public final class ProfileFactory {
     }
 
     CiviFormProfileData tiProfileData = create(new Role[] {Role.ROLE_TI});
-    wrapProfileData(tiProfileData)
+    CiviFormProfile tiProfile = wrapProfileData(tiProfileData);
+    tiProfile
         .getAccount()
         .thenAccept(
             account -> {
               account.setAuthorityId(generateFakeAdminAuthorityId());
-              String email = String.format("fake-trusted-intermediary-%d@example.com", account.id);
+              // The email must be unique in order to insert into the database.
+              String email =
+                  String.format("fake-trusted-intermediary-%s@example.com", tiProfile.getId());
               account.setEmailAddress(email);
               account.save();
               userRepository.addTrustedIntermediaryToGroup(group.id, email);
             })
         .join();
+
+    Applicant tiApplicant = tiProfile.getApplicant().join();
+    // The name for a fake TI must not be unique so that screenshot tests stay consistent. Use an
+    // underscore so that the name parser doesn't display "TI, Fake".
+    tiApplicant.getApplicantData().setUserName("Fake_TI");
+    userRepository.updateApplicant(tiApplicant);
 
     return tiProfileData;
   }
