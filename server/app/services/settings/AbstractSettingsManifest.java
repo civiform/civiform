@@ -16,7 +16,7 @@ import play.mvc.Http;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
-  private static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
+  public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSettingsManifest.class);
 
@@ -33,7 +33,7 @@ public abstract class AbstractSettingsManifest {
   public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.Request request) {
     ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
 
-    for (SettingDescription settingDescription : getAllFeatureFlags()) {
+    for (SettingDescription settingDescription : getAllFeatureFlagsSettingDescriptions()) {
       String name = settingDescription.variableName();
       map.put(name, getBool(name, request));
     }
@@ -41,7 +41,7 @@ public abstract class AbstractSettingsManifest {
     return map.build();
   }
 
-  private ImmutableList<SettingDescription> getAllFeatureFlags() {
+  private ImmutableList<SettingDescription> getAllFeatureFlagsSettingDescriptions() {
     if (!getSections().containsKey(FEATURE_FLAG_SETTING_SECTION_NAME)) {
       return ImmutableList.of();
     }
