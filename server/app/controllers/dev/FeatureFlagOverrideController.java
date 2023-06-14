@@ -1,5 +1,6 @@
 package controllers.dev;
 
+import java.util.Locale;
 import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http.HeaderNames;
@@ -41,7 +42,7 @@ public final class FeatureFlagOverrideController extends Controller {
     }
     String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
 
-    return redirect(redirectTo).addingToSession(request, flagName, "true");
+    return redirect(redirectTo).addingToSession(request, flagName.toUpperCase(Locale.ROOT), "true");
   }
 
   public Result disable(Request request, String flagName) {
@@ -49,11 +50,13 @@ public final class FeatureFlagOverrideController extends Controller {
       return notFound();
     }
     String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
-    return redirect(redirectTo).addingToSession(request, flagName, "false");
+    return redirect(redirectTo)
+        .addingToSession(request, flagName.toUpperCase(Locale.ROOT), "false");
   }
 
   /** Returns the status of a feature flag. */
   public Result status(Request request, String flagName) {
-    return ok(settingsManifest.getBool(flagName, request) ? "true" : "false");
+    return ok(
+        settingsManifest.getBool(flagName.toUpperCase(Locale.ROOT), request) ? "true" : "false");
   }
 }
