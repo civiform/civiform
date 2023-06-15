@@ -41,8 +41,7 @@
               "login-gov",
               "auth0",
               "disabled"
-            ],
-            "required": true
+            ]
           },
           "APPLICANT_REGISTER_URI": {
             "mode": "ADMIN_READABLE",
@@ -80,20 +79,17 @@
               "LOGIN_RADIUS_API_KEY": {
                 "mode": "HIDDEN",
                 "description": "The API key used to interact with LoginRadius.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "LOGIN_RADIUS_METADATA_URI": {
                 "mode": "HIDDEN",
                 "description": "The base URL to construct SAML endpoints, based on the SAML2 spec.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "LOGIN_RADIUS_SAML_APP_NAME": {
                 "mode": "HIDDEN",
                 "description": "The name for the app, based on the SAML2 spec.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "LOGIN_RADIUS_KEYSTORE_NAME": {
                 "mode": "HIDDEN",
@@ -148,8 +144,7 @@
               "APPLICANT_OIDC_DISCOVERY_URI": {
                 "mode": "HIDDEN",
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with a given auth provider.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "APPLICANT_OIDC_RESPONSE_MODE": {
                 "mode": "HIDDEN",
@@ -240,8 +235,7 @@
           "ADFS_DISCOVERY_URI": {
             "mode": "HIDDEN",
             "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "ADFS_GLOBAL_ADMIN_GROUP": {
             "mode": "HIDDEN",
@@ -432,8 +426,7 @@
       {"val": "http://my-civiform.org", "should_match": true},
       {"val": "https://my-civiform.org", "should_match": true},
       {"val": "my-civiform.org", "should_match": false}
-    ],
-    "required": true
+    ]
   },
   "STAGING_HOSTNAME": {
     "mode": "HIDDEN",
