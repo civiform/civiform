@@ -30,7 +30,7 @@ public final class SingleSelectQuestion extends Question {
 
   @Override
   protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
+    return ImmutableSet.of(QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
   }
 
   @Override

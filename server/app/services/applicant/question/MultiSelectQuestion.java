@@ -33,7 +33,7 @@ public final class MultiSelectQuestion extends Question {
 
   @Override
   protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
+    return ImmutableSet.of(QuestionType.CHECKBOX);
   }
 
   @Override
