@@ -167,7 +167,7 @@ public final class RedirectController extends CiviFormController {
 
     CompletableFuture<Boolean> isCommonIntake =
         programService
-            .getActiveProgramDefinitionAsync(programId)
+            .getProgramDefinitionAsync(programId)
             .thenApplyAsync(ProgramDefinition::isCommonIntakeForm)
             .toCompletableFuture();
 

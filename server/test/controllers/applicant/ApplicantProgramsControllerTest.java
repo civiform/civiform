@@ -87,7 +87,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     app.save();
 
     resourceCreator().insertDraftProgram(programName);
-
     this.versionRepository.publishNewSynchronizedVersion();
 
     Request request = addCSRFToken(fakeRequest()).build();
@@ -214,7 +213,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Program program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -235,7 +234,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     QuestionDefinition colorQuestion =
         testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()

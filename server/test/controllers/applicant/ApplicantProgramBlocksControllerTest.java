@@ -41,7 +41,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject = instanceOf(ApplicantProgramBlocksController.class);
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock()
@@ -261,7 +261,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_withNextBlock_redirectsToEdit() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock("block 2")
@@ -295,7 +295,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_savesCorrectedAddressWhenValidAddressIsEntered() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
             .build();
@@ -346,7 +346,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_completedProgram_redirectsToReviewPage() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -485,7 +485,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void updateFile_withNextBlock_redirectsToEdit() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantFile())
             .withBlock("block 2")
@@ -518,7 +518,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void updateFile_completedProgram_redirectsToReviewPage() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
@@ -557,7 +557,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     var storedFileRepo = instanceOf(StoredFileRepository.class);
 
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();

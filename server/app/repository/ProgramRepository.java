@@ -154,7 +154,7 @@ public final class ProgramRepository {
   }
 
   /** Get the current active program with the provided slug. */
-  public CompletableFuture<Program> getForSlug(String slug) {
+  public CompletableFuture<Program> getActiveProgramFromSlug(String slug) {
     return supplyAsync(
         () -> {
           for (Program program : database.find(Program.class).where().isNull("slug").findList()) {

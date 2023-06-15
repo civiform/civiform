@@ -21,7 +21,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
-  private Program draftProgram;
+  private Program activeProgram;
   public Applicant applicant;
 
   @Before
@@ -30,8 +30,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     subject = instanceOf(ApplicantProgramReviewController.class);
     blockController = instanceOf(ApplicantProgramBlocksController.class);
-    draftProgram =
-        ProgramBuilder.newDraftProgram()
+    activeProgram =
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -41,27 +41,27 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void review_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    Result result = this.review(badApplicantId, draftProgram.id);
+    Result result = this.review(badApplicantId, activeProgram.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test
   public void review_toAProgramThatDoesNotExist_returns404() {
-    long badProgramId = draftProgram.id + 1000;
+    long badProgramId = activeProgram.id + 1000;
     Result result = this.review(applicant.id, badProgramId);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void review_rendersSummaryView() {
-    Result result = this.review(applicant.id, draftProgram.id);
+    Result result = this.review(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
   public void submit_invalid_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
-    Result result = this.submit(badApplicantId, draftProgram.id);
+    Result result = this.submit(badApplicantId, activeProgram.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
