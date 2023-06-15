@@ -1,31 +1,33 @@
 package controllers.dev;
 
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
+import java.util.Locale;
 import javax.inject.Inject;
 import play.mvc.Controller;
 import play.mvc.Http.HeaderNames;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 import views.dev.FeatureFlagView;
 
 /**
  * Allows for overriding of feature flags by an Admin via HTTP request.
  *
- * <p>Overrides are stored in the session cookie and used by {@link FeatureFlags} to control system
- * behavior
+ * <p>Overrides are stored in the session cookie and used by {@link SettingsManifest} to control
+ * system behavior
  */
 public final class FeatureFlagOverrideController extends Controller {
 
-  private final FeatureFlags featureFlags;
   private final FeatureFlagView featureFlagView;
+  private final SettingsManifest settingsManifest;
   private final boolean isDevOrStaging;
 
   @Inject
   public FeatureFlagOverrideController(
-      FeatureFlags featureFlags, FeatureFlagView featureFlagView, DeploymentType deploymentType) {
-    this.featureFlags = featureFlags;
+      SettingsManifest settingsManifest,
+      FeatureFlagView featureFlagView,
+      DeploymentType deploymentType) {
+    this.settingsManifest = settingsManifest;
     this.featureFlagView = featureFlagView;
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
@@ -40,7 +42,7 @@ public final class FeatureFlagOverrideController extends Controller {
     }
     String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
 
-    return redirect(redirectTo).addingToSession(request, flagName, "true");
+    return redirect(redirectTo).addingToSession(request, flagName.toUpperCase(Locale.ROOT), "true");
   }
 
   public Result disable(Request request, String flagName) {
@@ -48,12 +50,13 @@ public final class FeatureFlagOverrideController extends Controller {
       return notFound();
     }
     String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
-    return redirect(redirectTo).addingToSession(request, flagName, "false");
+    return redirect(redirectTo)
+        .addingToSession(request, flagName.toUpperCase(Locale.ROOT), "false");
   }
 
   /** Returns the status of a feature flag. */
-  public Result status(Request request, String FlagName) {
+  public Result status(Request request, String flagName) {
     return ok(
-        featureFlags.getFlagEnabled(request, FeatureFlag.getByName(FlagName)) ? "true" : "false");
+        settingsManifest.getBool(flagName.toUpperCase(Locale.ROOT), request) ? "true" : "false");
   }
 }

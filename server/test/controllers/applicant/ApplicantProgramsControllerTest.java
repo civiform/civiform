@@ -11,7 +11,6 @@ import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.stubMessagesApi;
 
 import controllers.WithMockedProfiles;
-import featureflags.FeatureFlag;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,7 +87,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     app.save();
 
     resourceCreator().insertDraftProgram(programName);
-
     this.versionRepository.publishNewSynchronizedVersion();
 
     Request request = addCSRFToken(fakeRequest()).build();
@@ -128,9 +126,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void index_withCommonIntakeform_includesStartHereButtonWithRedirect() {
     Program program = resourceCreator().insertActiveCommonIntakeForm("benefits");
 
-    Request request =
-        addCSRFToken(fakeRequest().session(FeatureFlag.INTAKE_FORM_ENABLED.toString(), "true"))
-            .build();
+    Request request = addCSRFToken(fakeRequest().session("INTAKE_FORM_ENABLED", "true")).build();
     Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
@@ -217,7 +213,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_withNewProgram_redirectsToFirstBlock() {
     Program program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -238,7 +234,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     QuestionDefinition colorQuestion =
         testQuestionBank().applicantFavoriteColor().getQuestionDefinition();
     Program program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestionDefinition(colorQuestion)
             .withBlock()

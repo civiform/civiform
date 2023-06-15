@@ -38,7 +38,7 @@ lazy val root = (project in file("."))
       "software.amazon.awssdk" % "ses" % "2.20.85",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.9.0",
+      "com.azure" % "azure-identity" % "1.9.1",
       "com.azure" % "azure-storage-blob" % "12.22.2",
 
       // Database and database testing libraries
@@ -93,10 +93,10 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.12",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.14",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.4",
+      "com.github.slugify" % "slugify" % "3.0.5",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.9.0",
@@ -106,7 +106,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.7"
+      "ch.qos.logback" % "logback-classic" % "1.4.8"
     ),
     javacOptions ++= Seq(
       "-encoding",

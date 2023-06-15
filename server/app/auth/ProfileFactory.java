@@ -1,7 +1,6 @@
 package auth;
 
 import com.google.common.base.Preconditions;
-import featureflags.FeatureFlags;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -16,6 +15,7 @@ import repository.DatabaseExecutionContext;
 import repository.UserRepository;
 import repository.VersionRepository;
 import services.apikey.ApiKeyService;
+import services.settings.SettingsManifest;
 
 /**
  * This class helps create {@link CiviFormProfile} and {@link CiviFormProfileData} objects for
@@ -29,7 +29,7 @@ public final class ProfileFactory {
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
   private final Provider<UserRepository> userRepositoryProvider;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProfileFactory(
@@ -38,13 +38,13 @@ public final class ProfileFactory {
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
       Provider<UserRepository> userRepositoryProvider,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.versionRepositoryProvider = Preconditions.checkNotNull(versionRepositoryProvider);
     this.apiKeyService = Preconditions.checkNotNull(apiKeyService);
     this.userRepositoryProvider = Preconditions.checkNotNull(userRepositoryProvider);
-    this.featureFlags = Preconditions.checkNotNull(featureFlags);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
   public CiviFormProfileData createNewApplicant() {
@@ -76,7 +76,7 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfile wrapProfileData(CiviFormProfileData p) {
-    return new CiviFormProfile(dbContext, httpContext, p, featureFlags);
+    return new CiviFormProfile(dbContext, httpContext, p, settingsManifest);
   }
 
   /**

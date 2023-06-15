@@ -2,7 +2,6 @@ package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -20,7 +19,7 @@ import play.test.Helpers;
 
 public class FeatureFlagOverrideControllerTest {
 
-  private static final String FLAG_NAME = "flag";
+  private static final String FLAG_NAME = "FLAG";
   private Optional<Application> maybeApp = Optional.empty();
   private FeatureFlagOverrideController controller;
 
@@ -104,17 +103,13 @@ public class FeatureFlagOverrideControllerTest {
   public void status() {
     setupControllerInMode(Mode.TEST);
 
-    Result diabledResult = controller.status(fakeRequest().build(), "intake_form_enabled");
+    Result diabledResult = controller.status(fakeRequest().build(), "INTAKE_FORM_ENABLED");
     assertEquals("false", Helpers.contentAsString(diabledResult));
 
-    assertThrows(
-        RuntimeException.class,
-        () -> {
-          controller.status(fakeRequest().build(), "no_flag_by_this_name");
-        });
-
+    Result unknownFlagResult = controller.status(fakeRequest().build(), "NO_FLAG_BY_THIS_NAME");
+    assertEquals("false", Helpers.contentAsString(unknownFlagResult));
     Result phoneTypeResult =
-        controller.status(fakeRequest().build(), "phone_question_type_enabled");
+        controller.status(fakeRequest().build(), "PHONE_QUESTION_TYPE_ENABLED");
     assertEquals("false", Helpers.contentAsString(phoneTypeResult));
   }
 }

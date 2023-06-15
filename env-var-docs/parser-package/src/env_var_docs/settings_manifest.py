@@ -162,13 +162,13 @@ class GetterMethodSpec:
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
-            return "String"
+            return "Optional<String>"
         elif self.variable.type == "bool":
-            return "Boolean"
+            return "boolean"
         elif self.variable.type == "int":
-            return "Integer"
+            return "Optional<Integer>"
         elif self.variable.type == "index-list":
-            return "ImmutableList<String>"
+            return "Optional<ImmutableList<String>>"
 
 
 def generate_manifest(

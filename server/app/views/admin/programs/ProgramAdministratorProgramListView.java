@@ -9,8 +9,6 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.List;
@@ -20,6 +18,7 @@ import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -36,18 +35,18 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final String baseUrl;
   private final ProgramCardFactory programCardFactory;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramAdministratorProgramListView(
       AdminLayoutFactory layoutFactory,
       Config config,
       ProgramCardFactory programCardFactory,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -105,8 +104,7 @@ public final class ProgramAdministratorProgramListView extends BaseHtmlView {
             .url();
 
     String buttonText =
-        featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
-                && activeProgram.isCommonIntakeForm()
+        settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
             ? "Forms"
             : "Applications";
     ButtonTag button =

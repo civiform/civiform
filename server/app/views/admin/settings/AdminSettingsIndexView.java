@@ -8,6 +8,7 @@ import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.rawHtml;
+import static services.settings.AbstractSettingsManifest.FEATURE_FLAG_SETTING_SECTION_NAME;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
@@ -34,7 +35,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private static final ImmutableList<String> SECTIONS =
       ImmutableList.of(
-          "Feature Flags",
+          FEATURE_FLAG_SETTING_SECTION_NAME,
           "Branding",
           "Custom Text",
           "Email Addresses",

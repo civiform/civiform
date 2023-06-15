@@ -1,6 +1,5 @@
 package controllers.applicant;
 
-import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -42,7 +41,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     subject = instanceOf(ApplicantProgramBlocksController.class);
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock()
@@ -262,7 +261,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_withNextBlock_redirectsToEdit() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantName())
             .withBlock("block 2")
@@ -296,7 +295,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_savesCorrectedAddressWhenValidAddressIsEntered() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredCorrectedAddressQuestion(testQuestionBank().applicantAddress())
             .build();
@@ -305,7 +304,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
                             applicant.id, program.id, "1", false))
-                    .session(ESRI_ADDRESS_CORRECTION_ENABLED.toString(), "true")
+                    .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_address")
@@ -347,7 +346,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void update_completedProgram_redirectsToReviewPage() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
@@ -486,7 +485,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void updateFile_withNextBlock_redirectsToEdit() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantFile())
             .withBlock("block 2")
@@ -519,7 +518,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void updateFile_completedProgram_redirectsToReviewPage() {
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();
@@ -558,7 +557,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     var storedFileRepo = instanceOf(StoredFileRepository.class);
 
     program =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newActiveProgram()
             .withBlock("block 1")
             .withRequiredQuestion(testQuestionBank().applicantFile())
             .build();

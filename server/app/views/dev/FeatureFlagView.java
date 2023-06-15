@@ -11,8 +11,6 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
 import controllers.dev.routes;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import j2html.tags.Tag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
@@ -22,6 +20,7 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -31,12 +30,12 @@ import views.style.BaseStyles;
 public class FeatureFlagView extends BaseHtmlView {
 
   private final BaseHtmlLayout layout;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public FeatureFlagView(BaseHtmlLayout layout, FeatureFlags featureFlags) {
+  public FeatureFlagView(BaseHtmlLayout layout, SettingsManifest settingsManifest) {
     this.layout = layout;
-    this.featureFlags = featureFlags;
+    this.settingsManifest = settingsManifest;
   }
 
   /**
@@ -60,10 +59,10 @@ public class FeatureFlagView extends BaseHtmlView {
                         configureCell(td(Boolean.toString(isDevOrStagingEnvironment)))),
                 tr().with(
                         configureCell(td("Configuration: ")),
-                        configureCell(td(Boolean.toString(featureFlags.overridesEnabled())))));
+                        configureCell(td(Boolean.toString(settingsManifest.overridesEnabled())))));
 
     // Create per flag view.
-    Map<FeatureFlag, Boolean> sortedFlags = featureFlags.getAllFlagsSorted(request);
+    Map<String, Boolean> sortedFlags = settingsManifest.getAllFeatureFlagsSorted(request);
     TableTag flagTable =
         table()
             .withClasses("p-6", "mt-10", "text-left")
@@ -78,21 +77,17 @@ public class FeatureFlagView extends BaseHtmlView {
 
     // For each flag show its config value, session value (if different), the effective value for
     // the user and a control to toggle the value.
-    for (Entry<FeatureFlag, Boolean> flagEntry : sortedFlags.entrySet()) {
-      Boolean configValue = featureFlags.getFlagEnabledFromConfig(flagEntry.getKey()).orElse(false);
+    for (Entry<String, Boolean> flagEntry : sortedFlags.entrySet()) {
+      Boolean configValue = settingsManifest.getBool(flagEntry.getKey());
       Boolean sessionValue = flagEntry.getValue();
       Boolean sessionOverrides = !configValue.equals(sessionValue);
       // Only show values that override the system default for clarity.
       String sessionDisplay = sessionOverrides ? sessionValue.toString() : "";
       Tag flagFlipLink =
           sessionValue
-              ? a().withHref(
-                      routes.FeatureFlagOverrideController.disable(flagEntry.getKey().toString())
-                          .url())
+              ? a().withHref(routes.FeatureFlagOverrideController.disable(flagEntry.getKey()).url())
                   .withText("disable")
-              : a().withHref(
-                      routes.FeatureFlagOverrideController.enable(flagEntry.getKey().toString())
-                          .url())
+              : a().withHref(routes.FeatureFlagOverrideController.enable(flagEntry.getKey()).url())
                   .withText("enable");
       flagFlipLink.withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT);
 

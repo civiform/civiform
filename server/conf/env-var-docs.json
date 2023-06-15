@@ -339,20 +339,10 @@
       "ESRI Address Validation": {
         "group_description": "Configuration options for the ESRI GIS client and address validation/correction feature.",
         "members": {
-          "ESRI_ADDRESS_CORRECTION_ENABLED": {
-            "mode": "ADMIN_READABLE",
-            "description": "Enables the feature that allows address correction for address questions.",
-            "type": "bool"
-          },
           "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
             "mode": "ADMIN_READABLE",
             "description": "The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
             "type": "string"
-          },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
-            "mode": "ADMIN_READABLE",
-            "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
-            "type": "bool"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
             "mode": "ADMIN_READABLE",
@@ -540,6 +530,16 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
+      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+        "type": "bool"
+      },
+      "ESRI_ADDRESS_CORRECTION_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables the feature that allows address correction for address questions.",
+        "type": "bool"
+      },
       "ADMIN_SETTINGS_PANEL_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "If enabled, adds a page in the CiviForm Admin UI for accessing application settings.",

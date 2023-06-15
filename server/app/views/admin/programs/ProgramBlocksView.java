@@ -1,10 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
@@ -19,9 +15,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
@@ -45,6 +39,7 @@ import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -81,7 +76,7 @@ import views.style.StyleUtils;
 public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final boolean featureFlagOptionalQuestions;
   private final ProgramDisplayType programDisplayType;
 
@@ -98,11 +93,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
   public ProgramBlocksView(
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
-      Config config,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.featureFlags = checkNotNull(featureFlags);
-    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf_optional_questions");
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.featureFlagOptionalQuestions = settingsManifest.getCfOptionalQuestions();
     this.programDisplayType = programViewType;
   }
 
@@ -179,7 +173,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+                                    settingsManifest.getIntakeFormEnabled(request),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -192,7 +186,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition,
                   csrfTag,
                   QuestionBank.shouldShowQuestionBank(request),
-                  featureFlags.getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED)))
+                  settingsManifest.getPhoneQuestionTypeEnabled()))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -581,7 +575,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
     DivTag emptyPredicateDiv;
-    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
+    if (settingsManifest.getNongatedEligibilityEnabled(request)) {
       ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
       if (program.eligibilityIsGating()) {
         emptyPredicateContentBuilder.add(
@@ -891,7 +885,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
+    if (!settingsManifest.getEsriAddressCorrectionEnabled(request)) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=
