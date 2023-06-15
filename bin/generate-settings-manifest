@@ -4,6 +4,16 @@
 
 source bin/lib.sh
 
+if ! python::env_var_docs_venv_is_installed; then
+  echo "env var docs venv not found, creating..."
+  bin/env-var-docs-create-venv
+fi
+
+if ! python::env_var_docs_venv_is_active; then
+  echo "env var docs venv not activated, activating (this command only)..."
+  source env-var-docs/venv/bin/activate
+fi
+
 ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json \
   python3 env-var-docs/parser-package/src/env_var_docs/settings_manifest.py
 
