@@ -63,8 +63,7 @@ public interface ProgramService {
       ImmutableList<ProgramDefinition> programDefinitions);
 
   /**
-   * Get the definition of a given program asynchronously. The returned program may correspond to
-   * any version.
+   * Get the definition of a given program asynchronously. The ID may correspond to any version.
    *
    * @param id the ID of the program to retrieve
    * @return the {@link ProgramDefinition} for the given ID if it exists, or a
