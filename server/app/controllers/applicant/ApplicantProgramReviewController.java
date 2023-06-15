@@ -1,7 +1,6 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
@@ -12,7 +11,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import featureflags.FeatureFlags;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -38,6 +36,7 @@ import services.applicant.exception.ApplicationSubmissionException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.Modal;
@@ -57,7 +56,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ApplicantProgramSummaryView summaryView;
   private final IneligibleBlockView ineligibleBlockView;
   private final ProfileUtils profileUtils;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final ProgramService programService;
 
   @Inject
@@ -68,7 +67,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,
       ProfileUtils profileUtils,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       ProgramService programService) {
     this.applicantService = checkNotNull(applicantService);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
@@ -76,7 +75,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.summaryView = checkNotNull(summaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.profileUtils = checkNotNull(profileUtils);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
   }
 
@@ -185,7 +184,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private boolean shouldShowNotEligibleBanner(
       Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
       throws ProgramNotFoundException {
-    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
+    if (settingsManifest.getNongatedEligibilityEnabled(request)
         && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
       return false;
     }
@@ -217,7 +216,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 applicantId,
                 programId,
                 submittingProfile,
-                featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED))
+                settingsManifest.getNongatedEligibilityEnabled(request))
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService

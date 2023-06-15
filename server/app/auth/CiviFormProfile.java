@@ -1,11 +1,9 @@
 package auth;
 
-import static featureflags.FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlags;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -18,6 +16,7 @@ import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
+import services.settings.SettingsManifest;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CiviFormProfile
 
@@ -30,18 +29,18 @@ public class CiviFormProfile {
   private final DatabaseExecutionContext dbContext;
   private final HttpExecutionContext httpContext;
   private final CiviFormProfileData profileData;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
       CiviFormProfileData profileData,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
     this.profileData = Preconditions.checkNotNull(profileData);
-    this.featureFlags = Preconditions.checkNotNull(featureFlags);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
   }
 
   /** Get the latest {@link Applicant} associated with the profile. */
@@ -242,7 +241,7 @@ public class CiviFormProfile {
         .thenApply(
             account -> {
               if (account.getGlobalAdmin()
-                  && featureFlags.getFlagEnabled(request, ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS)) {
+                  && settingsManifest.getAllowCiviformAdminAccessPrograms(request)) {
                 return null;
               }
               if (account.getAdministeredProgramNames().stream()

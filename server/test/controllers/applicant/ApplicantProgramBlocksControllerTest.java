@@ -1,6 +1,5 @@
 package controllers.applicant;
 
-import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -305,7 +304,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 fakeRequest(
                         routes.ApplicantProgramBlocksController.update(
                             applicant.id, program.id, "1", false))
-                    .session(ESRI_ADDRESS_CORRECTION_ENABLED.toString(), "true")
+                    .session("ESRI_ADDRESS_CORRECTION_ENABLED", "true")
                     .bodyForm(
                         ImmutableMap.of(
                             Path.create("applicant.applicant_address")

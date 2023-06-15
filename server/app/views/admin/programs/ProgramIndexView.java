@@ -1,7 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -20,8 +19,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
@@ -36,6 +33,7 @@ import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -57,13 +55,13 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
   private final String civicEntityShortName;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
@@ -71,7 +69,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
     this.civicEntityShortName = config.getString("whitelabel_civic_entity_short_name");
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -477,8 +475,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
 
       String buttonText =
-          featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
-                  && activeProgram.isCommonIntakeForm()
+          settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
               ? "Forms"
               : "Applications";
       ButtonTag button =
@@ -499,7 +496,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<ButtonTag> maybeRenderSettingsLink(
       Http.Request request, ProgramDefinition program) {
-    if (!featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
+    if (!settingsManifest.getNongatedEligibilityEnabled(request)) {
       return Optional.empty();
     }
     if (program.isCommonIntakeForm()) {

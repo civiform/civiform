@@ -5,13 +5,13 @@ import static j2html.TagCreator.div;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
 import repository.UserRepository;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -27,9 +27,9 @@ public final class ProgramNewOneView extends ProgramFormBuilder {
   public ProgramNewOneView(
       AdminLayoutFactory layoutFactory,
       Config configuration,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       UserRepository userRepository) {
-    super(configuration, featureFlags, userRepository);
+    super(configuration, settingsManifest, userRepository);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 

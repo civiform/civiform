@@ -8,12 +8,12 @@ import static j2html.TagCreator.script;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.twirl.api.Content;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 import views.components.ToastMessage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -35,7 +35,7 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  protected final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final Optional<String> measurementId;
   private final boolean isDevOrStaging;
   private final boolean addNoindexMetaTag;
@@ -44,11 +44,11 @@ public class BaseHtmlLayout {
   public BaseHtmlLayout(
       ViewUtils viewUtils,
       Config configuration,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       DeploymentType deploymentType) {
     checkNotNull(configuration);
     this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.measurementId =
         configuration.hasPath("measurement_id")
             ? Optional.of(configuration.getString("measurement_id"))
@@ -68,8 +68,8 @@ public class BaseHtmlLayout {
   }
 
   /** Get the application feature flags. */
-  public FeatureFlags getFeatureFlags() {
-    return featureFlags;
+  public SettingsManifest getSettingsManifest() {
+    return settingsManifest;
   }
 
   /**
