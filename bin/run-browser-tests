@@ -6,6 +6,11 @@ source bin/lib.sh
 docker::set_project_name_browser_tests
 bin/pull-image
 
+# Remove these directories since they may contain output from
+# previous test runs.
+rm -rf browser-test/diff_output
+rm -rf browser-test/updated_snapshots
+
 # Run browser tests from within the civiform-browser-test container. We map
 # full browser-test local directory to the container so that it uses local changes.
 # Additionally we map node_modules to a separate volume so that it doesn't

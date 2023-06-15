@@ -240,8 +240,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ProgramDefinition program,
       BlockDefinition block,
       Optional<ToastMessage> message) {
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService();
 
     return ok(
         editView.render(
@@ -250,8 +249,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
   private Result renderReadOnlyViewWithMessage(
       Request request, ProgramDefinition program, BlockDefinition block) {
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService();
 
     return ok(
         readOnlyView.render(
@@ -266,8 +264,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       Optional<ToastMessage> message) {
     try {
       BlockDefinition blockDefinition = program.getBlockDefinition(blockId);
-      ReadOnlyQuestionService roQuestionService =
-          questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+      ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService();
 
       return ok(
           editView.render(

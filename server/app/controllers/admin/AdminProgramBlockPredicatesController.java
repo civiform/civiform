@@ -122,8 +122,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService();
 
     try {
       PredicateDefinition predicateDefinition =
@@ -297,8 +296,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionService();
 
     try {
       EligibilityDefinition eligibility =
