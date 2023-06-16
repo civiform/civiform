@@ -3,8 +3,6 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
@@ -44,19 +42,24 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableMap<Path, String> getJsonEntries() {
-    return ImmutableMap.of(
-        applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY),
-        applicantQuestion
-            .createFileUploadQuestion()
-            .getFileKeyValue()
-            .map(
-                fileKey ->
-                    "google.com" // baseUrl // TODO: FIX
-                        + controllers.routes.FileController.adminShow(
-                                applicantQuestion.getProgramId(),
-                                URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                            .url())
-            .orElse(""));
+
+    return ImmutableMap.of();
+
+    // TODO(#5110): restore the code below
+
+    //    return ImmutableMap.of(
+    //        applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY),
+    //        applicantQuestion
+    //            .createFileUploadQuestion()
+    //            .getFileKeyValue()
+    //            .map(
+    //                fileKey ->
+    //                    baseUrl
+    //                        + controllers.routes.FileController.adminShow(
+    //                                applicantQuestion.getProgramId(),
+    //                                URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+    //                            .url())
+    //            .orElse(""));
   }
 
   @Override

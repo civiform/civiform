@@ -112,7 +112,7 @@ public final class JsonExporter {
         case STATIC:
           {
             // Enumerator and static content questions are not included in API response. See
-            // EnumeratorQuestion::getJsonEntries and StaticContentQuestion::getJsonEntries.
+            // EnumeratorQuestion.getJsonEntries and StaticContentQuestion.getJsonEntries.
             break;
           }
         case CHECKBOX:
