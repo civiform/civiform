@@ -41,7 +41,7 @@ public class CiviFormController extends Controller {
         .checkProgramAuthorization(programName, request);
   }
 
-  /** Checks that the profile is authorized to access draft programs. */
+  /** Checks that the profile is authorized to access the specified program. */
   protected CompletableFuture<Void> checkProgramAuthorization(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
