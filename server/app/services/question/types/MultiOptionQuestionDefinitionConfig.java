@@ -9,6 +9,10 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 
+/**
+ * Stores the configuration for a {@link MultiOptionQuestionDefinition}, separating the construction
+ * of the attributes from the business logic of the class.
+ */
 @AutoValue
 public abstract class MultiOptionQuestionDefinitionConfig {
 
@@ -45,6 +49,10 @@ public abstract class MultiOptionQuestionDefinitionConfig {
   static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
       MultiOptionValidationPredicates.create(1, 1);
 
+  /**
+   * The method in this interface operates much like those in the {@link Builder} class, except it
+   * must be set first in order to build a {@link MultiOptionQuestionDefinitionConfig}.
+   */
   public interface RequiredMultiOptionQuestionType {
     Builder setMultiOptionQuestionType(MultiOptionQuestionType multiOptionQuestionType);
   }
