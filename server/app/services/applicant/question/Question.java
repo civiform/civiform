@@ -1,6 +1,5 @@
 package services.applicant.question;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -29,13 +28,15 @@ public abstract class Question {
 
   public Question(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = Preconditions.checkNotNull(applicantQuestion);
-    if (!validQuestionTypes().contains(applicantQuestion.getType())) {
+
+    QuestionType supportedQuestionType = applicantQuestion.getType();
+    if (!getClass().equals(supportedQuestionType.getSupportedQuestion())) {
       throw new RuntimeException(
           String.format(
-              "Question is not a question of the following types: [%s]: %s (type: %s)",
-              Joiner.on(", ").join(validQuestionTypes().stream().toArray()),
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
+              "%s is not equal to question type %s's supported %s",
+              getClass(),
+              supportedQuestionType,
+              supportedQuestionType.getSupportedQuestion().toString()));
     }
   }
 
