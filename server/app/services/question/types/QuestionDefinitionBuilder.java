@@ -11,6 +11,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
@@ -181,16 +182,20 @@ public final class QuestionDefinitionBuilder {
           multiOptionValidationPredicates =
               MultiOptionValidationPredicates.parse(validationPredicatesString);
         }
-        return new CheckboxQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions,
-            multiOptionValidationPredicates,
-            lastModifiedTime);
+
+        return new MultiOptionQuestionDefinition(
+            MultiOptionQuestionDefinitionConfig.builder()
+                .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setQuestionOptions(questionOptions)
+                .setValidationPredicates(multiOptionValidationPredicates)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case CURRENCY:
         return new CurrencyQuestionDefinition(
@@ -201,15 +206,18 @@ public final class QuestionDefinitionBuilder {
             id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
 
       case DROPDOWN:
-        return new DropdownQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions,
-            lastModifiedTime);
+        return new MultiOptionQuestionDefinition(
+            MultiOptionQuestionDefinitionConfig.builder()
+                .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setQuestionOptions(questionOptions)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case EMAIL:
         return new EmailQuestionDefinition(
@@ -267,15 +275,18 @@ public final class QuestionDefinitionBuilder {
             lastModifiedTime);
 
       case RADIO_BUTTON:
-        return new RadioButtonQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            questionOptions,
-            lastModifiedTime);
+        return new MultiOptionQuestionDefinition(
+            MultiOptionQuestionDefinitionConfig.builder()
+                .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setQuestionOptions(questionOptions)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case ENUMERATOR:
         // This shouldn't happen, but protects us in case there are enumerator questions in the prod

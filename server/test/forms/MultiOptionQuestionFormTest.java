@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 
@@ -29,16 +30,19 @@ public class MultiOptionQuestionFormTest {
     form.setOptionIds(ImmutableList.of(4L, 1L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    CheckboxQuestionDefinition expected =
-        new CheckboxQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(Locale.US, "help text"),
-            ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))))
+            .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
+            .build();
+    MultiOptionQuestionDefinition expected = new MultiOptionQuestionDefinition(config);
 
     QuestionDefinition actual = builder.build();
 
@@ -47,15 +51,19 @@ public class MultiOptionQuestionFormTest {
 
   @Test
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
-    CheckboxQuestionDefinition originalQd =
-        new CheckboxQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(Locale.US, "help text"),
-            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 10));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))))
+            .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
+            .build();
+    MultiOptionQuestionDefinition originalQd = new MultiOptionQuestionDefinition(config);
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -78,16 +86,19 @@ public class MultiOptionQuestionFormTest {
     form.setOptionIds(ImmutableList.of(4L, 1L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
-    CheckboxQuestionDefinition expected =
-        new CheckboxQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.of(Locale.US, "help text"),
-            ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))),
-            MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create());
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))))
+            .setValidationPredicates(MultiOptionValidationPredicates.create())
+            .build();
+    MultiOptionQuestionDefinition expected = new MultiOptionQuestionDefinition(config);
 
     QuestionDefinition actual = builder.build();
 
