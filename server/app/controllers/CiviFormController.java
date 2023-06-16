@@ -6,6 +6,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import play.mvc.Controller;
 import play.mvc.Http;
+import repository.VersionRepository;
 import services.CiviFormError;
 
 /**
@@ -38,5 +39,20 @@ public class CiviFormController extends Controller {
         .currentUserProfile(request)
         .orElseThrow()
         .checkProgramAuthorization(programName, request);
+  }
+
+  /** Checks that the profile is authorized to access draft programs. */
+  protected CompletableFuture<Void> checkProgramAuthorization(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
+      Http.Request request,
+      Long programId) {
+    return CompletableFuture.runAsync(
+        () -> {
+          if (versionRepository.isDraftProgram(programId)
+              && !profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
+            throw new SecurityException();
+          }
+        });
   }
 }

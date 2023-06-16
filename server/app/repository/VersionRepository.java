@@ -2,6 +2,7 @@ package repository;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static java.util.function.Predicate.not;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
@@ -399,6 +401,10 @@ public final class VersionRepository {
   public boolean isDraftProgram(Long programId) {
     return getDraftVersion().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
+  }
+
+  public CompletionStage<Boolean> isDraftProgramAsync(Long programId) {
+    return supplyAsync(() -> isDraftProgram(programId));
   }
 
   /** Returns true if the program with the provided id is a member of the current active version. */

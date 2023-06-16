@@ -120,14 +120,16 @@ public class WithMockedProfiles {
   }
 
   protected Account createGlobalAdminWithMockedProfile() {
-    Account globalAdmin = resourceCreator.insertAccount();
-
-    globalAdmin.setGlobalAdmin(true);
-    globalAdmin.save();
-
-    CiviFormProfile profile = profileFactory.wrap(globalAdmin);
+    CiviFormProfile profile = profileFactory.wrapProfileData(profileFactory.createNewAdmin());
     mockProfile(profile);
-    return globalAdmin;
+
+    Account adminAccount = profile.getAccount().join();
+
+    Applicant applicant = resourceCreator.insertApplicant();
+    applicant.setAccount(adminAccount);
+    applicant.save();
+
+    return adminAccount;
   }
 
   private void mockProfile(CiviFormProfile profile) {

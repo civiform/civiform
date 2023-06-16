@@ -16,6 +16,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -39,6 +40,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
   private final ProfileUtils profileUtils;
+  private final VersionRepository versionRepository;
 
   @Inject
   public ApplicantProgramsController(
@@ -47,13 +49,15 @@ public final class ApplicantProgramsController extends CiviFormController {
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
       ApplicantProgramInfoView programInfoView,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
     this.profileUtils = checkNotNull(profileUtils);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   @Secure
@@ -139,6 +143,8 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     // Determine first incomplete block, then redirect to other edit.
     return checkApplicantAuthorization(profileUtils, request, applicantId)
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(profileUtils, versionRepository, request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
         .thenApplyAsync(
