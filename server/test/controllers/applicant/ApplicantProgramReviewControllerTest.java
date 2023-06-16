@@ -113,7 +113,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   @Test
   public void submit_civiformAdminAccessToDraftProgram_isOk() {
     Account adminAccount = createGlobalAdminWithMockedProfile();
-    long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
+    applicant = adminAccount.newestApplicant().orElseThrow();
 
     ProgramBuilder.newActiveProgram("test program", "desc")
         .withBlock()
@@ -126,7 +126,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .buildDefinition();
     answer(draftProgramDefinition.id());
 
-    Result result = this.submit(adminApplicantId, draftProgramDefinition.id());
+    Result result = this.submit(applicant.id, draftProgramDefinition.id());
     assertThat(result.status()).isEqualTo(FOUND);
   }
 
