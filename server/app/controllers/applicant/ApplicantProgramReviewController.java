@@ -41,6 +41,7 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.Modal;
+import views.components.Modal.RepeatOpenBehavior;
 import views.components.ToastMessage;
 
 /**
@@ -58,6 +59,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final IneligibleBlockView ineligibleBlockView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
+  private final VersionRepository versionRepository;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -78,6 +80,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
@@ -170,6 +173,20 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+    if (profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
+      return CompletableFuture.completedFuture(versionRepository.isDraftProgram(programId))
+          .thenApplyAsync(
+              (isDraftProgram) -> {
+                Call reviewPage = 
+                    controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(programId);
+                if (isDraftProgram) {
+                  reviewPage =
+                    controllers.admin.routes.AdminProgramBlocksController.index(programId);
+                }
+                return redirect(reviewPage);
+              });
+    }
+
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(

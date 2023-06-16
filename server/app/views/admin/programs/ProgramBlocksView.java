@@ -158,8 +158,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
                         renderProgramInfo(programDefinition)
-                            .with(renderEditButton(request, programDefinition))
-                            .with(renderPreviewButton(programDefinition)),
+                            .with(
+                                div()
+                                    .withClasses("flex")
+                                    .with(renderEditButton(request, programDefinition))
+                                    .with(renderPreviewButton(programDefinition))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(renderBlockOrderPanel(request, programDefinition, blockId))
@@ -1167,13 +1170,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private ButtonTag renderPreviewButton(ProgramDefinition programDefinition) {
-    return
-                                asRedirectElement(
-                                    ViewUtils.makeSvgTextButton("Preview", Icons.VIEW)
-                                    .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5"),
-                                    controllers.admin.routes.AdminProgramPreviewController.preview(programDefinition.id())
-                                        .url());
-
+    return asRedirectElement(
+        ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mx-2"),
+        controllers.admin.routes.AdminProgramPreviewController.preview(programDefinition.id())
+            .url());
   }
 
   /** Indicates if this view is showing a draft or published program. */
