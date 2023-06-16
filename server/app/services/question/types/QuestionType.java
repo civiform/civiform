@@ -6,29 +6,26 @@ import services.question.exceptions.InvalidQuestionTypeException;
 
 /** Defines types of questions supported. */
 public enum QuestionType {
-  ADDRESS(false, "Address Field", AddressQuestion.class),
-  CHECKBOX(true, "Checkbox", MultiSelectQuestion.class),
-  CURRENCY(false, "Currency Field", CurrencyQuestion.class),
-  DATE(false, "Date Picker", DateQuestion.class),
-  DROPDOWN(true, "Dropdown", SingleSelectQuestion.class),
-  EMAIL(false, "Email Field", EmailQuestion.class),
-  ENUMERATOR(false, "Enumerator", EnumeratorQuestion.class),
-  FILEUPLOAD(false, "File Upload", FileUploadQuestion.class),
-  ID(false, "ID Field", IdQuestion.class),
-  NAME(false, "Name Field", NameQuestion.class),
-  NUMBER(false, "Number Field", NumberQuestion.class),
-  RADIO_BUTTON(true, "Radio Button", SingleSelectQuestion.class),
-  STATIC(false, "Static Text", StaticContentQuestion.class),
-  TEXT(false, "Text Field", TextQuestion.class),
-  PHONE(false, "Phone Field", PhoneQuestion.class);
+  ADDRESS("Address Field", AddressQuestion.class),
+  CHECKBOX("Checkbox", MultiSelectQuestion.class),
+  CURRENCY("Currency Field", CurrencyQuestion.class),
+  DATE("Date Picker", DateQuestion.class),
+  DROPDOWN("Dropdown", SingleSelectQuestion.class),
+  EMAIL("Email Field", EmailQuestion.class),
+  ENUMERATOR("Enumerator", EnumeratorQuestion.class),
+  FILEUPLOAD("File Upload", FileUploadQuestion.class),
+  ID("ID Field", IdQuestion.class),
+  NAME("Name Field", NameQuestion.class),
+  NUMBER("Number Field", NumberQuestion.class),
+  RADIO_BUTTON("Radio Button", SingleSelectQuestion.class),
+  STATIC("Static Text", StaticContentQuestion.class),
+  TEXT("Text Field", TextQuestion.class),
+  PHONE("Phone Field", PhoneQuestion.class);
 
-  private final boolean isMultiOptionType;
   private final String label;
   private final Class<? extends Question> supportedQuestion;
 
-  QuestionType(
-      boolean isMultiOptionType, String label, Class<? extends Question> supportedQuestion) {
-    this.isMultiOptionType = isMultiOptionType;
+  QuestionType(String label, Class<? extends Question> supportedQuestion) {
     this.label = label;
     this.supportedQuestion = supportedQuestion;
   }
@@ -38,7 +35,7 @@ public enum QuestionType {
    * select between multiple, pre-defined answer options). Returns false otherwise.
    */
   public boolean isMultiOptionType() {
-    return this.isMultiOptionType;
+    return this == CHECKBOX;
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
