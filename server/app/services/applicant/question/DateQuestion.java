@@ -10,7 +10,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a date question in the context of a specific applicant.
@@ -23,11 +22,6 @@ public final class DateQuestion extends Question {
 
   DateQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.DATE);
   }
 
   @Override

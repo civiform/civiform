@@ -41,12 +41,6 @@ public abstract class Question {
   }
 
   /**
-   * The set of acceptable question types for the {@link ApplicantQuestion} provided in the
-   * constructor. This is used for validation purposes.
-   */
-  protected abstract ImmutableSet<QuestionType> validQuestionTypes();
-
-  /**
    * Returns any {@link ValidationErrorMessage}s to be shown to the applicant, keyed by the relevant
    * field path. Top-level question errors use the root question path.
    */

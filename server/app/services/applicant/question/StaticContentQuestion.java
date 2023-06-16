@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
-import services.question.types.QuestionType;
 
 /**
  * Represents a static content question in the context of a specific applicant.
@@ -19,11 +18,6 @@ public final class StaticContentQuestion extends Question {
 
   StaticContentQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.STATIC);
   }
 
   @Override
