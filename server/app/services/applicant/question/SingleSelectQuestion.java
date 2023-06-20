@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
@@ -30,6 +31,17 @@ public final class SingleSelectQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getSelectionPath());
+  }
+
+  @Override
+  public ImmutableMap<Path, String> getJsonEntries() {
+    return ImmutableMap.of(
+        applicantQuestion.getContextualizedPath().join(Scalar.SELECTION),
+        applicantQuestion
+            .createSingleSelectQuestion()
+            .getSelectedOptionValue(LocalizedStrings.DEFAULT_LOCALE)
+            .map(LocalizedQuestionOption::optionText)
+            .orElse(""));
   }
 
   @Override

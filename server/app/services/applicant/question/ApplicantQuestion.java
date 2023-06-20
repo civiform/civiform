@@ -71,6 +71,10 @@ public final class ApplicantQuestion {
     return getQuestionDefinition().getQuestionType();
   }
 
+  public long getProgramId() {
+    return programQuestionDefinition.getProgramDefinitionId();
+  }
+
   public boolean isOptional() {
     return programQuestionDefinition.optional();
   }

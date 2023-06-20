@@ -31,6 +31,19 @@ public final class CurrencyQuestion extends Question {
   }
 
   @Override
+  public ImmutableMap<Path, Double> getJsonEntries() {
+    Path path = getCurrencyPath().asApplicationPath().replacingLastSegment("currency_dollars");
+
+    if (getCurrencyValue().isPresent()) {
+      Long centsTotal = Long.valueOf(getCurrencyValue().get().getCents());
+
+      return ImmutableMap.of(path, centsTotal.doubleValue() / 100.0);
+    } else {
+      return ImmutableMap.of();
+    }
+  }
+
+  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // When staging updates, the attempt to update ApplicantData would have failed to
     // convert to a currency and been noted as a failed update. We check for that here.

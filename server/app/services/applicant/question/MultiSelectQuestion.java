@@ -71,6 +71,22 @@ public final class MultiSelectQuestion extends Question {
     return ImmutableList.of(getSelectionPath());
   }
 
+  @Override
+  public ImmutableMap<Path, ImmutableList<String>> getJsonEntries() {
+    Path path = getSelectionPath().asApplicationPath();
+
+    if (getSelectedOptionsValue().isPresent()) {
+      ImmutableList<String> selectedOptions =
+          getSelectedOptionsValue().get().stream()
+              .map(LocalizedQuestionOption::optionText)
+              .collect(ImmutableList.toImmutableList());
+
+      return ImmutableMap.of(path, selectedOptions);
+    }
+
+    return ImmutableMap.of();
+  }
+
   /** Get the selected options in the applicant's preferred locale. */
   public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue() {
     if (selectedOptionsValue == null) {

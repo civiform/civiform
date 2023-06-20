@@ -37,6 +37,19 @@ public final class PhoneQuestion extends Question {
   }
 
   @Override
+  public ImmutableMap<Path, String> getJsonEntries() {
+    Path path = getPhoneNumberPath().asApplicationPath();
+
+    if (getPhoneNumberValue().isPresent() && getCountryCodeValue().isPresent()) {
+      String formattedPhone =
+          getFormattedPhoneNumber(getPhoneNumberValue().get(), getCountryCodeValue().get());
+      return ImmutableMap.of(path, formattedPhone);
+    } else {
+      return ImmutableMap.of();
+    }
+  }
+
+  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // TODO: Implement admin-defined validation.
     return ImmutableMap.of(
@@ -130,5 +143,19 @@ public final class PhoneQuestion extends Question {
               + getCountryCodeValue().orElse(""));
     }
     return "-";
+  }
+
+  /**
+   * This method accepts a phoneNumber as String and the countryCode which is iso alpha 2 format as
+   * a String. It formats the phone number per E164 format. For a sample input of
+   * phoneNumberValue="2123456789" with countryCode="US", the output will be +12123456789
+   */
+  private String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
+    try {
+      Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phoneNumberValue, countryCode);
+      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
+    } catch (NumberParseException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
