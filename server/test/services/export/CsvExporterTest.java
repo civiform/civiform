@@ -18,9 +18,11 @@ import services.question.types.QuestionType;
 public class CsvExporterTest extends AbstractExporterTest {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
+  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
-    return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
+    return new ApplicantQuestion(
+        questionDefinition, new ApplicantData(), Optional.empty(), FAKE_BASE_URL);
   }
 
   @Test

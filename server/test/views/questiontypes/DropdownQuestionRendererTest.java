@@ -54,7 +54,7 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
+    question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty(), "fakebaseurl.gov");
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params =
         ApplicantQuestionRendererParams.builder()

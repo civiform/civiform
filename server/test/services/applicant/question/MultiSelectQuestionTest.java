@@ -48,6 +48,7 @@ public class MultiSelectQuestionTest {
           .build();
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new MultiOptionQuestionDefinition(CONFIG);
+  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private ApplicantData applicantData;
 
@@ -62,7 +63,8 @@ public class MultiSelectQuestionTest {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()).setOptional(true),
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            FAKE_BASE_URL);
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
@@ -75,7 +77,8 @@ public class MultiSelectQuestionTest {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(CHECKBOX_QUESTION, Optional.empty()),
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            FAKE_BASE_URL);
 
     MultiSelectQuestion multiSelectQuestion = new MultiSelectQuestion(applicantQuestion);
 
@@ -91,7 +94,7 @@ public class MultiSelectQuestionTest {
   @Test
   public void withValidApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -106,7 +109,7 @@ public class MultiSelectQuestionTest {
   public void tooFewSelected_failsValidation() {
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
     // Put too few selections.
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 0L);
@@ -125,7 +128,7 @@ public class MultiSelectQuestionTest {
   @Test
   public void tooManySelected_failsValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
     // Put too many selections.
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
@@ -151,7 +154,7 @@ public class MultiSelectQuestionTest {
   @Test
   public void selectedInvalidOptions_typeErrors_hasNoTypeErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -166,7 +169,7 @@ public class MultiSelectQuestionTest {
   public void getOptions_defaultsIfLangUnsupported() {
     applicantData.setPreferredLocale(Locale.CHINESE);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
 
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 

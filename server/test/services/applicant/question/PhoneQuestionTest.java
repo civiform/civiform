@@ -34,6 +34,7 @@ public class PhoneQuestionTest {
           LocalizedStrings.of(Locale.US, "This is sample help text."),
           PhoneQuestionDefinition.PhoneValidationPredicates.create(),
           /* lastModifiedTime= */ Optional.empty());
+  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -51,7 +52,8 @@ public class PhoneQuestionTest {
             ProgramQuestionDefinition.create(phoneQuestionDefinition, Optional.empty())
                 .setOptional(true),
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            FAKE_BASE_URL);
 
     PhoneQuestion phoneQuestion = new PhoneQuestion(applicantQuestion);
 
@@ -61,7 +63,8 @@ public class PhoneQuestionTest {
   @Test
   public void withValidData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            phoneQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", "(615) 717-1234");
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
@@ -74,7 +77,8 @@ public class PhoneQuestionTest {
   @Test
   public void withInvalidApplicantData_missingRequiredFields() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            phoneQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "", "");
     PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
@@ -98,7 +102,8 @@ public class PhoneQuestionTest {
             .join(phoneQuestionDefinition.getQuestionPathSegment())
             .join(Scalar.PHONE_NUMBER);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            phoneQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     applicantData.setFailedUpdates(ImmutableMap.of(phonePath, "invalid_input"));
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", number);
@@ -119,7 +124,8 @@ public class PhoneQuestionTest {
   @Parameters({"7782123334", "2505550199"})
   public void withInvalidApplicantData_numberNotInCountry(String number) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            phoneQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "US", number);
 
@@ -138,7 +144,8 @@ public class PhoneQuestionTest {
   @Parameters({"2505550199"})
   public void withInvalidApplicantData_validCANumber(String number) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(phoneQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            phoneQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerPhoneQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "CA", number);
 

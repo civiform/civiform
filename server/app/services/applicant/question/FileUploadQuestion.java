@@ -3,6 +3,8 @@ package services.applicant.question;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
@@ -21,11 +23,13 @@ public final class FileUploadQuestion extends Question {
   // and if they are this value could still not be set.
   private Optional<Optional<String>> fileKeyValueCache;
   private Optional<Optional<String>> originalFileNameValueCache;
+  private final String baseUrl;
 
-  FileUploadQuestion(ApplicantQuestion applicantQuestion) {
+  FileUploadQuestion(ApplicantQuestion applicantQuestion, String baseUrl) {
     super(applicantQuestion);
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();
+    this.baseUrl = baseUrl;
   }
 
   @Override
@@ -42,24 +46,19 @@ public final class FileUploadQuestion extends Question {
 
   @Override
   public ImmutableMap<Path, String> getJsonEntries() {
-
-    return ImmutableMap.of();
-
-    // TODO(#5110): restore the code below
-
-    //    return ImmutableMap.of(
-    //        applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY),
-    //        applicantQuestion
-    //            .createFileUploadQuestion()
-    //            .getFileKeyValue()
-    //            .map(
-    //                fileKey ->
-    //                    baseUrl
-    //                        + controllers.routes.FileController.adminShow(
-    //                                applicantQuestion.getProgramId(),
-    //                                URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-    //                            .url())
-    //            .orElse(""));
+    return ImmutableMap.of(
+        applicantQuestion.getContextualizedPath().join(Scalar.FILE_KEY),
+        applicantQuestion
+            .createFileUploadQuestion()
+            .getFileKeyValue()
+            .map(
+                fileKey ->
+                    baseUrl
+                        + controllers.routes.FileController.adminShow(
+                                applicantQuestion.getProgramDefinitionId(),
+                                URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
+                            .url())
+            .orElse(""));
   }
 
   @Override

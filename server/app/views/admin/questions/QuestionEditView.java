@@ -13,6 +13,7 @@ import static j2html.TagCreator.span;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
@@ -53,6 +54,7 @@ public final class QuestionEditView extends BaseHtmlView {
   private final AdminLayout layout;
   private final Messages messages;
   private final FileUploadViewStrategy fileUploadViewStrategy;
+  private final String baseUrl;
 
   private static final String NO_ENUMERATOR_DISPLAY_STRING = "does not repeat";
   private static final String NO_ENUMERATOR_ID_STRING = "";
@@ -63,11 +65,13 @@ public final class QuestionEditView extends BaseHtmlView {
   public QuestionEditView(
       AdminLayoutFactory layoutFactory,
       MessagesApi messagesApi,
-      FileUploadViewStrategy fileUploadViewStrategy) {
+      FileUploadViewStrategy fileUploadViewStrategy,
+      Config config) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     // Use the default language for CiviForm, since this is an admin view and not applicant-facing.
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
+    this.baseUrl = config.getString("base_url");
   }
 
   /** Render a fresh New Question Form. */
@@ -188,7 +192,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private Content renderWithPreview(DivTag formContent, QuestionType type, String title) {
     DivTag previewContent =
-        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
+        QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy, baseUrl);
 
     HtmlBundle htmlBundle =
         layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);

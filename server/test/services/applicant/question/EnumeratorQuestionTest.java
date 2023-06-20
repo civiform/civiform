@@ -37,6 +37,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "help text"),
           LocalizedStrings.empty(),
           /* lastModifiedTime= */ Optional.empty());
+  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -53,7 +54,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
 
     EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
@@ -64,7 +66,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -81,7 +84,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Parameters({"", " "})
   public void withBlankStrings_hasValidationErrors(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of(value));
 
@@ -102,7 +106,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   @Test
   public void withDuplicateNames_hasValidationErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
@@ -133,7 +138,8 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     applicantData.putLong(enumeratorPath.atIndex(0).join(Scalar.PROGRAM_UPDATED_IN), 5L);
 
     ApplicantQuestion question =
-        new ApplicantQuestion(enumeratorQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
 
     assertThat(question.getLastUpdatedTimeMetadata()).contains(123L);
     assertThat(question.getUpdatedInProgramMetadata()).contains(5L);

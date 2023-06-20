@@ -38,6 +38,7 @@ public class SingleSelectQuestionTest {
           .build();
   private static final MultiOptionQuestionDefinition dropdownQuestionDefinition =
       new MultiOptionQuestionDefinition(CONFIG);
+  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -51,7 +52,8 @@ public class SingleSelectQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
 
     SingleSelectQuestion singleSelectQuestion = new SingleSelectQuestion(applicantQuestion);
 
@@ -65,7 +67,8 @@ public class SingleSelectQuestionTest {
   @Test
   public void withPresentApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 1L);
 
@@ -79,7 +82,8 @@ public class SingleSelectQuestionTest {
   @Test
   public void withPresentApplicantData_selectedInvalidOption_hasErrors() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
     QuestionAnswerer.answerSingleSelectQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 9L);
 
@@ -93,7 +97,8 @@ public class SingleSelectQuestionTest {
   public void getOptions_defaultsIfLangUnsupported() {
     applicantData.setPreferredLocale(Locale.CHINESE);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            dropdownQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
 
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 

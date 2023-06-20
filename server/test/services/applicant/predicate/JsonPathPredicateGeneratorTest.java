@@ -29,6 +29,8 @@ import support.TestQuestionBank;
 
 public class JsonPathPredicateGeneratorTest {
 
+  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
+
   private Clock clock = Clock.fixed(Instant.parse("2030-01-01T00:00:00.00Z"), ZoneId.of("UTC"));
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private QuestionDefinition question;
@@ -213,7 +215,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path, so the entity is generated.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(enumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(enumerator, applicantData, Optional.empty(), FAKE_BASE_URL);
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Xylia"));
 
@@ -257,7 +259,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(enumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(enumerator, applicantData, Optional.empty(), FAKE_BASE_URL);
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Bernard", "Alice"));
 
@@ -303,7 +305,7 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty(), FAKE_BASE_URL);
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Bernard", "Alice"));
     // Context for index 1 ('Alice')
@@ -316,7 +318,8 @@ public class JsonPathPredicateGeneratorTest {
 
     // Create entities for the nested enumerator
     ApplicantQuestion nestedApplicantEnumerator =
-        new ApplicantQuestion(nestedEnumerator, applicantData, topLevelRepeatedEntity);
+        new ApplicantQuestion(
+            nestedEnumerator, applicantData, topLevelRepeatedEntity, FAKE_BASE_URL);
     applicantData.putRepeatedEntities(
         nestedApplicantEnumerator.getContextualizedPath(), ImmutableList.of("Software Engineer"));
     Optional<RepeatedEntity> currentContext =
@@ -363,7 +366,8 @@ public class JsonPathPredicateGeneratorTest {
 
     // Put an entity at the enumerator path so we can generate repeated contexts.
     ApplicantQuestion applicantEnumerator =
-        new ApplicantQuestion(topLevelEnumerator, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            topLevelEnumerator, applicantData, Optional.empty(), "fakebaseurl.gov");
     applicantData.putRepeatedEntities(
         applicantEnumerator.getContextualizedPath(), ImmutableList.of("Alice"));
     // Context for 'Alice'

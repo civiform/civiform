@@ -3102,7 +3102,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            questionDefinition, applicantData, Optional.empty(), "fakebaseurl.gov");
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3209,7 +3210,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            questionDefinition, applicantData, Optional.empty(), "fakebaseurl.gov");
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3298,7 +3300,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         program.id, blockDefinition.id(), questionDefinition.getId(), true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(questionDefinition, applicantData, Optional.empty());
+        new ApplicantQuestion(
+            questionDefinition, applicantData, Optional.empty(), "fakebaseurl.gov");
     AddressQuestion addressQuestion = applicantQuestion.createAddressQuestion();
 
     AddressSuggestion addressSuggestion1 =
@@ -3390,7 +3393,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicantData,
+            Optional.empty(),
+            "fakebaseurl.gov");
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -3420,7 +3427,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicantData,
+            Optional.empty(),
+            "fakebaseurl.gov");
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -3460,7 +3471,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Block block =
         new Block(
-            String.valueOf(blockDefinition.id()), blockDefinition, applicantData, Optional.empty());
+            String.valueOf(blockDefinition.id()),
+            blockDefinition,
+            applicantData,
+            Optional.empty(),
+            "fakebaseurl.gov");
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -3483,7 +3498,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         String.valueOf(blockDefinition.id()),
         blockDefinition,
         applicantDataAfter,
-        Optional.empty());
+        Optional.empty(),
+        "fakebaseurl.gov");
   }
 
   @Test
