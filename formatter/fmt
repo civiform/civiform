@@ -39,11 +39,11 @@ function get_modified_java_files() {
   ) | grep -E ".+\.java$"
 }
 
-function get_modified_ts_and_json_files() {
+function get_modified_ts_json_and_md_files() {
   (
     get_tracked_modified_files
     get_untracked_files
-  ) | grep -E ".+\.(ts|json)$"
+  ) | grep -E ".+\.(ts|json|md)$"
 }
 
 function get_modified_python_files() {
@@ -61,8 +61,9 @@ else
   echo 'Done formatting java'
 fi
 
-if [[ -z $(get_modified_ts_and_json_files) ]]; then
-  echo 'No modified TypeScript or JSON files found'
+modified_ts_json_md=$(get_modified_ts_json_and_md_files)
+if [[ -z $modified_ts_json_md ]]; then
+  echo 'No modified TypeScript, JSON or Markdown files found'
 else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory
@@ -72,7 +73,7 @@ else
     --config ../.prettierrc.js \
     --ignore-path ../.prettierignore \
     --ignore-unknown \
-    ../
+    $(printf "../%s " ${modified_ts_json_md[@]})
   cd ..
   echo 'Done formatting with prettier'
 
