@@ -33,7 +33,7 @@ public abstract class Question {
     if (!getClass().equals(supportedQuestionType.getSupportedQuestion())) {
       throw new RuntimeException(
           String.format(
-              "%s is not equal to question type %s's supported %s",
+              "The Question class %s is not equal to the one supported by %s, which is %s.",
               getClass(),
               supportedQuestionType,
               supportedQuestionType.getSupportedQuestion().toString()));
