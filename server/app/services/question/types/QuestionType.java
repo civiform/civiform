@@ -35,7 +35,8 @@ public enum QuestionType {
    * select between multiple, pre-defined answer options). Returns false otherwise.
    */
   public boolean isMultiOptionType() {
-    return this == CHECKBOX;
+    return getSupportedQuestion() == SingleSelectQuestion.class
+        || getSupportedQuestion() == MultiSelectQuestion.class;
   }
 
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
