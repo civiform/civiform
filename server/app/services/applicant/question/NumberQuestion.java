@@ -8,7 +8,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a number question in the context of a specific applicant.
@@ -21,11 +20,6 @@ public final class NumberQuestion extends Question {
 
   NumberQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.NUMBER);
   }
 
   @Override

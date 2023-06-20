@@ -13,25 +13,31 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.types.DropdownQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import support.QuestionAnswerer;
 
 public class SingleSelectQuestionTest {
 
-  private static final DropdownQuestionDefinition dropdownQuestionDefinition =
-      new DropdownQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(
-                  1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
-              QuestionOption.create(
-                  2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux"))),
-          /* lastModifiedTime= */ Optional.empty());
+  private static final MultiOptionQuestionDefinitionConfig CONFIG =
+      MultiOptionQuestionDefinitionConfig.builder()
+          .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+          .setId(OptionalLong.of(1))
+          .setName("question name")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setQuestionOptions(
+              ImmutableList.of(
+                  QuestionOption.create(
+                      1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+                  QuestionOption.create(
+                      2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux"))))
+          .setLastModifiedTime(Optional.empty())
+          .build();
+  private static final MultiOptionQuestionDefinition dropdownQuestionDefinition =
+      new MultiOptionQuestionDefinition(CONFIG);
 
   private Applicant applicant;
   private ApplicantData applicantData;

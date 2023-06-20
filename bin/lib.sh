@@ -21,6 +21,7 @@ if [[ "${SOURCED_LIB}" != "true" ]]; then
   source "${LIB_DIR}/truth.sh"
   source "${LIB_DIR}/docker.sh"
   source "${LIB_DIR}/emulators.sh"
+  source "${LIB_DIR}/python.sh"
 
   SOURCED_LIB="true"
 fi

@@ -16,7 +16,6 @@ import services.applicant.ValidationErrorMessage;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaInclusionGroup;
 import services.question.types.AddressQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents an address question in the context of a specific applicant.
@@ -41,11 +40,6 @@ public final class AddressQuestion extends Question {
 
   AddressQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.ADDRESS);
   }
 
   @Override

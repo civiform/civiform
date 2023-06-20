@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.11",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -24,9 +24,9 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -34,12 +34,12 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.85",
-      "software.amazon.awssdk" % "ses" % "2.20.85",
+      "software.amazon.awssdk" % "s3" % "2.20.88",
+      "software.amazon.awssdk" % "ses" % "2.20.88",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.9.1",
-      "com.azure" % "azure-storage-blob" % "12.22.2",
+      "com.azure" % "azure-storage-blob" % "12.22.3",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.0.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -213,9 +213,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.1"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.2"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

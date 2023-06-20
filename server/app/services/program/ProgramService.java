@@ -28,6 +28,30 @@ import services.question.types.QuestionDefinition;
  */
 public interface ProgramService {
 
+  /** Get the names for all programs. */
+  ImmutableSet<String> getAllProgramNames();
+
+  /** Get the slugs for all programs. */
+  ImmutableSet<String> getAllProgramSlugs();
+
+  /** Get the names for active programs. */
+  ImmutableSet<String> getActiveProgramNames();
+
+  /** Get the data object about the programs that are in the active or draft version. */
+  ActiveAndDraftPrograms getActiveAndDraftPrograms();
+
+  /**
+   * Get the data object about the programs that are in the active or draft version without the full
+   * question definitions attached to the programs.
+   */
+  ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad();
+
+  /*
+   * Looks at the most recent version of each program and returns the program marked as the
+   * common intake form if it exists. The most recent version may be in the draft or active stage.
+   */
+  Optional<ProgramDefinition> getCommonIntakeForm();
+
   /**
    * Get the definition for a given program.
    *
@@ -40,27 +64,6 @@ public interface ProgramService {
    * @throws ProgramNotFoundException when ID does not correspond to a real Program
    */
   ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException;
-
-  /** Get the data object about the programs that are in the active or draft version. */
-  ActiveAndDraftPrograms getActiveAndDraftPrograms();
-
-  /**
-   * Get the data object about the programs that are in the active or draft version without the full
-   * question definitions attached to the programs.
-   */
-  ActiveAndDraftPrograms getActiveAndDraftProgramsWithoutQuestionLoad();
-
-  /**
-   * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously, by
-   * querying for questions then updating each {@link ProgramDefinition}s.
-   *
-   * @param programDefinitions the list of program definitions that should be updated
-   * @return a list of updated {@link ProgramDefinition}s with all of its associated questions if
-   *     they exist, or a QuestionNotFoundException is thrown when the future completes and a
-   *     question is not found.
-   */
-  CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
-      ImmutableList<ProgramDefinition> programDefinitions);
 
   /**
    * Get the definition of a given program asynchronously. The ID may correspond to any version.
@@ -81,6 +84,12 @@ public interface ProgramService {
    *     to a real Program
    */
   CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug);
+
+  /**
+   * Get the program matching programId as well as all other versions of the program (i.e. all
+   * programs with the same name).
+   */
+  ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);
 
   /**
    * Create a new program with an empty block.
@@ -195,6 +204,9 @@ public interface ProgramService {
       String displayMode,
       ImmutableList<Long> tiGroups);
 
+  /** Create a new draft starting from the program specified by `id`. */
+  ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
+
   /**
    * Add or update a localization of the program's publicly-visible display name and description.
    *
@@ -210,6 +222,66 @@ public interface ProgramService {
   ErrorAnd<ProgramDefinition, CiviFormError> updateLocalization(
       long programId, Locale locale, LocalizationUpdate localizationUpdate)
       throws ProgramNotFoundException, OutOfDateStatusesException;
+
+  /**
+   * Get the email addresses to send a notification to - the program admins if there are any, or the
+   * global admins if none.
+   */
+  ImmutableList<String> getNotificationEmailAddresses(String programName);
+
+  /**
+   * Appends a new status available for application reviews.
+   *
+   * @param programId The program to update.
+   * @param status The status that should be appended.
+   * @throws ProgramNotFoundException If the specified Program could not be found.
+   * @throws DuplicateStatusException If the provided status to already exists in the list of
+   *     available statuses for application review.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> appendStatus(
+      long programId, StatusDefinitions.Status status)
+      throws ProgramNotFoundException, DuplicateStatusException;
+
+  /**
+   * Updates an existing status this is available for application reviews.
+   *
+   * @param programId The program to update.
+   * @param toReplaceStatusName The name of the status that should be updated.
+   * @param statusReplacer A single argument function that maps the existing status to the value it
+   *     should be updated to. The existing status is provided in case the caller might want to
+   *     preserve values from the previous status (e.g. localized text).
+   * @throws ProgramNotFoundException If the specified Program could not be found.
+   * @throws DuplicateStatusException If the updated status already exists in the list of available
+   *     statuses for application review.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> editStatus(
+      long programId,
+      String toReplaceStatusName,
+      Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
+      throws ProgramNotFoundException, DuplicateStatusException;
+
+  /**
+   * Removes an existing status from the list of available statuses for application reviews.
+   *
+   * @param programId The program to update.
+   * @param toRemoveStatusName The name of the status that should be removed.
+   * @throws ProgramNotFoundException If the specified Program could not be found.
+   */
+  ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(long programId, String toRemoveStatusName)
+      throws ProgramNotFoundException;
+
+  /**
+   * Set a program's eligibility criteria to gating or non-gating.
+   *
+   * @param programId the ID of the program to update.
+   * @param gating boolean representing whether eligibility is gating or non-gating.
+   * @param isNongatedEligibilityFeatureEnabled boolean representing whether non-gating eligibility
+   *     feature is enabled.
+   * @return the updated program definition
+   */
+  ProgramDefinition setEligibilityIsGating(
+      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
+      throws ProgramNotFoundException;
 
   /**
    * Adds an empty {@link BlockDefinition} to the end of a given program.
@@ -413,6 +485,18 @@ public interface ProgramService {
           IllegalPredicateOrderingException;
 
   /**
+   * Sync all {@link QuestionDefinition}s in a list of {@link ProgramDefinition}s asynchronously, by
+   * querying for questions then updating each {@link ProgramDefinition}s.
+   *
+   * @param programDefinitions the list of program definitions that should be updated
+   * @return a list of updated {@link ProgramDefinition}s with all of its associated questions if
+   *     they exist, or a QuestionNotFoundException is thrown when the future completes and a
+   *     question is not found.
+   */
+  CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
+      ImmutableList<ProgramDefinition> programDefinitions);
+
+  /**
    * Set a program question definition to optional or required. If the question definition ID is not
    * present in the program's block, then nothing is changed.
    *
@@ -497,85 +581,4 @@ public interface ProgramService {
           paginationSpecEither,
       SubmittedApplicationFilter filters)
       throws ProgramNotFoundException;
-
-  /** Create a new draft starting from the program specified by `id`. */
-  ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException;
-
-  /**
-   * Get the email addresses to send a notification to - the program admins if there are any, or the
-   * global admins if none.
-   */
-  ImmutableList<String> getNotificationEmailAddresses(String programName);
-
-  /** Get all versions of the program with a version matching programId, including that one */
-  ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId);
-
-  /** Get the names for active programs. */
-  ImmutableSet<String> getActiveProgramNames();
-
-  /** Get the names for all programs. */
-  ImmutableSet<String> getAllProgramNames();
-
-  /** Get the slugs for all programs. */
-  ImmutableSet<String> getAllProgramSlugs();
-
-  /**
-   * Appends a new status available for application reviews.
-   *
-   * @param programId The program to update.
-   * @param status The status that should be appended.
-   * @throws ProgramNotFoundException If the specified Program could not be found.
-   * @throws DuplicateStatusException If the provided status to already exists in the list of
-   *     available statuses for application review.
-   */
-  ErrorAnd<ProgramDefinition, CiviFormError> appendStatus(
-      long programId, StatusDefinitions.Status status)
-      throws ProgramNotFoundException, DuplicateStatusException;
-
-  /**
-   * Updates an existing status this is available for application reviews.
-   *
-   * @param programId The program to update.
-   * @param toReplaceStatusName The name of the status that should be updated.
-   * @param statusReplacer A single argument function that maps the existing status to the value it
-   *     should be updated to. The existing status is provided in case the caller might want to
-   *     preserve values from the previous status (e.g. localized text).
-   * @throws ProgramNotFoundException If the specified Program could not be found.
-   * @throws DuplicateStatusException If the updated status already exists in the list of available
-   *     statuses for application review.
-   */
-  ErrorAnd<ProgramDefinition, CiviFormError> editStatus(
-      long programId,
-      String toReplaceStatusName,
-      Function<StatusDefinitions.Status, StatusDefinitions.Status> statusReplacer)
-      throws ProgramNotFoundException, DuplicateStatusException;
-
-  /**
-   * Removes an existing status from the list of available statuses for application reviews.
-   *
-   * @param programId The program to update.
-   * @param toRemoveStatusName The name of the status that should be removed.
-   * @throws ProgramNotFoundException If the specified Program could not be found.
-   */
-  ErrorAnd<ProgramDefinition, CiviFormError> deleteStatus(long programId, String toRemoveStatusName)
-      throws ProgramNotFoundException;
-
-  /**
-   * Set a program's eligibility criteria to gating or non-gating.
-   *
-   * @param programId the ID of the program to update.
-   * @param gating boolean representing whether eligibility is gating or non-gating.
-   * @param isNongatedEligibilityFeatureEnabled boolean representing whether non-gating eligibility
-   *     feature is enabled.
-   * @return the updated program definition
-   */
-  ProgramDefinition setEligibilityIsGating(
-      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
-      throws ProgramNotFoundException;
-
-  /*
-   * Looks at the most recent version of each program and returns the program marked as the
-   * common intake form if it exists. The most recent version may be in the draft or active stage.
-   */
-  Optional<ProgramDefinition> getCommonIntakeForm();
 }

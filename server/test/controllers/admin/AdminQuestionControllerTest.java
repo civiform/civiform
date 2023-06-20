@@ -28,8 +28,9 @@ import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
-import services.question.types.DropdownQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -353,22 +354,27 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_setsIdsAsExpected() throws Exception {
-    DropdownQuestionDefinition definition =
-        new DropdownQuestionDefinition(
-            /* name= */ "applicant ice cream",
-            /* enumeratorId= */ Optional.empty(),
-            /* description= */ "Select your favorite ice cream flavor",
-            LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
-            LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
-            ImmutableList.of(
-                QuestionOption.create(
-                    1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
-                QuestionOption.create(
-                    2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
-                QuestionOption.create(
-                    3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
-                QuestionOption.create(
-                    4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+            .setName("applicant ice cream")
+            .setDescription("Select your favorite ice cream flavor")
+            .setQuestionText(
+                LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                    QuestionOption.create(
+                        2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+                    QuestionOption.create(
+                        3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                    QuestionOption.create(
+                        4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))))
+            .build();
+    MultiOptionQuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+
     // We can only update draft questions, so save this in the DRAFT version.
     testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
@@ -376,7 +382,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
 
     DropdownQuestionForm newQuestionForm =
-        new DropdownQuestionForm((DropdownQuestionDefinition) questionForm.getBuilder().build());
+        new DropdownQuestionForm((MultiOptionQuestionDefinition) questionForm.getBuilder().build());
 
     assertThat(newQuestionForm.getOptionIds().get(4)).isEqualTo(5L);
     assertThat(newQuestionForm.getOptionIds().get(5)).isEqualTo(6L);
@@ -387,22 +393,27 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_mergesTranslations() {
-    QuestionDefinition definition =
-        new DropdownQuestionDefinition(
-            "applicant ice cream",
-            Optional.empty(),
-            "Select your favorite ice cream flavor",
-            LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"),
-            LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"),
-            ImmutableList.of(
-                QuestionOption.create(
-                    1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
-                QuestionOption.create(
-                    2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
-                QuestionOption.create(
-                    3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
-                QuestionOption.create(
-                    4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))));
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+            .setName("applicant ice cream")
+            .setDescription("Select your favorite ice cream flavor")
+            .setQuestionText(
+                LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(
+                        1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+                    QuestionOption.create(
+                        2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+                    QuestionOption.create(
+                        3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+                    QuestionOption.create(
+                        4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))))
+            .build();
+    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+
     // We can only update draft questions, so save this in the DRAFT version.
     Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
@@ -449,7 +460,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .isEqualTo(expectedOptions);
 
     DropdownQuestionForm questionForm =
-        new DropdownQuestionForm((DropdownQuestionDefinition) definition);
+        new DropdownQuestionForm((MultiOptionQuestionDefinition) definition);
     questionForm.getBuilder();
 
     assertThat(questionForm.getNextAvailableId()).isPresent();

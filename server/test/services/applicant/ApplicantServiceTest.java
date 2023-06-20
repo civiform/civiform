@@ -82,8 +82,10 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
@@ -500,20 +502,21 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_updatesContainMultiSelectAnswers_isOk() {
+    MultiOptionQuestionDefinitionConfig config =
+        MultiOptionQuestionDefinitionConfig.builder()
+            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+            .setName("checkbox")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setQuestionOptions(
+                ImmutableList.of(
+                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
+                    QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
+                    QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse"))))
+            .build();
     QuestionDefinition multiSelectQuestion =
-        questionService
-            .create(
-                new CheckboxQuestionDefinition(
-                    "checkbox",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text"),
-                    ImmutableList.of(
-                        QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
-                        QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
-                        QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")))))
-            .getResult();
+        questionService.create(new MultiOptionQuestionDefinition(config)).getResult();
 
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(multiSelectQuestion);

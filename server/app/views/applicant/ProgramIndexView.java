@@ -75,6 +75,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ProfileUtils profileUtils;
   private final String authProviderName;
   private final String civicEntityShortName;
+  private final String applicantPortalName;
   private final ZoneId zoneId;
 
   @Inject
@@ -90,6 +91,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.profileUtils = checkNotNull(profileUtils);
     this.civicEntityShortName =
         checkNotNull(config).getString("whitelabel_civic_entity_short_name");
+    this.applicantPortalName = checkNotNull(config).getString("applicant_portal_name");
     this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
   }
@@ -484,7 +486,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         createLoginPromptModal(
                 messages,
                 actionUrl,
-                MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                messages.at(
+                    MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(), applicantPortalName),
                 MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
             .setRepeatOpenBehavior(
                 RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))

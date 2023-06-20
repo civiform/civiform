@@ -13,7 +13,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.PhoneQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a phone question in the context of a specific applicant.
@@ -30,11 +29,6 @@ public final class PhoneQuestion extends Question {
 
   PhoneQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.PHONE);
   }
 
   @Override

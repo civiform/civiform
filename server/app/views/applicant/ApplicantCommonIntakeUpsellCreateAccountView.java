@@ -67,7 +67,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         createLoginPromptModal(
                 messages,
                 redirectTo,
-                /*description=*/ MessageKey.GENERAL_LOGIN_MODAL_PROMPT,
+                /* description =*/ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
 

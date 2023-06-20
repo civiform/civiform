@@ -18,27 +18,32 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
-import services.question.types.CheckboxQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import support.QuestionAnswerer;
 
 public class CheckboxQuestionRendererTest extends ResetPostgres {
 
-  private static final CheckboxQuestionDefinition CHECKBOX_QUESTION =
-      new CheckboxQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
-              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "happy")),
-              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "world"))),
-          MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create(1, 2),
-          /* lastModifiedTime= */ Optional.empty());
-
+  private static final MultiOptionQuestionDefinitionConfig CONFIG =
+      MultiOptionQuestionDefinitionConfig.builder()
+          .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+          .setId(OptionalLong.of(1))
+          .setName("question name")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setQuestionOptions(
+              ImmutableList.of(
+                  QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
+                  QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "happy")),
+                  QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "world"))))
+          .setValidationPredicates(MultiOptionValidationPredicates.create(1, 2))
+          .setLastModifiedTime(Optional.empty())
+          .build();
+  private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
+      new MultiOptionQuestionDefinition(CONFIG);
   private final ApplicantData applicantData = new ApplicantData();
 
   private ApplicantQuestion question;
