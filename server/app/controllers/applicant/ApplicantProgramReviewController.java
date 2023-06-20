@@ -134,7 +134,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                 .programBySlug(
                                     request.flash().get("redirected-from-program-slug").get())
                                 .url(),
-                            MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                            messages.at(
+                                MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
+                                // The applicant portal name should always be set (there is a
+                                // default setting as well).
+                                settingsManifest.getApplicantPortalName().orElse("")),
                             MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
                         .setDisplayOnLoad(true)
                         .setRepeatOpenBehavior(
