@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Question;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -128,5 +129,43 @@ public abstract class AnswerData {
     public abstract Builder setScalarAnswersInDefaultLocale(ImmutableMap<Path, String> answers);
 
     public abstract AnswerData build();
+  }
+
+  /** Creates a {@link Question} for the given {@link AnswerData}'s type. */
+  public Question createQuestion() {
+    switch (questionDefinition().getQuestionType()) {
+      case ENUMERATOR:
+        return applicantQuestion().createEnumeratorQuestion();
+      case STATIC:
+        return applicantQuestion().createStaticContentQuestion();
+      case CHECKBOX:
+        return applicantQuestion().createMultiSelectQuestion();
+      case CURRENCY:
+        return applicantQuestion().createCurrencyQuestion();
+      case NUMBER:
+        return applicantQuestion().createNumberQuestion();
+      case DATE:
+        return applicantQuestion().createDateQuestion();
+      case PHONE:
+        return applicantQuestion().createPhoneQuestion();
+      case NAME:
+        return applicantQuestion().createNameQuestion();
+      case ID:
+        return applicantQuestion().createIdQuestion();
+      case TEXT:
+        return applicantQuestion().createTextQuestion();
+      case EMAIL:
+        return applicantQuestion().createEmailQuestion();
+      case ADDRESS:
+        return applicantQuestion().createAddressQuestion();
+      case DROPDOWN:
+      case RADIO_BUTTON:
+        return applicantQuestion().createSingleSelectQuestion();
+      case FILEUPLOAD:
+        return applicantQuestion().createFileUploadQuestion();
+      default:
+        throw new RuntimeException(
+            String.format("Unknown QuestionType %s", questionDefinition().getQuestionType()));
+    }
   }
 }

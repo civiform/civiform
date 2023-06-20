@@ -1,8 +1,20 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.question.types.QuestionType.ADDRESS;
+import static services.question.types.QuestionType.DROPDOWN;
+import static services.question.types.QuestionType.EMAIL;
+import static services.question.types.QuestionType.FILEUPLOAD;
+import static services.question.types.QuestionType.ID;
+import static services.question.types.QuestionType.NAME;
+import static services.question.types.QuestionType.RADIO_BUTTON;
+import static services.question.types.QuestionType.TEXT;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.DocumentContext;
+import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
@@ -22,6 +34,7 @@ import services.applicant.question.*;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.question.types.QuestionType;
 
 /** Exports all applications for a given program as JSON. */
 public final class JsonExporter {
@@ -106,10 +119,50 @@ public final class JsonExporter {
             () -> jsonApplication.putNull(statusPath));
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
-      AnswerDataConverter.exportToJsonApplication(jsonApplication, answerData);
+      exportToJsonApplication(jsonApplication, answerData);
     }
 
     return jsonApplication;
+  }
+
+  private static void exportToJsonApplication(
+      CfJsonDocumentContext jsonApplication, AnswerData answerData) {
+    ImmutableMap<Path, ?> entries = answerData.createQuestion().getJsonEntries();
+
+    for (Map.Entry<Path, ?> entry : entries.entrySet()) {
+      Path path = entry.getKey();
+
+      ImmutableSet<QuestionType> useApplicationPathTypes =
+          ImmutableSet.of(NAME, ID, TEXT, EMAIL, ADDRESS, DROPDOWN, RADIO_BUTTON, FILEUPLOAD);
+
+      if (useApplicationPathTypes.contains(answerData.questionDefinition().getQuestionType())) {
+        path = path.asApplicationPath();
+      }
+
+      Object value = entry.getValue();
+      if (value instanceof String) {
+        jsonApplication.putString(path, (String) value);
+      } else if (value instanceof Long) {
+        jsonApplication.putLong(path, (Long) value);
+      } else if (value instanceof Double) {
+        jsonApplication.putDouble(path, (Double) value);
+      } else if (instanceOfNonEmptyImmutableListOfString(value)) {
+        @SuppressWarnings("unchecked")
+        ImmutableList<String> list = (ImmutableList<String>) value;
+        jsonApplication.putArray(path, list);
+      }
+    }
+  }
+
+  // Returns true if value is a non-empty ImmutableList<String>. This is the best
+  // we can do given Java type erasure.
+  private static boolean instanceOfNonEmptyImmutableListOfString(Object value) {
+    if (!(value instanceof ImmutableList<?>)) {
+      return false;
+    }
+
+    ImmutableList<?> list = (ImmutableList<?>) value;
+    return !list.isEmpty() && list.get(0) instanceof String;
   }
 
   private DocumentContext makeEmptyJsonArray() {
