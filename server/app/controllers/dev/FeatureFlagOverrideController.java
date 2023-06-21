@@ -49,13 +49,12 @@ public final class FeatureFlagOverrideController extends Controller {
     ImmutableMap.Builder<String, String> newSettings = ImmutableMap.builder();
 
     for (var entry : currentSettings.entrySet()) {
-      if (entry.getKey().equals(flagName)) {
-        newSettings.put(rawFlagName, newValue);
-      } else {
+      if (!entry.getKey().equals(flagName)) {
         newSettings.put(entry);
       }
     }
 
+    newSettings.put(flagName, newValue);
     settingsService.updateSettings(newSettings.build(), "dev mode");
 
     return redirect(request.getHeaders().get(HeaderNames.REFERER).orElse("/"));
