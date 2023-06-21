@@ -54,8 +54,7 @@ public final class FileUploadQuestion extends Question {
             .map(
                 fileKey ->
                     baseUrl
-                        + controllers.routes.FileController.adminShow(
-                                applicantQuestion.getProgramDefinitionId(),
+                        + controllers.routes.FileController.acledAdminShow(
                                 URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
                             .url())
             .orElse(""));

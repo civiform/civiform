@@ -30,7 +30,6 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.applicant.question.*;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -42,6 +41,11 @@ public final class JsonExporter {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final DateConverter dateConverter;
+
+  // Question types for which we should call getApplicationPath() on their path
+  // when constructing the API response.
+  private static final ImmutableSet<QuestionType> USE_APPLICATION_PATH_TYPES =
+      ImmutableSet.of(NAME, ID, TEXT, EMAIL, ADDRESS, DROPDOWN, RADIO_BUTTON, FILEUPLOAD);
 
   @Inject
   JsonExporter(
@@ -132,10 +136,7 @@ public final class JsonExporter {
     for (Map.Entry<Path, ?> entry : entries.entrySet()) {
       Path path = entry.getKey();
 
-      ImmutableSet<QuestionType> useApplicationPathTypes =
-          ImmutableSet.of(NAME, ID, TEXT, EMAIL, ADDRESS, DROPDOWN, RADIO_BUTTON, FILEUPLOAD);
-
-      if (useApplicationPathTypes.contains(answerData.questionDefinition().getQuestionType())) {
+      if (USE_APPLICATION_PATH_TYPES.contains(answerData.questionDefinition().getQuestionType())) {
         path = path.asApplicationPath();
       }
 

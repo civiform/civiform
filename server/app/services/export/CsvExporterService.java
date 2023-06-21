@@ -394,7 +394,10 @@ public final class CsvExporterService {
             ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
         Question applicantQuestion =
             new ApplicantQuestion(
-                    pqd, new ApplicantData(), Optional.empty(), config.getString("base_url"))
+                    pqd,
+                    new ApplicantData(),
+                    /* repeatedEntity */ Optional.empty(),
+                    config.getString("base_url"))
                 .errorsPresenter();
         for (Path path : applicantQuestion.getAllPaths()) {
           columnsBuilder.add(
