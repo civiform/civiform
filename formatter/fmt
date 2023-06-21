@@ -63,7 +63,7 @@ fi
 
 modified_ts_json_md="$(get_modified_ts_json_and_md_files)"
 if [[ -z "${modified_ts_json_md}" ]]; then
-  echo 'No modified TypeScript, JSON or Markdown files found'
+  echo 'No modified TypeScript, JSON, or Markdown files found'
 else
   echo 'Start formatting with prettier'
   # prettier is installed as node module in `formatter` directory
