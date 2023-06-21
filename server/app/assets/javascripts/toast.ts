@@ -94,6 +94,11 @@ export class ToastController {
       toastMessage.classList.add('bg-amber-200', 'border-amber-300')
     }
 
+    // Add error message prefix for accessibility.
+    if (message.type === 'error') {
+      message.content = `Error:  ${message.content}`
+    }
+
     toastMessage.appendChild(ToastController.getToastIcon(message.type))
 
     // Add the content string.
