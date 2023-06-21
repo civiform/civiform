@@ -2,6 +2,7 @@ package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.util.Optional;
@@ -46,7 +47,8 @@ public class SettingsService {
         .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroup::getSettings));
   }
 
-  public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY = TypedKey.create("CIVIFORM_SETTINGS");
+  public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY =
+      TypedKey.create("CIVIFORM_SETTINGS");
 
   public CompletionStage<Http.RequestHeader> applySettingsToRequest(Http.RequestHeader request) {
     return loadSettings()
@@ -67,7 +69,22 @@ public class SettingsService {
   // Update settings stored in the database
   // Applies validations specified in env-var-docs.json and returns
   // error messages in SettingsUpdateResult upon validation failure
-  // public SettingsUpdateResult updateSettings(DynamicForm form) {}
+  public boolean updateSettings(ImmutableMap<String, String> newSettings, CiviFormProfile profile) {
+    return updateSettings(newSettings, profile.getAuthorityId().join());
+  }
+
+  public boolean updateSettings(ImmutableMap<String, String> newSettings, String papertrail) {
+    var maybeExistingSettings = loadSettings().toCompletableFuture().join();
+
+    if (maybeExistingSettings.map(newSettings::equals).orElse(false)) {
+      return false;
+    }
+
+    var newSettingsGroup = new SettingsGroup(newSettings, papertrail);
+    newSettingsGroup.save();
+
+    return true;
+  }
 
   public SettingsGroup migrateConfigValuesToSettingsGroup() {
     Optional<SettingsGroup> maybeExistingSettingsGroup =

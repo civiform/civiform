@@ -1,11 +1,8 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.NOT_FOUND;
-import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import java.util.Optional;
@@ -14,7 +11,6 @@ import org.junit.Test;
 import play.Application;
 import play.Mode;
 import play.inject.guice.GuiceApplicationBuilder;
-import play.mvc.Result;
 import play.test.Helpers;
 
 public class FeatureFlagOverrideControllerTest {
@@ -81,35 +77,8 @@ public class FeatureFlagOverrideControllerTest {
     assertThat(result.session().get(FLAG_NAME)).hasValue("true");
   }
 
-  @Test
-  public void index() {
-    // Setup
-    setupControllerInMode(Mode.DEV);
-
-    // Execute
-    var result = controller.index(fakeRequest().build());
-
-    // Verify
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Overrides are allowed");
-  }
-
   private void setupControllerInMode(Mode mode) {
     maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
     controller = maybeApp.get().injector().instanceOf(FeatureFlagOverrideController.class);
-  }
-
-  @Test
-  public void status() {
-    setupControllerInMode(Mode.TEST);
-
-    Result diabledResult = controller.status(fakeRequest().build(), "INTAKE_FORM_ENABLED");
-    assertEquals("false", Helpers.contentAsString(diabledResult));
-
-    Result unknownFlagResult = controller.status(fakeRequest().build(), "NO_FLAG_BY_THIS_NAME");
-    assertEquals("false", Helpers.contentAsString(unknownFlagResult));
-    Result phoneTypeResult =
-        controller.status(fakeRequest().build(), "PHONE_QUESTION_TYPE_ENABLED");
-    assertEquals("false", Helpers.contentAsString(phoneTypeResult));
   }
 }

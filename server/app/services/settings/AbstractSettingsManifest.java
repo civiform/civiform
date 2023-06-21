@@ -12,22 +12,16 @@ import com.typesafe.config.ConfigException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSettingsManifest.class);
-
   private final Config config;
-  private final SettingsService settingsService;
 
-  public AbstractSettingsManifest(Config config, SettingsService settingsService) {
+  public AbstractSettingsManifest(Config config) {
     this.config = checkNotNull(config);
-    this.settingsService = checkNotNull(settingsService);
   }
 
   /**
@@ -78,10 +72,12 @@ public abstract class AbstractSettingsManifest {
 
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
-  public Optional<String> getSettingDisplayValue(SettingDescription settingDescription) {
+  public Optional<String> getSettingDisplayValue(
+      Http.Request request, SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
       case BOOLEAN:
-        return getBool(settingDescription).map(String::valueOf).map(String::toUpperCase);
+        return Optional.of(
+            String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
       case INT:
         return getInt(settingDescription).map(String::valueOf);
       case LIST_OF_STRINGS:
@@ -117,24 +113,16 @@ public abstract class AbstractSettingsManifest {
    * contains an override for the setting, returns that value, otherwise uses the value from the
    * application config.
    */
+  public boolean getBool(SettingDescription settingDescription, Http.Request request) {
+    return getBool(settingDescription.variableName(), request);
+  }
+
   public boolean getBool(String settingName, Http.Request request) {
     var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
 
-    boolean configValue = writableSettings.containsKey(settingName) ?
-      writableSettings.get(settingName).equals("true") :
-      getBool(settingName);
-
-    if (!overridesEnabled()) {
-      return configValue;
-    }
-
-    Optional<Boolean> sessionValue = request.session().get(settingName).map(Boolean::parseBoolean);
-    if (sessionValue.isPresent()) {
-      LOGGER.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), settingName);
-      return sessionValue.get();
-    }
-
-    return configValue;
+    return writableSettings.containsKey(settingName)
+        ? writableSettings.get(settingName).equals("true")
+        : getBool(settingName);
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {

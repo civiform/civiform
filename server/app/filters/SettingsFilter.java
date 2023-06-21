@@ -30,7 +30,7 @@ class SettingsFilter extends EssentialFilter {
             Accumulator.flatten(
                 settingsService
                     .applySettingsToRequest(request)
-                    .thenApply(unused -> next.apply(request)),
+                    .thenApply(modifiedRequest -> next.apply(modifiedRequest)),
                 materializer));
   }
 

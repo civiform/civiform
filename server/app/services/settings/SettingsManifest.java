@@ -23,17 +23,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   private final ImmutableMap<String, SettingsSection> settingsSections;
 
   @Inject
-  public SettingsManifest(Config config, SettingsService settingsService) {
-    super(config, settingsService);
+  public SettingsManifest(Config config) {
+    super(config);
     this.settingsSections = GENERATED_SECTIONS;
   }
 
   @VisibleForTesting
-  public SettingsManifest(
-      ImmutableMap<String, SettingsSection> settingsSections,
-      Config config,
-      SettingsService settingsService) {
-    super(config, settingsService);
+  public SettingsManifest(ImmutableMap<String, SettingsSection> settingsSections, Config config) {
+    super(config);
     this.settingsSections = checkNotNull(settingsSections);
   }
 
