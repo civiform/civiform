@@ -10,7 +10,7 @@ import services.settings.SettingsService;
 
 /**
  * Migrate ADMIN_WRITEABLE server settings from the Play Config system to database-backed admin
- * settings.
+ * settings. Runs each time the server is started.
  */
 public class SettingsMigrationModule extends AbstractModule {
 

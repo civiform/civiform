@@ -10,7 +10,8 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.SettingsGroup;
 
-public class SettingsGroupRepository {
+/** Contains queries related to the server settings system. */
+public final class SettingsGroupRepository {
 
   private final Database database;
   private final DatabaseExecutionContext databaseExecutionContext;

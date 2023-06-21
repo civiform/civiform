@@ -3,8 +3,6 @@ package filters;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import akka.stream.Materializer;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
@@ -12,7 +10,11 @@ import play.mvc.EssentialFilter;
 import play.mvc.Http;
 import services.settings.SettingsService;
 
-class SettingsFilter extends EssentialFilter {
+/**
+ * Loads the server settings from the database and adds them to the attributes of each incoming
+ * request. This caches them for the life of the request for quick access in application code.
+ */
+public final class SettingsFilter extends EssentialFilter {
 
   private final SettingsService settingsService;
   private final Materializer materializer;
@@ -32,9 +34,5 @@ class SettingsFilter extends EssentialFilter {
                     .applySettingsToRequest(request)
                     .thenApply(modifiedRequest -> next.apply(modifiedRequest)),
                 materializer));
-  }
-
-  public CompletionStage<Integer> foo() {
-    return CompletableFuture.completedFuture("foo").thenApply(unused -> 12);
   }
 }

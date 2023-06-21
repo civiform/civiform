@@ -39,7 +39,7 @@ public abstract class AbstractSettingsManifest {
     return map.build();
   }
 
-  public ImmutableList<SettingDescription> getAllAdminWriteableSettingDescriptions() {
+  protected ImmutableList<SettingDescription> getAllAdminWriteableSettingDescriptions() {
     return getSections().values().stream()
         .flatMap(section -> getSettingDescriptions(section).stream())
         .filter(settingDescription -> settingDescription.settingMode().equals(ADMIN_WRITEABLE))
@@ -72,6 +72,7 @@ public abstract class AbstractSettingsManifest {
 
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
+  /** Retrieve a string representation of the setting suitable for display in the UI. */
   public Optional<String> getSettingDisplayValue(
       Http.Request request, SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
@@ -91,6 +92,7 @@ public abstract class AbstractSettingsManifest {
     }
   }
 
+  /** Retrieve a string representation of the setting suitable for JSON serialization. */
   public Optional<String> getSettingSerializationValue(SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
       case BOOLEAN:
@@ -109,15 +111,15 @@ public abstract class AbstractSettingsManifest {
   }
 
   /**
-   * Gets the config value for the given setting name. If overrides are enabled and the request
-   * contains an override for the setting, returns that value, otherwise uses the value from the
-   * application config.
+   * Gets the config value for the given setting. If the setting is found in the stored writeable
+   * settings, the value from the database is returned. Otherwise the value from the application
+   * {@link Config} is used..
    */
   public boolean getBool(SettingDescription settingDescription, Http.Request request) {
     return getBool(settingDescription.variableName(), request);
   }
 
-  public boolean getBool(String settingName, Http.Request request) {
+  protected boolean getBool(String settingName, Http.Request request) {
     var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
 
     return writableSettings.containsKey(settingName)
@@ -172,7 +174,7 @@ public abstract class AbstractSettingsManifest {
     return variableName.toLowerCase(Locale.ROOT);
   }
 
-  public static String getHoconName(SettingDescription settingDescription) {
+  private static String getHoconName(SettingDescription settingDescription) {
     return getHoconName(settingDescription.variableName());
   }
 }

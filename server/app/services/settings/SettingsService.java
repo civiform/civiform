@@ -25,7 +25,7 @@ import repository.SettingsGroupRepository;
  * in the attributes of the incoming {@link play.mvc.Http.Request} object for ease of access
  * throughout the request lifecycle.
  */
-public class SettingsService {
+public final class SettingsService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SettingsService.class);
 
@@ -50,6 +50,11 @@ public class SettingsService {
   public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY =
       TypedKey.create("CIVIFORM_SETTINGS");
 
+  /**
+   * Loads the server settings from the database and returns a new request that has the settings in
+   * the request attributes. If no settings ar found an error is logged and the request argument is
+   * returned.
+   */
   public CompletionStage<Http.RequestHeader> applySettingsToRequest(Http.RequestHeader request) {
     return loadSettings()
         .thenApply(
