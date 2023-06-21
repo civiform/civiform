@@ -64,7 +64,7 @@ public final class ApplicantQuestion {
     this.baseUrl = baseUrl;
   }
 
-  ApplicantData getApplicantData() {
+  public ApplicantData getApplicantData() {
     return this.applicantData;
   }
 

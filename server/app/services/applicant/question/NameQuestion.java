@@ -1,6 +1,5 @@
 package services.applicant.question;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,16 +30,6 @@ public final class NameQuestion extends Question {
   @Override
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of(getFirstNamePath(), getMiddleNamePath(), getLastNamePath());
-  }
-
-  @Override
-  public ImmutableMap<Path, String> getJsonEntries() {
-    return applicantQuestion.getContextualizedScalars().keySet().stream()
-        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-        .collect(
-            toImmutableMap(
-                path -> path,
-                path -> applicantQuestion.getApplicantData().readAsString(path).orElse("")));
   }
 
   @Override

@@ -39,11 +39,4 @@ public final class StaticContentQuestion extends Question {
   public ImmutableList<Path> getAllPaths() {
     return ImmutableList.of();
   }
-
-  @Override
-  public ImmutableMap<Path, ?> getJsonEntries() {
-    // Static content questions are not included in API responses because they
-    // do not include an answer from the user.
-    return ImmutableMap.of();
-  }
 }

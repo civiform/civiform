@@ -41,6 +41,7 @@ public final class JsonExporter {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final DateConverter dateConverter;
+  private final QuestionJsonPresenter.Factory presenterFactory;
 
   // Question types for which we should call getApplicationPath() on their path
   // when constructing the API response.
@@ -51,10 +52,12 @@ public final class JsonExporter {
   JsonExporter(
       ApplicantService applicantService,
       ProgramService programService,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      QuestionJsonPresenter.Factory presenterFactory) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.dateConverter = dateConverter;
+    this.presenterFactory = presenterFactory;
   }
 
   public Pair<String, PaginationResult<Application>> export(
@@ -129,9 +132,11 @@ public final class JsonExporter {
     return jsonApplication;
   }
 
-  private static void exportToJsonApplication(
+  private void exportToJsonApplication(
       CfJsonDocumentContext jsonApplication, AnswerData answerData) {
-    ImmutableMap<Path, ?> entries = answerData.createQuestion().getJsonEntries();
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, ?> entries =
+        presenterFactory.create(answerData).getJsonEntries(answerData.createQuestion());
 
     for (Map.Entry<Path, ?> entry : entries.entrySet()) {
       Path path = entry.getKey();

@@ -28,17 +28,6 @@ public final class NumberQuestion extends Question {
   }
 
   @Override
-  public ImmutableMap<Path, Long> getJsonEntries() {
-    Path path = getNumberPath().asApplicationPath();
-
-    if (getNumberValue().isPresent()) {
-      return ImmutableMap.of(path, getNumberValue().get());
-    } else {
-      return ImmutableMap.of();
-    }
-  }
-
-  @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     return ImmutableMap.of(getNumberPath(), validateNumber());
   }

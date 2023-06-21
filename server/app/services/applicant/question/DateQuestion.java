@@ -41,18 +41,6 @@ public final class DateQuestion extends Question {
     return ImmutableList.of(getDatePath());
   }
 
-  @Override
-  public ImmutableMap<Path, String> getJsonEntries() {
-    Path path = getDatePath().asApplicationPath();
-
-    if (getDateValue().isPresent()) {
-      LocalDate date = getDateValue().get();
-      return ImmutableMap.of(path, DateTimeFormatter.ISO_DATE.format(date));
-    } else {
-      return ImmutableMap.of();
-    }
-  }
-
   public Path getDatePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.DATE);
   }

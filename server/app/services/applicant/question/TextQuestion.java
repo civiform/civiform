@@ -1,6 +1,5 @@
 package services.applicant.question;
 
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -75,15 +74,5 @@ public final class TextQuestion extends Question {
   @Override
   public String getAnswerString() {
     return getTextValue().orElse("-");
-  }
-
-  @Override
-  public ImmutableMap<Path, String> getJsonEntries() {
-    return applicantQuestion.getContextualizedScalars().keySet().stream()
-        .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-        .collect(
-            toImmutableMap(
-                path -> path,
-                path -> applicantQuestion.getApplicantData().readAsString(path).orElse("")));
   }
 }

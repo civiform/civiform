@@ -118,10 +118,11 @@ public abstract class Question {
   /** Return every path used by this question. */
   public abstract ImmutableList<Path> getAllPaths();
 
-  /** The entries that should be present in a JSON export of answers, for this question. */
-  public abstract ImmutableMap<Path, ?> getJsonEntries();
-
   public final ImmutableMap<Path, String> getFailedUpdates() {
     return applicantQuestion.getApplicantData().getFailedUpdates();
+  }
+
+  public ApplicantQuestion getApplicantQuestion() {
+    return applicantQuestion;
   }
 }

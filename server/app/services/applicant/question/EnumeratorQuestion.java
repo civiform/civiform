@@ -40,15 +40,6 @@ public final class EnumeratorQuestion extends Question {
     return ImmutableMap.of(applicantQuestion.getContextualizedPath(), validateEntities());
   }
 
-  @Override
-  public ImmutableMap<Path, ?> getJsonEntries() {
-    // Answers to enumerator questions are not be included because the path is
-    // incompatible with the JSON export schema. This is because enumerators store an identifier
-    // value for each repeated entity, which with the current export logic conflicts with the
-    // answers stored for repeated entities.
-    return ImmutableMap.of();
-  }
-
   private ImmutableSet<ValidationErrorMessage> validateEntities() {
     ImmutableSet.Builder<ValidationErrorMessage> errorsBuilder = ImmutableSet.builder();
     ImmutableList<String> entityNames = getEntityNames();
