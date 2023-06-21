@@ -2,8 +2,12 @@ package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.mvc.Http.Status.*;
-import static play.test.Helpers.fakeRequest;
+import static play.mvc.Http.Status.FOUND;
+import static play.mvc.Http.Status.NOT_FOUND;
+import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
+import static play.mvc.Http.Status.UNAUTHORIZED;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
@@ -97,7 +101,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result review(long applicantId, long programId) {
     Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantProgramReviewController.review(applicantId, programId)))
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramReviewController.review(applicantId, programId)))
             .build();
     return subject.review(request, applicantId, programId).toCompletableFuture().join();
   }
@@ -105,7 +110,8 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public Result submit(long applicantId, long programId) {
     Request request =
         addCSRFToken(
-                fakeRequest(routes.ApplicantProgramReviewController.submit(applicantId, programId)))
+                requestBuilderWithSettings(
+                    routes.ApplicantProgramReviewController.submit(applicantId, programId)))
             .build();
     return subject.submit(request, applicantId, programId).toCompletableFuture().join();
   }
@@ -113,7 +119,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private void answer(long programId) {
 
     Request request =
-        fakeRequest(
+        requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.update(
                     applicant.id, programId, /* blockId = */ "1", /* inReview = */ false))
             .bodyForm(

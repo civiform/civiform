@@ -1,6 +1,7 @@
 package support;
 
 import static org.mockito.Mockito.mockStatic;
+import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.collect.ImmutableMap;
 import java.time.Clock;
@@ -8,11 +9,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
+import play.mvc.Call;
+import play.mvc.Http;
 import repository.UserRepository;
 import services.program.predicate.PredicateValue;
 
@@ -85,5 +89,31 @@ public class CfTestHelpers {
   public static PredicateValue stringToPredicateDate(String rawDate) {
     LocalDate localDate = LocalDate.parse(rawDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     return PredicateValue.of(localDate);
+  }
+
+  public static Http.RequestBuilder requestBuilderWithSettings(Call call, String... settings) {
+    return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(call), settings);
+  }
+
+  public static Http.RequestBuilder requestBuilderWithSettings(String... settings) {
+    return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(), settings);
+  }
+
+  public static Http.RequestBuilder requestBuilderWithSettings(
+      Http.RequestBuilder requestBuilder, String... settings) {
+    if (settings.length % 2 != 0) {
+      throw new IllegalArgumentException(
+          String.format(
+              "Odd number of args specified for settings map, must be key-value pairs: %s",
+              Arrays.toString(settings)));
+    }
+
+    ImmutableMap.Builder<String, String> settingsMap = ImmutableMap.builder();
+
+    for (int i = 0; i < settings.length; i += 2) {
+      settingsMap.put(settings[i], settings[i + 1]);
+    }
+
+    return requestBuilder.attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
   }
 }
