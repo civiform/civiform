@@ -19,7 +19,8 @@ public final class Models {
           Question.class,
           StoredFile.class,
           TrustedIntermediaryGroup.class,
-          Version.class);
+          Version.class,
+          SettingsGroup.class);
 
   /** Get the complete list of ebean models to truncate. */
   public static void truncate(Database database) {
