@@ -48,7 +48,6 @@ public class TextQuestionTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "help text"),
           TextQuestionDefinition.TextValidationPredicates.create(3, 4),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -64,8 +63,7 @@ public class TextQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            textQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, Optional.empty());
 
     TextQuestion textQuestion = new TextQuestion(applicantQuestion);
 
@@ -75,8 +73,7 @@ public class TextQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            textQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(textQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "hello");
 
@@ -91,7 +88,7 @@ public class TextQuestionTest extends ResetPostgres {
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -111,7 +108,7 @@ public class TextQuestionTest extends ResetPostgres {
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
-            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+            minAndMaxLengthTextQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerTextQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

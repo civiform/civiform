@@ -116,9 +116,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.editView =
-        editViewFactory.create(
-            new ApplicantQuestionRendererFactory(
-                fileUploadViewStrategy, configuration.getString("base_url")));
+        editViewFactory.create(new ApplicantQuestionRendererFactory(fileUploadViewStrategy));
     this.programService = checkNotNull(programService);
   }
 

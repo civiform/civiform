@@ -20,12 +20,9 @@ import views.FileUploadViewStrategy;
 public final class ApplicantQuestionRendererFactory {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
-  private final String baseUrl;
 
-  public ApplicantQuestionRendererFactory(
-      FileUploadViewStrategy fileUploadViewStrategy, String baseUrl) {
+  public ApplicantQuestionRendererFactory(FileUploadViewStrategy fileUploadViewStrategy) {
     this.fileUploadViewStrategy = checkNotNull(fileUploadViewStrategy);
-    this.baseUrl = baseUrl;
   }
 
   public ApplicantQuestionRenderer getSampleRenderer(QuestionType questionType)
@@ -34,7 +31,7 @@ public final class ApplicantQuestionRendererFactory {
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty(), baseUrl);
+        new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty());
     return getRenderer(applicantQuestion);
   }
 

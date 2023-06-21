@@ -42,8 +42,6 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
           .setValidationPredicates(MultiOptionValidationPredicates.create(1, 2))
           .setLastModifiedTime(Optional.empty())
           .build();
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
-
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new MultiOptionQuestionDefinition(CONFIG);
   private final ApplicantData applicantData = new ApplicantData();
@@ -55,8 +53,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    question =
-        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
+    question = new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params =
         ApplicantQuestionRendererParams.builder()

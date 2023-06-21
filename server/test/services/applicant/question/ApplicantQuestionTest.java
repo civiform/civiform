@@ -27,7 +27,6 @@ import support.TestQuestionBank;
 public class ApplicantQuestionTest {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(false);
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   @Test
   public void getContextualizedScalars_returnsContextualizedScalarsAndMetadataForType() {
@@ -35,8 +34,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
 
     ImmutableMap<Path, ScalarType> expected =
         ImmutableMap.of(
@@ -57,8 +55,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
 
     assertThatThrownBy(enumerationApplicantQuestion::getContextualizedScalars)
         .isInstanceOf(RuntimeException.class)
@@ -74,8 +71,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(definition, Optional.empty()).setOptional(true),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
 
     assertThat(question.errorsPresenter().getValidationErrors().isEmpty()).isTrue();
   }
@@ -86,8 +82,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantAddress().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(addressApplicantQuestion.createAddressQuestion())
         .isInstanceOf(AddressQuestion.class);
 
@@ -95,8 +90,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(checkboxApplicantQuestion.createMultiSelectQuestion())
         .isInstanceOf(MultiSelectQuestion.class);
 
@@ -104,8 +98,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantIceCream().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(dropdownApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
@@ -113,8 +106,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(enumeratorApplicantQuestion.createEnumeratorQuestion())
         .isInstanceOf(EnumeratorQuestion.class);
 
@@ -122,24 +114,21 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantName().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(nameApplicantQuestion.createNameQuestion()).isInstanceOf(NameQuestion.class);
 
     ApplicantQuestion numberApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(numberApplicantQuestion.createNumberQuestion()).isInstanceOf(NumberQuestion.class);
 
     ApplicantQuestion radioApplicantQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantSeason().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(radioApplicantQuestion.createSingleSelectQuestion())
         .isInstanceOf(SingleSelectQuestion.class);
 
@@ -147,16 +136,14 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(textApplicantQuestion.createTextQuestion()).isInstanceOf(TextQuestion.class);
 
     ApplicantQuestion phoneQuestion =
         new ApplicantQuestion(
             testQuestionBank.applicantPhone().getQuestionDefinition(),
             new ApplicantData(),
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     assertThat(phoneQuestion.createPhoneQuestion()).isInstanceOf(PhoneQuestion.class);
   }
 
@@ -171,109 +158,91 @@ public class ApplicantQuestionTest {
             new ApplicantQuestion(
                 testQuestionBank.applicantAddress().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantAddress().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Address
             new ApplicantQuestion(
                 testQuestionBank.applicantPhone().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantPhone().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Checkbox
             new ApplicantQuestion(
                 testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantKitchenTools().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Dropdown
             new ApplicantQuestion(
                 testQuestionBank.applicantIceCream().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantIceCream().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Name
             new ApplicantQuestion(
                 testQuestionBank.applicantName().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantName().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Number
             new ApplicantQuestion(
                 testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Radio button
             new ApplicantQuestion(
                 testQuestionBank.applicantSeason().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantSeason().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Text
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 new ApplicantData(),
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .addEqualityGroup(
             // Text with answered data
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 dataWithAnswers,
-                Optional.empty(),
-                FAKE_BASE_URL),
+                Optional.empty()),
             new ApplicantQuestion(
                 testQuestionBank.applicantFavoriteColor().getQuestionDefinition(),
                 dataWithAnswers,
-                Optional.empty(),
-                FAKE_BASE_URL))
+                Optional.empty()))
         .testEquals();
   }
 
@@ -318,8 +287,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantHouseholdMemberDaysWorked().getQuestionDefinition(),
             applicantData,
-            Optional.of(jonCo),
-            FAKE_BASE_URL);
+            Optional.of(jonCo));
 
     assertThat(applicantQuestion.getQuestionText())
         .isEqualTo("How many days has Jonathan worked at JonCo?");
@@ -336,8 +304,7 @@ public class ApplicantQuestionTest {
         new ApplicantQuestion(
             testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
             applicantData,
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath().withoutArrayReference(), 1L, 2L);
 
@@ -354,7 +321,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
@@ -370,7 +337,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId + 1, 1L);
 
@@ -386,7 +353,7 @@ public class ApplicantQuestionTest {
             testQuestionBank.applicantJugglingNumber().getQuestionDefinition(),
             Optional.of(programId));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "5");
     QuestionAnswerer.addMetadata(
@@ -405,7 +372,7 @@ public class ApplicantQuestionTest {
                 Optional.of(programId))
             .setOptional(true);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
@@ -430,7 +397,7 @@ public class ApplicantQuestionTest {
             .setOptional(true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
 
     assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isTrue();
   }
@@ -453,7 +420,7 @@ public class ApplicantQuestionTest {
             .setOptional(true);
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
 
     assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isFalse();
   }
@@ -475,7 +442,7 @@ public class ApplicantQuestionTest {
             Optional.of(programId));
 
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
 
     assertThat(applicantQuestion.isAnsweredOrSkippedOptionalInProgram()).isFalse();
   }
@@ -489,7 +456,7 @@ public class ApplicantQuestionTest {
                 testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId))
             .setAddressCorrectionEnabled(true);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 
@@ -504,7 +471,7 @@ public class ApplicantQuestionTest {
         ProgramQuestionDefinition.create(
             testQuestionBank.applicantAddress().getQuestionDefinition(), Optional.of(programId));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(pqd, applicantData, Optional.empty());
     QuestionAnswerer.addMetadata(
         applicantData, applicantQuestion.getContextualizedPath(), programId, 1L);
 

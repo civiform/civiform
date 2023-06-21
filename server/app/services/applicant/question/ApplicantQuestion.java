@@ -28,7 +28,6 @@ public final class ApplicantQuestion {
   private final ProgramQuestionDefinition programQuestionDefinition;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
-  private final String baseUrl;
 
   /**
    * If this is a repeated question, it should be created with the repeated entity associated with
@@ -38,12 +37,10 @@ public final class ApplicantQuestion {
   public ApplicantQuestion(
       ProgramQuestionDefinition programQuestionDefinition,
       ApplicantData applicantData,
-      Optional<RepeatedEntity> repeatedEntity,
-      String baseUrl) {
+      Optional<RepeatedEntity> repeatedEntity) {
     this.programQuestionDefinition = checkNotNull(programQuestionDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
-    this.baseUrl = baseUrl;
   }
 
   /**
@@ -55,13 +52,11 @@ public final class ApplicantQuestion {
   public ApplicantQuestion(
       QuestionDefinition questionDefinition,
       ApplicantData applicantData,
-      Optional<RepeatedEntity> repeatedEntity,
-      String baseUrl) {
+      Optional<RepeatedEntity> repeatedEntity) {
     this.programQuestionDefinition =
         ProgramQuestionDefinition.create(checkNotNull(questionDefinition), Optional.empty());
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
-    this.baseUrl = baseUrl;
   }
 
   public ApplicantData getApplicantData() {
@@ -76,7 +71,7 @@ public final class ApplicantQuestion {
     return getQuestionDefinition().getQuestionType();
   }
 
-  public long getProgramDefinitionId() {
+  public long getProgramId() {
     return programQuestionDefinition.getProgramDefinitionId();
   }
 
@@ -241,7 +236,7 @@ public final class ApplicantQuestion {
   }
 
   public FileUploadQuestion createFileUploadQuestion() {
-    return new FileUploadQuestion(this, baseUrl);
+    return new FileUploadQuestion(this);
   }
 
   public boolean isFileUploadQuestion() {

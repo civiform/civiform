@@ -50,7 +50,6 @@ public class NumberQuestionTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "help text"),
           NumberQuestionDefinition.NumberValidationPredicates.create(50, 100),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -66,8 +65,7 @@ public class NumberQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
 
     NumberQuestion numberQuestion = new NumberQuestion(applicantQuestion);
 
@@ -77,8 +75,7 @@ public class NumberQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
@@ -91,8 +88,7 @@ public class NumberQuestionTest extends ResetPostgres {
   @Test
   public void withValidValue_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), 800);
 
@@ -106,8 +102,7 @@ public class NumberQuestionTest extends ResetPostgres {
   @Parameters({"50", "75", "100"})
   public void withMinAndMaxValue_withValidValue_passesValidation(long value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxNumberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -128,8 +123,7 @@ public class NumberQuestionTest extends ResetPostgres {
   public void withMinAndMaxValue_withInvalidValue_failsValidation(
       long value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxNumberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -149,8 +143,7 @@ public class NumberQuestionTest extends ResetPostgres {
   @Test
   public void withMinAndMaxValue_withEmptyValueAtPath_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxNumberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(minAndMaxNumberQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNumberQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
 
@@ -167,8 +160,7 @@ public class NumberQuestionTest extends ResetPostgres {
             .join(Scalar.NUMBER);
     applicantData.setFailedUpdates(ImmutableMap.of(numberPath, "invalid_input"));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            numberQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(numberQuestionDefinition, applicantData, Optional.empty());
 
     NumberQuestion numberQuestion = applicantQuestion.createNumberQuestion();
 

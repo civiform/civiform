@@ -18,13 +18,10 @@ import views.style.ReferenceClasses;
 public final class QuestionPreview {
 
   private static DivTag buildQuestionRenderer(
-      QuestionType type,
-      Messages messages,
-      FileUploadViewStrategy fileUploadViewStrategy,
-      String baseUrl)
+      QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy)
       throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory rf =
-        new ApplicantQuestionRendererFactory(fileUploadViewStrategy, baseUrl);
+        new ApplicantQuestionRendererFactory(fileUploadViewStrategy);
     ApplicantQuestionRendererParams params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
@@ -34,10 +31,7 @@ public final class QuestionPreview {
   }
 
   public static DivTag renderQuestionPreview(
-      QuestionType type,
-      Messages messages,
-      FileUploadViewStrategy fileUploadViewStrategy,
-      String baseUrl) {
+      QuestionType type, Messages messages, FileUploadViewStrategy fileUploadViewStrategy) {
     DivTag titleContainer =
         div()
             .withId("sample-render")
@@ -50,7 +44,7 @@ public final class QuestionPreview {
 
     DivTag renderedQuestion;
     try {
-      renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy, baseUrl);
+      renderedQuestion = buildQuestionRenderer(type, messages, fileUploadViewStrategy);
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }

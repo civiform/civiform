@@ -21,13 +21,11 @@ public final class FileUploadQuestion extends Question {
   // and if they are this value could still not be set.
   private Optional<Optional<String>> fileKeyValueCache;
   private Optional<Optional<String>> originalFileNameValueCache;
-  private final String baseUrl;
 
-  FileUploadQuestion(ApplicantQuestion applicantQuestion, String baseUrl) {
+  FileUploadQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();
-    this.baseUrl = baseUrl;
   }
 
   @Override

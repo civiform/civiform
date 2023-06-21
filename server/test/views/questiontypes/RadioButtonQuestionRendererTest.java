@@ -59,7 +59,7 @@ public class RadioButtonQuestionRendererTest {
   @Before
   public void setup() {
     applicantData = new ApplicantData();
-    question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty(), "fakebaseurl.gov");
+    question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
     renderer = new RadioButtonQuestionRenderer(question);
   }
 

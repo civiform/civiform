@@ -21,7 +21,6 @@ import services.question.types.QuestionDefinition;
 import support.TestQuestionBank;
 
 public class PredicateEvaluatorTest {
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private final TestQuestionBank questionBank = new TestQuestionBank(false);
   private final QuestionDefinition addressQuestion =
@@ -35,8 +34,7 @@ public class PredicateEvaluatorTest {
   @Before
   public void setupEvaluator() {
     applicantData = new ApplicantData();
-    applicantQuestion =
-        new ApplicantQuestion(addressQuestion, applicantData, Optional.empty(), FAKE_BASE_URL);
+    applicantQuestion = new ApplicantQuestion(addressQuestion, applicantData, Optional.empty());
     generator =
         new JsonPathPredicateGenerator(
             Mockito.mock(DateConverter.class), ImmutableList.of(addressQuestion), Optional.empty());

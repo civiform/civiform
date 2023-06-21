@@ -88,6 +88,7 @@ public abstract class AnswerData {
    * Paths and their answers for each scalar (in {@link services.LocalizedStrings#DEFAULT_LOCALE}
    * for {@link services.question.LocalizedQuestionOption}s based answers) to present to admins.
    */
+  // TODO(#4872): remove this attribute and rely on getJsonEntries on a per-question basis.
   public abstract ImmutableMap<Path, String> scalarAnswersInDefaultLocale();
 
   @AutoValue.Builder

@@ -32,7 +32,6 @@ public class DateQuestionTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -46,8 +45,7 @@ public class DateQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            dateQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
 
     DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
 
@@ -57,8 +55,7 @@ public class DateQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            dateQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerDateQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "2021-05-10");
 
@@ -76,8 +73,7 @@ public class DateQuestionTest extends ResetPostgres {
             .join(Scalar.DATE);
     applicantData.setFailedUpdates(ImmutableMap.of(datePath, "invalid_input"));
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            dateQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(dateQuestionDefinition, applicantData, Optional.empty());
 
     DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 

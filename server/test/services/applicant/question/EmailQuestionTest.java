@@ -27,7 +27,6 @@ public class EmailQuestionTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "question?"),
           LocalizedStrings.of(Locale.US, "help text"),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -41,8 +40,7 @@ public class EmailQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            emailQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(emailQuestionDefinition, applicantData, Optional.empty());
 
     EmailQuestion emailQuestion = new EmailQuestion(applicantQuestion);
 
@@ -52,8 +50,7 @@ public class EmailQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            emailQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(emailQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerEmailQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "test1@gmail.com");
 

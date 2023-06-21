@@ -64,7 +64,7 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    block = new Block("id", blockDefinition, applicantData, Optional.empty(), "fakebaseurl.gov");
+    block = new Block("id", blockDefinition, applicantData, Optional.empty());
   }
 
   @Test
@@ -149,8 +149,7 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, applicantData, Optional.empty(), "fakebaseurl.gov");
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(
@@ -195,8 +194,7 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .addQuestion(pqd)
             .build();
 
-    Block block =
-        new Block("id", blockDefinition, applicantData, Optional.empty(), "fakebaseurl.gov");
+    Block block = new Block("id", blockDefinition, applicantData, Optional.empty());
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(

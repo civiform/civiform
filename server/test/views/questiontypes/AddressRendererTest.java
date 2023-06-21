@@ -31,7 +31,6 @@ public class AddressRendererTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "help text"),
           AddressQuestionDefinition.AddressValidationPredicates.create(),
           Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -42,8 +41,7 @@ public class AddressRendererTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    question =
-        new ApplicantQuestion(ADDRESS_QUESTION, applicantData, Optional.empty(), FAKE_BASE_URL);
+    question = new ApplicantQuestion(ADDRESS_QUESTION, applicantData, Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params =
         ApplicantQuestionRendererParams.builder()

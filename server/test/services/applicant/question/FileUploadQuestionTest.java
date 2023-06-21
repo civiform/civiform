@@ -27,8 +27,6 @@ public class FileUploadQuestionTest {
           LocalizedStrings.of(Locale.US, "help text"),
           /* lastModifiedTime= */ Optional.empty());
 
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
-
   private Applicant applicant;
   private ApplicantData applicantData;
 
@@ -41,11 +39,9 @@ public class FileUploadQuestionTest {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
 
-    FileUploadQuestion fileUploadQuestion =
-        new FileUploadQuestion(applicantQuestion, FAKE_BASE_URL);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getValidationErrors().isEmpty()).isTrue();
   }
@@ -53,13 +49,11 @@ public class FileUploadQuestionTest {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "file-key");
 
-    FileUploadQuestion fileUploadQuestion =
-        new FileUploadQuestion(applicantQuestion, FAKE_BASE_URL);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFileKeyValue().get()).isEqualTo("file-key");
     assertThat(fileUploadQuestion.getValidationErrors().isEmpty()).isTrue();
@@ -68,11 +62,9 @@ public class FileUploadQuestionTest {
   @Test
   public void getFilename_notAnswered_returnsEmpty() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
 
-    FileUploadQuestion fileUploadQuestion =
-        new FileUploadQuestion(applicantQuestion, FAKE_BASE_URL);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFilename()).isEmpty();
   }
@@ -80,12 +72,10 @@ public class FileUploadQuestionTest {
   @Test
   public void getFilename_emptyAnswer_returnsEmpty() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "");
-    FileUploadQuestion fileUploadQuestion =
-        new FileUploadQuestion(applicantQuestion, FAKE_BASE_URL);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFilename()).isEmpty();
   }
@@ -93,15 +83,13 @@ public class FileUploadQuestionTest {
   @Test
   public void getFilename() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
         "applicant-123/program-456/block-789/filename");
 
-    FileUploadQuestion fileUploadQuestion =
-        new FileUploadQuestion(applicantQuestion, FAKE_BASE_URL);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFilename().get()).isEqualTo("filename");
   }
@@ -109,15 +97,13 @@ public class FileUploadQuestionTest {
   @Test
   public void getFilename_specialCharacters() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            fileUploadQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(fileUploadQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerFileQuestion(
         applicantData,
         applicantQuestion.getContextualizedPath(),
         "applicant-123/program-456/block-789/file%?\\/^&!@");
 
-    FileUploadQuestion fileUploadQuestion =
-        new FileUploadQuestion(applicantQuestion, FAKE_BASE_URL);
+    FileUploadQuestion fileUploadQuestion = new FileUploadQuestion(applicantQuestion);
 
     assertThat(fileUploadQuestion.getFilename().get()).isEqualTo("file%?\\/^&!@");
   }

@@ -32,7 +32,6 @@ public class IdQuestionRendererTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "help text"),
           IdValidationPredicates.create(2, 3),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private final ApplicantData applicantData = new ApplicantData();
 
@@ -48,8 +47,7 @@ public class IdQuestionRendererTest extends ResetPostgres {
             ProgramQuestionDefinition.create(ID_QUESTION_DEFINITION, Optional.empty())
                 .setOptional(true),
             applicantData,
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
     messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
     params =
         ApplicantQuestionRendererParams.builder()

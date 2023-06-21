@@ -29,7 +29,6 @@ public class NameQuestionTest {
           LocalizedStrings.of(Locale.US, "help text"),
           NameQuestionDefinition.NameValidationPredicates.create(),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -47,8 +46,7 @@ public class NameQuestionTest {
             ProgramQuestionDefinition.create(nameQuestionDefinition, Optional.empty())
                 .setOptional(true),
             applicantData,
-            Optional.empty(),
-            FAKE_BASE_URL);
+            Optional.empty());
 
     NameQuestion nameQuestion = new NameQuestion(applicantQuestion);
 
@@ -63,8 +61,7 @@ public class NameQuestionTest {
   public void withValidApplicantData_passesValidation(
       String firstName, String middleName, String lastName) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            nameQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNameQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 
@@ -83,8 +80,7 @@ public class NameQuestionTest {
   public void withInvalidApplicantData_failsValidation(
       String firstName, String middleName, String lastName) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            nameQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(nameQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerNameQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), firstName, middleName, lastName);
 

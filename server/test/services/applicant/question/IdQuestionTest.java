@@ -48,7 +48,6 @@ public class IdQuestionTest extends ResetPostgres {
           LocalizedStrings.of(Locale.US, "help text"),
           IdQuestionDefinition.IdValidationPredicates.create(3, 4),
           /* lastModifiedTime= */ Optional.empty());
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   private Applicant applicant;
   private ApplicantData applicantData;
@@ -64,7 +63,7 @@ public class IdQuestionTest extends ResetPostgres {
   @Test
   public void withEmptyApplicantData() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
 
     IdQuestion idQuestion = new IdQuestion(applicantQuestion);
 
@@ -74,7 +73,7 @@ public class IdQuestionTest extends ResetPostgres {
   @Test
   public void withApplicantData_passesValidation() {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(idQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), "12345");
 
@@ -88,8 +87,7 @@ public class IdQuestionTest extends ResetPostgres {
   @Parameters({"012", "0123"})
   public void withMinAndMaxLength_withValidApplicantData_passesValidation(String value) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 
@@ -109,8 +107,7 @@ public class IdQuestionTest extends ResetPostgres {
   public void withMinAndMaxLength_withInvalidApplicantData_failsValidation(
       String value, String expectedErrorMessage) {
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(
-            minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty(), FAKE_BASE_URL);
+        new ApplicantQuestion(minAndMaxLengthIdQuestionDefinition, applicantData, Optional.empty());
     QuestionAnswerer.answerIdQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), value);
 

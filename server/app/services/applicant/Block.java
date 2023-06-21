@@ -49,7 +49,6 @@ public final class Block {
   private final BlockDefinition blockDefinition;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
-  private final String baseUrl;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
@@ -58,13 +57,11 @@ public final class Block {
       String id,
       BlockDefinition blockDefinition,
       ApplicantData applicantData,
-      Optional<RepeatedEntity> repeatedEntity,
-      String baseUrl) {
+      Optional<RepeatedEntity> repeatedEntity) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
-    this.baseUrl = baseUrl;
   }
 
   public String getId() {
@@ -164,7 +161,7 @@ public final class Block {
                   .map(
                       programQuestionDefinition ->
                           new ApplicantQuestion(
-                              programQuestionDefinition, applicantData, repeatedEntity, baseUrl))
+                              programQuestionDefinition, applicantData, repeatedEntity))
                   .collect(toImmutableList()));
     }
     return questionsMemo.get();

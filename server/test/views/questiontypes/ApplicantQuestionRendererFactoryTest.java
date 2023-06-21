@@ -28,13 +28,12 @@ public class ApplicantQuestionRendererFactoryTest {
           .setMessages(messages)
           .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
           .build();
-  private static final String FAKE_BASE_URL = "fakebaseurl.gov";
 
   @Test
   @Parameters(source = QuestionType.class)
   public void rendererExistsForAllTypes(QuestionType type) throws UnsupportedQuestionTypeException {
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy(), FAKE_BASE_URL);
+        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
@@ -50,7 +49,7 @@ public class ApplicantQuestionRendererFactoryTest {
       throws UnsupportedQuestionTypeException {
     // Multi-input questions should be wrapped in fieldsets for screen reader users.
     ApplicantQuestionRendererFactory factory =
-        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy(), FAKE_BASE_URL);
+        new ApplicantQuestionRendererFactory(new AwsFileUploadViewStrategy());
 
     ApplicantQuestionRenderer sampleRenderer = factory.getSampleRenderer(type);
 
