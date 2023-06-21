@@ -6,6 +6,7 @@ import auth.Authorizers;
 import controllers.CiviFormController;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import play.mvc.Http;
 import play.mvc.Result;
 import views.admin.settings.AdminSettingsIndexView;
 
@@ -22,5 +23,10 @@ public class AdminSettingsController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index() {
     return ok(indexView.render());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result update(Http.Request request) {
+    return redirect(routes.AdminSettingsController.index());
   }
 }

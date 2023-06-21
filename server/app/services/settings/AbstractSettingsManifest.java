@@ -1,6 +1,8 @@
 package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.settings.SettingMode.ADMIN_WRITEABLE;
+import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -21,9 +23,11 @@ public abstract class AbstractSettingsManifest {
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSettingsManifest.class);
 
   private final Config config;
+  private final SettingsService settingsService;
 
-  public AbstractSettingsManifest(Config config) {
+  public AbstractSettingsManifest(Config config, SettingsService settingsService) {
     this.config = checkNotNull(config);
+    this.settingsService = checkNotNull(settingsService);
   }
 
   /**
@@ -39,6 +43,13 @@ public abstract class AbstractSettingsManifest {
     }
 
     return map.build();
+  }
+
+  public ImmutableList<SettingDescription> getAllAdminWriteableSettingDescriptions() {
+    return getSections().values().stream()
+        .flatMap(section -> getSettingDescriptions(section).stream())
+        .filter(settingDescription -> settingDescription.settingMode().equals(ADMIN_WRITEABLE))
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ImmutableList<SettingDescription> getAllFeatureFlagsSettingDescriptions() {
@@ -84,13 +95,34 @@ public abstract class AbstractSettingsManifest {
     }
   }
 
+  public Optional<String> getSettingSerializationValue(SettingDescription settingDescription) {
+    switch (settingDescription.settingType()) {
+      case BOOLEAN:
+        return getBool(settingDescription).map(String::valueOf);
+      case INT:
+        return getInt(settingDescription).map(String::valueOf);
+      case LIST_OF_STRINGS:
+        return getListOfStrings(settingDescription).map(list -> String.join(",", list));
+      case ENUM:
+      case STRING:
+        return getString(settingDescription).map(String::valueOf);
+      default:
+        throw new IllegalStateException(
+            "Unknown setting type: " + settingDescription.settingType());
+    }
+  }
+
   /**
    * Gets the config value for the given setting name. If overrides are enabled and the request
    * contains an override for the setting, returns that value, otherwise uses the value from the
    * application config.
    */
   public boolean getBool(String settingName, Http.Request request) {
-    Boolean configValue = getBool(settingName);
+    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+
+    boolean configValue = writableSettings.containsKey(settingName) ?
+      writableSettings.get(settingName).equals("true") :
+      getBool(settingName);
 
     if (!overridesEnabled()) {
       return configValue;
@@ -152,7 +184,7 @@ public abstract class AbstractSettingsManifest {
     return variableName.toLowerCase(Locale.ROOT);
   }
 
-  private static String getHoconName(SettingDescription settingDescription) {
+  public static String getHoconName(SettingDescription settingDescription) {
     return getHoconName(settingDescription.variableName());
   }
 }

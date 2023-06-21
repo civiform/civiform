@@ -2,6 +2,7 @@ package services.settings;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -73,8 +74,11 @@ public abstract class SettingDescription {
   // the value of this setting must match the regex.
   public abstract Optional<Pattern> validationRegex();
 
+  private static final ImmutableSet<SettingMode> DISPLAYABLE_SETTING_MODES =
+      ImmutableSet.of(SettingMode.ADMIN_WRITEABLE, SettingMode.ADMIN_READABLE);
+
   /** True if the setting should be displayed in the UI. */
   public boolean shouldDisplay() {
-    return settingMode().equals(SettingMode.ADMIN_READABLE);
+    return DISPLAYABLE_SETTING_MODES.contains(settingMode());
   }
 }

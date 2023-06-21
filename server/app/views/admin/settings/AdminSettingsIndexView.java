@@ -3,26 +3,32 @@ package views.admin.settings;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.rawHtml;
+import static play.mvc.Http.HttpVerbs.POST;
 import static services.settings.AbstractSettingsManifest.FEATURE_FLAG_SETTING_SECTION_NAME;
 
 import com.google.common.collect.ImmutableList;
+import controllers.admin.routes;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
 import modules.MainModule;
 import play.twirl.api.Content;
 import services.settings.SettingDescription;
+import services.settings.SettingMode;
 import services.settings.SettingsManifest;
 import services.settings.SettingsSection;
 import views.BaseHtmlView;
 import views.CiviFormMarkdown;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
+import views.components.FieldWithLabel;
 import views.style.StyleUtils;
 
 /** Displays application settings for the CiviForm Admin role. */
@@ -54,7 +60,11 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   }
 
   public Content render() {
-    var settingsManifestContent = div().withClasses("my-10");
+    var settingsManifestContent =
+        form()
+            .withAction(routes.AdminSettingsController.update().url())
+            .withMethod(POST)
+            .withClasses("my-10");
     var settingsContent =
         div(renderSideNav(), settingsManifestContent).withClasses("flex", "flex-grow");
     var mainContent =
@@ -119,20 +129,42 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   }
 
   private DivTag renderSetting(SettingDescription settingDescription) {
-    Optional<String> value =
-        settingsManifest.getSettingDisplayValue(settingDescription).filter(v -> !v.isBlank());
     String renderedDescriptionHtml =
         civiFormMarkdown.render(settingDescription.settingDescription());
 
     return div(
             div(settingDescription.variableName()).withClasses("font-semibold", "break-all"),
             div(rawHtml(renderedDescriptionHtml)).withClasses("text-sm"),
-            input()
-                .withValue(value.orElse("empty"))
-                .isReadonly()
-                .isDisabled()
-                .withClasses(
-                    "px-1", "w-full", "bg-slate-200", "mt-2", value.isEmpty() ? "italic" : ""))
+            renderSettingInput(settingDescription))
         .withClasses("max-w-md");
+  }
+
+  private DomContent renderSettingInput(SettingDescription settingDescription) {
+    Optional<String> value =
+        settingsManifest.getSettingDisplayValue(settingDescription).filter(v -> !v.isBlank());
+
+    if (settingDescription.settingMode().equals(SettingMode.ADMIN_READABLE)) {
+      return input()
+          .withValue(value.orElse("empty"))
+          .isReadonly()
+          .isDisabled()
+          .withClasses("px-1", "w-full", "bg-slate-200", "mt-2", value.isEmpty() ? "italic" : "");
+    }
+
+    boolean isEnabled = value.map("true"::equals).orElse(false);
+
+    return div(
+        FieldWithLabel.radio()
+            .setFieldName(settingDescription.variableName())
+            .setLabelText("Enabled")
+            .setChecked(isEnabled)
+            .setValue("true")
+            .getRadioTag(),
+        FieldWithLabel.radio()
+            .setFieldName(settingDescription.variableName())
+            .setLabelText("Disabled")
+            .setChecked(!isEnabled)
+            .setValue("false")
+            .getRadioTag());
   }
 }
