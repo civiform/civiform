@@ -57,7 +57,7 @@ public final class JsonExporter {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.dateConverter = dateConverter;
-    this.presenterFactory = presenterFactory;
+    this.presenterFactory = checkNotNull(presenterFactory);
   }
 
   public Pair<String, PaginationResult<Application>> export(
@@ -134,6 +134,9 @@ public final class JsonExporter {
 
   private void exportToJsonApplication(
       CfJsonDocumentContext jsonApplication, AnswerData answerData) {
+    // We suppress the unchecked warning because create() returns a genericized
+    // QuestionJsonPresenter, but we ignore the generic's type so that we can get
+    // the json entries for any Question in one line.
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, ?> entries =
         presenterFactory.create(answerData).getJsonEntries(answerData.createQuestion());

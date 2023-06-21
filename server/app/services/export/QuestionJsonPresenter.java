@@ -1,5 +1,6 @@
 package services.export;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.collect.ImmutableList;
@@ -7,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
-import com.typesafe.config.Config;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -27,7 +27,14 @@ import services.applicant.question.Scalar;
 import services.applicant.question.SingleSelectQuestion;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 
+/**
+ * A {@link QuestionJsonPresenter} for a Question {@link Q} provides a strategy for showing the
+ * question's answers in JSON form.
+ *
+ * <p>Some {@link QuestionType}s share the same {@link QuestionJsonPresenter}.
+ */
 public interface QuestionJsonPresenter<Q extends Question> {
 
   /** The entries that should be present in a JSON export of answers, for this question. */
@@ -56,15 +63,15 @@ public interface QuestionJsonPresenter<Q extends Question> {
         NumberJsonPresenter numberJsonPresenter,
         FileUploadJsonPresenter fileUploadJsonPresenter,
         MultiSelectJsonPresenter multiSelectJsonPresenter) {
-      this.currencyJsonPresenter = currencyJsonPresenter;
-      this.contextualizedScalarsJsonPresenter = contextualizedScalarsJsonPresenter;
-      this.emptyJsonPresenter = emptyJsonPresenter;
-      this.dateJsonPresenter = dateJsonPresenter;
-      this.fileUploadJsonPresenter = fileUploadJsonPresenter;
-      this.numberJsonPresenter = numberJsonPresenter;
-      this.phoneJsonPresenter = phoneJsonPresenter;
-      this.multiSelectJsonPresenter = multiSelectJsonPresenter;
-      this.singleSelectJsonPresenter = singleSelectJsonPresenter;
+      this.currencyJsonPresenter = checkNotNull(currencyJsonPresenter);
+      this.contextualizedScalarsJsonPresenter = checkNotNull(contextualizedScalarsJsonPresenter);
+      this.emptyJsonPresenter = checkNotNull(emptyJsonPresenter);
+      this.dateJsonPresenter = checkNotNull(dateJsonPresenter);
+      this.fileUploadJsonPresenter = checkNotNull(fileUploadJsonPresenter);
+      this.numberJsonPresenter = checkNotNull(numberJsonPresenter);
+      this.phoneJsonPresenter = checkNotNull(phoneJsonPresenter);
+      this.multiSelectJsonPresenter = checkNotNull(multiSelectJsonPresenter);
+      this.singleSelectJsonPresenter = checkNotNull(singleSelectJsonPresenter);
     }
 
     QuestionJsonPresenter create(AnswerData answerData) {
@@ -77,11 +84,9 @@ public interface QuestionJsonPresenter<Q extends Question> {
         case TEXT:
           return contextualizedScalarsJsonPresenter;
 
-          // Answers to enumerator questions are not be included because the path is
-          // incompatible with the JSON export schema. This is because enumerators store an
-          // identifier
-          // value for each repeated entity, which with the current export logic conflicts with the
-          // answers stored for repeated entities.
+          // Answers to enumerator questions are not included. This is because enumerators store an
+          // identifier value for each repeated entity, which with the current export logic
+          // conflicts with the answers stored for repeated entities.
         case ENUMERATOR:
 
           // Static content questions are not included in API responses because they
@@ -116,8 +121,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
     private final String baseUrl;
 
     @Inject
-    FileUploadJsonPresenter(Config config) {
-      baseUrl = config.getString("base_url");
+    FileUploadJsonPresenter(SettingsManifest settingsManifest) {
+      baseUrl = settingsManifest.getBaseUrl().orElse("");
     }
 
     @Override
