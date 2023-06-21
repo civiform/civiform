@@ -4,6 +4,9 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.i18n.phonenumbers.NumberParseException;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
+import com.google.i18n.phonenumbers.Phonenumber;
 import com.typesafe.config.Config;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -30,38 +33,38 @@ public interface QuestionJsonPresenter<Q extends Question> {
   /** The entries that should be present in a JSON export of answers, for this question. */
   ImmutableMap<Path, ?> getJsonEntries(Q question);
 
-  class Factory {
+  final class Factory {
 
     private final CurrencyJsonPresenter currencyJsonPresenter;
     private final ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter;
     private final DateJsonPresenter dateJsonPresenter;
     private final EmptyJsonPresenter emptyJsonPresenter;
-    private final FileUploadQuestionJsonPresenter fileUploadQuestionJsonPresenter;
-    private final NumberQuestionJsonPresenter numberQuestionJsonPresenter;
-    private final PhoneQuestionJsonPresenter phoneQuestionJsonPresenter;
-    private final MultiSelectQuestionJsonPresenter multiSelectQuestionJsonPresenter;
-    private final SingleSelectQuestionJsonPresenter singleSelectQuestionJsonPresenter;
+    private final FileUploadJsonPresenter fileUploadJsonPresenter;
+    private final NumberJsonPresenter numberJsonPresenter;
+    private final PhoneJsonPresenter phoneJsonPresenter;
+    private final MultiSelectJsonPresenter multiSelectJsonPresenter;
+    private final SingleSelectJsonPresenter singleSelectJsonPresenter;
 
     @Inject
     Factory(
         CurrencyJsonPresenter currencyJsonPresenter,
         ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter,
         DateJsonPresenter dateJsonPresenter,
-        PhoneQuestionJsonPresenter phoneQuestionJsonPresenter,
+        PhoneJsonPresenter phoneJsonPresenter,
         EmptyJsonPresenter emptyJsonPresenter,
-        SingleSelectQuestionJsonPresenter singleSelectQuestionJsonPresenter,
-        NumberQuestionJsonPresenter numberQuestionJsonPresenter,
-        FileUploadQuestionJsonPresenter fileUploadQuestionJsonPresenter,
-        MultiSelectQuestionJsonPresenter multiSelectQuestionJsonPresenter) {
+        SingleSelectJsonPresenter singleSelectJsonPresenter,
+        NumberJsonPresenter numberJsonPresenter,
+        FileUploadJsonPresenter fileUploadJsonPresenter,
+        MultiSelectJsonPresenter multiSelectJsonPresenter) {
       this.currencyJsonPresenter = currencyJsonPresenter;
       this.contextualizedScalarsJsonPresenter = contextualizedScalarsJsonPresenter;
       this.emptyJsonPresenter = emptyJsonPresenter;
       this.dateJsonPresenter = dateJsonPresenter;
-      this.fileUploadQuestionJsonPresenter = fileUploadQuestionJsonPresenter;
-      this.numberQuestionJsonPresenter = numberQuestionJsonPresenter;
-      this.phoneQuestionJsonPresenter = phoneQuestionJsonPresenter;
-      this.multiSelectQuestionJsonPresenter = multiSelectQuestionJsonPresenter;
-      this.singleSelectQuestionJsonPresenter = singleSelectQuestionJsonPresenter;
+      this.fileUploadJsonPresenter = fileUploadJsonPresenter;
+      this.numberJsonPresenter = numberJsonPresenter;
+      this.phoneJsonPresenter = phoneJsonPresenter;
+      this.multiSelectJsonPresenter = multiSelectJsonPresenter;
+      this.singleSelectJsonPresenter = singleSelectJsonPresenter;
     }
 
     QuestionJsonPresenter create(AnswerData answerData) {
@@ -87,16 +90,16 @@ public interface QuestionJsonPresenter<Q extends Question> {
           return emptyJsonPresenter;
 
         case CHECKBOX:
-          return multiSelectQuestionJsonPresenter;
+          return multiSelectJsonPresenter;
         case FILEUPLOAD:
-          return fileUploadQuestionJsonPresenter;
+          return fileUploadJsonPresenter;
         case NUMBER:
-          return numberQuestionJsonPresenter;
+          return numberJsonPresenter;
         case PHONE:
-          return phoneQuestionJsonPresenter;
+          return phoneJsonPresenter;
         case RADIO_BUTTON:
         case DROPDOWN:
-          return singleSelectQuestionJsonPresenter;
+          return singleSelectJsonPresenter;
         case CURRENCY:
           return currencyJsonPresenter;
         case DATE:
@@ -108,12 +111,12 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class FileUploadQuestionJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
+  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
 
     private final String baseUrl;
 
     @Inject
-    FileUploadQuestionJsonPresenter(Config config) {
+    FileUploadJsonPresenter(Config config) {
       baseUrl = config.getString("base_url");
     }
 
@@ -135,7 +138,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class MultiSelectQuestionJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
+  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
 
     @Override
     public ImmutableMap<Path, ImmutableList<String>> getJsonEntries(MultiSelectQuestion question) {
@@ -155,6 +158,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
   }
 
   class ContextualizedScalarsJsonPresenter implements QuestionJsonPresenter<Question> {
+    @Override
     public ImmutableMap<Path, String> getJsonEntries(Question question) {
       return question.getApplicantQuestion().getContextualizedScalars().keySet().stream()
           .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
@@ -171,6 +175,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
   }
 
   class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
+    @Override
     public ImmutableMap<Path, Double> getJsonEntries(CurrencyQuestion question) {
       Path path =
           question.getCurrencyPath().asApplicationPath().replacingLastSegment("currency_dollars");
@@ -186,6 +191,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
   }
 
   class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
+    @Override
     public ImmutableMap<Path, String> getJsonEntries(DateQuestion question) {
       Path path = question.getDatePath().asApplicationPath();
 
@@ -198,30 +204,15 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
-    public ImmutableMap<Path, ImmutableList<String>> getJsonEntries(MultiSelectQuestion question) {
-      Path path = question.getSelectionPath().asApplicationPath();
-
-      if (question.getSelectedOptionsValue().isPresent()) {
-        ImmutableList<String> selectedOptions =
-            question.getSelectedOptionsValue().get().stream()
-                .map(LocalizedQuestionOption::optionText)
-                .collect(ImmutableList.toImmutableList());
-
-        return ImmutableMap.of(path, selectedOptions);
-      }
-
-      return ImmutableMap.of();
-    }
-  }
-
   class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
+    @Override
     public ImmutableMap<Path, ?> getJsonEntries(Question question) {
       return ImmutableMap.of();
     }
   }
 
-  class NumberQuestionJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
+  class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
+    @Override
     public ImmutableMap<Path, Long> getJsonEntries(NumberQuestion question) {
       Path path = question.getNumberPath().asApplicationPath();
 
@@ -233,23 +224,43 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class PhoneQuestionJsonPresenter implements QuestionJsonPresenter<PhoneQuestion> {
+  class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion> {
+
+    private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+
+    @Override
     public ImmutableMap<Path, String> getJsonEntries(PhoneQuestion question) {
       Path path = question.getPhoneNumberPath().asApplicationPath();
 
       if (question.getPhoneNumberValue().isPresent()
           && question.getCountryCodeValue().isPresent()) {
         String formattedPhone =
-            question.getFormattedPhoneNumber(
+            getFormattedPhoneNumber(
                 question.getPhoneNumberValue().get(), question.getCountryCodeValue().get());
         return ImmutableMap.of(path, formattedPhone);
       } else {
         return ImmutableMap.of();
       }
     }
+
+    /**
+     * This method accepts a phoneNumber as String and the countryCode which is iso alpha 2 format
+     * as a String. It formats the phone number per E164 format. For a sample input of
+     * phoneNumberValue="2123456789" with countryCode="US", the output will be +12123456789
+     */
+    private static String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
+      try {
+        Phonenumber.PhoneNumber phoneNumber =
+            PHONE_NUMBER_UTIL.parse(phoneNumberValue, countryCode);
+        return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
+      } catch (NumberParseException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
-  class SingleSelectQuestionJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
+  class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
+    @Override
     public ImmutableMap<Path, String> getJsonEntries(SingleSelectQuestion question) {
       return ImmutableMap.of(
           question.getApplicantQuestion().getContextualizedPath().join(Scalar.SELECTION),
