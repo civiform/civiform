@@ -451,6 +451,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * Returns the {@link Path}s and their corresponding scalar answers to a {@link
    * ApplicantQuestion}. Answers do not include metadata.
    */
+  // TODO(#4872): remove this method.
   private ImmutableMap<Path, String> getScalarAnswers(ApplicantQuestion question, Locale locale) {
     switch (question.getType()) {
       case DROPDOWN:
