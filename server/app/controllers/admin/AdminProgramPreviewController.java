@@ -20,7 +20,8 @@ public final class AdminProgramPreviewController extends CiviFormController {
   }
 
   /**
-   * Retrieves the admin's user profile and redirects to the application review page where the admin can preview the program.
+   * Retrieves the admin's user profile and redirects to the application review page where the admin
+   * can preview the program.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result preview(Request request, long programId) {

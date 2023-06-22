@@ -177,11 +177,11 @@ public class ApplicantProgramReviewController extends CiviFormController {
       return CompletableFuture.completedFuture(versionRepository.isDraftProgram(programId))
           .thenApplyAsync(
               (isDraftProgram) -> {
-                Call reviewPage = 
+                Call reviewPage =
                     controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(programId);
                 if (isDraftProgram) {
                   reviewPage =
-                    controllers.admin.routes.AdminProgramBlocksController.index(programId);
+                      controllers.admin.routes.AdminProgramBlocksController.index(programId);
                 }
                 return redirect(reviewPage);
               });
