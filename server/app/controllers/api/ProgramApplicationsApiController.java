@@ -21,6 +21,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PaginationResult;
@@ -48,8 +49,9 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
       JsonExporter jsonExporter,
       HttpExecutionContext httpContext,
       ProgramService programService,
+      VersionRepository versionRepository,
       Config config) {
-    super(apiPaginationTokenSerializer, profileUtils);
+    super(apiPaginationTokenSerializer, profileUtils, versionRepository);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);

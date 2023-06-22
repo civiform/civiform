@@ -23,6 +23,7 @@ import play.mvc.Http.Session;
 import play.mvc.Result;
 import play.mvc.Results;
 import repository.UserRepository;
+import repository.VersionRepository;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 import views.applicant.ApplicantLayout;
@@ -37,7 +38,6 @@ public final class ApplicantInformationController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final UserRepository repository;
   private final FormFactory formFactory;
-  private final ProfileUtils profileUtils;
   private final ApplicantLayout layout;
 
   @Inject
@@ -47,12 +47,13 @@ public final class ApplicantInformationController extends CiviFormController {
       UserRepository repository,
       FormFactory formFactory,
       ProfileUtils profileUtils,
-      ApplicantLayout layout) {
+      ApplicantLayout layout,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.httpExecutionContext = httpExecutionContext;
     this.messagesApi = messagesApi;
     this.repository = repository;
     this.formFactory = formFactory;
-    this.profileUtils = profileUtils;
     this.layout = layout;
   }
 
@@ -63,7 +64,7 @@ public final class ApplicantInformationController extends CiviFormController {
   @Secure
   public CompletionStage<Result> setLangFromBrowser(Http.Request request, long applicantId) {
 
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
             v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
         .thenComposeAsync(
@@ -137,7 +138,7 @@ public final class ApplicantInformationController extends CiviFormController {
       session = request.session().removing(REDIRECT_TO_SESSION_KEY);
     }
 
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
             v -> repository.lookupApplicant(applicantId), httpExecutionContext.current())
         .thenComposeAsync(

@@ -34,6 +34,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
@@ -75,7 +76,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
   private final PdfExporter pdfExporter;
-  private final ProfileUtils profileUtils;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
@@ -94,11 +94,12 @@ public final class AdminApplicationController extends CiviFormController {
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
       DateConverter dateConverter,
-      @Now Provider<LocalDateTime> nowProvider) {
+      @Now Provider<LocalDateTime> nowProvider,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationListView = checkNotNull(applicationListView);
-    this.profileUtils = checkNotNull(profileUtils);
     this.applicationView = checkNotNull(applicationView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
@@ -125,7 +126,7 @@ public final class AdminApplicationController extends CiviFormController {
 
     try {
       program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -183,7 +184,7 @@ public final class AdminApplicationController extends CiviFormController {
                 .build();
       }
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
       return ok(csv)
@@ -204,7 +205,7 @@ public final class AdminApplicationController extends CiviFormController {
       throws ProgramNotFoundException {
     try {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
       String csv = exporterService.getProgramCsv(programId);
       return ok(csv)
@@ -260,7 +261,7 @@ public final class AdminApplicationController extends CiviFormController {
       throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     try {
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -292,7 +293,7 @@ public final class AdminApplicationController extends CiviFormController {
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+      checkProgramAdminAuthorization(request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -347,7 +348,7 @@ public final class AdminApplicationController extends CiviFormController {
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+      checkProgramAdminAuthorization(request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -425,7 +426,7 @@ public final class AdminApplicationController extends CiviFormController {
     String programName = program.adminName();
 
     try {
-      checkProgramAdminAuthorization(profileUtils, request, programName).join();
+      checkProgramAdminAuthorization(request, programName).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
@@ -496,7 +497,7 @@ public final class AdminApplicationController extends CiviFormController {
     final ProgramDefinition program;
     try {
       program = programService.getProgramDefinition(programId);
-      checkProgramAdminAuthorization(profileUtils, request, program.adminName()).join();
+      checkProgramAdminAuthorization(request, program.adminName()).join();
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
