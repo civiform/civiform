@@ -1,4 +1,3 @@
-import {BASE_URL} from './support/config'
 import {
   createTestContext,
   loginAsAdmin,
