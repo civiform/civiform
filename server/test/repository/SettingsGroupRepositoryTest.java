@@ -22,12 +22,13 @@ public class SettingsGroupRepositoryTest extends ResetPostgres {
     DB.getDefault().truncate(SettingsGroup.class);
 
     var groupA = new SettingsGroup(ImmutableMap.of("TEST", "true"), "test");
-    var groupB = new SettingsGroup(ImmutableMap.of("TEST", "false"), "test");
     groupA.save();
+    groupA.setCreateTimeForTest("2040-01-01T00:00:00Z").save();
+
+    var groupB = new SettingsGroup(ImmutableMap.of("TEST", "false"), "test");
     groupB.save();
 
     groupB.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
-    groupA.setCreateTimeForTest("2040-01-01T00:00:00Z").save();
 
     SettingsGroup result =
         settingsGroupRepository.getCurrentSettings().toCompletableFuture().join().get();
