@@ -3,6 +3,7 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableMap;
+import io.ebean.DB;
 import models.SettingsGroup;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +19,8 @@ public class SettingsGroupRepositoryTest extends ResetPostgres {
 
   @Test
   public void getCurrentSettings_returnsTheMostRecentGroup() {
+    DB.getDefault().truncate(SettingsGroup.class);
+
     var groupA = new SettingsGroup(ImmutableMap.of("TEST", "true"), "test");
     var groupB = new SettingsGroup(ImmutableMap.of("TEST", "false"), "test");
     groupA.save();
