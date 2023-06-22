@@ -8,15 +8,14 @@ import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http.Request;
+import repository.VersionRepository;
 import play.mvc.Result;
 
 public final class AdminProgramPreviewController extends CiviFormController {
 
-  private final ProfileUtils profileUtils;
-
   @Inject
-  public AdminProgramPreviewController(ProfileUtils profileUtils) {
-    this.profileUtils = profileUtils;
+  public AdminProgramPreviewController(ProfileUtils profileUtils, VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
   }
 
   /**
