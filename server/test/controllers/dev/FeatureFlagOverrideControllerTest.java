@@ -27,9 +27,6 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
 
   @Test
   public void disable_nonDevMode_fails() {
-    // Setup
-    //    setupControllerInMode(Mode.TEST);
-
     // Execute
     var result = controller.disable(requestBuilderWithSettings().build(), FLAG_NAME);
 
@@ -78,10 +75,6 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(getSettings().get(FLAG_NAME)).isEqualTo("true");
   }
-
-  //  private void setupControllerInMode() {
-  //    controller = instanceOf(FeatureFlagOverrideController.class);
-  //  }
 
   private ImmutableMap<String, String> getSettings() {
     return settingsService.loadSettings().toCompletableFuture().join().get();

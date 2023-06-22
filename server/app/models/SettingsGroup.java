@@ -2,6 +2,7 @@ package models;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.annotation.WhenCreated;
@@ -36,6 +37,12 @@ public class SettingsGroup extends BaseModel {
 
   public String getCreatedBy() {
     return createdBy;
+  }
+
+  @VisibleForTesting
+  public SettingsGroup setCreateTimeForTest(String createTimeString) {
+    this.createTime = Instant.parse(createTimeString);
+    return this;
   }
 
   public SettingsGroup(ImmutableMap<String, String> settings, String createdBy) {
