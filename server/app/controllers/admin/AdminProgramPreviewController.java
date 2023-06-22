@@ -19,19 +19,16 @@ public final class AdminProgramPreviewController extends CiviFormController {
     this.profileUtils = profileUtils;
   }
 
+  /**
+   * Retrieves the admin's user profile and redirects to the application review page where the admin can preview the program.
+   */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result preview(Request request, long programId) throws Exception {
+  public Result preview(Request request, long programId) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
-
     if (profile.isEmpty()) {
-
-      throw new Exception();
-      /*
-      Result result = redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url());
-      result = result.withSession(ImmutableMap.of("redirectTo", request.uri()));
-      return CompletableFuture.completedFuture(result);
-      */
+      throw new RuntimeException("Unable to resolve profile.");
     }
+
     return redirect(
         controllers.applicant.routes.ApplicantProgramReviewController.review(
             profile.get().getApplicant().get().id, programId));
