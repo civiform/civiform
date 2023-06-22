@@ -157,6 +157,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             div(settingDescription.variableName()).withClasses("font-semibold", "break-all"),
             div(rawHtml(renderedDescriptionHtml)).withClasses("text-sm"),
             renderSettingInput(request, settingDescription))
+        .withData("testid", String.format("%s-container", settingDescription.variableName()))
         .withClasses("max-w-md");
   }
 
@@ -184,13 +185,15 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                 .setChecked(isEnabled)
                 .setValue("true")
                 .addStyleClass("mr-4")
-                .getRadioTag(),
+                .getRadioTag()
+                .withData("testid", String.format("enable-%s", settingDescription.variableName())),
             FieldWithLabel.radio()
                 .setFieldName(settingDescription.variableName())
                 .setLabelText("Disabled")
                 .setChecked(!isEnabled)
                 .setValue("false")
-                .getRadioTag())
+                .getRadioTag()
+                .withData("testid", String.format("disable-%s", settingDescription.variableName())))
         .withClasses("flex", "mt-2");
   }
 }

@@ -72,7 +72,10 @@ public abstract class AbstractSettingsManifest {
 
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
-  /** Retrieve a string representation of the setting suitable for display in the UI. */
+  /**
+   * Retrieve a string representation of the setting suitable for display in the UI from the request
+   * attributes or HOCON config.
+   */
   public Optional<String> getSettingDisplayValue(
       Http.Request request, SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
@@ -92,7 +95,10 @@ public abstract class AbstractSettingsManifest {
     }
   }
 
-  /** Retrieve a string representation of the setting suitable for JSON serialization. */
+  /**
+   * Retrieve a string representation of the setting suitable for JSON serialization from HOCON
+   * config.
+   */
   public Optional<String> getSettingSerializationValue(SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
       case BOOLEAN:

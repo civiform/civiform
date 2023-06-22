@@ -27,6 +27,10 @@ import repository.SettingsGroupRepository;
  */
 public final class SettingsService {
 
+  /** The key used in {@link play.mvc.Http.Request} attributes to store system settings. */
+  public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY =
+      TypedKey.create("CIVIFORM_SETTINGS");
+
   private static final Logger LOGGER = LoggerFactory.getLogger(SettingsService.class);
 
   private final SettingsGroupRepository settingsGroupRepository;
@@ -39,16 +43,15 @@ public final class SettingsService {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  // Load settings stored in the database
-  // If the admin has never updated any settings this returns an empty map
+  /**
+   * Load settings stored in the database. If the admin has never updated any settings this returns
+   * an empty map.
+   */
   public CompletionStage<Optional<ImmutableMap<String, String>>> loadSettings() {
     return settingsGroupRepository
         .getCurrentSettings()
         .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroup::getSettings));
   }
-
-  public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY =
-      TypedKey.create("CIVIFORM_SETTINGS");
 
   /**
    * Loads the server settings from the database and returns a new request that has the settings in
@@ -71,13 +74,16 @@ public final class SettingsService {
             });
   }
 
-  // Update settings stored in the database
-  // Applies validations specified in env-var-docs.json and returns
-  // error messages in SettingsUpdateResult upon validation failure
+  /** Update settings stored in the database. */
   public boolean updateSettings(ImmutableMap<String, String> newSettings, CiviFormProfile profile) {
     return updateSettings(newSettings, profile.getAuthorityId().join());
   }
 
+  /**
+   * Store a new {@link SettingsGroup} in the DB and returns {@code true} if the new settings are
+   * different from the current settings. Otherwise returns {@code false} and does NOT insert a new
+   * row.
+   */
   public boolean updateSettings(ImmutableMap<String, String> newSettings, String papertrail) {
     var maybeExistingSettings = loadSettings().toCompletableFuture().join();
 
@@ -91,6 +97,10 @@ public final class SettingsService {
     return true;
   }
 
+  /**
+   * Inserts a new {@link SettingsGroup} if it finds admin writeable settings in the {@link
+   * SettingsManifest} that are not in the current {@link SettingsGroup}.
+   */
   public SettingsGroup migrateConfigValuesToSettingsGroup() {
     Optional<SettingsGroup> maybeExistingSettingsGroup =
         settingsGroupRepository.getCurrentSettings().toCompletableFuture().join();
