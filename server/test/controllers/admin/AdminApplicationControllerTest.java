@@ -43,6 +43,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.LocalizedStrings;
 import services.applicant.ApplicantService;
@@ -602,7 +603,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         profileUtilsNoOpTester,
         instanceOf(MessagesApi.class),
         instanceOf(DateConverter.class),
-        Providers.of(LocalDateTime.now(ZoneId.systemDefault())));
+        Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
+        instanceOf(VersionRepository.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard

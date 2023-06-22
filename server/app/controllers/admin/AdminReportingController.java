@@ -12,6 +12,7 @@ import javax.inject.Provider;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.program.ProgramService;
 import services.reporting.ReportingService;
 import views.admin.reporting.AdminReportingIndexView;
@@ -22,7 +23,6 @@ public final class AdminReportingController extends CiviFormController {
 
   private final Provider<AdminReportingIndexView> adminReportingIndexView;
   private final Provider<AdminReportingShowView> adminReportingShowView;
-  private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final ReportingService reportingService;
 
@@ -32,10 +32,11 @@ public final class AdminReportingController extends CiviFormController {
       Provider<AdminReportingShowView> adminReportingShowView,
       ProfileUtils profileUtils,
       ProgramService programService,
+      VersionRepository versionRepository,
       ReportingService reportingService) {
+    super(profileUtils, versionRepository);
     this.adminReportingIndexView = Preconditions.checkNotNull(adminReportingIndexView);
     this.adminReportingShowView = Preconditions.checkNotNull(adminReportingShowView);
-    this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.programService = Preconditions.checkNotNull(programService);
     this.reportingService = Preconditions.checkNotNull(reportingService);
   }

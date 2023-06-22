@@ -2,6 +2,7 @@ package controllers.monitoring;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ProfileUtils;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
@@ -15,6 +16,7 @@ import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import javax.inject.Inject;
 import play.mvc.Result;
+import repository.VersionRepository;
 
 /**
  * Controller for exporting Prometheus server metrics via HTTP. Based on the implementation found in
@@ -40,7 +42,9 @@ public final class MetricsController extends CiviFormController {
   private static final int SUBSTRING_INDEX = 4;
 
   @Inject
-  public MetricsController(Config config) {
+  public MetricsController(
+      Config config, ProfileUtils profileUtils, VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.collectorRegistry = checkNotNull(CollectorRegistry.defaultRegistry);
     this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
     this.database = DB.getDefault();

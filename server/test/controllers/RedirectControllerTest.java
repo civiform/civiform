@@ -140,6 +140,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(ApplicantCommonIntakeUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
+            instanceOf(VersionRepository.class),
             languageUtils);
     Result result =
         controller
@@ -171,6 +172,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantUpsellCreateAccountView.class),
             instanceOf(ApplicantCommonIntakeUpsellCreateAccountView.class),
             instanceOf(MessagesApi.class),
+            instanceOf(VersionRepository.class),
             languageUtils);
     Result result =
         controller

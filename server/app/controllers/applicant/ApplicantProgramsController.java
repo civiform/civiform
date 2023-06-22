@@ -39,8 +39,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
-  private final ProfileUtils profileUtils;
-  private final VersionRepository versionRepository;
 
   @Inject
   public ApplicantProgramsController(
@@ -51,13 +49,12 @@ public final class ApplicantProgramsController extends CiviFormController {
       ApplicantProgramInfoView programInfoView,
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
-    this.profileUtils = checkNotNull(profileUtils);
-    this.versionRepository = checkNotNull(versionRepository);
   }
 
   @Secure
@@ -69,7 +66,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
             httpContext.current())
@@ -103,7 +100,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
             httpContext.current())
@@ -142,9 +139,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
 
     // Determine first incomplete block, then redirect to other edit.
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
-        .thenComposeAsync(
-            v -> checkProgramAuthorization(profileUtils, versionRepository, request, programId))
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
         .thenApplyAsync(

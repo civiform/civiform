@@ -17,6 +17,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import repository.VersionRepository;
 import services.cloud.StorageClient;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
@@ -24,23 +25,23 @@ public class FileController extends CiviFormController {
   private final HttpExecutionContext httpExecutionContext;
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public FileController(
       HttpExecutionContext httpExecutionContext,
       StoredFileRepository storedFileRepository,
       StorageClient storageClient,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure
   public CompletionStage<Result> show(Request request, long applicantId, String fileKey) {
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return checkApplicantAuthorization(request, applicantId)
         .thenApplyAsync(
             v -> {
               // Ensure the file being accessed indeed belongs to the applicant.

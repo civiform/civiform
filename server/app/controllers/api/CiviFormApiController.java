@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import models.ApiKey;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 
 /**
  * Base class for controllers that handle API requests. Requests that reach an API controller have
@@ -24,13 +25,14 @@ import play.mvc.Result;
 public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
-  protected final ProfileUtils profileUtils;
 
   @Inject
   public CiviFormApiController(
-      ApiPaginationTokenSerializer apiPaginationTokenSerializer, ProfileUtils profileUtils) {
+      ApiPaginationTokenSerializer apiPaginationTokenSerializer,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   /**
