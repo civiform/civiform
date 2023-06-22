@@ -59,7 +59,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final IneligibleBlockView ineligibleBlockView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
-  private final VersionRepository versionRepository;
 
   @Inject
   public ApplicantProgramReviewController(
@@ -80,7 +79,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
-    this.versionRepository = checkNotNull(versionRepository);
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {

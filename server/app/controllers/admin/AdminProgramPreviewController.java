@@ -5,16 +5,18 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.mvc.Http.Request;
-import repository.VersionRepository;
 import play.mvc.Result;
+import repository.VersionRepository;
 
 public final class AdminProgramPreviewController extends CiviFormController {
 
   @Inject
-  public AdminProgramPreviewController(ProfileUtils profileUtils, VersionRepository versionRepository) {
+  public AdminProgramPreviewController(
+      ProfileUtils profileUtils, VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
   }
 
@@ -29,8 +31,12 @@ public final class AdminProgramPreviewController extends CiviFormController {
       throw new RuntimeException("Unable to resolve profile.");
     }
 
-    return redirect(
-        controllers.applicant.routes.ApplicantProgramReviewController.review(
-            profile.get().getApplicant().get().id, programId));
+    try {
+      return redirect(
+          controllers.applicant.routes.ApplicantProgramReviewController.review(
+              profile.get().getApplicant().get().id, programId));
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
