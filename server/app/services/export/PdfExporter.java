@@ -62,7 +62,6 @@ public final class PdfExporter {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
-
     byte[] bytes =
         buildPDF(
             answers,
