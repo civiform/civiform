@@ -402,11 +402,14 @@ public class TestQuestionBank {
   private Question applicantEmail(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EmailQuestionDefinition(
-            "applicant Email address",
-            Optional.empty(),
-            "The applicant Email address",
-            LocalizedStrings.of(Locale.US, "What is your Email?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant Email address")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The applicant Email address")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Email?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 

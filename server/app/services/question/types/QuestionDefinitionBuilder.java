@@ -239,7 +239,16 @@ public final class QuestionDefinitionBuilder {
 
       case EMAIL:
         return new EmailQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(

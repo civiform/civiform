@@ -240,11 +240,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new EmailQuestionDefinition(
-                "email",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your email?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("email")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        EmailQuestionDefinition.EmailValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
