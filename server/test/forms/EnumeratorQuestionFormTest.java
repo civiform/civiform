@@ -9,6 +9,7 @@ import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 
 public class EnumeratorQuestionFormTest {
   @Test
@@ -22,11 +23,15 @@ public class EnumeratorQuestionFormTest {
 
     EnumeratorQuestionDefinition expected =
         new EnumeratorQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .build(),
             LocalizedStrings.empty());
 
     QuestionDefinition actual = builder.build();
@@ -38,11 +43,15 @@ public class EnumeratorQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     EnumeratorQuestionDefinition originalQd =
         new EnumeratorQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .build(),
             LocalizedStrings.empty());
 
     EnumeratorQuestionForm form = new EnumeratorQuestionForm(originalQd);

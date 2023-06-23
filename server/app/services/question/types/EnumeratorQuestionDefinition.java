@@ -3,9 +3,6 @@ package services.question.types;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
 import services.LocalizedStrings;
 
 /**
@@ -24,44 +21,8 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
   private final LocalizedStrings entityType;
 
   public EnumeratorQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      LocalizedStrings entityType,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setId(id)
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(EnumeratorValidationPredicates.create())
-            .setLastModifiedTime(lastModifiedTime)
-            .build());
-    this.entityType = checkNotNull(entityType);
-  }
-
-  public EnumeratorQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      LocalizedStrings entityType) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(EnumeratorValidationPredicates.create())
-            .build());
+      QuestionDefinitionConfig config, LocalizedStrings entityType) {
+    super(config);
     this.entityType = checkNotNull(entityType);
   }
 

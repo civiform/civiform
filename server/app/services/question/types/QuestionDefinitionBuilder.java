@@ -323,14 +323,18 @@ public final class QuestionDefinitionBuilder {
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
         }
         return new EnumeratorQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            entityType,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setLastModifiedTime(lastModifiedTime)
+                .build(),
+            entityType);
 
       case STATIC:
         return new StaticContentQuestionDefinition(

@@ -141,11 +141,15 @@ public class QuestionDefinitionTest {
   public void isEnumerator_true() {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty(),
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .build(),
             LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
   }

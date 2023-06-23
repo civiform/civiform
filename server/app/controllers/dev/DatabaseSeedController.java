@@ -256,11 +256,16 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new EnumeratorQuestionDefinition(
-                "enumerator",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("List all members of your household."),
-                LocalizedStrings.withDefaultValue("help text"),
+                QuestionDefinitionConfig.builder()
+                    .setName("enumerator")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("List all members of your household."))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                    .build(),
                 LocalizedStrings.withDefaultValue("household member")))
         .getResult();
   }
