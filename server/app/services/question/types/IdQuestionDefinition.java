@@ -4,69 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines an id question. */
 public final class IdQuestionDefinition extends QuestionDefinition {
 
-  public IdQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      IdValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setId(id)
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(validationPredicates)
-            .setLastModifiedTime(lastModifiedTime)
-            .build());
-  }
-
-  public IdQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      IdValidationPredicates validationPredicates) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(validationPredicates)
-            .build());
-  }
-
-  public IdQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .build());
+  public IdQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)

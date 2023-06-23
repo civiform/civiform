@@ -291,11 +291,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new IdQuestionDefinition(
-                "id",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your driver's license ID?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("id")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .build()))
         .getResult();
   }
 

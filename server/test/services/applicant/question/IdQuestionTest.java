@@ -23,31 +23,37 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.IdQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class IdQuestionTest extends ResetPostgres {
   private static final IdQuestionDefinition idQuestionDefinition =
       new IdQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          IdQuestionDefinition.IdValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setId(OptionalLong.of(1))
+              .setName("question name")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private static final IdQuestionDefinition minAndMaxLengthIdQuestionDefinition =
       new IdQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          IdQuestionDefinition.IdValidationPredicates.create(3, 4),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setId(OptionalLong.of(1))
+              .setName("question name")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(3, 4))
+              .setLastModifiedTime(Optional.empty())
+              .build());
+  ;
 
   private Applicant applicant;
   private ApplicantData applicantData;

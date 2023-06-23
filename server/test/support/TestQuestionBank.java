@@ -351,11 +351,13 @@ public class TestQuestionBank {
   private Question applicantId(QuestionEnum ignore) {
     QuestionDefinition definition =
         new IdQuestionDefinition(
-            "applicant id",
-            Optional.empty(),
-            "1234",
-            LocalizedStrings.of(Locale.US, "What is the the id?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant id")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("1234")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the the id?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build());
     return maybeSave(definition);
   }
 

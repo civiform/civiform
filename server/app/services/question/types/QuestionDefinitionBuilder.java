@@ -270,14 +270,16 @@ public final class QuestionDefinitionBuilder {
           idValidationPredicates = IdValidationPredicates.parse(validationPredicatesString);
         }
         return new IdQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            idValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(idValidationPredicates)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
