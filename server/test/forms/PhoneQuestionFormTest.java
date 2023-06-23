@@ -9,6 +9,7 @@ import services.LocalizedStrings;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 
 public class PhoneQuestionFormTest {
   @Test
@@ -22,11 +23,14 @@ public class PhoneQuestionFormTest {
 
     PhoneQuestionDefinition expected =
         new PhoneQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is your phone number?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                .build());
 
     QuestionDefinition actual = builder.build();
 
@@ -37,11 +41,14 @@ public class PhoneQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     PhoneQuestionDefinition originalQd =
         new PhoneQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is your Phone Number?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Phone Number?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                .build());
 
     PhoneQuestionForm form = new PhoneQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();

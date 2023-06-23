@@ -216,11 +216,14 @@ public class TestQuestionBank {
   private Question applicantPhone(QuestionEnum ignore) {
     QuestionDefinition definition =
         new PhoneQuestionDefinition(
-            "applicant phone",
-            Optional.empty(),
-            "The applicant Phone Number",
-            LocalizedStrings.of(Locale.US, "What is your phone number?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant phone")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The applicant Phone Number")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 

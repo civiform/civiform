@@ -376,14 +376,16 @@ public final class QuestionDefinitionBuilder {
           phoneValidationPredicates = PhoneValidationPredicates.parse(validationPredicatesString);
         }
         return new PhoneQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            phoneValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(phoneValidationPredicates)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

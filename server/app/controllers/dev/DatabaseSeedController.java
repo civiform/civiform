@@ -372,11 +372,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new PhoneQuestionDefinition(
-                "phone",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("what is your phone number"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("phone")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
