@@ -104,7 +104,6 @@ public class PdfExporterTest extends AbstractExporterTest {
     String programName = applicationFive.getProgram().getProgramDefinition().adminName();
     assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-    System.out.println(linesFromPDF);
     List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
 
     for (int i = 3; i < linesFromPDF.size(); i++) {
@@ -142,6 +141,28 @@ public class PdfExporterTest extends AbstractExporterTest {
     for (int i = 3; i < linesFromPDF.size(); i++) {
       assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
+
+  @Test
+  public void validatePDFExport_eligibility() throws IOException, DocumentException {
+    createFakeProgramWithEligibilityPredicate();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String applicantNameWithApplicationId =
+        String.format(
+            "%s (%d)", applicationTwo.getApplicantData().getApplicantName(), applicationTwo.id);
+    PdfExporter.InMemoryPdf result = exporter.export(applicationTwo);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    String programName = applicationTwo.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDF).contains("Meets eligibility");
   }
 
   public static final String APPLICATION_SIX_STRING =
