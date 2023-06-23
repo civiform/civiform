@@ -252,7 +252,17 @@ public final class QuestionDefinitionBuilder {
 
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case ID:
         IdValidationPredicates idValidationPredicates = IdValidationPredicates.create();

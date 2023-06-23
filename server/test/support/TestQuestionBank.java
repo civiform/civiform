@@ -1,6 +1,5 @@
 package support;
 
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
@@ -321,11 +320,16 @@ public class TestQuestionBank {
   private Question applicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
-            "applicant file",
-            Optional.empty(),
-            "The file to be uploaded",
-            LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant file")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The file to be uploaded")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "What is the file you want to upload?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 

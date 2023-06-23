@@ -9,6 +9,7 @@ import services.LocalizedStrings;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 
 public class FileUploadQuestionFormTest {
   @Test
@@ -22,11 +23,15 @@ public class FileUploadQuestionFormTest {
 
     FileUploadQuestionDefinition expected =
         new FileUploadQuestionDefinition(
-            "file upload",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("file upload")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .build());
 
     QuestionDefinition actual = builder.build();
 
@@ -37,11 +42,15 @@ public class FileUploadQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     FileUploadQuestionDefinition originalQd =
         new FileUploadQuestionDefinition(
-            "file upload",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("file upload")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .build());
 
     FileUploadQuestionForm form = new FileUploadQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();

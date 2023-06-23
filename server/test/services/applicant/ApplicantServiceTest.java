@@ -82,12 +82,8 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.*;
 import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -824,11 +820,15 @@ public class ApplicantServiceTest extends ResetPostgres {
         questionService
             .create(
                 new FileUploadQuestionDefinition(
-                    "fileupload",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
+                    QuestionDefinitionConfig.builder()
+                        .setName("fileupload")
+                        .setEnumeratorId(Optional.empty())
+                        .setDescription("description")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                        .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .setValidationPredicates(
+                            FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                        .build()))
             .getResult();
 
     Program firstProgram =

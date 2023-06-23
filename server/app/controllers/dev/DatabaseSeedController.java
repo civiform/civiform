@@ -274,11 +274,16 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new FileUploadQuestionDefinition(
-                "file upload",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("Upload anything from your computer"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("file upload")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("Upload anything from your computer"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
