@@ -202,10 +202,11 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("applicant name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("name of applicant")
                 .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
+                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     // Only draft questions are editable.
@@ -219,7 +220,6 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("applicant name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("name of applicant")
                 .setQuestionText(
                     LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT)
@@ -227,6 +227,8 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                 .setQuestionHelpText(
                     LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
                         .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT))
+                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     // Only draft questions are editable.

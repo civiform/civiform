@@ -26,13 +26,13 @@ public class IdQuestionRendererTest extends ResetPostgres {
   private static final IdQuestionDefinition ID_QUESTION_DEFINITION =
       new IdQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(IdValidationPredicates.create(2, 3))
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
   ;

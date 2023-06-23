@@ -22,14 +22,14 @@ public class StaticContentQuestionTest extends ResetPostgres {
   private static final StaticContentQuestionDefinition questionDefinition =
       new StaticContentQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
               .setQuestionHelpText(LocalizedStrings.empty())
               .setValidationPredicates(
                   StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setEnumeratorId(Optional.empty())
               .setLastModifiedTime(Optional.empty())
               .build());
 

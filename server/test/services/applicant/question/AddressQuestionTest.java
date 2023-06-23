@@ -30,14 +30,14 @@ public class AddressQuestionTest {
   private static final AddressQuestionDefinition addressQuestionDefinition =
       new AddressQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   AddressQuestionDefinition.AddressValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
   ;
@@ -45,14 +45,14 @@ public class AddressQuestionTest {
   private static final AddressQuestionDefinition noPoBoxAddressQuestionDefinition =
       new AddressQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   AddressQuestionDefinition.AddressValidationPredicates.create(true))
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
 

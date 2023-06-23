@@ -23,13 +23,13 @@ public class NameQuestionTest {
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
 

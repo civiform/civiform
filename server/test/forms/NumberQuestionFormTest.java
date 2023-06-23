@@ -28,12 +28,12 @@ public class NumberQuestionFormTest {
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     NumberQuestionDefinition.NumberValidationPredicates.create(2, 8))
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -47,12 +47,12 @@ public class NumberQuestionFormTest {
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     NumberQuestionDefinition.NumberValidationPredicates.create(2, 8))
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     NumberQuestionForm form = new NumberQuestionForm(originalQd);
@@ -78,12 +78,12 @@ public class NumberQuestionFormTest {
         new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     NumberQuestionDefinition.NumberValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();

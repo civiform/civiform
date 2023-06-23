@@ -26,10 +26,12 @@ public class CurrencyQuestionFormTest {
         new CurrencyQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -43,10 +45,12 @@ public class CurrencyQuestionFormTest {
         new CurrencyQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     CurrencyQuestionForm form = new CurrencyQuestionForm(originalQd);

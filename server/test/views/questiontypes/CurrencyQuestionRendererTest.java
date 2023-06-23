@@ -25,12 +25,14 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   private static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
       new CurrencyQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
   ;

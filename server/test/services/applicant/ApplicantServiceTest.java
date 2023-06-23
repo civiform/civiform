@@ -822,12 +822,12 @@ public class ApplicantServiceTest extends ResetPostgres {
                 new FileUploadQuestionDefinition(
                     QuestionDefinitionConfig.builder()
                         .setName("fileupload")
-                        .setEnumeratorId(Optional.empty())
                         .setDescription("description")
                         .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                         .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
                         .setValidationPredicates(
                             FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                        .setEnumeratorId(Optional.empty())
                         .build()))
             .getResult();
 
@@ -2942,10 +2942,12 @@ public class ApplicantServiceTest extends ResetPostgres {
                 new NameQuestionDefinition(
                     QuestionDefinitionConfig.builder()
                         .setName(name)
-                        .setEnumeratorId(Optional.empty())
                         .setDescription("description")
                         .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                         .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .setValidationPredicates(
+                            NameQuestionDefinition.NameValidationPredicates.create())
+                        .setEnumeratorId(Optional.empty())
                         .build()))
             .getResult();
   }

@@ -26,14 +26,14 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   public MultiOptionQuestionDefinition(MultiOptionQuestionDefinitionConfig config) {
     super(
         QuestionDefinitionConfig.builder()
-            .setId(config.id())
             .setName(config.name())
-            .setEnumeratorId(config.enumeratorId())
             .setDescription(config.description())
             .setQuestionText(config.questionText())
             .setQuestionHelpText(config.questionHelpText())
             .setValidationPredicates(
                 config.validationPredicates().orElse(MultiOptionValidationPredicates.create()))
+            .setEnumeratorId(config.enumeratorId())
+            .setId(config.id())
             .setLastModifiedTime(config.lastModifiedTime())
             .build());
     this.config = config;

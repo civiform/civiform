@@ -140,10 +140,12 @@ public class DatabaseSeedController extends Controller {
             new AddressQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("address")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        AddressQuestionDefinition.AddressValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -175,12 +177,14 @@ public class DatabaseSeedController extends Controller {
             new CurrencyQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("currency")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue(
                             "How much should a scoop of ice cream cost?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -191,11 +195,13 @@ public class DatabaseSeedController extends Controller {
             new DateQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("enumerator date")
-                    .setEnumeratorId(Optional.of(enumeratorId))
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
                     .setQuestionHelpText(
                         LocalizedStrings.withDefaultValue("help text for $this's birthday"))
+                    .setValidationPredicates(
+                        DateQuestionDefinition.DateValidationPredicates.create())
+                    .setEnumeratorId(Optional.of(enumeratorId))
                     .build()))
         .getResult();
   }
@@ -208,10 +214,12 @@ public class DatabaseSeedController extends Controller {
             new DateQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName(name)
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        DateQuestionDefinition.DateValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -242,12 +250,12 @@ public class DatabaseSeedController extends Controller {
             new EmailQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("email")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         EmailQuestionDefinition.EmailValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -258,13 +266,13 @@ public class DatabaseSeedController extends Controller {
             new EnumeratorQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("enumerator")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("List all members of your household."))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build(),
                 LocalizedStrings.withDefaultValue("household member")))
         .getResult();
@@ -276,13 +284,13 @@ public class DatabaseSeedController extends Controller {
             new FileUploadQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("file upload")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("Upload anything from your computer"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -293,11 +301,12 @@ public class DatabaseSeedController extends Controller {
             new IdQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("id")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -308,13 +317,13 @@ public class DatabaseSeedController extends Controller {
             new NumberQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("number")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("How many pets do you have?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         NumberQuestionDefinition.NumberValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -345,7 +354,6 @@ public class DatabaseSeedController extends Controller {
             new StaticContentQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("static content")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue(
@@ -357,6 +365,7 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
                     .setValidationPredicates(
                         StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -367,15 +376,13 @@ public class DatabaseSeedController extends Controller {
             new TextQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("text")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("What is your favorite color?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
-                        StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                    .setValidationPredicates(
                         TextQuestionDefinition.TextValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -386,12 +393,12 @@ public class DatabaseSeedController extends Controller {
             new PhoneQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("phone")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }

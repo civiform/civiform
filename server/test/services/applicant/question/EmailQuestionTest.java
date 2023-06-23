@@ -22,13 +22,13 @@ public class EmailQuestionTest extends ResetPostgres {
   private static final EmailQuestionDefinition emailQuestionDefinition =
       new EmailQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
 

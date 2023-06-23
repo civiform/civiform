@@ -40,14 +40,14 @@ public class BlockTest {
   private static final StaticContentQuestionDefinition STATIC_QUESTION =
       new StaticContentQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(123L))
               .setName("more info about something")
-              .setEnumeratorId(Optional.empty())
               .setDescription("Shows more info to the applicant")
               .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
               .setValidationPredicates(
                   StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(123L))
               .setLastModifiedTime(Optional.empty())
               .build());
 

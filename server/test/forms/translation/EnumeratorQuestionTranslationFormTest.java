@@ -18,12 +18,12 @@ public class EnumeratorQuestionTranslationFormTest {
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("test")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("desc")
                 .setQuestionText(LocalizedStrings.withDefaultValue("existing"))
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue("existing"))
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.withDefaultValue("existing"));
 
@@ -47,12 +47,12 @@ public class EnumeratorQuestionTranslationFormTest {
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("test")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("desc")
                 .setQuestionText(LocalizedStrings.of(Locale.FRANCE, "existing"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.FRANCE, "existing"))
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.of(Locale.FRANCE, "existing"));
 

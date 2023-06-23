@@ -31,14 +31,14 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
       new EnumeratorQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("household members")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
+              .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build(),
           LocalizedStrings.empty());

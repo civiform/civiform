@@ -16,7 +16,6 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionRepositoryTest extends ResetPostgres {
@@ -145,13 +144,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("question")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("applicant's name")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(questionDefinition);
 
@@ -168,13 +165,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("question")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("applicant's name")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(questionDefinition);
 

@@ -28,13 +28,13 @@ public class PhoneQuestionTest {
   private static final PhoneQuestionDefinition phoneQuestionDefinition =
       new PhoneQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setId(OptionalLong.of(1))
               .setName("applicant phone")
-              .setEnumeratorId(Optional.empty())
               .setDescription("The applicant Phone Number")
               .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
               .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setEnumeratorId(Optional.empty())
               .setLastModifiedTime(Optional.empty())
               .build());
 

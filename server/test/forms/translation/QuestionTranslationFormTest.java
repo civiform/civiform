@@ -8,7 +8,6 @@ import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
@@ -53,13 +52,11 @@ public class QuestionTranslationFormTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("test")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("test")
                 .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionTranslationForm form = new QuestionTranslationFormImpl();

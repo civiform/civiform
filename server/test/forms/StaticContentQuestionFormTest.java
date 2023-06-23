@@ -24,13 +24,13 @@ public class StaticContentQuestionFormTest {
         new StaticContentQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(
                     LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(actual).isEqualTo(expected);
@@ -42,13 +42,13 @@ public class StaticContentQuestionFormTest {
         new StaticContentQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(
                     LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     StaticContentQuestionForm form = new StaticContentQuestionForm(originalQd);

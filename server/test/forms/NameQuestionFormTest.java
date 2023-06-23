@@ -25,10 +25,11 @@ public class NameQuestionFormTest {
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -42,10 +43,11 @@ public class NameQuestionFormTest {
         new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     NameQuestionForm form = new NameQuestionForm(originalQd);

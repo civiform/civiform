@@ -167,13 +167,13 @@ public final class QuestionDefinitionBuilder {
         }
         return new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(addressValidationPredicates)
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
@@ -202,25 +202,28 @@ public final class QuestionDefinitionBuilder {
       case CURRENCY:
         return new CurrencyQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
       case DATE:
         return new DateQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(DateQuestionDefinition.DateValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
+                .setId(id)
                 .build());
 
       case DROPDOWN:
@@ -240,27 +243,27 @@ public final class QuestionDefinitionBuilder {
       case EMAIL:
         return new EmailQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(
                     FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
@@ -271,13 +274,13 @@ public final class QuestionDefinitionBuilder {
         }
         return new IdQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(idValidationPredicates)
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
@@ -288,13 +291,13 @@ public final class QuestionDefinitionBuilder {
         }
         return new NameQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(nameValidationPredicates)
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
@@ -307,13 +310,13 @@ public final class QuestionDefinitionBuilder {
         }
         return new NumberQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(numberValidationPredicates)
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
@@ -340,14 +343,14 @@ public final class QuestionDefinitionBuilder {
         }
         return new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .build(),
             entityType);
@@ -355,14 +358,14 @@ public final class QuestionDefinitionBuilder {
       case STATIC:
         return new StaticContentQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(
                     StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
 
@@ -374,12 +377,11 @@ public final class QuestionDefinitionBuilder {
         return new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .setValidationPredicates(textValidationPredicates)
                 .build());
@@ -390,13 +392,13 @@ public final class QuestionDefinitionBuilder {
         }
         return new PhoneQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setId(id)
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
                 .setValidationPredicates(phoneValidationPredicates)
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
                 .setLastModifiedTime(lastModifiedTime)
                 .build());
       default:

@@ -26,13 +26,11 @@ public class QuestionServiceTest extends ResetPostgres {
       new TextQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("my name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-              .setValidationPredicates(
-                  StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
               .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
               .build());
 
   QuestionService questionService;

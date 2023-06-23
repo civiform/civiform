@@ -25,11 +25,11 @@ public class PhoneQuestionFormTest {
         new PhoneQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -43,11 +43,11 @@ public class PhoneQuestionFormTest {
         new PhoneQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Phone Number?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     PhoneQuestionForm form = new PhoneQuestionForm(originalQd);

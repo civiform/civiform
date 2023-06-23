@@ -17,7 +17,6 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 import support.QuestionAnswerer;
@@ -27,12 +26,11 @@ public class TextQuestionRendererTest extends ResetPostgres {
       new TextQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("question name")
-              .setEnumeratorId(Optional.empty())
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-              .setValidationPredicates(
-                  StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+              .setEnumeratorId(Optional.empty())
               .setLastModifiedTime(Optional.empty())
               .setValidationPredicates(TextValidationPredicates.create(2, 3))
               .build());

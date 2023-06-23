@@ -49,13 +49,15 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             new DateQuestionDefinition(
                 QuestionDefinitionConfig.builder()
                     .setName("Applicant Date of Birth")
-                    .setEnumeratorId(Optional.empty())
                     .setDescription("Applicant's date of birth")
                     .setQuestionText(
                         LocalizedStrings.of(
                             Lang.forCode("en-US").toLocale(),
                             "Please enter your date of birth in the format mm/dd/yyyy"))
                     .setQuestionHelpText(LocalizedStrings.empty())
+                    .setValidationPredicates(
+                        DateQuestionDefinition.DateValidationPredicates.create())
+                    .setEnumeratorId(Optional.empty())
                     .build()));
     assertThat(getAllQuestions().size()).isEqualTo(1);
 

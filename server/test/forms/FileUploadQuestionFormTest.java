@@ -25,12 +25,12 @@ public class FileUploadQuestionFormTest {
         new FileUploadQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("file upload")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -44,12 +44,12 @@ public class FileUploadQuestionFormTest {
         new FileUploadQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("file upload")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     FileUploadQuestionForm form = new FileUploadQuestionForm(originalQd);

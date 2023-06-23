@@ -134,13 +134,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.isEnumerator()).isFalse();
@@ -152,12 +150,12 @@ public class QuestionDefinitionTest {
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
@@ -169,13 +167,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.isRepeated()).isFalse();
@@ -187,13 +183,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.of(123L))
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.of(123L))
                 .build());
     assertThat(question.isRepeated()).isTrue();
   }
@@ -226,13 +220,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "not french"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
@@ -247,13 +239,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
@@ -268,13 +258,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     assertThat(question.getQuestionHelpText().get(Locale.FRANCE)).isEqualTo("");
   }
@@ -285,13 +273,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.withDefaultValue("default"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
@@ -304,13 +290,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue("default"))
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionHelpText().getOrDefault(Locale.forLanguageTag("und")))
@@ -323,13 +307,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
@@ -341,13 +323,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
@@ -359,13 +339,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "world"))
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("world");
@@ -377,13 +355,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
@@ -395,13 +371,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
@@ -413,13 +387,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("text")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     assertThat(question.validate()).isEmpty();
   }
@@ -430,13 +402,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     assertThat(question.validate())
         .containsOnly(
@@ -525,13 +495,11 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("test")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("test")
                 .setQuestionText(LocalizedStrings.of(Locale.US, ""))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
@@ -673,7 +641,6 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("test")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("test")
                 .setQuestionText(
                     LocalizedStrings.of(
@@ -691,9 +658,8 @@ public class QuestionDefinitionTest {
                         "ayuda",
                         Locale.GERMAN,
                         "Hilfe"))
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(definition.getSupportedLocales())
@@ -706,7 +672,6 @@ public class QuestionDefinitionTest {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("test")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("test")
                 .setQuestionText(
                     LocalizedStrings.of(
@@ -717,9 +682,8 @@ public class QuestionDefinitionTest {
                         Locale.FRANCE,
                         "question"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setValidationPredicates(TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(definition.getSupportedLocales())

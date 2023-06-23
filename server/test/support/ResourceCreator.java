@@ -20,7 +20,6 @@ import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
@@ -67,13 +66,11 @@ public class ResourceCreator {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName(name)
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     question.save();
@@ -86,13 +83,11 @@ public class ResourceCreator {
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName(name)
-                .setEnumeratorId(Optional.empty())
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     question.save();

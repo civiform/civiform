@@ -27,12 +27,12 @@ public class AddressQuestionFormTest {
         new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create(true))
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -46,12 +46,12 @@ public class AddressQuestionFormTest {
         new AddressQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);

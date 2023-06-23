@@ -25,12 +25,12 @@ public class EnumeratorQuestionFormTest {
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.empty());
 
@@ -45,12 +45,12 @@ public class EnumeratorQuestionFormTest {
         new EnumeratorQuestionDefinition(
             QuestionDefinitionConfig.builder()
                 .setName("name")
-                .setEnumeratorId(Optional.empty())
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.empty());
 

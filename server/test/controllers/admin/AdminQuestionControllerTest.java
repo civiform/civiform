@@ -500,10 +500,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     return new NameQuestionDefinition(
         QuestionDefinitionConfig.builder()
             .setName(def.getName())
-            .setEnumeratorId(Optional.empty())
             .setDescription(def.getDescription())
             .setQuestionText(def.getQuestionText())
             .setQuestionHelpText(def.getQuestionHelpText())
+            .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+            .setEnumeratorId(Optional.empty())
             .build());
   }
 }
