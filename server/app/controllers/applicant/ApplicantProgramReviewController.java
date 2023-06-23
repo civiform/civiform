@@ -172,7 +172,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     if (profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
-      return CompletableFuture.completedFuture(versionRepository.isDraftProgram(programId))
+      return versionRepository
+          .isDraftProgramAsync(programId)
           .thenApplyAsync(
               (isDraftProgram) -> {
                 Call reviewPage =
