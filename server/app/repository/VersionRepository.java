@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
@@ -51,11 +53,14 @@ public final class VersionRepository {
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
   private final Database database;
   private final ProgramRepository programRepository;
+  private final DatabaseExecutionContext databaseExecutionContext;
 
   @Inject
-  public VersionRepository(ProgramRepository programRepository) {
+  public VersionRepository(
+      ProgramRepository programRepository, DatabaseExecutionContext databaseExecutionContext) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
+    this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
   }
 
   /**
@@ -399,6 +404,11 @@ public final class VersionRepository {
   public boolean isDraftProgram(Long programId) {
     return getDraftVersion().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
+  }
+
+  /** Returns true if the program with the provided id is a member of the current draft version. */
+  public CompletionStage<Boolean> isDraftProgramAsync(Long programId) {
+    return CompletableFuture.supplyAsync(() -> isDraftProgram(programId), databaseExecutionContext);
   }
 
   /** Returns true if the program with the provided id is a member of the current active version. */

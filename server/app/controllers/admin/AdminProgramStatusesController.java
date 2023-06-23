@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import forms.admin.ProgramStatusesForm;
@@ -13,6 +14,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -39,7 +41,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
       ProgramService service,
       ProgramStatusesView statusesView,
       RequestChecker requestChecker,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);

@@ -24,6 +24,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -44,7 +45,6 @@ public final class RedirectController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
-  private final ProfileUtils profileUtils;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
@@ -60,10 +60,11 @@ public final class RedirectController extends CiviFormController {
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
+      VersionRepository versionRepository,
       LanguageUtils languageUtils) {
+    super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
-    this.profileUtils = checkNotNull(profileUtils);
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
@@ -177,8 +178,7 @@ public final class RedirectController extends CiviFormController {
     CompletableFuture<Account> account =
         applicantPersonalInfo
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-                httpContext.current())
+                v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
             .thenComposeAsync(v -> profile.get().getAccount(), httpContext.current())
             .toCompletableFuture();
 
@@ -198,8 +198,7 @@ public final class RedirectController extends CiviFormController {
               }
 
               return applicantPersonalInfo
-                  .thenComposeAsync(
-                      v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+                  .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
                   .thenComposeAsync(
                       // we are already checking if profile is empty
                       v ->

@@ -121,4 +121,8 @@ public abstract class Question {
   public final ImmutableMap<Path, String> getFailedUpdates() {
     return applicantQuestion.getApplicantData().getFailedUpdates();
   }
+
+  public ApplicantQuestion getApplicantQuestion() {
+    return applicantQuestion;
+  }
 }

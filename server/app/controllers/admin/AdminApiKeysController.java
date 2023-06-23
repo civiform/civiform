@@ -13,6 +13,7 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.PageNumberBasedPaginationSpec;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
@@ -30,7 +31,6 @@ public class AdminApiKeysController extends CiviFormController {
   private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ProgramService programService;
   private final FormFactory formFactory;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public AdminApiKeysController(
@@ -40,14 +40,15 @@ public class AdminApiKeysController extends CiviFormController {
       ApiKeyCredentialsView apiKeyCredentialsView,
       ProgramService programService,
       FormFactory formFactory,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.apiKeyService = checkNotNull(apiKeyService);
     this.indexView = checkNotNull(indexView);
     this.newOneView = checkNotNull(newOneView);
     this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

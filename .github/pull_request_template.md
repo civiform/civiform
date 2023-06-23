@@ -16,6 +16,7 @@ The title of the pull request will be used as the default release notes descript
 
 #### User visible changes
 
+- [ ] Followed steps to [internationalize new strings](https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings)
 - [ ] Wrote browser tests using the [validateAccessibility](https://sourcegraph.com/github.com/civiform/civiform/-/blob/browser-test/src/support/index.ts?L437:14&subtree=true) method
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size

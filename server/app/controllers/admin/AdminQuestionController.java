@@ -5,6 +5,7 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
@@ -22,6 +23,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -51,11 +53,14 @@ public final class AdminQuestionController extends CiviFormController {
 
   @Inject
   public AdminQuestionController(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
       HttpExecutionContext httpExecutionContext) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
