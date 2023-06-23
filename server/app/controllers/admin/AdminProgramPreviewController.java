@@ -12,6 +12,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
 
+/** Controller for admins previewing a program as an applicant. */
 public final class AdminProgramPreviewController extends CiviFormController {
 
   @Inject

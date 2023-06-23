@@ -169,6 +169,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  /**
+   * Handles application submission. For applicants, submits the application. For admins previewing
+   * the program, does not submit the application and simply redirects to the program page.
+   */
   @Secure
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     if (profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
