@@ -17,12 +17,13 @@ public final class DateQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        DateValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .build());
   }
 
   public DateQuestionDefinition(
@@ -34,14 +35,15 @@ public final class DateQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionHelpText,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        DateValidationPredicates.create(),
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   @AutoValue

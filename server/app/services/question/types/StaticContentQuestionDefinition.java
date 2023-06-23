@@ -20,12 +20,15 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        StaticContentQuestionDefinition.StaticContentValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(
+                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+            .build());
   }
 
   public StaticContentQuestionDefinition(
@@ -37,14 +40,17 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionHelpText,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        StaticContentQuestionDefinition.StaticContentValidationPredicates.create(),
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(
+                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   @AutoValue

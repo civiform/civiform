@@ -19,14 +19,15 @@ public final class CurrencyQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionHelpText,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        CurrencyValidationPredicates.create(),
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   public CurrencyQuestionDefinition(
@@ -36,7 +37,15 @@ public final class CurrencyQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       CurrencyValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    super(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public CurrencyQuestionDefinition(
@@ -46,12 +55,13 @@ public final class CurrencyQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        CurrencyValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .build());
   }
 
   @AutoValue

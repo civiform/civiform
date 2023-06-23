@@ -22,14 +22,16 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   public NumberQuestionDefinition(
@@ -39,7 +41,15 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    super(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public NumberQuestionDefinition(
@@ -49,12 +59,14 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        NumberQuestionDefinition.NumberValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(NumberQuestionDefinition.NumberValidationPredicates.create())
+            .build());
   }
 
   @JsonDeserialize(

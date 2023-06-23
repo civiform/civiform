@@ -17,12 +17,14 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EmailQuestionDefinition.EmailValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+            .build());
   }
 
   public EmailQuestionDefinition(
@@ -34,14 +36,16 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionHelpText,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EmailQuestionDefinition.EmailValidationPredicates.create(),
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   @AutoValue

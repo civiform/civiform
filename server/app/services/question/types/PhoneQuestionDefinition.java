@@ -18,14 +18,16 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
       PhoneQuestionDefinition.PhoneValidationPredicates validationPredicates,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   public PhoneQuestionDefinition(
@@ -35,7 +37,15 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       PhoneQuestionDefinition.PhoneValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    super(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public PhoneQuestionDefinition(
@@ -45,12 +55,14 @@ public final class PhoneQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        PhoneQuestionDefinition.PhoneValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+            .build());
   }
 
   @AutoValue

@@ -23,14 +23,16 @@ public final class IdQuestionDefinition extends QuestionDefinition {
       IdValidationPredicates validationPredicates,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   public IdQuestionDefinition(
@@ -40,7 +42,15 @@ public final class IdQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       IdValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    super(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public IdQuestionDefinition(
@@ -50,12 +60,13 @@ public final class IdQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        IdValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .build());
   }
 
   @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)

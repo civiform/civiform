@@ -22,14 +22,16 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
       AddressValidationPredicates validationPredicates,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   public AddressQuestionDefinition(
@@ -39,7 +41,15 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       AddressValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    super(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public AddressQuestionDefinition(
@@ -49,12 +59,13 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        AddressValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .build());
   }
 
   @JsonDeserialize(

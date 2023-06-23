@@ -23,14 +23,17 @@ public final class TextQuestionDefinition extends QuestionDefinition {
       TextValidationPredicates validationPredicates,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(
+                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+            .setLastModifiedTime(lastModifiedTime)
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public TextQuestionDefinition(
@@ -40,7 +43,17 @@ public final class TextQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText,
       TextValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
+    super(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(
+                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+            .setValidationPredicates(validationPredicates)
+            .build());
   }
 
   public TextQuestionDefinition(
@@ -50,12 +63,16 @@ public final class TextQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        TextValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(
+                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+            .setValidationPredicates(TextValidationPredicates.create())
+            .build());
   }
 
   @JsonDeserialize(

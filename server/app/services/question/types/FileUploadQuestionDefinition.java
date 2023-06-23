@@ -19,14 +19,16 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionHelpText,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        FileUploadValidationPredicates.create(),
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(FileUploadValidationPredicates.create())
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
   }
 
   public FileUploadQuestionDefinition(
@@ -36,12 +38,14 @@ public final class FileUploadQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionText,
       LocalizedStrings questionHelpText) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        FileUploadValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(FileUploadValidationPredicates.create())
+            .build());
   }
 
   @AutoValue

@@ -33,14 +33,16 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
       LocalizedStrings entityType,
       Optional<Instant> lastModifiedTime) {
     super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EnumeratorValidationPredicates.create(),
-        lastModifiedTime);
+        QuestionDefinitionConfig.builder()
+            .setId(id)
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(EnumeratorValidationPredicates.create())
+            .setLastModifiedTime(lastModifiedTime)
+            .build());
     this.entityType = checkNotNull(entityType);
   }
 
@@ -52,12 +54,14 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
       LocalizedStrings questionHelpText,
       LocalizedStrings entityType) {
     super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EnumeratorValidationPredicates.create());
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setEnumeratorId(enumeratorId)
+            .setDescription(description)
+            .setQuestionText(questionText)
+            .setQuestionHelpText(questionHelpText)
+            .setValidationPredicates(EnumeratorValidationPredicates.create())
+            .build());
     this.entityType = checkNotNull(entityType);
   }
 
