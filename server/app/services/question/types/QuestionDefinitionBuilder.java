@@ -354,7 +354,17 @@ public final class QuestionDefinitionBuilder {
 
       case STATIC:
         return new StaticContentQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();

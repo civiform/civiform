@@ -487,11 +487,15 @@ public class TestQuestionBank {
   private Question staticContent(QuestionEnum ignore) {
     QuestionDefinition definition =
         new StaticContentQuestionDefinition(
-            "more info about something",
-            Optional.empty(),
-            "Shows more info to the applicant",
-            LocalizedStrings.of(Locale.US, "This is more info"),
-            LocalizedStrings.of(Locale.US, ""));
+            QuestionDefinitionConfig.builder()
+                .setName("more info about something")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("Shows more info to the applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
   // Text

@@ -23,11 +23,7 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.ScalarType;
-import services.question.types.StaticContentQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
+import services.question.types.*;
 import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
@@ -43,13 +39,17 @@ public class BlockTest {
       (TextQuestionDefinition) testQuestionBank.applicantFavoriteColor().getQuestionDefinition();
   private static final StaticContentQuestionDefinition STATIC_QUESTION =
       new StaticContentQuestionDefinition(
-          OptionalLong.of(123L),
-          "more info about something",
-          Optional.empty(),
-          "Shows more info to the applicant",
-          LocalizedStrings.of(Locale.US, "This is more info"),
-          LocalizedStrings.of(Locale.US, ""),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setId(OptionalLong.of(123L))
+              .setName("more info about something")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("Shows more info to the applicant")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+              .setValidationPredicates(
+                  StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   @Test
   public void createNewBlock() {

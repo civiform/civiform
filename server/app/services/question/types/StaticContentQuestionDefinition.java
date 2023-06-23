@@ -2,10 +2,6 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /**
  * Defines a static content question. A static content question displays static content without
@@ -13,44 +9,8 @@ import services.LocalizedStrings;
  */
 public final class StaticContentQuestionDefinition extends QuestionDefinition {
 
-  public StaticContentQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(
-                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-            .build());
-  }
-
-  public StaticContentQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setId(id)
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(
-                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-            .setLastModifiedTime(lastModifiedTime)
-            .build());
+  public StaticContentQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @AutoValue

@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.StaticContentQuestionDefinition;
 
 public class StaticContentQuestionFormTest {
@@ -21,11 +22,16 @@ public class StaticContentQuestionFormTest {
 
     StaticContentQuestionDefinition expected =
         new StaticContentQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "Some text. Not an actual question."),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .build());
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -34,11 +40,16 @@ public class StaticContentQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     StaticContentQuestionDefinition originalQd =
         new StaticContentQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "Some text. Not an actual question."),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .build());
 
     StaticContentQuestionForm form = new StaticContentQuestionForm(originalQd);
     QuestionDefinition actual = form.getBuilder().build();

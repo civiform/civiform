@@ -343,16 +343,21 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new StaticContentQuestionDefinition(
-                "static content",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue(
-                    "Hi I'm a block of static text. \n"
-                        + " * Welcome to this test program.\n"
-                        + " * It contains one of every question type. \n\n"
-                        + "### What are the eligibility requirements? \n"
-                        + ">You are 18 years or older."),
-                LocalizedStrings.withDefaultValue("")))
+                QuestionDefinitionConfig.builder()
+                    .setName("static content")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue(
+                            "Hi I'm a block of static text. \n"
+                                + " * Welcome to this test program.\n"
+                                + " * It contains one of every question type. \n\n"
+                                + "### What are the eligibility requirements? \n"
+                                + ">You are 18 years or older."))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
+                    .setValidationPredicates(
+                        StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
