@@ -2940,11 +2940,13 @@ public class ApplicantServiceTest extends ResetPostgres {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    name,
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
+                    QuestionDefinitionConfig.builder()
+                        .setName(name)
+                        .setEnumeratorId(Optional.empty())
+                        .setDescription("description")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                        .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .build()))
             .getResult();
   }
 

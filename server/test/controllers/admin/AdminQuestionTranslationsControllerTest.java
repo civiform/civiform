@@ -25,6 +25,7 @@ import services.TranslationNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 
 public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
@@ -199,11 +200,13 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   private Question createDraftQuestionEnglishOnly() {
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            "applicant name",
-            Optional.empty(),
-            "name of applicant",
-            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT),
-            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("name of applicant")
+                .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
+                .build());
     Question question = new Question(definition);
     // Only draft questions are editable.
     question.addVersion(draftVersion);
@@ -214,13 +217,17 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   private Question createDraftQuestionEnglishAndSpanish() {
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            "applicant name",
-            Optional.empty(),
-            "name of applicant",
-            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT)
-                .updateTranslation(ES_LOCALE, SPANISH_QUESTION_TEXT),
-            LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
-                .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("name of applicant")
+                .setQuestionText(
+                    LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT)
+                        .updateTranslation(ES_LOCALE, SPANISH_QUESTION_TEXT))
+                .setQuestionHelpText(
+                    LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
+                        .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT))
+                .build());
     Question question = new Question(definition);
     // Only draft questions are editable.
     question.addVersion(draftVersion);

@@ -28,13 +28,9 @@ import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
-import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
+import services.question.types.*;
 import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
-import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 import views.html.helper.CSRF;
 
 public class AdminQuestionControllerTest extends ResetPostgres {
@@ -502,10 +498,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   private NameQuestionDefinition createNameQuestionDuplicate(Question question) {
     QuestionDefinition def = question.getQuestionDefinition();
     return new NameQuestionDefinition(
-        def.getName(),
-        Optional.empty(),
-        def.getDescription(),
-        def.getQuestionText(),
-        def.getQuestionHelpText());
+        QuestionDefinitionConfig.builder()
+            .setName(def.getName())
+            .setEnumeratorId(Optional.empty())
+            .setDescription(def.getDescription())
+            .setQuestionText(def.getQuestionText())
+            .setQuestionHelpText(def.getQuestionHelpText())
+            .build());
   }
 }

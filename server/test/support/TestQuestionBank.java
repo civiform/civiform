@@ -365,11 +365,13 @@ public class TestQuestionBank {
   private Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            "applicant name",
-            Optional.empty(),
-            "name of applicant",
-            LocalizedStrings.of(Locale.US, "what is your name?"),
-            LocalizedStrings.of(Locale.US, "help text"));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("name of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "what is your name?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .build());
     return maybeSave(definition);
   }
 
@@ -378,11 +380,14 @@ public class TestQuestionBank {
     Question householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            "household members name",
-            Optional.of(householdMembers.id),
-            "The applicant's household member's name",
-            LocalizedStrings.of(Locale.US, "What is the $this's name?"),
-            LocalizedStrings.of(Locale.US, "Please provide full name for $this."));
+            QuestionDefinitionConfig.builder()
+                .setName("household members name")
+                .setEnumeratorId(Optional.of(householdMembers.id))
+                .setDescription("The applicant's household member's name")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the $this's name?"))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(Locale.US, "Please provide full name for $this."))
+                .build());
 
     return maybeSave(definition);
   }

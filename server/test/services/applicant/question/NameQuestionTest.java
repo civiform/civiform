@@ -15,20 +15,23 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class NameQuestionTest {
   private static final NameQuestionDefinition nameQuestionDefinition =
       new NameQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          NameQuestionDefinition.NameValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setId(OptionalLong.of(1))
+              .setName("question name")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private Applicant applicant;
   private ApplicantData applicantData;

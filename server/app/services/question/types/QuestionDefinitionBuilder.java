@@ -287,14 +287,16 @@ public final class QuestionDefinitionBuilder {
           nameValidationPredicates = NameValidationPredicates.parse(validationPredicatesString);
         }
         return new NameQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            nameValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(nameValidationPredicates)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case NUMBER:
         NumberQuestionDefinition.NumberValidationPredicates numberValidationPredicates =
