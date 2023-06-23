@@ -9,6 +9,7 @@ import services.LocalizedStrings;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 
 public class AddressQuestionFormTest {
 
@@ -24,12 +25,15 @@ public class AddressQuestionFormTest {
 
     AddressQuestionDefinition expected =
         new AddressQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            AddressQuestionDefinition.AddressValidationPredicates.create(true));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    AddressQuestionDefinition.AddressValidationPredicates.create(true))
+                .build());
 
     QuestionDefinition actual = builder.build();
 
@@ -40,12 +44,15 @@ public class AddressQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     AddressQuestionDefinition originalQd =
         new AddressQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            AddressQuestionDefinition.AddressValidationPredicates.create());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    AddressQuestionDefinition.AddressValidationPredicates.create())
+                .build());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();

@@ -166,14 +166,16 @@ public final class QuestionDefinitionBuilder {
               AddressValidationPredicates.parse(validationPredicatesString);
         }
         return new AddressQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            addressValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(addressValidationPredicates)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case CHECKBOX:
         MultiOptionValidationPredicates multiOptionValidationPredicates =

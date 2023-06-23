@@ -14,13 +14,8 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.QuestionDefinition;
+import services.question.types.*;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
-import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 public class QuestionTest extends ResetPostgres {
@@ -99,7 +94,13 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            "address", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("address")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
     Question question = new Question(address);
 
     question.save();

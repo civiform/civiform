@@ -21,6 +21,7 @@ import services.applicant.ValidationErrorMessage;
 import services.geo.ServiceAreaState;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
@@ -28,25 +29,32 @@ public class AddressQuestionTest {
 
   private static final AddressQuestionDefinition addressQuestionDefinition =
       new AddressQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          AddressQuestionDefinition.AddressValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setId(OptionalLong.of(1))
+              .setName("question name")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  AddressQuestionDefinition.AddressValidationPredicates.create())
+              .setLastModifiedTime(Optional.empty())
+              .build());
+  ;
 
   private static final AddressQuestionDefinition noPoBoxAddressQuestionDefinition =
       new AddressQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          AddressQuestionDefinition.AddressValidationPredicates.create(true),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setId(OptionalLong.of(1))
+              .setName("question name")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  AddressQuestionDefinition.AddressValidationPredicates.create(true))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private Applicant applicant;
   private ApplicantData applicantData;

@@ -33,6 +33,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.types.*;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
@@ -137,11 +138,13 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new AddressQuestionDefinition(
-                "address",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your address?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("address")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .build()))
         .getResult();
   }
 

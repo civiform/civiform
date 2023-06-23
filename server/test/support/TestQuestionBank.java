@@ -203,11 +203,13 @@ public class TestQuestionBank {
   private Question applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
-            "applicant address",
-            Optional.empty(),
-            "The address of applicant",
-            LocalizedStrings.of(Locale.US, "What is your address?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant address")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The address of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your address?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build());
     return maybeSave(definition);
   }
 
@@ -226,11 +228,13 @@ public class TestQuestionBank {
   private Question applicantSecondaryAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
-            "applicant secondary address",
-            Optional.empty(),
-            "The secondary address of applicant",
-            LocalizedStrings.of(Locale.US, "What is your secondary address?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant secondary address")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The secondary address of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your secondary address?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build());
     return maybeSave(definition);
   }
 
