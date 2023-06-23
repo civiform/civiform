@@ -189,11 +189,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new DateQuestionDefinition(
-                "enumerator date",
-                Optional.of(enumeratorId),
-                "description",
-                LocalizedStrings.withDefaultValue("When is $this's birthday?"),
-                LocalizedStrings.withDefaultValue("help text for $this's birthday")))
+                QuestionDefinitionConfig.builder()
+                    .setName("enumerator date")
+                    .setEnumeratorId(Optional.of(enumeratorId))
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
+                    .setQuestionHelpText(
+                        LocalizedStrings.withDefaultValue("help text for $this's birthday"))
+                    .build()))
         .getResult();
   }
 
@@ -203,11 +206,13 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new DateQuestionDefinition(
-                name,
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue(questionText),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .build()))
         .getResult();
   }
 

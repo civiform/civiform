@@ -2,48 +2,12 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines a date question. */
 public final class DateQuestionDefinition extends QuestionDefinition {
 
-  public DateQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .build());
-  }
-
-  public DateQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setId(id)
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setLastModifiedTime(lastModifiedTime)
-            .build());
+  public DateQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @AutoValue

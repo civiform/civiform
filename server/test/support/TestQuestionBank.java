@@ -388,11 +388,13 @@ public class TestQuestionBank {
   private Question applicantDate(QuestionEnum ignore) {
     QuestionDefinition definition =
         new DateQuestionDefinition(
-            "applicant birth date",
-            Optional.empty(),
-            "The applicant birth date",
-            LocalizedStrings.of(Locale.US, "What is your birthdate?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant birth date")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The applicant birth date")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your birthdate?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build());
     return maybeSave(definition);
   }
 

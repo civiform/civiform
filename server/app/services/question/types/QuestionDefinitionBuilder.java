@@ -213,7 +213,15 @@ public final class QuestionDefinitionBuilder {
 
       case DATE:
         return new DateQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case DROPDOWN:
         return new MultiOptionQuestionDefinition(
