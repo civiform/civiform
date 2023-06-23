@@ -173,11 +173,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new CurrencyQuestionDefinition(
-                "currency",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("currency")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue(
+                            "How much should a scoop of ice cream cost?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .build()))
         .getResult();
   }
 

@@ -324,11 +324,13 @@ public class TestQuestionBank {
   private Question applicantMonthlyIncome(QuestionEnum ignore) {
     QuestionDefinition definition =
         new CurrencyQuestionDefinition(
-            "applicant monthly income",
-            Optional.empty(),
-            "monthly income of applicant",
-            LocalizedStrings.of(Locale.US, "what is your monthly income?"),
-            LocalizedStrings.of(Locale.US, "help text"));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant monthly income")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("monthly income of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "what is your monthly income?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .build());
     return maybeSave(definition);
   }
 

@@ -201,7 +201,15 @@ public final class QuestionDefinitionBuilder {
 
       case CURRENCY:
         return new CurrencyQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case DATE:
         return new DateQuestionDefinition(
