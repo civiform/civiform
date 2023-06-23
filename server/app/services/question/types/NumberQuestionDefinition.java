@@ -4,69 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
 import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines a number question. */
 public final class NumberQuestionDefinition extends QuestionDefinition {
 
-  public NumberQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      NumberQuestionDefinition.NumberValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setId(id)
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(validationPredicates)
-            .setLastModifiedTime(lastModifiedTime)
-            .build());
-  }
-
-  public NumberQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      NumberQuestionDefinition.NumberValidationPredicates validationPredicates) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(validationPredicates)
-            .build());
-  }
-
-  public NumberQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(NumberQuestionDefinition.NumberValidationPredicates.create())
-            .build());
+  public NumberQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @JsonDeserialize(

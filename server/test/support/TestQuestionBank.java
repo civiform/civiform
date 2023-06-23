@@ -396,11 +396,16 @@ public class TestQuestionBank {
   private Question applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "number of items applicant can juggle",
-            Optional.empty(),
-            "The number of items applicant can juggle at once",
-            LocalizedStrings.of(Locale.US, "How many items can you juggle at one time?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("number of items applicant can juggle")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("The number of items applicant can juggle at once")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "How many items can you juggle at one time?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -438,11 +443,19 @@ public class TestQuestionBank {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "household members days worked",
-            Optional.of(householdMemberJobs.id),
-            "The applicant's household member's number of days worked",
-            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"),
-            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"));
+            QuestionDefinitionConfig.builder()
+                .setName("household members days worked")
+                .setEnumeratorId(Optional.of(householdMemberJobs.id))
+                .setDescription("The applicant's household member's number of days worked")
+                .setQuestionText(
+                    LocalizedStrings.of(
+                        Locale.US, "How many days has $this.parent worked at $this?"))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(
+                        Locale.US, "How many days has $this.parent worked at $this?"))
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create())
+                .build());
 
     return maybeSave(definition);
   }

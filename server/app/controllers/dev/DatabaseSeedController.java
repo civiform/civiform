@@ -306,11 +306,16 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new NumberQuestionDefinition(
-                "number",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("How many pets do you have?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("number")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("How many pets do you have?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        NumberQuestionDefinition.NumberValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 

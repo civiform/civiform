@@ -9,6 +9,7 @@ import services.LocalizedStrings;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 
 public class NumberQuestionFormTest {
 
@@ -25,12 +26,15 @@ public class NumberQuestionFormTest {
 
     NumberQuestionDefinition expected =
         new NumberQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create(2, 8))
+                .build());
 
     QuestionDefinition actual = builder.build();
 
@@ -41,12 +45,15 @@ public class NumberQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     NumberQuestionDefinition originalQd =
         new NumberQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            NumberQuestionDefinition.NumberValidationPredicates.create(2, 8));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create(2, 8))
+                .build());
 
     NumberQuestionForm form = new NumberQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -69,12 +76,15 @@ public class NumberQuestionFormTest {
 
     NumberQuestionDefinition expected =
         new NumberQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            NumberQuestionDefinition.NumberValidationPredicates.create());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create())
+                .build());
 
     QuestionDefinition actual = builder.build();
 

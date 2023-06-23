@@ -306,14 +306,16 @@ public final class QuestionDefinitionBuilder {
               NumberQuestionDefinition.NumberValidationPredicates.parse(validationPredicatesString);
         }
         return new NumberQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            numberValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setId(id)
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(numberValidationPredicates)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case RADIO_BUTTON:
         return new MultiOptionQuestionDefinition(
