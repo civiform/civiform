@@ -132,7 +132,16 @@ public class QuestionDefinitionTest {
   public void isEnumerator_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.isEnumerator()).isFalse();
   }
@@ -158,7 +167,16 @@ public class QuestionDefinitionTest {
   public void isRepeated_false() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.isRepeated()).isFalse();
   }
@@ -167,7 +185,16 @@ public class QuestionDefinitionTest {
   public void isRepeated_true() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.of(123L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.of(123L))
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     assertThat(question.isRepeated()).isTrue();
   }
 
@@ -197,11 +224,16 @@ public class QuestionDefinitionTest {
   public void getQuestionTextForUnknownLocale_throwsException() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(Locale.US, "not french"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "not french"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
@@ -213,11 +245,16 @@ public class QuestionDefinitionTest {
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.of(Locale.US, "help text"));
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
 
@@ -229,7 +266,16 @@ public class QuestionDefinitionTest {
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     assertThat(question.getQuestionHelpText().get(Locale.FRANCE)).isEqualTo("");
   }
 
@@ -237,11 +283,16 @@ public class QuestionDefinitionTest {
   public void getQuestionTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.withDefaultValue("default"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.withDefaultValue("default"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
@@ -251,11 +302,16 @@ public class QuestionDefinitionTest {
   public void getQuestionHelpTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.withDefaultValue("default"));
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("default"))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionHelpText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
@@ -265,11 +321,16 @@ public class QuestionDefinitionTest {
   public void maybeGetQuestionText_returnsOptionalWithText() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(Locale.US, "hello"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
   }
@@ -278,7 +339,16 @@ public class QuestionDefinitionTest {
   public void maybeGetQuestionText_returnsEmptyIfLocaleNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
@@ -287,11 +357,16 @@ public class QuestionDefinitionTest {
   public void maybeGetQuestionHelpText_returnsOptionalWithText() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.of(Locale.US, "world"));
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "world"))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("world");
   }
@@ -300,7 +375,16 @@ public class QuestionDefinitionTest {
   public void maybeGetQuestionHelpText_returnsEmptyIfLocaleNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
@@ -309,7 +393,16 @@ public class QuestionDefinitionTest {
   public void newQuestionHasTypeText() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
@@ -318,11 +411,16 @@ public class QuestionDefinitionTest {
   public void validateWellFormedQuestion_returnsNoErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "text",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "question?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("text")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     assertThat(question.validate()).isEmpty();
   }
 
@@ -330,7 +428,16 @@ public class QuestionDefinitionTest {
   public void validateBadQuestion_returnsErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     assertThat(question.validate())
         .containsOnly(
             CiviFormError.of("Administrative identifier cannot be blank"),
@@ -416,11 +523,16 @@ public class QuestionDefinitionTest {
   public void validate_localeHasBlankText_returnsError() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.of(Locale.US, ""),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.of(Locale.US, ""))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
 
@@ -559,23 +671,30 @@ public class QuestionDefinitionTest {
   public void getSupportedLocales_onlyReturnsFullySupportedLocales() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.of(
-                Locale.US,
-                "question?",
-                Locale.forLanguageTag("es-US"),
-                "pregunta",
-                Locale.FRANCE,
-                "question"),
-            LocalizedStrings.of(
-                Locale.US,
-                "help",
-                Locale.forLanguageTag("es-US"),
-                "ayuda",
-                Locale.GERMAN,
-                "Hilfe"));
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("test")
+                .setQuestionText(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "question?",
+                        Locale.forLanguageTag("es-US"),
+                        "pregunta",
+                        Locale.FRANCE,
+                        "question"))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "help",
+                        Locale.forLanguageTag("es-US"),
+                        "ayuda",
+                        Locale.GERMAN,
+                        "Hilfe"))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(definition.getSupportedLocales())
         .containsExactly(Locale.US, Locale.forLanguageTag("es-US"));
@@ -585,17 +704,23 @@ public class QuestionDefinitionTest {
   public void getSupportedLocales_emptyHelpText_returnsLocalesForQuestionText() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.of(
-                Locale.US,
-                "question?",
-                Locale.forLanguageTag("es-US"),
-                "pregunta",
-                Locale.FRANCE,
-                "question"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("test")
+                .setQuestionText(
+                    LocalizedStrings.of(
+                        Locale.US,
+                        "question?",
+                        Locale.forLanguageTag("es-US"),
+                        "pregunta",
+                        Locale.FRANCE,
+                        "question"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
 
     assertThat(definition.getSupportedLocales())
         .containsExactly(Locale.US, Locale.forLanguageTag("es-US"), Locale.FRANCE);

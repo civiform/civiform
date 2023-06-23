@@ -372,14 +372,17 @@ public final class QuestionDefinitionBuilder {
           textValidationPredicates = TextValidationPredicates.parse(validationPredicatesString);
         }
         return new TextQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            textValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setEnumeratorId(enumeratorId)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setLastModifiedTime(lastModifiedTime)
+                .setValidationPredicates(textValidationPredicates)
+                .build());
       case PHONE:
         PhoneValidationPredicates phoneValidationPredicates = PhoneValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {

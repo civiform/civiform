@@ -4,75 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines a text question. */
 public final class TextQuestionDefinition extends QuestionDefinition {
 
-  public TextQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      TextValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(
-                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-            .setLastModifiedTime(lastModifiedTime)
-            .setValidationPredicates(validationPredicates)
-            .build());
-  }
-
-  public TextQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      TextValidationPredicates validationPredicates) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(
-                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-            .setValidationPredicates(validationPredicates)
-            .build());
-  }
-
-  public TextQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setEnumeratorId(enumeratorId)
-            .setDescription(description)
-            .setQuestionText(questionText)
-            .setQuestionHelpText(questionHelpText)
-            .setValidationPredicates(
-                StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-            .setValidationPredicates(TextValidationPredicates.create())
-            .build());
+  public TextQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @JsonDeserialize(

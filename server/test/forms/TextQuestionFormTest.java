@@ -8,6 +8,8 @@ import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class TextQuestionFormTest {
@@ -25,12 +27,17 @@ public class TextQuestionFormTest {
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(
+                    TextQuestionDefinition.TextValidationPredicates.create(4, 6))
+                .build());
 
     QuestionDefinition actual = builder.build();
 
@@ -41,12 +48,17 @@ public class TextQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     TextQuestionDefinition originalQd =
         new TextQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            TextQuestionDefinition.TextValidationPredicates.create(4, 6));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(
+                    TextQuestionDefinition.TextValidationPredicates.create(4, 6))
+                .build());
 
     TextQuestionForm form = new TextQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -69,12 +81,16 @@ public class TextQuestionFormTest {
 
     TextQuestionDefinition expected =
         new TextQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            TextQuestionDefinition.TextValidationPredicates.create());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
 
     QuestionDefinition actual = builder.build();
 

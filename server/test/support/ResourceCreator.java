@@ -19,6 +19,8 @@ import play.inject.Injector;
 import services.LocalizedStrings;
 import services.apikey.ApiKeyService;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class ResourceCreator {
@@ -63,7 +65,16 @@ public class ResourceCreator {
   public Question insertQuestion(String name) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(definition);
     question.save();
     return question;
@@ -73,7 +84,16 @@ public class ResourceCreator {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            name, Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(definition);
     question.save();
     return question;

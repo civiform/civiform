@@ -17,20 +17,23 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.QuestionDefinition;
+import services.question.types.*;
 import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
-import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
 public class QuestionServiceTest extends ResetPostgres {
   private static final QuestionDefinition questionDefinition =
       new TextQuestionDefinition(
-          "my name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"));
+          QuestionDefinitionConfig.builder()
+              .setName("my name")
+              .setEnumeratorId(Optional.empty())
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+              .build());
 
   QuestionService questionService;
   VersionRepository versionRepository;

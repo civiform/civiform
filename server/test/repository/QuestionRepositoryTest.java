@@ -15,6 +15,8 @@ import services.LocalizedStrings;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public class QuestionRepositoryTest extends ResetPostgres {
@@ -141,11 +143,16 @@ public class QuestionRepositoryTest extends ResetPostgres {
   public void insertQuestion() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "question",
-            Optional.empty(),
-            "applicant's name",
-            LocalizedStrings.of(Locale.US, "What is your name?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("question")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("applicant's name")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestion(question).toCompletableFuture().join();
@@ -159,11 +166,16 @@ public class QuestionRepositoryTest extends ResetPostgres {
   public void insertQuestionSync() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "question",
-            Optional.empty(),
-            "applicant's name",
-            LocalizedStrings.of(Locale.US, "What is your name?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("question")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("applicant's name")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(questionDefinition);
 
     repo.insertQuestionSync(question);

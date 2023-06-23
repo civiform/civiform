@@ -7,6 +7,8 @@ import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import support.TestQuestionBank;
 
@@ -49,11 +51,16 @@ public class QuestionTranslationFormTest {
   public void builder_noHelpText_onlyUpdatesQuestionText() throws Exception {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            "test",
-            Optional.empty(),
-            "test",
-            LocalizedStrings.withDefaultValue("question?"),
-            LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
 
     QuestionTranslationForm form = new QuestionTranslationFormImpl();
     form.setQuestionText("new locale");

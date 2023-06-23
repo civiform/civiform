@@ -502,11 +502,16 @@ public class TestQuestionBank {
   private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "applicant favorite color",
-            Optional.empty(),
-            "Favorite color of applicant",
-            LocalizedStrings.of(Locale.US, "What is your favorite color?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant favorite color")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("Favorite color of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite color?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 

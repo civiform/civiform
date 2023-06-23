@@ -31,7 +31,16 @@ public class QuestionTest extends ResetPostgres {
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     Question question = new Question(definition);
 
     question.save();
@@ -47,7 +56,16 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeEnumeratorId_EmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -60,7 +78,16 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeEnumeratorId_NonEmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.of(10L))
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -73,11 +100,16 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(Locale.US, "hello"),
-            LocalizedStrings.of(Locale.US, "help"));
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     Question question = new Question(definition);
 
     question.save();
@@ -114,12 +146,16 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeValidationPredicates() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty(),
-            TextValidationPredicates.create(0, 128));
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setEnumeratorId(Optional.empty())
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create(0, 128))
+                .build());
     Question question = new Question(definition);
 
     question.save();
@@ -193,7 +229,16 @@ public class QuestionTest extends ResetPostgres {
   public void testTimestamps() throws Exception {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setEnumeratorId(Optional.of(10L))
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create())
+                .build());
     Question initialQuestion = new Question(questionDefinition);
     initialQuestion.save();
 

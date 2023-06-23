@@ -365,11 +365,18 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new TextQuestionDefinition(
-                "text",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your favorite color?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("text")
+                    .setEnumeratorId(Optional.empty())
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("What is your favorite color?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                    .setValidationPredicates(
+                        TextQuestionDefinition.TextValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
