@@ -64,11 +64,20 @@ public class MainModule extends AbstractModule {
   public String provideApplicantAuthProviderName(Config config) {
     checkNotNull(config);
 
-    if (config.hasPath("applicant_portal_name")
-        && !config.getString("applicant_portal_name").isBlank()) {
+    boolean applicantPortalNamePresent =
+        config.hasPath("applicant_portal_name")
+            && !config.getString("applicant_portal_name").isBlank();
+
+    boolean civicEntityNameIsPresent =
+        config.hasPath("whitelabel_civic_entity_full_name")
+            && !config.getString("whitelabel_civic_entity_full_name").isBlank();
+
+    if (applicantPortalNamePresent) {
       return config.getString("applicant_portal_name");
+    } else if (civicEntityNameIsPresent) {
+      return config.getString("whitelabel_civic_entity_full_name");
     }
 
-    return config.getString("whitelabel_civic_entity_full_name");
+    return "TestPortal";
   }
 }
