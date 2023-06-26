@@ -524,12 +524,12 @@
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
         "type": "bool"
       },
       "ESRI_ADDRESS_CORRECTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows address correction for address questions.",
         "type": "bool"
       },
@@ -539,32 +539,32 @@
         "type": "bool"
       },
       "CF_OPTIONAL_QUESTIONS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
         "type": "bool"
       },
       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by default.",
         "type": "bool"
       },
       "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
       "FEATURE_FLAG_OVERRIDES_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Allows feature flags to be overridden via request cookies. Is used by browser tests. Should only be enabled in test and staging deployments.",
         "type": "bool"
       },
       "INTAKE_FORM_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the Common Intake Form feature.",
         "type": "bool"
       },
       "NONGATED_ELIGIBILITY_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows setting eligibility criteria to non-gating.",
         "type": "bool"
       },
@@ -579,7 +579,7 @@
         "type": "bool"
       },
       "PHONE_QUESTION_TYPE_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the phone number question type.",
         "type": "bool"
       }

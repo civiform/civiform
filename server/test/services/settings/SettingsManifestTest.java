@@ -1,13 +1,17 @@
 package services.settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
+import auth.FakeRequestBuilder;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Optional;
 import org.junit.Test;
+import play.libs.typedmap.TypedMap;
+import play.mvc.Http;
 
 public class SettingsManifestTest {
 
@@ -63,6 +67,13 @@ public class SettingsManifestTest {
               "enum_variable",
               "foo"));
 
+  private static Http.Request REQUEST =
+      new FakeRequestBuilder()
+          .build()
+          .withAttrs(
+              TypedMap.empty()
+                  .put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of("bool_variable", "true")));
+
   private static ImmutableMap<String, SettingsSection> SECTIONS =
       ImmutableMap.of(
           "TEST_SECTION",
@@ -90,14 +101,17 @@ public class SettingsManifestTest {
 
   @Test
   public void getSettingDisplayValue() {
-    assertThat(testManifest.getSettingDisplayValue(STRING_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(REQUEST, STRING_VARIABLE))
         .isEqualTo(Optional.of("my-var"));
-    assertThat(testManifest.getSettingDisplayValue(INT_VARIABLE)).isEqualTo(Optional.of("11"));
-    assertThat(testManifest.getSettingDisplayValue(LIST_OF_STRINGS_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(REQUEST, INT_VARIABLE))
+        .isEqualTo(Optional.of("11"));
+    assertThat(testManifest.getSettingDisplayValue(REQUEST, LIST_OF_STRINGS_VARIABLE))
         .isEqualTo(Optional.of("one, two, three"));
-    assertThat(testManifest.getSettingDisplayValue(BOOL_VARIABLE)).isEqualTo(Optional.of("TRUE"));
-    assertThat(testManifest.getSettingDisplayValue(ENUM_VARIABLE)).isEqualTo(Optional.of("foo"));
-    assertThat(testManifest.getSettingDisplayValue(UNSET_STRING_VARIABLE))
+    assertThat(testManifest.getSettingDisplayValue(REQUEST, BOOL_VARIABLE))
+        .isEqualTo(Optional.of("TRUE"));
+    assertThat(testManifest.getSettingDisplayValue(REQUEST, ENUM_VARIABLE))
+        .isEqualTo(Optional.of("foo"));
+    assertThat(testManifest.getSettingDisplayValue(REQUEST, UNSET_STRING_VARIABLE))
         .isEqualTo(Optional.empty());
   }
 }

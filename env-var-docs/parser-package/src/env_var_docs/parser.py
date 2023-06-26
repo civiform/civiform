@@ -13,7 +13,7 @@ import json
 
 UnparsedJSON = dict[str, typing.Any]
 
-Mode = Enum('Mode', ['HIDDEN', 'ADMIN_READABLE'])
+Mode = Enum('Mode', ['HIDDEN', 'ADMIN_READABLE', 'ADMIN_WRITEABLE'])
 
 
 @dataclasses.dataclass

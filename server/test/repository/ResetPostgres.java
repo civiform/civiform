@@ -17,6 +17,7 @@ import org.junit.BeforeClass;
 import play.Application;
 import play.api.inject.BindingKey;
 import play.test.Helpers;
+import services.settings.SettingsService;
 import support.ProgramBuilder;
 import support.ResourceCreator;
 import support.TestQuestionBank;
@@ -65,6 +66,7 @@ public class ResetPostgres {
     Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
+    instanceOf(SettingsService.class).migrateConfigValuesToSettingsGroup();
   }
 
   @Before

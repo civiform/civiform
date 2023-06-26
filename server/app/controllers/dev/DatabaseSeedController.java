@@ -48,6 +48,7 @@ import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsService;
 import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
 
@@ -59,6 +60,7 @@ public class DatabaseSeedController extends Controller {
   private final Database database;
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final SettingsService settingsService;
   private final boolean isDevOrStaging;
 
   @Inject
@@ -67,12 +69,14 @@ public class DatabaseSeedController extends Controller {
       DatabaseSeedView view,
       QuestionService questionService,
       ProgramService programService,
+      SettingsService settingsService,
       DeploymentType deploymentType) {
     this.databaseSeedTask = checkNotNull(databaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
+    this.settingsService = checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
 
@@ -511,5 +515,6 @@ public class DatabaseSeedController extends Controller {
     Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
+    settingsService.migrateConfigValuesToSettingsGroup();
   }
 }
