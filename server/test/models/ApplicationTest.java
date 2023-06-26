@@ -32,7 +32,8 @@ public class ApplicationTest extends ResetPostgres {
 
     Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     ApplicationEvent event =
@@ -65,12 +66,54 @@ public class ApplicationTest extends ResetPostgres {
             .build();
 
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     application.setLatestStatusForTest("some-status-value");
     application.save();
     application.refresh();
     assertThat(application.getLatestStatus()).isEmpty();
+  }
+
+  @Test
+  public void isAdmin_applicant_isFalse() {
+    Program program =
+        ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    Application application =
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
+    assertThat(application.getIsAdmin()).isFalse();
+  }
+
+  @Test
+  public void isAdmin_globalAdmin_isTrue() {
+    Program program =
+        ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    applicant.getAccount().setGlobalAdmin(true);
+
+    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    assertThat(application.getIsAdmin()).isTrue();
+  }
+
+  @Test
+  public void isAdmin_programAdmin_isTrue() {
+    Program program =
+        ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
+
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());
+
+    Application application = resourceCreator.insertActiveApplication(applicant, program);
+    assertThat(application.getIsAdmin()).isTrue();
   }
 }
