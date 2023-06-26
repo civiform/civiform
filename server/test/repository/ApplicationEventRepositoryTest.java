@@ -29,7 +29,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
     Account actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -54,7 +54,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insertAsync() {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -80,7 +80,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
     Account actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =
@@ -115,7 +115,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     Instant startInstant = Instant.now();
     Program program = resourceCreator.insertActiveProgram("Program");
     Account actor = resourceCreator.insertAccount();
-    Applicant applicant = resourceCreator.insertApplicant();
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
     ApplicationEventDetails details =

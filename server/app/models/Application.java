@@ -50,12 +50,16 @@ public class Application extends BaseModel {
   private String preferredLocale;
   private String submitterEmail;
   private String latestStatus;
+  private boolean isAdmin;
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
     this.program = program;
     this.object = "{}";
     this.lifecycleStage = lifecycleStage;
+    this.isAdmin =
+        applicant.getAccount().getGlobalAdmin()
+            || !applicant.getAccount().getAdministeredProgramNames().isEmpty();
   }
 
   public static Application create(
@@ -112,6 +116,10 @@ public class Application extends BaseModel {
 
   public Instant getCreateTime() {
     return this.createTime;
+  }
+
+  public boolean getIsAdmin() {
+    return this.isAdmin;
   }
 
   public Application setLifecycleStage(LifecycleStage stage) {
