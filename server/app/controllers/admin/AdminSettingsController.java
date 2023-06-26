@@ -24,7 +24,6 @@ public class AdminSettingsController extends CiviFormController {
   private final AdminSettingsIndexView indexView;
   private final FormFactory formFactory;
   private final SettingsService settingsService;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public AdminSettingsController(
@@ -37,7 +36,6 @@ public class AdminSettingsController extends CiviFormController {
     this.indexView = checkNotNull(indexView);
     this.formFactory = checkNotNull(formFactory);
     this.settingsService = checkNotNull(settingsService);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
