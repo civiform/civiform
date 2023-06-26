@@ -46,8 +46,6 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramMetaDataEditView editView;
   private final ProgramSettingsEditView programSettingsEditView;
   private final FormFactory formFactory;
-  private final VersionRepository versionRepository;
-  private final ProfileUtils profileUtils;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
 
@@ -64,14 +62,13 @@ public final class AdminProgramController extends CiviFormController {
       FormFactory formFactory,
       RequestChecker requestChecker,
       SettingsManifest settingsManifest) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.programSettingsEditView = checkNotNull(programSettingsEditView);
-    this.versionRepository = checkNotNull(versionRepository);
-    this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = settingsManifest;

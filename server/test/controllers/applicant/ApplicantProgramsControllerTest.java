@@ -5,6 +5,7 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
@@ -14,6 +15,7 @@ import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -201,6 +203,28 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram = ProgramBuilder.newDraftProgram().build();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result =
+        controller.edit(request, currentApplicant.id, draftProgram.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void edit_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
+    Program draftProgram = ProgramBuilder.newDraftProgram().build();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result =
+        controller.edit(request, adminApplicantId, draftProgram.id).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
+
+  @Test
   public void edit_invalidProgram_returnsBadRequest() {
     Result result =
         controller
@@ -209,6 +233,19 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void edit_applicantAccessToObsoleteProgram_isOk() {
+    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
+    Request request = addCSRFToken(fakeRequest()).build();
+    Result result =
+        controller
+            .edit(request, currentApplicant.id, obsoleteProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
   }
 
   @Test

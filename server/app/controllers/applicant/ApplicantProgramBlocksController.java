@@ -32,6 +32,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import repository.VersionRepository;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -76,7 +77,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FormFactory formFactory;
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
-  private final ProfileUtils profileUtils;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
@@ -102,14 +102,15 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
-      ProgramService programService) {
+      ProgramService programService,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.formFactory = checkNotNull(formFactory);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
-    this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
@@ -180,7 +181,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     return CompletableFuture.allOf(
-            checkApplicantAuthorization(profileUtils, request, applicantId), applicantStage)
+            checkApplicantAuthorization(request, applicantId), applicantStage)
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(
@@ -233,12 +234,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletableFuture<Void> applicantAuthCompletableFuture =
         applicantStage
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+                v -> checkApplicantAuthorization(request, applicantId),
                 httpExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
                 httpExecutionContext.current())
@@ -300,8 +302,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -360,8 +362,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -451,8 +453,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);

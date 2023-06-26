@@ -14,6 +14,7 @@ import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.settings.SettingsService;
 import views.admin.settings.AdminSettingsIndexView;
 
@@ -30,7 +31,9 @@ public class AdminSettingsController extends CiviFormController {
       AdminSettingsIndexView indexView,
       FormFactory formFactory,
       SettingsService settingsService,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.indexView = checkNotNull(indexView);
     this.formFactory = checkNotNull(formFactory);
     this.settingsService = checkNotNull(settingsService);

@@ -16,6 +16,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.stream.Collectors;
+import models.Account;
 import models.Applicant;
 import models.Program;
 import models.StoredFile;
@@ -62,6 +63,61 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         subject.edit(request, badApplicantId, program.id, "1").toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void edit_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void edit_obsoleteProgram_isOk() {
+    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
@@ -138,6 +194,64 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void previous_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.previous(
+                        applicant.id, program.id, 0, true)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void previous_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.previous(
+                        applicant.id, program.id, 0, true)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void previous_obsoleteProgram_isOk() {
+    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.previous(
+                        applicant.id, program.id, 0, true)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
   public void update_invalidApplicant_returnsUnauthorized() {
     long badApplicantId = applicant.id + 1000;
     Request request =
@@ -154,6 +268,64 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void update_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.update(
+                        applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void update_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.update(
+                        applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void update_obsoleteProgram_isOk() {
+    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.update(
+                        applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test
@@ -400,6 +572,64 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void updateFile_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.updateFile(
+                        applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void updateFile_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.updateFile(
+                        applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void updateFile_obsoleteProgram_isOk() {
+    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+
+    Request request =
+        addCSRFToken(
+                fakeRequest(
+                    routes.ApplicantProgramBlocksController.updateFile(
+                        applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
+            .build();
+    Result result =
+        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
   }
 
   @Test

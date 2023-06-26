@@ -11,14 +11,17 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
+import models.Account;
 import models.Applicant;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.Path;
 import services.applicant.question.Scalar;
+import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
@@ -50,6 +53,37 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void review_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Result result = this.review(applicant.id, draftProgram.id);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void review_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Result result = this.review(applicant.id, draftProgram.id);
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void review_obsoleteProgram_isOk() {
+    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    Result result = this.review(applicant.id, obsoleteProgram.id);
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
   public void review_toAProgramThatDoesNotExist_returns404() {
     long badProgramId = activeProgram.id + 1000;
     Result result = this.review(applicant.id, badProgramId);
@@ -67,6 +101,54 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     long badApplicantId = applicant.id + 1000;
     Result result = this.submit(badApplicantId, activeProgram.id);
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void submit_applicantAccessToDraftProgram_returnsUnauthorized() {
+    Program draftProgram =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .build();
+    Result result = this.submit(applicant.id, draftProgram.id);
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void submit_civiformAdminAccessToDraftProgram_isOk() {
+    Account adminAccount = createGlobalAdminWithMockedProfile();
+    applicant = adminAccount.newestApplicant().orElseThrow();
+
+    ProgramBuilder.newActiveProgram("test program", "desc")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank().applicantName())
+        .buildDefinition();
+    ProgramDefinition draftProgramDefinition =
+        ProgramBuilder.newDraftProgram("test program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .buildDefinition();
+    answer(draftProgramDefinition.id());
+
+    Result result = this.submit(applicant.id, draftProgramDefinition.id());
+    assertThat(result.status()).isEqualTo(FOUND);
+  }
+
+  @Test
+  public void submit_obsoleteProgram_isOk() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .buildDefinition();
+    resourceCreator().insertDraftProgram(programDefinition.adminName());
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    versionRepository.publishNewSynchronizedVersion();
+
+    answer(programDefinition.id());
+
+    Result result = this.submit(applicant.id, programDefinition.id());
+    assertThat(result.status()).isEqualTo(FOUND);
   }
 
   @Test

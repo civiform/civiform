@@ -3,6 +3,7 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
@@ -13,6 +14,7 @@ import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.EligibilityNotValidForProgramTypeException;
@@ -52,7 +54,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProgramPredicatesEditViewV2 predicatesEditViewV2,
       ProgramPredicateConfigureView predicatesConfigureView,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);

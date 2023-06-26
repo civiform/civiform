@@ -3,6 +3,7 @@ package controllers.monitoring;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -34,7 +35,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
             ImmutableMap.<String, String>builder()
                 .put("civiform_server_metrics_enabled", "true")
                 .build());
-    MetricsController controllerWithMetricsEnabled = new MetricsController(config);
+    MetricsController controllerWithMetricsEnabled =
+        new MetricsController(
+            config, instanceOf(ProfileUtils.class), instanceOf(VersionRepository.class));
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
@@ -68,7 +71,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
             ImmutableMap.<String, String>builder()
                 .put("civiform_server_metrics_enabled", "false")
                 .build());
-    MetricsController controllerWithoutMetricsEnabled = new MetricsController(config);
+    MetricsController controllerWithoutMetricsEnabled =
+        new MetricsController(
+            config, instanceOf(ProfileUtils.class), instanceOf(VersionRepository.class));
     assertThat(controllerWithoutMetricsEnabled.getMetrics().status()).isEqualTo(404);
   }
 
