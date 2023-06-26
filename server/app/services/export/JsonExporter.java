@@ -139,7 +139,9 @@ public final class JsonExporter {
     // the json entries for any Question in one line.
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, ?> entries =
-        presenterFactory.create(answerData).getJsonEntries(answerData.createQuestion());
+        presenterFactory
+            .create(answerData.applicantQuestion().getType())
+            .getJsonEntries(answerData.createQuestion());
 
     for (Map.Entry<Path, ?> entry : entries.entrySet()) {
       Path path = entry.getKey();
