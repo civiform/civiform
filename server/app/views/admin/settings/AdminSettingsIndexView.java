@@ -91,7 +91,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     request
         .flash()
         .get("warning")
-        .ifPresent(successMessage -> bundle.addToastMessages(ToastMessage.warning(successMessage)));
+        .ifPresent(warningMessage -> bundle.addToastMessages(ToastMessage.warning(warningMessage)));
 
     return layout.render(bundle);
   }
