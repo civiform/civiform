@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
+import models.Account;
 import models.Applicant;
 import models.Application;
 import models.DisplayMode;
@@ -318,8 +319,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   private Applicant saveApplicant(String name) {
+    Account account = new Account();
     Applicant applicant = new Applicant();
     applicant.getApplicantData().setUserName(name);
+    applicant.setAccount(account);
     applicant.save();
     return applicant;
   }

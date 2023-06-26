@@ -17,7 +17,8 @@ public class ApplicationEventTest extends ResetPostgres {
 
     Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     ApplicationEvent event =
@@ -40,7 +41,8 @@ public class ApplicationEventTest extends ResetPostgres {
 
     Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     new ApplicationEvent(
@@ -75,7 +77,8 @@ public class ApplicationEventTest extends ResetPostgres {
     Program program = resourceCreator.insertActiveProgram("test program");
 
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     new ApplicationEvent(
@@ -98,7 +101,8 @@ public class ApplicationEventTest extends ResetPostgres {
 
     Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     assertThat(application.getLatestStatus()).isEmpty();
 
     ApplicationEvent firstEvent =
