@@ -14,8 +14,23 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.*;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
+import services.question.types.DateQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
 import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
+import services.question.types.PhoneQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
+import services.question.types.StaticContentQuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 
 /**
  * A cached {@link Question} bank for testing.
