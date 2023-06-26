@@ -1,7 +1,10 @@
 package views.errors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
 import com.typesafe.config.Config;

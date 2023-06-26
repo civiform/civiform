@@ -1,6 +1,6 @@
 package views.questiontypes;
 
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

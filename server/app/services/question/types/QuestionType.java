@@ -1,7 +1,21 @@
 package services.question.types;
 
 import java.util.Locale;
-import services.applicant.question.*;
+import services.applicant.question.AddressQuestion;
+import services.applicant.question.CurrencyQuestion;
+import services.applicant.question.DateQuestion;
+import services.applicant.question.EmailQuestion;
+import services.applicant.question.EnumeratorQuestion;
+import services.applicant.question.FileUploadQuestion;
+import services.applicant.question.IdQuestion;
+import services.applicant.question.MultiSelectQuestion;
+import services.applicant.question.NameQuestion;
+import services.applicant.question.NumberQuestion;
+import services.applicant.question.PhoneQuestion;
+import services.applicant.question.Question;
+import services.applicant.question.SingleSelectQuestion;
+import services.applicant.question.StaticContentQuestion;
+import services.applicant.question.TextQuestion;
 import services.question.exceptions.InvalidQuestionTypeException;
 
 /** Defines types of questions supported. */
