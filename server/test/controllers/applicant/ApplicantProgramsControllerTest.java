@@ -205,7 +205,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
     Program draftProgram = ProgramBuilder.newDraftProgram().build();
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.edit(request, currentApplicant.id, draftProgram.id).toCompletableFuture().join();
 
@@ -217,7 +217,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Account adminAccount = createGlobalAdminWithMockedProfile();
     long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
     Program draftProgram = ProgramBuilder.newDraftProgram().build();
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.edit(request, adminApplicantId, draftProgram.id).toCompletableFuture().join();
 
@@ -238,7 +238,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void edit_applicantAccessToObsoleteProgram_isOk() {
     Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("name").build();
-    Request request = addCSRFToken(fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller
             .edit(request, currentApplicant.id, obsoleteProgram.id)

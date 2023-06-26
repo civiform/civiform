@@ -75,7 +75,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
             .build();
     Result result =
@@ -96,7 +96,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
             .build();
     Result result =
@@ -111,7 +111,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
             .build();
     Result result =
@@ -203,7 +203,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.previous(
                         applicant.id, program.id, 0, true)))
             .build();
@@ -225,7 +225,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.previous(
                         applicant.id, program.id, 0, true)))
             .build();
@@ -241,7 +241,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.previous(
                         applicant.id, program.id, 0, true)))
             .build();
@@ -280,7 +280,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.update(
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
@@ -302,7 +302,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.update(
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
@@ -318,7 +318,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.update(
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
@@ -584,7 +584,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateFile(
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
@@ -606,7 +606,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateFile(
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
@@ -622,7 +622,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(
-                fakeRequest(
+                requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.updateFile(
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
