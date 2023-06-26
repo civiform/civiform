@@ -55,7 +55,7 @@ public final class SettingsService {
 
   /**
    * Loads the server settings from the database and returns a new request that has the settings in
-   * the request attributes. If no settings ar found an error is logged and the request argument is
+   * the request attributes. If no settings are found an error is logged and the request argument is
    * returned.
    */
   public CompletionStage<Http.RequestHeader> applySettingsToRequest(Http.RequestHeader request) {
