@@ -32,6 +32,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
               .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
               .setLastModifiedTime(Optional.empty())
               .setValidationPredicates(TextValidationPredicates.create(2, 3))
+              .setId(123L)
               .build());
 
   private final ApplicantData applicantData = new ApplicantData();

@@ -17,7 +17,11 @@ import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
-/** Provides helper functions to build a QuestionDefinition. */
+/**
+ * Provides helper functions to build a QuestionDefinition.
+ *
+ * <p>TODO(#4872): Remove this class in favor of QuestionDefinitionConfig.Builder.
+ */
 public final class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
@@ -384,6 +388,7 @@ public final class QuestionDefinitionBuilder {
                 .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
                 .setValidationPredicates(textValidationPredicates)
+                .setId(id)
                 .build());
       case PHONE:
         PhoneValidationPredicates phoneValidationPredicates = PhoneValidationPredicates.create();
