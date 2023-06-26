@@ -504,7 +504,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .setQuestionText(def.getQuestionText())
             .setQuestionHelpText(def.getQuestionHelpText())
             .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
-            .setEnumeratorId(Optional.empty())
             .build());
   }
 }

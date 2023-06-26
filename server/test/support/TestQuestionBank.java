@@ -210,7 +210,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -224,7 +223,6 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -240,7 +238,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -299,7 +296,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.empty());
     return maybeSave(definition);
@@ -335,7 +331,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(
                     FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -351,7 +346,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
                 .setValidationPredicates(
                     CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -366,7 +360,6 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the the id?"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -381,7 +374,6 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "what is your name?"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
                 .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -416,7 +408,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(
                     NumberQuestionDefinition.NumberValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -431,7 +422,6 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your birthdate?"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(DateQuestionDefinition.DateValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -446,7 +436,6 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Email?"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -504,7 +493,6 @@ public class TestQuestionBank {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
                 .setValidationPredicates(
                     StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     return maybeSave(definition);
   }
@@ -518,7 +506,6 @@ public class TestQuestionBank {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite color?"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     return maybeSave(definition);

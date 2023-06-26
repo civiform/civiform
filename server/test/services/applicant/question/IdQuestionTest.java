@@ -38,7 +38,6 @@ public class IdQuestionTest extends ResetPostgres {
               .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
-              .setEnumeratorId(Optional.empty())
               .build());
 
   private static final IdQuestionDefinition minAndMaxLengthIdQuestionDefinition =
@@ -49,7 +48,6 @@ public class IdQuestionTest extends ResetPostgres {
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(3, 4))
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

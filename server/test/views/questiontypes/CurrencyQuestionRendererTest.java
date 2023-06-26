@@ -31,7 +31,6 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

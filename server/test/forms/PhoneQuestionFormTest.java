@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.PhoneQuestionDefinition;
@@ -29,7 +28,6 @@ public class PhoneQuestionFormTest {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -47,7 +45,6 @@ public class PhoneQuestionFormTest {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Phone Number?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     PhoneQuestionForm form = new PhoneQuestionForm(originalQd);

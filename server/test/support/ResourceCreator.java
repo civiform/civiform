@@ -70,7 +70,6 @@ public class ResourceCreator {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     question.save();
@@ -87,7 +86,6 @@ public class ResourceCreator {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     question.save();

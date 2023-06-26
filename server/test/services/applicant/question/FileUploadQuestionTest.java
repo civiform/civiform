@@ -27,7 +27,6 @@ public class FileUploadQuestionTest {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

@@ -3,7 +3,6 @@ package forms.translation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -56,7 +55,6 @@ public class QuestionTranslationFormTest {
                 .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionTranslationForm form = new QuestionTranslationFormImpl();

@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.NameQuestionDefinition;
@@ -29,7 +28,6 @@ public class NameQuestionFormTest {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -47,7 +45,6 @@ public class NameQuestionFormTest {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     NameQuestionForm form = new NameQuestionForm(originalQd);

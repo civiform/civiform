@@ -3,7 +3,6 @@ package forms.translation;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -23,7 +22,6 @@ public class EnumeratorQuestionTranslationFormTest {
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue("existing"))
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.withDefaultValue("existing"));
 
@@ -52,7 +50,6 @@ public class EnumeratorQuestionTranslationFormTest {
                 .setQuestionHelpText(LocalizedStrings.of(Locale.FRANCE, "existing"))
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.of(Locale.FRANCE, "existing"));
 

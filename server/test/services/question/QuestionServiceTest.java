@@ -30,7 +30,6 @@ public class QuestionServiceTest extends ResetPostgres {
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .build());
 
   QuestionService questionService;

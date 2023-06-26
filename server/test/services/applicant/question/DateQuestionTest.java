@@ -32,7 +32,6 @@ public class DateQuestionTest extends ResetPostgres {
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(DateQuestionDefinition.DateValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

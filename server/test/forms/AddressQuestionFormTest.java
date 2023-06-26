@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.AddressQuestionDefinition;
@@ -32,7 +31,6 @@ public class AddressQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create(true))
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -51,7 +49,6 @@ public class AddressQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);

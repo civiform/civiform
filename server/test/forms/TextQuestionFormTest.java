@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -34,7 +33,6 @@ public class TextQuestionFormTest {
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setValidationPredicates(
                     TextQuestionDefinition.TextValidationPredicates.create(4, 6))
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -54,7 +52,6 @@ public class TextQuestionFormTest {
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setValidationPredicates(
                     TextQuestionDefinition.TextValidationPredicates.create(4, 6))
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     TextQuestionForm form = new TextQuestionForm(originalQd);
@@ -84,7 +81,6 @@ public class TextQuestionFormTest {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();

@@ -27,7 +27,6 @@ public class EmailQuestionTest extends ResetPostgres {
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

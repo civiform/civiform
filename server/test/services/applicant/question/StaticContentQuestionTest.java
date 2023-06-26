@@ -29,7 +29,6 @@ public class StaticContentQuestionTest extends ResetPostgres {
               .setValidationPredicates(
                   StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
               .setId(OptionalLong.of(1))
-              .setEnumeratorId(Optional.empty())
               .setLastModifiedTime(Optional.empty())
               .build());
 

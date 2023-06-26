@@ -46,7 +46,6 @@ public class BlockTest {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
               .setValidationPredicates(
                   StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(123L))
               .setLastModifiedTime(Optional.empty())
               .build());

@@ -37,7 +37,6 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
 
@@ -60,7 +59,6 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(questionDefinition);
     question.save();
@@ -100,7 +98,6 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
 
@@ -125,7 +122,6 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     AddressQuestionDefinition.AddressValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(address);
 
@@ -147,7 +143,6 @@ public class QuestionTest extends ResetPostgres {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setValidationPredicates(TextValidationPredicates.create(0, 128))
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
 

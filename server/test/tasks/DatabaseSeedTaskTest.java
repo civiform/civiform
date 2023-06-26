@@ -2,7 +2,6 @@ package tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
 import java.util.Set;
 import models.Question;
 import org.junit.Before;
@@ -57,7 +56,6 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
                     .setQuestionHelpText(LocalizedStrings.empty())
                     .setValidationPredicates(
                         DateQuestionDefinition.DateValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()));
     assertThat(getAllQuestions().size()).isEqualTo(1);
 

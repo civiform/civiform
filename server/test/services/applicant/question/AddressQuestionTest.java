@@ -36,7 +36,6 @@ public class AddressQuestionTest {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   AddressQuestionDefinition.AddressValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
@@ -51,7 +50,6 @@ public class AddressQuestionTest {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   AddressQuestionDefinition.AddressValidationPredicates.create(true))
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

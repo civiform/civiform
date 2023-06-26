@@ -145,7 +145,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         AddressQuestionDefinition.AddressValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -184,7 +183,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -219,7 +217,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         DateQuestionDefinition.DateValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -255,7 +252,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         EmailQuestionDefinition.EmailValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -272,7 +268,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build(),
                 LocalizedStrings.withDefaultValue("household member")))
         .getResult();
@@ -290,7 +285,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -306,7 +300,6 @@ public class DatabaseSeedController extends Controller {
                         LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -323,7 +316,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         NumberQuestionDefinition.NumberValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -365,7 +357,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
                     .setValidationPredicates(
                         StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -382,7 +373,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         TextQuestionDefinition.TextValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }
@@ -398,7 +388,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
                     .setValidationPredicates(
                         PhoneQuestionDefinition.PhoneValidationPredicates.create())
-                    .setEnumeratorId(Optional.empty())
                     .build()))
         .getResult();
   }

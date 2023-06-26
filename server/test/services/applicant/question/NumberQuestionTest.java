@@ -38,7 +38,6 @@ public class NumberQuestionTest extends ResetPostgres {
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(NumberQuestionDefinition.NumberValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());
@@ -53,7 +52,6 @@ public class NumberQuestionTest extends ResetPostgres {
               .setValidationPredicates(
                   NumberQuestionDefinition.NumberValidationPredicates.create(50, 100))
               .setId(OptionalLong.of(1))
-              .setEnumeratorId(Optional.empty())
               .setLastModifiedTime(Optional.empty())
               .build());
 

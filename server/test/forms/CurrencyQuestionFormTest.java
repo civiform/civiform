@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.CurrencyQuestionDefinition;
@@ -31,7 +30,6 @@ public class CurrencyQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -50,7 +48,6 @@ public class CurrencyQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     CurrencyQuestionForm form = new CurrencyQuestionForm(originalQd);

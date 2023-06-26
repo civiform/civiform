@@ -31,7 +31,6 @@ public class AddressRendererTest extends ResetPostgres {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   AddressQuestionDefinition.AddressValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

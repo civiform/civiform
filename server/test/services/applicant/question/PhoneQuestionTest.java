@@ -34,7 +34,6 @@ public class PhoneQuestionTest {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
               .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
               .setId(OptionalLong.of(1))
-              .setEnumeratorId(Optional.empty())
               .setLastModifiedTime(Optional.empty())
               .build());
 

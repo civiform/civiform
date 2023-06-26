@@ -827,7 +827,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
                         .setValidationPredicates(
                             FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
-                        .setEnumeratorId(Optional.empty())
                         .build()))
             .getResult();
 
@@ -2947,7 +2946,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
                         .setValidationPredicates(
                             NameQuestionDefinition.NameValidationPredicates.create())
-                        .setEnumeratorId(Optional.empty())
                         .build()))
             .getResult();
   }

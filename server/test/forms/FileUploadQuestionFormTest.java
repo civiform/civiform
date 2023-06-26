@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.FileUploadQuestionDefinition;
@@ -30,7 +29,6 @@ public class FileUploadQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -49,7 +47,6 @@ public class FileUploadQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     FileUploadQuestionForm form = new FileUploadQuestionForm(originalQd);

@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -30,7 +29,6 @@ public class StaticContentQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     assertThat(actual).isEqualTo(expected);
@@ -48,7 +46,6 @@ public class StaticContentQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
 
     StaticContentQuestionForm form = new StaticContentQuestionForm(originalQd);

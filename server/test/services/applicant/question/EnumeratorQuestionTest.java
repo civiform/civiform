@@ -37,7 +37,6 @@ public class EnumeratorQuestionTest extends ResetPostgres {
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
               .setValidationPredicates(
                   EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-              .setEnumeratorId(Optional.empty())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build(),

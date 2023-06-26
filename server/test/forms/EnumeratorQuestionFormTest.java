@@ -3,7 +3,6 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -30,7 +29,6 @@ public class EnumeratorQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.empty());
 
@@ -50,7 +48,6 @@ public class EnumeratorQuestionFormTest {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .setValidationPredicates(
                     EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build(),
             LocalizedStrings.empty());
 

@@ -10,7 +10,6 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import models.Question;
 import models.Version;
 import org.junit.Before;
@@ -206,7 +205,6 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                 .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
                 .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     // Only draft questions are editable.
@@ -228,7 +226,6 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                     LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
                         .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT))
                 .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
-                .setEnumeratorId(Optional.empty())
                 .build());
     Question question = new Question(definition);
     // Only draft questions are editable.
