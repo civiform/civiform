@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import java.time.Duration;
 import javax.inject.Provider;
 import scala.concurrent.ExecutionContext;
+import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 
 /**
@@ -25,7 +26,12 @@ public class SettingsMigrationModule extends AbstractModule {
     public SettingsMigrator(
         ActorSystem actorSystem,
         ExecutionContext executionContext,
-        Provider<SettingsService> settingsServiceProvider) {
+        Provider<SettingsService> settingsServiceProvider,
+        SettingsManifest settingsManifest) {
+      if (!settingsManifest.getAdminSettingsPanelEnabled()) {
+        return;
+      }
+
       actorSystem
           .scheduler()
           .scheduleOnce(

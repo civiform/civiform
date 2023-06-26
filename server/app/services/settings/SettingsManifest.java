@@ -1420,7 +1420,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If enabled, adds a page in the CiviForm Admin UI for accessing application"
                           + " settings.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "CF_OPTIONAL_QUESTIONS",
                       "If enabled, allows questions to be optional in programs. Is enabled by"
