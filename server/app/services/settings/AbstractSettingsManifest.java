@@ -121,7 +121,7 @@ public abstract class AbstractSettingsManifest {
    * settings, the value from the database is returned. Otherwise the value from the application
    * {@link Config} is used..
    */
-  public boolean getBool(SettingDescription settingDescription, Http.Request request) {
+  private boolean getBool(SettingDescription settingDescription, Http.Request request) {
     return getBool(settingDescription.variableName(), request);
   }
 

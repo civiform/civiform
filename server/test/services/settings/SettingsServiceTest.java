@@ -100,7 +100,7 @@ public class SettingsServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void updateSettings_newSettingsAreTheSame_insertsANewSettingsGroup() {
+  public void updateSettings_newSettingsAreTheSame_doesNotinsertANewSettingsGroup() {
     var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
 
     assertThat(settingsService.updateSettings(initialSettings, testProfile)).isFalse();
