@@ -61,7 +61,6 @@ public class CiviFormProfileMergerTest {
     account.id = ACCOUNT_ID;
 
     account.setApplicants(Collections.singletonList(applicant));
-    applicant.setAccount(account);
 
     dummyApplication = new Application(applicant, null, null);
 
