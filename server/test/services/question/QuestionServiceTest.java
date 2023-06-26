@@ -17,8 +17,11 @@ import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.*;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
+import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
 public class QuestionServiceTest extends ResetPostgres {

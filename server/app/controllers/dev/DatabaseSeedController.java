@@ -33,7 +33,6 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionOption;
 import services.question.QuestionService;
-import services.question.types.*;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.DateQuestionDefinition;
@@ -47,6 +46,7 @@ import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQu
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import services.settings.SettingsService;

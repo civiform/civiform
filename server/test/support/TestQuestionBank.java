@@ -28,6 +28,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
