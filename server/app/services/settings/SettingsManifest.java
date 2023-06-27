@@ -1409,12 +1409,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the feature that allows for service area validation of a corrected"
                           + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ESRI_ADDRESS_CORRECTION_ENABLED",
                       "Enables the feature that allows address correction for address questions.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ADMIN_SETTINGS_PANEL_ENABLED",
                       "If enabled, adds a page in the CiviForm Admin UI for accessing application"
@@ -1426,36 +1426,36 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If enabled, allows questions to be optional in programs. Is enabled by"
                           + " default.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS",
                       "If enabled, CiviForm Admins are able to see all applications for all"
                           + " programs. Is disabled by default.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE",
                       "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login"
                           + " screen. Is disabled by default.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "FEATURE_FLAG_OVERRIDES_ENABLED",
                       "Allows feature flags to be overridden via request cookies. Is used by"
                           + " browser tests. Should only be enabled in test and staging"
                           + " deployments.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "INTAKE_FORM_ENABLED",
                       "Enables the Common Intake Form feature.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "NONGATED_ELIGIBILITY_ENABLED",
                       "Enables the feature that allows setting eligibility criteria to non-gating.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "STAGING_ADD_NOINDEX_META_TAG",
                       "If this is a staging deployment and this variable is set to true, a [robots"
@@ -1474,7 +1474,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "PHONE_QUESTION_TYPE_ENABLED",
                       "Enables the phone number question type.",
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_WRITEABLE))),
           "ROOT",
           SettingsSection.create(
               "ROOT",

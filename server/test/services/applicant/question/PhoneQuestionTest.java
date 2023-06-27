@@ -20,20 +20,22 @@ import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class PhoneQuestionTest {
   private static final PhoneQuestionDefinition phoneQuestionDefinition =
       new PhoneQuestionDefinition(
-          OptionalLong.of(1),
-          "applicant phone",
-          Optional.empty(),
-          "The applicant Phone Number",
-          LocalizedStrings.of(Locale.US, "What is your phone number?"),
-          LocalizedStrings.of(Locale.US, "This is sample help text."),
-          PhoneQuestionDefinition.PhoneValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("applicant phone")
+              .setDescription("The applicant Phone Number")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+              .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private Applicant applicant;
   private ApplicantData applicantData;

@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -17,6 +16,7 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 import support.QuestionAnswerer;
@@ -24,14 +24,16 @@ import support.QuestionAnswerer;
 public class TextQuestionRendererTest extends ResetPostgres {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          TextValidationPredicates.create(2, 3),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+              .setLastModifiedTime(Optional.empty())
+              .setValidationPredicates(TextValidationPredicates.create(2, 3))
+              .setId(123L)
+              .build());
 
   private final ApplicantData applicantData = new ApplicantData();
 

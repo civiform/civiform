@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -92,7 +92,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
 
     Result result =
         instanceOf(RedirectController.class)
-            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(
+                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -111,7 +112,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
     RedirectController controller = instanceOf(RedirectController.class);
     Result result =
         controller
-            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(
+                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
 
@@ -144,7 +146,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
             languageUtils);
     Result result =
         controller
-            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(
+                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -176,7 +179,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
             languageUtils);
     Result result =
         controller
-            .programBySlug(addCSRFToken(fakeRequest()).build(), programDefinition.slug())
+            .programBySlug(
+                addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
             .toCompletableFuture()
             .join();
     assertThat(result.redirectLocation())
@@ -198,7 +202,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(RedirectController.class)
             .considerRegister(
-                addCSRFToken(fakeRequest()).build(),
+                addCSRFToken(requestBuilderWithSettings()).build(),
                 applicant.id,
                 programDefinition.id(),
                 application.id,
@@ -254,7 +258,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(RedirectController.class)
             .considerRegister(
-                addCSRFToken(fakeRequest()).build(),
+                addCSRFToken(requestBuilderWithSettings()).build(),
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,
@@ -312,7 +316,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     Result result =
         instanceOf(RedirectController.class)
             .considerRegister(
-                addCSRFToken(fakeRequest()).build(),
+                addCSRFToken(requestBuilderWithSettings()).build(),
                 applicant.id,
                 commonIntakeForm.id(),
                 application.id,

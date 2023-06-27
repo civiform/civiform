@@ -1,6 +1,8 @@
 package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.settings.SettingMode.ADMIN_WRITEABLE;
+import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -10,15 +12,11 @@ import com.typesafe.config.ConfigException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSettingsManifest.class);
 
   private final Config config;
 
@@ -39,6 +37,13 @@ public abstract class AbstractSettingsManifest {
     }
 
     return map.build();
+  }
+
+  protected ImmutableList<SettingDescription> getAllAdminWriteableSettingDescriptions() {
+    return getSections().values().stream()
+        .flatMap(section -> getSettingDescriptions(section).stream())
+        .filter(settingDescription -> settingDescription.settingMode().equals(ADMIN_WRITEABLE))
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ImmutableList<SettingDescription> getAllFeatureFlagsSettingDescriptions() {
@@ -67,10 +72,16 @@ public abstract class AbstractSettingsManifest {
 
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
-  public Optional<String> getSettingDisplayValue(SettingDescription settingDescription) {
+  /**
+   * Retrieve a string representation of the setting suitable for display in the UI from the request
+   * attributes or HOCON config.
+   */
+  public Optional<String> getSettingDisplayValue(
+      Http.Request request, SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
       case BOOLEAN:
-        return getBool(settingDescription).map(String::valueOf).map(String::toUpperCase);
+        return Optional.of(
+            String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
       case INT:
         return getInt(settingDescription).map(String::valueOf);
       case LIST_OF_STRINGS:
@@ -85,24 +96,41 @@ public abstract class AbstractSettingsManifest {
   }
 
   /**
-   * Gets the config value for the given setting name. If overrides are enabled and the request
-   * contains an override for the setting, returns that value, otherwise uses the value from the
-   * application config.
+   * Retrieve a string representation of the setting suitable for JSON serialization from HOCON
+   * config.
    */
-  public boolean getBool(String settingName, Http.Request request) {
-    Boolean configValue = getBool(settingName);
-
-    if (!overridesEnabled()) {
-      return configValue;
+  public Optional<String> getSettingSerializationValue(SettingDescription settingDescription) {
+    switch (settingDescription.settingType()) {
+      case BOOLEAN:
+        return getBool(settingDescription).map(String::valueOf);
+      case INT:
+        return getInt(settingDescription).map(String::valueOf);
+      case LIST_OF_STRINGS:
+        return getListOfStrings(settingDescription).map(list -> String.join(",", list));
+      case ENUM:
+      case STRING:
+        return getString(settingDescription).map(String::valueOf);
+      default:
+        throw new IllegalStateException(
+            "Unknown setting type: " + settingDescription.settingType());
     }
+  }
 
-    Optional<Boolean> sessionValue = request.session().get(settingName).map(Boolean::parseBoolean);
-    if (sessionValue.isPresent()) {
-      LOGGER.warn("Returning override ({}) for feature flag: {}", sessionValue.get(), settingName);
-      return sessionValue.get();
-    }
+  /**
+   * Gets the config value for the given setting. If the setting is found in the stored writeable
+   * settings, the value from the database is returned. Otherwise the value from the application
+   * {@link Config} is used..
+   */
+  private boolean getBool(SettingDescription settingDescription, Http.Request request) {
+    return getBool(settingDescription.variableName(), request);
+  }
 
-    return configValue;
+  protected boolean getBool(String settingName, Http.Request request) {
+    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+
+    return writableSettings.containsKey(settingName)
+        ? writableSettings.get(settingName).equals("true")
+        : getBool(settingName);
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {

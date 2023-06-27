@@ -2,55 +2,11 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 public final class PhoneQuestionDefinition extends QuestionDefinition {
-  public PhoneQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      PhoneQuestionDefinition.PhoneValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
-  }
 
-  public PhoneQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      PhoneQuestionDefinition.PhoneValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
-  }
-
-  public PhoneQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        PhoneQuestionDefinition.PhoneValidationPredicates.create());
+  public PhoneQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @AutoValue

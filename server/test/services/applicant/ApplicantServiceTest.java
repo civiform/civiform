@@ -88,6 +88,7 @@ import services.question.types.MultiOptionQuestionDefinitionConfig;
 import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.ProgramBuilder;
 import views.applicant.AddressCorrectionBlockView;
 
@@ -824,11 +825,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         questionService
             .create(
                 new FileUploadQuestionDefinition(
-                    "fileupload",
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
+                    QuestionDefinitionConfig.builder()
+                        .setName("fileupload")
+                        .setDescription("description")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                        .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .setValidationPredicates(
+                            FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                        .build()))
             .getResult();
 
     Program firstProgram =
@@ -2940,11 +2944,14 @@ public class ApplicantServiceTest extends ResetPostgres {
         questionService
             .create(
                 new NameQuestionDefinition(
-                    name,
-                    Optional.empty(),
-                    "description",
-                    LocalizedStrings.of(Locale.US, "question?"),
-                    LocalizedStrings.of(Locale.US, "help text")))
+                    QuestionDefinitionConfig.builder()
+                        .setName(name)
+                        .setDescription("description")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                        .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .setValidationPredicates(
+                            NameQuestionDefinition.NameValidationPredicates.create())
+                        .build()))
             .getResult();
   }
 

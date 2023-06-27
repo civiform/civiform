@@ -1,5 +1,7 @@
 package controllers.dev;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import javax.inject.Inject;
 import play.mvc.Controller;
@@ -8,7 +10,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
-import views.dev.FeatureFlagView;
+import services.settings.SettingsService;
 
 /**
  * Allows for overriding of feature flags by an Admin via HTTP request.
@@ -18,45 +20,43 @@ import views.dev.FeatureFlagView;
  */
 public final class FeatureFlagOverrideController extends Controller {
 
-  private final FeatureFlagView featureFlagView;
-  private final SettingsManifest settingsManifest;
+  private final SettingsService settingsService;
   private final boolean isDevOrStaging;
 
   @Inject
   public FeatureFlagOverrideController(
-      SettingsManifest settingsManifest,
-      FeatureFlagView featureFlagView,
-      DeploymentType deploymentType) {
-    this.settingsManifest = settingsManifest;
-    this.featureFlagView = featureFlagView;
+      SettingsService settingsService, DeploymentType deploymentType) {
+    this.settingsService = Preconditions.checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
 
-  public Result index(Request request) {
-    return ok(featureFlagView.render(request, isDevOrStaging));
+  public Result enable(Request request, String rawFlagName) {
+    return updateFlag(request, rawFlagName, "true");
   }
 
-  public Result enable(Request request, String flagName) {
+  public Result disable(Request request, String rawFlagName) {
+    return updateFlag(request, rawFlagName, "false");
+  }
+
+  private Result updateFlag(Request request, String rawFlagName, String newValue) {
     if (!isDevOrStaging) {
       return notFound();
     }
-    String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
+    var flagName = rawFlagName.toUpperCase(Locale.ROOT);
+    var currentSettings =
+        settingsService.loadSettings().toCompletableFuture().join().orElse(ImmutableMap.of());
 
-    return redirect(redirectTo).addingToSession(request, flagName.toUpperCase(Locale.ROOT), "true");
-  }
+    ImmutableMap.Builder<String, String> newSettings = ImmutableMap.builder();
 
-  public Result disable(Request request, String flagName) {
-    if (!isDevOrStaging) {
-      return notFound();
+    for (var entry : currentSettings.entrySet()) {
+      if (!entry.getKey().equals(flagName)) {
+        newSettings.put(entry);
+      }
     }
-    String redirectTo = request.getHeaders().get(HeaderNames.REFERER).orElse("/");
-    return redirect(redirectTo)
-        .addingToSession(request, flagName.toUpperCase(Locale.ROOT), "false");
-  }
 
-  /** Returns the status of a feature flag. */
-  public Result status(Request request, String flagName) {
-    return ok(
-        settingsManifest.getBool(flagName.toUpperCase(Locale.ROOT), request) ? "true" : "false");
+    newSettings.put(flagName, newValue);
+    settingsService.updateSettings(newSettings.build(), "dev mode");
+
+    return redirect(request.getHeaders().get(HeaderNames.REFERER).orElse("/"));
   }
 }

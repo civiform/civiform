@@ -14,8 +14,24 @@ import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.*;
+import services.question.types.AddressQuestionDefinition;
+import services.question.types.CurrencyQuestionDefinition;
+import services.question.types.DateQuestionDefinition;
+import services.question.types.EmailQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.FileUploadQuestionDefinition;
+import services.question.types.IdQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinitionConfig;
 import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.NameQuestionDefinition;
+import services.question.types.NumberQuestionDefinition;
+import services.question.types.PhoneQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
+import services.question.types.StaticContentQuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 
 /**
  * A cached {@link Question} bank for testing.
@@ -188,22 +204,27 @@ public class TestQuestionBank {
   private Question applicantAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
-            "applicant address",
-            Optional.empty(),
-            "The address of applicant",
-            LocalizedStrings.of(Locale.US, "What is your address?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant address")
+                .setDescription("The address of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your address?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    AddressQuestionDefinition.AddressValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
   private Question applicantPhone(QuestionEnum ignore) {
     QuestionDefinition definition =
         new PhoneQuestionDefinition(
-            "applicant phone",
-            Optional.empty(),
-            "The applicant Phone Number",
-            LocalizedStrings.of(Locale.US, "What is your phone number?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant phone")
+                .setDescription("The applicant Phone Number")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -211,11 +232,14 @@ public class TestQuestionBank {
   private Question applicantSecondaryAddress(QuestionEnum ignore) {
     QuestionDefinition definition =
         new AddressQuestionDefinition(
-            "applicant secondary address",
-            Optional.empty(),
-            "The secondary address of applicant",
-            LocalizedStrings.of(Locale.US, "What is your secondary address?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant secondary address")
+                .setDescription("The secondary address of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your secondary address?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    AddressQuestionDefinition.AddressValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -266,11 +290,14 @@ public class TestQuestionBank {
   private Question applicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
-            "applicant household members",
-            Optional.empty(),
-            "The applicant's household members",
-            LocalizedStrings.of(Locale.US, "Who are your household members?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."),
+            QuestionDefinitionConfig.builder()
+                .setName("applicant household members")
+                .setDescription("The applicant's household members")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .build(),
             LocalizedStrings.empty());
     return maybeSave(definition);
   }
@@ -280,11 +307,15 @@ public class TestQuestionBank {
     Question householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new EnumeratorQuestionDefinition(
-            "household members jobs",
-            Optional.of(householdMembers.id),
-            "The applicant's household member's jobs",
-            LocalizedStrings.of(Locale.US, "What are the $this's jobs?"),
-            LocalizedStrings.of(Locale.US, "Where does $this work?"),
+            QuestionDefinitionConfig.builder()
+                .setName("household members jobs")
+                .setDescription("The applicant's household member's jobs")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What are the $this's jobs?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Where does $this work?"))
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setEnumeratorId(Optional.of(householdMembers.id))
+                .build(),
             LocalizedStrings.empty());
     return maybeSave(definition);
   }
@@ -293,11 +324,15 @@ public class TestQuestionBank {
   private Question applicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
         new FileUploadQuestionDefinition(
-            "applicant file",
-            Optional.empty(),
-            "The file to be uploaded",
-            LocalizedStrings.of(Locale.US, "What is the file you want to upload?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant file")
+                .setDescription("The file to be uploaded")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "What is the file you want to upload?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -305,11 +340,14 @@ public class TestQuestionBank {
   private Question applicantMonthlyIncome(QuestionEnum ignore) {
     QuestionDefinition definition =
         new CurrencyQuestionDefinition(
-            "applicant monthly income",
-            Optional.empty(),
-            "monthly income of applicant",
-            LocalizedStrings.of(Locale.US, "what is your monthly income?"),
-            LocalizedStrings.of(Locale.US, "help text"));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant monthly income")
+                .setDescription("monthly income of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "what is your monthly income?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setValidationPredicates(
+                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -317,11 +355,13 @@ public class TestQuestionBank {
   private Question applicantId(QuestionEnum ignore) {
     QuestionDefinition definition =
         new IdQuestionDefinition(
-            "applicant id",
-            Optional.empty(),
-            "1234",
-            LocalizedStrings.of(Locale.US, "What is the the id?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant id")
+                .setDescription("1234")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the the id?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -329,11 +369,13 @@ public class TestQuestionBank {
   private Question applicantName(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            "applicant name",
-            Optional.empty(),
-            "name of applicant",
-            LocalizedStrings.of(Locale.US, "what is your name?"),
-            LocalizedStrings.of(Locale.US, "help text"));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant name")
+                .setDescription("name of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "what is your name?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -342,11 +384,15 @@ public class TestQuestionBank {
     Question householdMembers = applicantHouseholdMembers();
     QuestionDefinition definition =
         new NameQuestionDefinition(
-            "household members name",
-            Optional.of(householdMembers.id),
-            "The applicant's household member's name",
-            LocalizedStrings.of(Locale.US, "What is the $this's name?"),
-            LocalizedStrings.of(Locale.US, "Please provide full name for $this."));
+            QuestionDefinitionConfig.builder()
+                .setName("household members name")
+                .setDescription("The applicant's household member's name")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the $this's name?"))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(Locale.US, "Please provide full name for $this."))
+                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+                .setEnumeratorId(Optional.of(householdMembers.id))
+                .build());
 
     return maybeSave(definition);
   }
@@ -355,11 +401,15 @@ public class TestQuestionBank {
   private Question applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "number of items applicant can juggle",
-            Optional.empty(),
-            "The number of items applicant can juggle at once",
-            LocalizedStrings.of(Locale.US, "How many items can you juggle at one time?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("number of items applicant can juggle")
+                .setDescription("The number of items applicant can juggle at once")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "How many items can you juggle at one time?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -367,11 +417,13 @@ public class TestQuestionBank {
   private Question applicantDate(QuestionEnum ignore) {
     QuestionDefinition definition =
         new DateQuestionDefinition(
-            "applicant birth date",
-            Optional.empty(),
-            "The applicant birth date",
-            LocalizedStrings.of(Locale.US, "What is your birthdate?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant birth date")
+                .setDescription("The applicant birth date")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your birthdate?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(DateQuestionDefinition.DateValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -379,11 +431,13 @@ public class TestQuestionBank {
   private Question applicantEmail(QuestionEnum ignore) {
     QuestionDefinition definition =
         new EmailQuestionDefinition(
-            "applicant Email address",
-            Optional.empty(),
-            "The applicant Email address",
-            LocalizedStrings.of(Locale.US, "What is your Email?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant Email address")
+                .setDescription("The applicant Email address")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Email?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 
@@ -392,11 +446,19 @@ public class TestQuestionBank {
     Question householdMemberJobs = applicantHouseholdMemberJobs();
     QuestionDefinition definition =
         new NumberQuestionDefinition(
-            "household members days worked",
-            Optional.of(householdMemberJobs.id),
-            "The applicant's household member's number of days worked",
-            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"),
-            LocalizedStrings.of(Locale.US, "How many days has $this.parent worked at $this?"));
+            QuestionDefinitionConfig.builder()
+                .setName("household members days worked")
+                .setDescription("The applicant's household member's number of days worked")
+                .setQuestionText(
+                    LocalizedStrings.of(
+                        Locale.US, "How many days has $this.parent worked at $this?"))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(
+                        Locale.US, "How many days has $this.parent worked at $this?"))
+                .setValidationPredicates(
+                    NumberQuestionDefinition.NumberValidationPredicates.create())
+                .setEnumeratorId(Optional.of(householdMemberJobs.id))
+                .build());
 
     return maybeSave(definition);
   }
@@ -425,22 +487,28 @@ public class TestQuestionBank {
   private Question staticContent(QuestionEnum ignore) {
     QuestionDefinition definition =
         new StaticContentQuestionDefinition(
-            "more info about something",
-            Optional.empty(),
-            "Shows more info to the applicant",
-            LocalizedStrings.of(Locale.US, "This is more info"),
-            LocalizedStrings.of(Locale.US, ""));
+            QuestionDefinitionConfig.builder()
+                .setName("more info about something")
+                .setDescription("Shows more info to the applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
   // Text
   private Question applicantFavoriteColor(QuestionEnum ignore) {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "applicant favorite color",
-            Optional.empty(),
-            "Favorite color of applicant",
-            LocalizedStrings.of(Locale.US, "What is your favorite color?"),
-            LocalizedStrings.of(Locale.US, "This is sample help text."));
+            QuestionDefinitionConfig.builder()
+                .setName("applicant favorite color")
+                .setDescription("Favorite color of applicant")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite color?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     return maybeSave(definition);
   }
 

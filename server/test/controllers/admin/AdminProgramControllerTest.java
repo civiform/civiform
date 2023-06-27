@@ -6,6 +6,7 @@ import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
@@ -17,7 +18,6 @@ import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
-import play.test.Helpers;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -48,7 +48,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void index_withNoPrograms() {
-    Result result = controller.index(Helpers.fakeRequest().build());
+    Result result = controller.index(requestBuilderWithSettings().build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -60,7 +60,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newDraftProgram("one").build();
     ProgramBuilder.newDraftProgram("two").build();
 
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.index(request);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -70,7 +70,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void newOne_returnsExpectedForm() {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
 
     Result result = controller.newOne(request);
 
@@ -82,7 +82,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void create_returnsFormWithErrorMessage() {
     RequestBuilder requestBuilder =
-        Helpers.fakeRequest().bodyForm(ImmutableMap.of("name", "", "description", ""));
+        requestBuilderWithSettings().bodyForm(ImmutableMap.of("name", "", "description", ""));
     Request request = addCSRFToken(requestBuilder).build();
 
     Result result = controller.create(request);
@@ -97,7 +97,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_returnsNewProgramInList() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -121,7 +121,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("External program name");
     assertThat(contentAsString(redirectResult)).contains("External program description");
   }
@@ -130,7 +130,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_returnsNewProgramWithAcls() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -156,7 +156,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("External program name with acls");
     assertThat(contentAsString(redirectResult)).contains("External program description with acls");
   }
@@ -167,7 +167,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram("Existing One").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            requestBuilderWithSettings()
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -191,7 +191,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("Existing One");
     assertThat(contentAsString(redirectResult)).contains("External program name");
     assertThat(contentAsString(redirectResult)).contains("External program description");
@@ -202,7 +202,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            requestBuilderWithSettings()
                 .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
@@ -235,8 +235,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
-                .session("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminName",
@@ -266,7 +265,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void create_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() {
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            requestBuilderWithSettings()
                 .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
@@ -295,7 +294,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("External program name");
     assertThat(contentAsString(redirectResult)).contains("External program description");
   }
@@ -309,7 +308,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     String programDescription = "External program description";
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
+            requestBuilderWithSettings()
                 .session("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
@@ -340,14 +339,14 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains(programName);
     assertThat(contentAsString(redirectResult)).contains(programDescription);
   }
 
   @Test
   public void edit_withInvalidProgram_throwsProgramNotFoundException() {
-    Request request = Helpers.fakeRequest().build();
+    Request request = requestBuilderWithSettings().build();
 
     assertThatThrownBy(() -> controller.edit(request, 1L))
         .isInstanceOf(ProgramNotFoundException.class);
@@ -355,7 +354,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void edit_returnsExpectedForm() throws Exception {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Program program = ProgramBuilder.newDraftProgram("test program").build();
 
     Result result = controller.edit(request, program.id);
@@ -369,7 +368,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withNoneDraftProgram_throwsNotChangeableException() throws Exception {
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Program program = ProgramBuilder.newActiveProgram("test program").build();
 
     assertThatThrownBy(() -> controller.edit(request, program.id))
@@ -380,7 +379,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void newVersionFrom_onlyActive_editActiveReturnsNewDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Program activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
 
@@ -403,7 +402,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void newVersionFrom_withDraft_editActiveReturnsDraft() {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
-    Request request = addCSRFToken(Helpers.fakeRequest()).build();
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Program activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
     Program draftProgram = ProgramBuilder.newDraftProgram(programName, "draft description").build();
@@ -425,7 +424,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void update_invalidProgram_returnsNotFound() {
     Request request =
-        Helpers.fakeRequest()
+        requestBuilderWithSettings()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
             .build();
 
@@ -437,7 +436,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_invalidInput_returnsFormWithErrors() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("Existing One").build();
     Request request =
-        addCSRFToken(Helpers.fakeRequest())
+        addCSRFToken(requestBuilderWithSettings())
             .bodyForm(ImmutableMap.of("name", "", "description", ""))
             .build();
 
@@ -453,7 +452,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void update_overwritesExistingProgram() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
-        Helpers.fakeRequest()
+        requestBuilderWithSettings()
             .bodyForm(
                 ImmutableMap.of(
                     "adminDescription",
@@ -477,7 +476,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(program.id).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult))
         .contains(
             "Create new program", "New external program name", "New external program description");
@@ -491,8 +490,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
-                .session("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -524,8 +522,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
-                .session("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -555,8 +552,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
-                .session("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -582,7 +578,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains("New external program name");
   }
 
@@ -595,8 +591,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     String newProgramDescription = "External program description";
     RequestBuilder requestBuilder =
         addCSRFToken(
-            Helpers.fakeRequest()
-                .session("INTAKE_FORM_ENABLED", "true")
+            requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "adminDescription",
@@ -623,7 +618,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
 
-    Result redirectResult = controller.index(addCSRFToken(Helpers.fakeRequest()).build());
+    Result redirectResult = controller.index(addCSRFToken(requestBuilderWithSettings()).build());
     assertThat(contentAsString(redirectResult)).contains(newProgramName);
     assertThat(contentAsString(redirectResult)).contains(newProgramDescription);
   }
@@ -634,8 +629,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     RequestBuilder request =
-        Helpers.fakeRequest()
-            .session("NONGATED_ELIGIBILITY_ENABLED", "true")
+        requestBuilderWithSettings("NONGATED_ELIGIBILITY_ENABLED", "true")
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 
@@ -654,8 +648,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     RequestBuilder request =
-        Helpers.fakeRequest()
-            .session("NONGATED_ELIGIBILITY_ENABLED", "false")
+        requestBuilderWithSettings("NONGATED_ELIGIBILITY_ENABLED", "false")
             .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 
@@ -671,7 +664,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void setEligibilityIsGating_nonDraftProgram_throwsException() throws Exception {
     Request request =
-        Helpers.fakeRequest().bodyForm(ImmutableMap.of("eligibilityIsGating", "true")).build();
+        requestBuilderWithSettings()
+            .bodyForm(ImmutableMap.of("eligibilityIsGating", "true"))
+            .build();
 
     assertThatThrownBy(() -> controller.setEligibilityIsGating(request, /* programId=*/ 1L))
         .isInstanceOf(NotChangeableException.class);
@@ -681,7 +676,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void publishProgram() throws Exception {
     Program program = ProgramBuilder.newDraftProgram("one").build();
     Result result =
-        controller.publishProgram(addCSRFToken(Helpers.fakeRequest()).build(), program.id);
+        controller.publishProgram(addCSRFToken(requestBuilderWithSettings()).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminProgramController.index().url());
@@ -694,7 +689,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Program program = ProgramBuilder.newActiveProgram("active").build();
     assertThatThrownBy(
             () ->
-                controller.publishProgram(addCSRFToken(Helpers.fakeRequest()).build(), program.id))
+                controller.publishProgram(
+                    addCSRFToken(requestBuilderWithSettings()).build(), program.id))
         .isInstanceOf(NotChangeableException.class);
   }
 }

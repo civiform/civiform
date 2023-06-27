@@ -46,8 +46,10 @@ import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQu
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsService;
 import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
 
@@ -59,6 +61,7 @@ public class DatabaseSeedController extends Controller {
   private final Database database;
   private final QuestionService questionService;
   private final ProgramService programService;
+  private final SettingsService settingsService;
   private final boolean isDevOrStaging;
 
   @Inject
@@ -67,12 +70,14 @@ public class DatabaseSeedController extends Controller {
       DatabaseSeedView view,
       QuestionService questionService,
       ProgramService programService,
+      SettingsService settingsService,
       DeploymentType deploymentType) {
     this.databaseSeedTask = checkNotNull(databaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
     this.questionService = checkNotNull(questionService);
     this.programService = checkNotNull(programService);
+    this.settingsService = checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
   }
 
@@ -133,11 +138,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new AddressQuestionDefinition(
-                "address",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your address?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("address")
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        AddressQuestionDefinition.AddressValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -166,11 +174,16 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new CurrencyQuestionDefinition(
-                "currency",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("currency")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue(
+                            "How much should a scoop of ice cream cost?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -178,11 +191,16 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new DateQuestionDefinition(
-                "enumerator date",
-                Optional.of(enumeratorId),
-                "description",
-                LocalizedStrings.withDefaultValue("When is $this's birthday?"),
-                LocalizedStrings.withDefaultValue("help text for $this's birthday")))
+                QuestionDefinitionConfig.builder()
+                    .setName("enumerator date")
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
+                    .setQuestionHelpText(
+                        LocalizedStrings.withDefaultValue("help text for $this's birthday"))
+                    .setValidationPredicates(
+                        DateQuestionDefinition.DateValidationPredicates.create())
+                    .setEnumeratorId(Optional.of(enumeratorId))
+                    .build()))
         .getResult();
   }
 
@@ -192,11 +210,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new DateQuestionDefinition(
-                name,
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue(questionText),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        DateQuestionDefinition.DateValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -224,11 +245,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new EmailQuestionDefinition(
-                "email",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your email?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("email")
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        EmailQuestionDefinition.EmailValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -236,11 +260,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new EnumeratorQuestionDefinition(
-                "enumerator",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("List all members of your household."),
-                LocalizedStrings.withDefaultValue("help text"),
+                QuestionDefinitionConfig.builder()
+                    .setName("enumerator")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("List all members of your household."))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                    .build(),
                 LocalizedStrings.withDefaultValue("household member")))
         .getResult();
   }
@@ -249,11 +277,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new FileUploadQuestionDefinition(
-                "file upload",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("Upload anything from your computer"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("file upload")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("Upload anything from your computer"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -261,11 +293,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new IdQuestionDefinition(
-                "id",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your driver's license ID?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("id")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -273,11 +308,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new NumberQuestionDefinition(
-                "number",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("How many pets do you have?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("number")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("How many pets do you have?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        NumberQuestionDefinition.NumberValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -305,16 +344,20 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new StaticContentQuestionDefinition(
-                "static content",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue(
-                    "Hi I'm a block of static text. \n"
-                        + " * Welcome to this test program.\n"
-                        + " * It contains one of every question type. \n\n"
-                        + "### What are the eligibility requirements? \n"
-                        + ">You are 18 years or older."),
-                LocalizedStrings.withDefaultValue("")))
+                QuestionDefinitionConfig.builder()
+                    .setName("static content")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue(
+                            "Hi I'm a block of static text. \n"
+                                + " * Welcome to this test program.\n"
+                                + " * It contains one of every question type. \n\n"
+                                + "### What are the eligibility requirements? \n"
+                                + ">You are 18 years or older."))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
+                    .setValidationPredicates(
+                        StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -322,11 +365,15 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new TextQuestionDefinition(
-                "text",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("What is your favorite color?"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("text")
+                    .setDescription("description")
+                    .setQuestionText(
+                        LocalizedStrings.withDefaultValue("What is your favorite color?"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        TextQuestionDefinition.TextValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -334,11 +381,14 @@ public class DatabaseSeedController extends Controller {
     return questionService
         .create(
             new PhoneQuestionDefinition(
-                "phone",
-                Optional.empty(),
-                "description",
-                LocalizedStrings.withDefaultValue("what is your phone number"),
-                LocalizedStrings.withDefaultValue("help text")))
+                QuestionDefinitionConfig.builder()
+                    .setName("phone")
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
+                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+                    .setValidationPredicates(
+                        PhoneQuestionDefinition.PhoneValidationPredicates.create())
+                    .build()))
         .getResult();
   }
 
@@ -511,5 +561,6 @@ public class DatabaseSeedController extends Controller {
     Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
+    settingsService.migrateConfigValuesToSettingsGroup();
   }
 }

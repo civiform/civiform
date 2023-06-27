@@ -1,7 +1,12 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.*;
+import static j2html.TagCreator.div;
+import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
+import static j2html.TagCreator.li;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
 import controllers.applicant.routes;
