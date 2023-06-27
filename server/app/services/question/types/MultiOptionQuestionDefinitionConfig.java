@@ -22,15 +22,15 @@ public abstract class MultiOptionQuestionDefinitionConfig {
     RADIO_BUTTON
   }
 
-  QuestionDefinitionConfig questionDefinitionConfig() {
+  public QuestionDefinitionConfig questionDefinitionConfig() {
     return questionDefinitionConfigBuilder().build();
   }
 
   abstract QuestionDefinitionConfig.Builder questionDefinitionConfigBuilder();
 
-  abstract ImmutableList<QuestionOption> questionOptions();
+  public abstract ImmutableList<QuestionOption> questionOptions();
 
-  abstract MultiOptionQuestionType multiOptionQuestionType();
+  public abstract MultiOptionQuestionType multiOptionQuestionType();
 
   public static RequiredMultiOptionQuestionType builder() {
     return new AutoValue_MultiOptionQuestionDefinitionConfig.Builder();

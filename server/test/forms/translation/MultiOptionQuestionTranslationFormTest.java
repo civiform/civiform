@@ -28,7 +28,11 @@ public class MultiOptionQuestionTranslationFormTest {
                 ImmutableList.of(
                     QuestionOption.create(1L, LocalizedStrings.withDefaultValue("other"))))
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     MultiOptionQuestionTranslationForm form = new MultiOptionQuestionTranslationForm();
     form.setOptions(ImmutableList.of("new"));
@@ -52,7 +56,11 @@ public class MultiOptionQuestionTranslationFormTest {
                 ImmutableList.of(
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.FRANCE, "existing"))))
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     MultiOptionQuestionTranslationForm form = new MultiOptionQuestionTranslationForm();
     form.setOptions(ImmutableList.of("new"));

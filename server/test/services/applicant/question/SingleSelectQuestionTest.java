@@ -37,7 +37,10 @@ public class SingleSelectQuestionTest {
           .setLastModifiedTime(Optional.empty())
           .build();
   private static final MultiOptionQuestionDefinition dropdownQuestionDefinition =
-      new MultiOptionQuestionDefinition(CONFIG);
+      new MultiOptionQuestionDefinition(
+          CONFIG.questionDefinitionConfig(),
+          CONFIG.questionOptions(),
+          CONFIG.multiOptionQuestionType());
 
   private Applicant applicant;
   private ApplicantData applicantData;

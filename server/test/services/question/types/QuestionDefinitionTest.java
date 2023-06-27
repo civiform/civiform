@@ -500,7 +500,11 @@ public class QuestionDefinitionTest {
             .setQuestionOptions(ImmutableList.of())
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions must have at least one option"));
   }
@@ -518,7 +522,11 @@ public class QuestionDefinitionTest {
                 ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue(""))))
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions cannot have blank options"));
   }
@@ -538,7 +546,11 @@ public class QuestionDefinitionTest {
                     QuestionOption.create(2L, LocalizedStrings.withDefaultValue("a"))))
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
   }
@@ -609,7 +621,11 @@ public class QuestionDefinitionTest {
                     .setMaxChoicesAllowed(maxChoicesAllowed)
                     .build())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     ImmutableSet<CiviFormError> errors = question.validate();
     if (wantErrorMessage.isEmpty()) {

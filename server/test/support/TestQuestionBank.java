@@ -260,7 +260,11 @@ public class TestQuestionBank {
                     QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
                     QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press"))))
             .build();
-    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
     return maybeSave(definition);
   }
 
@@ -282,7 +286,11 @@ public class TestQuestionBank {
                     QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
                     QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee"))))
             .build();
-    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
     return maybeSave(definition);
   }
 
@@ -479,7 +487,11 @@ public class TestQuestionBank {
                     QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
                     QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "fall"))))
             .build();
-    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
     return maybeSave(definition);
   }
 

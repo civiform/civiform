@@ -40,7 +40,11 @@ public class DropdownQuestionFormTest {
                     QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
                     QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "rabbit"))))
             .build();
-    MultiOptionQuestionDefinition expected = new MultiOptionQuestionDefinition(config);
+    MultiOptionQuestionDefinition expected =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     assertThat(builder.build()).isEqualTo(expected);
   }
@@ -59,7 +63,11 @@ public class DropdownQuestionFormTest {
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "world"))))
             .build();
-    MultiOptionQuestionDefinition originalQd = new MultiOptionQuestionDefinition(config);
+    MultiOptionQuestionDefinition originalQd =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     DropdownQuestionForm form = new DropdownQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();

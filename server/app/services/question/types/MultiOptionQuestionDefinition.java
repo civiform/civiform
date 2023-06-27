@@ -25,11 +25,13 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   private final ImmutableList<QuestionOption> questionOptions;
   private final MultiOptionQuestionType multiOptionQuestionType;
 
-  // TODO(MichaelZetune): migrate this constructor to use QuestionDefinitionConfig instead.
-  public MultiOptionQuestionDefinition(MultiOptionQuestionDefinitionConfig config) {
-    super(config.questionDefinitionConfig());
-    this.questionOptions = config.questionOptions();
-    this.multiOptionQuestionType = config.multiOptionQuestionType();
+  public MultiOptionQuestionDefinition(
+      QuestionDefinitionConfig questionDefinitionConfig,
+      ImmutableList<QuestionOption> questionOptions,
+      MultiOptionQuestionType multiOptionQuestionType) {
+    super(questionDefinitionConfig);
+    this.questionOptions = questionOptions;
+    this.multiOptionQuestionType = multiOptionQuestionType;
   }
 
   @Override

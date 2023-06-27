@@ -167,7 +167,13 @@ public class DatabaseSeedController extends Controller {
                     QuestionOption.create(
                         3L, 3L, LocalizedStrings.withDefaultValue("garlic press"))))
             .build();
-    return questionService.create(new MultiOptionQuestionDefinition(config)).getResult();
+    return questionService
+        .create(
+            new MultiOptionQuestionDefinition(
+                config.questionDefinitionConfig(),
+                config.questionOptions(),
+                config.multiOptionQuestionType()))
+        .getResult();
   }
 
   private QuestionDefinition insertCurrencyQuestionDefinition() {
@@ -238,7 +244,13 @@ public class DatabaseSeedController extends Controller {
                     QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
                     QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee"))))
             .build();
-    return questionService.create(new MultiOptionQuestionDefinition(config)).getResult();
+    return questionService
+        .create(
+            new MultiOptionQuestionDefinition(
+                config.questionDefinitionConfig(),
+                config.questionOptions(),
+                config.multiOptionQuestionType()))
+        .getResult();
   }
 
   private QuestionDefinition insertEmailQuestionDefinition() {
@@ -337,7 +349,13 @@ public class DatabaseSeedController extends Controller {
                     QuestionOption.create(
                         4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)"))))
             .build();
-    return questionService.create(new MultiOptionQuestionDefinition(config)).getResult();
+    return questionService
+        .create(
+            new MultiOptionQuestionDefinition(
+                config.questionDefinitionConfig(),
+                config.questionOptions(),
+                config.multiOptionQuestionType()))
+        .getResult();
   }
 
   private QuestionDefinition insertStaticTextQuestionDefinition() {

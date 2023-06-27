@@ -43,7 +43,10 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
           .setLastModifiedTime(Optional.empty())
           .build();
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
-      new MultiOptionQuestionDefinition(CONFIG);
+      new MultiOptionQuestionDefinition(
+          CONFIG.questionDefinitionConfig(),
+          CONFIG.questionOptions(),
+          CONFIG.multiOptionQuestionType());
   private final ApplicantData applicantData = new ApplicantData();
 
   private ApplicantQuestion question;

@@ -47,7 +47,10 @@ public class MultiSelectQuestionTest {
           .setLastModifiedTime(Optional.empty())
           .build();
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
-      new MultiOptionQuestionDefinition(CONFIG);
+      new MultiOptionQuestionDefinition(
+          CONFIG.questionDefinitionConfig(),
+          CONFIG.questionOptions(),
+          CONFIG.multiOptionQuestionType());
 
   private ApplicantData applicantData;
 

@@ -517,7 +517,13 @@ public class ApplicantServiceTest extends ResetPostgres {
                     QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse"))))
             .build();
     QuestionDefinition multiSelectQuestion =
-        questionService.create(new MultiOptionQuestionDefinition(config)).getResult();
+        questionService
+            .create(
+                new MultiOptionQuestionDefinition(
+                    config.questionDefinitionConfig(),
+                    config.questionOptions(),
+                    config.multiOptionQuestionType()))
+            .getResult();
 
     // We make the question optional since it's not valid to stage empty updates
     createProgramWithOptionalQuestion(multiSelectQuestion);

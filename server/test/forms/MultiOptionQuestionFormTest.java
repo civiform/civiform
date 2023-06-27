@@ -42,7 +42,11 @@ public class MultiOptionQuestionFormTest {
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))))
             .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
             .build();
-    MultiOptionQuestionDefinition expected = new MultiOptionQuestionDefinition(config);
+    MultiOptionQuestionDefinition expected =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     QuestionDefinition actual = builder.build();
 
@@ -63,7 +67,11 @@ public class MultiOptionQuestionFormTest {
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))))
             .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
             .build();
-    MultiOptionQuestionDefinition originalQd = new MultiOptionQuestionDefinition(config);
+    MultiOptionQuestionDefinition originalQd =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -98,7 +106,11 @@ public class MultiOptionQuestionFormTest {
                     QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))))
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    MultiOptionQuestionDefinition expected = new MultiOptionQuestionDefinition(config);
+    MultiOptionQuestionDefinition expected =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     QuestionDefinition actual = builder.build();
 

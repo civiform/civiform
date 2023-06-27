@@ -43,7 +43,10 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
           .setLastModifiedTime(Optional.empty())
           .build();
   private static final MultiOptionQuestionDefinition QUESTION =
-      new MultiOptionQuestionDefinition(CONFIG);
+      new MultiOptionQuestionDefinition(
+          CONFIG.questionDefinitionConfig(),
+          CONFIG.questionOptions(),
+          CONFIG.multiOptionQuestionType());
 
   private final ApplicantData applicantData = new ApplicantData();
 

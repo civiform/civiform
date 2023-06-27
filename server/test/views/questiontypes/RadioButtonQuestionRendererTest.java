@@ -42,7 +42,10 @@ public class RadioButtonQuestionRendererTest {
           .setLastModifiedTime(Optional.empty())
           .build();
   private static final MultiOptionQuestionDefinition QUESTION =
-      new MultiOptionQuestionDefinition(CONFIG);
+      new MultiOptionQuestionDefinition(
+          CONFIG.questionDefinitionConfig(),
+          CONFIG.questionOptions(),
+          CONFIG.multiOptionQuestionType());
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));

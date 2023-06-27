@@ -376,7 +376,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                     QuestionOption.create(
                         4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))))
             .build();
-    MultiOptionQuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     // We can only update draft questions, so save this in the DRAFT version.
     testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
@@ -415,7 +419,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                     QuestionOption.create(
                         4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))))
             .build();
-    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config.questionDefinitionConfig(),
+            config.questionOptions(),
+            config.multiOptionQuestionType());
 
     // We can only update draft questions, so save this in the DRAFT version.
     Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
