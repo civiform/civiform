@@ -84,8 +84,7 @@ import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
@@ -503,26 +502,26 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_updatesContainMultiSelectAnswers_isOk() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("checkbox")
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
-                    QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
-                    QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse"))))
+            .setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
+
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
+            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
+            QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")));
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
                 new MultiOptionQuestionDefinition(
-                    config.questionDefinitionConfig(),
-                    config.questionOptions(),
-                    config.multiOptionQuestionType()))
+                    config, questionOptions, MultiOptionQuestionType.CHECKBOX))
             .getResult();
 
     // We make the question optional since it's not valid to stage empty updates

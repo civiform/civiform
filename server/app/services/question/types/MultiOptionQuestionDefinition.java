@@ -17,11 +17,19 @@ import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 
 /** Superclass for all multi-option questions. */
 public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
+  public enum MultiOptionQuestionType {
+    CHECKBOX,
+    DROPDOWN,
+    RADIO_BUTTON
+  }
+
+  private static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
+      MultiOptionValidationPredicates.create(1, 1);
   private final ImmutableList<QuestionOption> questionOptions;
   private final MultiOptionQuestionType multiOptionQuestionType;
 
@@ -29,9 +37,22 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
       QuestionDefinitionConfig questionDefinitionConfig,
       ImmutableList<QuestionOption> questionOptions,
       MultiOptionQuestionType multiOptionQuestionType) {
-    super(questionDefinitionConfig);
+    super(fixValidationPredicates(questionDefinitionConfig, multiOptionQuestionType));
     this.questionOptions = questionOptions;
     this.multiOptionQuestionType = multiOptionQuestionType;
+  }
+  // If we are using a dropdown or radio button, set the SINGLE_SELECT_PREDICATE to ensure
+  // only one selection can be made.
+  private static QuestionDefinitionConfig fixValidationPredicates(
+      QuestionDefinitionConfig config, MultiOptionQuestionType multiOptionQuestionType) {
+    QuestionDefinitionConfig.Builder builder = config.toBuilder();
+
+    if (multiOptionQuestionType == MultiOptionQuestionType.DROPDOWN
+        || multiOptionQuestionType == MultiOptionQuestionType.RADIO_BUTTON) {
+      builder.setValidationPredicates(SINGLE_SELECT_PREDICATE);
+    }
+
+    return builder.build();
   }
 
   @Override

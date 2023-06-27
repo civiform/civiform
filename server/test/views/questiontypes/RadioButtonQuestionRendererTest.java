@@ -18,34 +18,33 @@ import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class RadioButtonQuestionRendererTest {
 
-  private static final MultiOptionQuestionDefinitionConfig CONFIG =
-      MultiOptionQuestionDefinitionConfig.builder()
-          .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
-          .setId(OptionalLong.of(1))
+  private static final QuestionDefinitionConfig CONFIG =
+      QuestionDefinitionConfig.builder()
           .setName("favorite ice cream")
           .setDescription("description")
           .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
           .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-          .setQuestionOptions(
-              ImmutableList.of(
-                  QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
-                  QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
-                  QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-                  QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))))
+          .setValidationPredicates(MultiOptionValidationPredicates.create())
+          .setId(OptionalLong.of(1))
           .setLastModifiedTime(Optional.empty())
           .build();
+  private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
+      ImmutableList.of(
+          QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
+          QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
+          QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
+          QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry")));
   private static final MultiOptionQuestionDefinition QUESTION =
       new MultiOptionQuestionDefinition(
-          CONFIG.questionDefinitionConfig(),
-          CONFIG.questionOptions(),
-          CONFIG.multiOptionQuestionType());
+          CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.RADIO_BUTTON);
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));

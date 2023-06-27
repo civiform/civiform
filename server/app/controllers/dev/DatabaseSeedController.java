@@ -41,8 +41,8 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -150,29 +150,26 @@ public class DatabaseSeedController extends Controller {
   }
 
   private QuestionDefinition insertCheckboxQuestionDefinition() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("checkbox")
             .setDescription("description")
             .setQuestionText(
                 LocalizedStrings.withDefaultValue(
                     "Which of the following kitchen instruments do you own?"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
-                    QuestionOption.create(
-                        2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
-                    QuestionOption.create(
-                        3L, 3L, LocalizedStrings.withDefaultValue("garlic press"))))
+            .setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
+            QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
+            QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("garlic press")));
     return questionService
         .create(
             new MultiOptionQuestionDefinition(
-                config.questionDefinitionConfig(),
-                config.questionOptions(),
-                config.multiOptionQuestionType()))
+                config, questionOptions, MultiOptionQuestionType.CHECKBOX))
         .getResult();
   }
 
@@ -228,28 +225,26 @@ public class DatabaseSeedController extends Controller {
   }
 
   private QuestionDefinition insertDropdownQuestionDefinition() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("dropdown")
             .setDescription("select your favorite ice cream flavor")
             .setQuestionText(
                 LocalizedStrings.withDefaultValue(
                     "Select your favorite ice cream flavor from the following"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("chocolate")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("strawberry")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
-                    QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee"))))
+            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("chocolate")),
+            QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("strawberry")),
+            QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
+            QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee")));
     return questionService
         .create(
             new MultiOptionQuestionDefinition(
-                config.questionDefinitionConfig(),
-                config.questionOptions(),
-                config.multiOptionQuestionType()))
+                config, questionOptions, MultiOptionQuestionType.DROPDOWN))
         .getResult();
   }
 
@@ -333,28 +328,28 @@ public class DatabaseSeedController extends Controller {
   }
 
   private QuestionDefinition insertRadioButtonQuestionDefinition() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("radio")
             .setDescription("favorite season in the year")
             .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite season?"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(
-                        1L, 1L, LocalizedStrings.withDefaultValue("winter (will hide next block)")),
-                    QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("spring")),
-                    QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("summer")),
-                    QuestionOption.create(
-                        4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)"))))
+            .setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
+
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, 1L, LocalizedStrings.withDefaultValue("winter (will hide next block)")),
+            QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("spring")),
+            QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("summer")),
+            QuestionOption.create(
+                4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)")));
     return questionService
         .create(
             new MultiOptionQuestionDefinition(
-                config.questionDefinitionConfig(),
-                config.questionOptions(),
-                config.multiOptionQuestionType()))
+                config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON))
         .getResult();
   }
 
