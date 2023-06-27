@@ -62,9 +62,10 @@ public class CiviFormProfileMergerTest {
 
     account.setApplicants(Collections.singletonList(applicant));
 
+    when(applicant.getAccount()).thenReturn(account);
+
     dummyApplication = new Application(applicant, null, null);
 
-    when(applicant.getAccount()).thenReturn(account);
     when(applicant.getApplications()).thenReturn(ImmutableList.of(dummyApplication));
     when(civiFormProfile.getProfileData()).thenReturn(civiFormProfileData);
     when(profileFactory.wrap(any(Applicant.class))).thenReturn(civiFormProfile);
