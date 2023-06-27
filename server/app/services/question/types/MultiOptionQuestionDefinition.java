@@ -23,6 +23,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   private final MultiOptionQuestionDefinitionConfig config;
 
+  // TODO(MichaelZetune): migrate this constructor to use QuestionDefinitionConfig instead.
   public MultiOptionQuestionDefinition(MultiOptionQuestionDefinitionConfig config) {
     super(
         QuestionDefinitionConfig.builder()

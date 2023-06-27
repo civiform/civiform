@@ -15,6 +15,11 @@ public abstract class QuestionDefinitionConfig {
 
   // Note: you must check prefixes anytime you are doing a locale lookup
   // see getQuestionText body comment for explanation.
+
+  /**
+   * Note: you must check prefixes anytime you are doing a locale lookup see {@link
+   * QuestionDefinition#getQuestionText} body comment for explanation.
+   */
   abstract LocalizedStrings questionText();
 
   abstract LocalizedStrings questionHelpText();
