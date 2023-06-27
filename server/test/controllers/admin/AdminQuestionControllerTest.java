@@ -34,6 +34,7 @@ import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQu
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import views.html.helper.CSRF;
 
@@ -502,10 +503,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   private NameQuestionDefinition createNameQuestionDuplicate(Question question) {
     QuestionDefinition def = question.getQuestionDefinition();
     return new NameQuestionDefinition(
-        def.getName(),
-        Optional.empty(),
-        def.getDescription(),
-        def.getQuestionText(),
-        def.getQuestionHelpText());
+        QuestionDefinitionConfig.builder()
+            .setName(def.getName())
+            .setDescription(def.getDescription())
+            .setQuestionText(def.getQuestionText())
+            .setQuestionHelpText(def.getQuestionHelpText())
+            .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
+            .build());
   }
 }

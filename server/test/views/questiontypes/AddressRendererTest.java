@@ -17,20 +17,24 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.types.AddressQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 public class AddressRendererTest extends ResetPostgres {
 
   private static final AddressQuestionDefinition ADDRESS_QUESTION =
       new AddressQuestionDefinition(
-          OptionalLong.of(1),
-          "Address Question",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          AddressQuestionDefinition.AddressValidationPredicates.create(),
-          Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("Address Question")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  AddressQuestionDefinition.AddressValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
+  ;
 
   private final ApplicantData applicantData = new ApplicantData();
 

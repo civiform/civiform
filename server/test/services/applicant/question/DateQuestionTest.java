@@ -19,19 +19,22 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.DateQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class DateQuestionTest extends ResetPostgres {
   private static final DateQuestionDefinition dateQuestionDefinition =
       new DateQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(DateQuestionDefinition.DateValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private Applicant applicant;
   private ApplicantData applicantData;

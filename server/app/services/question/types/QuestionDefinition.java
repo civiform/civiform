@@ -1,7 +1,5 @@
 package services.question.types;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -14,7 +12,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
@@ -23,52 +20,11 @@ import services.question.QuestionOption;
 
 /** Superclass for all question types. */
 public abstract class QuestionDefinition {
-  private final OptionalLong id;
-  private final String name;
-  private final Optional<Long> enumeratorId;
-  private final String description;
-  // Note: you must check prefixes anytime you are doing a locale lookup
-  // see getQuestionText body comment for explanation.
-  private final LocalizedStrings questionText;
-  private final LocalizedStrings questionHelpText;
-  private final ValidationPredicates validationPredicates;
-  private final Optional<Instant> lastModifiedTime;
 
-  protected QuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    this.id = checkNotNull(id);
-    this.name = checkNotNull(name);
-    this.enumeratorId = checkNotNull(enumeratorId);
-    this.description = checkNotNull(description);
-    this.questionText = checkNotNull(questionText);
-    this.questionHelpText = checkNotNull(questionHelpText);
-    this.validationPredicates = checkNotNull(validationPredicates);
-    this.lastModifiedTime = checkNotNull(lastModifiedTime);
-  }
+  private final QuestionDefinitionConfig config;
 
-  protected QuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      ValidationPredicates validationPredicates) {
-    this(
-        OptionalLong.empty(),
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        /* lastModifiedTime= */ Optional.empty());
+  protected QuestionDefinition(QuestionDefinitionConfig config) {
+    this.config = config;
   }
 
   public abstract static class ValidationPredicates {
@@ -90,12 +46,12 @@ public abstract class QuestionDefinition {
 
   /** Return true if the question is persisted and has an unique identifier. */
   public final boolean isPersisted() {
-    return this.id.isPresent();
+    return config.id().isPresent();
   }
 
   /** Get the unique identifier for this question. */
   public final long getId() {
-    return this.id.getAsLong();
+    return config.id().getAsLong();
   }
 
   /**
@@ -106,17 +62,17 @@ public abstract class QuestionDefinition {
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
   public final String getName() {
-    return this.name;
+    return config.name();
   }
 
   public final Optional<Instant> getLastModifiedTime() {
-    return this.lastModifiedTime;
+    return config.lastModifiedTime();
   }
 
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
   public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
-    String formattedName = name.replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    String formattedName = config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       return formattedName + Path.ARRAY_SUFFIX;
     }
@@ -156,7 +112,7 @@ public abstract class QuestionDefinition {
    * @return true if this is a repeated question.
    */
   public final boolean isRepeated() {
-    return enumeratorId.isPresent();
+    return config.enumeratorId().isPresent();
   }
 
   /** True if the question is an {@link AddressQuestionDefinition}. */
@@ -178,7 +134,7 @@ public abstract class QuestionDefinition {
    *     exists.
    */
   public final Optional<Long> getEnumeratorId() {
-    return enumeratorId;
+    return config.enumeratorId();
   }
 
   /**
@@ -187,15 +143,15 @@ public abstract class QuestionDefinition {
    * <p>NOTE: This field will not be localized as it is for admin use only.
    */
   public final String getDescription() {
-    return this.description;
+    return config.description();
   }
 
   public final LocalizedStrings getQuestionText() {
-    return questionText;
+    return config.questionText();
   }
 
   public final LocalizedStrings getQuestionHelpText() {
-    return questionHelpText;
+    return config.questionHelpText();
   }
 
   /**
@@ -204,22 +160,22 @@ public abstract class QuestionDefinition {
    */
   public ImmutableSet<Locale> getSupportedLocales() {
     // Question help text is optional
-    if (questionHelpText.isEmpty()) {
-      return questionText.locales();
+    if (config.questionHelpText().isEmpty()) {
+      return config.questionText().locales();
     } else {
       return ImmutableSet.copyOf(
-          Sets.intersection(questionText.locales(), questionHelpText.locales()));
+          Sets.intersection(config.questionText().locales(), config.questionHelpText().locales()));
     }
   }
 
   /** Get the validation predicates. */
   public final ValidationPredicates getValidationPredicates() {
-    return validationPredicates;
+    return config.validationPredicates();
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
   public final String getValidationPredicatesAsString() {
-    return validationPredicates.serializeAsString();
+    return config.validationPredicates().serializeAsString();
   }
 
   /** Get the type of this question. */
@@ -228,13 +184,13 @@ public abstract class QuestionDefinition {
   /** Validate that all required fields are present and valid for the question. */
   public final ImmutableSet<CiviFormError> validate() {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
-    if (questionText.isEmpty()) {
+    if (config.questionText().isEmpty()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
-    if (questionText.hasEmptyTranslation()) {
+    if (config.questionText().hasEmptyTranslation()) {
       errors.add(CiviFormError.of("Question text cannot be blank"));
     }
-    if (name.isBlank()) {
+    if (config.name().isBlank()) {
       errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
     }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
@@ -320,7 +276,7 @@ public abstract class QuestionDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(id);
+    return Objects.hash(config.id());
   }
 
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
@@ -351,20 +307,21 @@ public abstract class QuestionDefinition {
       QuestionDefinition o = (QuestionDefinition) other;
 
       return this.getQuestionType().equals(o.getQuestionType())
-          && this.name.equals(o.getName())
-          && this.description.equals(o.getDescription())
-          && this.questionText.equals(o.getQuestionText())
-          && this.questionHelpText.equals(o.getQuestionHelpText())
-          && this.validationPredicates.equals(o.getValidationPredicates());
+          && config.name().equals(o.getName())
+          && config.description().equals(o.getDescription())
+          && config.questionText().equals(o.getQuestionText())
+          && config.questionHelpText().equals(o.getQuestionHelpText())
+          && config.validationPredicates().equals(o.getValidationPredicates());
     }
     return false;
   }
 
   private boolean questionTextAndHelpTextContainsRepeatedEntityNameFormatString() {
     boolean textMissingFormatString =
-        questionText.translations().values().stream().anyMatch(text -> !text.contains("$this"));
+        config.questionText().translations().values().stream()
+            .anyMatch(text -> !text.contains("$this"));
     boolean helpTextMissingFormatString =
-        questionHelpText.translations().values().stream()
+        config.questionHelpText().translations().values().stream()
             .anyMatch(helpText -> !helpText.contains("$this"));
     return !textMissingFormatString && !helpTextMissingFormatString;
   }

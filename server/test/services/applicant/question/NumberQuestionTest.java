@@ -24,6 +24,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NumberQuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
@@ -31,25 +32,28 @@ public class NumberQuestionTest extends ResetPostgres {
 
   private static final NumberQuestionDefinition numberQuestionDefinition =
       new NumberQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          NumberQuestionDefinition.NumberValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(NumberQuestionDefinition.NumberValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private static final NumberQuestionDefinition minAndMaxNumberQuestionDefinition =
       new NumberQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          NumberQuestionDefinition.NumberValidationPredicates.create(50, 100),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  NumberQuestionDefinition.NumberValidationPredicates.create(50, 100))
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build());
 
   private Applicant applicant;
   private ApplicantData applicantData;

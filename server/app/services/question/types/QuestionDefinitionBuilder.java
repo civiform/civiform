@@ -17,7 +17,11 @@ import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates
 import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
-/** Provides helper functions to build a QuestionDefinition. */
+/**
+ * Provides helper functions to build a QuestionDefinition.
+ *
+ * <p>TODO(#4872): Remove this class in favor of QuestionDefinitionConfig.Builder.
+ */
 public final class QuestionDefinitionBuilder {
 
   private OptionalLong id = OptionalLong.empty();
@@ -166,14 +170,16 @@ public final class QuestionDefinitionBuilder {
               AddressValidationPredicates.parse(validationPredicatesString);
         }
         return new AddressQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            addressValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(addressValidationPredicates)
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case CHECKBOX:
         MultiOptionValidationPredicates multiOptionValidationPredicates =
@@ -199,11 +205,30 @@ public final class QuestionDefinitionBuilder {
 
       case CURRENCY:
         return new CurrencyQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case DATE:
         return new DateQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(DateQuestionDefinition.DateValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .setId(id)
+                .build());
 
       case DROPDOWN:
         return new MultiOptionQuestionDefinition(
@@ -221,11 +246,30 @@ public final class QuestionDefinitionBuilder {
 
       case EMAIL:
         return new EmailQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(EmailQuestionDefinition.EmailValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case FILEUPLOAD:
         return new FileUploadQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case ID:
         IdValidationPredicates idValidationPredicates = IdValidationPredicates.create();
@@ -233,14 +277,16 @@ public final class QuestionDefinitionBuilder {
           idValidationPredicates = IdValidationPredicates.parse(validationPredicatesString);
         }
         return new IdQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            idValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(idValidationPredicates)
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case NAME:
         NameValidationPredicates nameValidationPredicates = NameValidationPredicates.create();
@@ -248,14 +294,16 @@ public final class QuestionDefinitionBuilder {
           nameValidationPredicates = NameValidationPredicates.parse(validationPredicatesString);
         }
         return new NameQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            nameValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(nameValidationPredicates)
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case NUMBER:
         NumberQuestionDefinition.NumberValidationPredicates numberValidationPredicates =
@@ -265,14 +313,16 @@ public final class QuestionDefinitionBuilder {
               NumberQuestionDefinition.NumberValidationPredicates.parse(validationPredicatesString);
         }
         return new NumberQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            numberValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(numberValidationPredicates)
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case RADIO_BUTTON:
         return new MultiOptionQuestionDefinition(
@@ -296,18 +346,32 @@ public final class QuestionDefinitionBuilder {
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
         }
         return new EnumeratorQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            entityType,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .build(),
+            entityType);
 
       case STATIC:
         return new StaticContentQuestionDefinition(
-            id, name, enumeratorId, description, questionText, questionHelpText, lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(
+                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
 
       case TEXT:
         TextValidationPredicates textValidationPredicates = TextValidationPredicates.create();
@@ -315,28 +379,33 @@ public final class QuestionDefinitionBuilder {
           textValidationPredicates = TextValidationPredicates.parse(validationPredicatesString);
         }
         return new TextQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            textValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(enumeratorId)
+                .setLastModifiedTime(lastModifiedTime)
+                .setValidationPredicates(textValidationPredicates)
+                .setId(id)
+                .build());
       case PHONE:
         PhoneValidationPredicates phoneValidationPredicates = PhoneValidationPredicates.create();
         if (!validationPredicatesString.isEmpty()) {
           phoneValidationPredicates = PhoneValidationPredicates.parse(validationPredicatesString);
         }
         return new PhoneQuestionDefinition(
-            id,
-            name,
-            enumeratorId,
-            description,
-            questionText,
-            questionHelpText,
-            phoneValidationPredicates,
-            lastModifiedTime);
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(description)
+                .setQuestionText(questionText)
+                .setQuestionHelpText(questionHelpText)
+                .setValidationPredicates(phoneValidationPredicates)
+                .setEnumeratorId(enumeratorId)
+                .setId(id)
+                .setLastModifiedTime(lastModifiedTime)
+                .build());
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }

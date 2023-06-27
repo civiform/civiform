@@ -19,6 +19,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
@@ -36,7 +37,13 @@ public class QuestionTest extends ResetPostgres {
   public void canSaveQuestion() throws UnsupportedQuestionTypeException {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(definition);
 
     question.save();
@@ -52,7 +59,13 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeEnumeratorId_EmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -65,7 +78,14 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeEnumeratorId_NonEmptyOptionalLong() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.of(10L))
+                .build());
     Question question = new Question(questionDefinition);
     question.save();
 
@@ -78,11 +98,13 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeLocalizationMaps() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(Locale.US, "hello"),
-            LocalizedStrings.of(Locale.US, "help"));
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .build());
     Question question = new Question(definition);
 
     question.save();
@@ -99,7 +121,14 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeDifferentQuestionTypes() {
     AddressQuestionDefinition address =
         new AddressQuestionDefinition(
-            "address", Optional.empty(), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("address")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(
+                    AddressQuestionDefinition.AddressValidationPredicates.create())
+                .build());
     Question question = new Question(address);
 
     question.save();
@@ -113,12 +142,14 @@ public class QuestionTest extends ResetPostgres {
   public void canSerializeValidationPredicates() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            "",
-            Optional.empty(),
-            "",
-            LocalizedStrings.of(),
-            LocalizedStrings.empty(),
-            TextValidationPredicates.create(0, 128));
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setValidationPredicates(TextValidationPredicates.create(0, 128))
+                .build());
     Question question = new Question(definition);
 
     question.save();
@@ -192,7 +223,14 @@ public class QuestionTest extends ResetPostgres {
   public void testTimestamps() throws Exception {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
-            "test", Optional.of(10L), "", LocalizedStrings.of(), LocalizedStrings.empty());
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+                .setEnumeratorId(Optional.of(10L))
+                .build());
     Question initialQuestion = new Question(questionDefinition);
     initialQuestion.save();
 

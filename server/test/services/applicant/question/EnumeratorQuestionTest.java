@@ -22,6 +22,7 @@ import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
@@ -29,14 +30,17 @@ import support.TestQuestionBank;
 public class EnumeratorQuestionTest extends ResetPostgres {
   private static final EnumeratorQuestionDefinition enumeratorQuestionDefinition =
       new EnumeratorQuestionDefinition(
-          OptionalLong.of(1),
-          "household members",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          LocalizedStrings.empty(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("household members")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(
+                  EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
+              .setId(OptionalLong.of(1))
+              .setLastModifiedTime(Optional.empty())
+              .build(),
+          LocalizedStrings.empty());
 
   private Applicant applicant;
   private ApplicantData applicantData;
