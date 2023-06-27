@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.CiviFormProfile;
@@ -115,7 +114,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
-      ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
+      ToastMessage message = ToastMessage.error(joinErrors(errors), false);
       return ok(newOneView.render(request, programData, message));
     }
 
@@ -149,7 +148,7 @@ public final class AdminProgramController extends CiviFormController {
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
-      ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage message = ToastMessage.error(joinErrors(result.getErrors()), false);
       return ok(newOneView.render(request, programData, message));
     }
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
@@ -236,7 +235,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
-      ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
+      ToastMessage message = ToastMessage.error(joinErrors(validationErrors), false);
       return ok(editView.render(request, programDefinition, programData, message));
     }
 

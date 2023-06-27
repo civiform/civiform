@@ -34,7 +34,7 @@ public final class ToastMessage {
 
   private String condOnStorageKey;
 
-  public ToastMessage(String message, ToastType severity) {
+  private ToastMessage(String message, ToastType severity) {
     this.message = checkNotNull(message);
     this.type = checkNotNull(severity);
     this.setDismissible(!ToastType.ERROR.equals(severity));
@@ -44,7 +44,8 @@ public final class ToastMessage {
     return new ToastMessage(message, ToastType.ALERT);
   }
 
-  public static ToastMessage error(String message) {
+  public static ToastMessage error(String message, boolean isLocalized) {
+    if (!isLocalized) message = "Error: " + message;
     return new ToastMessage(message, ToastType.ERROR);
   }
 

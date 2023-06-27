@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.components.Modal.RepeatOpenBehavior;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
-import static views.components.ToastMessage.ToastType.ALERT;
-import static views.components.ToastMessage.ToastType.SUCCESS;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -84,9 +82,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
     boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
     Optional<ToastMessage> flashBanner =
-        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+        request.flash().get("banner").map(m -> ToastMessage.alert(m));
     Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
+        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId);
 
@@ -104,13 +102,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (shouldShowNotEligibleBanner(request, roApplicantProgramService, programId)) {
                   notEligibleBanner =
                       Optional.of(
-                          new ToastMessage(
+                          ToastMessage.alert(
                               messages.at(
                                   isTrustedIntermediary
                                       ? MessageKey.TOAST_MAY_NOT_QUALIFY_TI.getKeyName()
                                       : MessageKey.TOAST_MAY_NOT_QUALIFY.getKeyName(),
-                                  roApplicantProgramService.getProgramTitle()),
-                              ALERT));
+                                  roApplicantProgramService.getProgramTitle())));
                 }
               } catch (ProgramNotFoundException e) {
                 return notFound(e.toString());
@@ -250,17 +247,19 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
+                  Messages msgProvider = messagesApi.preferred(request);
                   String errorMsg =
-                      messagesApi
-                          .preferred(request)
-                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
+                      msgProvider.at(
+                          MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(),
+                          msgProvider.at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName()));
                   return found(reviewPage).flashing("banner", errorMsg);
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
+                  Messages msgProvider = messagesApi.preferred(request);
                   String errorMsg =
-                      messagesApi
-                          .preferred(request)
-                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
+                      msgProvider.at(
+                          MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(),
+                          msgProvider.at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName()));
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);

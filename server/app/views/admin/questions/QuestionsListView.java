@@ -142,7 +142,7 @@ public final class QuestionsListView extends BaseHtmlView {
           ToastMessage.success(flash.get("success").get()).setDismissible(false));
     } else if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(
-          ToastMessage.error(flash.get("error").get()).setDismissible(false));
+          ToastMessage.error(flash.get("error").get(), false).setDismissible(false));
     }
 
     return layout.renderCentered(htmlBundle);

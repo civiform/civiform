@@ -2,7 +2,6 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -59,8 +58,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
-    Optional<ToastMessage> banner =
-        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+    Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
