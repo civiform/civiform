@@ -22,23 +22,13 @@ public abstract class MultiOptionQuestionDefinitionConfig {
     RADIO_BUTTON
   }
 
-  abstract OptionalLong id();
+  QuestionDefinitionConfig questionDefinitionConfig() {
+    return questionDefinitionConfigBuilder().build();
+  }
 
-  abstract String name();
-
-  abstract Optional<Long> enumeratorId();
-
-  abstract String description();
-
-  abstract LocalizedStrings questionText();
-
-  abstract LocalizedStrings questionHelpText();
+  abstract QuestionDefinitionConfig.Builder questionDefinitionConfigBuilder();
 
   abstract ImmutableList<QuestionOption> questionOptions();
-
-  abstract Optional<MultiOptionValidationPredicates> validationPredicates();
-
-  abstract Optional<Instant> lastModifiedTime();
 
   abstract MultiOptionQuestionType multiOptionQuestionType();
 
@@ -59,30 +49,66 @@ public abstract class MultiOptionQuestionDefinitionConfig {
 
   @AutoValue.Builder
   public abstract static class Builder implements RequiredMultiOptionQuestionType {
-    public abstract Builder setId(long id);
+    abstract QuestionDefinitionConfig.Builder questionDefinitionConfigBuilder();
 
-    public abstract Builder setId(OptionalLong id);
+    abstract Builder setQuestionDefinitionConfigBuilder(QuestionDefinitionConfig.Builder builder);
 
-    public abstract Builder setName(String name);
+    public Builder setId(long id) {
+      questionDefinitionConfigBuilder().setId(id);
+      return this;
+    }
 
-    public abstract Builder setEnumeratorId(long enumeratorId);
+    public Builder setId(OptionalLong id) {
+      questionDefinitionConfigBuilder().setId(id);
+      return this;
+    }
 
-    public abstract Builder setEnumeratorId(Optional<Long> enumeratorId);
+    public Builder setName(String name) {
+      questionDefinitionConfigBuilder().setName(name);
+      return this;
+    }
 
-    public abstract Builder setDescription(String description);
+    public Builder setEnumeratorId(long enumeratorId) {
+      questionDefinitionConfigBuilder().setEnumeratorId(enumeratorId);
+      return this;
+    }
 
-    public abstract Builder setQuestionText(LocalizedStrings questionText);
+    public Builder setEnumeratorId(Optional<Long> enumeratorId) {
+      questionDefinitionConfigBuilder().setEnumeratorId(enumeratorId);
+      return this;
+    }
 
-    public abstract Builder setQuestionHelpText(LocalizedStrings questionHelpText);
+    public Builder setDescription(String description) {
+      questionDefinitionConfigBuilder().setDescription(description);
+      return this;
+    }
+
+    public Builder setQuestionText(LocalizedStrings questionText) {
+      questionDefinitionConfigBuilder().setQuestionText(questionText);
+      return this;
+    }
+
+    public Builder setQuestionHelpText(LocalizedStrings questionHelpText) {
+      questionDefinitionConfigBuilder().setQuestionHelpText(questionHelpText);
+      return this;
+    }
 
     public abstract Builder setQuestionOptions(ImmutableList<QuestionOption> questionOptions);
 
-    public abstract Builder setValidationPredicates(
-        MultiOptionValidationPredicates validationPredicates);
+    public Builder setValidationPredicates(MultiOptionValidationPredicates validationPredicates) {
+      questionDefinitionConfigBuilder().setValidationPredicates(validationPredicates);
+      return this;
+    }
 
-    public abstract Builder setLastModifiedTime(Instant lastModifiedTime);
+    public Builder setLastModifiedTime(Instant lastModifiedTime) {
+      questionDefinitionConfigBuilder().setLastModifiedTime(lastModifiedTime);
+      return this;
+    }
 
-    public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
+    public Builder setLastModifiedTime(Optional<Instant> lastModifiedTime) {
+      questionDefinitionConfigBuilder().setLastModifiedTime(lastModifiedTime);
+      return this;
+    }
 
     abstract MultiOptionQuestionType multiOptionQuestionType();
 
