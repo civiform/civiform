@@ -132,15 +132,6 @@ public class SettingsServiceTest extends ResetPostgres {
   }
 
   private void createTestSettings() {
-    // Since ResetPostres#resetTables create a settings group as well, if this
-    // is created too fast it can attempt to create two settings group with the
-    // same timestamp. Delaying by a millisecond prevents that.
-    try {
-      Thread.sleep(1);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-
     new SettingsGroup(TEST_SETTINGS, "test").save();
   }
 }
