@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import javax.inject.Inject;
 import services.LocalizedStrings;
 import services.Path;
-import services.applicant.AnswerData;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
@@ -74,9 +73,8 @@ public interface QuestionJsonPresenter<Q extends Question> {
       this.singleSelectJsonPresenter = checkNotNull(singleSelectJsonPresenter);
     }
 
-    QuestionJsonPresenter create(AnswerData answerData) {
-      QuestionType type = answerData.applicantQuestion().getType();
-      switch (type) {
+    public QuestionJsonPresenter create(QuestionType questionType) {
+      switch (questionType) {
         case ADDRESS:
         case EMAIL:
         case ID:
@@ -111,7 +109,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
           return dateJsonPresenter;
 
         default:
-          throw new RuntimeException(String.format("Unrecognized questionType %s", type));
+          throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
       }
     }
   }

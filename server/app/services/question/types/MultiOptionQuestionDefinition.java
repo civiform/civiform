@@ -23,16 +23,20 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
   private final MultiOptionQuestionDefinitionConfig config;
 
+  // TODO(MichaelZetune): migrate this constructor to use QuestionDefinitionConfig instead.
   public MultiOptionQuestionDefinition(MultiOptionQuestionDefinitionConfig config) {
     super(
-        config.id(),
-        config.name(),
-        config.enumeratorId(),
-        config.description(),
-        config.questionText(),
-        config.questionHelpText(),
-        config.validationPredicates().orElse(MultiOptionValidationPredicates.create()),
-        config.lastModifiedTime());
+        QuestionDefinitionConfig.builder()
+            .setName(config.name())
+            .setDescription(config.description())
+            .setQuestionText(config.questionText())
+            .setQuestionHelpText(config.questionHelpText())
+            .setValidationPredicates(
+                config.validationPredicates().orElse(MultiOptionValidationPredicates.create()))
+            .setEnumeratorId(config.enumeratorId())
+            .setId(config.id())
+            .setLastModifiedTime(config.lastModifiedTime())
+            .build());
     this.config = config;
   }
 

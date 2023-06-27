@@ -7,7 +7,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.Applicant;
@@ -22,6 +21,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
 import support.QuestionAnswerer;
 
@@ -29,25 +29,28 @@ import support.QuestionAnswerer;
 public class TextQuestionTest extends ResetPostgres {
   private static final TextQuestionDefinition textQuestionDefinition =
       new TextQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          TextQuestionDefinition.TextValidationPredicates.create(),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
+              .setLastModifiedTime(Optional.empty())
+              .setId(123L)
+              .build());
 
   private static final TextQuestionDefinition minAndMaxLengthTextQuestionDefinition =
       new TextQuestionDefinition(
-          OptionalLong.of(1),
-          "question name",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          TextQuestionDefinition.TextValidationPredicates.create(3, 4),
-          /* lastModifiedTime= */ Optional.empty());
+          QuestionDefinitionConfig.builder()
+              .setName("question name")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create(3, 4))
+              .setLastModifiedTime(Optional.empty())
+              .setId(123L)
+              .build());
+  ;
 
   private Applicant applicant;
   private ApplicantData applicantData;
