@@ -10,8 +10,11 @@ The title of the pull request will be used as the default release notes descript
 
 #### General
 
+Read the full guidelines for PRs [here](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide#guidelines-for-pull-requests)
+
 - [ ] Added the correct label: < feature | bug | dependencies | infrastructure | ignore-for-release | database >
-- [ ] Created tests which fail without the change (if possible)
+- [ ] Created unit and/or browser tests which fail without the change (if possible)
+- [ ] Performed manual testing (Chrome and Firefox if it includes front-end changes)
 - [ ] Extended the README / documentation, if necessary
 
 #### User visible changes
@@ -27,6 +30,10 @@ The title of the pull request will be used as the default release notes descript
 - [ ] Add new FeatureFlag env vars to `server/conf/helper/feature-flags.conf`
 - [ ] Conditioned new functionality on a [FeatureFlag](https://docs.civiform.us/contributor-guide/developer-guide/feature-flags)
 - [ ] Wrote browser tests with the feature flag off and on, etc.
+
+### Instructions for manual testing
+
+If instructions are needed for manual testing by reviewers, include them here.
 
 ### Issue(s) this completes
 
