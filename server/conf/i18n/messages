@@ -23,6 +23,7 @@ validation.invalidInput=Please enter valid input.
 validation.errorAnnouncementSr=There are errors in the form. Please fix before continuing.
 content.requiredFieldsAnnotation=Note: Fields marked with a * are required.
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
+toast.errorMessageOutline=Error: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
