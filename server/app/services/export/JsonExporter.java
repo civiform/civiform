@@ -1,18 +1,9 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.question.types.QuestionType.ADDRESS;
-import static services.question.types.QuestionType.DROPDOWN;
-import static services.question.types.QuestionType.EMAIL;
-import static services.question.types.QuestionType.FILEUPLOAD;
-import static services.question.types.QuestionType.ID;
-import static services.question.types.QuestionType.NAME;
-import static services.question.types.QuestionType.RADIO_BUTTON;
-import static services.question.types.QuestionType.TEXT;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.DocumentContext;
 import java.util.Map;
 import java.util.Optional;
@@ -33,7 +24,6 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.question.types.QuestionType;
 
 /** Exports all applications for a given program as JSON. */
 public final class JsonExporter {
@@ -42,11 +32,6 @@ public final class JsonExporter {
   private final ProgramService programService;
   private final DateConverter dateConverter;
   private final QuestionJsonPresenter.Factory presenterFactory;
-
-  // Question types for which we should call getApplicationPath() on their path
-  // when constructing the API response.
-  private static final ImmutableSet<QuestionType> USE_APPLICATION_PATH_TYPES =
-      ImmutableSet.of(NAME, ID, TEXT, EMAIL, ADDRESS, DROPDOWN, RADIO_BUTTON, FILEUPLOAD);
 
   @Inject
   JsonExporter(
@@ -144,11 +129,7 @@ public final class JsonExporter {
             .getJsonEntries(answerData.createQuestion());
 
     for (Map.Entry<Path, ?> entry : entries.entrySet()) {
-      Path path = entry.getKey();
-
-      if (USE_APPLICATION_PATH_TYPES.contains(answerData.questionDefinition().getQuestionType())) {
-        path = path.asApplicationPath();
-      }
+      Path path = entry.getKey().asApplicationPath();
 
       Object value = entry.getValue();
       if (value instanceof String) {
