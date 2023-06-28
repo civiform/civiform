@@ -23,6 +23,7 @@ validation.invalidInput=請輸入有效內容。
 validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
 content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
+toast.errorMessageOutline=Error: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
