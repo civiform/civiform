@@ -35,15 +35,15 @@ describe('Managing system-wide settings', () => {
     const adminSettings = new AdminSettings(page)
     await adminSettings.gotoAdminSettings()
 
-    await adminSettings.enableSetting('ESRI_ADDRESS_CORRECTION_ENABLED')
+    await adminSettings.disableSetting('CF_OPTIONAL_QUESTIONS')
     await adminSettings.saveChanges()
-    await adminSettings.expectEnabled('ESRI_ADDRESS_CORRECTION_ENABLED')
+    await adminSettings.expectDisabled('CF_OPTIONAL_QUESTIONS')
 
-    await adminSettings.disableSetting('ESRI_ADDRESS_CORRECTION_ENABLED')
+    await adminSettings.enableSetting('CF_OPTIONAL_QUESTIONS')
     await adminSettings.saveChanges()
-    await adminSettings.expectDisabled('ESRI_ADDRESS_CORRECTION_ENABLED')
+    await adminSettings.expectEnabled('CF_OPTIONAL_QUESTIONS')
 
-    await adminSettings.disableSetting('ESRI_ADDRESS_CORRECTION_ENABLED')
+    await adminSettings.enableSetting('CF_OPTIONAL_QUESTIONS')
     await adminSettings.saveChanges(/* expectUpdated= */ false)
   })
 })
