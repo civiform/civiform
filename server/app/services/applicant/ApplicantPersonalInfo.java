@@ -44,7 +44,7 @@ public abstract class ApplicantPersonalInfo {
       case GUEST:
         // Fall through
       default:
-        // This case sometimes happens with admin ac
+        // This case happens with our fake admin account used for debugging.
         return messages.at(MessageKey.GUEST.getKeyName());
     }
   }
