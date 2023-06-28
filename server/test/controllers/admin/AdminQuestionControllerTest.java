@@ -29,8 +29,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -357,26 +356,29 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_setsIdsAsExpected() throws Exception {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("applicant ice cream")
             .setDescription("Select your favorite ice cream flavor")
             .setQuestionText(
                 LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(
-                        1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
-                    QuestionOption.create(
-                        2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
-                    QuestionOption.create(
-                        3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
-                    QuestionOption.create(
-                        4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))))
+            .setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
-    MultiOptionQuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+            QuestionOption.create(
+                2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+            QuestionOption.create(
+                3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+            QuestionOption.create(
+                4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
+    MultiOptionQuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
     // We can only update draft questions, so save this in the DRAFT version.
     testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
@@ -396,26 +398,31 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void update_mergesTranslations() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("applicant ice cream")
             .setDescription("Select your favorite ice cream flavor")
             .setQuestionText(
                 LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(
-                        1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
-                    QuestionOption.create(
-                        2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
-                    QuestionOption.create(
-                        3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
-                    QuestionOption.create(
-                        4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café"))))
+            .setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition definition = new MultiOptionQuestionDefinition(config);
+
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                1L, LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+            QuestionOption.create(
+                2L, LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
+            QuestionOption.create(
+                3L, LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
+            QuestionOption.create(
+                4L, LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
+
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
     // We can only update draft questions, so save this in the DRAFT version.
     Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);

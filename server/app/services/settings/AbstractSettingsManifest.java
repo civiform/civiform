@@ -65,11 +65,6 @@ public abstract class AbstractSettingsManifest {
     return result.build();
   }
 
-  /** True if the "FEATURE_FLAG_OVERRIDES_ENABLED" config value is present and true. */
-  public boolean overridesEnabled() {
-    return getBool("FEATURE_FLAG_OVERRIDES_ENABLED");
-  }
-
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
   /**

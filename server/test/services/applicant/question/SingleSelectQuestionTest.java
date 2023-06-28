@@ -14,30 +14,33 @@ import services.applicant.ApplicantData;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 
 public class SingleSelectQuestionTest {
 
-  private static final MultiOptionQuestionDefinitionConfig CONFIG =
-      MultiOptionQuestionDefinitionConfig.builder()
-          .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
-          .setId(OptionalLong.of(1))
+  private static final QuestionDefinitionConfig CONFIG =
+      QuestionDefinitionConfig.builder()
           .setName("question name")
           .setDescription("description")
           .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
           .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-          .setQuestionOptions(
-              ImmutableList.of(
-                  QuestionOption.create(
-                      1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
-                  QuestionOption.create(
-                      2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux"))))
+          .setValidationPredicates(
+              MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
+          .setId(OptionalLong.of(1))
           .setLastModifiedTime(Optional.empty())
           .build();
+
+  private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
+      ImmutableList.of(
+          QuestionOption.create(
+              1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+          QuestionOption.create(
+              2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux")));
+
   private static final MultiOptionQuestionDefinition dropdownQuestionDefinition =
-      new MultiOptionQuestionDefinition(CONFIG);
+      new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
 
   private Applicant applicant;
   private ApplicantData applicantData;

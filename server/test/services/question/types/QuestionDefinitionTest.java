@@ -19,8 +19,8 @@ import services.TranslationNotFoundException;
 import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 @RunWith(JUnitParamsRunner.class)
@@ -490,55 +490,57 @@ public class QuestionDefinitionTest {
 
   @Test
   public void validate_multiOptionQuestion_withoutOptions_returnsError() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("test")
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setQuestionOptions(ImmutableList.of())
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, /* questionOptions */ ImmutableList.of(), MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions must have at least one option"));
   }
 
   @Test
   public void validate_multiOptionQuestion_withBlankOption_returnsError() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("test")
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setQuestionOptions(
-                ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue(""))))
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue(""))),
+            MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions cannot have blank options"));
   }
 
   @Test
   public void validate_multiOptionQuestion_withDuplicateOptions_returnsError() {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("test")
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
-                    QuestionOption.create(2L, LocalizedStrings.withDefaultValue("a"))))
             .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, LocalizedStrings.withDefaultValue("a")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
   }
@@ -592,24 +594,26 @@ public class QuestionDefinitionTest {
       OptionalInt minChoicesRequired,
       OptionalInt maxChoicesAllowed,
       Optional<String> wantErrorMessage) {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("test")
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
-                    QuestionOption.create(2L, LocalizedStrings.withDefaultValue("b"))))
             .setValidationPredicates(
                 MultiOptionValidationPredicates.builder()
                     .setMinChoicesRequired(minChoicesRequired)
                     .setMaxChoicesAllowed(maxChoicesAllowed)
                     .build())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, LocalizedStrings.withDefaultValue("b")));
+
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
 
     ImmutableSet<CiviFormError> errors = question.validate();
     if (wantErrorMessage.isEmpty()) {

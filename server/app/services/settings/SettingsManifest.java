@@ -737,22 +737,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
-  /**
-   * Allows feature flags to be overridden via request cookies. Is used by browser tests. Should
-   * only be enabled in test and staging deployments.
-   */
-  public boolean getFeatureFlagOverridesEnabled() {
-    return getBool("FEATURE_FLAG_OVERRIDES_ENABLED");
-  }
-
-  /**
-   * Allows feature flags to be overridden via request cookies. Is used by browser tests. Should
-   * only be enabled in test and staging deployments.
-   */
-  public boolean getFeatureFlagOverridesEnabled(Request request) {
-    return getBool("FEATURE_FLAG_OVERRIDES_ENABLED", request);
-  }
-
   /** Enables the Common Intake Form feature. */
   public boolean getIntakeFormEnabled() {
     return getBool("INTAKE_FORM_ENABLED");
@@ -1437,13 +1421,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE",
                       "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login"
                           + " screen. Is disabled by default.",
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "FEATURE_FLAG_OVERRIDES_ENABLED",
-                      "Allows feature flags to be overridden via request cookies. Is used by"
-                          + " browser tests. Should only be enabled in test and staging"
-                          + " deployments.",
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
