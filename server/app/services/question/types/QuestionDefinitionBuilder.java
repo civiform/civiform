@@ -195,10 +195,9 @@ public final class QuestionDefinitionBuilder {
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
-                .setValidationPredicates(MultiOptionValidationPredicates.create())
+                .setValidationPredicates(multiOptionValidationPredicates)
                 .setId(id)
                 .setEnumeratorId(enumeratorId)
-                .setValidationPredicates(multiOptionValidationPredicates)
                 .setLastModifiedTime(lastModifiedTime)
                 .build();
 

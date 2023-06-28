@@ -17,7 +17,6 @@ import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 
 /** Superclass for all multi-option questions. */
 public final class MultiOptionQuestionDefinition extends QuestionDefinition {
