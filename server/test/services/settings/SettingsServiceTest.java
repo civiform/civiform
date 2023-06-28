@@ -93,7 +93,7 @@ public class SettingsServiceTest extends ResetPostgres {
   public void updateSettings_newSettingsAreDifferent_insertsANewSettingsGroup() {
     var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
 
-    assertThat(settingsService.updateSettings(TEST_SETTINGS, testProfile)).isTrue();
+    assertThat(settingsService.updateSettings(TEST_SETTINGS, testProfile).updated()).isTrue();
     assertThat(settingsService.loadSettings().toCompletableFuture().join().get())
         .isNotEqualTo(initialSettings);
     assertThat(getCurrentSettingsGroup().get().getCreatedBy()).isEqualTo(TEST_AUTHORITY_ID);
@@ -103,7 +103,7 @@ public class SettingsServiceTest extends ResetPostgres {
   public void updateSettings_newSettingsAreTheSame_doesNotinsertANewSettingsGroup() {
     var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
 
-    assertThat(settingsService.updateSettings(initialSettings, testProfile)).isFalse();
+    assertThat(settingsService.updateSettings(initialSettings, testProfile).updated()).isFalse();
     assertThat(settingsService.loadSettings().toCompletableFuture().join().get())
         .isEqualTo(initialSettings);
   }

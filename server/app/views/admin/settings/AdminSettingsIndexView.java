@@ -31,6 +31,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
+import views.components.SelectWithLabel;
 import views.components.ToastMessage;
 import views.style.StyleUtils;
 
@@ -51,7 +52,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
           "Email Addresses",
           "Data Export API",
           "Observability",
-          "External Services");
+          "External Services",
+          "Misc");
 
   @Inject
   public AdminSettingsIndexView(
@@ -176,6 +178,50 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
           .withClasses("px-1", "w-full", "bg-slate-200", "mt-2", value.isEmpty() ? "italic" : "");
     }
 
+    switch (settingDescription.settingType()) {
+      case BOOLEAN:
+        return renderBoolInput(settingDescription, value);
+      case STRING:
+        return renderStringInput(settingDescription, value);
+      case ENUM:
+        return renderEnumInput(settingDescription, value);
+      default:
+        throw new IllegalStateException(
+            String.format(
+                "Settings of type %s are not writeable", settingDescription.settingType()));
+    }
+  }
+
+  private static DivTag renderStringInput(
+      SettingDescription settingDescription, Optional<String> value) {
+    return div(FieldWithLabel.input()
+            .setFieldName(settingDescription.variableName())
+            .setValue(value.orElse(""))
+            .setPlaceholderText("empty")
+            .getInputTag())
+        .withClasses("mt-2");
+  }
+
+  private static DivTag renderEnumInput(
+      SettingDescription settingDescription, Optional<String> value) {
+    System.out.println(settingDescription.variableName());
+    return div(new SelectWithLabel()
+            .setOptions(
+                settingDescription.allowableValues().get().stream()
+                    .map(
+                        optionValue ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(optionValue)
+                                .setValue(optionValue)
+                                .build())
+                    .collect(ImmutableList.toImmutableList()))
+            .setValue(value.orElse(""))
+            .getSelectTag())
+        .withClasses("mt-2");
+  }
+
+  private static DivTag renderBoolInput(
+      SettingDescription settingDescription, Optional<String> value) {
     boolean isEnabled = value.map("TRUE"::equals).orElse(false);
 
     return div(

@@ -3,8 +3,14 @@ package services.settings;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
+import com.google.auto.value.AutoValue;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.inject.Inject;
+import controllers.BadRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import models.SettingsGroup;
@@ -75,7 +81,8 @@ public final class SettingsService {
   }
 
   /** Update settings stored in the database. */
-  public boolean updateSettings(ImmutableMap<String, String> newSettings, CiviFormProfile profile) {
+  public SettingsGroupUpdateResult updateSettings(
+      ImmutableMap<String, String> newSettings, CiviFormProfile profile) {
     return updateSettings(newSettings, profile.getAuthorityId().join());
   }
 
@@ -84,17 +91,93 @@ public final class SettingsService {
    * different from the current settings. Otherwise returns {@code false} and does NOT insert a new
    * row.
    */
-  public boolean updateSettings(ImmutableMap<String, String> newSettings, String papertrail) {
+  public SettingsGroupUpdateResult updateSettings(
+      ImmutableMap<String, String> newSettings, String papertrail) {
     var maybeExistingSettings = loadSettings().toCompletableFuture().join();
 
     if (maybeExistingSettings.map(newSettings::equals).orElse(false)) {
-      return false;
+      return SettingsGroupUpdateResult.noChange();
+    }
+
+    if (maybeExistingSettings.isPresent()) {
+      var validationErrors = validateSettings(newSettings, maybeExistingSettings.get());
+
+      if (!validationErrors.isEmpty()) {
+        return SettingsGroupUpdateResult.withErrors(validationErrors);
+      }
     }
 
     var newSettingsGroup = new SettingsGroup(newSettings, papertrail);
     newSettingsGroup.save();
 
-    return true;
+    return SettingsGroupUpdateResult.success();
+  }
+
+  private static final ImmutableSet<String> BOOLEAN_VALUES = ImmutableSet.of("true", "false");
+
+  private ImmutableMap<String, ImmutableList<String>> validateSettings(
+      ImmutableMap<String, String> newSettings, ImmutableMap<String, String> existingSettings) {
+    ImmutableMap.Builder<String, ImmutableList<String>> validationErrors = ImmutableMap.builder();
+    ImmutableList<SettingDescription> settingDescriptions =
+        settingsManifest.getAllAdminWriteableSettingDescriptions();
+
+    Maps.difference(newSettings, existingSettings).entriesDiffering().entrySet().stream()
+        .forEach(
+            entry -> {
+              String variableName = entry.getKey();
+              SettingDescription settingDescription =
+                  settingDescriptions.stream()
+                      .filter((sd) -> sd.variableName().equals(variableName))
+                      .findFirst()
+                      .orElseThrow();
+              String newValue = entry.getValue().leftValue();
+
+              switch (settingDescription.settingType()) {
+                case BOOLEAN:
+                  {
+                    if (!BOOLEAN_VALUES.contains(newValue)) {
+                      throw new BadRequestException(
+                          String.format("Invalid boolean value: %s", newValue));
+                    }
+                    break;
+                  }
+
+                case STRING:
+                  {
+                    ImmutableList<String> errors = validateString(settingDescription, newValue);
+
+                    if (!errors.isEmpty()) {
+                      validationErrors.put(settingDescription.variableName(), errors);
+                    }
+                    break;
+                  }
+
+                default:
+                  throw new IllegalStateException(
+                      String.format(
+                          "Settings of type %s are not writeable",
+                          settingDescription.settingType()));
+              }
+            });
+
+    return validationErrors.build();
+  }
+
+  private static ImmutableList<String> validateString(
+      SettingDescription settingDescription, String value) {
+    if (settingDescription.allowableValues().isPresent()
+        && !settingDescription.allowableValues().get().contains(value)) {
+      return ImmutableList.of(
+          "Must be one of %s", Joiner.on(", ").join(settingDescription.allowableValues().get()));
+    }
+
+    if (settingDescription.validationRegex().isPresent()
+        && !settingDescription.validationRegex().get().asMatchPredicate().test(value)) {
+      return ImmutableList.of(
+          "Invalid input, must match %s", settingDescription.validationRegex().get().toString());
+    }
+
+    return ImmutableList.of();
   }
 
   /**
@@ -136,5 +219,33 @@ public final class SettingsService {
     LOGGER.info("Migrated {} settings from config to database.", settings.size());
 
     return group;
+  }
+
+  @AutoValue
+  public abstract static class SettingsGroupUpdateResult {
+
+    public static SettingsGroupUpdateResult success() {
+      return new AutoValue_SettingsService_SettingsGroupUpdateResult(
+          /* errorMessages= */ Optional.empty(), /* updated= */ true);
+    }
+
+    public static SettingsGroupUpdateResult withErrors(
+        ImmutableMap<String, ImmutableList<String>> errorMessages) {
+      return new AutoValue_SettingsService_SettingsGroupUpdateResult(
+          Optional.of(errorMessages), /* updated= */ false);
+    }
+
+    public static SettingsGroupUpdateResult noChange() {
+      return new AutoValue_SettingsService_SettingsGroupUpdateResult(
+          /* errorMessages= */ Optional.empty(), /* updated= */ false);
+    }
+
+    public abstract Optional<ImmutableMap<String, ImmutableList<String>>> errorMessages();
+
+    public abstract boolean updated();
+
+    public boolean hasErrors() {
+      return errorMessages().isPresent();
+    }
   }
 }
