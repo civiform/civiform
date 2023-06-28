@@ -65,11 +65,6 @@ public abstract class AbstractSettingsManifest {
     return result.build();
   }
 
-  /** True if the "FEATURE_FLAG_OVERRIDES_ENABLED" config value is present and true. */
-  public boolean overridesEnabled() {
-    return getBool("FEATURE_FLAG_OVERRIDES_ENABLED");
-  }
-
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
   /**
@@ -126,6 +121,10 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected boolean getBool(String settingName, Http.Request request) {
+    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+      return getBool(settingName);
+    }
+
     var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
 
     return writableSettings.containsKey(settingName)

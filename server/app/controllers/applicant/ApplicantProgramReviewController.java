@@ -39,6 +39,7 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
 import views.components.Modal;
+import views.components.Modal.RepeatOpenBehavior;
 import views.components.ToastMessage;
 
 /**
@@ -165,8 +166,27 @@ public class ApplicantProgramReviewController extends CiviFormController {
             });
   }
 
+  /**
+   * Handles application submission. For applicants, submits the application. For admins previewing
+   * the program, does not submit the application and simply redirects to the program page.
+   */
   @Secure
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
+    if (profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
+      return versionRepository
+          .isDraftProgramAsync(programId)
+          .thenApplyAsync(
+              (isDraftProgram) -> {
+                Call reviewPage =
+                    controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(programId);
+                if (isDraftProgram) {
+                  reviewPage =
+                      controllers.admin.routes.AdminProgramBlocksController.index(programId);
+                }
+                return redirect(reviewPage);
+              });
+    }
+
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(

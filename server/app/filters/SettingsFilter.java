@@ -8,6 +8,7 @@ import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 import play.mvc.Http;
+import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 
 /**
@@ -18,15 +19,24 @@ public final class SettingsFilter extends EssentialFilter {
 
   private final SettingsService settingsService;
   private final Materializer materializer;
+  private final SettingsManifest settingsManifest;
 
   @Inject
-  public SettingsFilter(SettingsService settingsService, Materializer materializer) {
+  public SettingsFilter(
+      SettingsService settingsService,
+      Materializer materializer,
+      SettingsManifest settingsManifest) {
     this.settingsService = checkNotNull(settingsService);
     this.materializer = checkNotNull(materializer);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Override
   public EssentialAction apply(EssentialAction next) {
+    if (!settingsManifest.getAdminSettingsPanelEnabled()) {
+      return EssentialAction.of(next::apply);
+    }
+
     return EssentialAction.of(
         (Http.RequestHeader request) ->
             Accumulator.flatten(

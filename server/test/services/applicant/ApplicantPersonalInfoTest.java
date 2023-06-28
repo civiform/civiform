@@ -69,4 +69,12 @@ public class ApplicantPersonalInfoTest {
 
     assertThat(personalInfo.getDisplayString(messages)).isEqualTo("John Doe");
   }
+
+  @Test
+  public void getDisplayString_forLoggedInUser_noNameOrEmail() {
+    ApplicantPersonalInfo personalInfo =
+        ApplicantPersonalInfo.ofLoggedInUser(Representation.builder().build());
+
+    assertThat(personalInfo.getDisplayString(messages)).isEqualTo("guest");
+  }
 }

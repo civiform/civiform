@@ -30,9 +30,6 @@ public abstract class ApplicantPersonalInfo {
 
   public String getDisplayString(Messages messages) {
     switch (getType()) {
-      case GUEST:
-        return messages.at(MessageKey.GUEST.getKeyName());
-
       case LOGGED_IN:
       case TI_PARTIALLY_CREATED:
         Representation representation = getType() == LOGGED_IN ? loggedIn() : tiPartiallyCreated();
@@ -44,9 +41,11 @@ public abstract class ApplicantPersonalInfo {
         }
 
         // Fall through
+      case GUEST:
+        // Fall through
       default:
-        throw new RuntimeException(
-            "ApplicantPersonalInfo has no name or email and is not a guest.");
+        // This case happens with our fake admin account used for debugging.
+        return messages.at(MessageKey.GUEST.getKeyName());
     }
   }
 

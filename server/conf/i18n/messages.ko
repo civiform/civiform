@@ -23,6 +23,7 @@ validation.invalidInput=유효한 내용을 입력하세요.
 validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
+toast.errorMessageOutline=Error: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
