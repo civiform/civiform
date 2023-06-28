@@ -23,6 +23,7 @@ validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
 validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
+toast.errorMessageOutline=Error: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
