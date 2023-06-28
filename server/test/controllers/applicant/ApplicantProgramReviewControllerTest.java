@@ -10,14 +10,18 @@ import static play.mvc.Http.Status.UNAUTHORIZED;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
 import models.Account;
 import models.Applicant;
+import models.Application;
+import models.LifecycleStage;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.ApplicationRepository;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.question.Scalar;
@@ -115,7 +119,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void submit_civiformAdminAccessToDraftProgram_isOk() {
+  public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
     Account adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
 
@@ -131,11 +135,27 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     answer(draftProgramDefinition.id());
 
     Result result = this.submit(applicant.id, draftProgramDefinition.id());
-    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    // No application was submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<Application> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(0);
+    applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.DRAFT))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(draftProgramDefinition.id());
   }
 
   @Test
-  public void submit_obsoleteProgram_isOk() {
+  public void submit_obsoleteProgram_isSuccessful() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc")
             .withBlock()
@@ -149,6 +169,16 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     Result result = this.submit(applicant.id, programDefinition.id());
     assertThat(result.status()).isEqualTo(FOUND);
+
+    // An application was submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<Application> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(programDefinition.id());
   }
 
   @Test
@@ -161,8 +191,19 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().staticContent())
             .build();
     answer(activeProgram.id);
+
     Result result = this.submit(applicant.id, activeProgram.id);
     assertThat(result.status()).isEqualTo(FOUND);
+
+    // An application was submitted
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<Application> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
   @Test
