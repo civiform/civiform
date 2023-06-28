@@ -21,28 +21,42 @@ import services.question.QuestionOption;
 /** Superclass for all multi-option questions. */
 public final class MultiOptionQuestionDefinition extends QuestionDefinition {
 
-  private final MultiOptionQuestionDefinitionConfig config;
+  public enum MultiOptionQuestionType {
+    CHECKBOX,
+    DROPDOWN,
+    RADIO_BUTTON
+  }
 
-  // TODO(MichaelZetune): migrate this constructor to use QuestionDefinitionConfig instead.
-  public MultiOptionQuestionDefinition(MultiOptionQuestionDefinitionConfig config) {
-    super(
-        QuestionDefinitionConfig.builder()
-            .setName(config.name())
-            .setDescription(config.description())
-            .setQuestionText(config.questionText())
-            .setQuestionHelpText(config.questionHelpText())
-            .setValidationPredicates(
-                config.validationPredicates().orElse(MultiOptionValidationPredicates.create()))
-            .setEnumeratorId(config.enumeratorId())
-            .setId(config.id())
-            .setLastModifiedTime(config.lastModifiedTime())
-            .build());
-    this.config = config;
+  private static final MultiOptionValidationPredicates SINGLE_SELECT_PREDICATE =
+      MultiOptionValidationPredicates.create(1, 1);
+  private final ImmutableList<QuestionOption> questionOptions;
+  private final MultiOptionQuestionType multiOptionQuestionType;
+
+  public MultiOptionQuestionDefinition(
+      QuestionDefinitionConfig questionDefinitionConfig,
+      ImmutableList<QuestionOption> questionOptions,
+      MultiOptionQuestionType multiOptionQuestionType) {
+    super(fixValidationPredicates(questionDefinitionConfig, multiOptionQuestionType));
+    this.questionOptions = questionOptions;
+    this.multiOptionQuestionType = multiOptionQuestionType;
+  }
+  // If we are using a dropdown or radio button, set the SINGLE_SELECT_PREDICATE to ensure
+  // only one selection can be made.
+  private static QuestionDefinitionConfig fixValidationPredicates(
+      QuestionDefinitionConfig config, MultiOptionQuestionType multiOptionQuestionType) {
+    QuestionDefinitionConfig.Builder builder = config.toBuilder();
+
+    if (multiOptionQuestionType == MultiOptionQuestionType.DROPDOWN
+        || multiOptionQuestionType == MultiOptionQuestionType.RADIO_BUTTON) {
+      builder.setValidationPredicates(SINGLE_SELECT_PREDICATE);
+    }
+
+    return builder.build();
   }
 
   @Override
   public QuestionType getQuestionType() {
-    switch (config.multiOptionQuestionType()) {
+    switch (multiOptionQuestionType) {
       case CHECKBOX:
         return QuestionType.CHECKBOX;
       case DROPDOWN:
@@ -60,14 +74,14 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   private ImmutableSet<Locale> getSupportedOptionLocales() {
-    if (config.questionOptions().isEmpty()) {
+    if (questionOptions.isEmpty()) {
       return ImmutableSet.of();
     }
 
     // The set of locales supported by a question's options is the smallest set of supported locales
     // for a single option
     ImmutableSet<ImmutableSet<Locale>> supportedLocales =
-        config.questionOptions().stream()
+        questionOptions.stream()
             .map(option -> option.optionText().translations().keySet())
             .collect(toImmutableSet());
 
@@ -83,7 +97,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   public ImmutableList<QuestionOption> getOptions() {
-    return this.config.questionOptions();
+    return this.questionOptions;
   }
 
   /**
@@ -91,7 +105,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
    * locale, it will return the options for the default locale.
    */
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocaleOrDefault(Locale locale) {
-    return config.questionOptions().stream()
+    return questionOptions.stream()
         .map(option -> option.localizeOrDefault(locale))
         .collect(toImmutableList());
   }
@@ -118,14 +132,14 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   public ImmutableList<LocalizedQuestionOption> getOptionsForLocale(Locale locale)
       throws TranslationNotFoundException {
     if (getSupportedOptionLocales().contains(locale)) {
-      return this.config.questionOptions().stream()
+      return this.questionOptions.stream()
           .map(option -> option.localize(locale))
           .collect(toImmutableList());
     } else {
       // As in QuestionDefinition - we need to fetch "en_US" from "en".
       for (Locale supportedLocale : getSupportedOptionLocales()) {
         if (supportedLocale.getLanguage().equals(locale.getLanguage())) {
-          return this.config.questionOptions().stream()
+          return this.questionOptions.stream()
               .map(option -> option.localize(supportedLocale))
               .collect(toImmutableList());
         }
