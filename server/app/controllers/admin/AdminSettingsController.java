@@ -59,7 +59,7 @@ public class AdminSettingsController extends CiviFormController {
     var result = settingsService.updateSettings(settingUpdates, profile.get());
 
     if (result.hasErrors()) {
-      return ok(indexView.render(request));
+      return ok(indexView.render(request, result.errorMessages()));
     }
 
     Result destination = redirect(routes.AdminSettingsController.index());

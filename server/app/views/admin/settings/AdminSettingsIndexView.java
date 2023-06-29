@@ -13,6 +13,7 @@ import static play.mvc.Http.HttpVerbs.POST;
 import static services.settings.AbstractSettingsManifest.FEATURE_FLAG_SETTING_SECTION_NAME;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
@@ -25,6 +26,7 @@ import services.settings.SettingDescription;
 import services.settings.SettingMode;
 import services.settings.SettingsManifest;
 import services.settings.SettingsSection;
+import services.settings.SettingsService.SettingsGroupUpdateResult.UpdateError;
 import views.BaseHtmlView;
 import views.CiviFormMarkdown;
 import views.HtmlBundle;
@@ -33,6 +35,7 @@ import views.admin.AdminLayoutFactory;
 import views.components.FieldWithLabel;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
+import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 /** Displays application settings for the CiviForm Admin role. */
@@ -66,6 +69,11 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   }
 
   public Content render(Http.Request request) {
+    return render(request, /* errorMessages= */ Optional.empty());
+  }
+
+  public Content render(
+      Http.Request request, Optional<ImmutableMap<String, UpdateError>> errorMessages) {
     var settingsManifestContent =
         form(makeCsrfTokenInputTag(request))
             .withAction(routes.AdminSettingsController.update().url())
@@ -82,10 +90,17 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     SECTIONS.forEach(
         sectionName ->
             settingsManifestContent.with(
-                renderTopSection(request, settingsManifest.getSections().get(sectionName))));
+                renderTopSection(
+                    request, errorMessages, settingsManifest.getSections().get(sectionName))));
 
     HtmlBundle bundle = layout.getBundle().addMainContent(mainContent);
 
+    if (errorMessages.isPresent()) {
+      bundle.addToastMessages(
+          ToastMessage.error(
+              "That update didn't look quite right, please fix the errors in the form and try"
+                  + " saving again."));
+    }
     request
         .flash()
         .get("success")
@@ -117,54 +132,69 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     return container.with(subContainer);
   }
 
-  private DivTag renderTopSection(Http.Request request, SettingsSection settingsSection) {
+  private DivTag renderTopSection(
+      Http.Request request,
+      Optional<ImmutableMap<String, UpdateError>> errorMessages,
+      SettingsSection settingsSection) {
     var container = div();
 
     container.with(
         h2(settingsSection.sectionName())
             .withId(MainModule.SLUGIFIER.slugify(settingsSection.sectionName()))
             .withClasses("text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"));
-    return renderSectionContents(request, settingsSection, container);
+    return renderSectionContents(request, errorMessages, settingsSection, container);
   }
 
-  private DivTag renderSubSection(Http.Request request, SettingsSection settingsSection) {
+  private DivTag renderSubSection(
+      Http.Request request,
+      Optional<ImmutableMap<String, UpdateError>> errorMessages,
+      SettingsSection settingsSection) {
     var container = div();
 
     container.with(h3(settingsSection.sectionName()).withClasses("text-l font-bold py-2 mt-4"));
-    return renderSectionContents(request, settingsSection, container);
+    return renderSectionContents(request, errorMessages, settingsSection, container);
   }
 
   private DivTag renderSectionContents(
-      Http.Request request, SettingsSection settingsSection, DivTag container) {
+      Http.Request request,
+      Optional<ImmutableMap<String, UpdateError>> errorMessages,
+      SettingsSection settingsSection,
+      DivTag container) {
     var settingsContainer = div().withClasses(SECTION_STYLES);
     container.with(settingsContainer);
     settingsSection.settings().stream()
         .filter(SettingDescription::shouldDisplay)
         .forEach(
             settingDescription ->
-                settingsContainer.with(renderSetting(request, settingDescription)));
+                settingsContainer.with(renderSetting(request, errorMessages, settingDescription)));
 
     settingsSection.subsections().stream()
         .filter(SettingsSection::shouldDisplay)
-        .forEach(subsection -> container.with(renderSubSection(request, subsection)));
+        .forEach(
+            subsection -> container.with(renderSubSection(request, errorMessages, subsection)));
 
     return container;
   }
 
-  private DivTag renderSetting(Http.Request request, SettingDescription settingDescription) {
+  private DivTag renderSetting(
+      Http.Request request,
+      Optional<ImmutableMap<String, UpdateError>> errorMessages,
+      SettingDescription settingDescription) {
     String renderedDescriptionHtml =
         civiFormMarkdown.render(settingDescription.settingDescription());
 
     return div(
             div(settingDescription.variableName()).withClasses("font-semibold", "break-all"),
             div(rawHtml(renderedDescriptionHtml)).withClasses("text-sm"),
-            renderSettingInput(request, settingDescription))
+            renderSettingInput(request, errorMessages, settingDescription))
         .withData("testid", String.format("%s-container", settingDescription.variableName()))
         .withClasses("max-w-md");
   }
 
   private DomContent renderSettingInput(
-      Http.Request request, SettingDescription settingDescription) {
+      Http.Request request,
+      Optional<ImmutableMap<String, UpdateError>> errorMessages,
+      SettingDescription settingDescription) {
     Optional<String> value =
         settingsManifest
             .getSettingDisplayValue(request, settingDescription)
@@ -182,7 +212,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       case BOOLEAN:
         return renderBoolInput(settingDescription, value);
       case STRING:
-        return renderStringInput(settingDescription, value);
+        return renderStringInput(settingDescription, value, errorMessages);
       case ENUM:
         return renderEnumInput(settingDescription, value);
       default:
@@ -193,12 +223,24 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   }
 
   private static DivTag renderStringInput(
-      SettingDescription settingDescription, Optional<String> value) {
+      SettingDescription settingDescription,
+      Optional<String> value,
+      Optional<ImmutableMap<String, UpdateError>> maybeErrorMessages) {
+    var maybeUpdateError =
+        maybeErrorMessages.flatMap(
+            errorMessages ->
+                Optional.ofNullable(
+                    errorMessages.getOrDefault(settingDescription.variableName(), null)));
+    var errors =
+        maybeUpdateError.map(
+            updateError ->
+                div(updateError.errorMessage()).withClasses(BaseStyles.FORM_ERROR_TEXT_XS));
     return div(FieldWithLabel.input()
             .setFieldName(settingDescription.variableName())
-            .setValue(value.orElse(""))
+            .setValue(maybeUpdateError.map(UpdateError::updatedValue).orElse(value.orElse("")))
             .setPlaceholderText("empty")
-            .getInputTag())
+            .getInputTag()
+            .with(errors.orElse(null)))
         .withClasses("mt-2");
   }
 

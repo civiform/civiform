@@ -1316,7 +1316,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " more resources. Shown when the applicant is not eligible for any"
                           + " programs in CiviForm.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE,
+                      Pattern.compile("^(http://|https://)")))),
           "Observability",
           SettingsSection.create(
               "Observability",

@@ -115,9 +115,10 @@ public final class SettingsService {
 
   private static final ImmutableSet<String> BOOLEAN_VALUES = ImmutableSet.of("true", "false");
 
-  private ImmutableMap<String, ImmutableList<String>> validateSettings(
+  private ImmutableMap<String, SettingsGroupUpdateResult.UpdateError> validateSettings(
       ImmutableMap<String, String> newSettings, ImmutableMap<String, String> existingSettings) {
-    ImmutableMap.Builder<String, ImmutableList<String>> validationErrors = ImmutableMap.builder();
+    ImmutableMap.Builder<String, SettingsGroupUpdateResult.UpdateError> validationErrors =
+        ImmutableMap.builder();
     ImmutableList<SettingDescription> settingDescriptions =
         settingsManifest.getAllAdminWriteableSettingDescriptions();
 
@@ -144,10 +145,11 @@ public final class SettingsService {
 
                 case STRING:
                   {
-                    ImmutableList<String> errors = validateString(settingDescription, newValue);
+                    Optional<SettingsGroupUpdateResult.UpdateError> error =
+                        validateString(settingDescription, newValue);
 
-                    if (!errors.isEmpty()) {
-                      validationErrors.put(settingDescription.variableName(), errors);
+                    if (error.isPresent()) {
+                      validationErrors.put(settingDescription.variableName(), error.get());
                     }
                     break;
                   }
@@ -163,21 +165,26 @@ public final class SettingsService {
     return validationErrors.build();
   }
 
-  private static ImmutableList<String> validateString(
+  private static Optional<SettingsGroupUpdateResult.UpdateError> validateString(
       SettingDescription settingDescription, String value) {
     if (settingDescription.allowableValues().isPresent()
         && !settingDescription.allowableValues().get().contains(value)) {
-      return ImmutableList.of(
-          "Must be one of %s", Joiner.on(", ").join(settingDescription.allowableValues().get()));
+      throw new BadRequestException(
+          String.format(
+              "Invalid enum value: %s, must be one of %s",
+              value, Joiner.on(", ").join(settingDescription.allowableValues().get())));
     }
 
     if (settingDescription.validationRegex().isPresent()
         && !settingDescription.validationRegex().get().asMatchPredicate().test(value)) {
-      return ImmutableList.of(
-          "Invalid input, must match %s", settingDescription.validationRegex().get().toString());
+      return Optional.of(
+          SettingsGroupUpdateResult.UpdateError.create(
+              value,
+              String.format(
+                  "Invalid input, must match %s", settingDescription.validationRegex().get())));
     }
 
-    return ImmutableList.of();
+    return Optional.empty();
   }
 
   /**
@@ -230,7 +237,7 @@ public final class SettingsService {
     }
 
     public static SettingsGroupUpdateResult withErrors(
-        ImmutableMap<String, ImmutableList<String>> errorMessages) {
+        ImmutableMap<String, UpdateError> errorMessages) {
       return new AutoValue_SettingsService_SettingsGroupUpdateResult(
           Optional.of(errorMessages), /* updated= */ false);
     }
@@ -240,12 +247,25 @@ public final class SettingsService {
           /* errorMessages= */ Optional.empty(), /* updated= */ false);
     }
 
-    public abstract Optional<ImmutableMap<String, ImmutableList<String>>> errorMessages();
+    public abstract Optional<ImmutableMap<String, UpdateError>> errorMessages();
 
     public abstract boolean updated();
 
     public boolean hasErrors() {
       return errorMessages().isPresent();
+    }
+
+    @AutoValue
+    public abstract static class UpdateError {
+
+      public static UpdateError create(String updatedValue, String errorMessage) {
+        return new AutoValue_SettingsService_SettingsGroupUpdateResult_UpdateError(
+            updatedValue, errorMessage);
+      }
+
+      public abstract String updatedValue();
+
+      public abstract String errorMessage();
     }
   }
 }
