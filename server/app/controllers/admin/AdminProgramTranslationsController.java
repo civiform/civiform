@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
@@ -83,7 +82,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
-        request.flash().get("error").map(m -> new ToastMessage(m, ERROR));
+        request.flash().get("error").map(m -> ToastMessage.errorNonLocalized(m));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));
@@ -130,7 +129,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
           .flashing("error", e.userFacingMessage());
     }
     if (result.isError()) {
-      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
               request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));

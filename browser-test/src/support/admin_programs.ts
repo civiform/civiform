@@ -411,6 +411,7 @@ export class AdminPrograms {
     expect(toastMessages).toContain(
       'does not have an admin account and cannot be added as a Program Admin.',
     )
+    expect(toastMessages).toContain('Error: ')
   }
 
   async expectEditVisibilityPredicatePage(blockName: string) {

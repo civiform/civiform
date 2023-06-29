@@ -2,7 +2,6 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
-import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.GuestClient;
@@ -210,7 +209,7 @@ public final class RedirectController extends CiviFormController {
         .thenApplyAsync(
             maybeEligiblePrograms -> {
               Optional<ToastMessage> toastMessage =
-                  request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+                  request.flash().get("banner").map(m -> ToastMessage.alert(m));
 
               if (isCommonIntake.join()) {
                 return ok(

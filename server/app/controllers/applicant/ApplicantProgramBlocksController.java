@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static views.components.ToastMessage.ToastType.SUCCESS;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -298,7 +297,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         this.applicantService.getPersonalInfo(applicantId);
 
     Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
+        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
 
     return applicantStage
         .thenComposeAsync(

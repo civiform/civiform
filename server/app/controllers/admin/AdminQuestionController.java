@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
@@ -160,7 +159,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -300,7 +299,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       ToastMessage errorMessage =
-          new ToastMessage(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), ERROR);
+          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(

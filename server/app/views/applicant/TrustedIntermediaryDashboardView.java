@@ -90,7 +90,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (flash.get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
-      bundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+      bundle.addToastMessages(
+          ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
     } else if (flash.get("success").isPresent()) {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }

@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
@@ -146,7 +145,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(definitionWithUpdates);
 
                 if (result.isError()) {
-                  ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+                  ToastMessage message =
+                      ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
                   return ok(
                       translationView.renderErrors(
                           request, localeToUpdate, definitionWithUpdates, message));

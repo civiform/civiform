@@ -196,7 +196,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     // Add toast messages
-    request.flash().get("error").map(ToastMessage::error).ifPresent(htmlBundle::addToastMessages);
+    request
+        .flash()
+        .get("error")
+        .map(ToastMessage::errorNonLocalized)
+        .ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
