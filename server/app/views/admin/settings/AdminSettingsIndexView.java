@@ -226,15 +226,16 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       SettingDescription settingDescription,
       Optional<String> value,
       Optional<ImmutableMap<String, UpdateError>> maybeErrorMessages) {
-    var maybeUpdateError =
+    Optional<UpdateError> maybeUpdateError =
         maybeErrorMessages.flatMap(
             errorMessages ->
                 Optional.ofNullable(
                     errorMessages.getOrDefault(settingDescription.variableName(), null)));
-    var errors =
+    Optional<DivTag> errors =
         maybeUpdateError.map(
             updateError ->
                 div(updateError.errorMessage()).withClasses(BaseStyles.FORM_ERROR_TEXT_XS));
+
     return div(FieldWithLabel.input()
             .setFieldName(settingDescription.variableName())
             .setValue(maybeUpdateError.map(UpdateError::updatedValue).orElse(value.orElse("")))
@@ -246,7 +247,6 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private static DivTag renderEnumInput(
       SettingDescription settingDescription, Optional<String> value) {
-    System.out.println(settingDescription.variableName());
     return div(new SelectWithLabel()
             .setOptions(
                 settingDescription.allowableValues().get().stream()

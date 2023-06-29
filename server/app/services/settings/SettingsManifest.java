@@ -1533,6 +1533,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " If \"FORWARDED\" then request has been reverse proxied and the"
                           + " originating IP address is stored in the X-Forwarded-For header.",
                       SettingType.ENUM,
-                      SettingMode.ADMIN_WRITEABLE,
+                      SettingMode.ADMIN_READABLE,
                       ImmutableList.of("DIRECT", "FORWARDED")))));
 }
