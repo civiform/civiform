@@ -77,7 +77,7 @@ public final class ProgramAdminManagementController {
         return result;
       }
 
-      ToastMessage message = ToastMessage.error(maybeError.get().message(), false);
+      ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
       return this.loadProgram(request, programId, Optional.of(message));
 
     } catch (ProgramNotFoundException e) {

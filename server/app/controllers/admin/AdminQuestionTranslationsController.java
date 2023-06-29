@@ -145,7 +145,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(definitionWithUpdates);
 
                 if (result.isError()) {
-                  ToastMessage message = ToastMessage.error(joinErrors(result.getErrors()), false);
+                  ToastMessage message =
+                      ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
                   return ok(
                       translationView.renderErrors(
                           request, localeToUpdate, definitionWithUpdates, message));

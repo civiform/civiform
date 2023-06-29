@@ -73,7 +73,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       String error = request.flash().get("error").get();
       htmlBundle.addToastMessages(
-          ToastMessage.error(error, false)
+          ToastMessage.errorNonLocalized(error)
               .setId("warning-message-ti-form-fill")
               .setIgnorable(false)
               .setDuration(0));

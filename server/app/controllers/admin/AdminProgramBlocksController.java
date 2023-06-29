@@ -133,7 +133,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               ? program.getLastBlockDefinition()
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
-        ToastMessage message = ToastMessage.error(joinErrors(result.getErrors()), false);
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
@@ -194,7 +194,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           programService.updateBlock(programId, blockId, blockForm);
       if (result.isError()) {
-        ToastMessage message = ToastMessage.error(joinErrors(result.getErrors()), false);
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }

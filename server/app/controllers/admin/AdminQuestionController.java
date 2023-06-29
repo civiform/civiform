@@ -159,7 +159,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.error(joinErrors(result.getErrors()), false);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -299,7 +299,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       ToastMessage errorMessage =
-          ToastMessage.error(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), false);
+          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(

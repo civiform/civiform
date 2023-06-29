@@ -5,6 +5,8 @@ import static j2html.TagCreator.div;
 
 import j2html.tags.specialized.DivTag;
 import java.util.UUID;
+import play.i18n.Messages;
+import services.MessageKey;
 import views.style.ReferenceClasses;
 
 /** ToastMessages are messages that appear on the screen to show information to the user. */
@@ -44,9 +46,14 @@ public final class ToastMessage {
     return new ToastMessage(message, ToastType.ALERT);
   }
 
-  public static ToastMessage error(String message, boolean isLocalized) {
-    if (!isLocalized) message = "Error: " + message;
-    return new ToastMessage(message, ToastType.ERROR);
+  public static ToastMessage error(String message, Messages messages) {
+    String errMessageWithPrefix =
+        messages.at(MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(), message);
+    return new ToastMessage(errMessageWithPrefix, ToastType.ERROR);
+  }
+
+  public static ToastMessage errorNonLocalized(String message) {
+    return new ToastMessage("Error: " + message, ToastType.ERROR);
   }
 
   public static ToastMessage success(String message) {

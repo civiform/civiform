@@ -82,7 +82,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
-        request.flash().get("error").map(m -> ToastMessage.error(m, false));
+        request.flash().get("error").map(m -> ToastMessage.errorNonLocalized(m));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));
@@ -129,7 +129,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
           .flashing("error", e.userFacingMessage());
     }
     if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.error(joinErrors(result.getErrors()), false);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
               request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));

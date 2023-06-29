@@ -126,7 +126,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .request()
         .flash()
         .get("error")
-        .map(msg -> ToastMessage.error(msg, true))
+        .map(msg -> ToastMessage.error(msg, messages))
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =

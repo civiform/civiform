@@ -267,19 +267,17 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 if (cause instanceof ApplicationSubmissionException) {
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
-                  Messages msgProvider = messagesApi.preferred(request);
                   String errorMsg =
-                      msgProvider.at(
-                          MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(),
-                          msgProvider.at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName()));
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.BANNER_ERROR_SAVING_APPLICATION.getKeyName());
                   return found(reviewPage).flashing("banner", errorMsg);
                 }
                 if (cause instanceof ApplicationOutOfDateException) {
-                  Messages msgProvider = messagesApi.preferred(request);
                   String errorMsg =
-                      msgProvider.at(
-                          MessageKey.TOAST_ERROR_MSG_OUTLINE.getKeyName(),
-                          msgProvider.at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName()));
+                      messagesApi
+                          .preferred(request)
+                          .at(MessageKey.TOAST_APPLICATION_OUT_OF_DATE.getKeyName());
                   Call reviewPage =
                       routes.ApplicantProgramReviewController.review(applicantId, programId);
                   return redirect(reviewPage).flashing("error", errorMsg);

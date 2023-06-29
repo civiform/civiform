@@ -176,8 +176,7 @@ public enum MessageKey {
   TOAST_PROGRAM_COMPLETED("toast.programCompleted"),
   TOAST_SESSION_ENDED("toast.sessionEnded"),
   USER_NAME("header.userName"),
-  VALIDATION_REQUIRED("validation.isRequired"),
-  TOAST_ERROR_MSG_OUTLINE("toast.errorMessageOutline");
+  VALIDATION_REQUIRED("validation.isRequired");
 
   private final String keyName;
 

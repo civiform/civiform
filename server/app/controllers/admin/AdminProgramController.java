@@ -114,7 +114,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
-      ToastMessage message = ToastMessage.error(joinErrors(errors), false);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
     }
 
@@ -148,7 +148,7 @@ public final class AdminProgramController extends CiviFormController {
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
-      ToastMessage message = ToastMessage.error(joinErrors(result.getErrors()), false);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(newOneView.render(request, programData, message));
     }
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
@@ -235,7 +235,7 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
-      ToastMessage message = ToastMessage.error(joinErrors(validationErrors), false);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(editView.render(request, programDefinition, programData, message));
     }
 
