@@ -10,8 +10,8 @@ import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.AddressQuestionDefinition.AddressValidationPredicates;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition.NameValidationPredicates;
 import services.question.types.PhoneQuestionDefinition.PhoneValidationPredicates;
 import services.question.types.QuestionDefinition.ValidationPredicates;
@@ -189,19 +189,20 @@ public final class QuestionDefinitionBuilder {
               MultiOptionValidationPredicates.parse(validationPredicatesString);
         }
 
-        return new MultiOptionQuestionDefinition(
-            MultiOptionQuestionDefinitionConfig.builder()
-                .setMultiOptionQuestionType(MultiOptionQuestionType.CHECKBOX)
-                .setId(id)
+        QuestionDefinitionConfig checkboxConfig =
+            QuestionDefinitionConfig.builder()
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
-                .setQuestionOptions(questionOptions)
                 .setValidationPredicates(multiOptionValidationPredicates)
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
-                .build());
+                .build();
+
+        return new MultiOptionQuestionDefinition(
+            checkboxConfig, questionOptions, MultiOptionQuestionType.CHECKBOX);
 
       case CURRENCY:
         return new CurrencyQuestionDefinition(
@@ -231,18 +232,20 @@ public final class QuestionDefinitionBuilder {
                 .build());
 
       case DROPDOWN:
-        return new MultiOptionQuestionDefinition(
-            MultiOptionQuestionDefinitionConfig.builder()
-                .setMultiOptionQuestionType(MultiOptionQuestionType.DROPDOWN)
-                .setId(id)
+        QuestionDefinitionConfig dropdownConfig =
+            QuestionDefinitionConfig.builder()
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
-                .setQuestionOptions(questionOptions)
+                .setValidationPredicates(MultiOptionValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
-                .build());
+                .build();
+
+        return new MultiOptionQuestionDefinition(
+            dropdownConfig, questionOptions, MultiOptionQuestionType.DROPDOWN);
 
       case EMAIL:
         return new EmailQuestionDefinition(
@@ -325,18 +328,20 @@ public final class QuestionDefinitionBuilder {
                 .build());
 
       case RADIO_BUTTON:
-        return new MultiOptionQuestionDefinition(
-            MultiOptionQuestionDefinitionConfig.builder()
-                .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
-                .setId(id)
+        QuestionDefinitionConfig radioButtonConfig =
+            QuestionDefinitionConfig.builder()
                 .setName(name)
-                .setEnumeratorId(enumeratorId)
                 .setDescription(description)
                 .setQuestionText(questionText)
                 .setQuestionHelpText(questionHelpText)
-                .setQuestionOptions(questionOptions)
+                .setValidationPredicates(MultiOptionValidationPredicates.create())
+                .setId(id)
+                .setEnumeratorId(enumeratorId)
                 .setLastModifiedTime(lastModifiedTime)
-                .build());
+                .build();
+
+        return new MultiOptionQuestionDefinition(
+            radioButtonConfig, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
 
       case ENUMERATOR:
         // This shouldn't happen, but protects us in case there are enumerator questions in the prod

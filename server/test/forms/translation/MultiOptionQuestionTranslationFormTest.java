@@ -9,26 +9,29 @@ import services.LocalizedStrings;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinitionConfig;
-import services.question.types.MultiOptionQuestionDefinitionConfig.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 
 public class MultiOptionQuestionTranslationFormTest {
 
   @Test
   public void buildsQuestion_newLocale_savesUpdates() throws Exception {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("test")
             .setDescription("desc")
             .setQuestionText(LocalizedStrings.empty())
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.withDefaultValue("other"))))
+            .setValidationPredicates(
+                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue("other"))),
+            MultiOptionQuestionType.RADIO_BUTTON);
 
     MultiOptionQuestionTranslationForm form = new MultiOptionQuestionTranslationForm();
     form.setOptions(ImmutableList.of("new"));
@@ -41,18 +44,20 @@ public class MultiOptionQuestionTranslationFormTest {
 
   @Test
   public void buildsQuestion_existingLocale_savesUpdates() throws Exception {
-    MultiOptionQuestionDefinitionConfig config =
-        MultiOptionQuestionDefinitionConfig.builder()
-            .setMultiOptionQuestionType(MultiOptionQuestionType.RADIO_BUTTON)
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
             .setName("test")
             .setDescription("desc")
             .setQuestionText(LocalizedStrings.empty())
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setQuestionOptions(
-                ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.of(Locale.FRANCE, "existing"))))
+            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
-    QuestionDefinition question = new MultiOptionQuestionDefinition(config);
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(
+                QuestionOption.create(1L, LocalizedStrings.of(Locale.FRANCE, "existing"))),
+            MultiOptionQuestionType.RADIO_BUTTON);
 
     MultiOptionQuestionTranslationForm form = new MultiOptionQuestionTranslationForm();
     form.setOptions(ImmutableList.of("new"));

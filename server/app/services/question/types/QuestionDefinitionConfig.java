@@ -32,9 +32,13 @@ public abstract class QuestionDefinitionConfig {
 
   abstract Optional<Instant> lastModifiedTime();
 
+  /** Used to create a new {@link QuestionDefinitionConfig} */
   public static RequiredName builder() {
     return new AutoValue_QuestionDefinitionConfig.Builder();
   }
+
+  /** Used to create a new {@link QuestionDefinitionConfig.Builder} based on an existing one. */
+  public abstract Builder toBuilder();
 
   public interface RequiredName {
     RequiredDescription setName(String name);

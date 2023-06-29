@@ -121,6 +121,10 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected boolean getBool(String settingName, Http.Request request) {
+    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+      return getBool(settingName);
+    }
+
     var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
 
     return writableSettings.containsKey(settingName)

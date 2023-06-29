@@ -23,6 +23,7 @@ validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
 content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
+toast.errorMessageOutline=Error: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #

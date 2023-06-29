@@ -57,7 +57,7 @@ public class SettingsManifestTest {
       ConfigFactory.parseMap(
           ImmutableMap.of(
               "bool_variable",
-              true,
+              false,
               "string_variable",
               "my-var",
               "list_of_strings_variable",
@@ -72,7 +72,7 @@ public class SettingsManifestTest {
           .build()
           .withAttrs(
               TypedMap.empty()
-                  .put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of("bool_variable", "true")));
+                  .put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of("BOOL_VARIABLE", "true")));
 
   private static ImmutableMap<String, SettingsSection> SECTIONS =
       ImmutableMap.of(
@@ -113,5 +113,10 @@ public class SettingsManifestTest {
         .isEqualTo(Optional.of("foo"));
     assertThat(testManifest.getSettingDisplayValue(REQUEST, UNSET_STRING_VARIABLE))
         .isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void getBool_noAttrsInRequest_returnsHoconValue() {
+    assertThat(testManifest.getBool("BOOL_VARIABLE", new FakeRequestBuilder().build())).isFalse();
   }
 }
