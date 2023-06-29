@@ -131,9 +131,9 @@ public final class SettingsService {
         different.entriesOnlyOnLeft().entrySet().stream()
             .map(
                 entry ->
-                        Pair.of(
-                            getSettingDescription(settingDescriptions, entry.getKey()),
-                            entry.getValue()));
+                    Pair.of(
+                        getSettingDescription(settingDescriptions, entry.getKey()),
+                        entry.getValue()));
 
     Stream<Pair<SettingDescription, String>> changedEntries =
         different.entriesDiffering().entrySet().stream()
