@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   gotoEndpoint,
   loginAsAdmin,
   loginAsTestUser,
@@ -18,8 +17,6 @@ describe('navigating to a deep link', () => {
 
   beforeEach(async () => {
     const {page, adminQuestions, adminPrograms} = ctx
-
-    await enableFeatureFlag(page, 'bypass_login_language_screens')
 
     // Arrange
     await loginAsAdmin(page)

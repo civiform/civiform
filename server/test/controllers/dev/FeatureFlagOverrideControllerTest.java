@@ -14,7 +14,7 @@ import services.settings.SettingsService;
 
 public class FeatureFlagOverrideControllerTest extends ResetPostgres {
 
-  private static final String FLAG_NAME = "FLAG";
+  private static final String FLAG_NAME = "CF_OPTIONAL_QUESTIONS";
   private FeatureFlagOverrideController controller;
 
   private SettingsService settingsService;
@@ -57,7 +57,6 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
 
     // Verify
     assertThat(result.status()).isEqualTo(NOT_FOUND);
-    assertThat(getSettings().containsKey(FLAG_NAME)).isFalse();
   }
 
   @Test

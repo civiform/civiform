@@ -191,7 +191,11 @@ public final class SettingsService {
     return settingDescriptions.stream()
         .filter((sd) -> sd.variableName().equals(variableName))
         .findFirst()
-        .orElseThrow();
+        .orElseThrow(
+            () ->
+                new IllegalStateException(
+                    String.format(
+                        "No SettingDescription found in SettingsManifest for %s", variableName)));
   }
 
   private static void validateEnum(SettingDescription settingDescription, String value) {
