@@ -9,11 +9,14 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.stream.Stream;
 import models.SettingsGroup;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.typedmap.TypedKey;
@@ -122,16 +125,30 @@ public final class SettingsService {
     ImmutableList<SettingDescription> settingDescriptions =
         settingsManifest.getAllAdminWriteableSettingDescriptions();
 
-    Maps.difference(newSettings, existingSettings).entriesDiffering().entrySet().stream()
+    var different = Maps.difference(newSettings, existingSettings);
+
+    Stream<Pair<SettingDescription, String>> newEntries =
+        different.entriesOnlyOnLeft().entrySet().stream()
+            .map(
+                entry ->
+                    Pair.of(
+                        Pair.of(
+                            getSettingDescription(settingDescriptions, entry.getKey()),
+                            entry.getValue())));
+
+    Stream<Pair<SettingDescription, String>> changedEntries =
+        different.entriesDiffering().entrySet().stream()
+            .map(
+                entry ->
+                    Pair.of(
+                        getSettingDescription(settingDescriptions, entry.getKey()),
+                        entry.getValue().leftValue()));
+
+    Streams.concat(newEntries, changedEntries)
         .forEach(
-            entry -> {
-              String variableName = entry.getKey();
-              SettingDescription settingDescription =
-                  settingDescriptions.stream()
-                      .filter((sd) -> sd.variableName().equals(variableName))
-                      .findFirst()
-                      .orElseThrow();
-              String newValue = entry.getValue().leftValue();
+            pair -> {
+              SettingDescription settingDescription = pair.getLeft();
+              String newValue = pair.getRight();
 
               switch (settingDescription.settingType()) {
                 case BOOLEAN:
@@ -142,6 +159,10 @@ public final class SettingsService {
                     }
                     break;
                   }
+
+                case ENUM:
+                  validateEnum(settingDescription, newValue);
+                  break;
 
                 case STRING:
                   {
@@ -165,16 +186,26 @@ public final class SettingsService {
     return validationErrors.build();
   }
 
-  private static Optional<SettingsGroupUpdateResult.UpdateError> validateString(
-      SettingDescription settingDescription, String value) {
-    if (settingDescription.allowableValues().isPresent()
-        && !settingDescription.allowableValues().get().contains(value)) {
+  private static SettingDescription getSettingDescription(
+      ImmutableList<SettingDescription> settingDescriptions, String variableName) {
+    return settingDescriptions.stream()
+        .filter((sd) -> sd.variableName().equals(variableName))
+        .findFirst()
+        .orElseThrow();
+  }
+
+  private static void validateEnum(SettingDescription settingDescription, String value) {
+    if (!settingDescription.allowableValues().get().contains(value)) {
+      System.out.println("IN HERE");
       throw new BadRequestException(
           String.format(
               "Invalid enum value: %s, must be one of %s",
               value, Joiner.on(", ").join(settingDescription.allowableValues().get())));
     }
+  }
 
+  private static Optional<SettingsGroupUpdateResult.UpdateError> validateString(
+      SettingDescription settingDescription, String value) {
     if (settingDescription.validationRegex().isPresent()
         && !settingDescription.validationRegex().get().asMatchPredicate().test(value)) {
       return Optional.of(

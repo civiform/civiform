@@ -1,6 +1,7 @@
 package services.settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Pattern;
 import models.SettingsGroup;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +25,9 @@ public class SettingsServiceTest extends ResetPostgres {
 
   public static final String TEST_AUTHORITY_ID = "test-id";
   private SettingsService settingsService;
-  private static ImmutableMap<String, String> TEST_SETTINGS = ImmutableMap.of("TEST_BOOL", "true");
+  private static ImmutableMap<String, String> TEST_SETTINGS =
+      ImmutableMap.of(
+          "TEST_BOOL", "true", "TEST_ENUM", "test-2", "TEST_REGEX_VALIDATED_STRING", "test");
   private SettingsManifest testManifest =
       new SettingsManifest(
           ImmutableMap.of(
@@ -42,9 +46,29 @@ public class SettingsServiceTest extends ResetPostgres {
                           "TEST_BOOL_READABLE",
                           "test description",
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE)))),
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "TEST_ENUM",
+                          "test enum",
+                          SettingType.ENUM,
+                          SettingMode.ADMIN_WRITEABLE,
+                          ImmutableList.of("test", "test-2")),
+                      SettingDescription.create(
+                          "TEST_REGEX_VALIDATED_STRING",
+                          "test regex validated",
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE,
+                          Pattern.compile("^test$"))))),
           ConfigFactory.parseMap(
-              ImmutableMap.of("test_bool", "true", "test_bool_readable", "false")));
+              ImmutableMap.of(
+                  "test_bool",
+                  "true",
+                  "test_bool_readable",
+                  "false",
+                  "test_enum",
+                  "test-2",
+                  "test_regex_validated_string",
+                  "test")));
 
   private CiviFormProfile testProfile;
 
@@ -104,6 +128,39 @@ public class SettingsServiceTest extends ResetPostgres {
     var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
 
     assertThat(settingsService.updateSettings(initialSettings, testProfile).updated()).isFalse();
+    assertThat(settingsService.loadSettings().toCompletableFuture().join().get())
+        .isEqualTo(initialSettings);
+  }
+
+  @Test
+  public void updateSettings_enumInvalid_doesNotInsertANewSettingsGroup() {
+    var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
+
+    var result =
+        assertThatThrownBy(
+            () ->
+                settingsService.updateSettings(
+                    ImmutableMap.of("TEST_ENUM", "invalid"), testProfile));
+
+    result.message().isEqualTo("Invalid enum value: invalid, must be one of test, test-2");
+    assertThat(settingsService.loadSettings().toCompletableFuture().join().get())
+        .isEqualTo(initialSettings);
+  }
+
+  @Test
+  public void updateSettings_stringNotMatchingRegex_doesNotInsertANewSettingsGroup() {
+    var initialSettings = settingsService.loadSettings().toCompletableFuture().join().get();
+
+    var result =
+        settingsService.updateSettings(
+            ImmutableMap.of("TEST_REGEX_VALIDATED_STRING", "invalid"), testProfile);
+
+    assertThat(result.updated()).isFalse();
+    assertThat(result.errorMessages().get().get("TEST_REGEX_VALIDATED_STRING"))
+        .isEqualTo(
+            SettingsService.SettingsGroupUpdateResult.UpdateError.create(
+                "invalid", "Invalid input, must match ^test$"));
+
     assertThat(settingsService.loadSettings().toCompletableFuture().join().get())
         .isEqualTo(initialSettings);
   }
