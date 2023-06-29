@@ -26,8 +26,6 @@ public class StaticContentQuestionTest extends ResetPostgres {
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
               .setQuestionHelpText(LocalizedStrings.empty())
-              .setValidationPredicates(
-                  StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

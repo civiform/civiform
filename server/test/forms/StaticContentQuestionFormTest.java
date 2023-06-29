@@ -27,8 +27,6 @@ public class StaticContentQuestionFormTest {
                 .setQuestionText(
                     LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .build());
 
     assertThat(actual).isEqualTo(expected);
@@ -44,8 +42,6 @@ public class StaticContentQuestionFormTest {
                 .setQuestionText(
                     LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                 .build());
 
     StaticContentQuestionForm form = new StaticContentQuestionForm(originalQd);

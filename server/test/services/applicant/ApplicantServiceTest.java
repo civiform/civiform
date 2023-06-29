@@ -508,8 +508,6 @@ public class ApplicantServiceTest extends ResetPostgres {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
 
     ImmutableList<QuestionOption> questionOptions =
@@ -835,8 +833,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         .setDescription("description")
                         .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                         .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                        .setValidationPredicates(
-                            FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
                         .build()))
             .getResult();
 
@@ -2954,8 +2950,6 @@ public class ApplicantServiceTest extends ResetPostgres {
                         .setDescription("description")
                         .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                         .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                        .setValidationPredicates(
-                            NameQuestionDefinition.NameValidationPredicates.create())
                         .build()))
             .getResult();
   }

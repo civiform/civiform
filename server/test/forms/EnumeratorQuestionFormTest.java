@@ -27,8 +27,6 @@ public class EnumeratorQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
                 .build(),
             LocalizedStrings.empty());
 
@@ -46,8 +44,6 @@ public class EnumeratorQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
                 .build(),
             LocalizedStrings.empty());
 

@@ -26,8 +26,6 @@ public class SingleSelectQuestionTest {
           .setDescription("description")
           .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
           .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-          .setValidationPredicates(
-              MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
           .setId(OptionalLong.of(1))
           .setLastModifiedTime(Optional.empty())
           .build();

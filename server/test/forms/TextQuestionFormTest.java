@@ -30,7 +30,6 @@ public class TextQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setValidationPredicates(
                     TextQuestionDefinition.TextValidationPredicates.create(4, 6))
                 .build());
@@ -49,7 +48,6 @@ public class TextQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setValidationPredicates(
                     TextQuestionDefinition.TextValidationPredicates.create(4, 6))
                 .build());
@@ -80,7 +78,6 @@ public class TextQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();

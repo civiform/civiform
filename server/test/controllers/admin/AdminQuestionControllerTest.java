@@ -363,8 +363,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .setQuestionText(
                 LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
@@ -405,8 +403,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .setQuestionText(
                 LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
 
     ImmutableList<QuestionOption> questionOptions =
@@ -515,7 +511,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .setDescription(def.getDescription())
             .setQuestionText(def.getQuestionText())
             .setQuestionHelpText(def.getQuestionHelpText())
-            .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
             .build());
   }
 }

@@ -42,7 +42,6 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -143,8 +142,6 @@ public class DatabaseSeedController extends Controller {
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        AddressQuestionDefinition.AddressValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -158,8 +155,6 @@ public class DatabaseSeedController extends Controller {
                 LocalizedStrings.withDefaultValue(
                     "Which of the following kitchen instruments do you own?"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
@@ -184,8 +179,6 @@ public class DatabaseSeedController extends Controller {
                         LocalizedStrings.withDefaultValue(
                             "How much should a scoop of ice cream cost?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -200,8 +193,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
                     .setQuestionHelpText(
                         LocalizedStrings.withDefaultValue("help text for $this's birthday"))
-                    .setValidationPredicates(
-                        DateQuestionDefinition.DateValidationPredicates.create())
                     .setEnumeratorId(Optional.of(enumeratorId))
                     .build()))
         .getResult();
@@ -218,8 +209,6 @@ public class DatabaseSeedController extends Controller {
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        DateQuestionDefinition.DateValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -233,7 +222,6 @@ public class DatabaseSeedController extends Controller {
                 LocalizedStrings.withDefaultValue(
                     "Select your favorite ice cream flavor from the following"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
@@ -257,8 +245,6 @@ public class DatabaseSeedController extends Controller {
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        EmailQuestionDefinition.EmailValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -273,8 +259,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("List all members of your household."))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
                     .build(),
                 LocalizedStrings.withDefaultValue("household member")))
         .getResult();
@@ -290,8 +274,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("Upload anything from your computer"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -306,7 +288,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -321,8 +302,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("How many pets do you have?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        NumberQuestionDefinition.NumberValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -334,8 +313,6 @@ public class DatabaseSeedController extends Controller {
             .setDescription("favorite season in the year")
             .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite season?"))
             .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
 
     ImmutableList<QuestionOption> questionOptions =
@@ -368,8 +345,6 @@ public class DatabaseSeedController extends Controller {
                                 + "### What are the eligibility requirements? \n"
                                 + ">You are 18 years or older."))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
-                    .setValidationPredicates(
-                        StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -384,8 +359,6 @@ public class DatabaseSeedController extends Controller {
                     .setQuestionText(
                         LocalizedStrings.withDefaultValue("What is your favorite color?"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        TextQuestionDefinition.TextValidationPredicates.create())
                     .build()))
         .getResult();
   }
@@ -399,8 +372,6 @@ public class DatabaseSeedController extends Controller {
                     .setDescription("description")
                     .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
                     .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .setValidationPredicates(
-                        PhoneQuestionDefinition.PhoneValidationPredicates.create())
                     .build()))
         .getResult();
   }

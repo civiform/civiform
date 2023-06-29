@@ -24,7 +24,7 @@ public abstract class QuestionDefinitionConfig {
 
   abstract LocalizedStrings questionHelpText();
 
-  abstract QuestionDefinition.ValidationPredicates validationPredicates();
+  abstract Optional<QuestionDefinition.ValidationPredicates> validationPredicates();
 
   abstract OptionalLong id();
 
@@ -53,20 +53,12 @@ public abstract class QuestionDefinitionConfig {
   }
 
   public interface RequiredQuestionHelpText {
-    RequiredValidationPredicates setQuestionHelpText(LocalizedStrings questionHelpText);
-  }
-
-  public interface RequiredValidationPredicates {
-    Builder setValidationPredicates(QuestionDefinition.ValidationPredicates validationPredicates);
+    Builder setQuestionHelpText(LocalizedStrings questionHelpText);
   }
 
   @AutoValue.Builder
   public abstract static class Builder
-      implements RequiredName,
-          RequiredDescription,
-          RequiredQuestionText,
-          RequiredQuestionHelpText,
-          RequiredValidationPredicates {
+      implements RequiredName, RequiredDescription, RequiredQuestionText, RequiredQuestionHelpText {
     public abstract Builder setId(long id);
 
     public abstract Builder setId(OptionalLong id);
@@ -78,6 +70,9 @@ public abstract class QuestionDefinitionConfig {
     public abstract Builder setLastModifiedTime(Instant lastModifiedTime);
 
     public abstract Builder setLastModifiedTime(Optional<Instant> lastModifiedTime);
+
+    public abstract Builder setValidationPredicates(
+        QuestionDefinition.ValidationPredicates validationPredicates);
 
     public abstract QuestionDefinitionConfig build();
   }

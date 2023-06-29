@@ -28,8 +28,6 @@ public class CurrencyQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -46,8 +44,6 @@ public class CurrencyQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    CurrencyQuestionDefinition.CurrencyValidationPredicates.create())
                 .build());
 
     CurrencyQuestionForm form = new CurrencyQuestionForm(originalQd);

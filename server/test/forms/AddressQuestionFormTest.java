@@ -47,8 +47,6 @@ public class AddressQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    AddressQuestionDefinition.AddressValidationPredicates.create())
                 .build());
 
     AddressQuestionForm form = new AddressQuestionForm(originalQd);
