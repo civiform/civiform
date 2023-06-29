@@ -105,7 +105,7 @@ def render_variable(name: str, variable: Variable) -> str:
     setting_type = _get_java_setting_type(variable)
     setting_mode = str(variable.mode).replace("Mode.", "")
 
-    if setting_type == "ENUM":
+    if setting_type == "ENUM" and variable.values:
         allowable_values = ", ".join([f'"{val}"' for val in variable.values])
         return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
 
