@@ -196,7 +196,6 @@ public final class SettingsService {
 
   private static void validateEnum(SettingDescription settingDescription, String value) {
     if (!settingDescription.allowableValues().get().contains(value)) {
-      System.out.println("IN HERE");
       throw new BadRequestException(
           String.format(
               "Invalid enum value: %s, must be one of %s",
@@ -259,33 +258,47 @@ public final class SettingsService {
     return group;
   }
 
+  /** Represents the result of an update attempt. */
   @AutoValue
   public abstract static class SettingsGroupUpdateResult {
 
+    /** Creates a result representing success, where a new {@link SettingsGroup} was inserted. */
     public static SettingsGroupUpdateResult success() {
       return new AutoValue_SettingsService_SettingsGroupUpdateResult(
           /* errorMessages= */ Optional.empty(), /* updated= */ true);
     }
 
+    /**
+     * Creates a result representing validation failure, where a new {@link SettingsGroup} was NOT
+     * inserted and the admin should address the errors.
+     */
     public static SettingsGroupUpdateResult withErrors(
         ImmutableMap<String, UpdateError> errorMessages) {
       return new AutoValue_SettingsService_SettingsGroupUpdateResult(
           Optional.of(errorMessages), /* updated= */ false);
     }
 
+    /**
+     * Creates a result representing failure where a new {@link SettingsGroup} was NOT inserted due
+     * to the admin not changing any values.
+     */
     public static SettingsGroupUpdateResult noChange() {
       return new AutoValue_SettingsService_SettingsGroupUpdateResult(
           /* errorMessages= */ Optional.empty(), /* updated= */ false);
     }
 
+    /** Validation error messages for the attempted update. */
     public abstract Optional<ImmutableMap<String, UpdateError>> errorMessages();
 
+    /** True if the update completed successfully, inserting a new {@link SettingsGroup}. */
     public abstract boolean updated();
 
+    /** True if there are validation error messages. */
     public boolean hasErrors() {
       return errorMessages().isPresent();
     }
 
+    /** A validation error for updating a setting value. */
     @AutoValue
     public abstract static class UpdateError {
 
@@ -294,8 +307,10 @@ public final class SettingsService {
             updatedValue, errorMessage);
       }
 
+      /** The new value of the setting that failed validation. */
       public abstract String updatedValue();
 
+      /** An error message describing why the updated value failed validation. */
       public abstract String errorMessage();
     }
   }
