@@ -145,7 +145,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
     @Override
     public ImmutableMap<Path, ImmutableList<String>> getJsonEntries(MultiSelectQuestion question) {
-      Path path = question.getSelectionPath().asApplicationPath();
+      Path path = question.getSelectionPath();
 
       if (question.getSelectedOptionsValue().isPresent()) {
         ImmutableList<String> selectedOptions =
@@ -180,8 +180,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
   class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
     @Override
     public ImmutableMap<Path, Double> getJsonEntries(CurrencyQuestion question) {
-      Path path =
-          question.getCurrencyPath().asApplicationPath().replacingLastSegment("currency_dollars");
+      Path path = question.getCurrencyPath().replacingLastSegment("currency_dollars");
 
       if (question.getCurrencyValue().isPresent()) {
         Long centsTotal = Long.valueOf(question.getCurrencyValue().get().getCents());
@@ -196,7 +195,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
   class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
     @Override
     public ImmutableMap<Path, String> getJsonEntries(DateQuestion question) {
-      Path path = question.getDatePath().asApplicationPath();
+      Path path = question.getDatePath();
 
       if (question.getDateValue().isPresent()) {
         LocalDate date = question.getDateValue().get();
@@ -217,7 +216,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
   class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
     @Override
     public ImmutableMap<Path, Long> getJsonEntries(NumberQuestion question) {
-      Path path = question.getNumberPath().asApplicationPath();
+      Path path = question.getNumberPath();
 
       if (question.getNumberValue().isPresent()) {
         return ImmutableMap.of(path, question.getNumberValue().get());
@@ -233,7 +232,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
     @Override
     public ImmutableMap<Path, String> getJsonEntries(PhoneQuestion question) {
-      Path path = question.getPhoneNumberPath().asApplicationPath();
+      Path path = question.getPhoneNumberPath();
 
       if (question.getPhoneNumberValue().isPresent()
           && question.getCountryCodeValue().isPresent()) {
