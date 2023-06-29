@@ -176,18 +176,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Secure
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
     if (profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
-      return versionRepository
-          .isDraftProgramAsync(programId)
-          .thenApplyAsync(
-              (isDraftProgram) -> {
-                Call reviewPage =
-                    controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(programId);
-                if (isDraftProgram) {
-                  reviewPage =
-                      controllers.admin.routes.AdminProgramBlocksController.index(programId);
-                }
-                return redirect(reviewPage);
-              });
+      return CompletableFuture.completedFuture(
+          redirect(controllers.admin.routes.AdminProgramPreviewController.back(programId).url()));
     }
 
     return checkApplicantAuthorization(request, applicantId)
