@@ -1,5 +1,7 @@
 package controllers.applicant;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -25,6 +27,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Http.Request;
+import play.test.Helpers;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.Path;
@@ -77,6 +80,13 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
     assertThat(contentAsString(result)).doesNotContain("three");
+  }
+
+  @Test
+  public void index_clearsRedirectToSessionKey() {
+    Request request = addCSRFToken(Helpers.fakeRequest().session(REDIRECT_TO_SESSION_KEY, "redirect")).build();
+    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isEmpty();
   }
 
   @Test
