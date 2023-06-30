@@ -1,5 +1,6 @@
 package controllers;
 
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
@@ -102,6 +103,51 @@ public class RedirectControllerTest extends WithMockedProfiles {
             controllers.applicant.routes.ApplicantProgramReviewController.review(
                     applicant.id, programDefinition.id())
                 .url());
+  }
+
+  @Test
+  public void programBySlug_clearsOutRedirectSessionKey_existingProgram() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    Applicant applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+    resourceCreator().insertDraftProgram(programDefinition.adminName());
+    versionRepository.publishNewSynchronizedVersion();
+
+    Result result =
+        instanceOf(RedirectController.class)
+            .programBySlug(
+                addCSRFToken(
+                        requestBuilderWithSettings()
+                            .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
+                    .build(),
+                programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isNotPresent();
+  }
+
+  @Test
+  public void programBySlug_clearsOutRedirectSessionKey_nonExistingProgram() {
+    Applicant applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+
+    Result result =
+        instanceOf(RedirectController.class)
+            .programBySlug(
+                addCSRFToken(
+                        requestBuilderWithSettings()
+                            .session(REDIRECT_TO_SESSION_KEY, "redirect-url"))
+                    .build(),
+                "non-existing-program-slug")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isNotPresent();
   }
 
   @Test
