@@ -113,13 +113,13 @@ public final class RedirectController extends CiviFormController {
                         if (programForExistingApplication.isPresent()) {
                           long programId = programForExistingApplication.get().id();
                           return CompletableFuture.completedFuture(
-                              goToActiveProgram(programId, applicantId, programSlug, request));
+                              redirectToReviewPage(programId, applicantId, programSlug, request));
                         } else {
                           return programService
                               .getActiveProgramDefinitionAsync(programSlug)
                               .thenApply(
                                   activeProgramDefinition ->
-                                      goToActiveProgram(
+                                      redirectToReviewPage(
                                           activeProgramDefinition.id(),
                                           applicantId,
                                           programSlug,
@@ -131,7 +131,7 @@ public final class RedirectController extends CiviFormController {
             httpContext.current());
   }
 
-  private Result goToActiveProgram(
+  private Result redirectToReviewPage(
       long programId, long applicantId, String programSlug, Http.Request request) {
     return redirect(
             controllers.applicant.routes.ApplicantProgramReviewController.review(
