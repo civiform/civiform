@@ -74,7 +74,7 @@ describe('admin program preview', () => {
 
     await applicantQuestions.clickContinue()
 
-    await page.click('button:has-text("Back to admin view")')
+    await page.click('a:has-text("Back to admin view")')
 
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
