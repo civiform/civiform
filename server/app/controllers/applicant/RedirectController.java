@@ -75,8 +75,12 @@ public final class RedirectController extends CiviFormController {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {
-      Result result = redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url());
-      result = result.withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
+      // If there isn't currently a session, create a guest session using the CallbackController,
+      // and add a session key that asks it to redirect back here when the profile will be present.
+      Result result =
+          redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
+              .withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
+
       return CompletableFuture.completedFuture(result);
     }
 
@@ -107,32 +111,35 @@ public final class RedirectController extends CiviFormController {
                         // for this program, redirect to program version associated
                         // with that application if so.
                         if (programForExistingApplication.isPresent()) {
+                          long programId = programForExistingApplication.get().id();
                           return CompletableFuture.completedFuture(
-                              redirect(
-                                      controllers.applicant.routes.ApplicantProgramReviewController
-                                          .review(
-                                              applicantId,
-                                              programForExistingApplication.get().id()))
-                                  .flashing("redirected-from-program-slug", programSlug));
+                              goToActiveProgram(programId, applicantId, programSlug, request));
+                        } else {
+                          return programService
+                              .getActiveProgramDefinitionAsync(programSlug)
+                              .thenApply(
+                                  activeProgramDefinition ->
+                                      goToActiveProgram(
+                                          activeProgramDefinition.id(),
+                                          applicantId,
+                                          programSlug,
+                                          request));
                         }
-
-                        return redirectToActiveProgram(applicantId, programSlug);
                       },
                       httpContext.current());
             },
             httpContext.current());
   }
 
-  private CompletionStage<Result> redirectToActiveProgram(long applicantId, String programSlug) {
-    return programService
-        .getActiveProgramDefinitionAsync(programSlug)
-        .thenApplyAsync(
-            (activeProgramDefinition) ->
-                redirect(
-                        controllers.applicant.routes.ApplicantProgramReviewController.review(
-                            applicantId, activeProgramDefinition.id()))
-                    .flashing("redirected-from-program-slug", programSlug),
-            httpContext.current());
+  private Result goToActiveProgram(
+      long programId, long applicantId, String programSlug, Http.Request request) {
+    return redirect(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                applicantId, programId))
+        .flashing("redirected-from-program-slug", programSlug)
+        // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
+        // get used again.
+        .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
   }
 
   private CompletionStage<Optional<ProgramDefinition>> getProgramVersionForApplicant(
