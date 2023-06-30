@@ -135,15 +135,14 @@ public final class PdfExporter {
           try {
             Optional<EligibilityDefinition> eligibilityDef =
                 programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
-            if (eligibilityDef.isPresent()
-                && eligibilityDef
-                    .map(
-                        definition ->
-                            definition
-                                .predicate()
-                                .getQuestions()
-                                .contains(answerData.questionDefinition().getId()))
-                    .orElse(false)) {
+            if (eligibilityDef
+                .map(
+                    definition ->
+                        definition
+                            .predicate()
+                            .getQuestions()
+                            .contains(answerData.questionDefinition().getId()))
+                .orElse(false)) {
 
               String eligibilityText =
                   answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
