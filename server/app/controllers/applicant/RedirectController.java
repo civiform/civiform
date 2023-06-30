@@ -125,14 +125,9 @@ public final class RedirectController extends CiviFormController {
                                           programSlug,
                                           request))
                               .exceptionally(
-                                  ex -> {
-                                    Throwable cause = ex.getCause().getCause();
-                                    if (cause instanceof ProgramNotFoundException) {
-                                      return notFound()
-                                          .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
-                                    }
-                                    throw new RuntimeException(ex);
-                                  });
+                                  ex ->
+                                      notFound(ex.getMessage())
+                                          .removingFromSession(request, REDIRECT_TO_SESSION_KEY));
                         }
                       },
                       httpContext.current());
