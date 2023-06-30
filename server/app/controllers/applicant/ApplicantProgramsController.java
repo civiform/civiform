@@ -1,6 +1,7 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
@@ -70,14 +71,17 @@ public final class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
-              return ok(
-                  programIndexView.render(
+              return ok(programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
                       applicationPrograms,
-                      banner));
+                      banner))
+                  // If the user has been to the index page, any existing redirects should be
+                  // cleared to avoid an experience where they're unexpectedly redirected after
+                  // logging in.
+                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
             },
             httpContext.current())
         .exceptionally(
