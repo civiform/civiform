@@ -58,6 +58,6 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
         .hasValue(
-            controllers.admin.routes.AdminProgramBlocksController.readonlyIndex(program.id).url());
+            controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id).url());
   }
 }
