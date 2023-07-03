@@ -100,4 +100,29 @@ public class PredicateValueTest {
 
     assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
   }
+
+  @Test
+  public void valueWithoutSurroundingQuotes_parsesCorrectly() {
+    PredicateValue value = PredicateValue.of("hello");
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("hello");
+
+    // Should only strip plain strings. Everything else should remain the same.
+    value = PredicateValue.listOfStrings(ImmutableList.of("hello", "world"));
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("[\"hello\", \"world\"]");
+
+    value = PredicateValue.of(10001);
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("10001");
+
+    value = PredicateValue.of(LocalDate.ofYearDay(2021, 1));
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("1609459200000");
+
+    value = PredicateValue.listOfLongs(ImmutableList.of(1L, 2L, 3L));
+    assertThat(value.valueWithoutSurroundingQuotes()).isEqualTo("[1, 2, 3]");
+  }
+
+  @Test
+  public void surroundWithQuotes_stripsQuotesThenAppendsCorrectly() {
+    PredicateValue value = PredicateValue.of("\"\"h\"el\"\"lo\"\"\"\"\"");
+    assertThat(value.value()).isEqualTo("\"hello\"");
+  }
 }
