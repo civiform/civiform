@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import javax.inject.Inject;
 import modules.MainModule;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.settings.SettingDescription;
@@ -48,6 +49,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final AdminLayout layout;
   private final CiviFormMarkdown civiFormMarkdown;
+  private final MessagesApi messagesApi;
 
   private static final ImmutableList<String> SECTIONS =
       ImmutableList.of(
@@ -64,10 +66,12 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   public AdminSettingsIndexView(
       SettingsManifest settingsManifest,
       AdminLayoutFactory layoutFactory,
-      CiviFormMarkdown civiFormMarkdown) {
+      CiviFormMarkdown civiFormMarkdown,
+      MessagesApi messagesApi) {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(AdminLayout.NavPage.SETTINGS);
     this.civiFormMarkdown = checkNotNull(civiFormMarkdown);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   public Content render(Http.Request request) {
@@ -101,7 +105,8 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       bundle.addToastMessages(
           ToastMessage.error(
               "That update didn't look quite right. Please fix the errors in the form and try"
-                  + " saving again."));
+                  + " saving again.",
+              messagesApi.preferred(request)));
     }
     request
         .flash()
