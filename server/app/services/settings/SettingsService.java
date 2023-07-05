@@ -198,6 +198,10 @@ public final class SettingsService {
   }
 
   private static void validateEnum(SettingDescription settingDescription, String value) {
+    if (value.isBlank()) {
+      return;
+    }
+
     if (!settingDescription.allowableValues().get().contains(value)) {
       throw new BadRequestException(
           String.format(

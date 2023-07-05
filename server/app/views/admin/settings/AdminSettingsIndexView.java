@@ -265,7 +265,10 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private static DivTag renderEnumInput(
       SettingDescription settingDescription, Optional<String> value) {
-    return div(new SelectWithLabel()
+    SelectWithLabel selectWithLabel =
+        new SelectWithLabel()
+            .setFieldName(settingDescription.variableName())
+            .setPlaceholderVisible(true)
             .setOptions(
                 settingDescription.allowableValues().get().stream()
                     .map(
@@ -275,8 +278,11 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                                 .setValue(optionValue)
                                 .build())
                     .collect(ImmutableList.toImmutableList()))
-            .setValue(value.orElse(""))
-            .setDisabled(settingDescription.isReadOnly())
+            .setDisabled(settingDescription.isReadOnly());
+
+    value.ifPresent(val -> selectWithLabel.setValue(val));
+
+    return div(selectWithLabel
             .getSelectTag()
             .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT))
         .withClasses("mt-2");
