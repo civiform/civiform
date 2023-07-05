@@ -29,7 +29,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                 ])
         ]
         root_group = ParsedGroup(
-            "Misc", "Misc", sub_groups, {
+            "Miscellaneous", "Miscellaneous", sub_groups, {
                 "STRING_VARIABLE":
                     Variable(
                         description="Fake string variable for testing",
@@ -66,7 +66,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
             """ImmutableMap.of("Test section", SettingsSection.create("Test section", "Fake section for testing.", \
 ImmutableList.of(SettingsSection.create("Test subsection", "Fake subsection for testing", ImmutableList.of(), \
 ImmutableList.of(SettingDescription.create("SUBSECTION_VARIABLE", "Fake subsection variable for testing", SettingType.STRING, SettingMode.HIDDEN)))), \
-ImmutableList.of()), "Misc", SettingsSection.create("Misc", "Top level vars", ImmutableList.of(), \
+ImmutableList.of()), "Miscellaneous", SettingsSection.create("Miscellaneous", "Top level vars", ImmutableList.of(), \
 ImmutableList.of(SettingDescription.create("STRING_VARIABLE", "Fake string variable for testing", SettingType.STRING, SettingMode.ADMIN_READABLE), \
 SettingDescription.create("ENUM_VARIABLE", "Fake string variable for testing", SettingType.ENUM, SettingMode.ADMIN_READABLE, ImmutableList.of("one", "two")), \
 SettingDescription.create("REGEX_VARIABLE", "Fake string variable for testing", SettingType.STRING, SettingMode.ADMIN_READABLE, Pattern.compile("^regex$")))))"""
