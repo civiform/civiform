@@ -100,7 +100,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               Messages messages = messagesApi.preferred(request);
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
               try {
-                if (shouldShowNotEligibleBanner(request, roApplicantProgramService, programId)) {
+                if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {
                   notEligibleBanner =
                       Optional.of(
                           ToastMessage.alert(
@@ -206,7 +206,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   /** Returns true if eligibility is gating and the application is ineligible, false otherwise. */
   private boolean shouldShowNotEligibleBanner(
-      Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
+      ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
       throws ProgramNotFoundException {
     if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
       return false;

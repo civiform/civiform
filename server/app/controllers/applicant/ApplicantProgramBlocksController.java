@@ -548,8 +548,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
-      if (shouldRenderIneligibleBlockView(
-          request, roApplicantProgramService, programDefinition, blockId)) {
+      if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
         return supplyAsync(
             () ->
                 ok(
@@ -668,7 +667,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   /** Returns true if eligibility is gating and the block is ineligible, false otherwise. */
   private boolean shouldRenderIneligibleBlockView(
-      Request request,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {

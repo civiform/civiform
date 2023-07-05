@@ -1308,40 +1308,6 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void submitApplication_respectsNonGatingEligibilityFeatureFlag() {
-    createProgramWithNongatingEligibility(questionDefinition);
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
-    applicant.save();
-
-    // First name is matched for eligibility.
-    Path questionPath =
-        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
-    ImmutableMap<String, String> updates =
-        ImmutableMap.<String, String>builder()
-            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
-            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
-            .build();
-    subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
-        .toCompletableFuture()
-        .join();
-
-    // Program eligibility is set to non-gating but the non-gating eligibility feature flag is off,
-    // so it should behave as if it's gating.
-    assertThatExceptionOfType(CompletionException.class)
-        .isThrownBy(
-            () ->
-                subject
-                    .submitApplication(
-                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
-                    .toCompletableFuture()
-                    .join())
-        .withCauseInstanceOf(ApplicationNotEligibleException.class)
-        .withMessageContaining("Application", "failed to save");
-  }
-
-  @Test
   public void stageAndUpdateIfValid_with_correctedAddess_and_esriServiceAreaValidation() {
     QuestionDefinition addressQuestion =
         testQuestionBank.applicantAddress().getQuestionDefinition();

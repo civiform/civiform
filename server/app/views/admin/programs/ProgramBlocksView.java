@@ -421,8 +421,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions,
-                  request));
+                  allQuestions));
     }
 
     DivTag programQuestions =
