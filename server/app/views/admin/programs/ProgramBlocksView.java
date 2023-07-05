@@ -555,8 +555,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      Request request) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withClasses("my-4")
