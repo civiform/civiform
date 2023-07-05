@@ -1,8 +1,8 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -59,8 +59,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
-    Optional<ToastMessage> banner =
-        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+    Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -72,14 +71,17 @@ public final class ApplicantProgramsController extends CiviFormController {
             httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
-              return ok(
-                  programIndexView.render(
+              return ok(programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
                       applicationPrograms,
-                      banner));
+                      banner))
+                  // If the user has been to the index page, any existing redirects should be
+                  // cleared to avoid an experience where they're unexpectedly redirected after
+                  // logging in.
+                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
             },
             httpContext.current())
         .exceptionally(

@@ -34,8 +34,8 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.88",
-      "software.amazon.awssdk" % "ses" % "2.20.88",
+      "software.amazon.awssdk" % "s3" % "2.20.95",
+      "software.amazon.awssdk" % "ses" % "2.20.95",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.9.1",
@@ -79,9 +79,9 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.1",
-      "com.google.auto.value" % "auto-value" % "1.10.1",
-      "com.google.auto.value" % "auto-value-parent" % "1.10.1" pomOnly (),
+      "com.google.auto.value" % "auto-value-annotations" % "1.10.2",
+      "com.google.auto.value" % "auto-value" % "1.10.2",
+      "com.google.auto.value" % "auto-value-parent" % "1.10.2" pomOnly (),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.19.1",
@@ -93,7 +93,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.14",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.15",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.5",

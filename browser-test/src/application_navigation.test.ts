@@ -321,7 +321,7 @@ describe('Applicant navigation flow', () => {
 
       await validateToastMessage(
         page,
-        "There's been an update to the application",
+        "Error: There's been an update to the application",
       )
       await validateScreenshot(page, 'program-out-of-date')
     })

@@ -5,7 +5,6 @@ import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import com.google.common.collect.ImmutableList;
@@ -78,7 +77,7 @@ public final class ProgramAdminManagementController {
         return result;
       }
 
-      ToastMessage message = new ToastMessage(maybeError.get().message(), ERROR);
+      ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
       return this.loadProgram(request, programId, Optional.of(message));
 
     } catch (ProgramNotFoundException e) {
