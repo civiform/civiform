@@ -561,9 +561,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         div()
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(
-                renderEmptyEligibilityPredicate(program, request)
-                    .withClasses("text-lg", "max-w-prose"));
+            .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
     if (!predicate.isEmpty()) {
       div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
     }
@@ -581,7 +579,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return div;
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
+  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
     ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
     if (program.eligibilityIsGating()) {
       emptyPredicateContentBuilder.add(
