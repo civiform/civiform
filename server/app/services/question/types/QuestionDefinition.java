@@ -174,7 +174,7 @@ public abstract class QuestionDefinition {
 
   /** Get the validation predicates. */
   public final ValidationPredicates getValidationPredicates() {
-    return config.validationPredicates().orElse(getDefaultValidationPredicates());
+    return config.validationPredicates().orElseGet(this::getDefaultValidationPredicates);
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
