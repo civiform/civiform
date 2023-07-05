@@ -7,7 +7,6 @@ import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.rawHtml;
 import static play.mvc.Http.HttpVerbs.POST;
 import static services.settings.AbstractSettingsManifest.FEATURE_FLAG_SETTING_SECTION_NAME;
@@ -18,12 +17,12 @@ import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
+import java.util.OptionalInt;
 import javax.inject.Inject;
 import modules.MainModule;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.settings.SettingDescription;
-import services.settings.SettingMode;
 import services.settings.SettingsManifest;
 import services.settings.SettingsSection;
 import services.settings.SettingsService.SettingsGroupUpdateResult.UpdateError;
@@ -43,6 +42,9 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private static final String FORM_ID = "settings-update-form";
   private static final String SECTION_STYLES = "grid grid-flow-row-dense grid-cols-2 gap-8";
+  public static final DivTag READ_ONLY_TEXT =
+      div("Read-only").withClasses("text-xs", "mt-2", "text-gray-600");
+
   private final SettingsManifest settingsManifest;
   private final AdminLayout layout;
   private final CiviFormMarkdown civiFormMarkdown;
@@ -56,7 +58,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
           "Data Export API",
           "Observability",
           "External Services",
-          "Misc");
+          "Miscellaneous");
 
   @Inject
   public AdminSettingsIndexView(
@@ -98,7 +100,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
     if (errorMessages.isPresent()) {
       bundle.addToastMessages(
           ToastMessage.error(
-              "That update didn't look quite right, please fix the errors in the form and try"
+              "That update didn't look quite right. Please fix the errors in the form and try"
                   + " saving again."));
     }
     request
@@ -200,26 +202,35 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             .getSettingDisplayValue(request, settingDescription)
             .filter(v -> !v.isBlank());
 
-    if (settingDescription.settingMode().equals(SettingMode.ADMIN_READABLE)) {
-      return input()
-          .withValue(value.orElse("empty"))
-          .isReadonly()
-          .isDisabled()
-          .withClasses("px-1", "w-full", "bg-slate-200", "mt-2", value.isEmpty() ? "italic" : "");
-    }
-
     switch (settingDescription.settingType()) {
       case BOOLEAN:
         return renderBoolInput(settingDescription, value);
+      case LIST_OF_STRINGS:
       case STRING:
         return renderStringInput(settingDescription, value, errorMessages);
       case ENUM:
         return renderEnumInput(settingDescription, value);
+      case INT:
+        return renderIntInput(settingDescription, value);
       default:
         throw new IllegalStateException(
             String.format(
                 "Settings of type %s are not writeable", settingDescription.settingType()));
     }
+  }
+
+  private static DivTag renderIntInput(
+      SettingDescription settingDescription, Optional<String> value) {
+    FieldWithLabel field =
+        FieldWithLabel.number()
+            .setFieldName(settingDescription.variableName())
+            .setPlaceholderText("empty")
+            .setDisabled(settingDescription.isReadOnly());
+
+    value.ifPresent((val) -> field.setValue(OptionalInt.of(Integer.parseInt(val))));
+
+    return div(field.getNumberTag().condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT))
+        .withClasses("mt-2");
   }
 
   private static DivTag renderStringInput(
@@ -240,7 +251,9 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             .setFieldName(settingDescription.variableName())
             .setValue(maybeUpdateError.map(UpdateError::updatedValue).orElse(value.orElse("")))
             .setPlaceholderText("empty")
+            .setDisabled(settingDescription.isReadOnly())
             .getInputTag()
+            .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT)
             .with(errors.orElse(null)))
         .withClasses("mt-2");
   }
@@ -258,7 +271,9 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                                 .build())
                     .collect(ImmutableList.toImmutableList()))
             .setValue(value.orElse(""))
-            .getSelectTag())
+            .setDisabled(settingDescription.isReadOnly())
+            .getSelectTag()
+            .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT))
         .withClasses("mt-2");
   }
 
@@ -266,22 +281,27 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
       SettingDescription settingDescription, Optional<String> value) {
     boolean isEnabled = value.map("TRUE"::equals).orElse(false);
 
-    return div(
-            FieldWithLabel.radio()
-                .setFieldName(settingDescription.variableName())
-                .setLabelText("Enabled")
-                .setChecked(isEnabled)
-                .setValue("true")
-                .addStyleClass("mr-4")
-                .getRadioTag()
-                .withData("testid", String.format("enable-%s", settingDescription.variableName())),
-            FieldWithLabel.radio()
-                .setFieldName(settingDescription.variableName())
-                .setLabelText("Disabled")
-                .setChecked(!isEnabled)
-                .setValue("false")
-                .getRadioTag()
-                .withData("testid", String.format("disable-%s", settingDescription.variableName())))
-        .withClasses("flex", "mt-2");
+    return div(div(
+                FieldWithLabel.radio()
+                    .setFieldName(settingDescription.variableName())
+                    .setLabelText("Enabled")
+                    .setChecked(isEnabled)
+                    .setValue("true")
+                    .addStyleClass("mr-4")
+                    .setDisabled(settingDescription.isReadOnly())
+                    .getRadioTag()
+                    .withData(
+                        "testid", String.format("enable-%s", settingDescription.variableName())),
+                FieldWithLabel.radio()
+                    .setFieldName(settingDescription.variableName())
+                    .setLabelText("Disabled")
+                    .setChecked(!isEnabled)
+                    .setValue("false")
+                    .setDisabled(settingDescription.isReadOnly())
+                    .getRadioTag()
+                    .withData(
+                        "testid", String.format("disable-%s", settingDescription.variableName())))
+            .withClasses("flex", "mt-2"))
+        .condWith(settingDescription.isReadOnly(), READ_ONLY_TEXT);
   }
 }

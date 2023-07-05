@@ -82,8 +82,9 @@ def render_sections(root_group: ParsedGroup) -> str:
 
     if root_group.variables:
         group_for_top_level_vars = ParsedGroup(
-            "Misc", "Top level vars", [], root_group.variables)
-        out.write(f', "Misc", {render_group(group_for_top_level_vars)}')
+            "Miscellaneous", "Top level vars", [], root_group.variables)
+        out.write(
+            f', "Miscellaneous", {render_group(group_for_top_level_vars)}')
 
     out.write(")")
 
@@ -181,7 +182,7 @@ class GetterMethodSpec:
 
 def generate_manifest(
         docs_file: typing.TextIO) -> tuple[str | None, list[NodeParseError]]:
-    root_group = ParsedGroup("Misc", "Misc")
+    root_group = ParsedGroup("Miscellaneous", "Miscellaneous")
     docs: dict[str, ParsedGroup | Variable] = {"file": root_group}
     getter_method_specs: list[GetterMethodSpec] = []
 

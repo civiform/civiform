@@ -1317,7 +1317,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " programs in CiviForm.",
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE,
-                      Pattern.compile("^(http://|https://)")))),
+                      Pattern.compile("^(http://|https://).+")))),
           "Observability",
           SettingsSection.create(
               "Observability",
@@ -1465,9 +1465,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the phone number question type.",
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
-          "Misc",
+          "Miscellaneous",
           SettingsSection.create(
-              "Misc",
+              "Miscellaneous",
               "Top level vars",
               ImmutableList.of(),
               ImmutableList.of(
@@ -1485,14 +1485,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " 'http://'.",
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE,
-                      Pattern.compile("^(http://|https://)")),
+                      Pattern.compile("^(http://|https://).+")),
                   SettingDescription.create(
                       "STAGING_HOSTNAME",
                       "DNS name of the staging deployment.  Must not start with 'https://' or"
                           + " 'http://'.",
                       SettingType.STRING,
                       SettingMode.HIDDEN,
-                      Pattern.compile("^(?!http://|https://)")),
+                      Pattern.compile("^(?!http://|https://).+")),
                   SettingDescription.create(
                       "CIVIFORM_SUPPORTED_LANGUAGES",
                       "The languages that applicants can choose from when specifying their"

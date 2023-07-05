@@ -209,7 +209,7 @@ public final class SettingsService {
   private static Optional<SettingsGroupUpdateResult.UpdateError> validateString(
       SettingDescription settingDescription, String value) {
     if (settingDescription.validationRegex().isPresent()
-        && !settingDescription.validationRegex().get().asMatchPredicate().test(value)) {
+        && !settingDescription.validationRegex().get().matcher(value).matches()) {
       return Optional.of(
           SettingsGroupUpdateResult.UpdateError.create(
               value,

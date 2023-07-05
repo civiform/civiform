@@ -74,6 +74,10 @@ public abstract class SettingDescription {
   // the value of this setting must match the regex.
   public abstract Optional<Pattern> validationRegex();
 
+  public boolean isReadOnly() {
+    return !settingMode().equals(SettingMode.ADMIN_WRITEABLE);
+  }
+
   private static final ImmutableSet<SettingMode> DISPLAYABLE_SETTING_MODES =
       ImmutableSet.of(SettingMode.ADMIN_WRITEABLE, SettingMode.ADMIN_READABLE);
 

@@ -409,7 +409,7 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string",
-        "regex": "^(http://|https://)",
+        "regex": "^(http://|https://).+",
         "regex_tests": [
           {"val": "http://my-civiform.org", "should_match": true},
           {"val": "https://my-civiform.org", "should_match": true},
@@ -427,7 +427,7 @@
     "mode": "ADMIN_READABLE",
     "description": "The URL of the CiviForm deployment.  Must start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(http://|https://)",
+    "regex": "^(http://|https://).+",
     "regex_tests": [
       {"val": "http://my-civiform.org", "should_match": true},
       {"val": "https://my-civiform.org", "should_match": true},
@@ -438,7 +438,7 @@
     "mode": "HIDDEN",
     "description": "DNS name of the staging deployment.  Must not start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(?!http://|https://)",
+    "regex": "^(?!http://|https://).+",
     "regex_tests": [
       {"val": "my-civiform.org", "should_match": true},
       {"val": "http://my-civiform.org", "should_match": false},
