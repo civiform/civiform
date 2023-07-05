@@ -532,9 +532,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       return false;
     }
 
-    return !settingsManifest.getNongatedEligibilityEnabled(request)
-        || cardData.program().eligibilityIsGating()
-        || cardData.isProgramMaybeEligible().get();
+    return cardData.program().eligibilityIsGating() || cardData.isProgramMaybeEligible().get();
   }
 
   private PTag programCardApplicationStatus(

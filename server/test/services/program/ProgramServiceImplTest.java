@@ -2626,22 +2626,8 @@ public class ProgramServiceImplTest extends ResetPostgres {
   public void setEligibilityIsGating() throws Exception {
     ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
     ProgramDefinition result =
-        ps.setEligibilityIsGating(
-            programDefinition.id(),
-            /* gating= */ false,
-            /* isNongatedEligibilityFeatureEnabled= */ true);
+        ps.setEligibilityIsGating(programDefinition.id(), /* gating= */ false);
     assertThat(result.eligibilityIsGating()).isFalse();
-  }
-
-  @Test
-  public void setEligibilityIsGating_featureDisabled() throws Exception {
-    ProgramDefinition programDefinition = ProgramBuilder.newDraftProgram().buildDefinition();
-    ProgramDefinition result =
-        ps.setEligibilityIsGating(
-            programDefinition.id(),
-            /* gating= */ false,
-            /* isNongatedEligibilityFeatureEnabled= */ false);
-    assertThat(result.eligibilityIsGating()).isTrue();
   }
 
   @Test

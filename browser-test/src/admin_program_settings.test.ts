@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
@@ -14,7 +13,6 @@ describe('program settings', () => {
   it('program settings page', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -40,7 +38,6 @@ describe('program settings', () => {
   it('program index shows settings in dropdown', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -77,7 +74,6 @@ describe('program settings', () => {
   it('back button on program settings page navigates correctly', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)
@@ -103,46 +99,9 @@ describe('program settings', () => {
     await adminPrograms.expectProgramBlockEditPage(programName)
   })
 
-  it('program index hides settings in dropdown when flags are disabled', async () => {
-    const {page, adminPrograms} = ctx
-
-    await disableFeatureFlag(page, 'nongated_eligibility_enabled')
-
-    await loginAsAdmin(page)
-
-    const programName = 'A Program'
-    await adminPrograms.addProgram(programName)
-
-    await adminPrograms.gotoAdminProgramsPage()
-    await adminPrograms.expectDraftProgram(programName)
-
-    await page.click(
-      adminPrograms.withinProgramCardSelector(
-        programName,
-        'Draft',
-        '.cf-with-dropdown',
-      ),
-    )
-
-    await validateScreenshot(page, 'dropdown-without-settings')
-
-    expect(
-      await page
-        .locator(
-          adminPrograms.withinProgramCardSelector(
-            programName,
-            'Draft',
-            ':text("Settings")',
-          ),
-        )
-        .isVisible(),
-    ).toBe(false)
-  })
-
   it('program index hides settings in dropdown for common intake form', async () => {
     const {page, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'nongated_eligibility_enabled')
     await enableFeatureFlag(page, 'intake_form_enabled')
 
     await loginAsAdmin(page)

@@ -346,7 +346,6 @@ describe('Applicant navigation flow', () => {
       const {page, adminQuestions, adminPredicates, adminPrograms} = ctx
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       // Add questions
       await adminQuestions.addNumberQuestion({
@@ -406,7 +405,6 @@ describe('Applicant navigation flow', () => {
     it('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       await loginAsTestUser(page)
       // Fill out common intake form, with non-eligible response
@@ -432,7 +430,6 @@ describe('Applicant navigation flow', () => {
     it('shows eligible programs and no upsell on confirmation page when programs are eligible and signed in', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       await loginAsTestUser(page)
       // Fill out common intake form, with eligible response
@@ -455,7 +452,6 @@ describe('Applicant navigation flow', () => {
     it('does not show eligible programs and shows upsell on confirmation page when no programs are eligible and a guest user', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       // Fill out common intake form, with non-eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
@@ -477,7 +473,6 @@ describe('Applicant navigation flow', () => {
     it('shows eligible programs and upsell on confirmation page when programs are eligible and a guest user', async () => {
       const {page, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       // Fill out common intake form, with eligible response
       await applicantQuestions.applyProgram(commonIntakeProgramName)
@@ -502,7 +497,6 @@ describe('Applicant navigation flow', () => {
     it('does not show eligible programs and shows TI text on confirmation page when no programs are eligible and a TI', async () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       // Create trusted intermediary client
       await loginAsTrustedIntermediary(page)
@@ -538,7 +532,6 @@ describe('Applicant navigation flow', () => {
     it('shows eligible programs and TI text on confirmation page when programs are eligible and a TI', async () => {
       const {page, tiDashboard, applicantQuestions} = ctx
       await enableFeatureFlag(page, 'intake_form_enabled')
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       // Create trusted intermediary client
       await loginAsTrustedIntermediary(page)
@@ -627,7 +620,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows not eligible with ineligible answer', async () => {
       const {page, applicantQuestions} = ctx
-      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -653,7 +645,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows may be eligible with an eligible answer', async () => {
       const {page, applicantQuestions} = ctx
-      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and without submitting.
@@ -690,7 +681,6 @@ describe('Applicant navigation flow', () => {
 
       // Add the partial program.
       await loginAsAdmin(page)
-      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
       await adminPrograms.addProgram(overlappingOneQProgramName)
       await adminPrograms.editProgramBlock(
         overlappingOneQProgramName,
@@ -724,8 +714,7 @@ describe('Applicant navigation flow', () => {
     })
 
     it('shows not eligible upon submit with ineligible answer', async () => {
-      const {page, applicantQuestions} = ctx
-      await disableFeatureFlag(page, 'nongated_eligibility_enabled')
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -755,8 +744,7 @@ describe('Applicant navigation flow', () => {
     })
 
     it('shows not eligible upon submit with ineligible answer with gating eligibility', async () => {
-      const {page, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
+      const {applicantQuestions} = ctx
       await applicantQuestions.applyProgram(fullProgramName)
 
       // Fill out application and submit.
@@ -787,7 +775,6 @@ describe('Applicant navigation flow', () => {
 
     it('shows may be eligible with nongating eligibility', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)
@@ -811,7 +798,6 @@ describe('Applicant navigation flow', () => {
 
     it('does not show not eligible with nongating eligibility', async () => {
       const {page, adminPrograms, applicantQuestions} = ctx
-      await enableFeatureFlag(page, 'nongated_eligibility_enabled')
 
       await loginAsAdmin(page)
       await adminPrograms.createNewVersion(fullProgramName)

@@ -672,11 +672,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {
-    if (settingsManifest.getNongatedEligibilityEnabled(request)
-        && !programDefinition.eligibilityIsGating()) {
-      return false;
+    if (programDefinition.eligibilityIsGating()) {
+      return !roApplicantProgramService.isBlockEligible(blockId);
     }
-    return !roApplicantProgramService.isBlockEligible(blockId);
+    return false;
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

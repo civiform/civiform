@@ -496,9 +496,6 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Optional<ButtonTag> maybeRenderSettingsLink(
       Http.Request request, ProgramDefinition program) {
-    if (!settingsManifest.getNongatedEligibilityEnabled(request)) {
-      return Optional.empty();
-    }
     if (program.isCommonIntakeForm()) {
       return Optional.empty();
     }

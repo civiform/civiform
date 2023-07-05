@@ -208,8 +208,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private boolean shouldShowNotEligibleBanner(
       Request request, ReadOnlyApplicantProgramService roApplicantProgramService, long programId)
       throws ProgramNotFoundException {
-    if (settingsManifest.getNongatedEligibilityEnabled(request)
-        && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
+    if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
       return false;
     }
     return roApplicantProgramService.isApplicationNotEligible();
@@ -236,11 +235,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CompletableFuture<Application> submitAppFuture =
         applicantService
-            .submitApplication(
-                applicantId,
-                programId,
-                submittingProfile,
-                settingsManifest.getNongatedEligibilityEnabled(request))
+            .submitApplication(applicantId, programId, submittingProfile)
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService
