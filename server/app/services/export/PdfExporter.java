@@ -25,6 +25,9 @@ import models.Application;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.program.EligibilityDefinition;
+import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramDefinition;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
@@ -63,8 +66,7 @@ public final class PdfExporter {
         buildPDF(
             answers,
             applicantNameWithApplicationId,
-            application.getProgram().getProgramDefinition().adminName(),
-            application.getProgram().id,
+            application.getProgram().getProgramDefinition(),
             application.getLatestStatus());
     return new InMemoryPdf(bytes, filename);
   }
@@ -72,8 +74,7 @@ public final class PdfExporter {
   private byte[] buildPDF(
       ImmutableList<AnswerData> answers,
       String applicantNameWithApplicationId,
-      String programName,
-      Long programId,
+      ProgramDefinition programDefinition,
       Optional<String> statusValue)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
@@ -91,7 +92,8 @@ public final class PdfExporter {
               applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
       Paragraph program =
           new Paragraph(
-              "Program Name : " + programName, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+              "Program Name : " + programDefinition.adminName(),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
       document.add(applicant);
       document.add(program);
       Paragraph status =
@@ -100,6 +102,7 @@ public final class PdfExporter {
               FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(status);
       document.add(Chunk.NEWLINE);
+      boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answers) {
         Paragraph question =
             new Paragraph(
@@ -109,7 +112,8 @@ public final class PdfExporter {
         if (answerData.encodedFileKey().isPresent()) {
           String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
-              controllers.routes.FileController.adminShow(programId, encodedFileKey).url();
+              controllers.routes.FileController.adminShow(programDefinition.id(), encodedFileKey)
+                  .url();
           Anchor anchor = new Anchor(answerData.answerText());
           anchor.setReference(baseUrl + fileLink);
           answer = new Paragraph();
@@ -126,9 +130,37 @@ public final class PdfExporter {
         Paragraph time =
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
+        Paragraph eligibility = new Paragraph();
+        if (isEligibilityEnabledInProgram) {
+          try {
+            Optional<EligibilityDefinition> eligibilityDef =
+                programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
+            if (eligibilityDef
+                .map(
+                    definition ->
+                        definition
+                            .predicate()
+                            .getQuestions()
+                            .contains(answerData.questionDefinition().getId()))
+                .orElse(false)) {
+
+              String eligibilityText =
+                  answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+              eligibility =
+                  new Paragraph(eligibilityText, FontFactory.getFont(FontFactory.HELVETICA, 10));
+              eligibility.setAlignment(Paragraph.ALIGN_RIGHT);
+            }
+          } catch (ProgramBlockDefinitionNotFoundException e) {
+            throw new RuntimeException(e);
+          }
+        }
+
         document.add(question);
         document.add(answer);
         document.add(time);
+        if (!eligibility.isEmpty()) {
+          document.add(eligibility);
+        }
       }
     } finally {
       document.close();
