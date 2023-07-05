@@ -40,7 +40,7 @@ import views.components.ToastMessage;
  * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
  * can access the page.
  */
-public final class RedirectController extends CiviFormController {
+public final class DeepLinkController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
@@ -51,7 +51,7 @@ public final class RedirectController extends CiviFormController {
   private final LanguageUtils languageUtils;
 
   @Inject
-  public RedirectController(
+  public DeepLinkController(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,

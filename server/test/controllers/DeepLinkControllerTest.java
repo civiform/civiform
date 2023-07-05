@@ -10,7 +10,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import controllers.applicant.RedirectController;
+import controllers.applicant.DeepLinkController;
 import java.util.List;
 import java.util.Locale;
 import models.Applicant;
@@ -52,7 +52,7 @@ import support.QuestionAnswerer;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 
-public class RedirectControllerTest extends WithMockedProfiles {
+public class DeepLinkControllerTest extends WithMockedProfiles {
 
   @Before
   public void setUp() {
@@ -92,7 +92,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     versionRepository.publishNewSynchronizedVersion();
 
     Result result =
-        instanceOf(RedirectController.class)
+        instanceOf(DeepLinkController.class)
             .programBySlug(
                 addCSRFToken(requestBuilderWithSettings()).build(), programDefinition.slug())
             .toCompletableFuture()
@@ -117,7 +117,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     versionRepository.publishNewSynchronizedVersion();
 
     Result result =
-        instanceOf(RedirectController.class)
+        instanceOf(DeepLinkController.class)
             .programBySlug(
                 addCSRFToken(
                         requestBuilderWithSettings()
@@ -137,7 +137,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     applicant.save();
 
     Result result =
-        instanceOf(RedirectController.class)
+        instanceOf(DeepLinkController.class)
             .programBySlug(
                 addCSRFToken(
                         requestBuilderWithSettings()
@@ -155,7 +155,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     Applicant applicant = createApplicantWithMockedProfile();
-    RedirectController controller = instanceOf(RedirectController.class);
+    DeepLinkController controller = instanceOf(DeepLinkController.class);
     Result result =
         controller
             .programBySlug(
@@ -179,8 +179,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
 
-    RedirectController controller =
-        new RedirectController(
+    DeepLinkController controller =
+        new DeepLinkController(
             instanceOf(HttpExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
@@ -212,8 +212,8 @@ public class RedirectControllerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     LanguageUtils languageUtils = new LanguageUtils(instanceOf(UserRepository.class), mockLangs);
 
-    RedirectController controller =
-        new RedirectController(
+    DeepLinkController controller =
+        new DeepLinkController(
             instanceOf(HttpExecutionContext.class),
             instanceOf(ApplicantService.class),
             instanceOf(ProfileUtils.class),
@@ -246,7 +246,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     String redirectLocation = "someUrl";
 
     Result result =
-        instanceOf(RedirectController.class)
+        instanceOf(DeepLinkController.class)
             .considerRegister(
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 applicant.id,
@@ -302,7 +302,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     String redirectLocation = "someUrl";
 
     Result result =
-        instanceOf(RedirectController.class)
+        instanceOf(DeepLinkController.class)
             .considerRegister(
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 applicant.id,
@@ -360,7 +360,7 @@ public class RedirectControllerTest extends WithMockedProfiles {
     String redirectLocation = "someUrl";
 
     Result result =
-        instanceOf(RedirectController.class)
+        instanceOf(DeepLinkController.class)
             .considerRegister(
                 addCSRFToken(requestBuilderWithSettings()).build(),
                 applicant.id,
