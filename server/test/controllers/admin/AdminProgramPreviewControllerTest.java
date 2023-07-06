@@ -51,7 +51,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void back_nonDraftProgram_redirectsToProgramReadOnlyiew() {
+  public void back_nonDraftProgram_redirectsToProgramReadOnlyView() {
     Program program = resourceCreator().insertActiveProgram("some program");
     Result result =
         controller.back(Helpers.fakeRequest().build(), program.id).toCompletableFuture().join();
