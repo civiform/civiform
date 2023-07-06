@@ -273,7 +273,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
     if (editExistingProgram) {
       String programUrl =
           baseUrl
-              + controllers.applicant.routes.RedirectController.programBySlug(
+              + controllers.applicant.routes.DeepLinkController.programBySlug(
                       MainModule.SLUGIFIER.slugify(adminName))
                   .url();
       return div()
