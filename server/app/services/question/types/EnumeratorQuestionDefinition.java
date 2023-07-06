@@ -35,6 +35,11 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     return QuestionType.ENUMERATOR;
   }
 
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return EnumeratorValidationPredicates.create();
+  }
+
   public LocalizedStrings getEntityType() {
     return entityType;
   }

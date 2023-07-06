@@ -20,8 +20,6 @@ public class EnumeratorQuestionTranslationFormTest {
                 .setDescription("desc")
                 .setQuestionText(LocalizedStrings.withDefaultValue("existing"))
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue("existing"))
-                .setValidationPredicates(
-                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
                 .build(),
             LocalizedStrings.withDefaultValue("existing"));
 
@@ -48,8 +46,6 @@ public class EnumeratorQuestionTranslationFormTest {
                 .setDescription("desc")
                 .setQuestionText(LocalizedStrings.of(Locale.FRANCE, "existing"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.FRANCE, "existing"))
-                .setValidationPredicates(
-                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
                 .build(),
             LocalizedStrings.of(Locale.FRANCE, "existing"));
 

@@ -147,7 +147,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .setDescription("applicant's name")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(questionDefinition);
 
@@ -167,7 +166,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .setDescription("applicant's name")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(questionDefinition);
 

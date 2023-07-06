@@ -10,7 +10,6 @@ import services.question.QuestionOption;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 
@@ -34,8 +33,6 @@ public class DropdownQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
 
     ImmutableList<QuestionOption> questionOptions =
@@ -58,7 +55,6 @@ public class DropdownQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(

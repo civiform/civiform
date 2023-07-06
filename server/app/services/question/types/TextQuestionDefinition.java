@@ -71,6 +71,11 @@ public final class TextQuestionDefinition extends QuestionDefinition {
     return QuestionType.TEXT;
   }
 
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return TextValidationPredicates.create();
+  }
+
   public OptionalInt getMinLength() {
     return getTextValidationPredicates().minLength();
   }

@@ -29,7 +29,6 @@ public class TextQuestionRendererTest extends ResetPostgres {
               .setDescription("description")
               .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-              .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
               .setLastModifiedTime(Optional.empty())
               .setValidationPredicates(TextValidationPredicates.create(2, 3))
               .setId(123L)

@@ -69,7 +69,6 @@ public class ResourceCreator {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(definition);
     question.save();
@@ -85,7 +84,6 @@ public class ResourceCreator {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(definition);
     question.save();

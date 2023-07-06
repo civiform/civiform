@@ -10,7 +10,6 @@ import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
@@ -24,8 +23,6 @@ public class MultiOptionQuestionTranslationFormTest {
             .setDescription("desc")
             .setQuestionText(LocalizedStrings.empty())
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setValidationPredicates(
-                MultiOptionQuestionDefinition.MultiOptionValidationPredicates.create())
             .build();
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
@@ -50,7 +47,6 @@ public class MultiOptionQuestionTranslationFormTest {
             .setDescription("desc")
             .setQuestionText(LocalizedStrings.empty())
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(

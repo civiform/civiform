@@ -42,4 +42,9 @@ public final class StaticContentQuestionDefinition extends QuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.STATIC;
   }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return StaticContentValidationPredicates.create();
+  }
 }

@@ -35,4 +35,9 @@ public final class NameQuestionDefinition extends QuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.NAME;
   }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return NameValidationPredicates.create();
+  }
 }

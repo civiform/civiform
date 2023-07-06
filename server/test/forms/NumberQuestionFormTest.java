@@ -78,8 +78,6 @@ public class NumberQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    NumberQuestionDefinition.NumberValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();

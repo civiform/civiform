@@ -137,7 +137,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.isEnumerator()).isFalse();
@@ -152,8 +151,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    EnumeratorQuestionDefinition.EnumeratorValidationPredicates.create())
                 .build(),
             LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
@@ -168,7 +165,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.isRepeated()).isFalse();
@@ -183,7 +179,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setEnumeratorId(Optional.of(123L))
                 .build());
     assertThat(question.isRepeated()).isTrue();
@@ -220,7 +215,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "not french"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
@@ -238,7 +232,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
@@ -256,7 +249,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     assertThat(question.getQuestionHelpText().get(Locale.FRANCE)).isEqualTo("");
   }
@@ -270,7 +262,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.withDefaultValue("default"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
@@ -286,7 +277,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue("default"))
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionHelpText().getOrDefault(Locale.forLanguageTag("und")))
@@ -302,7 +292,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
@@ -317,7 +306,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
@@ -332,7 +320,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "world"))
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("world");
@@ -347,7 +334,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
@@ -362,7 +348,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
@@ -377,7 +362,6 @@ public class QuestionDefinitionTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     assertThat(question.validate()).isEmpty();
   }
@@ -391,7 +375,6 @@ public class QuestionDefinitionTest {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     assertThat(question.validate())
         .containsOnly(
@@ -483,7 +466,6 @@ public class QuestionDefinitionTest {
                 .setDescription("test")
                 .setQuestionText(LocalizedStrings.of(Locale.US, ""))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     assertThat(question.validate()).containsOnly(CiviFormError.of("Question text cannot be blank"));
   }
@@ -496,7 +478,6 @@ public class QuestionDefinitionTest {
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
@@ -513,7 +494,6 @@ public class QuestionDefinitionTest {
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
@@ -532,7 +512,6 @@ public class QuestionDefinitionTest {
             .setDescription("test")
             .setQuestionText(LocalizedStrings.withDefaultValue("test"))
             .setQuestionHelpText(LocalizedStrings.empty())
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
@@ -646,7 +625,6 @@ public class QuestionDefinitionTest {
                         "ayuda",
                         Locale.GERMAN,
                         "Hilfe"))
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(definition.getSupportedLocales())
@@ -669,7 +647,6 @@ public class QuestionDefinitionTest {
                         Locale.FRANCE,
                         "question"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     assertThat(definition.getSupportedLocales())

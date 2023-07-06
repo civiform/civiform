@@ -35,4 +35,9 @@ public final class DateQuestionDefinition extends QuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.DATE;
   }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return DateValidationPredicates.create();
+  }
 }
