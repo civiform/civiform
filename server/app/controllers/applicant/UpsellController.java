@@ -29,10 +29,7 @@ import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 import views.components.ToastMessage;
 
-/**
- * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
- * can access the page.
- */
+/** Controller for handling methods for upselling applicants. */
 public final class UpsellController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
