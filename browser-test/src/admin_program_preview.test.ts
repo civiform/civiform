@@ -56,4 +56,26 @@ describe('admin program preview', () => {
     await applicantQuestions.submitFromReviewPage()
     await adminPrograms.expectProgramBlockReadOnlyPage()
   })
+
+  it('preview program and use back button', async () => {
+    const {page, adminPrograms, adminQuestions, applicantQuestions} = ctx
+    await loginAsAdmin(page)
+
+    await adminQuestions.addEmailQuestion({questionName: 'email-q'})
+    const programName = 'Apc program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName, 'description', [
+      'email-q',
+    ])
+    await adminPrograms.gotoEditDraftProgramPage(programName)
+
+    await page.click('button:has-text("Preview as applicant")')
+    await waitForPageJsLoad(page)
+
+    await applicantQuestions.clickContinue()
+
+    await page.click('a:has-text("Back to admin view")')
+
+    await adminPrograms.expectProgramBlockEditPage(programName)
+  })
 })

@@ -17,7 +17,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import auth.Role;
 import com.typesafe.config.Config;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
@@ -49,7 +48,9 @@ import views.HtmlBundle;
 import views.LanguageSelector;
 import views.ViewUtils;
 import views.components.ButtonStyles;
+import views.components.Icons;
 import views.components.LinkElement;
+import views.components.LinkElement.IconPosition;
 import views.components.Modal;
 import views.components.Modal.Width;
 import views.dev.DebugContent;
@@ -299,7 +300,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         div()
             .withClasses("flex", "flex-col", "justify-center", "items-center", "grow-0", "md:grow");
 
-    if (profile.isPresent() && profile.get().getRoles().contains(Role.ROLE_TI.toString())) {
+    if (profile.isPresent() && profile.get().isTrustedIntermediary()) {
       String tiDashboardText = "View and Add Clients";
       String tiDashboardLink =
           controllers.ti.routes.TrustedIntermediaryController.dashboard(
@@ -468,6 +469,25 @@ public class ApplicantLayout extends BaseHtmlLayout {
     double denominator = forSummary ? totalBlockCount : totalBlockCount + 1;
 
     return (int) (numerator / denominator * 100.0);
+  }
+
+  protected Optional<DivTag> maybeRenderBackToAdminViewButton(
+      Http.Request request, long programId) {
+    Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
+    if (profile.isPresent() && profile.get().isCiviFormAdmin()) {
+      return Optional.of(
+          div()
+              .withClasses("mb-6")
+              .with(
+                  new LinkElement()
+                      .setHref(
+                          controllers.admin.routes.AdminProgramPreviewController.back(programId)
+                              .url())
+                      .setIcon(Icons.ARROW_LEFT, IconPosition.START)
+                      .setText("Back to admin view")
+                      .asAnchorText()));
+    }
+    return Optional.empty();
   }
 
   /**
