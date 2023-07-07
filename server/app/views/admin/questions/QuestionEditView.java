@@ -113,7 +113,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(formContent, questionType, title);
+    return renderWithPreview(request, formContent, questionType, title);
   }
 
   /** Render a fresh Edit Question Form. */
@@ -164,11 +164,12 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
-    return renderWithPreview(formContent, questionType, title);
+    return renderWithPreview(request, formContent, questionType, title);
   }
 
   /** Render a read-only non-submittable question form. */
   public Content renderViewQuestionForm(
+      Request request,
       QuestionDefinition questionDefinition,
       Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
       throws InvalidQuestionTypeException {
@@ -183,15 +184,16 @@ public final class QuestionEditView extends BaseHtmlView {
         buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
 
-    return renderWithPreview(formContent, questionType, title);
+    return renderWithPreview(request, formContent, questionType, title);
   }
 
-  private Content renderWithPreview(DivTag formContent, QuestionType type, String title) {
+  private Content renderWithPreview(
+      Request request, DivTag formContent, QuestionType type, String title) {
     DivTag previewContent =
         QuestionPreview.renderQuestionPreview(type, messages, fileUploadViewStrategy);
 
     HtmlBundle htmlBundle =
-        layout.getBundle().setTitle(title).addMainContent(formContent, previewContent);
+        layout.getBundle(request).setTitle(title).addMainContent(formContent, previewContent);
     return layout.render(htmlBundle);
   }
 

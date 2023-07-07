@@ -99,7 +99,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
                 renderTopSection(
                     request, errorMessages, settingsManifest.getSections().get(sectionName))));
 
-    HtmlBundle bundle = layout.getBundle().addMainContent(mainContent);
+    HtmlBundle bundle = layout.getBundle(request).addMainContent(mainContent);
 
     if (errorMessages.isPresent()) {
       bundle.addToastMessages(

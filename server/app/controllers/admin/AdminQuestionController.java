@@ -86,7 +86,7 @@ public final class AdminQuestionController extends CiviFormController {
    * it.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(long id) {
+  public CompletionStage<Result> show(Request request, long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -102,7 +102,8 @@ public final class AdminQuestionController extends CiviFormController {
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
                 return ok(
-                    editView.renderViewQuestionForm(questionDefinition, maybeEnumerationQuestion));
+                    editView.renderViewQuestionForm(
+                        request, questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));

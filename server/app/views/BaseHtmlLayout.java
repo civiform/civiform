@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
@@ -26,7 +27,6 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout {
   private final String civiformImageTag;
-  private final String civiformFaviconUrl;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
@@ -34,7 +34,7 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  private final SettingsManifest settingsManifest;
+  protected final SettingsManifest settingsManifest;
   private final Optional<String> measurementId;
   private final boolean isDevOrStaging;
   private final boolean addNoindexMetaTag;
@@ -50,12 +50,11 @@ public class BaseHtmlLayout {
     this.addNoindexMetaTag = this.isDevOrStaging && settingsManifest.getStagingAddNoindexMetaTag();
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
-    civiformFaviconUrl = settingsManifest.getFaviconUrl().get();
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
-  public HtmlBundle getBundle() {
-    return getBundle(new HtmlBundle(viewUtils));
+  public HtmlBundle getBundle(Http.RequestHeader request) {
+    return getBundle(new HtmlBundle(request, viewUtils));
   }
 
   /** Get the application feature flags. */
@@ -106,7 +105,7 @@ public class BaseHtmlLayout {
         .ifPresent(bundle::addFooterScripts);
 
     // Add the favicon link
-    bundle.setFavicon(civiformFaviconUrl);
+    bundle.setFavicon(settingsManifest.getFaviconUrl(bundle.getRequest()).get());
     bundle.setJsBundle(getJsBundle());
 
     return bundle;

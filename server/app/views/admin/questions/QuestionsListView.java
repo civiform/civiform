@@ -131,7 +131,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addModals(questionRowsAndModals.getRight())
             .addMainContent(contentDiv);

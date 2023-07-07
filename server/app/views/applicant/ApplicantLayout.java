@@ -75,9 +75,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
   public final String supportEmail;
-  private final Optional<String> maybeLogoUrl;
-  private final String civicEntityFullName;
-  private final String civicEntityShortName;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
@@ -96,9 +93,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
     this.supportEmail = settingsManifest.getSupportEmailAddress().get();
-    this.maybeLogoUrl = settingsManifest.getWhitelabelSmallLogoUrl();
-    this.civicEntityFullName = settingsManifest.getWhitelabelCivicEntityFullName().get();
-    this.civicEntityShortName = settingsManifest.getWhitelabelCivicEntityShortName().get();
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
@@ -198,7 +192,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return nav()
         .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
         .with(
-            div(branding())
+            div(branding(request))
                 .withClasses(
                     "items-center",
                     "place-items-center",
@@ -263,17 +257,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return languageFormDiv;
   }
 
-  private ATag branding() {
-    ImgTag cityImage;
-
-    if (maybeLogoUrl.isPresent()) {
-      cityImage = img().withSrc(maybeLogoUrl.get());
-    } else {
-      cityImage = this.layout.viewUtils.makeLocalImageTag("civiform-staging");
-    }
+  private ATag branding(Http.Request request) {
+    ImgTag cityImage =
+        settingsManifest
+            .getWhitelabelSmallLogoUrl(request)
+            .map(url -> img().withSrc(url))
+            .orElseGet(() -> this.layout.viewUtils.makeLocalImageTag("civiform-staging"));
 
     cityImage
-        .withAlt(civicEntityFullName + " Logo")
+        .withAlt(settingsManifest.getWhitelabelCivicEntityFullName(request).get() + " Logo")
         .attr("aria-hidden", "true")
         .withClasses("w-16", "py-1");
 
@@ -286,7 +278,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withId("brand-id")
                 .withLang(Locale.ENGLISH.toLanguageTag())
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
-                .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
+                .with(
+                    p(
+                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        span(text(" CiviForm")))));
   }
 
   private DivTag maybeRenderTiButton(

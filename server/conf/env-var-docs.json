@@ -3,22 +3,22 @@
     "group_description": "Configuration options for CiviForm branding.",
     "members": {
       "WHITELABEL_SMALL_LOGO_URL": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Small logo for the civic entity used on the login page.",
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
         "type": "string"
       },
       "FAVICON_URL": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
         "type": "string"
       }

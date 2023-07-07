@@ -50,7 +50,7 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
     HtmlBundle bundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .addMainStyles("mx-12", "my-8")
             .addMainContent(topContent(programTitle, programInfo, messages))
             .addMainContent(createButtons(applicantId, program.id(), messages));

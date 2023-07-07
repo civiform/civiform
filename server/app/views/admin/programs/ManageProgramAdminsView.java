@@ -60,7 +60,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(fullTitle)
             .addMainContent(
                 renderHeader(fullTitle),

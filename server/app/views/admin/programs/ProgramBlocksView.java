@@ -144,7 +144,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div()

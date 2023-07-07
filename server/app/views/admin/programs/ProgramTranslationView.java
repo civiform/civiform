@@ -59,7 +59,7 @@ public final class ProgramTranslationView extends TranslationFormView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(renderHeader(title), renderLanguageLinks(program.id(), locale), form);
 

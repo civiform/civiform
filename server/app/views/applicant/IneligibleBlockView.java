@@ -117,7 +117,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
     String title = "Ineligible for program";
     HtmlBundle bundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), content);

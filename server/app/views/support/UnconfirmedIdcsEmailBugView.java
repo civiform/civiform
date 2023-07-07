@@ -6,6 +6,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 
 import javax.inject.Inject;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -21,8 +22,8 @@ public class UnconfirmedIdcsEmailBugView extends BaseHtmlView {
     this.applicantLayout = checkNotNull(applicantLayout);
   }
 
-  public Content render() {
-    HtmlBundle bundle = applicantLayout.getBundle();
+  public Content render(Http.Request request) {
+    HtmlBundle bundle = applicantLayout.getBundle(request);
 
     bundle.setTitle("Please contact support");
     bundle.addMainContent(h1("Please contact support"));

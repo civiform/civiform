@@ -79,7 +79,7 @@ public final class InternalServerError extends BaseHtmlView {
 
   private HtmlBundle addBodyFooter(
       Http.RequestHeader request, Messages messages, String exceptionId) {
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(request);
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addMainContent(mainContent(messages, exceptionId));

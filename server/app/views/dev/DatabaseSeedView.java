@@ -88,7 +88,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
             .withClasses("px-6", "py-6");
 
-    HtmlBundle bundle = layout.getBundle().setTitle(title).addMainContent(content);
+    HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
   }
 

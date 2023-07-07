@@ -73,7 +73,6 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final ProfileUtils profileUtils;
   private final String authProviderName;
-  private final String civicEntityShortName;
   private final ZoneId zoneId;
 
   @Inject
@@ -86,7 +85,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.profileUtils = checkNotNull(profileUtils);
-    this.civicEntityShortName = settingsManifest.getWhitelabelCivicEntityShortName().get();
     this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
   }
@@ -108,7 +106,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<ToastMessage> bannerMessage) {
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
 
@@ -119,7 +117,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setDuration(5000));
 
     bundle.addMainContent(
-        topContent(messages, personalInfo),
+        topContent(request, messages, personalInfo),
         mainContent(
             request,
             messages,
@@ -133,7 +131,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true);
   }
 
-  private DivTag topContent(Messages messages, ApplicantPersonalInfo personalInfo) {
+  private DivTag topContent(
+      Http.Request request, Messages messages, ApplicantPersonalInfo personalInfo) {
 
     String h1Text, infoDivText, widthClass;
 
@@ -147,7 +146,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       // "Get benefits"
       h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
       infoDivText =
-          messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName);
+          messages.at(
+              MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(),
+              settingsManifest.getWhitelabelCivicEntityShortName(request));
       widthClass = "w-5/12";
     }
 
