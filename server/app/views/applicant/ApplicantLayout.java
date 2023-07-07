@@ -74,7 +74,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
-  public final String supportEmail;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
@@ -92,7 +91,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
-    this.supportEmail = settingsManifest.getSupportEmailAddress().get();
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
         this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
@@ -132,6 +130,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Messages messages,
       HtmlBundle bundle,
       boolean includeAdminLogin) {
+    String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, personalInfo, messages));

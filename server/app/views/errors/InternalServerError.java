@@ -7,7 +7,6 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
@@ -15,6 +14,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.MessageKey;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.LanguageSelector;
@@ -31,14 +31,16 @@ public final class InternalServerError extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final LanguageSelector languageSelector;
-  private final String supportEmail;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public InternalServerError(
-      ApplicantLayout layout, Config configuration, LanguageSelector languageSelector) {
+      ApplicantLayout layout,
+      LanguageSelector languageSelector,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.languageSelector = checkNotNull(languageSelector);
-    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(Http.RequestHeader request, Messages messages, String exceptionId) {
@@ -51,8 +53,9 @@ public final class InternalServerError extends BaseHtmlView {
         .withClasses(ErrorStyles.H1_NOT_FOUND);
   }
 
-  private DivTag descriptionContent(Messages messages, String exceptionId) {
-
+  private DivTag descriptionContent(
+      Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
+    String supportEmail = settingsManifest.getSupportEmailAddress(requestHeader).get();
     String emailLinkHref =
         String.format("mailto:%s?body=[CiviForm Error ID: %s]", supportEmail, exceptionId);
 
@@ -72,8 +75,9 @@ public final class InternalServerError extends BaseHtmlView {
   }
 
   /** Page returned on 500 error */
-  private DivTag mainContent(Messages messages, String exceptionId) {
-    return div(h1Content(messages), descriptionContent(messages, exceptionId))
+  private DivTag mainContent(
+      Http.RequestHeader requestHeader, Messages messages, String exceptionId) {
+    return div(h1Content(messages), descriptionContent(requestHeader, messages, exceptionId))
         .withClasses("text-center", "max-w-screen-sm", "w-5/6", "mx-auto");
   }
 
@@ -82,7 +86,7 @@ public final class InternalServerError extends BaseHtmlView {
     HtmlBundle bundle = layout.getBundle(request);
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
-    bundle.addMainContent(mainContent(messages, exceptionId));
+    bundle.addMainContent(mainContent(request, messages, exceptionId));
 
     return bundle;
   }

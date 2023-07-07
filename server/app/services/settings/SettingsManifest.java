@@ -448,13 +448,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** This email address is listed in the footer for applicants to contact support. */
-  public Optional<String> getSupportEmailAddress() {
-    return getString("SUPPORT_EMAIL_ADDRESS");
+  public Optional<String> getSupportEmailAddress(RequestHeader request) {
+    return getString("SUPPORT_EMAIL_ADDRESS", request);
   }
 
   /** This email address receives error notifications from CiviForm when things break. */
-  public Optional<String> getItEmailAddress() {
-    return getString("IT_EMAIL_ADDRESS");
+  public Optional<String> getItEmailAddress(RequestHeader request) {
+    return getString("IT_EMAIL_ADDRESS", request);
   }
 
   /**
@@ -1160,13 +1160,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "This email address is listed in the footer for applicants to contact"
                           + " support.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "IT_EMAIL_ADDRESS",
                       "This email address receives error notifications from CiviForm when things"
                           + " break.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "STAGING_ADMIN_LIST",
                       "If this is a staging deployment, the application notification email is sent"
