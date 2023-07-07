@@ -42,6 +42,7 @@ python3 -m venv env-var-docs/venv
 echo "Installing dependencies..."
 source env-var-docs/venv/bin/activate
 
+pip install --upgrade pip setuptools wheel
 pip install -e 'env-var-docs/parser-package[test]'
 pip install PyGithub
 
