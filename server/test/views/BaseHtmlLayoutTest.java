@@ -30,8 +30,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            ConfigFactory.parseMap(DEFAULT_CONFIG),
-            instanceOf(SettingsManifest.class),
+            new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
             instanceOf(DeploymentType.class));
   }
 
@@ -61,8 +60,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            ConfigFactory.parseMap(config),
-            instanceOf(SettingsManifest.class),
+            new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class));
     HtmlBundle bundle = layout.getBundle();
     Content content = layout.render(bundle);

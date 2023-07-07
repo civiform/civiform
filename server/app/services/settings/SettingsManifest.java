@@ -79,8 +79,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The name of the portal that applicants log into, used in sentences like 'Log into your
    * APPLICANT_PORTAL_NAME account.'
    */
-  public Optional<String> getApplicantPortalName() {
-    return getString("APPLICANT_PORTAL_NAME");
+  public Optional<String> getApplicantPortalName(Request request) {
+    return getString("APPLICANT_PORTAL_NAME", request);
   }
 
   /**
@@ -147,14 +147,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getApplicantOidcProviderLogout() {
     return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT");
-  }
-
-  /**
-   * Enables [central
-   * logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).
-   */
-  public boolean getApplicantOidcProviderLogout(Request request) {
-    return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT", request);
   }
 
   /**
@@ -345,15 +337,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("DATABASE_APPLY_DESTRUCTIVE_CHANGES");
   }
 
-  /**
-   * If enabled, [playframework down
-   * evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions#Evolutions-scripts)
-   * are automatically applied on server start if needed.
-   */
-  public boolean getDatabaseApplyDestructiveChanges(Request request) {
-    return getBool("DATABASE_APPLY_DESTRUCTIVE_CHANGES", request);
-  }
-
   /** Sets how many connections to the database are maintained. */
   public Optional<Integer> getDatabaseConnectionPoolSize() {
     return getInt("DATABASE_CONNECTION_POOL_SIZE");
@@ -502,16 +485,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The text for a link on the Common Intake confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkText() {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT");
+  public Optional<String> getCommonIntakeMoreResourcesLinkText(Request request) {
+    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT", request);
   }
 
   /**
    * The HREF for a link on the Common Intake confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkHref() {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF");
+  public Optional<String> getCommonIntakeMoreResourcesLinkHref(Request request) {
+    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
   }
 
   /**
@@ -585,14 +568,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
-   * disabled, '/metrics' returns a 404.
-   */
-  public boolean getCiviformServerMetricsEnabled(Request request) {
-    return getBool("CIVIFORM_SERVER_METRICS_ENABLED", request);
-  }
-
-  /**
    * The Google Analytics tracking ID.  If set, Google Analytics JavaScript scripts are added to the
    * CiviForm pages.
    */
@@ -616,14 +591,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getCiviformApiKeysBanGlobalSubnet() {
     return getBool("CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET");
-  }
-
-  /**
-   * When true prevents the CiviForm admin from issuing API keys that allow callers from all IP
-   * addresses (i.e. a CIDR mask of /0).
-   */
-  public boolean getCiviformApiKeysBanGlobalSubnet(Request request) {
-    return getBool("CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET", request);
   }
 
   /**
@@ -664,21 +631,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
    */
-  public boolean getEsriAddressServiceAreaValidationEnabled() {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
-  }
-
-  /**
-   * Enables the feature that allows for service area validation of a corrected address.
-   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
-   */
   public boolean getEsriAddressServiceAreaValidationEnabled(Request request) {
     return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
-  }
-
-  /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled() {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED");
   }
 
   /** Enables the feature that allows address correction for address questions. */
@@ -691,27 +645,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ADMIN_SETTINGS_PANEL_ENABLED");
   }
 
-  /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
-  public boolean getAdminSettingsPanelEnabled(Request request) {
-    return getBool("ADMIN_SETTINGS_PANEL_ENABLED", request);
-  }
-
-  /** If enabled, allows questions to be optional in programs. Is enabled by default. */
-  public boolean getCfOptionalQuestions() {
-    return getBool("CF_OPTIONAL_QUESTIONS");
-  }
-
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
   public boolean getCfOptionalQuestions(Request request) {
     return getBool("CF_OPTIONAL_QUESTIONS", request);
-  }
-
-  /**
-   * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
-   * default.
-   */
-  public boolean getAllowCiviformAdminAccessPrograms() {
-    return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS");
   }
 
   /**
@@ -726,21 +662,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
    * default.
    */
-  public boolean getShowCiviformImageTagOnLandingPage() {
-    return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE");
-  }
-
-  /**
-   * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
-   * default.
-   */
   public boolean getShowCiviformImageTagOnLandingPage(Request request) {
     return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
-  }
-
-  /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled() {
-    return getBool("INTAKE_FORM_ENABLED");
   }
 
   /** Enables the Common Intake Form feature. */
@@ -759,34 +682,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * If this is a staging deployment and this variable is set to true, a [robots
-   * noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata
-   * tag is added to the CiviForm pages. This causes the staging site to not be listed on search
-   * engines.
-   */
-  public boolean getStagingAddNoindexMetaTag(Request request) {
-    return getBool("STAGING_ADD_NOINDEX_META_TAG", request);
-  }
-
-  /**
    * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
    * buttons are not shown on the login page.
    */
   public boolean getStagingDisableDemoModeLogins() {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
-  }
-
-  /**
-   * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
-   * buttons are not shown on the login page.
-   */
-  public boolean getStagingDisableDemoModeLogins(Request request) {
-    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
-  }
-
-  /** Enables the phone number question type. */
-  public boolean getPhoneQuestionTypeEnabled() {
-    return getBool("PHONE_QUESTION_TYPE_ENABLED");
   }
 
   /** Enables the phone number question type. */
@@ -811,13 +711,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "FAVICON_URL",
                       "The URL of a 32x32 or 16x16 pixel"
@@ -1260,13 +1160,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "This email address is listed in the footer for applicants to contact"
                           + " support.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "IT_EMAIL_ADDRESS",
                       "This email address receives error notifications from CiviForm when things"
                           + " break.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "STAGING_ADMIN_LIST",
                       "If this is a staging deployment, the application notification email is sent"

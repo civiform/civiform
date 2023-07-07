@@ -77,7 +77,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
   private final SettingsManifest settingsManifest;
-  private final boolean featureFlagOptionalQuestions;
   private final ProgramDisplayType programDisplayType;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
@@ -96,7 +95,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.featureFlagOptionalQuestions = settingsManifest.getCfOptionalQuestions();
     this.programDisplayType = programViewType;
   }
 
@@ -190,7 +188,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition,
                   csrfTag,
                   QuestionBank.shouldShowQuestionBank(request),
-                  settingsManifest.getPhoneQuestionTypeEnabled()))
+                  settingsManifest.getPhoneQuestionTypeEnabled(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -648,7 +646,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     Optional<FormTag> maybeOptionalToggle =
         renderOptionalToggle(
-            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
+            request,
+            csrfTag,
+            programDefinition.id(),
+            blockDefinition.id(),
+            questionDefinition,
+            isOptional);
 
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -769,12 +772,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * optional or mandatory.
    */
   private Optional<FormTag> renderOptionalToggle(
+      Request request,
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean isOptional) {
-    if (!featureFlagOptionalQuestions) {
+    if (!settingsManifest.getCfOptionalQuestions(request)) {
       return Optional.empty();
     }
     if (questionDefinition instanceof StaticContentQuestionDefinition) {

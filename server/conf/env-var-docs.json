@@ -8,12 +8,12 @@
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
         "type": "string"
       },
@@ -371,12 +371,12 @@
     "group_description": "Configuration options for [CiviForm email usage](https://docs.civiform.us/it-manual/sre-playbook/email-configuration).",
     "members": {
       "SUPPORT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "This email address is listed in the footer for applicants to contact support.",
         "type": "string"
       },
       "IT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "This email address receives error notifications from CiviForm when things break.",
         "type": "string"
       },

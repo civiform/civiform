@@ -43,14 +43,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   {% for method_spec in getter_method_specs %}
-  /** {{method_spec.doc()}} */
-  public {{method_spec.return_type()}} get{{method_spec.method_name()}}() {
-    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}");
-  }
-  {% if method_spec.variable.type == "bool" %}
+  {% if method_spec.variable.mode == writeable_mode %}
   /** {{method_spec.doc()}} */
   public {{method_spec.return_type()}} get{{method_spec.method_name()}}(Request request) {
     return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}", request);
+  }
+  {% else %}
+  /** {{method_spec.doc()}} */
+  public {{method_spec.return_type()}} get{{method_spec.method_name()}}() {
+    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}");
   }
   {% endif %}
   {% endfor %}

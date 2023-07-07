@@ -7,7 +7,6 @@ import static j2html.TagCreator.script;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -42,24 +41,16 @@ public class BaseHtmlLayout {
 
   @Inject
   public BaseHtmlLayout(
-      ViewUtils viewUtils,
-      Config configuration,
-      SettingsManifest settingsManifest,
-      DeploymentType deploymentType) {
-    checkNotNull(configuration);
+      ViewUtils viewUtils, SettingsManifest settingsManifest, DeploymentType deploymentType) {
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.measurementId =
-        configuration.hasPath("measurement_id")
-            ? Optional.of(configuration.getString("measurement_id"))
-            : Optional.empty();
+    this.measurementId = settingsManifest.getMeasurementId();
 
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
-    this.addNoindexMetaTag =
-        this.isDevOrStaging && configuration.getBoolean("staging_add_noindex_meta_tag");
+    this.addNoindexMetaTag = this.isDevOrStaging && settingsManifest.getStagingAddNoindexMetaTag();
 
-    civiformImageTag = configuration.getString("civiform_image_tag");
-    civiformFaviconUrl = configuration.getString("favicon_url");
+    civiformImageTag = settingsManifest.getCiviformImageTag().get();
+    civiformFaviconUrl = settingsManifest.getFaviconUrl().get();
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */

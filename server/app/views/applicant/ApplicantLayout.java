@@ -17,7 +17,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -87,26 +86,22 @@ public class ApplicantLayout extends BaseHtmlLayout {
   public ApplicantLayout(
       BaseHtmlLayout layout,
       ViewUtils viewUtils,
-      Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent) {
-    super(viewUtils, configuration, settingsManifest, deploymentType);
+    super(viewUtils, settingsManifest, deploymentType);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
-    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
-    this.maybeLogoUrl =
-        checkNotNull(configuration).hasPath("whitelabel_small_logo_url")
-            ? Optional.of(configuration.getString("whitelabel_small_logo_url"))
-            : Optional.empty();
-    this.civicEntityFullName = configuration.getString("whitelabel_civic_entity_full_name");
-    this.civicEntityShortName = configuration.getString("whitelabel_civic_entity_short_name");
+    this.supportEmail = settingsManifest.getSupportEmailAddress().get();
+    this.maybeLogoUrl = settingsManifest.getWhitelabelSmallLogoUrl();
+    this.civicEntityFullName = settingsManifest.getWhitelabelCivicEntityFullName().get();
+    this.civicEntityShortName = settingsManifest.getWhitelabelCivicEntityShortName().get();
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
-        this.isDevOrStaging && configuration.getBoolean("staging_disable_demo_mode_logins");
+        this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
   }
 

@@ -54,7 +54,6 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final String civicEntityShortName;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -68,7 +67,6 @@ public final class ProgramIndexView extends BaseHtmlView {
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.civicEntityShortName = config.getString("whitelabel_civic_entity_short_name");
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -85,7 +83,9 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     // Revisit if we introduce internationalization because the word order could change in other
     // languages.
-    String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
+    String pageExplanation =
+        "Create, edit and publish programs in "
+            + settingsManifest.getWhitelabelCivicEntityShortName();
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();

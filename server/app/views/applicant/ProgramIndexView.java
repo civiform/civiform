@@ -22,7 +22,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import controllers.routes;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -75,23 +74,19 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final ProfileUtils profileUtils;
   private final String authProviderName;
   private final String civicEntityShortName;
-  private final String applicantPortalName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ZoneId zoneId,
-      Config config,
       SettingsManifest settingsManifest,
       ProfileUtils profileUtils,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.profileUtils = checkNotNull(profileUtils);
-    this.civicEntityShortName =
-        checkNotNull(config).getString("whitelabel_civic_entity_short_name");
-    this.applicantPortalName = checkNotNull(config).getString("applicant_portal_name");
+    this.civicEntityShortName = settingsManifest.getWhitelabelCivicEntityShortName().get();
     this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
   }
@@ -487,7 +482,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 messages,
                 actionUrl,
                 messages.at(
-                    MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(), applicantPortalName),
+                    MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
+                    settingsManifest.getApplicantPortalName(request)),
                 MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
             .setRepeatOpenBehavior(
                 RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))
