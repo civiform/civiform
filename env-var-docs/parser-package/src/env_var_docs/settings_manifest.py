@@ -13,6 +13,7 @@ import env_var_docs.errors_formatter
 from jinja2 import Environment, PackageLoader, select_autoescape
 from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
 from io import StringIO
+from typing import Union
 
 
 @dataclasses.dataclass
@@ -181,9 +182,10 @@ class GetterMethodSpec:
 
 
 def generate_manifest(
-        docs_file: typing.TextIO) -> tuple[str | None, list[NodeParseError]]:
+        docs_file: typing.TextIO
+) -> tuple[Union[str, None], list[NodeParseError]]:
     root_group = ParsedGroup("Miscellaneous", "Miscellaneous")
-    docs: dict[str, ParsedGroup | Variable] = {"file": root_group}
+    docs: dict[str, Union[ParsedGroup, Variable]] = {"file": root_group}
     getter_method_specs: list[GetterMethodSpec] = []
 
     def visitor(node: Node):

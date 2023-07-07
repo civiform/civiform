@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import typing
+from typing import Union
 
 
 def errorexit(msg):
@@ -52,7 +53,7 @@ def main():
 
 def run_tests(
     docs_file: typing.TextIO
-) -> tuple[list[str] | None, list[env_var_docs.parser.NodeParseError]]:
+) -> tuple[Union[list[str], None], list[env_var_docs.parser.NodeParseError]]:
     """Runs any provided regex tests in an environment variable documentation file.
 
     Returns a list of environment variable names that failed their tests. Test

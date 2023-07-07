@@ -63,7 +63,7 @@ bin/env-var-docs-generate-markdown
 ### Python dependencies
 
 To contribute to any of the python files in this directory, ensure you have a
-system installation of python version 3.10 or greater:
+system installation of python version 3.8 or greater:
 
 ```sh
 $ python3 --version

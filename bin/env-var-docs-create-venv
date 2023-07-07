@@ -18,17 +18,17 @@ if [[ "${python_path}" =~ "env-var-docs/venv/bin/python3" ]]; then
 fi
 
 if [[ "${python_path}" == "" ]]; then
-  echo "System installation of python 3.10+ is required"
+  echo "System installation of python 3.8+ is required"
   exit 1
 fi
 
 python3 - <<EOF
 import sys
 v = sys.version_info
-if v.major >= 3 and v.minor >= 10:
+if v.major >= 3 and v.minor >= 8:
     pass
 else:
-    exit("System installation of python >= 3.10 is required")
+    exit("System installation of python >= 3.8 is required")
 EOF
 
 if [[ -d env-var-docs/venv ]]; then

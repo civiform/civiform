@@ -9,6 +9,7 @@ See parser-package/README.md for a description of the expected structure.
 import dataclasses
 from enum import Enum
 import typing
+from typing import Union
 import json
 
 UnparsedJSON = dict[str, typing.Any]
@@ -49,9 +50,9 @@ class Variable:
     description: str
     type: str
     required: bool
-    values: list[str] | None
-    regex: str | None
-    regex_tests: list[RegexTest] | None
+    values: Union[list[str], None]
+    regex: Union[str, None]
+    regex_tests: Union[list[RegexTest], None]
     mode: Mode
 
 
@@ -76,7 +77,7 @@ class Node:
     name: str
     """The group name or variable name. The JSON field key is the name."""
 
-    details: Group | Variable
+    details: Union[Group, Variable]
     """The group details or variable details."""
 
 
@@ -215,8 +216,9 @@ def _recursively_parse(
     parsing_errors.append(NodeParseError(path, group_errors, var_errors))
 
 
-def _try_parse_group(parent_path: str,
-                     obj: UnparsedJSON) -> tuple[Group | None, ParseErrors]:
+def _try_parse_group(
+        parent_path: str,
+        obj: UnparsedJSON) -> tuple[Union[Group, None], ParseErrors]:
     """Attempts to parse a Group from obj. If ParseErrors are encountered, None is returned."""
     errors = []
 
@@ -254,7 +256,7 @@ def _try_parse_group(parent_path: str,
 
 def _try_parse_variable(
         parent_path: str,
-        obj: UnparsedJSON) -> tuple[Variable | None, ParseErrors]:
+        obj: UnparsedJSON) -> tuple[Union[Variable, None], ParseErrors]:
     """Attempts to parse a Variable from obj. If ParseErrors are encountered, None is returned."""
     errors = []
 
@@ -382,15 +384,16 @@ ExtractFn = typing.Callable[[UnparsedJSON], T]
 
 
 def _parse_field(
-        parent_path: str,
-        key: str,
-        json_type: type,
-        required: bool,
-        obj: UnparsedJSON,
-        default: T | None = None,
-        checks: list[CheckFn] = [],
-        return_type: typing.Type[T] | None = None,
-        extract_fn: ExtractFn | None = None) -> tuple[T | None, ParseErrors]:
+    parent_path: str,
+    key: str,
+    json_type: type,
+    required: bool,
+    obj: UnparsedJSON,
+    default: Union[T, None] = None,
+    checks: list[CheckFn] = [],
+    return_type: Union[typing.Type[T], None] = None,
+    extract_fn: Union[ExtractFn, None] = None
+) -> tuple[Union[T, None], ParseErrors]:
     """Parses a field within obj.
 
     ParseErrors are returned if:

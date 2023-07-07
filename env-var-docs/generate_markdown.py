@@ -20,6 +20,7 @@ import github
 import os
 import sys
 import typing
+from typing import Union
 
 
 def error_exit(msg):
@@ -139,7 +140,7 @@ def main():
 
 def generate_markdown(
     docs_file: typing.TextIO
-) -> tuple[str | None, list[env_var_docs.parser.NodeParseError]]:
+) -> tuple[Union[str, None], list[env_var_docs.parser.NodeParseError]]:
     out = ""
 
     def append_node_to_out(node: env_var_docs.parser.Node):
