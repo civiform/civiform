@@ -165,13 +165,13 @@ public final class QuestionsListView extends BaseHtmlView {
                         DATA_ATTRIBUTE_LAST_MODIFIED, /* descending= */ true))
                 .build(),
             SelectWithLabel.OptionValue.builder()
-                .setLabel("Admin name A-Z")
+                .setLabel("Admin ID A-Z")
                 .setValue(
                     formatQuestionSortSelectValue(
                         DATA_ATTRIBUTE_ADMIN_NAME, /* descending= */ false))
                 .build(),
             SelectWithLabel.OptionValue.builder()
-                .setLabel("Admin name Z-A")
+                .setLabel("Admin ID Z-A")
                 .setValue(
                     formatQuestionSortSelectValue(
                         DATA_ATTRIBUTE_ADMIN_NAME, /* descending= */ true))
