@@ -85,7 +85,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // languages.
     String pageExplanation =
         "Create, edit and publish programs in "
-            + settingsManifest.getWhitelabelCivicEntityShortName();
+            + settingsManifest.getWhitelabelCivicEntityShortName().get();
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
