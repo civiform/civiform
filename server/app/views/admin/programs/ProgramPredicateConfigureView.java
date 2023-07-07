@@ -814,7 +814,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .collect(Collectors.joining(","));
           }
 
-          return predicateValue.value();
+          return predicateValue.valueWithoutSurroundingQuotes();
         }
 
       default:

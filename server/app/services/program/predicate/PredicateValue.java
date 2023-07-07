@@ -135,7 +135,26 @@ public abstract class PredicateValue {
         .orElse("<obsolete>");
   }
 
+  /**
+   * Remove any double quotes currently in the string, as this would interfere with how we store the
+   * predicate, then surround the string with a pair of double quotes.
+   *
+   * @param s the string to surround in double quotes
+   * @return the same string with double quotes removed, then surrounded by double quotes
+   */
   private static String surroundWithQuotes(String s) {
-    return "\"" + s + "\"";
+    return '"' + s.replace("\"", "") + '"';
+  }
+
+  /**
+   * Get the stringified value of the predicate without surrounding quotes. Used for displaying the
+   * predicate string in the UI. Only removes surrounding quotes from plain string predicate types.
+   * Lists of strings will still contain double quotes around each item in the list.
+   *
+   * @return A plain string with surrounding double quotes removed, or the result of value() if it
+   *     is not a plain string type.
+   */
+  public String valueWithoutSurroundingQuotes() {
+    return type() == OperatorRightHandType.STRING ? value().replace("\"", "") : value();
   }
 }
