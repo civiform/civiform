@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import play.mvc.Http.Request;
 
@@ -810,13 +811,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "FAVICON_URL",
                       "The URL of a 32x32 or 16x16 pixel"
@@ -1047,13 +1048,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " ial/1 is for open registration, email only. ial/2 is"
                                           + " for requiring identity verification.",
                                       SettingType.ENUM,
-                                      SettingMode.HIDDEN)))),
+                                      SettingMode.HIDDEN,
+                                      ImmutableList.of(
+                                          "http://idmanagement.gov/ns/assurance/ial/1",
+                                          "http://idmanagement.gov/ns/assurance/ial/2"))))),
                       ImmutableList.of(
                           SettingDescription.create(
                               "CIVIFORM_APPLICANT_IDP",
                               "What identity provider to use for applicants.",
                               SettingType.ENUM,
-                              SettingMode.ADMIN_READABLE),
+                              SettingMode.ADMIN_READABLE,
+                              ImmutableList.of(
+                                  "idcs",
+                                  "login-radius",
+                                  "generic-oidc",
+                                  "login-gov",
+                                  "auth0",
+                                  "disabled")),
                           SettingDescription.create(
                               "APPLICANT_REGISTER_URI",
                               "URI to create a new account in the applicant identity provider.",
@@ -1064,7 +1075,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "The name of the portal that applicants log into, used in sentences"
                                   + " like 'Log into your APPLICANT_PORTAL_NAME account.'",
                               SettingType.STRING,
-                              SettingMode.ADMIN_READABLE))),
+                              SettingMode.ADMIN_WRITEABLE))),
                   SettingsSection.create(
                       "Administrator Identity Provider",
                       "Configuration options for the [administrator identity"
@@ -1152,7 +1163,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "STORAGE_SERVICE_NAME",
                               "What static file storage provider to use.",
                               SettingType.ENUM,
-                              SettingMode.HIDDEN),
+                              SettingMode.HIDDEN,
+                              ImmutableList.of("s3", "azure-blob")),
                           SettingDescription.create(
                               "AWS_S3_BUCKET_NAME",
                               "s3 bucket to store files in.",
@@ -1248,13 +1260,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "This email address is listed in the footer for applicants to contact"
                           + " support.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "IT_EMAIL_ADDRESS",
                       "This email address receives error notifications from CiviForm when things"
                           + " break.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "STAGING_ADMIN_LIST",
                       "If this is a staging deployment, the application notification email is sent"
@@ -1287,14 +1299,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " more resources. Shown when the applicant is not eligible for any"
                           + " programs in CiviForm.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF",
                       "The HREF for a link on the Common Intake confirmation page that links to"
                           + " more resources. Shown when the applicant is not eligible for any"
                           + " programs in CiviForm.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_WRITEABLE,
+                      Pattern.compile("^(http://|https://).+")))),
           "Observability",
           SettingsSection.create(
               "Observability",
@@ -1437,9 +1450,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the phone number question type.",
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
-          "ROOT",
+          "Miscellaneous",
           SettingsSection.create(
-              "ROOT",
+              "Miscellaneous",
               "Top level vars",
               ImmutableList.of(),
               ImmutableList.of(
@@ -1456,13 +1469,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The URL of the CiviForm deployment.  Must start with 'https://' or"
                           + " 'http://'.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_READABLE),
+                      SettingMode.ADMIN_READABLE,
+                      Pattern.compile("^(http://|https://).+")),
                   SettingDescription.create(
                       "STAGING_HOSTNAME",
                       "DNS name of the staging deployment.  Must not start with 'https://' or"
                           + " 'http://'.",
                       SettingType.STRING,
-                      SettingMode.HIDDEN),
+                      SettingMode.HIDDEN,
+                      Pattern.compile("^(?!http://|https://).+")),
                   SettingDescription.create(
                       "CIVIFORM_SUPPORTED_LANGUAGES",
                       "The languages that applicants can choose from when specifying their"
@@ -1503,5 +1518,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " If \"FORWARDED\" then request has been reverse proxied and the"
                           + " originating IP address is stored in the X-Forwarded-For header.",
                       SettingType.ENUM,
-                      SettingMode.HIDDEN))));
+                      SettingMode.ADMIN_READABLE,
+                      ImmutableList.of("DIRECT", "FORWARDED")))));
 }

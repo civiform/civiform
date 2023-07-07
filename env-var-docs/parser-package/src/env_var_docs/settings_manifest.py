@@ -82,8 +82,9 @@ def render_sections(root_group: ParsedGroup) -> str:
 
     if root_group.variables:
         group_for_top_level_vars = ParsedGroup(
-            "ROOT", "Top level vars", [], root_group.variables)
-        out.write(f', "ROOT", {render_group(group_for_top_level_vars)}')
+            "Miscellaneous", "Top level vars", [], root_group.variables)
+        out.write(
+            f', "Miscellaneous", {render_group(group_for_top_level_vars)}')
 
     out.write(")")
 
@@ -104,6 +105,14 @@ def render_group(group: ParsedGroup) -> str:
 def render_variable(name: str, variable: Variable) -> str:
     setting_type = _get_java_setting_type(variable)
     setting_mode = str(variable.mode).replace("Mode.", "")
+
+    if setting_type == "ENUM" and variable.values:
+        allowable_values = ", ".join([f'"{val}"' for val in variable.values])
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
+
+    if setting_type == "STRING" and variable.regex:
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, Pattern.compile("{variable.regex}"))'
+
     return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode})'
 
 
@@ -173,7 +182,7 @@ class GetterMethodSpec:
 
 def generate_manifest(
         docs_file: typing.TextIO) -> tuple[str | None, list[NodeParseError]]:
-    root_group = ParsedGroup("ROOT", "ROOT")
+    root_group = ParsedGroup("Miscellaneous", "Miscellaneous")
     docs: dict[str, ParsedGroup | Variable] = {"file": root_group}
     getter_method_specs: list[GetterMethodSpec] = []
 

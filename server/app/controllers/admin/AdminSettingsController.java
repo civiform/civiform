@@ -56,10 +56,16 @@ public class AdminSettingsController extends CiviFormController {
             .filter(entry -> !entry.getKey().equals("csrfToken"))
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
 
-    Result result = redirect(routes.AdminSettingsController.index());
+    SettingsService.SettingsGroupUpdateResult result =
+        settingsService.updateSettings(settingUpdates, profile.get());
 
-    return settingsService.updateSettings(settingUpdates, profile.get())
-        ? result.flashing("success", "Settings updated")
-        : result.flashing("warning", "No changes to save");
+    if (result.hasErrors()) {
+      return ok(indexView.render(request, result.errorMessages()));
+    }
+
+    Result destination = redirect(routes.AdminSettingsController.index());
+    return result.updated()
+        ? destination.flashing("success", "Settings updated")
+        : destination.flashing("warning", "No changes to save");
   }
 }

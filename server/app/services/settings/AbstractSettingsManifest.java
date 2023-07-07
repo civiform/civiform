@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static services.settings.SettingMode.ADMIN_WRITEABLE;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -12,6 +13,8 @@ import com.typesafe.config.ConfigException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 
 /** Provides behavior for {@link SettingsManifest}. */
@@ -19,6 +22,7 @@ public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
   private final Config config;
+  private static final Logger LOGGER = LoggerFactory.getLogger("SettingsManifest");
 
   public AbstractSettingsManifest(Config config) {
     this.config = checkNotNull(config);
@@ -78,12 +82,12 @@ public abstract class AbstractSettingsManifest {
         return Optional.of(
             String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
       case INT:
-        return getInt(settingDescription).map(String::valueOf);
+        return getInt(settingDescription, request).map(String::valueOf);
       case LIST_OF_STRINGS:
-        return getListOfStrings(settingDescription).map(list -> String.join(", ", list));
+        return getListOfStrings(settingDescription, request).map(list -> String.join(", ", list));
       case ENUM:
       case STRING:
-        return getString(settingDescription).map(String::valueOf);
+        return getString(settingDescription, request).map(String::valueOf);
       default:
         throw new IllegalStateException(
             "Unknown setting type: " + settingDescription.settingType());
@@ -120,16 +124,19 @@ public abstract class AbstractSettingsManifest {
     return getBool(settingDescription.variableName(), request);
   }
 
-  protected boolean getBool(String settingName, Http.Request request) {
+  protected boolean getBool(String variableName, Http.Request request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
-      return getBool(settingName);
+      LOGGER.warn(
+          String.format(
+              "Settings not found on request when looking up value for %s", variableName));
+      return getBool(variableName);
     }
 
     var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
 
-    return writableSettings.containsKey(settingName)
-        ? writableSettings.get(settingName).equals("true")
-        : getBool(settingName);
+    return writableSettings.containsKey(variableName)
+        ? writableSettings.get(variableName).equals("true")
+        : getBool(variableName);
   }
 
   protected Optional<Boolean> getBool(SettingDescription settingDescription) {
@@ -140,6 +147,26 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
   }
 
+  protected Optional<String> getString(
+      SettingDescription settingDescription, Http.Request request) {
+    return getString(settingDescription.variableName(), request);
+  }
+
+  protected Optional<String> getString(String variableName, Http.Request request) {
+    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+      LOGGER.warn(
+          String.format(
+              "Settings not found on request when looking up value for %s", variableName));
+      return getString(variableName);
+    }
+
+    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+
+    return writableSettings.containsKey(variableName)
+        ? Optional.of(writableSettings.get(variableName))
+        : getString(variableName);
+  }
+
   protected Optional<String> getString(SettingDescription settingDescription) {
     return getConfigVal(config::getString, getHoconName(settingDescription));
   }
@@ -148,12 +175,55 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getString, getHoconName(variableName));
   }
 
+  protected Optional<Integer> getInt(SettingDescription settingDescription, Http.Request request) {
+    return getInt(settingDescription.variableName(), request);
+  }
+
+  protected Optional<Integer> getInt(String variableName, Http.Request request) {
+    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+      LOGGER.warn(
+          String.format(
+              "Settings not found on request when looking up value for %s", variableName));
+      return getInt(variableName);
+    }
+
+    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+
+    return writableSettings.containsKey(variableName)
+        ? Optional.of(Integer.parseInt(writableSettings.get(variableName)))
+        : getInt(variableName);
+  }
+
   protected Optional<Integer> getInt(SettingDescription settingDescription) {
     return getConfigVal(config::getInt, getHoconName(settingDescription));
   }
 
   protected Optional<Integer> getInt(String variableName) {
     return getConfigVal(config::getInt, getHoconName(variableName));
+  }
+
+  protected Optional<ImmutableList<String>> getListOfStrings(
+      SettingDescription settingDescription, Http.Request request) {
+    return getListOfStrings(settingDescription.variableName(), request);
+  }
+
+  protected Optional<ImmutableList<String>> getListOfStrings(
+      String variableName, Http.Request request) {
+    if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
+      LOGGER.warn(
+          String.format(
+              "Settings not found on request when looking up value for %s", variableName));
+      return getListOfStrings(variableName);
+    }
+
+    var writableSettings = request.attrs().get(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+
+    if (!writableSettings.containsKey(variableName)) {
+      return getListOfStrings(variableName);
+    }
+
+    return Optional.of(
+        ImmutableList.copyOf(Splitter.on(",").split(writableSettings.get(variableName))));
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(

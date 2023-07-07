@@ -8,12 +8,12 @@
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
         "type": "string"
       },
@@ -49,7 +49,7 @@
             "type": "string"
           },
           "APPLICANT_PORTAL_NAME": {
-            "mode": "ADMIN_READABLE",
+            "mode": "ADMIN_WRITEABLE",
             "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
             "type": "string"
           },
@@ -371,12 +371,12 @@
     "group_description": "Configuration options for [CiviForm email usage](https://docs.civiform.us/it-manual/sre-playbook/email-configuration).",
     "members": {
       "SUPPORT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "This email address is listed in the footer for applicants to contact support.",
         "type": "string"
       },
       "IT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "This email address receives error notifications from CiviForm when things break.",
         "type": "string"
       },
@@ -401,14 +401,20 @@
     "group_description": "Text specific to a civic entity.",
     "members": {
       "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The text for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string"
       },
       "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
-        "type": "string"
+        "type": "string",
+        "regex": "^(http://|https://).+",
+        "regex_tests": [
+          {"val": "http://my-civiform.org", "should_match": true},
+          {"val": "https://my-civiform.org", "should_match": true},
+          {"val": "my-civiform.org", "should_match": false}
+        ]
       }
     }
   },
@@ -421,7 +427,7 @@
     "mode": "ADMIN_READABLE",
     "description": "The URL of the CiviForm deployment.  Must start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(http://|https://)",
+    "regex": "^(http://|https://).+",
     "regex_tests": [
       {"val": "http://my-civiform.org", "should_match": true},
       {"val": "https://my-civiform.org", "should_match": true},
@@ -432,7 +438,7 @@
     "mode": "HIDDEN",
     "description": "DNS name of the staging deployment.  Must not start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(?!http://|https://)",
+    "regex": "^(?!http://|https://).+",
     "regex_tests": [
       {"val": "my-civiform.org", "should_match": true},
       {"val": "http://my-civiform.org", "should_match": false},
@@ -460,7 +466,7 @@
     "type": "string"
   },
   "CLIENT_IP_TYPE": {
-    "mode": "HIDDEN",
+    "mode": "ADMIN_READABLE",
     "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
     "type": "string",
     "values": ["DIRECT", "FORWARDED"]
