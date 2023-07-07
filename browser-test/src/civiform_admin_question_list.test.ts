@@ -110,6 +110,45 @@ describe('Admin question list', () => {
     ])
   })
 
+  it('sorts question list based on selection', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'b',
+      questionText: 'b',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'a',
+      questionText: 'a',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'c',
+      questionText: 'c',
+    })
+
+    await adminPrograms.addAndPublishProgramWithQuestions(['a'], 'program-one')
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['a', 'c'],
+      'program-two',
+    )
+
+    await adminQuestions.gotoAdminQuestionsPage()
+
+    await page.locator('#question-bank-sort').selectOption('adminname-asc')
+    expect(await adminQuestions.questionBankNames()).toEqual(['a', 'b', 'c'])
+    await page.locator('#question-bank-sort').selectOption('adminname-desc')
+    expect(await adminQuestions.questionBankNames()).toEqual(['c', 'b', 'a'])
+    await page.locator('#question-bank-sort').selectOption('numprograms-asc')
+    expect(await adminQuestions.questionBankNames()).toEqual(['b', 'c', 'a'])
+    await page.locator('#question-bank-sort').selectOption('numprograms-desc')
+    expect(await adminQuestions.questionBankNames()).toEqual(['a', 'c', 'b'])
+    await page.locator('#question-bank-sort').selectOption('lastmodified-desc')
+    expect(await adminQuestions.questionBankNames()).toEqual(['c', 'a', 'b'])
+
+    await page.locator('#question-bank-sort').click()
+    await validateScreenshot(page, 'questions-list-sort-dropdown')
+  })
+
   it('shows if questions are marked for archival', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
@@ -140,6 +179,14 @@ describe('Admin question list', () => {
     })
 
     await validateScreenshot(page, 'questions-list-with-archived-questions')
+
+    // Check that archived question is still at the bottom after sorting.
+    await page.locator('#question-bank-sort').selectOption('adminname-desc')
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'question list test question two new version',
+      'question list test question one',
+      'question list test question three',
+    ])
   })
 
   async function expectQuestionListElements(
