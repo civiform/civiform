@@ -391,16 +391,10 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId,
-      long programId,
-      CiviFormProfile submitterProfile,
-      boolean nonGatedEligibilityFeatureEnabled) {
+      long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(
-              ro ->
-                  validateApplicationForSubmission(
-                      ro, nonGatedEligibilityFeatureEnabled, programId))
+          .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -412,9 +406,7 @@ public final class ApplicantService {
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(
-            ro ->
-                validateApplicationForSubmission(ro, nonGatedEligibilityFeatureEnabled, programId))
+        .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
         .thenCompose(
             v ->
                 submitApplication(
@@ -538,17 +530,14 @@ public final class ApplicantService {
    *     wrapped in a failed future with a user visible message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      boolean nonGatedEligibilityFeatureEnabled,
-      long programId) {
+      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
 
     try {
-      if (nonGatedEligibilityFeatureEnabled
-          && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
+      if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
         return CompletableFuture.completedFuture(null);
       }
     } catch (ProgramNotFoundException e) {

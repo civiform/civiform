@@ -290,9 +290,7 @@ public final class AdminProgramController extends CiviFormController {
 
     try {
       programService.setEligibilityIsGating(
-          programId,
-          programSettingsForm.getEligibilityIsGating(),
-          settingsManifest.getNongatedEligibilityEnabled(request));
+          programId, programSettingsForm.getEligibilityIsGating());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     }

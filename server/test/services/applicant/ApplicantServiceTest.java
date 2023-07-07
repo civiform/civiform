@@ -796,11 +796,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled= */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -859,11 +855,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     storedFile.save();
 
     subject
-        .submitApplication(
-            applicant.id,
-            firstProgram.id,
-            trustedIntermediaryProfile,
-            /* nonGatedEligibilityFeatureEnabled= */ false)
+        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile)
         .toCompletableFuture()
         .join();
 
@@ -872,11 +864,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
     subject
-        .submitApplication(
-            applicant.id,
-            secondProgram.id,
-            trustedIntermediaryProfile,
-            /* nonGatedEligibilityFeatureEnabled= */ false)
+        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile)
         .toCompletableFuture()
         .join();
 
@@ -901,11 +889,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application oldApplication =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled= */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -917,11 +901,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application newApplication =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled= */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -956,11 +936,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -992,11 +968,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1074,11 +1046,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1151,11 +1119,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1213,11 +1177,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                applicantProfile,
-                /* nonGatedEligibilityFeatureEnabled */ false)
+            .submitApplication(applicant.id, programDefinition.id(), applicantProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1256,11 +1216,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled */ false)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1307,10 +1263,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        applicant.id,
-                        programDefinition.id(),
-                        trustedIntermediaryProfile,
-                        /* nonGatedEligibilityFeatureEnabled= */ true)
+                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -1340,11 +1293,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Application application =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -1352,43 +1301,6 @@ public class ApplicantServiceTest extends ResetPostgres {
     assertThat(application.getProgram().getProgramDefinition().id())
         .isEqualTo(programDefinition.id());
     assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-  }
-
-  @Test
-  public void submitApplication_respectsNonGatingEligibilityFeatureFlag() {
-    createProgramWithNongatingEligibility(questionDefinition);
-    Applicant applicant = subject.createApplicant().toCompletableFuture().join();
-    applicant.setAccount(resourceCreator.insertAccount());
-    applicant.save();
-
-    // First name is matched for eligibility.
-    Path questionPath =
-        ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
-    ImmutableMap<String, String> updates =
-        ImmutableMap.<String, String>builder()
-            .put(questionPath.join(Scalar.FIRST_NAME).toString(), "Ineligible answer")
-            .put(questionPath.join(Scalar.LAST_NAME).toString(), "irrelevant answer")
-            .build();
-    subject
-        .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
-        .toCompletableFuture()
-        .join();
-
-    // Program eligibility is set to non-gating but the non-gating eligibility feature flag is off,
-    // so it should behave as if it's gating.
-    assertThatExceptionOfType(CompletionException.class)
-        .isThrownBy(
-            () ->
-                subject
-                    .submitApplication(
-                        applicant.id,
-                        programDefinition.id(),
-                        trustedIntermediaryProfile,
-                        /* nonGatedEligibilityFeatureEnabled= */ false)
-                    .toCompletableFuture()
-                    .join())
-        .withCauseInstanceOf(ApplicationNotEligibleException.class)
-        .withMessageContaining("Application", "failed to save");
   }
 
   @Test
@@ -1518,10 +1430,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             () ->
                 subject
                     .submitApplication(
-                        applicant.id,
-                        programDefinition.id(),
-                        trustedIntermediaryProfile,
-                        /* nonGatedEligibilityFeatureEnabled= */ false)
+                        applicant.id, programDefinition.id(), trustedIntermediaryProfile)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -3583,11 +3492,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     Application ineligibleApplication =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 
@@ -3603,11 +3508,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     Application eligibleApplication =
         subject
-            .submitApplication(
-                applicant.id,
-                programDefinition.id(),
-                trustedIntermediaryProfile,
-                /* nonGatedEligibilityFeatureEnabled= */ true)
+            .submitApplication(applicant.id, programDefinition.id(), trustedIntermediaryProfile)
             .toCompletableFuture()
             .join();
 

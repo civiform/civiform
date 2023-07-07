@@ -325,7 +325,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
+      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(draftProgram.get());
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
       }
@@ -494,11 +494,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, adminLink);
   }
 
-  private Optional<ButtonTag> maybeRenderSettingsLink(
-      Http.Request request, ProgramDefinition program) {
-    if (!settingsManifest.getNongatedEligibilityEnabled(request)) {
-      return Optional.empty();
-    }
+  private Optional<ButtonTag> maybeRenderSettingsLink(ProgramDefinition program) {
     if (program.isCommonIntakeForm()) {
       return Optional.empty();
     }
