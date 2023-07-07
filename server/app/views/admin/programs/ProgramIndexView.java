@@ -325,7 +325,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
+      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(draftProgram.get());
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
       }
@@ -370,7 +370,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.DeepLinkController.programBySlug(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);
@@ -494,11 +494,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, adminLink);
   }
 
-  private Optional<ButtonTag> maybeRenderSettingsLink(
-      Http.Request request, ProgramDefinition program) {
-    if (!settingsManifest.getNongatedEligibilityEnabled(request)) {
-      return Optional.empty();
-    }
+  private Optional<ButtonTag> maybeRenderSettingsLink(ProgramDefinition program) {
     if (program.isCommonIntakeForm()) {
       return Optional.empty();
     }

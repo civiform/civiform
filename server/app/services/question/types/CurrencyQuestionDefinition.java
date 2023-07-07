@@ -35,4 +35,9 @@ public final class CurrencyQuestionDefinition extends QuestionDefinition {
   public QuestionType getQuestionType() {
     return QuestionType.CURRENCY;
   }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return CurrencyValidationPredicates.create();
+  }
 }

@@ -24,6 +24,10 @@ public abstract class QuestionDefinition {
   private final QuestionDefinitionConfig config;
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
+    if (config.validationPredicates().isEmpty()) {
+      config = config.toBuilder().setValidationPredicates(getDefaultValidationPredicates()).build();
+    }
+
     this.config = config;
   }
 
@@ -170,16 +174,19 @@ public abstract class QuestionDefinition {
 
   /** Get the validation predicates. */
   public final ValidationPredicates getValidationPredicates() {
-    return config.validationPredicates();
+    return config.validationPredicates().orElseGet(this::getDefaultValidationPredicates);
   }
 
   /** Serialize validation predicates as a string. This is used for persisting in database. */
   public final String getValidationPredicatesAsString() {
-    return config.validationPredicates().serializeAsString();
+    return getValidationPredicates().serializeAsString();
   }
 
   /** Get the type of this question. */
   public abstract QuestionType getQuestionType();
+
+  /** Get the default validation predicates for this question type. */
+  abstract ValidationPredicates getDefaultValidationPredicates();
 
   /** Validate that all required fields are present and valid for the question. */
   public final ImmutableSet<CiviFormError> validate() {
@@ -311,7 +318,7 @@ public abstract class QuestionDefinition {
           && config.description().equals(o.getDescription())
           && config.questionText().equals(o.getQuestionText())
           && config.questionHelpText().equals(o.getQuestionHelpText())
-          && config.validationPredicates().equals(o.getValidationPredicates());
+          && config.validationPredicates().equals(Optional.of(o.getValidationPredicates()));
     }
     return false;
   }

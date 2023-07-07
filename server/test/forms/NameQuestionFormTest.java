@@ -27,7 +27,6 @@ public class NameQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -44,7 +43,6 @@ public class NameQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
                 .build());
 
     NameQuestionForm form = new NameQuestionForm(originalQd);

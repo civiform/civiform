@@ -73,6 +73,11 @@ public final class NumberQuestionDefinition extends QuestionDefinition {
     return QuestionType.NUMBER;
   }
 
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return NumberValidationPredicates.create();
+  }
+
   public OptionalLong getMin() {
     return getNumberValidationPredicates().min();
   }

@@ -49,8 +49,6 @@ public class BlockTest {
               .setDescription("Shows more info to the applicant")
               .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
-              .setValidationPredicates(
-                  StaticContentQuestionDefinition.StaticContentValidationPredicates.create())
               .setId(OptionalLong.of(123L))
               .setLastModifiedTime(Optional.empty())
               .build());

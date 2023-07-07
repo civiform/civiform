@@ -34,8 +34,8 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.95",
-      "software.amazon.awssdk" % "ses" % "2.20.95",
+      "software.amazon.awssdk" % "s3" % "2.20.100",
+      "software.amazon.awssdk" % "ses" % "2.20.100",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.9.1",
@@ -43,7 +43,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
-      "com.h2database" % "h2" % "2.1.214" % Test,
+      "com.h2database" % "h2" % "2.2.220" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "32.0.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.1.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",

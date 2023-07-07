@@ -135,6 +135,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
+    Optional<DivTag> maybeBackToAdminViewButton =
+        layout.maybeRenderBackToAdminViewButton(params.request(), params.programId());
+    if (maybeBackToAdminViewButton.isPresent()) {
+      bundle.addMainContent(maybeBackToAdminViewButton.get());
+    }
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),

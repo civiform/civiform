@@ -70,6 +70,11 @@ public final class IdQuestionDefinition extends QuestionDefinition {
     return QuestionType.ID;
   }
 
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return IdValidationPredicates.create();
+  }
+
   public OptionalInt getMinLength() {
     return getIdValidationPredicates().minLength();
   }

@@ -93,7 +93,6 @@ public class MultiOptionQuestionFormTest {
             .setDescription("description")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setValidationPredicates(MultiOptionValidationPredicates.create())
             .build();
     MultiOptionQuestionDefinition expected =
         new MultiOptionQuestionDefinition(

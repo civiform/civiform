@@ -61,6 +61,11 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
     return QuestionType.ADDRESS;
   }
 
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return AddressValidationPredicates.create();
+  }
+
   public boolean getDisallowPoBox() {
     return getAddressValidationPredicates().disallowPoBox().orElse(false);
   }

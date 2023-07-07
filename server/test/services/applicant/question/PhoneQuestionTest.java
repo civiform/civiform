@@ -32,7 +32,6 @@ public class PhoneQuestionTest {
               .setDescription("The applicant Phone Number")
               .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
               .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
-              .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
               .setId(OptionalLong.of(1))
               .setLastModifiedTime(Optional.empty())
               .build());

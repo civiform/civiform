@@ -42,7 +42,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(definition);
 
@@ -64,7 +63,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(questionDefinition);
     question.save();
@@ -83,7 +81,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setEnumeratorId(Optional.of(10L))
                 .build());
     Question question = new Question(questionDefinition);
@@ -103,7 +100,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
                 .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
     Question question = new Question(definition);
 
@@ -126,8 +122,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    AddressQuestionDefinition.AddressValidationPredicates.create())
                 .build());
     Question question = new Question(address);
 
@@ -147,7 +141,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setValidationPredicates(TextValidationPredicates.create(0, 128))
                 .build());
     Question question = new Question(definition);
@@ -228,7 +221,6 @@ public class QuestionTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .setEnumeratorId(Optional.of(10L))
                 .build());
     Question initialQuestion = new Question(questionDefinition);

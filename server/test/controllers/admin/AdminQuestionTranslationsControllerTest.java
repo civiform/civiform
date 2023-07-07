@@ -204,7 +204,6 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                 .setDescription("name of applicant")
                 .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
-                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
                 .build());
     Question question = new Question(definition);
     // Only draft questions are editable.
@@ -225,7 +224,6 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                 .setQuestionHelpText(
                     LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT)
                         .updateTranslation(ES_LOCALE, SPANISH_QUESTION_HELP_TEXT))
-                .setValidationPredicates(NameQuestionDefinition.NameValidationPredicates.create())
                 .build());
     Question question = new Question(definition);
     // Only draft questions are editable.

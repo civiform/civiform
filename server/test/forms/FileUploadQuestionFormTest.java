@@ -27,8 +27,6 @@ public class FileUploadQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -45,8 +43,6 @@ public class FileUploadQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(
-                    FileUploadQuestionDefinition.FileUploadValidationPredicates.create())
                 .build());
 
     FileUploadQuestionForm form = new FileUploadQuestionForm(originalQd);

@@ -54,7 +54,6 @@ public class QuestionTranslationFormTest {
                 .setDescription("test")
                 .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(TextQuestionDefinition.TextValidationPredicates.create())
                 .build());
 
     QuestionTranslationForm form = new QuestionTranslationFormImpl();

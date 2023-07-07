@@ -748,16 +748,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("INTAKE_FORM_ENABLED", request);
   }
 
-  /** Enables the feature that allows setting eligibility criteria to non-gating. */
-  public boolean getNongatedEligibilityEnabled() {
-    return getBool("NONGATED_ELIGIBILITY_ENABLED");
-  }
-
-  /** Enables the feature that allows setting eligibility criteria to non-gating. */
-  public boolean getNongatedEligibilityEnabled(Request request) {
-    return getBool("NONGATED_ELIGIBILITY_ENABLED", request);
-  }
-
   /**
    * If this is a staging deployment and this variable is set to true, a [robots
    * noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata
@@ -1439,11 +1429,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "INTAKE_FORM_ENABLED",
                       "Enables the Common Intake Form feature.",
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "NONGATED_ELIGIBILITY_ENABLED",
-                      "Enables the feature that allows setting eligibility criteria to non-gating.",
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(

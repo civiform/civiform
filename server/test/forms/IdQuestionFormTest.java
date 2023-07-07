@@ -76,7 +76,6 @@ public class IdQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();

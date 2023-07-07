@@ -27,7 +27,6 @@ public class PhoneQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your phone number?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
                 .build());
 
     QuestionDefinition actual = builder.build();
@@ -44,7 +43,6 @@ public class PhoneQuestionFormTest {
                 .setDescription("description")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your Phone Number?"))
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setValidationPredicates(PhoneQuestionDefinition.PhoneValidationPredicates.create())
                 .build());
 
     PhoneQuestionForm form = new PhoneQuestionForm(originalQd);

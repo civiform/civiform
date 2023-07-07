@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 
 import controllers.WithMockedProfiles;
 import models.Account;
+import models.Program;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
@@ -34,8 +35,29 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void preview_withNoProfileThrowsException() {
+  public void preview_noProfile_throwsException() {
     assertThatThrownBy(() -> controller.preview(Helpers.fakeRequest().build(), /*p rogramId =*/ 0))
         .isInstanceOf(RuntimeException.class);
+  }
+
+  @Test
+  public void back_draftProgram_redirectsToProgramEditView() {
+    Program program = resourceCreator().insertDraftProgram("some program");
+    Result result =
+        controller.back(Helpers.fakeRequest().build(), program.id).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(controllers.admin.routes.AdminProgramBlocksController.index(program.id).url());
+  }
+
+  @Test
+  public void back_nonDraftProgram_redirectsToProgramReadOnlyView() {
+    Program program = resourceCreator().insertActiveProgram("some program");
+    Result result =
+        controller.back(Helpers.fakeRequest().build(), program.id).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            controllers.admin.routes.AdminProgramBlocksController.readOnlyIndex(program.id).url());
   }
 }

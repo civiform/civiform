@@ -11,6 +11,7 @@ import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.HttpVerbs;
@@ -64,12 +65,19 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
                         params.programTitle(), params.blockIndex(), params.totalBlockCount())
-                    + errorMessage)
-            .addMainContent(
-                layout.renderProgramApplicationTitleAndProgressIndicator(
-                    params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
-                blockDiv)
-            .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
+                    + errorMessage);
+
+    Optional<DivTag> maybeBackToAdminViewButton =
+        layout.maybeRenderBackToAdminViewButton(params.request(), params.programId());
+    if (maybeBackToAdminViewButton.isPresent()) {
+      bundle.addMainContent(maybeBackToAdminViewButton.get());
+    }
+    bundle
+        .addMainContent(
+            layout.renderProgramApplicationTitleAndProgressIndicator(
+                params.programTitle(), params.blockIndex(), params.totalBlockCount(), false),
+            blockDiv)
+        .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     params.bannerMessage().ifPresent(bundle::addToastMessages);
 

@@ -629,8 +629,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     RequestBuilder request =
-        requestBuilderWithSettings("NONGATED_ELIGIBILITY_ENABLED", "true")
-            .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
+        requestBuilderWithSettings().bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
     Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -640,25 +639,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Program updatedDraft =
         programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isFalse();
-  }
-
-  @Test
-  public void setEligibilityIsGating_featureDisabled() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("one").build();
-    assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
-
-    RequestBuilder request =
-        requestBuilderWithSettings("NONGATED_ELIGIBILITY_ENABLED", "false")
-            .bodyForm(ImmutableMap.of("eligibilityIsGating", "false"));
-    Result result = controller.setEligibilityIsGating(addCSRFToken(request).build(), program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(routes.AdminProgramController.editProgramSettings(program.id).url());
-
-    Program updatedDraft =
-        programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
-    assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
   }
 
   @Test

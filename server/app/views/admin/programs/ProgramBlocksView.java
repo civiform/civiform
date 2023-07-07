@@ -421,8 +421,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions,
-                  request));
+                  allQuestions));
     }
 
     DivTag programQuestions =
@@ -555,15 +554,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      Request request) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(
-                renderEmptyEligibilityPredicate(program, request)
-                    .withClasses("text-lg", "max-w-prose"));
+            .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
     if (!predicate.isEmpty()) {
       div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
     }
@@ -581,38 +577,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return div;
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
-    DivTag emptyPredicateDiv;
-    if (settingsManifest.getNongatedEligibilityEnabled(request)) {
-      ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
-      if (program.eligibilityIsGating()) {
-        emptyPredicateContentBuilder.add(
-            text(
-                "You can add eligibility conditions to determine if an applicant qualifies for the"
-                    + " program. Applicants who do not meet the minimum requirements will be"
-                    + " blocked from submitting an application."));
-      } else {
-        emptyPredicateContentBuilder.add(
-            text(
-                "You can add eligibility conditions to determine if an applicant qualifies for the"
-                    + " program. Applicants can submit an application even if they do not meet the"
-                    + " minimum requirements."));
-      }
-      emptyPredicateContentBuilder
-          .add(text(" You can change this in the "))
-          .add(
-              a().withText("program settings.")
-                  .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
-                  .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
-      emptyPredicateDiv = div().with(emptyPredicateContentBuilder.build());
+  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
+    ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
+    if (program.eligibilityIsGating()) {
+      emptyPredicateContentBuilder.add(
+          text(
+              "You can add eligibility conditions to determine if an applicant qualifies for the"
+                  + " program. Applicants who do not meet the minimum requirements will be"
+                  + " blocked from submitting an application."));
     } else {
-      emptyPredicateDiv =
-          div(
-              "You can add eligibility conditions to help screen applicants who do not"
-                  + " meet the minimum requirements for a program early in the application"
-                  + " process.");
+      emptyPredicateContentBuilder.add(
+          text(
+              "You can add eligibility conditions to determine if an applicant qualifies for the"
+                  + " program. Applicants can submit an application even if they do not meet the"
+                  + " minimum requirements."));
     }
-    return emptyPredicateDiv;
+    emptyPredicateContentBuilder
+        .add(text(" You can change this in the "))
+        .add(
+            a().withText("program settings.")
+                .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
+                .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+    return div().with(emptyPredicateContentBuilder.build());
   }
 
   /**

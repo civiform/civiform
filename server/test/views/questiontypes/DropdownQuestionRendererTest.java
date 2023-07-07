@@ -20,7 +20,6 @@ import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionValidationPredicates;
 import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
@@ -33,7 +32,6 @@ public class DropdownQuestionRendererTest extends ResetPostgres {
           .setDescription("description")
           .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
           .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-          .setValidationPredicates(MultiOptionValidationPredicates.create())
           .setLastModifiedTime(Optional.empty())
           .setId(OptionalLong.of(1))
           .build();

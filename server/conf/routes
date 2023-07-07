@@ -19,6 +19,7 @@ GET     /admin/programs                                         controllers.admi
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
 GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
+GET     /admin/programs/:programId/back                         controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
 GET     /admin/programs/:programId/settings/edit                controllers.admin.AdminProgramController.editProgramSettings(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
@@ -164,8 +165,10 @@ GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsuppo
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
 
 # Deep-link methods
-GET     /programs/:programSlug      controllers.applicant.RedirectController.programBySlug(request: Request, programSlug: String)
-GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
+GET     /programs/:programSlug      controllers.applicant.DeepLinkController.programBySlug(request: Request, programSlug: String)
+
+# Upsell methods
+GET     /considerSignIn             controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)

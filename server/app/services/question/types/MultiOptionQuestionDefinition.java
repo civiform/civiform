@@ -68,6 +68,11 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return MultiOptionValidationPredicates.create();
+  }
+
+  @Override
   public ImmutableSet<Locale> getSupportedLocales() {
     ImmutableSet<Locale> questionTextLocales = super.getSupportedLocales();
     return ImmutableSet.copyOf(Sets.intersection(questionTextLocales, getSupportedOptionLocales()));
