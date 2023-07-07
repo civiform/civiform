@@ -386,6 +386,12 @@ public final class QuestionsListView extends BaseHtmlView {
     return Pair.of(rowWithAdminNote, modals.build());
   }
 
+  private Integer getTotalNumReferencingPrograms(
+      GroupedReferencingPrograms groupedReferencingPrograms) {
+    return groupedReferencingPrograms.usedPrograms().size()
+        + groupedReferencingPrograms.addedPrograms().size();
+  }
+
   /**
    * Renders single "draft" or "active" row within a question row. Question can have up to two such
    * rows, one "draft" and one "active".
