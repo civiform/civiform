@@ -483,7 +483,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 actionUrl,
                 messages.at(
                     MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
-                    settingsManifest.getApplicantPortalName(request)),
+                    settingsManifest.getApplicantPortalName(request).get()),
                 MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
             .setRepeatOpenBehavior(
                 RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))
