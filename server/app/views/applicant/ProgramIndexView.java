@@ -148,7 +148,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       infoDivText =
           messages.at(
               MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(),
-              settingsManifest.getWhitelabelCivicEntityShortName(request));
+              settingsManifest.getWhitelabelCivicEntityShortName(request).get());
       widthClass = "w-5/12";
     }
 
