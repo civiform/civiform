@@ -154,7 +154,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Account admin = resourceCreator.insertAccount();
     Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
     Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
-    applicantTwo.getApplicantData().setUserName("CiviForm", /* middleName= */ null, "User");
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
         .forEach(
             entry ->
