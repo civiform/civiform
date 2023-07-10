@@ -124,7 +124,7 @@ lazy val root = (project in file("."))
       // the .java files. This option keeps the .java files in the specified directory,
       // which allows an IDE to recognize the symbols.
       "-s",
-      "target/scala-2.13/src_managed/main"
+      generateSourcePath(scalaVersion = scalaVersion.value)
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
@@ -238,3 +238,10 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
+
+// scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
+// removes the .z component and returns the path to the generated source file directory.
+def generateSourcePath(scalaVersion: String): String = {
+  val version = scalaVersion.split("\\.").take(2).mkString(".")
+  s"target/scala-$version/src_managed/main"
+}
