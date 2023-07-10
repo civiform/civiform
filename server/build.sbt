@@ -81,7 +81,6 @@ lazy val root = (project in file("."))
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.10.2",
       "com.google.auto.value" % "auto-value" % "1.10.2",
-      "com.google.auto.value" % "auto-value-parent" % "1.10.2" pomOnly (),
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.19.1",
@@ -119,7 +118,13 @@ lazy val root = (project in file("."))
       // code contains it - we can't control that.
       "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR",
       "-implicit:class",
-      "-Werror"
+      "-Werror",
+      // The compile option below is a hack that preserves generated files. Normally,
+      // AutoValue generates .java files, compiles them into .class files, and then deletes
+      // the .java files. This option keeps the .java files in the specified directory,
+      // which allows an IDE to recognize the symbols.
+      "-s",
+      generateSourcePath(scalaVersion = scalaVersion.value)
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
@@ -233,3 +238,10 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
+
+// scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
+// removes the .z component and returns the path to the generated source file directory.
+def generateSourcePath(scalaVersion: String): String = {
+  val version = scalaVersion.split("\\.").take(2).mkString(".")
+  s"target/scala-$version/src_managed/main"
+}
