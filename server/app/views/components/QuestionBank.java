@@ -53,9 +53,9 @@ public final class QuestionBank {
    */
   public static final DivTag renderQuestionSortSelect(List<QuestionSortOption> sortOptions) {
     ImmutableList<SelectWithLabel.OptionValue> questionSortOptions =
-      sortOptions.stream()
-          .flatMap(sortOption -> sortOption.getSelectOptions().stream())
-          .collect(ImmutableList.toImmutableList());
+        sortOptions.stream()
+            .flatMap(sortOption -> sortOption.getSelectOptions().stream())
+            .collect(ImmutableList.toImmutableList());
 
     SelectWithLabel questionSortSelect =
         (SelectWithLabel)
