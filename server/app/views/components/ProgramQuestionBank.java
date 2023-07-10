@@ -118,7 +118,6 @@ public final class ProgramQuestionBank {
                         "mr-2",
                         ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON))
             .with(headerDiv));
-
     contentDiv.with(
         QuestionBank.renderFilterAndSort(
             ImmutableList.of(QuestionSortOption.LAST_MODIFIED, QuestionSortOption.ADMIN_NAME)));
@@ -151,7 +150,7 @@ public final class ProgramQuestionBank {
     contentDiv.with(
         div()
             .withId("question-bank-questions")
-            .withId("sortable-questions")
+            .withClass(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
             .with(each(questions, this::renderQuestionDefinition)));
 
     return questionForm;

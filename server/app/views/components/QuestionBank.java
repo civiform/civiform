@@ -62,7 +62,7 @@ public final class QuestionBank {
             new SelectWithLabel()
                 .setId("question-bank-sort")
                 .setFieldName("question-bank-sort")
-                .setValue(questionSortOptions.get(0).value()) // Default sort
+                .setValue(questionSortOptions.get(0).value()) // Default sort order.
                 .setLabelText("Sort by:")
                 .setOptionGroups(
                     ImmutableList.of(

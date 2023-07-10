@@ -9,8 +9,8 @@ public enum QuestionSortOption {
   ADMIN_NAME("adminname", Optional.of("Admin ID A-Z"), Optional.of("Admin ID Z-A")),
   NUM_PROGRAMS("numprograms", Optional.of("Fewest programs"), Optional.of("Most programs"));
 
-  public static final String ASCENDING_SUFFIX = "asc";
-  public static final String DESCENDING_SUFFIX = "desc";
+  private static final String ASCENDING_SUFFIX = "asc";
+  private static final String DESCENDING_SUFFIX = "desc";
 
   private final String dataAttribute;
   private final Optional<String> displayStringDescending;
