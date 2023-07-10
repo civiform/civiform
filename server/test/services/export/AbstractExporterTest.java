@@ -154,6 +154,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Account admin = resourceCreator.insertAccount();
     Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
     Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
+    applicantTwo.getApplicantData().setUserName("Civiform", null, "User");
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
         .forEach(
             entry ->
@@ -250,6 +251,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     // Applicant five have file uploaded for the optional file upload question
     applicantFive = resourceCreator.insertApplicantWithAccount();
+    applicantFive.getApplicantData().setUserName("Example Five");
     QuestionAnswerer.answerNameQuestion(
         applicantFive.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
