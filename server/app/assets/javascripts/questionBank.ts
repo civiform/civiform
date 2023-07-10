@@ -29,9 +29,7 @@ class QuestionBankController {
       QuestionBankController.SORT_SELECT_ID,
     ) as HTMLSelectElement
 
-    console.log('maybe adding sort')
     if (questionBankSort) {
-      console.log('has sort')
       questionBankSort.addEventListener(
         'change',
         QuestionBankController.sortQuestions,
