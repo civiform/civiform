@@ -29,7 +29,9 @@ class QuestionBankController {
       QuestionBankController.SORT_SELECT_ID,
     ) as HTMLSelectElement
 
+    console.log('maybe adding sort')
     if (questionBankSort) {
+      console.log('has sort')
       questionBankSort.addEventListener(
         'change',
         QuestionBankController.sortQuestions,
@@ -156,7 +158,7 @@ class QuestionBankController {
       QuestionBankController.SORT_SELECT_ID,
     ) as HTMLSelectElement
 
-    const parent = document.querySelector('#non-archived-questions')
+    const parent = document.querySelector('#sortable-questions')
     if (!questionBankSort || !parent) {
       return
     }

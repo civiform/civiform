@@ -278,7 +278,7 @@ public final class QuestionsListView extends BaseHtmlView {
     }
 
     DivTag questionContent =
-        div(div().withId("non-archived-questions").with(nonArchivedQuestionRows.build()));
+        div(div().withId("sortable-questions").with(nonArchivedQuestionRows.build()));
     if (!archivedQuestionRows.build().isEmpty()) {
       questionContent.with(
           div()
