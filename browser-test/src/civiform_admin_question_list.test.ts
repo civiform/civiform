@@ -113,7 +113,8 @@ describe('Admin question list', () => {
   it('sorts question list based on selection', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
-    // Set the questionText to the same as questionName to make validation easier since questionBankNames() returns the questionText. The questionText is not actually used to sort.
+    // Set the questionText to the same as questionName to make validation easier since questionBankNames()
+    // returns the questionText. The questionText is not actually used to sort.
     await adminQuestions.addTextQuestion({
       questionName: 'b',
       questionText: 'b',
@@ -196,7 +197,8 @@ describe('Admin question list', () => {
     const questionOne = 'question list test question one'
     const questionTwo = 'question list test question two'
     const questionThreeToBeArchived = 'question list test question three'
-    // Set the questionText to the same as questionName to make validation easier since questionBankNames() returns the questionText.
+    // Set the questionText to the same as questionName to make validation easier since questionBankNames()
+    // returns the questionText.
     await adminQuestions.addNameQuestion({
       questionName: questionOne,
       questionText: questionOne,
