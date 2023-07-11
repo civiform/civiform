@@ -207,7 +207,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setLabelText("Date Of Birth")
             .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
-        FieldWithLabel.input()
+        FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
             .setLabelText("Email Address")
