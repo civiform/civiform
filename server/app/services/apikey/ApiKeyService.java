@@ -225,6 +225,7 @@ public final class ApiKeyService {
   // apiKey is mutable and modified here, form is immutable so a new instance is returned
   private DynamicForm resolveSubnet(DynamicForm form, ApiKey apiKey) {
     String subnetInputString = form.rawData().getOrDefault(FORM_FIELD_NAME_SUBNET, "");
+    subnetInputString = subnetInputString.trim();
 
     if (subnetInputString.isBlank()) {
       return form.withError(FORM_FIELD_NAME_SUBNET, "Subnet cannot be blank.");
