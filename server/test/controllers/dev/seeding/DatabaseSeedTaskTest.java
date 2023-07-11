@@ -27,8 +27,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions()
-      throws Exception {
+  public void seedQuestions_whenQuestionsNotSeededYet_itSeedsTheQuestions() throws Exception {
     assertThat(getAllQuestions().size()).isEqualTo(0);
 
     databaseSeedTask.run();
@@ -38,7 +37,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             getAllQuestions().stream()
                 .map(Question::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
-        .containsOnly("Name", "Applicant Date of Birth");
+        .containsOnly("Sample Name Question", "Sample Applicant Date of Birth Question");
   }
 
   @Test
@@ -47,7 +46,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
         .create(
             new DateQuestionDefinition(
                 QuestionDefinitionConfig.builder()
-                    .setName("Applicant Date of Birth")
+                    .setName("Sample Applicant Date of Birth Question")
                     .setDescription("Applicant's date of birth")
                     .setQuestionText(
                         LocalizedStrings.of(
@@ -64,7 +63,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             getAllQuestions().stream()
                 .map(Question::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
-        .containsOnly("Name", "Applicant Date of Birth");
+        .containsOnly("Sample Name Question", "Sample Applicant Date of Birth Question");
   }
 
   private Set<Question> getAllQuestions() {
