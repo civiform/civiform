@@ -38,7 +38,7 @@ public class DatabaseSeedControllerTest {
     assertThat(contentAsString(result)).doesNotContain("mock-program");
 
     // Seed the fake data.
-    result = controller.seed();
+    result = controller.seedPrograms();
     assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
@@ -63,9 +63,9 @@ public class DatabaseSeedControllerTest {
   }
 
   @Test
-  public void seed_inNonDevMode_returnsNotFound() {
+  public void seedPrograms_inNonDevMode_returnsNotFound() {
     setupControllerInMode(Mode.TEST);
-    Result result = controller.seed();
+    Result result = controller.seedPrograms();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

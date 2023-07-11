@@ -105,7 +105,7 @@ public class DatabaseSeedController extends Controller {
         .flashing("success", "Canonical questions seeded");
   }
 
-  public Result seed() {
+  public Result seedPrograms() {
     // TODO: Check whether test program already exists to prevent error.
     if (!isDevOrStaging) {
       return notFound();
