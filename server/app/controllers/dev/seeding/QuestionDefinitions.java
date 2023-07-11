@@ -23,7 +23,7 @@ public class QuestionDefinitions {
   public static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
       new AddressQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("address")
+              .setName("Sample Address Question")
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
@@ -52,7 +52,7 @@ public class QuestionDefinitions {
   public static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
       new CurrencyQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("currency")
+              .setName("Sample Currency Question")
               .setDescription("description")
               .setQuestionText(
                   LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"))
@@ -61,7 +61,7 @@ public class QuestionDefinitions {
 
   private static final QuestionDefinitionConfig.Builder DATE_QUESTION_DEFINITION_CONFIG_BUILDER =
       QuestionDefinitionConfig.builder()
-          .setName("enumerator date")
+          .setName("Sample Enumerator Date Question")
           .setDescription("description")
           .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
           .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text for $this's birthday"));
@@ -104,7 +104,7 @@ public class QuestionDefinitions {
   public static final EmailQuestionDefinition EMAIL_QUESTION_DEFINITION =
       new EmailQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("email")
+              .setName("Sample Email Question")
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
@@ -113,7 +113,7 @@ public class QuestionDefinitions {
   public static final EnumeratorQuestionDefinition ENUMERATOR_QUESTION_DEFINITION =
       new EnumeratorQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("enumerator")
+              .setName("Sample Enumerator Question")
               .setDescription("description")
               .setQuestionText(
                   LocalizedStrings.withDefaultValue("List all members of your household."))
@@ -124,7 +124,7 @@ public class QuestionDefinitions {
   public static final FileUploadQuestionDefinition FILE_UPLOAD_QUESTION_DEFINITION =
       new FileUploadQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("file upload")
+              .setName("Sample File Upload Question")
               .setDescription("description")
               .setQuestionText(
                   LocalizedStrings.withDefaultValue("Upload anything from your computer"))
@@ -134,7 +134,7 @@ public class QuestionDefinitions {
   public static final IdQuestionDefinition ID_QUESTION_DEFINITION =
       new IdQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("id")
+              .setName("Sample ID Question")
               .setDescription("description")
               .setQuestionText(
                   LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
@@ -144,7 +144,7 @@ public class QuestionDefinitions {
   public static final NumberQuestionDefinition NUMBER_QUESTION_DEFINITION =
       new NumberQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("number")
+              .setName("Sample Number Question")
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("How many pets do you have?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
@@ -152,7 +152,7 @@ public class QuestionDefinitions {
 
   private static final QuestionDefinitionConfig RADIO_BUTTON_QUESTION_CONFIG =
       QuestionDefinitionConfig.builder()
-          .setName("radio")
+          .setName("Sample Radio Button Question")
           .setDescription("favorite season in the year")
           .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite season?"))
           .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
@@ -176,7 +176,7 @@ public class QuestionDefinitions {
   public static final StaticContentQuestionDefinition STATIC_CONTENT_QUESTION_DEFINITION =
       new StaticContentQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("static content")
+              .setName("Sample Static Content Question")
               .setDescription("description")
               .setQuestionText(
                   LocalizedStrings.withDefaultValue(
@@ -191,7 +191,7 @@ public class QuestionDefinitions {
   public static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("text")
+              .setName("Sample Text Question")
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite color?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
@@ -200,7 +200,7 @@ public class QuestionDefinitions {
   public static final PhoneQuestionDefinition PHONE_QUESTION_DEFINITION =
       new PhoneQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("phone")
+              .setName("Sample Phone Question")
               .setDescription("description")
               .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))

@@ -236,7 +236,9 @@ public class DatabaseSeedController extends Controller {
           blockId,
           ImmutableList.of(
               questionService
-                  .create(dateQuestionDefinition("predicate date", "When is your birthday?"))
+                  .create(
+                      dateQuestionDefinition(
+                          "Sample Predicate Date Question", "When is your birthday?"))
                   .getResult()
                   .getId()));
       // Add a predicate based on the "favorite season" radio button question in Block 3
