@@ -137,6 +137,7 @@ describe('Admin question list', () => {
 
     await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.questionBankNames()).toEqual(['a', 'b', 'c'])
+    await validateScreenshot(page, 'questions-list-sort-dropdown-last-adminname-asc')
     await adminQuestions.sortQuestions('adminname-desc')
     expect(await adminQuestions.questionBankNames()).toEqual(['c', 'b', 'a'])
 
@@ -150,7 +151,7 @@ describe('Admin question list', () => {
     await adminQuestions.sortQuestions('lastmodified-desc')
     expect(await adminQuestions.questionBankNames()).toEqual(['c', 'a', 'b'])
 
-    await validateScreenshot(page, 'questions-list-sort-dropdown')
+    await validateScreenshot(page, 'questions-list-sort-dropdown-lastmodified')
   })
 
   it('shows if questions are marked for archival', async () => {
