@@ -1,6 +1,20 @@
 package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.dev.seeding.QuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.DATE_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.EMAIL_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.ID_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.NUMBER_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.PHONE_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.TEXT_QUESTION_DEFINITION;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -19,7 +33,6 @@ import play.mvc.Result;
 import services.CiviFormError;
 import services.DeploymentType;
 import services.ErrorAnd;
-import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
@@ -31,23 +44,8 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
-import services.question.QuestionOption;
 import services.question.QuestionService;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.CurrencyQuestionDefinition;
-import services.question.types.DateQuestionDefinition;
-import services.question.types.EmailQuestionDefinition;
-import services.question.types.EnumeratorQuestionDefinition;
-import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.IdQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
-import services.question.types.NumberQuestionDefinition;
-import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionConfig;
-import services.question.types.StaticContentQuestionDefinition;
-import services.question.types.TextQuestionDefinition;
 import services.settings.SettingsService;
 import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
@@ -134,246 +132,65 @@ public class DatabaseSeedController extends Controller {
   }
 
   private QuestionDefinition insertAddressQuestionDefinition() {
-    return questionService
-        .create(
-            new AddressQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("address")
-                    .setDescription("description")
-                    .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(ADDRESS_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertCheckboxQuestionDefinition() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("checkbox")
-            .setDescription("description")
-            .setQuestionText(
-                LocalizedStrings.withDefaultValue(
-                    "Which of the following kitchen instruments do you own?"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .build();
-    ImmutableList<QuestionOption> questionOptions =
-        ImmutableList.of(
-            QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
-            QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
-            QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("garlic press")));
-    return questionService
-        .create(
-            new MultiOptionQuestionDefinition(
-                config, questionOptions, MultiOptionQuestionType.CHECKBOX))
-        .getResult();
+    return questionService.create(CHECKBOX_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertCurrencyQuestionDefinition() {
-    return questionService
-        .create(
-            new CurrencyQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("currency")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue(
-                            "How much should a scoop of ice cream cost?"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(CURRENCY_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertDateQuestionDefinitionForEnumerator(long enumeratorId) {
-    return questionService
-        .create(
-            new DateQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("enumerator date")
-                    .setDescription("description")
-                    .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
-                    .setQuestionHelpText(
-                        LocalizedStrings.withDefaultValue("help text for $this's birthday"))
-                    .setEnumeratorId(Optional.of(enumeratorId))
-                    .build()))
-        .getResult();
+    return questionService.create(DATE_QUESTION_DEFINITION(enumeratorId)).getResult();
   }
 
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
   private QuestionDefinition insertDateQuestionDefinition(String name, String questionText) {
-    return questionService
-        .create(
-            new DateQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName(name)
-                    .setDescription("description")
-                    .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(DATE_QUESTION_DEFINITION(name, questionText)).getResult();
   }
 
   private QuestionDefinition insertDropdownQuestionDefinition() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("dropdown")
-            .setDescription("select your favorite ice cream flavor")
-            .setQuestionText(
-                LocalizedStrings.withDefaultValue(
-                    "Select your favorite ice cream flavor from the following"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
-            .build();
-    ImmutableList<QuestionOption> questionOptions =
-        ImmutableList.of(
-            QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("chocolate")),
-            QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("strawberry")),
-            QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
-            QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee")));
-    return questionService
-        .create(
-            new MultiOptionQuestionDefinition(
-                config, questionOptions, MultiOptionQuestionType.DROPDOWN))
-        .getResult();
+    return questionService.create(DROPDOWN_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertEmailQuestionDefinition() {
-    return questionService
-        .create(
-            new EmailQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("email")
-                    .setDescription("description")
-                    .setQuestionText(LocalizedStrings.withDefaultValue("What is your email?"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(EMAIL_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertEnumeratorQuestionDefinition() {
-    return questionService
-        .create(
-            new EnumeratorQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("enumerator")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue("List all members of your household."))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build(),
-                LocalizedStrings.withDefaultValue("household member")))
-        .getResult();
+    return questionService.create(ENUMERATOR_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertFileUploadQuestionDefinition() {
-    return questionService
-        .create(
-            new FileUploadQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("file upload")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue("Upload anything from your computer"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(FILE_UPLOAD_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertIdQuestionDefinition() {
-    return questionService
-        .create(
-            new IdQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("id")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue("What is your driver's license ID?"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(ID_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertNumberQuestionDefinition() {
-    return questionService
-        .create(
-            new NumberQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("number")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue("How many pets do you have?"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(NUMBER_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertRadioButtonQuestionDefinition() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("radio")
-            .setDescription("favorite season in the year")
-            .setQuestionText(LocalizedStrings.withDefaultValue("What is your favorite season?"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("this is sample help text"))
-            .build();
-
-    ImmutableList<QuestionOption> questionOptions =
-        ImmutableList.of(
-            QuestionOption.create(
-                1L, 1L, LocalizedStrings.withDefaultValue("winter (will hide next block)")),
-            QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("spring")),
-            QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("summer")),
-            QuestionOption.create(
-                4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)")));
-    return questionService
-        .create(
-            new MultiOptionQuestionDefinition(
-                config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON))
-        .getResult();
+    return questionService.create(RADIO_BUTTON_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertStaticTextQuestionDefinition() {
-    return questionService
-        .create(
-            new StaticContentQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("static content")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue(
-                            "Hi I'm a block of static text. \n"
-                                + " * Welcome to this test program.\n"
-                                + " * It contains one of every question type. \n\n"
-                                + "### What are the eligibility requirements? \n"
-                                + ">You are 18 years or older."))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
-                    .build()))
-        .getResult();
+    return questionService.create(STATIC_CONTENT_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertTextQuestionDefinition() {
-    return questionService
-        .create(
-            new TextQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("text")
-                    .setDescription("description")
-                    .setQuestionText(
-                        LocalizedStrings.withDefaultValue("What is your favorite color?"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(TEXT_QUESTION_DEFINITION).getResult();
   }
 
   private QuestionDefinition insertPhoneQuestionDefinition() {
-    return questionService
-        .create(
-            new PhoneQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("phone")
-                    .setDescription("description")
-                    .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
-                    .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-                    .build()))
-        .getResult();
+    return questionService.create(PHONE_QUESTION_DEFINITION).getResult();
   }
 
   private ProgramDefinition insertProgramWithBlocks(
