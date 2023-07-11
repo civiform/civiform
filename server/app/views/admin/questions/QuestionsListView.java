@@ -382,7 +382,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 latestDefinition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
             .withData(
                 DATA_ATTRIBUTE_NUM_PROGRAMS,
-                cardData.referencingPrograms().getTotalNumReferencingPrograms().toString());
+                Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
     return Pair.of(rowWithAdminNote, modals.build());
   }
 
@@ -527,7 +527,7 @@ public final class QuestionsListView extends BaseHtmlView {
       return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
     }
 
-    Integer getTotalNumReferencingPrograms() {
+    int getTotalNumReferencingPrograms() {
       return usedPrograms().size() + addedPrograms().size();
     }
 

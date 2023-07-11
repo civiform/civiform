@@ -137,7 +137,10 @@ describe('Admin question list', () => {
 
     await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.questionBankNames()).toEqual(['a', 'b', 'c'])
-    await validateScreenshot(page, 'questions-list-sort-dropdown-last-adminname-asc')
+    await validateScreenshot(
+      page,
+      'questions-list-sort-dropdown-last-adminname-asc',
+    )
     await adminQuestions.sortQuestions('adminname-desc')
     expect(await adminQuestions.questionBankNames()).toEqual(['c', 'b', 'a'])
 
@@ -192,7 +195,8 @@ describe('Admin question list', () => {
 
     const questionOne = 'question list test question one'
     const questionTwo = 'question list test question two'
-    const questionThree = 'question list test question three'
+    const questionThreeToBeArchived = 'question list test question three'
+    // Set the questionText to the same as questionName to make validation easier since questionBankNames() returns the questionText.
     await adminQuestions.addNameQuestion({
       questionName: questionOne,
       questionText: questionOne,
@@ -202,30 +206,30 @@ describe('Admin question list', () => {
       questionText: questionTwo,
     })
     await adminQuestions.addNameQuestion({
-      questionName: questionThree,
-      questionText: questionThree,
+      questionName: questionThreeToBeArchived,
+      questionText: questionThreeToBeArchived,
     })
 
     // Publish questions
     await adminPrograms.publishAllPrograms()
 
     await adminQuestions.archiveQuestion({
-      questionName: questionThree,
+      questionName: questionThreeToBeArchived,
       expectModal: false,
     })
 
     // Check that archived question is still at the bottom after sorting.
     await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.questionBankNames()).toEqual([
-      'question list test question one',
-      'question list test question two',
-      'question list test question three',
+      questionOne,
+      questionTwo,
+      questionThreeToBeArchived,
     ])
     await adminQuestions.sortQuestions('lastmodified-desc')
     expect(await adminQuestions.questionBankNames()).toEqual([
-      'question list test question two',
-      'question list test question one',
-      'question list test question three',
+      questionTwo,
+      questionOne,
+      questionThreeToBeArchived,
     ])
   })
 
