@@ -48,7 +48,6 @@ public final class TrustedIntermediaryService {
   public Form<AddApplicantToTrustedIntermediaryGroupForm> addNewClient(
       Form<AddApplicantToTrustedIntermediaryGroupForm> form,
       TrustedIntermediaryGroup trustedIntermediaryGroup) {
-    form = validateEmailAddress(form);
     form = validateFirstName(form);
     form = validateLastName(form);
     form = validateDateOfBirthForAddApplicant(form);
@@ -63,14 +62,6 @@ public final class TrustedIntermediaryService {
           FORM_FIELD_NAME_EMAIL_ADDRESS,
           "Email address already in use. Cannot create applicant if an account already"
               + " exists.");
-    }
-    return form;
-  }
-
-  private Form<AddApplicantToTrustedIntermediaryGroupForm> validateEmailAddress(
-      Form<AddApplicantToTrustedIntermediaryGroupForm> form) {
-    if (Strings.isNullOrEmpty(form.value().get().getEmailAddress())) {
-      return form.withError(FORM_FIELD_NAME_EMAIL_ADDRESS, "Email Address required");
     }
     return form;
   }

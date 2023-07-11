@@ -211,7 +211,6 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setId("email-input")
             .setFieldName("emailAddress")
             .setLabelText("Email Address")
-            .setRequired(true)
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
