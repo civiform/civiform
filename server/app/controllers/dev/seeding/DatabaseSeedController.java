@@ -1,20 +1,20 @@
 package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static controllers.dev.seeding.QuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.EMAIL_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.ID_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.NUMBER_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.PHONE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.TEXT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.dateQuestionDefinition;
+import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.ID_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.NUMBER_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.TEXT_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.dateQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -167,7 +167,7 @@ public class DatabaseSeedController extends Controller {
               questionService.create(CHECKBOX_QUESTION_DEFINITION).getResult().getId(),
               questionService.create(CURRENCY_QUESTION_DEFINITION).getResult().getId(),
               questionService
-                  .create(dateQuestionDefinition("date", "When is your birthday?"))
+                  .create(dateQuestionDefinition("Sample Date Question", "When is your birthday?"))
                   .getResult()
                   .getId(),
               questionService.create(DROPDOWN_QUESTION_DEFINITION).getResult().getId(),

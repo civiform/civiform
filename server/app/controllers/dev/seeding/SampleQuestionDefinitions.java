@@ -18,7 +18,7 @@ import services.question.types.QuestionDefinitionConfig;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
-public final class QuestionDefinitions {
+public final class SampleQuestionDefinitions {
 
   public static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
       new AddressQuestionDefinition(
@@ -28,6 +28,7 @@ public final class QuestionDefinitions {
               .setQuestionText(LocalizedStrings.withDefaultValue("What is your address?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
+
   private static final QuestionDefinitionConfig CHECKBOX_QUESTION_DEFINITION_CONFIG =
       QuestionDefinitionConfig.builder()
           .setName("checkbox")
@@ -37,6 +38,7 @@ public final class QuestionDefinitions {
                   "Which of the following kitchen instruments do you own?"))
           .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
           .build();
+
   private static final ImmutableList<QuestionOption> CHECKBOX_QUESTION_OPTIONS =
       ImmutableList.of(
           QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
@@ -58,28 +60,6 @@ public final class QuestionDefinitions {
                   LocalizedStrings.withDefaultValue("How much should a scoop of ice cream cost?"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
-
-  private static final QuestionDefinitionConfig.Builder DATE_QUESTION_DEFINITION_CONFIG_BUILDER =
-      QuestionDefinitionConfig.builder()
-          .setName("Sample Enumerator Date Question")
-          .setDescription("description")
-          .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
-          .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text for $this's birthday"));
-
-  public static DateQuestionDefinition dateQuestionDefinition(long enumeratorId) {
-    return new DateQuestionDefinition(
-        DATE_QUESTION_DEFINITION_CONFIG_BUILDER.setEnumeratorId(enumeratorId).build());
-  }
-
-  public static DateQuestionDefinition dateQuestionDefinition(String name, String questionText) {
-    return new DateQuestionDefinition(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .build());
-  }
 
   private static final QuestionDefinitionConfig DROPDOWN_QUESTION_CONFIG =
       QuestionDefinitionConfig.builder()
@@ -205,4 +185,26 @@ public final class QuestionDefinitions {
               .setQuestionText(LocalizedStrings.withDefaultValue("what is your phone number"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
+
+  public static DateQuestionDefinition dateQuestionDefinition(String name, String questionText) {
+    return new DateQuestionDefinition(
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+            .build());
+  }
+
+  public static DateQuestionDefinition dateQuestionDefinition(long enumeratorId) {
+    return new DateQuestionDefinition(
+        QuestionDefinitionConfig.builder()
+            .setName("Sample Enumerator Date Question")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
+            .setQuestionHelpText(
+                LocalizedStrings.withDefaultValue("help text for $this's birthday"))
+            .setEnumeratorId(enumeratorId)
+            .build());
+  }
 }
