@@ -283,7 +283,12 @@ function disableEnterToSubmitBehaviorOnForms() {
     // if event originated from a button or link - it should proceed with
     // default action.
     // For textareas, the default should also proceed to allow newlines.
-    if (target !== 'button' && target !== 'a' && target !== 'textarea' && e.key === 'Enter') {
+    if (
+      target !== 'button' &&
+      target !== 'a' &&
+      target !== 'textarea' &&
+      e.key === 'Enter'
+    ) {
       e.preventDefault()
     }
   })
