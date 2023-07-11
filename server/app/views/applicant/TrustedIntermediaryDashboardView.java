@@ -182,7 +182,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
-            .setLabelText("First Name (Required)")
+            .setLabelText("First Name")
+            .setRequired(true)
             .setValue(request.flash().get("providedFirstName").orElse(""));
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
@@ -194,7 +195,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
-            .setLabelText("Last Name (Required)")
+            .setLabelText("Last Name")
+            .setRequired(true)
             .setValue(request.flash().get("providedLastName").orElse(""));
     // TODO: do something with this field.  currently doesn't do anything. Add a Path
     // to WellKnownPaths referencing the canonical date of birth question.
@@ -208,7 +210,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address (Required)")
+            .setLabelText("Email Address")
+            .setRequired(true)
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
