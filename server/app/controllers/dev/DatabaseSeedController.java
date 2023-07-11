@@ -131,67 +131,8 @@ public class DatabaseSeedController extends Controller {
         .flashing("success", "The database has been cleared");
   }
 
-  private QuestionDefinition insertAddressQuestionDefinition() {
-    return questionService.create(ADDRESS_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertCheckboxQuestionDefinition() {
-    return questionService.create(CHECKBOX_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertCurrencyQuestionDefinition() {
-    return questionService.create(CURRENCY_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertDateQuestionDefinitionForEnumerator(long enumeratorId) {
-    return questionService.create(DATE_QUESTION_DEFINITION(enumeratorId)).getResult();
-  }
-
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
-  private QuestionDefinition insertDateQuestionDefinition(String name, String questionText) {
-    return questionService.create(DATE_QUESTION_DEFINITION(name, questionText)).getResult();
-  }
-
-  private QuestionDefinition insertDropdownQuestionDefinition() {
-    return questionService.create(DROPDOWN_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertEmailQuestionDefinition() {
-    return questionService.create(EMAIL_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertEnumeratorQuestionDefinition() {
-    return questionService.create(ENUMERATOR_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertFileUploadQuestionDefinition() {
-    return questionService.create(FILE_UPLOAD_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertIdQuestionDefinition() {
-    return questionService.create(ID_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertNumberQuestionDefinition() {
-    return questionService.create(NUMBER_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertRadioButtonQuestionDefinition() {
-    return questionService.create(RADIO_BUTTON_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertStaticTextQuestionDefinition() {
-    return questionService.create(STATIC_CONTENT_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertTextQuestionDefinition() {
-    return questionService.create(TEXT_QUESTION_DEFINITION).getResult();
-  }
-
-  private QuestionDefinition insertPhoneQuestionDefinition() {
-    return questionService.create(PHONE_QUESTION_DEFINITION).getResult();
-  }
 
   private ProgramDefinition insertProgramWithBlocks(
       String adminName, String displayName, QuestionDefinition nameQuestion) {
@@ -223,13 +164,16 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              insertStaticTextQuestionDefinition().getId(),
-              insertAddressQuestionDefinition().getId(),
-              insertCheckboxQuestionDefinition().getId(),
-              insertCurrencyQuestionDefinition().getId(),
-              insertDateQuestionDefinition("date", "When is your birthday?").getId(),
-              insertDropdownQuestionDefinition().getId(),
-              insertPhoneQuestionDefinition().getId()));
+              questionService.create(STATIC_CONTENT_QUESTION_DEFINITION).getResult().getId(),
+              questionService.create(ADDRESS_QUESTION_DEFINITION).getResult().getId(),
+              questionService.create(CHECKBOX_QUESTION_DEFINITION).getResult().getId(),
+              questionService.create(CURRENCY_QUESTION_DEFINITION).getResult().getId(),
+              questionService
+                  .create(DATE_QUESTION_DEFINITION("date", "When is your birthday?"))
+                  .getResult()
+                  .getId(),
+              questionService.create(DROPDOWN_QUESTION_DEFINITION).getResult().getId(),
+              questionService.create(PHONE_QUESTION_DEFINITION).getResult().getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
@@ -240,18 +184,19 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              insertEmailQuestionDefinition().getId(),
-              insertIdQuestionDefinition().getId(),
+              questionService.create(EMAIL_QUESTION_DEFINITION).getResult().getId(),
+              questionService.create(ID_QUESTION_DEFINITION).getResult().getId(),
               nameQuestion.getId(),
-              insertNumberQuestionDefinition().getId(),
-              insertTextQuestionDefinition().getId()));
+              questionService.create(NUMBER_QUESTION_DEFINITION).getResult().getId(),
+              questionService.create(TEXT_QUESTION_DEFINITION).getResult().getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("enumerator");
       blockForm.setDescription("this is for an enumerator");
       programService.updateBlock(programId, blockId, blockForm);
-      long enumeratorId = insertEnumeratorQuestionDefinition().getId();
+      long enumeratorId =
+          questionService.create(ENUMERATOR_QUESTION_DEFINITION).getResult().getId();
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
       // Create repeated screens based on enumerator.
       long enumeratorBlockId = blockId;
@@ -268,14 +213,16 @@ public class DatabaseSeedController extends Controller {
       programService.addQuestionsToBlock(
           programId,
           blockId,
-          ImmutableList.of(insertDateQuestionDefinitionForEnumerator(enumeratorId).getId()));
+          ImmutableList.of(
+              questionService.create(DATE_QUESTION_DEFINITION(enumeratorId)).getResult().getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("Block 3");
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
-      long radioButtonQuestionId = insertRadioButtonQuestionDefinition().getId();
+      long radioButtonQuestionId =
+          questionService.create(RADIO_BUTTON_QUESTION_DEFINITION).getResult().getId();
       programService.addQuestionsToBlock(
           programId, blockId, ImmutableList.of(radioButtonQuestionId));
 
@@ -289,7 +236,10 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              insertDateQuestionDefinition("predicate date", "When is your birthday?").getId()));
+              questionService
+                  .create(DATE_QUESTION_DEFINITION("predicate date", "When is your birthday?"))
+                  .getResult()
+                  .getId()));
       // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
@@ -309,7 +259,8 @@ public class DatabaseSeedController extends Controller {
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
-      long fileQuestionId = insertFileUploadQuestionDefinition().getId();
+      long fileQuestionId =
+          questionService.create(FILE_UPLOAD_QUESTION_DEFINITION).getResult().getId();
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
