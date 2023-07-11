@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.dev.seeding.QuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
-import static controllers.dev.seeding.QuestionDefinitions.DATE_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.EMAIL_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
@@ -15,6 +14,7 @@ import static controllers.dev.seeding.QuestionDefinitions.PHONE_QUESTION_DEFINIT
 import static controllers.dev.seeding.QuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
 import static controllers.dev.seeding.QuestionDefinitions.TEXT_QUESTION_DEFINITION;
+import static controllers.dev.seeding.QuestionDefinitions.dateQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -134,14 +134,13 @@ public class DatabaseSeedController extends Controller {
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
 
-  private void insertLargeSampleProgram(
-      QuestionDefinition nameQuestion) {
+  private void insertLargeSampleProgram(QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
-            "large-sample-program",
+              "large-sample-program",
               "desc",
-            "Large sample program",
+              "Large sample program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               "https://github.com/seattle-uat/civiform",
@@ -169,7 +168,7 @@ public class DatabaseSeedController extends Controller {
               questionService.create(CHECKBOX_QUESTION_DEFINITION).getResult().getId(),
               questionService.create(CURRENCY_QUESTION_DEFINITION).getResult().getId(),
               questionService
-                  .create(DATE_QUESTION_DEFINITION("date", "When is your birthday?"))
+                  .create(dateQuestionDefinition("date", "When is your birthday?"))
                   .getResult()
                   .getId(),
               questionService.create(DROPDOWN_QUESTION_DEFINITION).getResult().getId(),
@@ -214,7 +213,7 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              questionService.create(DATE_QUESTION_DEFINITION(enumeratorId)).getResult().getId()));
+              questionService.create(dateQuestionDefinition(enumeratorId)).getResult().getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
@@ -237,7 +236,7 @@ public class DatabaseSeedController extends Controller {
           blockId,
           ImmutableList.of(
               questionService
-                  .create(DATE_QUESTION_DEFINITION("predicate date", "When is your birthday?"))
+                  .create(dateQuestionDefinition("predicate date", "When is your birthday?"))
                   .getResult()
                   .getId()));
       // Add a predicate based on the "favorite season" radio button question in Block 3
@@ -269,14 +268,13 @@ public class DatabaseSeedController extends Controller {
     }
   }
 
-  private void insertSmallSampleProgram(
-      QuestionDefinition nameQuestion) {
+  private void insertSmallSampleProgram(QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
-            "small-sample-program",
+              "small-sample-program",
               "desc",
-            "Small Sample Program",
+              "Small Sample Program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/seattle-uat/civiform",

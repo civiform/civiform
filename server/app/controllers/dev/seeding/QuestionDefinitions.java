@@ -1,7 +1,6 @@
 package controllers.dev.seeding;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.AddressQuestionDefinition;
@@ -60,19 +59,19 @@ public class QuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  public static DateQuestionDefinition DATE_QUESTION_DEFINITION(long enumeratorId) {
+  private static final QuestionDefinitionConfig.Builder DATE_QUESTION_DEFINITION_CONFIG_BUILDER =
+      QuestionDefinitionConfig.builder()
+          .setName("enumerator date")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
+          .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text for $this's birthday"));
+
+  public static DateQuestionDefinition dateQuestionDefinition(long enumeratorId) {
     return new DateQuestionDefinition(
-        QuestionDefinitionConfig.builder()
-            .setName("enumerator date")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
-            .setQuestionHelpText(
-                LocalizedStrings.withDefaultValue("help text for $this's birthday"))
-            .setEnumeratorId(Optional.of(enumeratorId))
-            .build());
+        DATE_QUESTION_DEFINITION_CONFIG_BUILDER.setEnumeratorId(enumeratorId).build());
   }
 
-  public static DateQuestionDefinition DATE_QUESTION_DEFINITION(String name, String questionText) {
+  public static DateQuestionDefinition dateQuestionDefinition(String name, String questionText) {
     return new DateQuestionDefinition(
         QuestionDefinitionConfig.builder()
             .setName(name)
