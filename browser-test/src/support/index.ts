@@ -456,9 +456,9 @@ export const dropTables = async (page: Page) => {
   await page.click('#clear')
 }
 
-export const seedCanonicalQuestions = async (page: Page) => {
+export const seedQuestions = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#canonical-questions')
+  await page.click('#sample-questions')
 }
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {

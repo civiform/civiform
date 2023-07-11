@@ -94,7 +94,7 @@ public class DatabaseSeedController extends Controller {
             request, activeAndDraftPrograms, questionDefinitions, request.flash().get("success")));
   }
 
-  public Result seedCanonicalQuestions() {
+  public Result seedQuestions() {
     if (!isDevOrStaging) {
       return notFound();
     }
@@ -102,7 +102,7 @@ public class DatabaseSeedController extends Controller {
     databaseSeedTask.run();
 
     return redirect(routes.DatabaseSeedController.index().url())
-        .flashing("success", "Canonical questions seeded");
+        .flashing("success", "Sample questions seeded");
   }
 
   public Result seedPrograms() {
@@ -110,13 +110,13 @@ public class DatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    QuestionDefinition canonicalNameQuestion =
+    QuestionDefinition sampleNameQuestion =
         databaseSeedTask.run().stream()
             .filter(q -> q.getName().equals("Name"))
             .findFirst()
             .orElseThrow();
-    insertProgramWithBlocks("mock-program", "Mock program", canonicalNameQuestion);
-    insertSimpleProgram("simple-program", "Simple program", canonicalNameQuestion);
+    insertProgramWithBlocks("mock-program", "Mock program", sampleNameQuestion);
+    insertSimpleProgram("simple-program", "Simple program", sampleNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }

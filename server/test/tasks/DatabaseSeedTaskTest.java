@@ -27,7 +27,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedCanonicalQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions()
+  public void seedQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions()
       throws Exception {
     assertThat(getAllQuestions().size()).isEqualTo(0);
 
@@ -42,7 +42,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedCanonicalQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
+  public void seedQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
     instanceOf(QuestionService.class)
         .create(
             new DateQuestionDefinition(

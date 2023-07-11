@@ -1,15 +1,10 @@
-import {
-  startSession,
-  dropTables,
-  endSession,
-  seedCanonicalQuestions,
-} from './support'
+import {startSession, dropTables, endSession, seedQuestions} from './support'
 import * as fs from 'fs'
 
 module.exports = async () => {
   const {browser, page} = await startSession()
   await dropTables(page)
-  await seedCanonicalQuestions(page)
+  await seedQuestions(page)
 
   await endSession(browser)
 
