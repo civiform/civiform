@@ -115,8 +115,8 @@ public class DatabaseSeedController extends Controller {
             .filter(q -> q.getName().equals("Name"))
             .findFirst()
             .orElseThrow();
-    insertProgramWithBlocks("mock-program", "Mock program", sampleNameQuestion);
-    insertSimpleProgram("simple-program", "Simple program", sampleNameQuestion);
+    insertLargeSampleProgram(sampleNameQuestion);
+    insertSmallSampleProgram(sampleNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -134,14 +134,14 @@ public class DatabaseSeedController extends Controller {
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
 
-  private ProgramDefinition insertProgramWithBlocks(
-      String adminName, String displayName, QuestionDefinition nameQuestion) {
+  private void insertLargeSampleProgram(
+      QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
-              adminName,
+            "large-sample-program",
               "desc",
-              displayName,
+            "Large sample program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               "https://github.com/seattle-uat/civiform",
@@ -250,8 +250,7 @@ public class DatabaseSeedController extends Controller {
       PredicateDefinition predicate =
           PredicateDefinition.create(
               PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
-      programDefinition =
-          programService.setBlockVisibilityPredicate(programId, blockId, Optional.of(predicate));
+      programService.setBlockVisibilityPredicate(programId, blockId, Optional.of(predicate));
 
       // Add file upload as optional to make local testing easier.
       blockId =
@@ -265,20 +264,19 @@ public class DatabaseSeedController extends Controller {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 
-      return programDefinition;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private ProgramDefinition insertSimpleProgram(
-      String adminName, String displayName, QuestionDefinition nameQuestion) {
+  private void insertSmallSampleProgram(
+      QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
-              adminName,
+            "small-sample-program",
               "desc",
-              displayName,
+            "Small Sample Program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/seattle-uat/civiform",
@@ -303,7 +301,6 @@ public class DatabaseSeedController extends Controller {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestion.getId(), true);
 
-      return programDefinition;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
