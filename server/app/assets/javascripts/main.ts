@@ -280,9 +280,7 @@ function attachStopPropogationListenerOnFormButtons() {
 function disableEnterToSubmitBehaviorOnForms() {
   addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
     const target = (e.target as HTMLElement).tagName.toLowerCase()
-    // if event originated from a button or link - it should proceed with
-    // default action.
-    // For textareas, the default should also proceed to allow newlines.
+    // If event originated from a button, link, or textarea, it should proceed with the default action.
     if (
       target !== 'button' &&
       target !== 'a' &&
