@@ -166,7 +166,9 @@ class QuestionBankController {
     )
 
     const sortedQuestions = questions.sort((elementA, elementB) => {
+      // questionBankSort.value is expected to be of the format "<data_attribute_name>-<asc|desc>". See QuestionsListView.java for more.
       const [attrName, order] = questionBankSort.value.split('-')
+      // Get the data attribute whose name matches the selected sort option so that it can be used to compare the elements.
       const attrA: string | null = elementA.getAttribute('data-' + attrName)
       const attrB: string | null = elementB.getAttribute('data-' + attrName)
       if (!attrA || !attrB) {

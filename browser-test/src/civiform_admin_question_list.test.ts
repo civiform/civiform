@@ -113,6 +113,7 @@ describe('Admin question list', () => {
   it('sorts question list based on selection', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
     await loginAsAdmin(page)
+    // Set the questionText to the same as questionName to make validation easier since questionBankNames() returns the questionText. The questionText is not actually used to sort.
     await adminQuestions.addTextQuestion({
       questionName: 'b',
       questionText: 'b',
@@ -134,18 +135,21 @@ describe('Admin question list', () => {
 
     await adminQuestions.gotoAdminQuestionsPage()
 
-    await page.locator('#question-bank-sort').selectOption('adminname-asc')
+    await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.questionBankNames()).toEqual(['a', 'b', 'c'])
-    await page.locator('#question-bank-sort').selectOption('adminname-desc')
+    await adminQuestions.sortQuestions('adminname-desc')
     expect(await adminQuestions.questionBankNames()).toEqual(['c', 'b', 'a'])
-    await page.locator('#question-bank-sort').selectOption('numprograms-asc')
+
+    // Question 'b' is referenced by 0 programs, 'c' by 1 program, and 'a' by 2 programs.
+    await adminQuestions.sortQuestions('numprograms-asc')
     expect(await adminQuestions.questionBankNames()).toEqual(['b', 'c', 'a'])
-    await page.locator('#question-bank-sort').selectOption('numprograms-desc')
+    await adminQuestions.sortQuestions('numprograms-desc')
     expect(await adminQuestions.questionBankNames()).toEqual(['a', 'c', 'b'])
-    await page.locator('#question-bank-sort').selectOption('lastmodified-desc')
+
+    // Question 'c' was modified after question 'a' which was modified after 'b'.
+    await adminQuestions.sortQuestions('lastmodified-desc')
     expect(await adminQuestions.questionBankNames()).toEqual(['c', 'a', 'b'])
 
-    await page.locator('#question-bank-sort').click()
     await validateScreenshot(page, 'questions-list-sort-dropdown')
   })
 
@@ -179,11 +183,46 @@ describe('Admin question list', () => {
     })
 
     await validateScreenshot(page, 'questions-list-with-archived-questions')
+  })
+
+  it('does not sort archived questions', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const questionOne = 'question list test question one'
+    const questionTwo = 'question list test question two'
+    const questionThree = 'question list test question three'
+    await adminQuestions.addNameQuestion({
+      questionName: questionOne,
+      questionText: questionOne,
+    })
+    await adminQuestions.addNameQuestion({
+      questionName: questionTwo,
+      questionText: questionTwo,
+    })
+    await adminQuestions.addNameQuestion({
+      questionName: questionThree,
+      questionText: questionThree,
+    })
+
+    // Publish questions
+    await adminPrograms.publishAllPrograms()
+
+    await adminQuestions.archiveQuestion({
+      questionName: questionThree,
+      expectModal: false,
+    })
 
     // Check that archived question is still at the bottom after sorting.
-    await page.locator('#question-bank-sort').selectOption('adminname-desc')
+    await adminQuestions.sortQuestions('adminname-asc')
     expect(await adminQuestions.questionBankNames()).toEqual([
-      'question list test question two new version',
+      'question list test question one',
+      'question list test question two',
+      'question list test question three',
+    ])
+    await adminQuestions.sortQuestions('lastmodified-desc')
+    expect(await adminQuestions.questionBankNames()).toEqual([
+      'question list test question two',
       'question list test question one',
       'question list test question three',
     ])

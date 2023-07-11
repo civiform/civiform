@@ -189,20 +189,19 @@ public final class QuestionsListView extends BaseHtmlView {
                         DATA_ATTRIBUTE_NUM_PROGRAMS, /* descending= */ false))
                 .build());
     SelectWithLabel questionSortSelect =
-        (SelectWithLabel)
-            new SelectWithLabel()
-                .setId("question-bank-sort")
-                .setFieldName("question-bank-sort")
-                .setValue(questionSortOptions.get(0).value()) // Default sort: Last modified
-                .setLabelText("Sort by:")
-                .addStyleClass("border-gray-200")
-                .addStyleClass("shadow")
-                .setOptionGroups(
-                    ImmutableList.of(
-                        SelectWithLabel.OptionGroup.builder()
-                            .setLabel("Sort by:")
-                            .setOptions(questionSortOptions)
-                            .build()));
+        new SelectWithLabel()
+            .setId("question-bank-sort")
+            .setFieldName("question-bank-sort")
+            .setValue(questionSortOptions.get(0).value()) // Default sort: Last modified
+            .setLabelText("Sort by:")
+            .addStyleClass("border-gray-200")
+            .addStyleClass("shadow")
+            .setOptionGroups(
+                ImmutableList.of(
+                    SelectWithLabel.OptionGroup.builder()
+                        .setLabel("Sort by:")
+                        .setOptions(questionSortOptions)
+                        .build()));
     return questionSortSelect;
   }
 
@@ -383,14 +382,8 @@ public final class QuestionsListView extends BaseHtmlView {
                 latestDefinition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
             .withData(
                 DATA_ATTRIBUTE_NUM_PROGRAMS,
-                getTotalNumReferencingPrograms(cardData.referencingPrograms()).toString());
+                cardData.referencingPrograms().getTotalNumReferencingPrograms().toString());
     return Pair.of(rowWithAdminNote, modals.build());
-  }
-
-  private Integer getTotalNumReferencingPrograms(
-      GroupedReferencingPrograms groupedReferencingPrograms) {
-    return groupedReferencingPrograms.usedPrograms().size()
-        + groupedReferencingPrograms.addedPrograms().size();
   }
 
   /**
@@ -532,6 +525,10 @@ public final class QuestionsListView extends BaseHtmlView {
 
     boolean isEmpty() {
       return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+    }
+
+    Integer getTotalNumReferencingPrograms() {
+      return usedPrograms().size() + addedPrograms().size();
     }
 
     @AutoValue.Builder
