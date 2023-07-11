@@ -199,11 +199,11 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 
 ## Methods for development
 # Seed the database with test content to develop against, and clear the database
-GET     /dev/seed                        controllers.dev.DatabaseSeedController.index(request: Request)
-POST    /dev/seed/canonicalQuestions     controllers.dev.DatabaseSeedController.seedQuestions()
+GET     /dev/seed                        controllers.dev.seeding.DatabaseSeedController.index(request: Request)
+POST    /dev/seed/canonicalQuestions     controllers.dev.seeding.DatabaseSeedController.seedQuestions()
 GET     /dev/icons                       controllers.dev.IconsController.index()
-POST    /dev/seedPrograms                controllers.dev.DatabaseSeedController.seedPrograms()
-POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.clear()
+POST    /dev/seedPrograms                controllers.dev.seeding.DatabaseSeedController.seedPrograms()
+POST    /dev/seed/clear                  controllers.dev.seeding.DatabaseSeedController.clear()
 
 # Change feature flags.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)

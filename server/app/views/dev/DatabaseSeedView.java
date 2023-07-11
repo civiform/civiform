@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
-import controllers.dev.routes;
+import controllers.dev.seeding.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;

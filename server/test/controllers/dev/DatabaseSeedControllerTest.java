@@ -7,6 +7,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
+import controllers.dev.seeding.DatabaseSeedController;
+import controllers.dev.seeding.routes;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Test;

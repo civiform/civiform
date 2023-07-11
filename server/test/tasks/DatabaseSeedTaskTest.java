@@ -2,6 +2,7 @@ package tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import controllers.dev.seeding.DatabaseSeedTask;
 import java.util.Set;
 import models.Question;
 import org.junit.Before;

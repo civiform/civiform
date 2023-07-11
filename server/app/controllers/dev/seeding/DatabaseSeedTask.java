@@ -1,4 +1,4 @@
-package tasks;
+package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

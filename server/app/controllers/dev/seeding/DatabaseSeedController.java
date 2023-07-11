@@ -1,4 +1,4 @@
-package controllers.dev;
+package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.dev.seeding.QuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
@@ -47,7 +47,6 @@ import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsService;
-import tasks.DatabaseSeedTask;
 import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the database with test content to develop against. */
