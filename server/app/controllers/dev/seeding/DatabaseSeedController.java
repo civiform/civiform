@@ -1,51 +1,20 @@
 package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_PREDICATE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.ID_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.NUMBER_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.TEXT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.dateEnumeratedQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
-import java.util.ArrayList;
-import java.util.Optional;
-import models.DisplayMode;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
-import services.CiviFormError;
 import services.DeploymentType;
-import services.ErrorAnd;
-import services.applicant.question.Scalar;
 import services.program.ActiveAndDraftPrograms;
-import services.program.ProgramDefinition;
 import services.program.ProgramService;
-import services.program.ProgramType;
-import services.program.predicate.LeafOperationExpressionNode;
-import services.program.predicate.Operator;
-import services.program.predicate.PredicateAction;
-import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
-import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsService;
@@ -118,8 +87,8 @@ public class DatabaseSeedController extends Controller {
             .filter(q -> q.getName().equals("Name"))
             .findFirst()
             .orElseThrow();
-    insertComprehensiveSampleProgram(createdSampleQuestions, sampleNameQuestion);
-    insertMinimalSampleProgram(sampleNameQuestion);
+    databaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions, sampleNameQuestion);
+    databaseSeedTask.insertMinimalSampleProgram(sampleNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -137,189 +106,10 @@ public class DatabaseSeedController extends Controller {
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
 
-  private void insertComprehensiveSampleProgram(
-      ImmutableList<QuestionDefinition> createdSampleQuestions, QuestionDefinition nameQuestion) {
-    try {
-      ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
-          programService.createProgramDefinition(
-              "comprehensive-sample-program",
-              "desc",
-              "Comprehensive sample program",
-              "display description",
-              /* defaultConfirmationMessage= */ "",
-              "https://github.com/seattle-uat/civiform",
-              DisplayMode.PUBLIC.getValue(),
-              /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
-      if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
-      }
-      ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
-
-      long blockId = 1L;
-      BlockForm blockForm = new BlockForm();
-      blockForm.setName("Block 1");
-      blockForm.setDescription("one of each question type - part 1");
-      programService.updateBlock(programId, blockId, blockForm).getResult();
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              getCreatedId(STATIC_CONTENT_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(ADDRESS_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(CHECKBOX_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(CURRENCY_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(DATE_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(DROPDOWN_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 2");
-      blockForm.setDescription("one of each question type - part 2");
-      programService.updateBlock(programId, blockId, blockForm);
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              getCreatedId(EMAIL_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(ID_QUESTION_DEFINITION, createdSampleQuestions),
-              nameQuestion.getId(),
-              getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("enumerator");
-      blockForm.setDescription("this is for an enumerator");
-      programService.updateBlock(programId, blockId, blockForm);
-      long enumeratorId = getCreatedId(ENUMERATOR_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
-      // Create repeated screens based on enumerator.
-      long enumeratorBlockId = blockId;
-      blockId =
-          programService
-              .addRepeatedBlockToProgram(programId, enumeratorBlockId)
-              .getResult()
-              .maybeAddedBlock()
-              .get()
-              .id();
-      blockForm.setName("repeated screen for enumerator");
-      blockForm.setDescription("this is a repeated screen for an enumerator");
-      programService.updateBlock(programId, blockId, blockForm);
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              // This is the only sample question for which we must call create here, because it
-              // includes an enumeratorId that only gets generated after
-              // ENUMERATOR_QUESTION_DEFINITION is created.
-              questionService
-                  .create(dateEnumeratedQuestionDefinition(enumeratorId))
-                  .getResult()
-                  .getId()));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 3");
-      blockForm.setDescription("Random information");
-      programService.updateBlock(programId, blockId, blockForm);
-      long radioButtonQuestionId =
-          getCreatedId(RADIO_BUTTON_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(radioButtonQuestionId));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block with Predicate");
-      blockForm.setDescription("May be hidden");
-      programService.updateBlock(programId, blockId, blockForm);
-      // Add an unanswered question to the block so it is considered incomplete.
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)));
-      // Add a predicate based on the "favorite season" radio button question in Block 3
-      LeafOperationExpressionNode operation =
-          LeafOperationExpressionNode.create(
-              radioButtonQuestionId,
-              Scalar.SELECTION,
-              Operator.IN,
-              PredicateValue.listOfStrings(ImmutableList.of("2", "3")));
-      PredicateDefinition predicate =
-          PredicateDefinition.create(
-              PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
-      programService.setBlockVisibilityPredicate(programId, blockId, Optional.of(predicate));
-
-      // Add file upload as optional to make local testing easier.
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("file upload");
-      blockForm.setDescription("this is for file upload");
-      programService.updateBlock(programId, blockId, blockForm);
-      long fileQuestionId = getCreatedId(FILE_UPLOAD_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
-      programService.setProgramQuestionDefinitionOptionality(
-          programId, blockId, fileQuestionId, true);
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private void insertMinimalSampleProgram(QuestionDefinition nameQuestion) {
-    try {
-      ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
-          programService.createProgramDefinition(
-              "minimal-sample-program",
-              "desc",
-              "Minimal Sample Program",
-              "display description",
-              /* defaultConfirmationMessage= */ "",
-              /* externalLink= */ "https://github.com/seattle-uat/civiform",
-              DisplayMode.PUBLIC.getValue(),
-              /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
-      if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
-      }
-      ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
-
-      long blockId = 1L;
-      BlockForm blockForm = new BlockForm();
-      blockForm.setName("Block 1");
-      blockForm.setDescription("Block 1");
-      programService.updateBlock(programId, blockId, blockForm).getResult();
-
-      programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(nameQuestion.getId()));
-      programService.setProgramQuestionDefinitionOptionality(
-          programId, blockId, nameQuestion.getId(), true);
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   private void resetTables() {
     Models.truncate(database);
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
     settingsService.migrateConfigValuesToSettingsGroup();
-  }
-
-  private long getCreatedId(
-      QuestionDefinition questionDefinition,
-      ImmutableList<QuestionDefinition> createdSampleQuestions) {
-    return createdSampleQuestions.stream()
-        .filter(q -> q.getName().equals(questionDefinition.getName()))
-        .findFirst()
-        .map(QuestionDefinition::getId)
-        .orElseThrow();
   }
 }
