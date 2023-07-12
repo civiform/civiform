@@ -105,7 +105,7 @@ public class BaseHtmlLayout {
         .ifPresent(bundle::addFooterScripts);
 
     // Add the favicon link
-    bundle.setFavicon(settingsManifest.getFaviconUrl(bundle.getRequest()).get());
+    bundle.setFavicon(settingsManifest.getFaviconUrl().get());
     bundle.setJsBundle(getJsBundle());
 
     return bundle;

@@ -42,8 +42,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Small logo for the civic entity used on the login page. */
-  public Optional<String> getWhitelabelSmallLogoUrl(RequestHeader request) {
-    return getString("WHITELABEL_SMALL_LOGO_URL", request);
+  public Optional<String> getWhitelabelSmallLogoUrl() {
+    return getString("WHITELABEL_SMALL_LOGO_URL");
   }
 
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
@@ -61,8 +61,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO
    * format.
    */
-  public Optional<String> getFaviconUrl(RequestHeader request) {
-    return getString("FAVICON_URL", request);
+  public Optional<String> getFaviconUrl() {
+    return getString("FAVICON_URL");
   }
 
   /** What identity provider to use for applicants. */
@@ -706,7 +706,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "WHITELABEL_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE),
+                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
@@ -724,7 +724,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon)"
                           + " image, in GIF, PNG, or ICO format.",
                       SettingType.STRING,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_READABLE))),
           "External Services",
           SettingsSection.create(
               "External Services",

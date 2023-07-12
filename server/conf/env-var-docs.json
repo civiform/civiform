@@ -3,7 +3,7 @@
     "group_description": "Configuration options for CiviForm branding.",
     "members": {
       "WHITELABEL_SMALL_LOGO_URL": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
         "type": "string"
       },
@@ -18,7 +18,7 @@
         "type": "string"
       },
       "FAVICON_URL": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "The URL of a 32x32 or 16x16 pixel [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon) image, in GIF, PNG, or ICO format.",
         "type": "string"
       }
