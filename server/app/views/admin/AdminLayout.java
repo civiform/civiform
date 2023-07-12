@@ -37,7 +37,8 @@ public final class AdminLayout extends BaseHtmlLayout {
     INTERMEDIARIES,
     REPORTING,
     API_KEYS,
-    SETTINGS
+    SETTINGS,
+    API_DOCS
   }
 
   private final NavPage activeNavPage;
@@ -111,6 +112,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     String programAdminProgramsLink = controllers.admin.routes.ProgramAdminController.index().url();
     String intermediaryLink = routes.TrustedIntermediaryManagementController.index().url();
     String apiKeysLink = controllers.admin.routes.AdminApiKeysController.index().url();
+    String apiDocsLink = controllers.api.routes.ApiDocsController.index().url();
     String reportingLink = controllers.admin.routes.AdminReportingController.index().url();
     String settingsLink = controllers.admin.routes.AdminSettingsController.index().url();
 
@@ -153,15 +155,37 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
 
-    if (primaryAdminType.equals(AdminType.PROGRAM_ADMIN)) {
-      adminHeader.with(programAdminProgramsHeaderLink).with(reportingHeaderLink);
-    } else {
-      adminHeader
-          .with(programsHeaderLink)
-          .with(questionsHeaderLink)
-          .with(intermediariesHeaderLink)
-          .with(apiKeysHeaderLink)
-          .with(reportingHeaderLink);
+    // For API docs, no styling is necessary because this tab is never "active" - we only use it to
+    // open a new tab.
+    ATag apiDocsHeaderLink =
+        headerLink(
+            "API docs", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage) ? activeNavStyle : "");
+
+    switch (primaryAdminType) {
+      case CIVI_FORM_ADMIN:
+        {
+          adminHeader
+              .with(programsHeaderLink)
+              .with(questionsHeaderLink)
+              .with(intermediariesHeaderLink)
+              .with(apiKeysHeaderLink)
+              .with(reportingHeaderLink)
+              .with(apiDocsHeaderLink);
+          break;
+        }
+      case PROGRAM_ADMIN:
+        {
+          adminHeader
+              .with(programAdminProgramsHeaderLink)
+              .with(reportingHeaderLink)
+              .with(apiDocsHeaderLink);
+          break;
+        }
+      default:
+        {
+          // Not authenticated
+          adminHeader.with(apiDocsHeaderLink);
+        }
     }
 
     return adminHeader.with(
