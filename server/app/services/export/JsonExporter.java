@@ -129,20 +129,25 @@ public final class JsonExporter {
             .getJsonEntries(answerData.createQuestion());
 
     for (Map.Entry<Path, ?> entry : entries.entrySet()) {
-      Path path = entry.getKey().asApplicationPath();
+      exportToJsonApplication(jsonApplication, entry);
+    }
+  }
 
-      Object value = entry.getValue();
-      if (value instanceof String) {
-        jsonApplication.putString(path, (String) value);
-      } else if (value instanceof Long) {
-        jsonApplication.putLong(path, (Long) value);
-      } else if (value instanceof Double) {
-        jsonApplication.putDouble(path, (Double) value);
-      } else if (instanceOfNonEmptyImmutableListOfString(value)) {
-        @SuppressWarnings("unchecked")
-        ImmutableList<String> list = (ImmutableList<String>) value;
-        jsonApplication.putArray(path, list);
-      }
+  public static void exportToJsonApplication(
+      CfJsonDocumentContext jsonApplication, Map.Entry<Path, ?> entry) {
+    Path path = entry.getKey().asApplicationPath();
+
+    Object value = entry.getValue();
+    if (value instanceof String) {
+      jsonApplication.putString(path, (String) value);
+    } else if (value instanceof Long) {
+      jsonApplication.putLong(path, (Long) value);
+    } else if (value instanceof Double) {
+      jsonApplication.putDouble(path, (Double) value);
+    } else if (instanceOfNonEmptyImmutableListOfString(value)) {
+      @SuppressWarnings("unchecked")
+      ImmutableList<String> list = (ImmutableList<String>) value;
+      jsonApplication.putArray(path, list);
     }
   }
 
