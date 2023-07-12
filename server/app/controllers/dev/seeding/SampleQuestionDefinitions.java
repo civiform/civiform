@@ -25,6 +25,7 @@ import services.question.types.TextQuestionDefinition;
 
 public final class SampleQuestionDefinitions {
 
+  /** Returns all members of this class that are of type {@link QuestionDefinition}. */
   public static ImmutableList<QuestionDefinition> getAllSampleQuestionDefinitions() {
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     Field[] fields = SampleQuestionDefinitions.class.getFields();

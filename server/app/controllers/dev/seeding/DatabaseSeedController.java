@@ -98,7 +98,7 @@ public class DatabaseSeedController extends Controller {
       return notFound();
     }
 
-    databaseSeedTask.run();
+    databaseSeedTask.seedQuestions();
 
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "Sample questions seeded");
@@ -109,12 +109,14 @@ public class DatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
+    ImmutableList<QuestionDefinition> createdSampleQuestions = databaseSeedTask.seedQuestions();
+
     QuestionDefinition sampleNameQuestion =
-        databaseSeedTask.run().stream()
+        createdSampleQuestions.stream()
             .filter(q -> q.getName().equals("Name"))
             .findFirst()
             .orElseThrow();
-    insertComprehensiveSampleProgram(sampleNameQuestion);
+    insertComprehensiveSampleProgram(createdSampleQuestions, sampleNameQuestion);
     insertMinimalSampleProgram(sampleNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
@@ -133,7 +135,8 @@ public class DatabaseSeedController extends Controller {
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
 
-  private void insertComprehensiveSampleProgram(QuestionDefinition nameQuestion) {
+  private void insertComprehensiveSampleProgram(
+      ImmutableList<QuestionDefinition> createdSampleQuestions, QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -162,16 +165,16 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              questionService.create(STATIC_CONTENT_QUESTION_DEFINITION).getResult().getId(),
-              questionService.create(ADDRESS_QUESTION_DEFINITION).getResult().getId(),
-              questionService.create(CHECKBOX_QUESTION_DEFINITION).getResult().getId(),
-              questionService.create(CURRENCY_QUESTION_DEFINITION).getResult().getId(),
+              getCreatedId(createdSampleQuestions, STATIC_CONTENT_QUESTION_DEFINITION),
+              getCreatedId(createdSampleQuestions, ADDRESS_QUESTION_DEFINITION),
+              getCreatedId(createdSampleQuestions, CHECKBOX_QUESTION_DEFINITION),
+              getCreatedId(createdSampleQuestions, CURRENCY_QUESTION_DEFINITION),
               questionService
                   .create(dateQuestionDefinition("Sample Date Question", "When is your birthday?"))
                   .getResult()
                   .getId(),
-              questionService.create(DROPDOWN_QUESTION_DEFINITION).getResult().getId(),
-              questionService.create(PHONE_QUESTION_DEFINITION).getResult().getId()));
+              getCreatedId(createdSampleQuestions, DROPDOWN_QUESTION_DEFINITION),
+              getCreatedId(createdSampleQuestions, PHONE_QUESTION_DEFINITION)));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
@@ -182,19 +185,18 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              questionService.create(EMAIL_QUESTION_DEFINITION).getResult().getId(),
-              questionService.create(ID_QUESTION_DEFINITION).getResult().getId(),
+              getCreatedId(createdSampleQuestions, EMAIL_QUESTION_DEFINITION),
+              getCreatedId(createdSampleQuestions, ID_QUESTION_DEFINITION),
               nameQuestion.getId(),
-              questionService.create(NUMBER_QUESTION_DEFINITION).getResult().getId(),
-              questionService.create(TEXT_QUESTION_DEFINITION).getResult().getId()));
+              getCreatedId(createdSampleQuestions, NUMBER_QUESTION_DEFINITION),
+              getCreatedId(createdSampleQuestions, TEXT_QUESTION_DEFINITION)));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("enumerator");
       blockForm.setDescription("this is for an enumerator");
       programService.updateBlock(programId, blockId, blockForm);
-      long enumeratorId =
-          questionService.create(ENUMERATOR_QUESTION_DEFINITION).getResult().getId();
+      long enumeratorId = getCreatedId(createdSampleQuestions, ENUMERATOR_QUESTION_DEFINITION);
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
       // Create repeated screens based on enumerator.
       long enumeratorBlockId = blockId;
@@ -220,7 +222,7 @@ public class DatabaseSeedController extends Controller {
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
       long radioButtonQuestionId =
-          questionService.create(RADIO_BUTTON_QUESTION_DEFINITION).getResult().getId();
+          getCreatedId(createdSampleQuestions, RADIO_BUTTON_QUESTION_DEFINITION);
       programService.addQuestionsToBlock(
           programId, blockId, ImmutableList.of(radioButtonQuestionId));
 
@@ -234,12 +236,7 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              questionService
-                  .create(
-                      dateQuestionDefinition(
-                          "Sample Predicate Date Question", "When is your birthday?"))
-                  .getResult()
-                  .getId()));
+              getCreatedId(createdSampleQuestions, DATE_PREDICATE_QUESTION_DEFINITION)));
       // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
@@ -258,8 +255,7 @@ public class DatabaseSeedController extends Controller {
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
-      long fileQuestionId =
-          questionService.create(FILE_UPLOAD_QUESTION_DEFINITION).getResult().getId();
+      long fileQuestionId = getCreatedId(createdSampleQuestions, FILE_UPLOAD_QUESTION_DEFINITION);
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
@@ -310,5 +306,15 @@ public class DatabaseSeedController extends Controller {
     Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
     newActiveVersion.save();
     settingsService.migrateConfigValuesToSettingsGroup();
+  }
+
+  private long getCreatedId(
+      ImmutableList<QuestionDefinition> createdSampleQuestions,
+      QuestionDefinition questionDefinition) {
+    return createdSampleQuestions.stream()
+        .filter(q -> q.getName().equals(questionDefinition.getName()))
+        .findFirst()
+        .map(QuestionDefinition::getId)
+        .orElseThrow();
   }
 }

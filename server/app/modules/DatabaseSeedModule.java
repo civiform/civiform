@@ -33,7 +33,9 @@ public final class DatabaseSeedModule extends AbstractModule {
               // with Play evolutions. Evolutions must run before we seed database.
               // It doesn't seem to be a way to run code after evolutions so just
               // give them few sec to run.
-              Duration.ofSeconds(5), () -> databaseSeedTaskProvider.get().run(), executionContext);
+              Duration.ofSeconds(5),
+              () -> databaseSeedTaskProvider.get().seedQuestions(),
+              executionContext);
     }
   }
 }

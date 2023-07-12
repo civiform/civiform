@@ -30,7 +30,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   public void seedQuestions_whenQuestionsNotSeededYet_itSeedsTheQuestions() throws Exception {
     assertThat(getAllQuestions().size()).isEqualTo(0);
 
-    databaseSeedTask.run();
+    databaseSeedTask.seedQuestions();
 
     assertThat(getAllQuestions().size()).isEqualTo(2);
     assertThat(
@@ -56,7 +56,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
                     .build()));
     assertThat(getAllQuestions().size()).isEqualTo(1);
 
-    databaseSeedTask.run();
+    databaseSeedTask.seedQuestions();
 
     assertThat(getAllQuestions().size()).isEqualTo(2);
     assertThat(

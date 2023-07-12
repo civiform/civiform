@@ -1,8 +1,7 @@
 package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.NAME_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.getAllSampleQuestionDefinitions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -44,8 +43,6 @@ public final class DatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
-  private static final ImmutableList<QuestionDefinition> SAMPLE_QUESTIONS =
-      ImmutableList.of(NAME_QUESTION_DEFINITION, DATE_QUESTION_DEFINITION);
 
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
@@ -58,32 +55,28 @@ public final class DatabaseSeedTask {
     this.database = DB.getDefault();
   }
 
-  public ImmutableList<QuestionDefinition> run() {
-    return seedQuestions();
-  }
-
   /**
-   * Ensures that questions with names matching those in {@code SAMPLE_QUESTIONS} are present in the
-   * database, inserting the definitions in {@code SAMPLE_QUESTIONS} if any aren't found.
+   * Ensures that all questions in SampleQuestionDefinitions are present in the database, inserting
+   * the definitions in if any aren't found.
    */
-  private ImmutableList<QuestionDefinition> seedQuestions() {
+  public ImmutableList<QuestionDefinition> seedQuestions() {
+    ImmutableList<QuestionDefinition> sampleQuestionDefinitions = getAllSampleQuestionDefinitions();
     ImmutableSet<String> sampleQuestionNames =
-        SAMPLE_QUESTIONS.stream()
+        sampleQuestionDefinitions.stream()
             .map(QuestionDefinition::getName)
             .collect(ImmutableSet.toImmutableSet());
-    ImmutableMap<String, QuestionDefinition> existingCanonicalQuestions =
+    ImmutableMap<String, QuestionDefinition> existingSampleQuestions =
         questionService.getExistingQuestions(sampleQuestionNames);
-    if (existingCanonicalQuestions.size() < sampleQuestionNames.size()) {
+    if (existingSampleQuestions.size() < sampleQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
       versionRepository.getDraftVersion();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
-    for (QuestionDefinition questionDefinition : SAMPLE_QUESTIONS) {
-      if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
-        LOGGER.info(
-            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
-        questionDefinitions.add(existingCanonicalQuestions.get(questionDefinition.getName()));
+    for (QuestionDefinition questionDefinition : sampleQuestionDefinitions) {
+      if (existingSampleQuestions.containsKey(questionDefinition.getName())) {
+        LOGGER.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
+        questionDefinitions.add(existingSampleQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
             () -> {
@@ -105,11 +98,11 @@ public final class DatabaseSeedTask {
 
       LOGGER.error(
           String.format(
-              "Unable to create canonical question \"%s\" due to %s",
+              "Unable to create sample question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
+      LOGGER.info("Sample sample question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
