@@ -82,13 +82,8 @@ public class DatabaseSeedController extends Controller {
     }
     ImmutableList<QuestionDefinition> createdSampleQuestions = databaseSeedTask.seedQuestions();
 
-    QuestionDefinition sampleNameQuestion =
-        createdSampleQuestions.stream()
-            .filter(q -> q.getName().equals("Name"))
-            .findFirst()
-            .orElseThrow();
-    databaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions, sampleNameQuestion);
-    databaseSeedTask.insertMinimalSampleProgram(sampleNameQuestion);
+    databaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
+    databaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }

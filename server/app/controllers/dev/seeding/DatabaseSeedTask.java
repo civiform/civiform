@@ -11,6 +11,7 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_D
 import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ID_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.NAME_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.NUMBER_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
@@ -142,7 +143,7 @@ public final class DatabaseSeedTask {
     }
   }
 
-  public void insertMinimalSampleProgram(QuestionDefinition nameQuestion) {
+  public void insertMinimalSampleProgram(ImmutableList<QuestionDefinition> createdSampleQuestions) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -168,10 +169,10 @@ public final class DatabaseSeedTask {
       blockForm.setDescription("Block 1");
       programService.updateBlock(programId, blockId, blockForm).getResult();
 
-      programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(nameQuestion.getId()));
+      long nameQuestionId = getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions);
+      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(nameQuestionId));
       programService.setProgramQuestionDefinitionOptionality(
-          programId, blockId, nameQuestion.getId(), true);
+          programId, blockId, nameQuestionId, true);
 
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -179,7 +180,7 @@ public final class DatabaseSeedTask {
   }
 
   public void insertComprehensiveSampleProgram(
-      ImmutableList<QuestionDefinition> createdSampleQuestions, QuestionDefinition nameQuestion) {
+      ImmutableList<QuestionDefinition> createdSampleQuestions) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
@@ -227,7 +228,7 @@ public final class DatabaseSeedTask {
           ImmutableList.of(
               getCreatedId(EMAIL_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(ID_QUESTION_DEFINITION, createdSampleQuestions),
-              nameQuestion.getId(),
+              getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
               getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
 
