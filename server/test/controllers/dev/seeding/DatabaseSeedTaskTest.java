@@ -37,7 +37,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             getAllQuestions().stream()
                 .map(Question::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
-        .containsOnly("Sample Name Question", "Sample Applicant Date of Birth Question");
+        .containsOnly("Name", "Applicant Date of Birth");
   }
 
   @Test
@@ -46,7 +46,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
         .create(
             new DateQuestionDefinition(
                 QuestionDefinitionConfig.builder()
-                    .setName("Sample Applicant Date of Birth Question")
+                    .setName("Applicant Date of Birth")
                     .setDescription("Applicant's date of birth")
                     .setQuestionText(
                         LocalizedStrings.of(
@@ -63,7 +63,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
             getAllQuestions().stream()
                 .map(Question::getQuestionDefinition)
                 .map(QuestionDefinition::getName))
-        .containsOnly("Sample Name Question", "Sample Applicant Date of Birth Question");
+        .containsOnly("Name", "Applicant Date of Birth");
   }
 
   private Set<Question> getAllQuestions() {

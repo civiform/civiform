@@ -37,7 +37,7 @@ public class DatabaseSeedControllerTest {
     // Navigate to index before seeding - should not have the fake program.
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("large-sample-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Seed the fake data.
     result = controller.seedPrograms();
@@ -45,7 +45,7 @@ public class DatabaseSeedControllerTest {
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("large-sample-program");
+    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
     // Clear the data.
     result = controller.clear();
@@ -53,7 +53,7 @@ public class DatabaseSeedControllerTest {
     assertThat(result.flash().get("success")).hasValue("The database has been cleared");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("large-sample-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
   }
 
   @Test

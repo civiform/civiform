@@ -111,7 +111,7 @@ public class DatabaseSeedController extends Controller {
     }
     QuestionDefinition sampleNameQuestion =
         databaseSeedTask.run().stream()
-            .filter(q -> q.getName().equals("Sample Name Question"))
+            .filter(q -> q.getName().equals("Name"))
             .findFirst()
             .orElseThrow();
     insertComprehensiveSampleProgram(sampleNameQuestion);
