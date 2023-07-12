@@ -3,7 +3,7 @@ import {
   createTestContext,
   dropTables,
   loginAsAdmin,
-  seedCanonicalQuestions,
+  seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -16,7 +16,7 @@ describe('normal question lifecycle', () => {
   it('canonical question seeding works', async () => {
     const {page, adminQuestions} = ctx
     await dropTables(page)
-    await seedCanonicalQuestions(page)
+    await seedQuestions(page)
 
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
