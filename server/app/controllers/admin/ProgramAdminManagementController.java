@@ -90,7 +90,7 @@ public final class ProgramAdminManagementController {
   public Result delete(Http.Request request, long programId, String adminEmail) {
     try {
       roleService.removeProgramAdmins(programId, ImmutableSet.of(adminEmail));
-      return redirect(routes.AdminProgramController.edit(programId));
+      return redirect(routes.ProgramAdminManagementController.edit(programId));
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
@@ -104,7 +104,7 @@ public final class ProgramAdminManagementController {
           roleService.makeProgramAdmins(programId, ImmutableSet.of(adminEmail));
 
       if (maybeError.isEmpty()) {
-        return redirect(routes.AdminProgramController.edit(programId));
+        return redirect(routes.ProgramAdminManagementController.edit(programId));
       }
 
       ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
