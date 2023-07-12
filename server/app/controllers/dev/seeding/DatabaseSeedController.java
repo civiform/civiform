@@ -167,13 +167,13 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              getCreatedId(createdSampleQuestions, STATIC_CONTENT_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, ADDRESS_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, CHECKBOX_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, CURRENCY_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, DATE_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, DROPDOWN_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, PHONE_QUESTION_DEFINITION)));
+              getCreatedId(STATIC_CONTENT_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(ADDRESS_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(CHECKBOX_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(CURRENCY_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(DATE_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(DROPDOWN_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
@@ -184,18 +184,18 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              getCreatedId(createdSampleQuestions, EMAIL_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, ID_QUESTION_DEFINITION),
+              getCreatedId(EMAIL_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(ID_QUESTION_DEFINITION, createdSampleQuestions),
               nameQuestion.getId(),
-              getCreatedId(createdSampleQuestions, NUMBER_QUESTION_DEFINITION),
-              getCreatedId(createdSampleQuestions, TEXT_QUESTION_DEFINITION)));
+              getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
+              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
       blockForm.setName("enumerator");
       blockForm.setDescription("this is for an enumerator");
       programService.updateBlock(programId, blockId, blockForm);
-      long enumeratorId = getCreatedId(createdSampleQuestions, ENUMERATOR_QUESTION_DEFINITION);
+      long enumeratorId = getCreatedId(ENUMERATOR_QUESTION_DEFINITION, createdSampleQuestions);
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
       // Create repeated screens based on enumerator.
       long enumeratorBlockId = blockId;
@@ -227,7 +227,7 @@ public class DatabaseSeedController extends Controller {
       blockForm.setDescription("Random information");
       programService.updateBlock(programId, blockId, blockForm);
       long radioButtonQuestionId =
-          getCreatedId(createdSampleQuestions, RADIO_BUTTON_QUESTION_DEFINITION);
+          getCreatedId(RADIO_BUTTON_QUESTION_DEFINITION, createdSampleQuestions);
       programService.addQuestionsToBlock(
           programId, blockId, ImmutableList.of(radioButtonQuestionId));
 
@@ -241,7 +241,7 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              getCreatedId(createdSampleQuestions, DATE_PREDICATE_QUESTION_DEFINITION)));
+              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)));
       // Add a predicate based on the "favorite season" radio button question in Block 3
       LeafOperationExpressionNode operation =
           LeafOperationExpressionNode.create(
@@ -260,7 +260,7 @@ public class DatabaseSeedController extends Controller {
       blockForm.setName("file upload");
       blockForm.setDescription("this is for file upload");
       programService.updateBlock(programId, blockId, blockForm);
-      long fileQuestionId = getCreatedId(createdSampleQuestions, FILE_UPLOAD_QUESTION_DEFINITION);
+      long fileQuestionId = getCreatedId(FILE_UPLOAD_QUESTION_DEFINITION, createdSampleQuestions);
       programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
@@ -314,8 +314,8 @@ public class DatabaseSeedController extends Controller {
   }
 
   private long getCreatedId(
-      ImmutableList<QuestionDefinition> createdSampleQuestions,
-      QuestionDefinition questionDefinition) {
+      QuestionDefinition questionDefinition,
+      ImmutableList<QuestionDefinition> createdSampleQuestions) {
     return createdSampleQuestions.stream()
         .filter(q -> q.getName().equals(questionDefinition.getName()))
         .findFirst()
