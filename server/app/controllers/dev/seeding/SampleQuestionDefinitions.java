@@ -14,12 +14,11 @@ import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.NameQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
-import services.question.types.QuestionType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
@@ -127,43 +126,45 @@ public final class SampleQuestionDefinitions {
               .build());
 
   public static final QuestionDefinition NAME_QUESTION_DEFINITION =
-      new QuestionDefinitionBuilder()
-          .setQuestionType(QuestionType.NAME)
-          .setName("Name")
-          .setDescription("The applicant's name")
-          .setQuestionText(
-              LocalizedStrings.of(
-                  ImmutableMap.of(
-                      Lang.forCode("am").toLocale(),
-                      "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
-                      Lang.forCode("ko").toLocale(),
-                      "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
-                      Lang.forCode("so").toLocale(),
-                      "Magaca (magaca koowaad iyo kan dambe okay)",
-                      Lang.forCode("lo").toLocale(),
-                      "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
-                      Lang.forCode("tl").toLocale(),
-                      "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
-                      Lang.forCode("vi").toLocale(),
-                      "Tên (tên và họ viết tắt đều được)",
-                      Lang.forCode("en-US").toLocale(),
-                      "Please enter your first and last name",
-                      Lang.forCode("es-US").toLocale(),
-                      "Nombre (nombre y la inicial del apellido está bien)",
-                      Lang.forCode("zh-TW").toLocale(),
-                      "姓名（名字和姓氏第一個字母便可）")))
-          .unsafeBuild();
+      new NameQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Name")
+              .setDescription("The applicant's name")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("am").toLocale(),
+                          "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                          Lang.forCode("ko").toLocale(),
+                          "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
+                          Lang.forCode("so").toLocale(),
+                          "Magaca (magaca koowaad iyo kan dambe okay)",
+                          Lang.forCode("lo").toLocale(),
+                          "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
+                          Lang.forCode("tl").toLocale(),
+                          "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
+                          Lang.forCode("vi").toLocale(),
+                          "Tên (tên và họ viết tắt đều được)",
+                          Lang.forCode("en-US").toLocale(),
+                          "Please enter your first and last name",
+                          Lang.forCode("es-US").toLocale(),
+                          "Nombre (nombre y la inicial del apellido está bien)",
+                          Lang.forCode("zh-TW").toLocale(),
+                          "姓名（名字和姓氏第一個字母便可）")))
+              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .build());
 
-  public static final QuestionDefinition DATE_QUESTION_DEFINITION =
-      new QuestionDefinitionBuilder()
-          .setQuestionType(QuestionType.DATE)
-          .setName("Applicant Date of Birth")
-          .setDescription("Applicant's date of birth")
-          .setQuestionText(
-              LocalizedStrings.of(
-                  Lang.forCode("en-US").toLocale(),
-                  "Please enter your date of birth in the format mm/dd/yyyy"))
-          .unsafeBuild();
+  public static final DateQuestionDefinition DATE_QUESTION_DEFINITION =
+      new DateQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Applicant Date of Birth")
+              .setDescription("Applicant's date of birth")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Please enter your date of birth in the format mm/dd/yyyy"))
+              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .build());
 
   public static final NumberQuestionDefinition NUMBER_QUESTION_DEFINITION =
       new NumberQuestionDefinition(
