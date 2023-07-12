@@ -51,7 +51,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     String title = "Manage trusted intermediaries";
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 renderHeader("Create New Trusted Intermediary").withClass("mt-8"),

@@ -93,6 +93,6 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
         request,
         personalInfo,
         messages,
-        createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
+        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content));
   }
 }

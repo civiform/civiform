@@ -147,7 +147,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(contentDiv)
             // The body and main styles are necessary for modals to appear since they use fixed

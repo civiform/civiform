@@ -14,6 +14,7 @@ import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
 import models.Account;
 import play.i18n.Messages;
+import play.mvc.Http;
 import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -52,12 +53,13 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
   }
 
   protected static HtmlBundle createHtmlBundle(
+      Http.Request request,
       ApplicantLayout layout,
       String title,
       Optional<ToastMessage> bannerMessage,
       Modal loginPromptModal,
       DivTag mainContent) {
-    HtmlBundle bundle = layout.getBundle().setTitle(title);
+    HtmlBundle bundle = layout.getBundle(request).setTitle(title);
     bannerMessage.ifPresent(bundle::addToastMessages);
     bundle
         .addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION)

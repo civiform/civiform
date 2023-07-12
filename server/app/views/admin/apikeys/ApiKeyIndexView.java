@@ -72,7 +72,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
       contentDiv.with(renderApiKey(request, apiKey, buildProgramSlugToName(allProgramNames)));
     }
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

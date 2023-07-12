@@ -91,6 +91,8 @@ public class CfTestHelpers {
     return PredicateValue.of(localDate);
   }
 
+  public static final Http.Request EMPTY_REQUEST = play.test.Helpers.fakeRequest().build();
+
   public static Http.RequestBuilder requestBuilderWithSettings(Call call, String... settings) {
     return CfTestHelpers.requestBuilderWithSettings(play.test.Helpers.fakeRequest(call), settings);
   }

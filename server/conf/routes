@@ -77,7 +77,7 @@ GET     /admin/questions             controllers.admin.AdminQuestionController.i
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new         controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String)
 GET     /admin/questions/:id/edit    controllers.admin.AdminQuestionController.edit(request: Request, id: Long)
-GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(id: Long)
+GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(request: Request, id: Long)
 POST    /admin/questions/:id         controllers.admin.AdminQuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.AdminQuestionController.create(request: Request, type: String)
 POST    /admin/questions/:id/discard controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
@@ -159,7 +159,7 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
-GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser()
+GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser(request: Request)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
@@ -203,7 +203,7 @@ GET     /dev/seed                        controllers.dev.seeding.DatabaseSeedCon
 POST    /dev/seedQuestions               controllers.dev.seeding.DatabaseSeedController.seedQuestions()
 POST    /dev/seedPrograms                controllers.dev.seeding.DatabaseSeedController.seedPrograms()
 POST    /dev/seed/clear                  controllers.dev.seeding.DatabaseSeedController.clear()
-GET     /dev/icons                       controllers.dev.IconsController.index()
+GET     /dev/icons                       controllers.dev.IconsController.index(request: Request)
 
 # Change feature flags.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)

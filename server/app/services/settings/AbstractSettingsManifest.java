@@ -32,7 +32,7 @@ public abstract class AbstractSettingsManifest {
    * Returns a map containing the names of the settings in the "Feature Flags" section mapped to
    * their current values.
    */
-  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.Request request) {
+  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.RequestHeader request) {
     ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
 
     for (SettingDescription settingDescription : getAllFeatureFlagsSettingDescriptions()) {
@@ -76,7 +76,7 @@ public abstract class AbstractSettingsManifest {
    * attributes or HOCON config.
    */
   public Optional<String> getSettingDisplayValue(
-      Http.Request request, SettingDescription settingDescription) {
+      Http.RequestHeader request, SettingDescription settingDescription) {
     switch (settingDescription.settingType()) {
       case BOOLEAN:
         return Optional.of(
@@ -120,11 +120,11 @@ public abstract class AbstractSettingsManifest {
    * settings, the value from the database is returned. Otherwise the value from the application
    * {@link Config} is used..
    */
-  private boolean getBool(SettingDescription settingDescription, Http.Request request) {
+  private boolean getBool(SettingDescription settingDescription, Http.RequestHeader request) {
     return getBool(settingDescription.variableName(), request);
   }
 
-  protected boolean getBool(String variableName, Http.Request request) {
+  protected boolean getBool(String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
       LOGGER.warn(
           String.format(
@@ -148,11 +148,11 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected Optional<String> getString(
-      SettingDescription settingDescription, Http.Request request) {
+      SettingDescription settingDescription, Http.RequestHeader request) {
     return getString(settingDescription.variableName(), request);
   }
 
-  protected Optional<String> getString(String variableName, Http.Request request) {
+  protected Optional<String> getString(String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
       LOGGER.warn(
           String.format(
@@ -175,11 +175,12 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getString, getHoconName(variableName));
   }
 
-  protected Optional<Integer> getInt(SettingDescription settingDescription, Http.Request request) {
+  protected Optional<Integer> getInt(
+      SettingDescription settingDescription, Http.RequestHeader request) {
     return getInt(settingDescription.variableName(), request);
   }
 
-  protected Optional<Integer> getInt(String variableName, Http.Request request) {
+  protected Optional<Integer> getInt(String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
       LOGGER.warn(
           String.format(
@@ -203,12 +204,12 @@ public abstract class AbstractSettingsManifest {
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(
-      SettingDescription settingDescription, Http.Request request) {
+      SettingDescription settingDescription, Http.RequestHeader request) {
     return getListOfStrings(settingDescription.variableName(), request);
   }
 
   protected Optional<ImmutableList<String>> getListOfStrings(
-      String variableName, Http.Request request) {
+      String variableName, Http.RequestHeader request) {
     if (!request.attrs().containsKey(CIVIFORM_SETTINGS_ATTRIBUTE_KEY)) {
       LOGGER.warn(
           String.format(

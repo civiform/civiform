@@ -11,6 +11,7 @@ import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.specialized.DivTag;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.reporting.ApplicationSubmissionsStat;
 import services.reporting.ReportingService;
@@ -59,6 +60,7 @@ public class AdminReportingShowView extends BaseHtmlView {
                       + " this amount of time or less."));
 
   public Content render(
+      Http.Request request,
       CiviFormProfile profile,
       String programSlug,
       String programName,
@@ -78,7 +80,7 @@ public class AdminReportingShowView extends BaseHtmlView {
             programSlug, monthlyStats.monthlySubmissionsForProgram(programName)));
 
     HtmlBundle htmlBundle =
-        layout.setAdminType(profile).getBundle().setTitle(title).addMainContent(contentDiv);
+        layout.setAdminType(profile).getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
   }
 

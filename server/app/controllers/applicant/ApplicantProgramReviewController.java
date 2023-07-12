@@ -138,7 +138,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                                 MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
                                 // The applicant portal name should always be set (there is a
                                 // default setting as well).
-                                settingsManifest.getApplicantPortalName().orElse("")),
+                                settingsManifest.getApplicantPortalName(request).get()),
                             MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
                         .setDisplayOnLoad(true)
                         .setRepeatOpenBehavior(

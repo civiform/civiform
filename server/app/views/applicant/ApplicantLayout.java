@@ -17,7 +17,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -75,10 +74,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
-  public final String supportEmail;
-  private final Optional<String> maybeLogoUrl;
-  private final String civicEntityFullName;
-  private final String civicEntityShortName;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
@@ -87,26 +82,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
   public ApplicantLayout(
       BaseHtmlLayout layout,
       ViewUtils viewUtils,
-      Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent) {
-    super(viewUtils, configuration, settingsManifest, deploymentType);
+    super(viewUtils, settingsManifest, deploymentType);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
-    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
-    this.maybeLogoUrl =
-        checkNotNull(configuration).hasPath("whitelabel_small_logo_url")
-            ? Optional.of(configuration.getString("whitelabel_small_logo_url"))
-            : Optional.empty();
-    this.civicEntityFullName = configuration.getString("whitelabel_civic_entity_full_name");
-    this.civicEntityShortName = configuration.getString("whitelabel_civic_entity_short_name");
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
-        this.isDevOrStaging && configuration.getBoolean("staging_disable_demo_mode_logins");
+        this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
   }
 
@@ -143,6 +130,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Messages messages,
       HtmlBundle bundle,
       boolean includeAdminLogin) {
+    String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
     bundle.addHeaderContent(renderNavBar(request, personalInfo, messages));
@@ -203,7 +191,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return nav()
         .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
         .with(
-            div(branding())
+            div(branding(request))
                 .withClasses(
                     "items-center",
                     "place-items-center",
@@ -268,17 +256,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return languageFormDiv;
   }
 
-  private ATag branding() {
-    ImgTag cityImage;
-
-    if (maybeLogoUrl.isPresent()) {
-      cityImage = img().withSrc(maybeLogoUrl.get());
-    } else {
-      cityImage = this.layout.viewUtils.makeLocalImageTag("civiform-staging");
-    }
+  private ATag branding(Http.Request request) {
+    ImgTag cityImage =
+        settingsManifest
+            .getWhitelabelSmallLogoUrl()
+            .map(url -> img().withSrc(url))
+            .orElseGet(() -> this.layout.viewUtils.makeLocalImageTag("civiform-staging"));
 
     cityImage
-        .withAlt(civicEntityFullName + " Logo")
+        .withAlt(settingsManifest.getWhitelabelCivicEntityFullName(request).get() + " Logo")
         .attr("aria-hidden", "true")
         .withClasses("w-16", "py-1");
 
@@ -291,7 +277,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withId("brand-id")
                 .withLang(Locale.ENGLISH.toLanguageTag())
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
-                .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
+                .with(
+                    p(
+                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        span(text(" CiviForm")))));
   }
 
   private DivTag maybeRenderTiButton(

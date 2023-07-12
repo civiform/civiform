@@ -87,7 +87,7 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div(

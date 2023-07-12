@@ -54,7 +54,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),

@@ -28,11 +28,10 @@ public final class SupportController extends Controller {
   public Result handleUnconfirmedIdcsEmail(Http.Request request) {
     logger.info("UnconfirmedIdcsEmail-Support-Page: " + request.remoteAddress());
 
-    return ok(unconfirmedIdcsEmailBugView.render());
+    return ok(unconfirmedIdcsEmailBugView.render(request));
   }
 
-  public Result handleUnsupportedBrowser() {
-
-    return ok(unsupportedBrowserView.render());
+  public Result handleUnsupportedBrowser(Http.Request request) {
+    return ok(unsupportedBrowserView.render(request));
   }
 }

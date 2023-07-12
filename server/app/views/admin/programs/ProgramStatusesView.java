@@ -125,7 +125,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle("Manage program statuses")
             .addMainContent(contentDiv)
             .addModals(createStatusModal)

@@ -11,7 +11,7 @@ import sys
 import dataclasses
 import env_var_docs.errors_formatter
 from jinja2 import Environment, PackageLoader, select_autoescape
-from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
+from env_var_docs.parser import Variable, Mode, Node, Group, NodeParseError, visit
 from io import StringIO
 
 
@@ -214,7 +214,9 @@ def generate_manifest(
     template = env.get_template("SettingsManifest.java.jinja")
 
     return template.render(
-        sections=sections, getter_method_specs=getter_method_specs), []
+        sections=sections,
+        getter_method_specs=getter_method_specs,
+        writeable_mode=Mode.ADMIN_WRITEABLE), []
 
 
 if __name__ == "__main__":

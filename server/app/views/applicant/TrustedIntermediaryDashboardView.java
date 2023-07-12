@@ -68,7 +68,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       Messages messages) {
     HtmlBundle bundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName()),

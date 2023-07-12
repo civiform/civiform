@@ -2,6 +2,7 @@ package views;
 
 import static j2html.TagCreator.link;
 import static org.assertj.core.api.Assertions.assertThat;
+import static support.CfTestHelpers.EMPTY_REQUEST;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
@@ -30,14 +31,13 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            ConfigFactory.parseMap(DEFAULT_CONFIG),
-            instanceOf(SettingsManifest.class),
+            new SettingsManifest(ConfigFactory.parseMap(DEFAULT_CONFIG)),
             instanceOf(DeploymentType.class));
   }
 
   @Test
   public void addsDefaultContent() {
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
     Content content = layout.render(bundle);
 
     assertThat(content.body()).contains("<!DOCTYPE html><html lang=\"en\">");
@@ -61,10 +61,9 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     layout =
         new BaseHtmlLayout(
             instanceOf(ViewUtils.class),
-            ConfigFactory.parseMap(config),
-            instanceOf(SettingsManifest.class),
+            new SettingsManifest(ConfigFactory.parseMap(config)),
             instanceOf(DeploymentType.class));
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(EMPTY_REQUEST);
     Content content = layout.render(bundle);
 
     assertThat(content.body())
@@ -75,7 +74,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void canAddContentBefore() {
-    HtmlBundle bundle = new HtmlBundle(instanceOf(ViewUtils.class));
+    HtmlBundle bundle = new HtmlBundle(EMPTY_REQUEST, instanceOf(ViewUtils.class));
 
     // Add stylesheet before default.
     LinkTag linkTag = link().withHref("moose.css").withRel("stylesheet");
@@ -93,14 +92,14 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
 
   @Test
   public void withNoExplicitTitle() {
-    Content content = layout.render(layout.getBundle());
+    Content content = layout.render(layout.getBundle(EMPTY_REQUEST));
 
     assertThat(content.body()).contains("<title>CiviForm</title>");
   }
 
   @Test
   public void withProvidedTitle() {
-    Content content = layout.render(layout.getBundle().setTitle("A title"));
+    Content content = layout.render(layout.getBundle(EMPTY_REQUEST).setTitle("A title"));
 
     assertThat(content.body()).contains("<title>A title — CiviForm</title>");
   }
