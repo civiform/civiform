@@ -85,12 +85,12 @@ public final class ProgramAdminManagementController {
     }
   }
 
-  /** Deletes an existing admin email. */
+  /** Removes `adminEmail` as a program admin for the program identified by `programId`. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(Http.Request request, long programId, String adminEmail) {
     try {
       roleService.removeProgramAdmins(programId, ImmutableSet.of(adminEmail));
-      return redirect(routes.AdminProgramController.index());
+      return redirect(routes.AdminProgramController.edit(programId));
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
@@ -104,7 +104,7 @@ public final class ProgramAdminManagementController {
           roleService.makeProgramAdmins(programId, ImmutableSet.of(adminEmail));
 
       if (maybeError.isEmpty()) {
-        return redirect(routes.AdminProgramController.index());
+        return redirect(routes.AdminProgramController.edit(programId));
       }
 
       ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
