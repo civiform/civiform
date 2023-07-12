@@ -216,7 +216,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     adminAccount.addAdministeredProgram(program.getProgramDefinition());
     adminAccount.save();
     assertThat(userRepository.lookupAccountByEmail(adminEmail).get().getAdministeredProgramNames())
-      .isNotEmpty();
+        .isNotEmpty();
 
     Http.Request request = fakeRequest().build();
     Result result = controller.delete(request, program.id, "non-existent email");
