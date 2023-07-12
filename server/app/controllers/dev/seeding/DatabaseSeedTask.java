@@ -1,6 +1,8 @@
 package controllers.dev.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.NAME_QUESTION_DEFINITION;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -19,15 +21,11 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.i18n.Lang;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizedStrings;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
-import services.question.types.QuestionType;
 
 /**
  * Task for seeding the database.
@@ -47,42 +45,7 @@ public final class DatabaseSeedTask {
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
   private static final ImmutableList<QuestionDefinition> SAMPLE_QUESTIONS =
-      ImmutableList.of(
-          new QuestionDefinitionBuilder()
-              .setQuestionType(QuestionType.NAME)
-              .setName("Name")
-              .setDescription("The applicant's name")
-              .setQuestionText(
-                  LocalizedStrings.of(
-                      ImmutableMap.of(
-                          Lang.forCode("am").toLocale(),
-                          "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
-                          Lang.forCode("ko").toLocale(),
-                          "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
-                          Lang.forCode("so").toLocale(),
-                          "Magaca (magaca koowaad iyo kan dambe okay)",
-                          Lang.forCode("lo").toLocale(),
-                          "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
-                          Lang.forCode("tl").toLocale(),
-                          "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
-                          Lang.forCode("vi").toLocale(),
-                          "Tên (tên và họ viết tắt đều được)",
-                          Lang.forCode("en-US").toLocale(),
-                          "Please enter your first and last name",
-                          Lang.forCode("es-US").toLocale(),
-                          "Nombre (nombre y la inicial del apellido está bien)",
-                          Lang.forCode("zh-TW").toLocale(),
-                          "姓名（名字和姓氏第一個字母便可）")))
-              .unsafeBuild(),
-          new QuestionDefinitionBuilder()
-              .setQuestionType(QuestionType.DATE)
-              .setName("Applicant Date of Birth")
-              .setDescription("Applicant's date of birth")
-              .setQuestionText(
-                  LocalizedStrings.of(
-                      Lang.forCode("en-US").toLocale(),
-                      "Please enter your date of birth in the format mm/dd/yyyy"))
-              .unsafeBuild());
+      ImmutableList.of(NAME_QUESTION_DEFINITION, DATE_QUESTION_DEFINITION);
 
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
