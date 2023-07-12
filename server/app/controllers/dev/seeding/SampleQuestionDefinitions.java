@@ -174,18 +174,6 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  public static final DateQuestionDefinition DATE_QUESTION_DEFINITION =
-      new DateQuestionDefinition(
-          QuestionDefinitionConfig.builder()
-              .setName("Applicant Date of Birth")
-              .setDescription("Applicant's date of birth")
-              .setQuestionText(
-                  LocalizedStrings.of(
-                      Lang.forCode("en-US").toLocale(),
-                      "Please enter your date of birth in the format mm/dd/yyyy"))
-              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-              .build());
-
   public static final NumberQuestionDefinition NUMBER_QUESTION_DEFINITION =
       new NumberQuestionDefinition(
           QuestionDefinitionConfig.builder()
@@ -251,25 +239,35 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  public static DateQuestionDefinition dateQuestionDefinition(String name, String questionText) {
-    return new DateQuestionDefinition(
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue(questionText))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .build());
-  }
+  public static final DateQuestionDefinition DATE_QUESTION_DEFINITION =
+      new DateQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Date Question")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.withDefaultValue("When is your birthday?"))
+              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .build());
 
-  public static DateQuestionDefinition dateQuestionDefinition(long enumeratorId) {
+  public static final DateQuestionDefinition DATE_PREDICATE_QUESTION_DEFINITION =
+      new DateQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Predicate Date Question")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.withDefaultValue("When is your birthday?"))
+              .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+              .build());
+
+  private static final QuestionDefinitionConfig.Builder
+      DATE_ENUMERATED_QUESTION_DEFINITION_BUILDER =
+          QuestionDefinitionConfig.builder()
+              .setName("Sample Enumerated Date Question")
+              .setDescription("description")
+              .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
+              .setQuestionHelpText(
+                  LocalizedStrings.withDefaultValue("help text for $this's birthday"));
+
+  public static DateQuestionDefinition dateEnumeratedQuestionDefinition(long enumeratorId) {
     return new DateQuestionDefinition(
-        QuestionDefinitionConfig.builder()
-            .setName("Sample Enumerator Date Question")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue("When is $this's birthday?"))
-            .setQuestionHelpText(
-                LocalizedStrings.withDefaultValue("help text for $this's birthday"))
-            .setEnumeratorId(enumeratorId)
-            .build());
+        DATE_ENUMERATED_QUESTION_DEFINITION_BUILDER.setEnumeratorId(enumeratorId).build());
   }
 }

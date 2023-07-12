@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_PREDICATE_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
@@ -14,7 +16,7 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_D
 import static controllers.dev.seeding.SampleQuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.TEXT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.dateQuestionDefinition;
+import static controllers.dev.seeding.SampleQuestionDefinitions.dateEnumeratedQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -169,10 +171,7 @@ public class DatabaseSeedController extends Controller {
               getCreatedId(createdSampleQuestions, ADDRESS_QUESTION_DEFINITION),
               getCreatedId(createdSampleQuestions, CHECKBOX_QUESTION_DEFINITION),
               getCreatedId(createdSampleQuestions, CURRENCY_QUESTION_DEFINITION),
-              questionService
-                  .create(dateQuestionDefinition("Sample Date Question", "When is your birthday?"))
-                  .getResult()
-                  .getId(),
+              getCreatedId(createdSampleQuestions, DATE_QUESTION_DEFINITION),
               getCreatedId(createdSampleQuestions, DROPDOWN_QUESTION_DEFINITION),
               getCreatedId(createdSampleQuestions, PHONE_QUESTION_DEFINITION)));
 
@@ -214,7 +213,13 @@ public class DatabaseSeedController extends Controller {
           programId,
           blockId,
           ImmutableList.of(
-              questionService.create(dateQuestionDefinition(enumeratorId)).getResult().getId()));
+              // This is the only sample question for which we must call create here, because it
+              // includes an enumeratorId that only gets generated after
+              // ENUMERATOR_QUESTION_DEFINITION is created.
+              questionService
+                  .create(dateEnumeratedQuestionDefinition(enumeratorId))
+                  .getResult()
+                  .getId()));
 
       blockId =
           programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
