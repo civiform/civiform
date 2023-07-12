@@ -345,8 +345,8 @@ public final class DatabaseSeedTask {
   }
 
   /**
-   * Gets the seed question definition's ID from the list of created sample questions. The ID is
-   * necessecarily not available in {@link SampleQuestionDefinitions}.
+   * Gets the seeded question definition's ID from the list of created sample questions. The ID is
+   * necessarily not available in {@link SampleQuestionDefinitions}.
    */
   private long getCreatedId(
       QuestionDefinition questionDefinition,
