@@ -1181,4 +1181,9 @@ export class AdminQuestions {
     )
     return titles.allTextContents()
   }
+
+  /** Clicks on the questions sorting dropdown and selects the specified sortOption. The sortOption should match the value of the desired option. */
+  async sortQuestions(sortOption: string) {
+    return this.page.locator('#question-bank-sort').selectOption(sortOption)
+  }
 }
