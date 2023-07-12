@@ -50,7 +50,7 @@ public final class DatabaseSeedTask {
       ImmutableList.of(
           new QuestionDefinitionBuilder()
               .setQuestionType(QuestionType.NAME)
-              .setName("Sample Name Question")
+              .setName("Name")
               .setDescription("The applicant's name")
               .setQuestionText(
                   LocalizedStrings.of(
@@ -76,7 +76,7 @@ public final class DatabaseSeedTask {
               .unsafeBuild(),
           new QuestionDefinitionBuilder()
               .setQuestionType(QuestionType.DATE)
-              .setName("Sample Applicant Date of Birth Question")
+              .setName("Applicant Date of Birth")
               .setDescription("Applicant's date of birth")
               .setQuestionText(
                   LocalizedStrings.of(
