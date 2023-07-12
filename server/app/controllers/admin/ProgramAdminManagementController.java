@@ -85,6 +85,36 @@ public final class ProgramAdminManagementController {
     }
   }
 
+  /** Deletes an existing admin email. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result delete(Http.Request request, long programId, String adminEmail) {
+    try {
+      roleService.removeProgramAdmins(programId, ImmutableSet.of(adminEmail));
+      return redirect(routes.AdminProgramController.index());
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.getLocalizedMessage());
+    }
+  }
+
+  /** Adds a new admin email. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result add(Http.Request request, long programId, String adminEmail) {
+    try {
+      Optional<CiviFormError> maybeError =
+          roleService.makeProgramAdmins(programId, ImmutableSet.of(adminEmail));
+
+      if (maybeError.isEmpty()) {
+        return redirect(routes.AdminProgramController.index());
+      }
+
+      ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
+
+      return this.loadProgram(request, programId, Optional.of(message));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.getLocalizedMessage());
+    }
+  }
+
   /**
    * Displays a form for managing program admins of a given program. Displays a message as an error
    * toast if provided.

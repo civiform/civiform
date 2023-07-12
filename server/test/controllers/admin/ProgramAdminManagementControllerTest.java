@@ -163,4 +163,65 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
+
+  @Test
+  public void add_succeeds() {
+    String programName = "add test";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    String email = "add me";
+    Account account = new Account();
+    account.setEmailAddress(email);
+    account.save();
+
+    Http.Request request = fakeRequest().build();
+
+    Result result = controller.add(request, program.id, email);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    account = userRepository.lookupAccountByEmail(email).get();
+    assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
+  }
+
+  @Test
+  public void delete_succeeds() {
+    String programName = "delete test";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    String deleteEmail = "delete me";
+    Account deleteAccount = new Account();
+    deleteAccount.setEmailAddress(deleteEmail);
+    deleteAccount.addAdministeredProgram(program.getProgramDefinition());
+    deleteAccount.save();
+    assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
+        .isNotEmpty();
+
+    Http.Request request = fakeRequest().build();
+    Result result = controller.delete(request, program.id, deleteEmail);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
+        .isEmpty();
+  }
+
+  @Test
+  public void delete_nonExistentEmail_doesNotReturnError() {
+    String programName = "delete test";
+    Program program = ProgramBuilder.newDraftProgram(programName).build();
+
+    String adminEmail = "admin";
+    Account adminAccount = new Account();
+    adminAccount.setEmailAddress(adminEmail);
+    adminAccount.addAdministeredProgram(program.getProgramDefinition());
+    adminAccount.save();
+    assertThat(userRepository.lookupAccountByEmail(adminEmail).get().getAdministeredProgramNames())
+      .isNotEmpty();
+
+    Http.Request request = fakeRequest().build();
+    Result result = controller.delete(request, program.id, "non-existent email");
+
+    // The controller doesn't return an error in this case.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+  }
 }
