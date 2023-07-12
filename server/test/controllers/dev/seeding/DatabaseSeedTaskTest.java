@@ -1,19 +1,16 @@
 package controllers.dev.seeding;
 
+import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.getAllSampleQuestionDefinitions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
-import play.i18n.Lang;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
-import services.LocalizedStrings;
 import services.question.QuestionService;
-import services.question.types.DateQuestionDefinition;
-import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionConfig;
 
 public class DatabaseSeedTaskTest extends ResetPostgres {
 
@@ -32,38 +29,17 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
 
     databaseSeedTask.seedQuestions();
 
-    assertThat(getAllQuestions().size()).isEqualTo(2);
-    assertThat(
-            getAllQuestions().stream()
-                .map(Question::getQuestionDefinition)
-                .map(QuestionDefinition::getName))
-        .containsOnly("Name", "Applicant Date of Birth");
+    assertThat(getAllQuestions().size()).isEqualTo(getAllSampleQuestionDefinitions().size());
   }
 
   @Test
   public void seedQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
-    instanceOf(QuestionService.class)
-        .create(
-            new DateQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("Applicant Date of Birth")
-                    .setDescription("Applicant's date of birth")
-                    .setQuestionText(
-                        LocalizedStrings.of(
-                            Lang.forCode("en-US").toLocale(),
-                            "Please enter your date of birth in the format mm/dd/yyyy"))
-                    .setQuestionHelpText(LocalizedStrings.empty())
-                    .build()));
+    instanceOf(QuestionService.class).create(ADDRESS_QUESTION_DEFINITION);
     assertThat(getAllQuestions().size()).isEqualTo(1);
 
     databaseSeedTask.seedQuestions();
 
-    assertThat(getAllQuestions().size()).isEqualTo(2);
-    assertThat(
-            getAllQuestions().stream()
-                .map(Question::getQuestionDefinition)
-                .map(QuestionDefinition::getName))
-        .containsOnly("Name", "Applicant Date of Birth");
+    assertThat(getAllQuestions().size()).isEqualTo(getAllSampleQuestionDefinitions().size());
   }
 
   private Set<Question> getAllQuestions() {
