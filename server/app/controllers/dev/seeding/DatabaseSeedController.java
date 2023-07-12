@@ -114,8 +114,8 @@ public class DatabaseSeedController extends Controller {
             .filter(q -> q.getName().equals("Sample Name Question"))
             .findFirst()
             .orElseThrow();
-    insertLargeSampleProgram(sampleNameQuestion);
-    insertSmallSampleProgram(sampleNameQuestion);
+    insertComprehensiveSampleProgram(sampleNameQuestion);
+    insertMinimalSampleProgram(sampleNameQuestion);
     return redirect(routes.DatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
@@ -133,13 +133,13 @@ public class DatabaseSeedController extends Controller {
   // Create a date question definition with the given name and questionText. We currently create
   // multiple date questions in a single program for testing.
 
-  private void insertLargeSampleProgram(QuestionDefinition nameQuestion) {
+  private void insertComprehensiveSampleProgram(QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
-              "large-sample-program",
+              "comprehensive-sample-program",
               "desc",
-              "Large sample program",
+              "Comprehensive sample program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               "https://github.com/seattle-uat/civiform",
@@ -269,13 +269,13 @@ public class DatabaseSeedController extends Controller {
     }
   }
 
-  private void insertSmallSampleProgram(QuestionDefinition nameQuestion) {
+  private void insertMinimalSampleProgram(QuestionDefinition nameQuestion) {
     try {
       ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
           programService.createProgramDefinition(
-              "small-sample-program",
+              "minimal-sample-program",
               "desc",
-              "Small Sample Program",
+              "Minimal Sample Program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               /* externalLink= */ "https://github.com/seattle-uat/civiform",
