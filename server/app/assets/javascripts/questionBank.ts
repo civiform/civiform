@@ -10,6 +10,8 @@ class QuestionBankController {
   static readonly QUESTION_BANK_HIDDEN = 'cf-question-bank-hidden'
   static readonly BANK_SHOWN_URL_PARAM = 'sqb'
 
+  static readonly SORT_SELECT_ID = 'question-bank-sort'
+
   constructor() {
     const questionBankFilter = document.getElementById(
       QuestionBankController.FILTER_ID,
@@ -22,6 +24,17 @@ class QuestionBankController {
       QuestionBankController.filterQuestions()
     }
     QuestionBankController.initToggleQuestionBankButtons()
+
+    const questionBankSort = document.getElementById(
+      QuestionBankController.SORT_SELECT_ID,
+    ) as HTMLSelectElement
+
+    if (questionBankSort) {
+      questionBankSort.addEventListener(
+        'change',
+        QuestionBankController.sortQuestions,
+      )
+    }
   }
 
   private static initToggleQuestionBankButtons() {
@@ -132,6 +145,53 @@ class QuestionBankController {
         filterString.length > 0 &&
           !questionContents.toUpperCase().includes(filterString),
       )
+    })
+  }
+
+  /**
+   * Sort questions in the question bank based on the criteria selected from the dropdown.
+   */
+  private static sortQuestions() {
+    const questionBankSort = document.getElementById(
+      QuestionBankController.SORT_SELECT_ID,
+    ) as HTMLSelectElement
+
+    const parent = document.querySelector('#non-archived-questions')
+    if (!questionBankSort || !parent) {
+      return
+    }
+
+    const questions: HTMLElement[] = Array.from(
+      parent.querySelectorAll('.cf-question-bank-element'),
+    )
+
+    const sortedQuestions = questions.sort((elementA, elementB) => {
+      // questionBankSort.value is expected to be of the format "<data_attribute_name>-<asc|desc>". See QuestionsListView.java for more.
+      const [attrName, order] = questionBankSort.value.split('-')
+      // Get the data attribute whose name matches the selected sort option so that it can be used to compare the elements.
+      const attrA: string | null = elementA.getAttribute('data-' + attrName)
+      const attrB: string | null = elementB.getAttribute('data-' + attrName)
+      if (!attrA || !attrB) {
+        return 0
+      }
+
+      const compare = function (a: string, b: string): number {
+        switch (attrName) {
+          case 'lastmodified': {
+            const dateA = new Date(a)
+            const dateB = new Date(b)
+            return dateA.getTime() - dateB.getTime()
+          }
+          default:
+            // Default sort is a string sort.
+            return a.localeCompare(b)
+        }
+      }
+      return order == 'asc' ? compare(attrA, attrB) : compare(attrB, attrA)
+    })
+
+    sortedQuestions.forEach((q) => {
+      parent.appendChild(q)
     })
   }
 }

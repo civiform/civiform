@@ -7,6 +7,8 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
+import controllers.dev.seeding.DatabaseSeedController;
+import controllers.dev.seeding.routes;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Test;
@@ -35,15 +37,15 @@ public class DatabaseSeedControllerTest {
     // Navigate to index before seeding - should not have the fake program.
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("mock-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Seed the fake data.
-    result = controller.seed();
+    result = controller.seedPrograms();
     assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("mock-program");
+    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
     // Clear the data.
     result = controller.clear();
@@ -51,7 +53,7 @@ public class DatabaseSeedControllerTest {
     assertThat(result.flash().get("success")).hasValue("The database has been cleared");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("mock-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
   }
 
   @Test
@@ -63,9 +65,9 @@ public class DatabaseSeedControllerTest {
   }
 
   @Test
-  public void seed_inNonDevMode_returnsNotFound() {
+  public void seedPrograms_inNonDevMode_returnsNotFound() {
     setupControllerInMode(Mode.TEST);
-    Result result = controller.seed();
+    Result result = controller.seedPrograms();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }

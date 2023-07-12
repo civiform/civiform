@@ -64,6 +64,19 @@ public final class Version extends BaseModel {
     this.lifecycleStage = lifecycleStage;
   }
 
+  public LifecycleStage getLifecycleStage() {
+    return lifecycleStage;
+  }
+
+  public Version setLifecycleStage(LifecycleStage lifecycleStage) {
+    this.lifecycleStage = lifecycleStage;
+    return this;
+  }
+
+  public Instant getSubmitTime() {
+    return this.submitTime;
+  }
+
   public Version addProgram(Program program) {
     this.programs.add(program);
     return this;
@@ -82,25 +95,12 @@ public final class Version extends BaseModel {
     return this.questions.remove(question);
   }
 
-  public Version setLifecycleStage(LifecycleStage lifecycleStage) {
-    this.lifecycleStage = lifecycleStage;
-    return this;
-  }
-
   public ImmutableList<Program> getPrograms() {
     return ImmutableList.copyOf(programs);
   }
 
   public ImmutableList<Question> getQuestions() {
     return ImmutableList.copyOf(questions);
-  }
-
-  public LifecycleStage getLifecycleStage() {
-    return lifecycleStage;
-  }
-
-  public Instant getSubmitTime() {
-    return this.submitTime;
   }
 
   /**
@@ -124,7 +124,7 @@ public final class Version extends BaseModel {
   }
 
   /** Returns the names of all the programs. */
-  public ImmutableSet<String> getProgramsNames() {
+  public ImmutableSet<String> getProgramNames() {
     return getPrograms().stream()
         .map(Program::getProgramDefinition)
         .map(ProgramDefinition::adminName)
