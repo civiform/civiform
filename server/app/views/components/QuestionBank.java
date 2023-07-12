@@ -58,18 +58,17 @@ public final class QuestionBank {
             .collect(ImmutableList.toImmutableList());
 
     SelectWithLabel questionSortSelect =
-        (SelectWithLabel)
-            new SelectWithLabel()
-                .setId("question-bank-sort")
-                .setFieldName("question-bank-sort")
-                .setValue(questionSortOptions.get(0).value()) // Default sort order.
-                .setLabelText("Sort by:")
-                .setOptionGroups(
-                    ImmutableList.of(
-                        SelectWithLabel.OptionGroup.builder()
-                            .setLabel("Sort by:")
-                            .setOptions(questionSortOptions)
-                            .build()));
+        new SelectWithLabel()
+            .setId("question-bank-sort")
+            .setFieldName("question-bank-sort")
+            .setValue(questionSortOptions.get(0).value()) // Default sort order.
+            .setLabelText("Sort by:")
+            .setOptionGroups(
+                ImmutableList.of(
+                    SelectWithLabel.OptionGroup.builder()
+                        .setLabel("Sort by:")
+                        .setOptions(questionSortOptions)
+                        .build()));
     return questionSortSelect.getSelectTag().withClass("mb-0");
   }
 }

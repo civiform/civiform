@@ -124,61 +124,6 @@ public final class QuestionsListView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private static SelectWithLabel renderQuestionSortSelect() {
-    ImmutableList<SelectWithLabel.OptionValue> questionSortOptions =
-        ImmutableList.of(
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Last modified")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_LAST_MODIFIED, /* descending= */ true))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Admin ID A-Z")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_ADMIN_NAME, /* descending= */ false))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Admin ID Z-A")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_ADMIN_NAME, /* descending= */ true))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Most programs")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_NUM_PROGRAMS, /* descending= */ true))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Fewest programs")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_NUM_PROGRAMS, /* descending= */ false))
-                .build());
-    SelectWithLabel questionSortSelect =
-        new SelectWithLabel()
-            .setId("question-bank-sort")
-            .setFieldName("question-bank-sort")
-            .setValue(questionSortOptions.get(0).value()) // Default sort: Last modified
-            .setLabelText("Sort by:")
-            .addStyleClass("border-gray-200")
-            .addStyleClass("shadow")
-            .setOptionGroups(
-                ImmutableList.of(
-                    SelectWithLabel.OptionGroup.builder()
-                        .setLabel("Sort by:")
-                        .setOptions(questionSortOptions)
-                        .build()));
-    return questionSortSelect;
-  }
-
-  private static String formatQuestionSortSelectValue(String dataAttribute, boolean descending) {
-    return String.format(
-        "%s-%s", dataAttribute, (descending ? DESCENDING_SUFFIX : ASCENDING_SUFFIX));
-  }
-
   private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
     // The total question count should be equivalent to the number of rows in the displayed table,
     // where we have a single entry for a question that is active and has a draft.
@@ -353,15 +298,9 @@ public final class QuestionsListView extends BaseHtmlView {
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
                 latestDefinition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
             .withData(
-                DATA_ATTRIBUTE_NUM_PROGRAMS,
+                QuestionSortOption.NUM_PROGRAMS.getDataAttribute(),
                 Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
     return Pair.of(rowWithAdminNote, modals.build());
-  }
-
-  private Integer getTotalNumReferencingPrograms(
-      GroupedReferencingPrograms groupedReferencingPrograms) {
-    return groupedReferencingPrograms.usedPrograms().size()
-        + groupedReferencingPrograms.addedPrograms().size();
   }
 
   /**
