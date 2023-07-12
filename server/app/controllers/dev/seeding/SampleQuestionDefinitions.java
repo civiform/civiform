@@ -2,6 +2,7 @@ package controllers.dev.seeding;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.lang.reflect.Field;
 import play.i18n.Lang;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -23,6 +24,24 @@ import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 
 public final class SampleQuestionDefinitions {
+
+  public static ImmutableList<QuestionDefinition> getAllSampleQuestionDefinitions() {
+    ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
+    Field[] fields = SampleQuestionDefinitions.class.getFields();
+
+    for (Field field : fields) {
+      if (QuestionDefinition.class.isAssignableFrom(field.getType())) {
+        try {
+          QuestionDefinition definition = (QuestionDefinition) field.get(null);
+          questionDefinitions.add(definition);
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException("Unable to access field: " + field.getName(), e);
+        }
+      }
+    }
+
+    return questionDefinitions.build();
+  }
 
   public static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
       new AddressQuestionDefinition(
