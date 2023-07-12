@@ -31,7 +31,7 @@ public final class SampleQuestionDefinitions {
 
   private static final QuestionDefinitionConfig CHECKBOX_QUESTION_DEFINITION_CONFIG =
       QuestionDefinitionConfig.builder()
-          .setName("checkbox")
+          .setName("Sample Checkbox Question")
           .setDescription("description")
           .setQuestionText(
               LocalizedStrings.withDefaultValue(
@@ -63,7 +63,7 @@ public final class SampleQuestionDefinitions {
 
   private static final QuestionDefinitionConfig DROPDOWN_QUESTION_CONFIG =
       QuestionDefinitionConfig.builder()
-          .setName("dropdown")
+          .setName("Sample Dropdown Question")
           .setDescription("select your favorite ice cream flavor")
           .setQuestionText(
               LocalizedStrings.withDefaultValue(
