@@ -1,7 +1,7 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
@@ -426,8 +426,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     StatusEvent event =
         StatusEvent.builder().setEmailSent(true).setStatusText("Not an actual status").build();
 
-    assertThrows(
-        StatusNotFoundException.class, () -> service.setStatus(application, event, account));
+    assertThatThrownBy(() -> service.setStatus(application, event, account))
+        .isInstanceOf(StatusNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
   }
@@ -452,8 +452,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_NO_EMAIL.statusText())
             .build();
 
-    assertThrows(
-        StatusEmailNotFoundException.class, () -> service.setStatus(application, event, account));
+    assertThatThrownBy(() -> service.setStatus(application, event, account))
+        .isInstanceOf(StatusEmailNotFoundException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
   }
@@ -477,8 +477,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
             .build();
 
-    assertThrows(
-        AccountHasNoEmailException.class, () -> service.setStatus(application, event, account));
+    assertThatThrownBy(() -> service.setStatus(application, event, account))
+        .isInstanceOf(AccountHasNoEmailException.class);
     application.refresh();
     assertThat(application.getApplicationEvents()).isEmpty();
   }
