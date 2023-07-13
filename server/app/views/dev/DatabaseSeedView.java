@@ -65,19 +65,19 @@ public class DatabaseSeedView extends BaseHtmlView {
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("Seed sample programs"))
                             .withMethod("post")
-                            .withAction(routes.DatabaseSeedController.seedPrograms().url()))
+                            .withAction(routes.DevDatabaseSeedController.seedPrograms().url()))
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("sample-questions", "Seed sample questions"))
                             .withMethod("post")
-                            .withAction(routes.DatabaseSeedController.seedQuestions().url()))
+                            .withAction(routes.DevDatabaseSeedController.seedQuestions().url()))
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("clear", "Clear entire database (irreversible!)"))
                             .withMethod("post")
-                            .withAction(routes.DatabaseSeedController.clear().url())))
+                            .withAction(routes.DevDatabaseSeedController.clear().url())))
             .with(
                 div()
                     .withClasses("grid", "grid-cols-2")
