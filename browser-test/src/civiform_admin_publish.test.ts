@@ -53,7 +53,7 @@ describe('publishing all draft questions and programs', () => {
     )
 
     // Publish.
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Make an edit to the program with no questions.
     await adminPrograms.createNewVersion(hiddenProgramNoQuestions)
@@ -75,7 +75,7 @@ describe('publishing all draft questions and programs', () => {
   })
 
   it('validate screenshot', async () => {
-    await adminPrograms.openPublishAllProgramsModal()
+    await adminPrograms.openPublishAllDraftsModal()
     await validateScreenshot(
       adminPrograms.publishAllProgramsModalLocator(),
       'publish-modal',

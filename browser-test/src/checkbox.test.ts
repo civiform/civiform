@@ -160,7 +160,7 @@ describe('Checkbox question for applicant flow', () => {
         ['checkbox-fave-color-q'],
         'checkbox-vacation-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

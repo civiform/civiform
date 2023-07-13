@@ -100,7 +100,7 @@ describe('Number question for applicant flow', () => {
         ['my-number-q'],
         'your-number-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

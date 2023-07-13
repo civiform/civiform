@@ -217,7 +217,7 @@ describe('phone question for applicant flow', () => {
         ['second-phone-q'],
         'first-phone-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

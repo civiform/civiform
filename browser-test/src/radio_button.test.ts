@@ -130,7 +130,7 @@ describe('Radio button question for applicant flow', () => {
         ['fave-ice-cream-q'],
         'fave-vacation-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

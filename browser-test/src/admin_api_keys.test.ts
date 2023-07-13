@@ -14,7 +14,7 @@ describe('Managing API keys', () => {
       programDescription,
       'https://usa.gov',
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminApiKeys.gotoNewApiKeyPage()
     await validateScreenshot(page, 'new-api-key-page')
 
