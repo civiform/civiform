@@ -30,7 +30,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /**
- * Task for seeding the database.
+ * Task for seeding the production database.
  *
  * <p>Logic for seeding different resources should be factored into separate methods for clarity.
  *
@@ -46,7 +46,7 @@ public final class DatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
-  private static final ImmutableList<QuestionDefinition> SAMPLE_QUESTIONS =
+  private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =
       ImmutableList.of(
           new QuestionDefinitionBuilder()
               .setQuestionType(QuestionType.NAME)
@@ -96,27 +96,27 @@ public final class DatabaseSeedTask {
   }
 
   public ImmutableList<QuestionDefinition> run() {
-    return seedQuestions();
+    return seedCanonicalQuestions();
   }
 
   /**
-   * Ensures that questions with names matching those in {@code SAMPLE_QUESTIONS} are present in the
-   * database, inserting the definitions in {@code SAMPLE_QUESTIONS} if any aren't found.
+   * Ensures that questions with names matching those in {@code CANONICAL_QUESTIONS} are present in
+   * the database, inserting the definitions in {@code CANONICAL_QUESTIONS} if any aren't found.
    */
-  private ImmutableList<QuestionDefinition> seedQuestions() {
-    ImmutableSet<String> sampleQuestionNames =
-        SAMPLE_QUESTIONS.stream()
+  private ImmutableList<QuestionDefinition> seedCanonicalQuestions() {
+    ImmutableSet<String> canonicalQuestionNames =
+        CANONICAL_QUESTIONS.stream()
             .map(QuestionDefinition::getName)
             .collect(ImmutableSet.toImmutableSet());
     ImmutableMap<String, QuestionDefinition> existingCanonicalQuestions =
-        questionService.getExistingQuestions(sampleQuestionNames);
-    if (existingCanonicalQuestions.size() < sampleQuestionNames.size()) {
+        questionService.getExistingQuestions(canonicalQuestionNames);
+    if (existingCanonicalQuestions.size() < canonicalQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
       versionRepository.getDraftVersion();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
-    for (QuestionDefinition questionDefinition : SAMPLE_QUESTIONS) {
+    for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
       if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
         LOGGER.info(
             "Canonical question \"%s\" exists at server start", questionDefinition.getName());
