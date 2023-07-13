@@ -39,7 +39,7 @@ export class TIDashboard {
 
   async expectDashboardContainClient(client: ClientInformation) {
     const row = this.page.locator(
-      `.cf-admin-question-table-row:has-text("${client.emailAddress}")`,
+      `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
     )
     const rowText = await row.innerText()
     expect(rowText).toContain(client.firstName)
