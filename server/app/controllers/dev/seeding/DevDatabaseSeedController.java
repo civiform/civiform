@@ -50,8 +50,8 @@ import services.seeding.DatabaseSeedTask;
 import services.settings.SettingsService;
 import views.dev.DatabaseSeedView;
 
-/** Controller for seeding the database with test content to develop against. */
-public class DatabaseSeedController extends Controller {
+/** Controller for seeding the development database with test content. */
+public class DevDatabaseSeedController extends Controller {
 
   private final DatabaseSeedTask databaseSeedTask;
   private final DatabaseSeedView view;
@@ -62,7 +62,7 @@ public class DatabaseSeedController extends Controller {
   private final boolean isDevOrStaging;
 
   @Inject
-  public DatabaseSeedController(
+  public DevDatabaseSeedController(
       DatabaseSeedTask databaseSeedTask,
       DatabaseSeedView view,
       QuestionService questionService,
@@ -101,7 +101,7 @@ public class DatabaseSeedController extends Controller {
 
     databaseSeedTask.run();
 
-    return redirect(routes.DatabaseSeedController.index().url())
+    return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "Sample questions seeded");
   }
 
@@ -117,7 +117,7 @@ public class DatabaseSeedController extends Controller {
             .orElseThrow();
     insertComprehensiveSampleProgram(sampleNameQuestion);
     insertMinimalSampleProgram(sampleNameQuestion);
-    return redirect(routes.DatabaseSeedController.index().url())
+    return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }
 
@@ -127,7 +127,7 @@ public class DatabaseSeedController extends Controller {
       return notFound();
     }
     resetTables();
-    return redirect(routes.DatabaseSeedController.index().url())
+    return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
 
