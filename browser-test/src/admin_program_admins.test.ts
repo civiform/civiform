@@ -11,15 +11,10 @@ describe('manage program admins', () => {
     const programName = 'Add program admins'
     await adminPrograms.addProgram(programName)
 
-    // Add two program admins and save
+    // Try to add a program admin for an email address that does not have an account.
     await adminPrograms.gotoManageProgramAdminsPage(programName)
-    await page.click('#add-program-admin-button')
-    const lastProgramAdminEmailInput =
-      '#program-admin-emails div.flex-row:last-of-type input'
-    await page.fill(lastProgramAdminEmailInput, 'test@test.com')
-    await page.click('#add-program-admin-button')
-    await page.fill(lastProgramAdminEmailInput, 'other@test.com')
-    await page.click('text=Save')
+    await page.fill('#admin-email-input', 'test@test.com')
+    await page.click('#add-admin-button')
 
     await adminPrograms.expectManageProgramAdminsPage()
     await adminPrograms.expectAddProgramAdminErrorToast()
