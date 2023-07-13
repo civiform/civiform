@@ -189,7 +189,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name (Optional)")
+            .setLabelText("Middle Name")
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
