@@ -389,7 +389,7 @@ describe('Applicant navigation flow', () => {
         secondProgramCorrectAnswer,
       )
 
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
       // TODO(#4509): Once this is a beforeAll(), it'll automatically go back
       // to the home page when it's done and we can remove this line.
       await logout(page)

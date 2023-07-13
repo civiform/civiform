@@ -14,7 +14,7 @@ describe('admin program view page', () => {
 
     const programName = 'Apc program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
     await validateScreenshot(page, 'program-read-only-view')
     await adminPrograms.gotoAdminProgramsPage()
@@ -43,7 +43,7 @@ describe('admin program view page', () => {
       'date-q',
       'email-q',
     ])
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     await adminPrograms.gotoViewActiveProgramPage(programName)
 

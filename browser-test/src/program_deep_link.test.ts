@@ -34,7 +34,7 @@ describe('navigating to a deep link', () => {
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram(programName)
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminPrograms.expectActiveProgram(programName)
 
     await logout(page)

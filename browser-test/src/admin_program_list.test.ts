@@ -23,7 +23,7 @@ describe('Program list page.', () => {
     await expectProgramListElements(adminPrograms, [programTwo, programOne])
 
     // Publish all programs, order should be maintained.
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await expectProgramListElements(adminPrograms, [programTwo, programOne])
 
     // Now create a draft version of the previously last program. After,
@@ -82,7 +82,7 @@ describe('Program list page.', () => {
 
     const programOne = 'List test program one'
     await adminPrograms.addProgram(programOne)
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminPrograms.createNewVersion(programOne)
     await adminPrograms.expectDraftProgram(programOne)
 
