@@ -97,7 +97,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withId("add-admin-button").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
+                submitButton("Add")
+                    .withId("add-admin-button")
+                    .withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
