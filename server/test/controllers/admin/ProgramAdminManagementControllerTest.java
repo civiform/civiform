@@ -63,108 +63,6 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void update_addOnly_succeeds() {
-    String email1 = "one";
-    String email2 = "two";
-    Account account1 = new Account();
-    Account account2 = new Account();
-    account1.setEmailAddress(email1);
-    account2.setEmailAddress(email2);
-    account1.save();
-    account2.save();
-
-    String programName = "controller test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-    Http.Request request =
-        fakeRequest()
-            .bodyForm(ImmutableMap.of("adminEmails[0]", "one", "adminEmails[1]", "two"))
-            .build();
-
-    Result result = controller.update(request, program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-
-    account1 = userRepository.lookupAccountByEmail("one").get();
-    account2 = userRepository.lookupAccountByEmail("two").get();
-    assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
-    assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
-  }
-
-  @Test
-  public void update_addedEmailDoesNotExist_fails() {
-    String email1 = "one";
-    String email2 = "two";
-    Account account1 = new Account();
-    account1.setEmailAddress(email1);
-    account1.save();
-
-    String programName = "controller test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-    Http.Request request =
-        addCSRFToken(
-                fakeRequest()
-                    .bodyForm(ImmutableMap.of("adminEmails[0]", email1, "adminEmails[1]", email2)))
-            .build();
-
-    Result result = controller.update(request, program.id);
-    account1 = userRepository.lookupAccountByEmail(email1).get();
-
-    // Assert the update succeeded (for email1)
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
-
-    // Add account 2
-    Account account2 = new Account();
-    account2.setEmailAddress(email2);
-    account2.save();
-    account2 = userRepository.lookupAccountByEmail(email2).get();
-
-    // Account 2 should not have any programs because the account was nonexistent when we addded
-    // email2 as a program admin.
-    assertThat(account2.getAdministeredProgramNames()).isEmpty();
-  }
-
-  @Test
-  public void update_withRemovals_succeeds() {
-    String programName = "add remove";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
-
-    String addEmail = "add me";
-    Account addAccount = new Account();
-    addAccount.setEmailAddress(addEmail);
-    addAccount.save();
-
-    String removeEmail = "remove me";
-    Account removeAccount = new Account();
-    removeAccount.setEmailAddress(removeEmail);
-    removeAccount.addAdministeredProgram(program.getProgramDefinition());
-    removeAccount.save();
-
-    Http.Request request =
-        fakeRequest()
-            .bodyForm(
-                ImmutableMap.of("adminEmails[0]", addEmail, "removeAdminEmails[0]", removeEmail))
-            .build();
-
-    Result result = controller.update(request, program.id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(userRepository.lookupAccountByEmail(addEmail).get().getAdministeredProgramNames())
-        .containsExactly(programName);
-    assertThat(userRepository.lookupAccountByEmail(removeEmail).get().getAdministeredProgramNames())
-        .isEmpty();
-  }
-
-  @Test
-  public void update_programNotFound_returnsNotFound() {
-    Http.Request request =
-        fakeRequest().bodyForm(ImmutableMap.of("adminEmails[0]", "unused")).build();
-    Result result = controller.update(request, 1234L);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
   public void add_succeeds() {
     String programName = "add test";
     Program program = ProgramBuilder.newDraftProgram(programName).build();
@@ -174,9 +72,9 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     account.setEmailAddress(email);
     account.save();
 
-    Http.Request request = fakeRequest().build();
+    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", email)).build();
 
-    Result result = controller.add(request, program.id, email);
+    Result result = controller.add(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -197,8 +95,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
         .isNotEmpty();
 
-    Http.Request request = fakeRequest().build();
-    Result result = controller.delete(request, program.id, deleteEmail);
+    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
+    Result result = controller.delete(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
@@ -218,8 +116,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     assertThat(userRepository.lookupAccountByEmail(adminEmail).get().getAdministeredProgramNames())
         .isNotEmpty();
 
-    Http.Request request = fakeRequest().build();
-    Result result = controller.delete(request, program.id, "non-existent email");
+    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
+    Result result = controller.delete(request, program.id);
 
     // The controller doesn't return an error in this case.
     assertThat(result.status()).isEqualTo(SEE_OTHER);
