@@ -1,4 +1,4 @@
-package controllers.dev.seeding;
+package services.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

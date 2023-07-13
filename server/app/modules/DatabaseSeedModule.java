@@ -3,7 +3,7 @@ package modules;
 import akka.actor.ActorSystem;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
-import controllers.dev.seeding.DatabaseSeedTask;
+import services.seeding.DatabaseSeedTask;
 import java.time.Duration;
 import javax.inject.Provider;
 import scala.concurrent.ExecutionContext;
