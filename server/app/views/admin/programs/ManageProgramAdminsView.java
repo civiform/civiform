@@ -70,7 +70,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .getBundle()
             .setTitle(fullTitle)
             .addMainContent(
-                renderHeader("Add New Admin").withClass("mt-8"),
+                renderHeader(fullTitle),
+                renderHeader("Add New Admin"),
                 renderAddNewButton(request, program.id()),
                 renderHeader("Existing Admins"),
                 renderExistingAdmins(request, program.id(), existingAdminEmails),
@@ -96,7 +97,9 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             formTag.with(
                 emailField.getInputTag(),
                 makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
+                submitButton("Add")
+                    .withId("add-admin-button")
+                    .withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
         .withClasses("border", "border-gray-300", "shadow-md", "w-1/2", "mt-6");
   }
 
