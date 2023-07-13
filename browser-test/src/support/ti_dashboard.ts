@@ -42,8 +42,7 @@ export class TIDashboard {
       `.cf-admin-question-table-row:has-text("${client.lastName}, ${client.firstName}")`,
     )
     const rowText = await row.innerText()
-    expect(rowText).toContain(client.firstName)
-    expect(rowText).toContain(client.lastName)
+    expect(rowText).toContain(client.emailAddress)
     // date of birth rendered as <input> rather than plain text.
     expect(await row.locator('input[name="dob"]').inputValue()).toEqual(
       client.dobDate,

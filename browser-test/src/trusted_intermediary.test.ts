@@ -57,22 +57,34 @@ describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'dashboard-with-one-client')
   })
 
-  it('expect client can be added without an email address', async () => {
+  it('expect clients can be added without an email address', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
 
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
-    const client: ClientInformation = {
+
+    const client1: ClientInformation = {
       emailAddress: '',
-      firstName: 'first',
-      middleName: 'middle',
-      lastName: 'last',
-      dobDate: '2023-07-11',
+      firstName: 'Jean-Luc',
+      middleName: '',
+      lastName: 'Picard',
+      dobDate: '1940-07-13',
     }
-    await tiDashboard.createClient(client)
-    await tiDashboard.expectDashboardContainClient(client)
-    await validateScreenshot(page, 'dashboard-add-client-no-email')
+    await tiDashboard.createClient(client1)
+    await tiDashboard.expectDashboardContainClient(client1)
+
+    const client2: ClientInformation = {
+      emailAddress: '',
+      firstName: 'William',
+      middleName: 'Thomas',
+      lastName: 'Riker',
+      dobDate: '1952-08-19',
+    }
+    await tiDashboard.createClient(client2)
+    await tiDashboard.expectDashboardContainClient(client2)
+
+    await validateScreenshot(page, 'dashboard-add-clients-no-email')
   })
 
   it('expect client cannot be added with invalid email address', async () => {
@@ -90,6 +102,11 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client)
     await tiDashboard.expectDashboardNotContainClient(client)
+    // In an email-type input field, when the text is not formatted as a valid
+    // email address, there is a popup that shows and disappears after a period
+    // of time or when you move focus away from the field. Move focus away
+    // from the field in order to get a stable snapshot.
+    await page.focus('label:has-text("First Name")')
     await validateScreenshot(page, 'dashboard-add-client-invalid-email')
   })
 
