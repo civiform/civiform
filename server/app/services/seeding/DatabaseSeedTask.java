@@ -1,4 +1,4 @@
-package controllers.dev.seeding;
+package services.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
