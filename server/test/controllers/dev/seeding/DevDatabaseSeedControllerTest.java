@@ -1,4 +1,4 @@
-package controllers.dev;
+package controllers.dev.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
@@ -7,8 +7,6 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
-import controllers.dev.seeding.DevDatabaseSeedController;
-import controllers.dev.seeding.routes;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Test;
