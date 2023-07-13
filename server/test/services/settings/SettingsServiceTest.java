@@ -40,22 +40,26 @@ public class SettingsServiceTest extends ResetPostgres {
                       SettingDescription.create(
                           "TEST_BOOL",
                           "test description",
+                          true,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "TEST_BOOL_READABLE",
                           "test description",
+                          true,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "TEST_ENUM",
                           "test enum",
+                          true,
                           SettingType.ENUM,
                           SettingMode.ADMIN_WRITEABLE,
                           ImmutableList.of("test", "test-2")),
                       SettingDescription.create(
                           "TEST_REGEX_VALIDATED_STRING",
                           "test regex validated",
+                          true,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
                           Pattern.compile("^test$"))))),

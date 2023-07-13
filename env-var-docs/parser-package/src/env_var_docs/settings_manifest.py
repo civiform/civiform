@@ -103,17 +103,18 @@ def render_group(group: ParsedGroup) -> str:
 
 
 def render_variable(name: str, variable: Variable) -> str:
+    is_required = str(variable.required).lower()
     setting_type = _get_java_setting_type(variable)
     setting_mode = str(variable.mode).replace("Mode.", "")
 
     if setting_type == "ENUM" and variable.values:
         allowable_values = ", ".join([f'"{val}"' for val in variable.values])
-        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
 
     if setting_type == "STRING" and variable.regex:
-        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, Pattern.compile("{variable.regex}"))'
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode}, Pattern.compile("{variable.regex}"))'
 
-    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode})'
+    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode})'
 
 
 def _get_java_setting_type(variable: Variable) -> str:

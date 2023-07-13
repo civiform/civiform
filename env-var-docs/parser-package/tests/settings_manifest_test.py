@@ -52,7 +52,7 @@ class TestGenerateSettingsManifest(unittest.TestCase):
                     Variable(
                         description="Fake string variable for testing",
                         type="string",
-                        required=True,
+                        required=False,
                         values=None,
                         regex="^regex$",
                         regex_tests=None,
@@ -65,9 +65,9 @@ class TestGenerateSettingsManifest(unittest.TestCase):
             result,
             """ImmutableMap.of("Test section", SettingsSection.create("Test section", "Fake section for testing.", \
 ImmutableList.of(SettingsSection.create("Test subsection", "Fake subsection for testing", ImmutableList.of(), \
-ImmutableList.of(SettingDescription.create("SUBSECTION_VARIABLE", "Fake subsection variable for testing", SettingType.STRING, SettingMode.HIDDEN)))), \
+ImmutableList.of(SettingDescription.create("SUBSECTION_VARIABLE", "Fake subsection variable for testing", /* isRequired= */ true, SettingType.STRING, SettingMode.HIDDEN)))), \
 ImmutableList.of()), "Miscellaneous", SettingsSection.create("Miscellaneous", "Top level vars", ImmutableList.of(), \
-ImmutableList.of(SettingDescription.create("STRING_VARIABLE", "Fake string variable for testing", SettingType.STRING, SettingMode.ADMIN_READABLE), \
-SettingDescription.create("ENUM_VARIABLE", "Fake string variable for testing", SettingType.ENUM, SettingMode.ADMIN_READABLE, ImmutableList.of("one", "two")), \
-SettingDescription.create("REGEX_VARIABLE", "Fake string variable for testing", SettingType.STRING, SettingMode.ADMIN_READABLE, Pattern.compile("^regex$")))))"""
+ImmutableList.of(SettingDescription.create("STRING_VARIABLE", "Fake string variable for testing", /* isRequired= */ true, SettingType.STRING, SettingMode.ADMIN_READABLE), \
+SettingDescription.create("ENUM_VARIABLE", "Fake string variable for testing", /* isRequired= */ true, SettingType.ENUM, SettingMode.ADMIN_READABLE, ImmutableList.of("one", "two")), \
+SettingDescription.create("REGEX_VARIABLE", "Fake string variable for testing", /* isRequired= */ false, SettingType.STRING, SettingMode.ADMIN_READABLE, Pattern.compile("^regex$")))))"""
         )
