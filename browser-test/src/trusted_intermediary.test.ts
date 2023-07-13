@@ -57,6 +57,42 @@ describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'dashboard-with-one-client')
   })
 
+  it('expect client can be added without an email address', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: '',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardContainClient(client)
+    await validateScreenshot(page, 'dashboard-add-client-no-email')
+  })
+
+  it('expect client cannot be added with invalid email address', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'bademail',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardNotContainClient(client)
+    await validateScreenshot(page, 'dashboard-add-client-invalid-email')
+  })
+
   it('ti landing page is the TI Dashboard', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
