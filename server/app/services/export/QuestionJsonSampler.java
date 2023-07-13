@@ -28,7 +28,6 @@ import services.program.ProgramQuestionDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 
 /**
  * A {@link QuestionJsonSampler} for a Question {@link Q} provides a strategy for showing the
@@ -491,14 +490,10 @@ public interface QuestionJsonSampler<Q extends Question> {
 
   class TextJsonSampler extends ContextualizedScalarsJsonSampler<TextQuestion> {
     private final QuestionJsonPresenter emailJsonPresenter;
-    private final SettingsManifest settingsManifest;
 
     @Inject
-    TextJsonSampler(
-        QuestionJsonPresenter.Factory questionJsonPresenterFactory,
-        SettingsManifest settingsManifest) {
+    TextJsonSampler(QuestionJsonPresenter.Factory questionJsonPresenterFactory) {
       this.emailJsonPresenter = questionJsonPresenterFactory.create(QuestionType.TEXT);
-      this.settingsManifest = settingsManifest;
     }
 
     @Override
@@ -508,9 +503,7 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(ApplicantData applicantData, TextQuestion question) {
-      applicantData.putString(
-          question.getTextPath(),
-          "I love " + settingsManifest.getWhitelabelCivicEntityShortName().get() + "!");
+      applicantData.putString(question.getTextPath(), "I love CiviForm!");
     }
 
     @Override

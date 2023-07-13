@@ -1,5 +1,6 @@
 package controllers.dev.seeding;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import play.i18n.Lang;
@@ -24,7 +25,8 @@ import services.question.types.TextQuestionDefinition;
 
 public final class SampleQuestionDefinitions {
 
-  static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
       new AddressQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Address Question")
@@ -55,7 +57,8 @@ public final class SampleQuestionDefinitions {
           CHECKBOX_QUESTION_OPTIONS,
           MultiOptionQuestionType.CHECKBOX);
 
-  static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
       new CurrencyQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Currency Question")
@@ -266,7 +269,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(
                   LocalizedStrings.withDefaultValue("help text for $this's birthday"));
 
-  static DateQuestionDefinition dateEnumeratedQuestionDefinition(long enumeratorId) {
+  @VisibleForTesting
+  public static DateQuestionDefinition dateEnumeratedQuestionDefinition(long enumeratorId) {
     return new DateQuestionDefinition(
         DATE_ENUMERATED_QUESTION_DEFINITION_BUILDER.setEnumeratorId(enumeratorId).build());
   }

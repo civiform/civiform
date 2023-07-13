@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.time.Instant;
@@ -21,7 +22,7 @@ import services.question.QuestionOption;
 /** Superclass for all question types. */
 public abstract class QuestionDefinition {
 
-  private final QuestionDefinitionConfig config;
+  private QuestionDefinitionConfig config;
 
   protected QuestionDefinition(QuestionDefinitionConfig config) {
     if (config.validationPredicates().isEmpty()) {
@@ -331,5 +332,16 @@ public abstract class QuestionDefinition {
         config.questionHelpText().translations().values().stream()
             .anyMatch(helpText -> !helpText.contains("$this"));
     return !textMissingFormatString && !helpTextMissingFormatString;
+  }
+
+  /**
+   * Tests that use {@link QuestionDefinition} are required to have an ID in the question at some
+   * points, but usually it's not populated until it's inserted in the DB. This method populates the
+   * ID for testing purposes only.
+   */
+  @VisibleForTesting
+  public QuestionDefinition withPopulatedTestId() {
+    config = config.toBuilder().setId(123L).build();
+    return this;
   }
 }
