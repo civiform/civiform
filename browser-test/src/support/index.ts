@@ -578,7 +578,14 @@ const normalizeElements = async (page: Frame | Page) => {
     }
     for (const [selector, replacement] of Object.entries(replacements)) {
       for (const element of Array.from(document.querySelectorAll(selector))) {
-        element.textContent = replacement(element.textContent!)
+        if (
+          selector == '.cf-bt-email' &&
+          element.textContent == '(no email address)'
+        ) {
+          continue
+        } else {
+          element.textContent = replacement(element.textContent!)
+        }
       }
     }
   })

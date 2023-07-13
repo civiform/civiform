@@ -189,7 +189,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name (Optional)")
+            .setLabelText("Middle Name")
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
@@ -205,13 +205,13 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setId("date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
+            .setRequired(true)
             .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
-        FieldWithLabel.input()
+        FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
             .setLabelText("Email Address")
-            .setRequired(true)
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
