@@ -14,7 +14,7 @@ public final class QuestionBank {
 
   public static final DivTag renderFilterAndSort(List<QuestionSortOption> sortOptions) {
     return div()
-        .withClasses("flex", "items-end", "mt-6", "mb-2")
+        .withClasses("flex", "items-end", "mb-2")
         .with(renderFilter(), renderQuestionSortSelect(sortOptions));
   }
 
@@ -60,7 +60,6 @@ public final class QuestionBank {
     SelectWithLabel questionSortSelect =
         new SelectWithLabel()
             .setId("question-bank-sort")
-            .setFieldName("question-bank-sort")
             .setValue(questionSortOptions.get(0).value()) // Default sort order.
             .setLabelText("Sort by:")
             .setOptionGroups(

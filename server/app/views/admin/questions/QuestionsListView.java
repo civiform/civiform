@@ -89,7 +89,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
