@@ -95,7 +95,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
         .isNotEmpty();
 
-    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
+    Http.Request request =
+        fakeRequest().bodyForm(ImmutableMap.of("adminEmail", deleteEmail)).build();
     Result result = controller.delete(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -116,7 +117,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     assertThat(userRepository.lookupAccountByEmail(adminEmail).get().getAdministeredProgramNames())
         .isNotEmpty();
 
-    Http.Request request = fakeRequest().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
+    Http.Request request =
+        fakeRequest().bodyForm(ImmutableMap.of("adminEmail", "nonExistentEmail")).build();
     Result result = controller.delete(request, program.id);
 
     // The controller doesn't return an error in this case.

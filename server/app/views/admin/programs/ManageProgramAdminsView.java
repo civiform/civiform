@@ -16,8 +16,8 @@ import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
-import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TdTag;
+import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -31,11 +31,11 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
+import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
-import views.components.Icons;
 import views.components.ToastMessage;
-import views.components.FieldWithLabel;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -163,10 +163,10 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   private ATag renderBackButton() {
     // The link to manage program admins is from the programs index page.
     return new LinkElement()
-      .setHref(routes.AdminProgramController.index().url())
-      .setIcon(Icons.ARROW_LEFT, IconPosition.START)
-      .setText("Back")
-      .setStyles("mt-6")
-      .asAnchorText();
+        .setHref(routes.AdminProgramController.index().url())
+        .setIcon(Icons.ARROW_LEFT, IconPosition.START)
+        .setText("Back")
+        .setStyles("mt-6")
+        .asAnchorText();
   }
 }
