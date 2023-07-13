@@ -1,7 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
@@ -18,7 +17,6 @@ import models.Program;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
-import play.data.validation.ValidationError;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
