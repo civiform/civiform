@@ -17,14 +17,13 @@ import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
-import services.seeding.DatabaseSeedTask;
 import services.settings.SettingsService;
 import views.dev.DatabaseSeedView;
 
 /** Controller for seeding the development database with test content. */
 public class DevDatabaseSeedController extends Controller {
 
-  private final DatabaseSeedTask databaseSeedTask;
+  private final DevDatabaseSeedTask devDatabaseSeedTask;
   private final DatabaseSeedView view;
   private final Database database;
   private final QuestionService questionService;
@@ -34,13 +33,13 @@ public class DevDatabaseSeedController extends Controller {
 
   @Inject
   public DevDatabaseSeedController(
-      DatabaseSeedTask databaseSeedTask,
+      DevDatabaseSeedTask devDatabaseSeedTask,
       DatabaseSeedView view,
       QuestionService questionService,
       ProgramService programService,
       SettingsService settingsService,
       DeploymentType deploymentType) {
-    this.databaseSeedTask = checkNotNull(databaseSeedTask);
+    this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
     this.questionService = checkNotNull(questionService);
@@ -70,7 +69,7 @@ public class DevDatabaseSeedController extends Controller {
       return notFound();
     }
 
-    databaseSeedTask.seedQuestions();
+    devDatabaseSeedTask.seedQuestions();
 
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "Sample questions seeded");
@@ -81,10 +80,10 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    ImmutableList<QuestionDefinition> createdSampleQuestions = databaseSeedTask.seedQuestions();
+    ImmutableList<QuestionDefinition> createdSampleQuestions = devDatabaseSeedTask.seedQuestions();
 
-    databaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
-    databaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
+    devDatabaseSeedTask.insertMinimalSampleProgram(createdSampleQuestions);
+    devDatabaseSeedTask.insertComprehensiveSampleProgram(createdSampleQuestions);
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been seeded");
   }

@@ -1,60 +1,33 @@
 package services.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.CHECKBOX_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_PREDICATE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DATE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.DROPDOWN_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.EMAIL_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.FILE_UPLOAD_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.ID_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.NAME_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.NUMBER_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.PHONE_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.RADIO_BUTTON_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.TEXT_QUESTION_DEFINITION;
-import static controllers.dev.seeding.SampleQuestionDefinitions.dateEnumeratedQuestionDefinition;
-import static controllers.dev.seeding.SampleQuestionDefinitions.getAllSampleQuestionDefinitions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import forms.BlockForm;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
-import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
-import models.DisplayMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Lang;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.applicant.question.Scalar;
-import services.program.ProgramDefinition;
-import services.program.ProgramService;
-import services.program.ProgramType;
-import services.program.predicate.LeafOperationExpressionNode;
-import services.program.predicate.Operator;
-import services.program.predicate.PredicateAction;
-import services.program.predicate.PredicateDefinition;
-import services.program.predicate.PredicateExpressionNode;
-import services.program.predicate.PredicateValue;
+import services.LocalizedStrings;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 
 /**
  * Task for seeding the database.
@@ -73,46 +46,81 @@ public final class DatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
+  private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =
+      ImmutableList.of(
+          new QuestionDefinitionBuilder()
+              .setQuestionType(QuestionType.NAME)
+              .setName("Name")
+              .setDescription("The applicant's name")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      ImmutableMap.of(
+                          Lang.forCode("am").toLocale(),
+                          "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                          Lang.forCode("ko").toLocale(),
+                          "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
+                          Lang.forCode("so").toLocale(),
+                          "Magaca (magaca koowaad iyo kan dambe okay)",
+                          Lang.forCode("lo").toLocale(),
+                          "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
+                          Lang.forCode("tl").toLocale(),
+                          "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
+                          Lang.forCode("vi").toLocale(),
+                          "Tên (tên và họ viết tắt đều được)",
+                          Lang.forCode("en-US").toLocale(),
+                          "Please enter your first and last name",
+                          Lang.forCode("es-US").toLocale(),
+                          "Nombre (nombre y la inicial del apellido está bien)",
+                          Lang.forCode("zh-TW").toLocale(),
+                          "姓名（名字和姓氏第一個字母便可）")))
+              .unsafeBuild(),
+          new QuestionDefinitionBuilder()
+              .setQuestionType(QuestionType.DATE)
+              .setName("Applicant Date of Birth")
+              .setDescription("Applicant's date of birth")
+              .setQuestionText(
+                  LocalizedStrings.of(
+                      Lang.forCode("en-US").toLocale(),
+                      "Please enter your date of birth in the format mm/dd/yyyy"))
+              .unsafeBuild());
 
   private final QuestionService questionService;
-  private final ProgramService programService;
-
   private final VersionRepository versionRepository;
   private final Database database;
 
   @Inject
-  public DatabaseSeedTask(
-      QuestionService questionService,
-      ProgramService programService,
-      VersionRepository versionRepository) {
+  public DatabaseSeedTask(QuestionService questionService, VersionRepository versionRepository) {
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
-    this.programService = checkNotNull(programService);
     this.database = DB.getDefault();
   }
 
+  public ImmutableList<QuestionDefinition> run() {
+    return seedCanonicalQuestions();
+  }
+
   /**
-   * Ensures that all questions in SampleQuestionDefinitions are present in the database, inserting
-   * the definitions in if any aren't found.
+   * Ensures that questions with names matching those in {@code CANONICAL_QUESTIONS} are present in
+   * the database, inserting the definitions in {@code CANONICAL_QUESTIONS} if any aren't found.
    */
-  public ImmutableList<QuestionDefinition> seedQuestions() {
-    ImmutableList<QuestionDefinition> sampleQuestionDefinitions = getAllSampleQuestionDefinitions();
-    ImmutableSet<String> sampleQuestionNames =
-        sampleQuestionDefinitions.stream()
+  private ImmutableList<QuestionDefinition> seedCanonicalQuestions() {
+    ImmutableSet<String> canonicalQuestionNames =
+        CANONICAL_QUESTIONS.stream()
             .map(QuestionDefinition::getName)
             .collect(ImmutableSet.toImmutableSet());
-    ImmutableMap<String, QuestionDefinition> existingSampleQuestions =
-        questionService.getExistingQuestions(sampleQuestionNames);
-    if (existingSampleQuestions.size() < sampleQuestionNames.size()) {
+    ImmutableMap<String, QuestionDefinition> existingCanonicalQuestions =
+        questionService.getExistingQuestions(canonicalQuestionNames);
+    if (existingCanonicalQuestions.size() < canonicalQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
       versionRepository.getDraftVersion();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
-    for (QuestionDefinition questionDefinition : sampleQuestionDefinitions) {
-      if (existingSampleQuestions.containsKey(questionDefinition.getName())) {
-        LOGGER.info("Sample question \"{}\" exists at server start", questionDefinition.getName());
-        questionDefinitions.add(existingSampleQuestions.get(questionDefinition.getName()));
+    for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
+      if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
+        LOGGER.info(
+            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
+        questionDefinitions.add(existingCanonicalQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
             () -> {
@@ -134,181 +142,12 @@ public final class DatabaseSeedTask {
 
       LOGGER.error(
           String.format(
-              "Unable to create sample question \"%s\" due to %s",
+              "Unable to create canonical question \"%s\" due to %s",
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Sample sample question \"{}\"", questionDefinition.getName());
+      LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
       return Optional.of(result.getResult());
-    }
-  }
-
-  public void insertMinimalSampleProgram(ImmutableList<QuestionDefinition> createdSampleQuestions) {
-    try {
-      ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
-          programService.createProgramDefinition(
-              "minimal-sample-program",
-              "desc",
-              "Minimal Sample Program",
-              "display description",
-              /* defaultConfirmationMessage= */ "",
-              /* externalLink= */ "https://github.com/seattle-uat/civiform",
-              DisplayMode.PUBLIC.getValue(),
-              /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
-      if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
-      }
-      ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
-
-      long blockId = 1L;
-      BlockForm blockForm = new BlockForm();
-      blockForm.setName("Block 1");
-      blockForm.setDescription("Block 1");
-      programService.updateBlock(programId, blockId, blockForm).getResult();
-
-      long nameQuestionId = getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(nameQuestionId));
-      programService.setProgramQuestionDefinitionOptionality(
-          programId, blockId, nameQuestionId, true);
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public void insertComprehensiveSampleProgram(
-      ImmutableList<QuestionDefinition> createdSampleQuestions) {
-    try {
-      ErrorAnd<ProgramDefinition, CiviFormError> programDefinitionResult =
-          programService.createProgramDefinition(
-              "comprehensive-sample-program",
-              "desc",
-              "Comprehensive sample program",
-              "display description",
-              /* defaultConfirmationMessage= */ "",
-              "https://github.com/seattle-uat/civiform",
-              DisplayMode.PUBLIC.getValue(),
-              /* programType= */ ProgramType.DEFAULT,
-              /* isIntakeFormFeatureEnabled= */ false,
-              ImmutableList.copyOf(new ArrayList<>()));
-      if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
-      }
-      ProgramDefinition programDefinition = programDefinitionResult.getResult();
-      long programId = programDefinition.id();
-
-      long blockId = 1L;
-      BlockForm blockForm = new BlockForm();
-      blockForm.setName("Block 1");
-      blockForm.setDescription("one of each question type - part 1");
-      programService.updateBlock(programId, blockId, blockForm).getResult();
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              getCreatedId(STATIC_CONTENT_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(ADDRESS_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(CHECKBOX_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(CURRENCY_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(DATE_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(DROPDOWN_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(PHONE_QUESTION_DEFINITION, createdSampleQuestions)));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 2");
-      blockForm.setDescription("one of each question type - part 2");
-      programService.updateBlock(programId, blockId, blockForm);
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              getCreatedId(EMAIL_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(ID_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(NAME_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(NUMBER_QUESTION_DEFINITION, createdSampleQuestions),
-              getCreatedId(TEXT_QUESTION_DEFINITION, createdSampleQuestions)));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("enumerator");
-      blockForm.setDescription("this is for an enumerator");
-      programService.updateBlock(programId, blockId, blockForm);
-      long enumeratorId = getCreatedId(ENUMERATOR_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(enumeratorId));
-      // Create repeated screens based on enumerator.
-      long enumeratorBlockId = blockId;
-      blockId =
-          programService
-              .addRepeatedBlockToProgram(programId, enumeratorBlockId)
-              .getResult()
-              .maybeAddedBlock()
-              .get()
-              .id();
-      blockForm.setName("repeated screen for enumerator");
-      blockForm.setDescription("this is a repeated screen for an enumerator");
-      programService.updateBlock(programId, blockId, blockForm);
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              // This is the only sample question for which we must call create here, because it
-              // includes an enumeratorId that only gets generated after
-              // ENUMERATOR_QUESTION_DEFINITION is created.
-              questionService
-                  .create(dateEnumeratedQuestionDefinition(enumeratorId))
-                  .getResult()
-                  .getId()));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block 3");
-      blockForm.setDescription("Random information");
-      programService.updateBlock(programId, blockId, blockForm);
-      long radioButtonQuestionId =
-          getCreatedId(RADIO_BUTTON_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(
-          programId, blockId, ImmutableList.of(radioButtonQuestionId));
-
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("Block with Predicate");
-      blockForm.setDescription("May be hidden");
-      programService.updateBlock(programId, blockId, blockForm);
-      // Add an unanswered question to the block so it is considered incomplete.
-      programService.addQuestionsToBlock(
-          programId,
-          blockId,
-          ImmutableList.of(
-              getCreatedId(DATE_PREDICATE_QUESTION_DEFINITION, createdSampleQuestions)));
-      // Add a predicate based on the "favorite season" radio button question in Block 3
-      LeafOperationExpressionNode operation =
-          LeafOperationExpressionNode.create(
-              radioButtonQuestionId,
-              Scalar.SELECTION,
-              Operator.IN,
-              PredicateValue.listOfStrings(ImmutableList.of("2", "3")));
-      PredicateDefinition predicate =
-          PredicateDefinition.create(
-              PredicateExpressionNode.create(operation), PredicateAction.SHOW_BLOCK);
-      programService.setBlockVisibilityPredicate(programId, blockId, Optional.of(predicate));
-
-      // Add file upload as optional to make local testing easier.
-      blockId =
-          programService.addBlockToProgram(programId).getResult().maybeAddedBlock().get().id();
-      blockForm.setName("file upload");
-      blockForm.setDescription("this is for file upload");
-      programService.updateBlock(programId, blockId, blockForm);
-      long fileQuestionId = getCreatedId(FILE_UPLOAD_QUESTION_DEFINITION, createdSampleQuestions);
-      programService.addQuestionsToBlock(programId, blockId, ImmutableList.of(fileQuestionId));
-      programService.setProgramQuestionDefinitionOptionality(
-          programId, blockId, fileQuestionId, true);
-
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -342,19 +181,5 @@ public final class DatabaseSeedTask {
         transaction.end();
       }
     }
-  }
-
-  /**
-   * Gets the seeded question definition's ID from the list of created sample questions. The ID is
-   * necessarily not available in {@link SampleQuestionDefinitions}.
-   */
-  private long getCreatedId(
-      QuestionDefinition questionDefinition,
-      ImmutableList<QuestionDefinition> createdSampleQuestions) {
-    return createdSampleQuestions.stream()
-        .filter(q -> q.getName().equals(questionDefinition.getName()))
-        .findFirst()
-        .map(QuestionDefinition::getId)
-        .orElseThrow();
   }
 }
