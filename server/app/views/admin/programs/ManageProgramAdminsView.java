@@ -114,7 +114,8 @@ public class ManageProgramAdminsView extends BaseHtmlView {
                     tbody(
                         each(
                             existingAdminEmails,
-                            adminEmail -> renderExistingAdminRow(request, programId, adminEmail)))));
+                            adminEmail ->
+                                renderExistingAdminRow(request, programId, adminEmail)))));
   }
 
   private TheadTag renderExistingAdminsTableHeader() {
@@ -127,8 +128,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
   }
 
   private TrTag renderExistingAdminRow(Http.Request request, long programId, String adminEmail) {
-    return tr().withClasses(
-            "border-b", "border-gray-300", StyleUtils.even("bg-gray-100"))
+    return tr().withClasses("border-b", "border-gray-300", StyleUtils.even("bg-gray-100"))
         .with(renderEmailCell(adminEmail))
         .with(renderDeleteCell(request, programId, adminEmail));
   }
