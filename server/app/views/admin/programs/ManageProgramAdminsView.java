@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.table;
 import static j2html.TagCreator.tbody;
 import static j2html.TagCreator.td;
@@ -37,7 +38,6 @@ import views.components.LinkElement;
 import views.components.LinkElement.IconPosition;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
-import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /** Renders a form for adding and removing program admins via email for a given program. */
@@ -70,19 +70,19 @@ public class ManageProgramAdminsView extends BaseHtmlView {
             .getBundle(request)
             .setTitle(fullTitle)
             .addMainContent(
+                renderBackButton(),
                 renderHeader(fullTitle),
-                renderHeader("Add New Admin"),
-                renderAddNewButton(request, program.id()),
-                renderHeader("Existing Admins"),
-                renderExistingAdmins(request, program.id(), existingAdminEmails),
-                renderBackButton());
+                h2("Add New Admin"),
+                renderAddNewAdminForm(request, program.id()),
+                h2("Existing Admins"),
+                renderExistingAdmins(request, program.id(), existingAdminEmails));
 
     message.map(m -> m.setDuration(6000)).ifPresent(htmlBundle::addToastMessages);
 
     return layout.renderCentered(htmlBundle);
   }
 
-  private DivTag renderAddNewButton(Http.Request request, long programId) {
+  private DivTag renderAddNewAdminForm(Http.Request request, long programId) {
     FormTag formTag =
         form()
             .withMethod("POST")
@@ -105,15 +105,16 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   private DivTag renderExistingAdmins(
       Http.Request request, long programId, ImmutableList<String> existingAdminEmails) {
-    return div(
-        table()
-            .withClasses("border", "border-gray-300", "shadow-md", "w-full")
-            .with(renderExistingAdminsTableHeader())
-            .with(
-                tbody(
-                    each(
-                        existingAdminEmails,
-                        email -> renderExistingAdminRow(request, programId, email)))));
+    return div()
+        .with(
+            table()
+                .withClasses("border", "border-gray-300", "shadow-md", "w-full")
+                .with(renderExistingAdminsTableHeader())
+                .with(
+                    tbody(
+                        each(
+                            existingAdminEmails,
+                            adminEmail -> renderExistingAdminRow(request, programId, adminEmail)))));
   }
 
   private TheadTag renderExistingAdminsTableHeader() {
@@ -127,15 +128,12 @@ public class ManageProgramAdminsView extends BaseHtmlView {
 
   private TrTag renderExistingAdminRow(Http.Request request, long programId, String adminEmail) {
     return tr().withClasses(
-            ReferenceClasses.ADMIN_TI_GROUP_ROW,
-            "border-b",
-            "border-gray-300",
-            StyleUtils.even("bg-gray-100"))
+            "border-b", "border-gray-300", StyleUtils.even("bg-gray-100"))
         .with(renderEmailCell(adminEmail))
         .with(renderDeleteCell(request, programId, adminEmail));
   }
 
-  private TdTag renderEmailCell(String email) {
+  private TdTag renderEmailCell(String adminEmail) {
     return td().with(div(email).withClasses("font-semibold"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
