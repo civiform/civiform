@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
@@ -202,9 +201,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .build();
 
     // Execute
-    assertThrows(
-        StatusNotFoundException.class,
-        () -> controller.updateStatus(request, program.id, application.id));
+    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
+        .isInstanceOf(StatusNotFoundException.class);
   }
 
   @Test
