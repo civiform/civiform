@@ -1,7 +1,7 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.export.JsonExporter.exportToJsonApplication;
+import static services.export.JsonExporter.exportEntriesToJsonApplication;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -56,7 +56,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     ImmutableMap<Path, ?> entries = getJsonPresenter().getJsonEntries(question);
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
 
-    entries.entrySet().forEach(entry -> exportToJsonApplication(jsonApplication, entry));
+    exportEntriesToJsonApplication(jsonApplication, entries);
 
     return jsonApplication;
   }
@@ -207,7 +207,7 @@ public interface QuestionJsonSampler<Q extends Question> {
       ImmutableMap<Path, ?> entries = getJsonPresenter().getJsonEntries(question);
       CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
 
-      entries.entrySet().forEach(entry -> exportToJsonApplication(jsonApplication, entry));
+      exportEntriesToJsonApplication(jsonApplication, entries);
 
       return jsonApplication;
     }
