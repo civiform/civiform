@@ -197,21 +197,6 @@ function moveMultiOptionQuestionDown(event: Event) {
 }
 
 /**
- * If we want to remove an existing element, hide the input div and set disabled to false
- * so the field is submitted.
- * @param {Event} event The event that triggered this action.
- */
-function hideInput(event: Event) {
-  const inputDiv = assertNotNull(
-    (event.currentTarget as Element)!.parentElement,
-  )
-  // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector('input')!.disabled = false
-  // Hide the entire div from the user
-  inputDiv.classList.add('hidden')
-}
-
-/**
  * Remove line-clamp from div on click.
  *
  * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
@@ -331,25 +316,6 @@ export function init() {
     '.multi-option-question-field-move-down-button',
     'click',
     moveMultiOptionQuestionDown,
-  )
-
-  // Configure the button on the manage program admins form to add more email inputs
-  const adminEmailButton = document.getElementById('add-program-admin-button')
-  if (adminEmailButton) {
-    adminEmailButton.addEventListener('click', function () {
-      addNewInput(
-        'program-admin-email-template',
-        'add-program-admin-button',
-        'program-admin-emails',
-      )
-    })
-  }
-
-  // Bind click handler for removing program admins in the program admin management view
-  addEventListenerToElements(
-    '.cf-program-admin-remove-button',
-    'click',
-    hideInput,
   )
 
   attachFormDebouncers()

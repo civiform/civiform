@@ -70,13 +70,14 @@ public final class ProgramAdminManagementController {
   public Result add(Http.Request request, long programId) {
     Form<ManageProgramAdminsForm> form =
         formFactory.form(ManageProgramAdminsForm.class).bindFromRequest(request);
-    if (Strings.isNullOrEmpty(form.get().getAdminEmail())) {
+    String adminEmail = Strings.nullToEmpty(form.get().getAdminEmail()).trim();
+    if (adminEmail.isEmpty()) {
       ToastMessage message = ToastMessage.errorNonLocalized("Enter an admin email");
       return this.loadProgram(request, programId, Optional.of(message));
     }
     try {
       Optional<CiviFormError> maybeError =
-          roleService.makeProgramAdmins(programId, ImmutableSet.of(form.get().getAdminEmail()));
+          roleService.makeProgramAdmins(programId, ImmutableSet.of(adminEmail));
 
       if (maybeError.isEmpty()) {
         return redirect(routes.ProgramAdminManagementController.edit(programId));
