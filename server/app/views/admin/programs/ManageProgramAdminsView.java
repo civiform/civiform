@@ -133,7 +133,7 @@ public class ManageProgramAdminsView extends BaseHtmlView {
         .with(renderDeleteCell(request, programId, adminEmail));
   }
 
-  private TdTag renderEmailCell(String adminEmail) {
+  private TdTag renderEmailCell(String email) {
     return td().with(div(email).withClasses("font-semibold"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
