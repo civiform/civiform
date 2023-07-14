@@ -7,7 +7,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -21,7 +20,6 @@ import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Collection;
@@ -51,8 +49,8 @@ import views.components.CreateQuestionButton;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.components.SelectWithLabel;
-import views.components.SvgTag;
+import views.components.QuestionBank;
+import views.components.QuestionSortOption;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -60,12 +58,6 @@ import views.style.StyleUtils;
 
 /** Renders a page for viewing all active questions and draft questions. */
 public final class QuestionsListView extends BaseHtmlView {
-
-  private static final String DATA_ATTRIBUTE_LAST_MODIFIED = "lastmodified";
-  private static final String DATA_ATTRIBUTE_ADMIN_NAME = "adminname";
-  private static final String DATA_ATTRIBUTE_NUM_PROGRAMS = "numprograms";
-  private static final String ASCENDING_SUFFIX = "asc";
-  private static final String DESCENDING_SUFFIX = "desc";
 
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
@@ -92,33 +84,12 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
         renderAllQuestionRows(activeAndDraftQuestions, request);
 
-    InputTag filterInput =
-        input()
-            .withId("question-bank-filter")
-            .withType("text")
-            .withName("questionFilter")
-            .withPlaceholder("Search questions")
-            .withClasses(
-                "h-10",
-                "px-10",
-                "pr-5",
-                "w-full",
-                "rounded-full",
-                "text-sm",
-                "border",
-                "border-gray-200",
-                "shadow",
-                StyleUtils.focus("outline-none"));
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
-    DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
-    DivTag filterDiv =
-        div().withClasses("relative", "flex-grow", "mr-4").with(filterIconDiv, filterInput);
     DivTag contentDiv =
         div()
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
@@ -127,13 +98,11 @@ public final class QuestionsListView extends BaseHtmlView {
                             /* isPrimaryButton= */ true,
                             /* phoneQuestionTypeEnabled= */ settingsManifest
                                 .getPhoneQuestionTypeEnabled(request))),
-                div()
-                    .withClasses("flex", "items-end", "mt-6", "mb-2")
-                    .with(
-                        filterDiv,
-                        renderQuestionSortSelect()
-                            .getSelectTag()
-                            .withClass("mb-0"))) // Clear default margin bottom.
+                QuestionBank.renderFilterAndSort(
+                    ImmutableList.of(
+                        QuestionSortOption.LAST_MODIFIED,
+                        QuestionSortOption.ADMIN_NAME,
+                        QuestionSortOption.NUM_PROGRAMS)))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
@@ -153,61 +122,6 @@ public final class QuestionsListView extends BaseHtmlView {
     }
 
     return layout.renderCentered(htmlBundle);
-  }
-
-  private static SelectWithLabel renderQuestionSortSelect() {
-    ImmutableList<SelectWithLabel.OptionValue> questionSortOptions =
-        ImmutableList.of(
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Last modified")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_LAST_MODIFIED, /* descending= */ true))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Admin ID A-Z")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_ADMIN_NAME, /* descending= */ false))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Admin ID Z-A")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_ADMIN_NAME, /* descending= */ true))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Most programs")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_NUM_PROGRAMS, /* descending= */ true))
-                .build(),
-            SelectWithLabel.OptionValue.builder()
-                .setLabel("Fewest programs")
-                .setValue(
-                    formatQuestionSortSelectValue(
-                        DATA_ATTRIBUTE_NUM_PROGRAMS, /* descending= */ false))
-                .build());
-    SelectWithLabel questionSortSelect =
-        new SelectWithLabel()
-            .setId("question-bank-sort")
-            .setFieldName("question-bank-sort")
-            .setValue(questionSortOptions.get(0).value()) // Default sort: Last modified
-            .setLabelText("Sort by:")
-            .addStyleClass("border-gray-200")
-            .addStyleClass("shadow")
-            .setOptionGroups(
-                ImmutableList.of(
-                    SelectWithLabel.OptionGroup.builder()
-                        .setLabel("Sort by:")
-                        .setOptions(questionSortOptions)
-                        .build()));
-    return questionSortSelect;
-  }
-
-  private static String formatQuestionSortSelectValue(String dataAttribute, boolean descending) {
-    return String.format(
-        "%s-%s", dataAttribute, (descending ? DESCENDING_SUFFIX : ASCENDING_SUFFIX));
   }
 
   private DivTag renderSummary(ActiveAndDraftQuestions activeAndDraftQuestions) {
@@ -278,7 +192,10 @@ public final class QuestionsListView extends BaseHtmlView {
     }
 
     DivTag questionContent =
-        div(div().withId("non-archived-questions").with(nonArchivedQuestionRows.build()));
+        div(
+            div()
+                .withClass(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+                .with(nonArchivedQuestionRows.build()));
     if (!archivedQuestionRows.build().isEmpty()) {
       questionContent.with(
           div()
@@ -376,12 +293,12 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
-            .withData(DATA_ATTRIBUTE_ADMIN_NAME, latestDefinition.getName())
+            .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), latestDefinition.getName())
             .withData(
-                DATA_ATTRIBUTE_LAST_MODIFIED,
+                QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
                 latestDefinition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
             .withData(
-                DATA_ATTRIBUTE_NUM_PROGRAMS,
+                QuestionSortOption.NUM_PROGRAMS.getDataAttribute(),
                 Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
     return Pair.of(rowWithAdminNote, modals.build());
   }
