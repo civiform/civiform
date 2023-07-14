@@ -185,7 +185,7 @@ public final class DevDatabaseSeedTask {
           programService.createProgramDefinition(
               "comprehensive-sample-program",
               "desc",
-              "Comprehensive sample program",
+              "Comprehensive Sample Program",
               "display description",
               /* defaultConfirmationMessage= */ "",
               "https://github.com/seattle-uat/civiform",

@@ -29,7 +29,7 @@ import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
-import views.components.QuestionBank;
+import views.components.ProgramQuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -91,7 +91,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     }
 
     return redirect(
-        QuestionBank.addShowQuestionBankParam(
+        ProgramQuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 

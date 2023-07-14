@@ -1,7 +1,6 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -33,8 +32,8 @@ public class RealEsriClientTest {
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
-    assertEquals(5, candidates.size());
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    assertThat(candidates).hasSize(5);
   }
 
   @Test
@@ -46,7 +45,7 @@ public class RealEsriClientTest {
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertEquals(0, candidates.size());
+    assertThat(candidates).isEmpty();
   }
 
   @Test
@@ -56,7 +55,7 @@ public class RealEsriClientTest {
     addressJson.put("street", "380 New York St");
     Optional<JsonNode> maybeResp =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    assertEquals(Optional.empty(), maybeResp);
+    assertThat(maybeResp.isPresent()).isFalse();
   }
 
   @Test
@@ -73,7 +72,7 @@ public class RealEsriClientTest {
     List<String> features = ctx.read("features[*].attributes.CITYNAME");
     Optional<String> feature = features.stream().filter(val -> "Seattle".equals(val)).findFirst();
     assertThat(feature.isPresent()).isTrue();
-    assertEquals("Seattle", feature.get());
+    assertThat(feature.get()).isEqualTo("Seattle");
   }
 
   @Test
@@ -85,6 +84,6 @@ public class RealEsriClientTest {
             .fetchServiceAreaFeatures(EsriTestHelper.LOCATION, "/query")
             .toCompletableFuture()
             .join();
-    assertEquals(Optional.empty(), maybeResp);
+    assertThat(maybeResp.isPresent()).isFalse();
   }
 }
