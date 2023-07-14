@@ -2,6 +2,8 @@ package services.export;
 
 import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.CURRENCY_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.ENUMERATOR_QUESTION_DEFINITION;
+import static controllers.dev.seeding.SampleQuestionDefinitions.STATIC_CONTENT_QUESTION_DEFINITION;
 import static controllers.dev.seeding.SampleQuestionDefinitions.dateEnumeratedQuestionDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -68,20 +70,34 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
-  public void samplesEnumeratedDateQuestion() {
+  public void staticQuestions_returnEmpty() {
+    CfJsonDocumentContext json =
+        questionJsonSamplerFactory
+            .create(QuestionType.STATIC)
+            .getSampleJson(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId());
+
+    assertThat(json.asPrettyJsonString()).isEqualTo("{ }");
+  }
+
+  // TODO(#4975): update this test once enumerator questions are supported.
+  @Test
+  public void enumeratorQuestions_returnEmpty() {
+    CfJsonDocumentContext json =
+        questionJsonSamplerFactory
+            .create(QuestionType.ENUMERATOR)
+            .getSampleJson(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId());
+
+    assertThat(json.asPrettyJsonString()).isEqualTo("{ }");
+  }
+
+  // TODO(#5238): update this test once enumerated questions are supported.
+  @Test
+  public void enumeratedQuestions_returnEmpty() {
     CfJsonDocumentContext json =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
             .getSampleJson(dateEnumeratedQuestionDefinition(1L).withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_enumerated_date_question\" : {\n"
-                + "      \"date\" : \"2023-01-02\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(json.asPrettyJsonString()).isEqualTo("{ }");
   }
 }

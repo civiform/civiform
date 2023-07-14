@@ -97,7 +97,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final EnumeratorQuestionDefinition ENUMERATOR_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final EnumeratorQuestionDefinition ENUMERATOR_QUESTION_DEFINITION =
       new EnumeratorQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Enumerator Question")
@@ -209,7 +210,8 @@ public final class SampleQuestionDefinitions {
           RADIO_BUTTON_QUESTION_OPTIONS,
           MultiOptionQuestionType.RADIO_BUTTON);
 
-  static final StaticContentQuestionDefinition STATIC_CONTENT_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final StaticContentQuestionDefinition STATIC_CONTENT_QUESTION_DEFINITION =
       new StaticContentQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Static Content Question")

@@ -38,6 +38,11 @@ import services.question.types.QuestionType;
 public interface QuestionJsonSampler<Q extends Question> {
 
   default CfJsonDocumentContext getSampleJson(QuestionDefinition questionDefinition) {
+    if (questionDefinition.getEnumeratorId().isPresent()) {
+      // TODO(#5238): support enumerated questions.
+      return new CfJsonDocumentContext();
+    }
+
     ProgramQuestionDefinition programQuestionDefinition =
         ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
     ApplicantData applicantData = new ApplicantData();
