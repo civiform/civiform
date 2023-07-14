@@ -374,11 +374,17 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public void addSampleData(ApplicantData applicantData, MultiSelectQuestion question) {
-      LocalizedQuestionOption firstOption = question.getOptions().get(0);
-      LocalizedQuestionOption secondOption = question.getOptions().get(1);
+      ImmutableList.Builder<Long> localizedOptionsBuilder = ImmutableList.builder();
 
-      applicantData.putArray(
-          question.getSelectionPath(), ImmutableList.of(firstOption.id(), secondOption.id()));
+      // Add up to two options to the sample data.
+      if (question.getOptions().size() > 0) {
+        localizedOptionsBuilder.add(question.getOptions().get(0).id());
+      }
+      if (question.getOptions().size() > 1) {
+        localizedOptionsBuilder.add(question.getOptions().get(1).id());
+      }
+
+      applicantData.putArray(question.getSelectionPath(), localizedOptionsBuilder.build());
     }
 
     @Override
