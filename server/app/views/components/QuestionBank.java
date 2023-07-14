@@ -18,7 +18,7 @@ public final class QuestionBank {
         .with(renderFilter(), renderQuestionSortSelect(sortOptions));
   }
 
-  public static final DivTag renderFilter() {
+  private static final DivTag renderFilter() {
     InputTag filterInput =
         input()
             .withId("question-bank-filter")
@@ -51,7 +51,7 @@ public final class QuestionBank {
    *     initially displayed in.
    * @return DivTag containing a SelectTag with the options for sorting questions.
    */
-  public static final DivTag renderQuestionSortSelect(List<QuestionSortOption> sortOptions) {
+  private static final DivTag renderQuestionSortSelect(List<QuestionSortOption> sortOptions) {
     ImmutableList<SelectWithLabel.OptionValue> questionSortOptions =
         sortOptions.stream()
             .flatMap(sortOption -> sortOption.getSelectOptions().stream())

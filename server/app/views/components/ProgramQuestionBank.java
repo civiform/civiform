@@ -41,7 +41,7 @@ public final class ProgramQuestionBank {
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
-   * user clicking "Add question" button. BUt in some cases, like returning to the program edit page
+   * user clicking "Add question" button. But in some cases, like returning to the program edit page
    * after adding a question - we want to render it visible.
    */
   public enum Visibility {

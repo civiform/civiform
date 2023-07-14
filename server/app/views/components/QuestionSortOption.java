@@ -1,14 +1,24 @@
 package views.components;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
 /** Represents a sorting option for a list of Questions. */
 public enum QuestionSortOption {
-  LAST_MODIFIED("lastmodified", Optional.empty(), Optional.of("Last modified")),
-  ADMIN_NAME("adminname", Optional.of("Admin ID A-Z"), Optional.of("Admin ID Z-A")),
-  NUM_PROGRAMS("numprograms", Optional.of("Fewest programs"), Optional.of("Most programs"));
+  LAST_MODIFIED(
+      /* dataAttribute= */ "lastmodified",
+      /* displayStringAscending=*/ Optional.empty(),
+      /* displayStringDescending= */ Optional.of("Last modified")),
+  ADMIN_NAME(
+      /* dataAttribute= */ "adminname",
+      /* displayStringAscending= */ Optional.of("Admin ID A-Z"),
+      /* displayStringDescending= */ Optional.of("Admin ID Z-A")),
+  NUM_PROGRAMS(
+      /* dataAttribute= */ "numprograms",
+      /* displayStringAscending= */ Optional.of("Fewest programs"),
+      /* displayStringDescending= */ Optional.of("Most programs"));
 
   // Suffix added to the sort option value to indicate if sorting should be in ascending or
   // descending order. The full value will be in the format "<data_attribute_name>-<asc|desc>", e.g.
@@ -33,8 +43,7 @@ public enum QuestionSortOption {
       Optional<String> displayStringAscending,
       Optional<String> displayStringDescending) {
     this.dataAttribute = dataAttribute;
-    Preconditions.checkArgument(
-        displayStringAscending.isPresent() || displayStringDescending.isPresent());
+    checkArgument(displayStringAscending.isPresent() || displayStringDescending.isPresent());
     this.displayStringAscending = displayStringAscending;
     this.displayStringDescending = displayStringDescending;
   }
