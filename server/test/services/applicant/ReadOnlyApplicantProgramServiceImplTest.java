@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -1059,7 +1058,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(9, result.size());
+    assertThat(result).hasSize(9);
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA 12345");
@@ -1168,7 +1167,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(2, result.size());
+    assertThat(result).hasSize(2);
     // Non-fileupload question does not have a file key
     assertThat(result.get(0).encodedFileKey()).isEmpty();
     // Fileupload question has a file key
@@ -1213,7 +1212,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
     ImmutableList<AnswerData> result = subject.getSummaryData();
 
-    assertEquals(1, result.size());
+    assertThat(result).hasSize(1);
     assertThat(result.get(0).isEligible()).isEqualTo(expectedResult);
   }
 
