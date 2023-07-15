@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# DOC: Stop and delete the running env-var-docs environment.
+
+source bin/lib.sh
+docker::set_project_name_env_var_docs
+docker::compose_env_var_docs_down

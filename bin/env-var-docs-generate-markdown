@@ -6,17 +6,9 @@
 # DOC: the docs repository, set LOCAL_OUTPUT=false and provide values for
 # DOC: RELEASE_VERSION, GITHUB_ACCESS_TOKEN, TARGET_REPO, and TARGET_PATH.
 
-docker run --rm \
-  -v "$(pwd):/code" \
-  -e LOCAL_OUTPUT="${LOCAL_OUTPUT:-true}" \
-  -e ENV_VAR_DOCS_PATH="${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}" \
-  -e RELEASE_VERSION="${RELEASE_VERSION}" \
-  -e GITHUB_ACCESS_TOKEN="${GITHUB_ACCESS_TOKEN}" \
-  -e TARGET_REPO="${TARGET_REPO}" \
-  -e TARGET_PATH="${TARGET_PATH}" \
-  python:3.11.4-slim \
-  sh -c 'cd code && \
-  pip install PyGithub && \
-  pip install -e env-var-docs/parser-package[test] && \
-  echo "Running env-var-docs/generate_markdown.py with LOCAL_OUTPUT=${LOCAL_OUTPUT}, ENV_VAR_DOCS_PATH=${ENV_VAR_DOCS_PATH}..." && \
-  python env-var-docs/generate_markdown.py'
+source bin/lib.sh
+docker::set_project_name_env_var_docs
+docker::compose_env_var_docs_up
+
+echo "Running env-var-docs/generate_markdown.py with LOCAL_OUTPUT=${LOCAL_OUTPUT:-true}, ENV_VAR_DOCS_PATH=${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}..."
+docker::run_env_var_docs_command python env-var-docs/generate_markdown.py

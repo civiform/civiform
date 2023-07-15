@@ -2,14 +2,12 @@
 
 # DOC: Runs env-var-docs/{check_vars_documented,run_regex_tests}.py.
 
-docker run --rm \
-  -v "$(pwd):/code" \
-  -e APPLICATION_CONF_PATH=server/conf/application.conf \
-  -e ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json \
-  python:3.11.4-slim \
-  sh -c 'cd code && \
-  pip install -e env-var-docs/parser-package[test] && \
-  echo "Running env-var-docs/check_vars_documented.py..." && \
-  python env-var-docs/check_vars_documented.py && \
-  echo "Running env-var-docs/run_regex_tests.py..." && \
-  python env-var-docs/run_regex_tests.py'
+source bin/lib.sh
+docker::set_project_name_env_var_docs
+docker::compose_env_var_docs_up
+
+echo "Running env-var-docs/check_vars_documented.py..."
+docker::run_env_var_docs_command python env-var-docs/check_vars_documented.py
+
+echo "Running env-var-docs/run_regex_tests.py..."
+docker::run_env_var_docs_command python env-var-docs/run_regex_tests.py
