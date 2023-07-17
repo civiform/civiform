@@ -1,7 +1,6 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -36,8 +35,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.IN_AREA, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.IN_AREA);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -53,8 +52,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.NOT_IN_AREA);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -70,8 +69,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.NOT_IN_AREA, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.NOT_IN_AREA);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -87,8 +86,8 @@ public class EsriClientTest {
             .join();
     Optional<ServiceAreaInclusion> area = inclusionList.stream().findFirst();
     assertThat(area.isPresent()).isTrue();
-    assertEquals("Seattle", area.get().getServiceAreaId());
-    assertEquals(ServiceAreaState.FAILED, area.get().getState());
+    assertThat(area.get().getServiceAreaId()).isEqualTo("Seattle");
+    assertThat(area.get().getState()).isEqualTo(ServiceAreaState.FAILED);
     assertThat(area.get().getTimeStamp()).isInstanceOf(Long.class);
   }
 
@@ -114,7 +113,7 @@ public class EsriClientTest {
     Optional<AddressSuggestion> addressSuggestion = suggestions.stream().findFirst();
     assertThat(addressSuggestion.isPresent()).isTrue();
     String street = addressSuggestion.get().getAddress().getStreet();
-    assertEquals("Address In Area", street);
+    assertThat(street).isEqualTo("Address In Area");
   }
 
   @Test
@@ -133,11 +132,11 @@ public class EsriClientTest {
         helper.getClient().getAddressSuggestions(address);
     Address originalAddress = group.toCompletableFuture().join().getOriginalAddress();
 
-    assertEquals(address.getStreet(), originalAddress.getStreet());
-    assertEquals(address.getLine2(), originalAddress.getLine2());
-    assertEquals(address.getCity(), originalAddress.getCity());
-    assertEquals(address.getState(), originalAddress.getState());
-    assertEquals(address.getZip(), originalAddress.getZip());
+    assertThat(originalAddress.getStreet()).isEqualTo(address.getStreet());
+    assertThat(originalAddress.getLine2()).isEqualTo(address.getLine2());
+    assertThat(originalAddress.getCity()).isEqualTo(address.getCity());
+    assertThat(originalAddress.getState()).isEqualTo(address.getState());
+    assertThat(originalAddress.getZip()).isEqualTo(address.getZip());
   }
 
   @Test
@@ -155,8 +154,8 @@ public class EsriClientTest {
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
-    assertEquals(0, suggestions.size());
-    assertEquals(address, group.getOriginalAddress());
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getOriginalAddress()).isEqualTo(address);
   }
 
   @Test
@@ -174,8 +173,8 @@ public class EsriClientTest {
     AddressSuggestionGroup group =
         helper.getClient().getAddressSuggestions(address).toCompletableFuture().join();
     ImmutableList<AddressSuggestion> suggestions = group.getAddressSuggestions();
-    assertEquals(0, suggestions.size());
-    assertEquals(0, group.getWellKnownId());
-    assertEquals(address, group.getOriginalAddress());
+    assertThat(suggestions).isEmpty();
+    assertThat(group.getWellKnownId()).isEqualTo(0);
+    assertThat(group.getOriginalAddress()).isEqualTo(address);
   }
 }

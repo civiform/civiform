@@ -45,8 +45,8 @@ public abstract class AbstractSettingsManifest {
 
   public ImmutableList<SettingDescription> getAllSettingDescriptions() {
     return getSections().values().stream()
-      .flatMap(section -> getSettingDescriptions(section).stream())
-      .collect(ImmutableList.toImmutableList());
+        .flatMap(section -> getSettingDescriptions(section).stream())
+        .collect(ImmutableList.toImmutableList());
   }
 
   protected ImmutableList<SettingDescription> getAllAdminWriteableSettingDescriptions() {

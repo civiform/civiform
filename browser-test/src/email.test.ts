@@ -80,7 +80,7 @@ describe('Email question for applicant flow', () => {
         ['my-email-q'],
         'your-email-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

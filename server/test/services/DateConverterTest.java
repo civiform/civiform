@@ -1,7 +1,7 @@
 package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -27,8 +27,8 @@ public class DateConverterTest {
   @Test
   public void parseIso8601DateToLocalDate_DateTimeParseExpectionIsGenerated() {
     String inputDate = "2012-20-20";
-    assertThrows(
-        DateTimeParseException.class, () -> dateConverter.parseIso8601DateToLocalDate(inputDate));
+    assertThatThrownBy(() -> dateConverter.parseIso8601DateToLocalDate(inputDate))
+        .isInstanceOf(DateTimeParseException.class);
   }
 
   @Test

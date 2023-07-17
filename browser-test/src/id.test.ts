@@ -125,7 +125,7 @@ describe('Id question for applicant flow', () => {
         ['my-id-q'],
         'your-id-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

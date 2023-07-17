@@ -23,8 +23,7 @@ describe('Admin question list', () => {
       questionText: questionTwoPublishedText,
     })
 
-    // A question cannot be published in isolation. In order to allow making created questions
-    // active, create a fake program.
+    // Create a program so that the question bank can be accessed.
     const programName = 'Question list test program'
     await adminPrograms.addProgram(programName)
 
@@ -39,7 +38,7 @@ describe('Admin question list', () => {
     ])
 
     // Publish all programs and questions, order should be maintained.
-    await adminPrograms.publishProgram(programName)
+    await adminPrograms.publishAllDrafts()
     // Create a draft version of the program so that the question bank can be accessed.
     await adminPrograms.createNewVersion(programName)
     await expectQuestionListElements(adminQuestions, [
@@ -179,7 +178,7 @@ describe('Admin question list', () => {
     })
 
     // Publish questions
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     await adminQuestions.createNewVersion(questionTwo)
     await adminQuestions.archiveQuestion({
@@ -213,7 +212,7 @@ describe('Admin question list', () => {
     })
 
     // Publish questions
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     await adminQuestions.archiveQuestion({
       questionName: questionThreeToBeArchived,

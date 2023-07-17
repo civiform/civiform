@@ -1,7 +1,6 @@
 package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
@@ -100,9 +99,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
         serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isPresent()).isTrue();
     ServiceAreaUpdate serviceAreaUpdate = maybeServiceAreaUpdate.get();
-    assertEquals(
-        serviceAreaUpdate.path(),
-        Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
+    assertThat(serviceAreaUpdate.path())
+        .isEqualTo(Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
     ServiceAreaInclusion bloomington =
         ServiceAreaInclusion.builder()
             .setServiceAreaId("Bloomington")
@@ -115,12 +113,14 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setState(ServiceAreaState.IN_AREA)
             .setTimeStamp(1234)
             .build();
-    assertEquals(serviceAreaUpdate.value().get(0).getServiceAreaId(), seattle.getServiceAreaId());
-    assertEquals(serviceAreaUpdate.value().get(0).getState(), seattle.getState());
-    assertEquals(
-        serviceAreaUpdate.value().get(1).getServiceAreaId(), bloomington.getServiceAreaId());
-    assertEquals(serviceAreaUpdate.value().get(1).getState(), bloomington.getState());
-    assertEquals(serviceAreaUpdate.value().get(1).getTimeStamp(), bloomington.getTimeStamp());
+    assertThat(serviceAreaUpdate.value().get(0).getServiceAreaId())
+        .isEqualTo(seattle.getServiceAreaId());
+    assertThat(serviceAreaUpdate.value().get(0).getState()).isEqualTo(seattle.getState());
+    assertThat(serviceAreaUpdate.value().get(1).getServiceAreaId())
+        .isEqualTo(bloomington.getServiceAreaId());
+    assertThat(serviceAreaUpdate.value().get(1).getState()).isEqualTo(bloomington.getState());
+    assertThat(serviceAreaUpdate.value().get(1).getTimeStamp())
+        .isEqualTo(bloomington.getTimeStamp());
   }
 
   @Test
@@ -279,9 +279,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
         serviceAreaUpdateFuture.toCompletableFuture().join();
     assertThat(maybeServiceAreaUpdate.isPresent()).isTrue();
     ServiceAreaUpdate serviceAreaUpdate = maybeServiceAreaUpdate.get();
-    assertEquals(
-        serviceAreaUpdate.path(),
-        Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
+    assertThat(serviceAreaUpdate.path())
+        .isEqualTo(Path.create("applicant.applicant_address").join(Scalar.SERVICE_AREA));
     ServiceAreaInclusion bloomington =
         ServiceAreaInclusion.builder()
             .setServiceAreaId("Bloomington")
@@ -294,12 +293,14 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             .setState(ServiceAreaState.IN_AREA)
             .setTimeStamp(4567)
             .build();
-    assertEquals(
-        serviceAreaUpdate.value().get(0).getServiceAreaId(), bloomington.getServiceAreaId());
-    assertEquals(serviceAreaUpdate.value().get(0).getState(), bloomington.getState());
-    assertEquals(serviceAreaUpdate.value().get(0).getTimeStamp(), bloomington.getTimeStamp());
-    assertEquals(serviceAreaUpdate.value().get(1).getServiceAreaId(), seattle.getServiceAreaId());
-    assertEquals(serviceAreaUpdate.value().get(1).getState(), seattle.getState());
-    assertEquals(serviceAreaUpdate.value().get(1).getTimeStamp(), seattle.getTimeStamp());
+    assertThat(serviceAreaUpdate.value().get(0).getServiceAreaId())
+        .isEqualTo(bloomington.getServiceAreaId());
+    assertThat(serviceAreaUpdate.value().get(0).getState()).isEqualTo(bloomington.getState());
+    assertThat(serviceAreaUpdate.value().get(0).getTimeStamp())
+        .isEqualTo(bloomington.getTimeStamp());
+    assertThat(serviceAreaUpdate.value().get(1).getServiceAreaId())
+        .isEqualTo(seattle.getServiceAreaId());
+    assertThat(serviceAreaUpdate.value().get(1).getState()).isEqualTo(seattle.getState());
+    assertThat(serviceAreaUpdate.value().get(1).getTimeStamp()).isEqualTo(seattle.getTimeStamp());
   }
 }

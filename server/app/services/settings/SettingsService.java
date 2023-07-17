@@ -227,8 +227,11 @@ public final class SettingsService {
   /** Inspect current settings and log any missing or invalid. */
   public void reportInvalidSettings() {
     for (var settingDescription : settingsManifest.getAllSettingDescriptions()) {
-      if (settingDescription.isRequired() && settingsManifest.getSettingSerializationValue(settingDescription).isEmpty()) {
-        LOGGER.warn("MissingRequiredSetting: {} is a required setting but has no value.", settingDescription.variableName());
+      if (settingDescription.isRequired()
+          && settingsManifest.getSettingSerializationValue(settingDescription).isEmpty()) {
+        LOGGER.warn(
+            "MissingRequiredSetting: {} is a required setting but has no value.",
+            settingDescription.variableName());
       }
     }
   }

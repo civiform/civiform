@@ -44,7 +44,7 @@ describe('view program references from question view', () => {
     })
 
     // Publish.
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Add a reference from a new program in the draft version.
     const thirdProgramName = 'Third program'

@@ -1,4 +1,4 @@
-package controllers.dev;
+package controllers.dev.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
@@ -7,8 +7,6 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
-import controllers.dev.seeding.DatabaseSeedController;
-import controllers.dev.seeding.routes;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Test;
@@ -18,10 +16,10 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class DatabaseSeedControllerTest {
+public class DevDatabaseSeedControllerTest {
 
   private Optional<Application> maybeApp = Optional.empty();
-  private DatabaseSeedController controller;
+  private DevDatabaseSeedController controller;
 
   @After
   public void stopApplication() {
@@ -41,7 +39,7 @@ public class DatabaseSeedControllerTest {
 
     // Seed the fake data.
     result = controller.seedPrograms();
-    assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
@@ -49,7 +47,7 @@ public class DatabaseSeedControllerTest {
 
     // Clear the data.
     result = controller.clear();
-    assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get("success")).hasValue("The database has been cleared");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
@@ -82,6 +80,6 @@ public class DatabaseSeedControllerTest {
 
   private void setupControllerInMode(Mode mode) {
     maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
-    controller = maybeApp.get().injector().instanceOf(DatabaseSeedController.class);
+    controller = maybeApp.get().injector().instanceOf(DevDatabaseSeedController.class);
   }
 }

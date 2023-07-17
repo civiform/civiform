@@ -1,7 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -422,9 +422,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
 
     // Trying to publish secondProgram throws an error.
-    assertThrows(
-        CantPublishProgramWithSharedQuestionsException.class,
-        () -> versionRepository.publishNewSynchronizedVersion("bar"));
+    assertThatThrownBy(() -> versionRepository.publishNewSynchronizedVersion("bar"))
+        .isInstanceOf(CantPublishProgramWithSharedQuestionsException.class);
 
     // Verify that the versions have not been modified.
     assertThat(versionRepository.getDraftVersion().getPrograms().stream().map(p -> p.id))
@@ -449,9 +448,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(question)
             .build();
 
-    assertThrows(
-        ProgramNotFoundException.class,
-        () -> versionRepository.publishNewSynchronizedVersion("foo"));
+    assertThatThrownBy(() -> versionRepository.publishNewSynchronizedVersion("foo"))
+        .isInstanceOf(ProgramNotFoundException.class);
 
     // Verify that the versions have not been modified.
     assertThat(versionRepository.getDraftVersion().getPrograms()).hasSize(0);
