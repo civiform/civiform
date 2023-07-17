@@ -1,9 +1,11 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
+import io.ebean.DataIntegrityException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -136,6 +138,34 @@ public class QuestionRepositoryTest extends ResetPostgres {
     Optional<Question> maybeConflict = repo.findConflictingQuestion(questionDefinition);
 
     assertThat(maybeConflict).contains(applicantName);
+  }
+
+  /* This test is meant to exercise the database trigger defined in server/conf/evolutions/default/54.sql */
+  @Test
+  public void insertingDuplicateDraftQuestions_raisesDatabaseException() throws Exception {
+    var versionRepo = instanceOf(VersionRepository.class);
+    var draftVersion = versionRepo.getDraftVersion();
+    Question activeQuestion = testQuestionBank.applicantName();
+    assertThat(activeQuestion.id).isNotNull();
+
+    var draftOne =
+        new Question(
+            new QuestionDefinitionBuilder(activeQuestion.getQuestionDefinition())
+                .setId(null)
+                .build());
+    draftOne.addVersion(draftVersion);
+    draftOne.save();
+
+    var draftTwo =
+        new Question(
+            new QuestionDefinitionBuilder(activeQuestion.getQuestionDefinition())
+                .setId(null)
+                .build());
+    draftTwo.addVersion(draftVersion);
+
+    var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
+    throwableAssert.hasMessageContaining("Question applicant name already has a draft!");
+    throwableAssert.isExactlyInstanceOf(DataIntegrityException.class);
   }
 
   @Test
