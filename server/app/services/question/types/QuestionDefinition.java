@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Random;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
@@ -341,7 +342,7 @@ public abstract class QuestionDefinition {
    */
   @VisibleForTesting
   public QuestionDefinition withPopulatedTestId() {
-    config = config.toBuilder().setId(123L).build();
+    config = config.toBuilder().setId(new Random().nextLong()).build();
     return this;
   }
 }
