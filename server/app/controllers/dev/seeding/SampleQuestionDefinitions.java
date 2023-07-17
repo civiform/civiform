@@ -137,7 +137,7 @@ public final class SampleQuestionDefinitions {
   public static final QuestionDefinition NAME_QUESTION_DEFINITION =
       new NameQuestionDefinition(
           QuestionDefinitionConfig.builder()
-              .setName("Name")
+              .setName("Sample Name Question")
               .setDescription("The applicant's name")
               .setQuestionText(
                   LocalizedStrings.of(
