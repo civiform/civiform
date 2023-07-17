@@ -711,14 +711,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -726,7 +726,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The URL of a 32x32 or 16x16 pixel"
                           + " [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon)"
                           + " image, in GIF, PNG, or ICO format.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE))),
           "External Services",
@@ -988,7 +988,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "CIVIFORM_APPLICANT_IDP",
                               "What identity provider to use for applicants.",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.ENUM,
                               SettingMode.ADMIN_READABLE,
                               ImmutableList.of(
@@ -1001,14 +1001,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "APPLICANT_REGISTER_URI",
                               "URI to create a new account in the applicant identity provider.",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "APPLICANT_PORTAL_NAME",
                               "The name of the portal that applicants log into, used in sentences"
                                   + " like 'Log into your APPLICANT_PORTAL_NAME account.'",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.ADMIN_WRITEABLE))),
                   SettingsSection.create(
@@ -1085,19 +1085,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "DB_JDBC_STRING",
                               "The database URL.",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_USERNAME",
                               "The username used to connect to the database.",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_PASSWORD",
                               "The password used to connect to the database.",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.HIDDEN))),
                   SettingsSection.create(
@@ -1219,7 +1219,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SUPPORT_EMAIL_ADDRESS",
                       "This email address is listed in the footer for applicants to contact"
                           + " support.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1447,14 +1447,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " key](http://www.playframework.com/documentation/latest/ApplicationSecret)"
                           + " is used to sign Play's session cookie. This must be changed for"
                           + " production.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "BASE_URL",
                       "The URL of the CiviForm deployment.  Must start with 'https://' or"
                           + " 'http://'.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE,
                       Pattern.compile("^(http://|https://).+")),
@@ -1481,7 +1481,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " indicating the time zone for this CiviForm deployment. All times in"
                           + " the system will be calculated in this zone. Default value is"
                           + " 'America/Los_Angeles'",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1491,7 +1491,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
                           + " shown on the login page if CIVIFORM_VERSION is the empty string or"
                           + " set to 'latest'.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(

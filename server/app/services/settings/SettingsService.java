@@ -224,6 +224,15 @@ public final class SettingsService {
     return Optional.empty();
   }
 
+  /** Inspect current settings and log any missing or invalid. */
+  public void reportInvalidSettings() {
+    for (var settingDescription : settingsManifest.getAllSettingDescriptions()) {
+      if (settingDescription.isRequired() && settingsManifest.getSettingSerializationValue(settingDescription).isEmpty()) {
+        LOGGER.warn("MissingRequiredSetting: {} is a required setting but has no value.", settingDescription.variableName());
+      }
+    }
+  }
+
   /**
    * Inserts a new {@link SettingsGroup} if it finds admin writeable settings in the {@link
    * SettingsManifest} that are not in the current {@link SettingsGroup}.

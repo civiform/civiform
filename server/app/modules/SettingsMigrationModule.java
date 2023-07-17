@@ -40,7 +40,10 @@ public class SettingsMigrationModule extends AbstractModule {
               // It doesn't seem to be a way to run code after evolutions so just
               // give them few sec to run.
               Duration.ofSeconds(5),
-              () -> settingsServiceProvider.get().migrateConfigValuesToSettingsGroup(),
+              () -> {
+                settingsServiceProvider.get().reportInvalidSettings();
+                settingsServiceProvider.get().migrateConfigValuesToSettingsGroup();
+              },
               executionContext);
     }
   }
