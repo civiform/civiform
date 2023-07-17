@@ -228,9 +228,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request, Messages messages, Long applicantId) {
     ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
 
-    // if (profile.isPresent()) { // Show language switcher.
-
-    // long userId = profile.get().getApplicant().join().id;
     String updateLanguageAction =
         controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(applicantId)
             .url();
@@ -262,7 +259,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
                                 .withClasses(ApplicantStyles.LINK)
                                 .withStyle("cursor:pointer")))
                 .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
-    // }
     return languageFormDiv;
   }
 
