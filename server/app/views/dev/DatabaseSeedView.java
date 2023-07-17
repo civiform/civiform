@@ -63,7 +63,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Seed sample programs"))
+                            .with(submitButton("sample-programs", "Seed sample programs"))
                             .withMethod("post")
                             .withAction(routes.DevDatabaseSeedController.seedPrograms().url()))
                     .with(
