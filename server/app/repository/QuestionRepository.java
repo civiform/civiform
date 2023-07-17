@@ -10,6 +10,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
@@ -17,8 +18,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
-
-import io.ebean.annotation.TxIsolation;
 import models.Question;
 import models.QuestionTag;
 import models.Version;
@@ -60,7 +59,8 @@ public final class QuestionRepository {
    */
   public Question createOrUpdateDraft(QuestionDefinition definition) {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    try (Transaction transaction = database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+    try (Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
       try {
         if (existingDraft.isPresent()) {
