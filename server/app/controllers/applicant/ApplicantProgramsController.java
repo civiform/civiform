@@ -99,7 +99,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> view(Request request, long applicantId, long programId) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
-
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))

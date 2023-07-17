@@ -131,6 +131,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                 Representation.builder().setName(applicantName).build())
             : ApplicantPersonalInfo.ofGuestUser(),
         messages,
-        bundle);
+        bundle,
+        applicantId);
   }
 }

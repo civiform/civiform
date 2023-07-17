@@ -149,7 +149,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     return layout.renderWithNav(
-        params.request(), params.applicantPersonalInfo(), params.messages(), bundle);
+        params.request(),
+        params.applicantPersonalInfo(),
+        params.messages(),
+        bundle,
+        params.applicantId());
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */
