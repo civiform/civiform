@@ -9,6 +9,7 @@ import {
   logout,
   AdminQuestions,
   dismissToast,
+  selectApplicantLanguage,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -114,6 +115,49 @@ describe('Trusted intermediaries', () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
     await validateScreenshot(page, 'ti')
+  })
+  it('Applicant sees the program review page fully translated', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions,adminTranslations,tiDashboard} = ctx
+
+    // Add a new program with one non-translated question
+    await loginAsAdmin(page)
+
+    const programName = 'TI Client Translation program'
+    await adminPrograms.addProgram(programName)
+
+    const questionName = 'name-translated'
+    await adminQuestions.addNameQuestion({questionName})
+     // Go to the question translation page and add a translation for Spanish
+     
+     await adminQuestions.goToQuestionTranslationPage(questionName)
+     await adminTranslations.selectLanguage('Spanish')
+     await validateScreenshot(page, 'question-translation')
+     await adminTranslations.editQuestionTranslations(
+       'Spanish question text',
+       'Spanish help text',
+     )
+     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
+    await adminPrograms.publishProgram(programName)
+    await logout(page)
+
+
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake12@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.clickOnApplicantDashboard()
+
+    await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'Español')  
+
+    await validateScreenshot(page, 'applicant-program-spanish')
   })
 
   it('search For Client In TI Dashboard', async () => {
