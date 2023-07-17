@@ -40,6 +40,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
@@ -212,11 +213,17 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setId("email-input")
             .setFieldName("emailAddress")
             .setLabelText("Email Address")
+            .setToolTipIcon(Icons.INFO)
+            .setToolTipText(
+                "Add an email address for your client to receive status updates about their"
+                    + " application automatically. Without an email, you or your community-based"
+                    + " organization will be responsible for communicating updates to your"
+                    + " client.")
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
             formTag.with(
-                emailField.getInputTag(),
+                emailField.getEmailTag(),
                 firstNameField.getInputTag(),
                 middleNameField.getInputTag(),
                 lastNameField.getInputTag(),
