@@ -117,7 +117,14 @@ describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'ti')
   })
   it('Applicant sees the program review page fully translated', async () => {
-    const {page, adminQuestions, adminPrograms, applicantQuestions,adminTranslations,tiDashboard} = ctx
+    const {
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+      adminTranslations,
+      tiDashboard,
+    } = ctx
 
     // Add a new program with one non-translated question
     await loginAsAdmin(page)
@@ -127,19 +134,18 @@ describe('Trusted intermediaries', () => {
 
     const questionName = 'name-translated'
     await adminQuestions.addNameQuestion({questionName})
-     // Go to the question translation page and add a translation for Spanish
-     
-     await adminQuestions.goToQuestionTranslationPage(questionName)
-     await adminTranslations.selectLanguage('Spanish')
-     await validateScreenshot(page, 'question-translation')
-     await adminTranslations.editQuestionTranslations(
-       'Spanish question text',
-       'Spanish help text',
-     )
-     await adminPrograms.editProgramBlock(programName, 'block', [questionName])
+    // Go to the question translation page and add a translation for Spanish
+
+    await adminQuestions.goToQuestionTranslationPage(questionName)
+    await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'question-translation')
+    await adminTranslations.editQuestionTranslations(
+      'Spanish question text',
+      'Spanish help text',
+    )
+    await adminPrograms.editProgramBlock(programName, 'block', [questionName])
     await adminPrograms.publishProgram(programName)
     await logout(page)
-
 
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
@@ -155,7 +161,7 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.clickOnApplicantDashboard()
 
     await applicantQuestions.applyProgram(programName)
-    await selectApplicantLanguage(page, 'Español')  
+    await selectApplicantLanguage(page, 'Español')
 
     await validateScreenshot(page, 'applicant-program-spanish')
   })
