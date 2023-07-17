@@ -17,6 +17,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import javax.inject.Provider;
+
+import io.ebean.annotation.TxIsolation;
 import models.Question;
 import models.QuestionTag;
 import models.Version;
@@ -58,7 +60,7 @@ public final class QuestionRepository {
    */
   public Question createOrUpdateDraft(QuestionDefinition definition) {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
-    try (Transaction transaction = database.beginTransaction(TxScope.requiresNew())) {
+    try (Transaction transaction = database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
       try {
         if (existingDraft.isPresent()) {
