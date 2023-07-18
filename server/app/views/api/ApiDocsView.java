@@ -175,7 +175,7 @@ public class ApiDocsView extends BaseHtmlView {
     divTag.with(
         span(
             h3(b(questionDefinition.getName())).withClasses("inline"),
-            code(" (" + questionDefinition.getQuestionPathSegment().toLowerCase(Locale.US) + ")")));
+            code(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
     divTag.with(br(), br());
 
     divTag.with(h3("Question Type: " + questionDefinition.getQuestionType().toString()));
