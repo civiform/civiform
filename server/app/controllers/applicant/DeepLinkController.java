@@ -1,15 +1,13 @@
 package controllers.applicant;
 
+import static auth.DefaultToGuestRedirector.createGuestSessionAndRedirect;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
-import auth.GuestClient;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
-import controllers.routes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -55,13 +53,7 @@ public final class DeepLinkController extends CiviFormController {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {
-      // If there isn't currently a session, create a guest session using the CallbackController,
-      // and add a session key that asks it to redirect back here when the profile will be present.
-      Result result =
-          redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-              .withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
-
-      return CompletableFuture.completedFuture(result);
+      return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
     }
 
     return profile
