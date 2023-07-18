@@ -22,6 +22,8 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+
+import java.time.Instant;
 import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
@@ -210,7 +212,7 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     String apiKeyStatus = " active";
     if (apiKey.isRetired()) {
       apiKeyStatus = " retired";
-    } else if (apiKey.isExpired()) {
+    } else if (apiKey.expiredAfter(Instant.now())) {
       apiKeyStatus = " expired";
     }
     DivTag content =
