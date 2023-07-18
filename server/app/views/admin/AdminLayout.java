@@ -168,8 +168,8 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(programsHeaderLink)
               .with(questionsHeaderLink)
               .with(intermediariesHeaderLink)
-              .with(apiKeysHeaderLink)
               .with(reportingHeaderLink)
+              .with(apiKeysHeaderLink)
               .condWith(getSettingsManifest().getApiGeneratedDocsEnabled(), apiDocsHeaderLink);
           break;
         }
