@@ -6,6 +6,7 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -14,7 +15,6 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
-import services.PageNumberBasedPaginationSpec;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
@@ -53,13 +53,35 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-    return ok(
-        indexView.render(
-            request,
-            // The backend service supports pagination but the front end doesn't
-            // in its initial implementation so we load all of them here.
-            apiKeyService.listApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC),
-            programService.getAllProgramNames()));
+    return redirect(routes.AdminApiKeysController.indexWithStatus("Active").url());
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexWithStatus(Http.Request request, String status) {
+    status = status.toLowerCase(Locale.ROOT);
+    if (status.equals("retired")) {
+      return ok(
+          indexView.render(
+              request,
+              "Retired",
+              apiKeyService.listRetiredApiKeys(),
+              programService.getAllProgramNames()));
+    } else if (status.equals("expired")) {
+      return ok(
+          indexView.render(
+              request,
+              "Expired",
+              apiKeyService.listExpiredApiKeys(),
+              programService.getAllProgramNames()));
+    } else {
+      // Fall back to active keys.
+      return ok(
+          indexView.render(
+              request,
+              "Active",
+              apiKeyService.listActiveApiKeys(),
+              programService.getAllProgramNames()));
+    }
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

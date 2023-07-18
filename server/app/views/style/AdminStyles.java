@@ -3,12 +3,16 @@ package views.style;
 /** Styles for admin pages. */
 public final class AdminStyles {
 
+  public static final String LINK_SELECTED =
+      StyleUtils.joinStyles("m-2", "border-blue-400", "border-b-2");
+
+  public static final String LINK_NOT_SELECTED = StyleUtils.joinStyles("m-2");
+
   public static final String LANGUAGE_LINK_SELECTED =
-      StyleUtils.joinStyles(
-          ReferenceClasses.ADMIN_LANGUAGE_LINK, "m-2", "border-blue-400", "border-b-2");
+      StyleUtils.joinStyles(ReferenceClasses.ADMIN_LANGUAGE_LINK, LINK_SELECTED);
 
   public static final String LANGUAGE_LINK_NOT_SELECTED =
-      StyleUtils.joinStyles(ReferenceClasses.ADMIN_LANGUAGE_LINK, "m-2");
+      StyleUtils.joinStyles(ReferenceClasses.ADMIN_LANGUAGE_LINK, LINK_NOT_SELECTED);
 
   public static final String ADMIN_NAV_BAR_LOGO =
       StyleUtils.joinStyles(
