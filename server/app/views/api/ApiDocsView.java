@@ -87,7 +87,7 @@ public class ApiDocsView extends BaseHtmlView {
         select()
             .withId("select-slug")
             .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "ml-2")
-            .attr("onchange", "window.location.href = '/api/v1/docs/' + this.value");
+            .attr("onchange", "window.location.href = '/api/docs/v1/' + this.value");
 
     allProgramSlugs.forEach(
         (String slug) -> {
