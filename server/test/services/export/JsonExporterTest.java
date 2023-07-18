@@ -387,6 +387,12 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenDropdownQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenDropdownQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
+
+  @Test
   public void export_whenEmailQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
     var fakeProgram =
@@ -426,6 +432,24 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_email_address.email");
   }
+
+  @Test
+  public void export_whenFileUploadQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenFileUploadQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
+
+  @Test
+  public void export_whenIdQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenIdQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
+
+  @Test
+  public void export_whenNameQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenNameQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
 
   @Test
   public void export_whenNumberQuestionIsAnswered_valueIsInResponse() {
@@ -502,6 +526,27 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_phone.phone_number");
   }
+
+  // RADIO_BUTTON
+  @Test
+  public void export_whenRadioQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenRadioQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
+
+  // STATIC
+  @Test
+  public void export_whenStaticQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenStaticQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
+
+  // TEXT
+  @Test
+  public void export_whenTextQuestionIsAnswered_valueIsInResponse() throws Exception {}
+
+  @Test
+  public void export_whenTextQuestionIsNotAnswered_valueInResponseIsNull() throws Exception {}
 
   @Test
   public void
