@@ -214,7 +214,6 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
             repo.listExpiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))
                 .getPageContents())
         .isEmpty();
-    ;
     assertThat(
             repo
                 .listRetiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))

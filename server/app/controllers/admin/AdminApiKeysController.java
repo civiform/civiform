@@ -6,7 +6,6 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
-import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -53,33 +52,32 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-      return ok(
-          indexView.render(
-              request,
-              /* selectedStatus= */"Active",
-              apiKeyService.listActiveApiKeys(),
-              programService.getAllProgramNames()));
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Active",
+            apiKeyService.listActiveApiKeys(),
+            programService.getAllProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexRetired(Http.Request request) {
-      return ok(
-          indexView.render(
-              request,
-              /* selectedStatus= */ "Retired",
-              apiKeyService.listRetiredApiKeys(),
-              programService.getAllProgramNames()));
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Retired",
+            apiKeyService.listRetiredApiKeys(),
+            programService.getAllProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexExpired(Http.Request request) {
-      return ok(
-          indexView.render(
-              request,
-              /* selectedStatus= */ "Expired",
-              apiKeyService.listExpiredApiKeys(),
-              programService.getAllProgramNames()));
-
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Expired",
+            apiKeyService.listExpiredApiKeys(),
+            programService.getAllProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
