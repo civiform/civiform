@@ -80,7 +80,9 @@ function docker::compose_browser_test_dev_local() {
 
 #######################################
 # Runs docker compose up to bring up the Python-based container
-# needed for env-var-docs.
+# needed for env-var-docs. Additionally, installs dependencies
+# and installs (or updates, if the container is already running)
+# the env-var-docs parser-package.
 #######################################
 function docker::compose_env_var_docs_up() {
   docker compose \
@@ -109,7 +111,7 @@ function docker::compose_env_var_docs_down() {
 function docker::run_env_var_docs_command() {
   docker exec civiform-vars-parser-package env-var-docs/update-container-parser-package
 
-  # If we're running in a tty, use -it so we get pretty colors
+  # If we're running in a tty, use -t so we get pretty colors
   TTY_FLAG=""
   if [[ -t 0 ]]; then
     TTY_FLAG="-t"
