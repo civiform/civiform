@@ -265,7 +265,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     cityImage
         .withAlt(settingsManifest.getWhitelabelCivicEntityFullName(request).get() + " Logo")
-        .attr("aria-hidden", "true")
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
