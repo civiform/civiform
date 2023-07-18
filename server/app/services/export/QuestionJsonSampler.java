@@ -161,7 +161,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class AddressJsonSampler extends ContextualizedScalarsJsonSampler<AddressQuestion> {
+  class AddressJsonSampler implements QuestionJsonSampler<AddressQuestion> {
     private final QuestionJsonPresenter addressJsonPresenter;
 
     @Inject
@@ -189,32 +189,6 @@ public interface QuestionJsonSampler<Q extends Question> {
     @Override
     public QuestionJsonPresenter getJsonPresenter() {
       return addressJsonPresenter;
-    }
-  }
-
-  abstract class ContextualizedScalarsJsonSampler<Q extends Question>
-      implements QuestionJsonSampler<Q> {
-
-    @Override
-    public CfJsonDocumentContext getSampleJson(QuestionDefinition questionDefinition) {
-      ProgramQuestionDefinition programQuestionDefinition =
-          ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
-      ApplicantData applicantData = new ApplicantData();
-      ApplicantQuestion applicantQuestion =
-          new ApplicantQuestion(programQuestionDefinition, applicantData, Optional.empty());
-
-      Q question = getQuestion(applicantQuestion);
-      addSampleData(applicantData, question);
-
-      // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
-      // the question type, which we know matches Q.
-      @SuppressWarnings("unchecked")
-      ImmutableMap<Path, ?> entries = getJsonPresenter().getJsonEntries(question);
-      CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
-
-      exportEntriesToJsonApplication(jsonApplication, entries);
-
-      return jsonApplication;
     }
   }
 
@@ -267,7 +241,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class EmailJsonSampler extends ContextualizedScalarsJsonSampler<EmailQuestion> {
+  class EmailJsonSampler implements QuestionJsonSampler<EmailQuestion> {
     private final QuestionJsonPresenter emailJsonPresenter;
 
     @Inject
@@ -338,7 +312,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class IdJsonSampler extends ContextualizedScalarsJsonSampler<IdQuestion> {
+  class IdJsonSampler implements QuestionJsonSampler<IdQuestion> {
     private final QuestionJsonPresenter idJsonPresenter;
 
     @Inject
@@ -398,7 +372,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class NameJsonSampler extends ContextualizedScalarsJsonSampler<NameQuestion> {
+  class NameJsonSampler implements QuestionJsonSampler<NameQuestion> {
     private final QuestionJsonPresenter nameJsonPresenter;
 
     @Inject
@@ -504,7 +478,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
   }
 
-  class TextJsonSampler extends ContextualizedScalarsJsonSampler<TextQuestion> {
+  class TextJsonSampler implements QuestionJsonSampler<TextQuestion> {
     private final QuestionJsonPresenter emailJsonPresenter;
 
     @Inject
