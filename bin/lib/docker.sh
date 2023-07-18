@@ -79,20 +79,18 @@ function docker::compose_browser_test_dev_local() {
 }
 
 #######################################
-# Runs docker compose up to bring up the Python container needed for
-# env-var-docs. Greps the log to wait for the parser-package install
-# to complete.
+# Runs docker compose up to bring up the Python-based container
+# needed for env-var-docs.
 #######################################
 function docker::compose_env_var_docs_up() {
   docker compose \
     -f env-var-docs/docker-compose.env-var-docs.yml \
     up -d
-  docker exec parser-package env-var-docs/update-container-parser-package
-  #docker::wait_for_parser_package_install
+  docker exec civiform-vars-parser-package env-var-docs/update-container-parser-package
 }
 
 #######################################
-# Runs docker compose up to tear down the parser-package container.
+# Runs docker compose down to tear down the civiform-vars-parser-package container.
 #######################################
 function docker::compose_env_var_docs_down() {
   docker compose \
@@ -101,17 +99,24 @@ function docker::compose_env_var_docs_down() {
 }
 
 #######################################
-# Executes a bash command in the running parser-package container. Passes
-# in a superset of environment variables used by the various
+# Executes a shell command in the running civiform-vars-parser-package
+# container. Passes in a superset of environment variables used by the various
 # env-var-docs commands. Before running the command, checks if parser-package
 # has any updates, and if so, reinstalls the package.
 # Arguments:
 #   @: command to run
 #######################################
 function docker::run_env_var_docs_command() {
-  docker exec parser-package env-var-docs/update-container-parser-package
+  docker exec civiform-vars-parser-package env-var-docs/update-container-parser-package
+
+  # If we're running in a tty, use -it so we get pretty colors
+  TTY_FLAG=""
+  if [[ -t 0 ]]; then
+    TTY_FLAG="-t"
+  fi
 
   docker exec \
+    ${TTY_FLAG} \
     -e APPLICATION_CONF_PATH="${APPLICATION_CONF_PATH:-server/conf/application.conf}" \
     -e ENV_VAR_DOCS_PATH="${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}" \
     -e LOCAL_OUTPUT="${LOCAL_OUTPUT:-true}" \
@@ -119,7 +124,7 @@ function docker::run_env_var_docs_command() {
     -e GITHUB_ACCESS_TOKEN="${GITHUB_ACCESS_TOKEN}" \
     -e TARGET_REPO="${TARGET_REPO}" \
     -e TARGET_PATH="${TARGET_PATH}" \
-    parser-package "$@"
+    civiform-vars-parser-package "$@"
 }
 
 #######################################

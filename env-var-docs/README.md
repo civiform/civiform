@@ -58,7 +58,7 @@ bin/env-var-docs-generate-markdown
 
 ### Python dependencies
 
-We use a python container to install dependencies and run actions, rather than
+We use a Docker container to install dependencies and run actions, rather than
 running python locally, to ensure the actions are always able to run, regardless
 of the system version of python you have installed. Ensure that you have docker
 installed and the `docker run` command is available.

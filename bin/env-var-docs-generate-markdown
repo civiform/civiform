@@ -10,5 +10,7 @@ source bin/lib.sh
 docker::set_project_name_env_var_docs
 docker::compose_env_var_docs_up
 
-echo "Running env-var-docs/generate_markdown.py with LOCAL_OUTPUT=${LOCAL_OUTPUT:-true}, ENV_VAR_DOCS_PATH=${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}..."
+echo "Running env-var-docs/generate_markdown.py with \
+LOCAL_OUTPUT=${LOCAL_OUTPUT:-true}, \
+ENV_VAR_DOCS_PATH=${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}..."
 docker::run_env_var_docs_command python env-var-docs/generate_markdown.py
