@@ -128,6 +128,12 @@ public final class JsonExporter {
             .create(answerData.applicantQuestion().getType())
             .getJsonEntries(answerData.createQuestion());
 
+    exportEntriesToJsonApplication(jsonApplication, entries);
+  }
+
+  public static void exportEntriesToJsonApplication(
+      CfJsonDocumentContext jsonApplication, ImmutableMap<Path, ?> entries) {
+
     for (Map.Entry<Path, ?> entry : entries.entrySet()) {
       Path path = entry.getKey().asApplicationPath();
 

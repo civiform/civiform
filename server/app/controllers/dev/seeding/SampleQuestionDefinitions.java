@@ -1,5 +1,6 @@
 package controllers.dev.seeding;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import play.i18n.Lang;
@@ -24,7 +25,8 @@ import services.question.types.TextQuestionDefinition;
 
 public final class SampleQuestionDefinitions {
 
-  static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final AddressQuestionDefinition ADDRESS_QUESTION_DEFINITION =
       new AddressQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Address Question")
@@ -49,13 +51,15 @@ public final class SampleQuestionDefinitions {
           QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
           QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("garlic press")));
 
-  static final MultiOptionQuestionDefinition CHECKBOX_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final MultiOptionQuestionDefinition CHECKBOX_QUESTION_DEFINITION =
       new MultiOptionQuestionDefinition(
           CHECKBOX_QUESTION_DEFINITION_CONFIG,
           CHECKBOX_QUESTION_OPTIONS,
           MultiOptionQuestionType.CHECKBOX);
 
-  static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final CurrencyQuestionDefinition CURRENCY_QUESTION_DEFINITION =
       new CurrencyQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Currency Question")
@@ -85,7 +89,8 @@ public final class SampleQuestionDefinitions {
       new MultiOptionQuestionDefinition(
           DROPDOWN_QUESTION_CONFIG, DROPDOWN_QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
 
-  static final EmailQuestionDefinition EMAIL_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final EmailQuestionDefinition EMAIL_QUESTION_DEFINITION =
       new EmailQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Email Question")
@@ -94,7 +99,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final EnumeratorQuestionDefinition ENUMERATOR_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final EnumeratorQuestionDefinition ENUMERATOR_QUESTION_DEFINITION =
       new EnumeratorQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Enumerator Question")
@@ -105,7 +111,8 @@ public final class SampleQuestionDefinitions {
               .build(),
           LocalizedStrings.withDefaultValue("household member"));
 
-  static final FileUploadQuestionDefinition FILE_UPLOAD_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final FileUploadQuestionDefinition FILE_UPLOAD_QUESTION_DEFINITION =
       new FileUploadQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample File Upload Question")
@@ -115,7 +122,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final IdQuestionDefinition ID_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final IdQuestionDefinition ID_QUESTION_DEFINITION =
       new IdQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample ID Question")
@@ -125,7 +133,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final QuestionDefinition NAME_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final QuestionDefinition NAME_QUESTION_DEFINITION =
       new NameQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Name")
@@ -174,7 +183,8 @@ public final class SampleQuestionDefinitions {
                           "帮助文本")))
               .build());
 
-  static final NumberQuestionDefinition NUMBER_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final NumberQuestionDefinition NUMBER_QUESTION_DEFINITION =
       new NumberQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Number Question")
@@ -200,13 +210,15 @@ public final class SampleQuestionDefinitions {
           QuestionOption.create(
               4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)")));
 
-  static final MultiOptionQuestionDefinition RADIO_BUTTON_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final MultiOptionQuestionDefinition RADIO_BUTTON_QUESTION_DEFINITION =
       new MultiOptionQuestionDefinition(
           RADIO_BUTTON_QUESTION_CONFIG,
           RADIO_BUTTON_QUESTION_OPTIONS,
           MultiOptionQuestionType.RADIO_BUTTON);
 
-  static final StaticContentQuestionDefinition STATIC_CONTENT_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final StaticContentQuestionDefinition STATIC_CONTENT_QUESTION_DEFINITION =
       new StaticContentQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Static Content Question")
@@ -221,7 +233,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
               .build());
 
-  static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =
       new TextQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Text Question")
@@ -230,7 +243,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final PhoneQuestionDefinition PHONE_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final PhoneQuestionDefinition PHONE_QUESTION_DEFINITION =
       new PhoneQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Phone Question")
@@ -239,7 +253,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final DateQuestionDefinition DATE_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final DateQuestionDefinition DATE_QUESTION_DEFINITION =
       new DateQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Date Question")
@@ -266,7 +281,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(
                   LocalizedStrings.withDefaultValue("help text for $this's birthday"));
 
-  static DateQuestionDefinition dateEnumeratedQuestionDefinition(long enumeratorId) {
+  @VisibleForTesting
+  public static DateQuestionDefinition dateEnumeratedQuestionDefinition(long enumeratorId) {
     return new DateQuestionDefinition(
         DATE_ENUMERATED_QUESTION_DEFINITION_BUILDER.setEnumeratorId(enumeratorId).build());
   }
