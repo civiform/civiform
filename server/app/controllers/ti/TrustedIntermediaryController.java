@@ -108,7 +108,7 @@ public final class TrustedIntermediaryController {
             searchParameters,
             request,
             messagesApi.preferred(request),
-            civiformProfile.get().getApplicant().join().id));
+            civiformProfile.get().getApplicant().toCompletableFuture().join().id));
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
