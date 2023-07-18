@@ -3,14 +3,17 @@ package views.api;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
+import static j2html.TagCreator.blockquote;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.code;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.pre;
 import static j2html.TagCreator.select;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 
 import auth.CiviFormProfile;
@@ -74,14 +77,16 @@ public class ApiDocsView extends BaseHtmlView {
         layout
             .getBundle(request)
             .setTitle("API Docs")
-            .addMainContent(contentDiv(programDefinition, allProgramSlugs))
+            .addMainContent(contentDiv(programDefinition, allProgramSlugs, request))
             .addMainStyles("overflow-hidden");
 
     return layout.render(bundle);
   }
 
   private DivTag contentDiv(
-      ProgramDefinition programDefinition, ImmutableSet<String> allProgramSlugs) {
+      ProgramDefinition programDefinition,
+      ImmutableSet<String> allProgramSlugs,
+      Http.Request request) {
 
     SelectTag slugsDropdown =
         select()
@@ -105,7 +110,7 @@ public class ApiDocsView extends BaseHtmlView {
                 div()
                     .withClasses("items-center", "mx-6", "my-8")
                     .with(h1("API Documentation"))
-                    .with(div().withClasses("flex", "flex-col").with(getNotes())))
+                    .with(div().withClasses("flex", "flex-col").with(getNotes(request))))
             .with(
                 div()
                     .withClasses("flex", "flex-row", "items-center", "mx-6")
@@ -116,11 +121,11 @@ public class ApiDocsView extends BaseHtmlView {
     fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
     DivTag leftSide = div().withClasses("w-full", "flex-grow");
-    leftSide.with(h2("Questions"));
+    leftSide.with(h2("Questions").withClasses("pl-4"));
     leftSide.with(programDocsDiv(programDefinition));
 
     DivTag rightSide = div().withClasses("w-full flex-grow");
-    rightSide.with(h2("API Response Preview"));
+    rightSide.with(h2("API Response Preview").withClasses("pl-4"));
     rightSide.with(apiResponseSampleDiv(programDefinition));
 
     fullProgramDiv.with(leftSide);
@@ -167,12 +172,20 @@ public class ApiDocsView extends BaseHtmlView {
   private DivTag questionDocsDiv(QuestionDefinition questionDefinition) {
     DivTag divTag = div().withClasses("pl-4", "border", "border-gray-500", "rounded-lg");
 
-    divTag.with(h2(b("Question Name: "), text(questionDefinition.getName())));
-    divTag.with(h2(b("Question Type: "), text(questionDefinition.getQuestionType().toString())));
+    divTag.with(
+        span(
+            h3(b(questionDefinition.getName())).withClasses("inline"),
+            code(" (" + questionDefinition.getQuestionPathSegment().toLowerCase(Locale.US) + ")")));
+    divTag.with(br(), br());
 
+    divTag.with(h3("Question Type: " + questionDefinition.getQuestionType().toString()));
     try {
       divTag.with(
-          h2(b("Question Text: "), text(questionDefinition.getQuestionText().get(Locale.US))));
+          span(
+              h3(text("Question Text:  ")).withClasses("inline"),
+              blockquote(questionDefinition.getQuestionText().get(Locale.US))
+                  .withClasses("inline")));
+
     } catch (TranslationNotFoundException e) {
       logger.error("No translation found for locale US in question text: " + e.getMessage());
     }
@@ -180,8 +193,7 @@ public class ApiDocsView extends BaseHtmlView {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) questionDefinition;
-      divTag.with(
-          h2(b("Question Options: "), text(getOptionsString(multiOptionQuestionDefinition))));
+      divTag.with(h3("Question Options: " + getOptionsString(multiOptionQuestionDefinition)));
     }
 
     return divTag;
@@ -216,8 +228,9 @@ public class ApiDocsView extends BaseHtmlView {
             || currentUserProfile.get().isProgramAdmin());
   }
 
-  private DivTag getNotes() {
-    String link = "https://docs.civiform.us/it-manual/api.";
+  private DivTag getNotes(Http.Request request) {
+    String generalDocsLink = "https://docs.civiform.us/it-manual/api.";
+    String apiDocsLink = controllers.api.routes.ApiDocsController.index().absoluteURL(request);
 
     DivTag notesTag = div().withClasses("mt-6");
 
@@ -229,11 +242,23 @@ public class ApiDocsView extends BaseHtmlView {
                 + " sample answers that are selected from the available responses. General"
                 + " information about using the API is located at "));
     notesTag.with(
-        a(link)
-            .withHref(link)
+        a(generalDocsLink)
+            .withHref(generalDocsLink)
             .withClasses("text-blue-500", "underline")); // create a clickable link
     notesTag.with(br());
     notesTag.with(br());
+    notesTag.with(text("You may share this link, "));
+    notesTag.with(
+        a(apiDocsLink)
+            .withHref(apiDocsLink)
+            .withClasses("text-blue-500", "underline")); // create a clickable link
+    notesTag.with(
+        text(
+            ", with anyone in your organization who needs to see API docs, even "
+                + "if they are not a CiviForm Admin or Program Admin."));
+    notesTag.with(br());
+    notesTag.with(br());
+
     notesTag.with(
         text(
             "Note that API docs do not currently support enumerated nor enumerator questions."
