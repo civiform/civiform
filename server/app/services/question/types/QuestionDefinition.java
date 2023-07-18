@@ -75,10 +75,14 @@ public abstract class QuestionDefinition {
     return config.lastModifiedTime();
   }
 
+  public final String getQuestionNameKey() {
+    return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+  }
+
   /** Returns the {@link Path} segment that corresponds to this QuestionDefinition. */
   public final String getQuestionPathSegment() {
     // TODO(#783): Change this getter once we save this formatted name to the database.
-    String formattedName = config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
+    String formattedName = getQuestionNameKey();
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       return formattedName + Path.ARRAY_SUFFIX;
     }
