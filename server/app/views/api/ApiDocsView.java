@@ -1,7 +1,9 @@
 package views.api;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
+import static j2html.TagCreator.br;
 import static j2html.TagCreator.code;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
@@ -39,7 +41,6 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
-import views.style.ReferenceClasses;
 
 public class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
@@ -85,13 +86,12 @@ public class ApiDocsView extends BaseHtmlView {
     SelectTag slugsDropdown =
         select()
             .withId("select-slug")
+            .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "ml-2")
             .attr("onchange", "window.location.href = '/api/v1/docs/' + this.value");
 
     allProgramSlugs.forEach(
         (String slug) -> {
-          logger.atError().log("DEBUG: slug: {}", slug);
           OptionTag slugOption = option(slug).withValue(slug);
-          logger.atError().log("DEBUG: slugOption: {}", slugOption.getTagName());
           if (programDefinition.slug().equals(slug)) {
             slugOption.isSelected();
           }
@@ -103,18 +103,24 @@ public class ApiDocsView extends BaseHtmlView {
             .withClasses("flex", "flex-col", "flex-grow")
             .with(
                 div()
-                    .withClasses("items-center", "space-x-4", "mt-12")
-                    .with(h1("API Documentation: "))
+                    .withClasses("items-center", "mx-6", "my-8")
+                    .with(h1("API Documentation"))
+                    .with(div().withClasses("flex", "flex-col").with(getNotes())))
+            .with(
+                div()
+                    .withClasses("flex", "flex-row", "items-center", "mx-6")
+                    .with(text("Select a program:   "))
                     .with(slugsDropdown));
 
     DivTag fullProgramDiv = div();
-    fullProgramDiv.withClasses("flex", "flex-row");
+    fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
-    DivTag leftSide = div().withClasses("w-full flex-grow");
+    DivTag leftSide = div().withClasses("w-full", "flex-grow");
+    leftSide.with(h2("Questions"));
     leftSide.with(programDocsDiv(programDefinition));
 
     DivTag rightSide = div().withClasses("w-full flex-grow");
-    rightSide.with(h2(b("API Response Preview")));
+    rightSide.with(h2("API Response Preview"));
     rightSide.with(apiResponseSampleDiv(programDefinition));
 
     fullProgramDiv.with(leftSide);
@@ -140,13 +146,15 @@ public class ApiDocsView extends BaseHtmlView {
     }
 
     apiResponseSampleDiv.with(
-        pre(code(sampleJson.asPrettyJsonString())).withStyle("background-color: lightgray;"));
+        pre(code(sampleJson.asPrettyJsonString()))
+            .withStyle("background-color: lightgray;")
+            .withClass("m-4"));
 
     return apiResponseSampleDiv;
   }
 
   private DivTag programDocsDiv(ProgramDefinition programDefinition) {
-    DivTag programDocsDiv = div();
+    DivTag programDocsDiv = div().withClasses("flex", "flex-col", "gap-4");
 
     for (QuestionDefinition questionDefinition :
         programDefinition.streamQuestionDefinitions().collect(toImmutableList())) {
@@ -157,16 +165,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag questionDocsDiv(QuestionDefinition questionDefinition) {
-    DivTag divTag =
-        div()
-            .withClasses(
-                ReferenceClasses.ADMIN_PROGRAM_CARD,
-                "w-full",
-                "my-4",
-                "pl-6",
-                "border",
-                "border-gray-300",
-                "rounded-lg");
+    DivTag divTag = div().withClasses("pl-4", "border", "border-gray-500", "rounded-lg");
 
     divTag.with(h2(b("Question Name: "), text(questionDefinition.getName())));
     divTag.with(h2(b("Question Type: "), text(questionDefinition.getQuestionType().toString())));
@@ -215,5 +214,32 @@ public class ApiDocsView extends BaseHtmlView {
     return currentUserProfile.isPresent()
         && (currentUserProfile.get().isCiviFormAdmin()
             || currentUserProfile.get().isProgramAdmin());
+  }
+
+  private DivTag getNotes() {
+    String link = "https://docs.civiform.us/it-manual/api.";
+
+    DivTag notesTag = div().withClasses("mt-6");
+
+    notesTag.with(h2(b("How does this work?")));
+    notesTag.with(
+        text(
+            "The API Response Preview is a sample of what the API response might look like for a"
+                + " given program. All data is fake. Single-select and multi-select questions have"
+                + " sample answers that are selected from the available responses. General"
+                + " information about using the API is located at "));
+    notesTag.with(
+        a(link)
+            .withHref(link)
+            .withClasses("text-blue-500", "underline")); // create a clickable link
+    notesTag.with(br());
+    notesTag.with(br());
+    notesTag.with(
+        text(
+            "Note that API docs do not currently support enumerated nor enumerator questions."
+                + " Static content questions are not shown on the API Response Preview because"
+                + " they do not include answers to questions."));
+
+    return notesTag;
   }
 }
