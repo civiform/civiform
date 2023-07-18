@@ -178,7 +178,7 @@ public final class AdminLayout extends BaseHtmlLayout {
           adminHeader
               .with(programAdminProgramsHeaderLink)
               .with(reportingHeaderLink)
-              .with(apiDocsHeaderLink);
+              .condWith(getSettingsManifest().getApiGeneratedDocsEnabled(), apiDocsHeaderLink);
           break;
         }
       default:
