@@ -35,7 +35,10 @@ public class ApiDocsController {
     Optional<String> firstProgramSlug = programService.getAllProgramSlugs().stream().findFirst();
     return firstProgramSlug
         .map(slug -> redirect(routes.ApiDocsController.docsForSlug(slug)))
-        .orElse(notFound("No programs found"));
+        .orElse(
+            notFound(
+                "No active programs found. Please create and publish a program before accessing"
+                    + " API docs."));
   }
 
   public Result docsForSlug(Http.Request request, String programSlug) {
@@ -44,8 +47,17 @@ public class ApiDocsController {
     }
 
     ImmutableSet<String> allProgramSlugs = programService.getAllProgramSlugs();
-    ProgramDefinition programDefinition =
-        programService.getActiveProgramDefinitionAsync(programSlug).toCompletableFuture().join();
-    return ok(docsView.render(request, programDefinition, allProgramSlugs));
+
+    try {
+      ProgramDefinition programDefinition =
+          programService.getActiveProgramDefinitionAsync(programSlug).toCompletableFuture().join();
+      return ok(docsView.render(request, programDefinition, allProgramSlugs));
+    } catch (Exception e) {
+      return notFound(
+          String.format(
+              "No active programs found for %s. Please create and publish a program with this slug"
+                  + " to continue.",
+              programSlug));
+    }
   }
 }
