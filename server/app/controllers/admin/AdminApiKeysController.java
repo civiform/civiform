@@ -53,35 +53,33 @@ public class AdminApiKeysController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-    return redirect(routes.AdminApiKeysController.indexWithStatus("Active").url());
+      return ok(
+          indexView.render(
+              request,
+              /* selectedStatus= */"Active",
+              apiKeyService.listActiveApiKeys(),
+              programService.getAllProgramNames()));
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result indexWithStatus(Http.Request request, String status) {
-    status = status.toLowerCase(Locale.ROOT);
-    if (status.equals("retired")) {
+  public Result indexRetired(Http.Request request) {
       return ok(
           indexView.render(
               request,
-              "Retired",
+              /* selectedStatus= */ "Retired",
               apiKeyService.listRetiredApiKeys(),
               programService.getAllProgramNames()));
-    } else if (status.equals("expired")) {
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexExpired(Http.Request request) {
       return ok(
           indexView.render(
               request,
-              "Expired",
+              /* selectedStatus= */ "Expired",
               apiKeyService.listExpiredApiKeys(),
               programService.getAllProgramNames()));
-    } else {
-      // Fall back to active keys.
-      return ok(
-          indexView.render(
-              request,
-              "Active",
-              apiKeyService.listActiveApiKeys(),
-              programService.getAllProgramNames()));
-    }
+
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

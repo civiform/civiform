@@ -24,8 +24,6 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
   @Test
   public void listActiveApiKeys() {
-    ApiKeyRepository repo = instanceOf(ApiKeyRepository.class);
-
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     for (int i = 0; i < 3; i++) {
@@ -83,8 +81,6 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
   @Test
   public void listRetiredApiKeys() {
-    ApiKeyRepository repo = instanceOf(ApiKeyRepository.class);
-
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     for (int i = 0; i < 3; i++) {
@@ -142,8 +138,6 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
 
   @Test
   public void listExpiredApiKeys() {
-    ApiKeyRepository repo = instanceOf(ApiKeyRepository.class);
-
     ApiKeyGrants grants = new ApiKeyGrants();
     grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
     for (int i = 0; i < 3; i++) {
@@ -200,6 +194,37 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void retiredAndExpiredKeyIsConsideredRetired() {
+    ApiKeyGrants grants = new ApiKeyGrants();
+    grants.grantProgramPermission("program-a", ApiKeyGrants.Permission.READ);
+    // Key is both retired and expired.
+    ApiKey apiKey =
+        new ApiKey(grants)
+            .setName("key name")
+            .setKeyId("key-id")
+            .setCreatedBy("test@example.com")
+            .setSaltedKeySecret("secret")
+            .setSubnet("0.0.0.0/32")
+            .setExpiration(Instant.now().minusSeconds(60 * 60 * 24)); // 1 day in the past.
+    apiKey.retire("authorityid");
+    repo.insert(apiKey).toCompletableFuture().join();
+
+    // Key only shows up in retired list.
+    assertThat(
+            repo.listExpiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))
+                .getPageContents())
+        .isEmpty();
+    ;
+    assertThat(
+            repo
+                .listRetiredApiKeys(new PageNumberBasedPaginationSpec(/* pageSize= */ 1))
+                .getPageContents()
+                .stream()
+                .map(ApiKey::getName))
+        .containsExactly("key name");
+  }
+
+  @Test
   public void insert_persistsANewKey() {
     ApiKey foundKey;
     ApiKeyGrants grants = new ApiKeyGrants();
@@ -214,7 +239,6 @@ public class ApiKeyRepositoryTest extends ResetPostgres {
         .setSubnet("0.0.0.0/32")
         .setExpiration(Instant.ofEpochSecond(100));
 
-    ApiKeyRepository repo = instanceOf(ApiKeyRepository.class);
     repo.insert(apiKey).toCompletableFuture().join();
 
     long id = apiKey.id;

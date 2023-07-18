@@ -47,18 +47,25 @@ public final class ApiKeyIndexView extends BaseHtmlView {
   private final AdminLayout layout;
   private final DateConverter dateConverter;
 
-  private static final ImmutableList<String> apiKeyStatuses =
-      ImmutableList.of("Active", "Retired", "Expired");
-
   @Inject
   public ApiKeyIndexView(AdminLayoutFactory layoutFactory, DateConverter dateConverter) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.API_KEYS);
     this.dateConverter = checkNotNull(dateConverter);
   }
 
+  /**
+   * Render the list of API keys.
+   *
+   * @param request The request
+   * @param selectedStatus The currently selected ApiKey status. Should be one of: Active, Retired,
+   *     Expired.
+   * @param apiKeys The list of ApiKeys with the selected status.
+   * @param allProgramNames All program names.
+   * @return Page content
+   */
   public Content render(
       Http.Request request,
-      String selected,
+      String selectedStatus,
       ImmutableList<ApiKey> apiKeys,
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
@@ -76,12 +83,24 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
-    apiKeyStatuses.stream().forEach(status -> contentDiv.with(renderFilterLink(status, selected)));
+    contentDiv.with(
+        renderFilterLink(
+            "Active",
+            selectedStatus,
+            controllers.admin.routes.AdminApiKeysController.index().url()),
+        renderFilterLink(
+            "Retired",
+            selectedStatus,
+            controllers.admin.routes.AdminApiKeysController.indexRetired().url()),
+        renderFilterLink(
+            "Expired",
+            selectedStatus,
+            controllers.admin.routes.AdminApiKeysController.indexExpired().url()));
 
     DivTag apiKeysDiv = div();
     if (apiKeys.isEmpty()) {
       apiKeysDiv.with(
-          p(String.format("No %s API keys found.", selected.toLowerCase(Locale.ROOT)))
+          p(String.format("No %s API keys found.", selectedStatus.toLowerCase(Locale.ROOT)))
               .withClasses("p-4"));
     } else {
       var programSlugToName = buildProgramSlugToName(allProgramNames);
@@ -94,12 +113,12 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private ATag renderFilterLink(String status, String selectedStatus) {
+  private ATag renderFilterLink(String status, String selectedStatus, String redirectLocation) {
     String styles =
         selectedStatus.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
     return new LinkElement()
         .setText(status)
-        .setHref(controllers.admin.routes.AdminApiKeysController.indexWithStatus(status).url())
+        .setHref(redirectLocation)
         .setStyles(styles)
         .asAnchorText();
   }
