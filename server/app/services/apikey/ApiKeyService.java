@@ -337,29 +337,4 @@ public final class ApiKeyService {
 
     throw new RuntimeException("ApiKey creator must have authority_id.");
   }
-
-  /** A categorized list of {@link ApiKey}s. */
-  @AutoValue
-  public abstract static class CategorizedApiKeys {
-    public abstract ImmutableList<ApiKey> active();
-
-    public abstract ImmutableList<ApiKey> retired();
-
-    public abstract ImmutableList<ApiKey> expired();
-
-    static Builder builder() {
-      return new AutoValue_ApiKeyService_CategorizedApiKeys.Builder();
-    }
-
-    @AutoValue.Builder
-    abstract static class Builder {
-      abstract Builder setActive(ImmutableList<ApiKey> value);
-
-      abstract Builder setRetired(ImmutableList<ApiKey> value);
-
-      abstract Builder setExpired(ImmutableList<ApiKey> value);
-
-      abstract CategorizedApiKeys build();
-    }
-  }
 }
