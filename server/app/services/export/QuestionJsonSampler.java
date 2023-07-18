@@ -52,6 +52,8 @@ public interface QuestionJsonSampler<Q extends Question> {
     Q question = getQuestion(applicantQuestion);
     addSampleData(applicantData, question);
 
+    // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
+    // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, ?> entries = getJsonPresenter().getJsonEntries(question);
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
@@ -130,6 +132,7 @@ public interface QuestionJsonSampler<Q extends Question> {
           // identifier value for each repeated entity, which with the current export logic
           // conflicts with the answers stored for repeated entities.
         case ENUMERATOR:
+          return emptyJsonSampler;
 
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
@@ -203,6 +206,8 @@ public interface QuestionJsonSampler<Q extends Question> {
       Q question = getQuestion(applicantQuestion);
       addSampleData(applicantData, question);
 
+      // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
+      // the question type, which we know matches Q.
       @SuppressWarnings("unchecked")
       ImmutableMap<Path, ?> entries = getJsonPresenter().getJsonEntries(question);
       CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
@@ -295,7 +300,7 @@ public interface QuestionJsonSampler<Q extends Question> {
 
     @Override
     public Question getQuestion(ApplicantQuestion applicantQuestion) {
-      return applicantQuestion.createCurrencyQuestion();
+      return null;
     }
 
     @Override
