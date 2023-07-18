@@ -79,7 +79,10 @@ public final class ApiKeyRepository {
         ImmutableList.copyOf(pagedList.getList()));
   }
 
-  /** List expired {@link ApiKey}s ordered by creation time descending. */
+  /**
+   * List expired {@link ApiKey}s ordered by creation time descending. Note that if a key is both
+   * retired and expired, it will not be returned here.
+   */
   public PaginationResult<ApiKey> listExpiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
     Instant now = Instant.now();
     PagedList<ApiKey> pagedList =
@@ -87,6 +90,8 @@ public final class ApiKeyRepository {
             .find(ApiKey.class)
             .where()
             .lt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
+            .and()
+            .isNull("retired_time")
             // This is a proxy for creation time descending. Both get the desired ordering
             // behavior but ID is indexed.
             .order("id desc")
