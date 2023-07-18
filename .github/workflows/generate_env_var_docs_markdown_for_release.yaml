@@ -50,5 +50,4 @@ jobs:
           TARGET_PATH: docs/it-manual/sre-playbook/server-environment-variables
         run: |
           cd civiform-main # must run bin scripts from repo root.
-          bin/env-var-docs-create-venv
           bin/env-var-docs-generate-markdown
