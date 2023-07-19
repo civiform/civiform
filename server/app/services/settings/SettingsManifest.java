@@ -726,7 +726,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The URL of a 32x32 or 16x16 pixel"
                           + " [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon)"
                           + " image, in GIF, PNG, or ICO format.",
-                      /* isRequired= */ true,
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE))),
           "External Services",
