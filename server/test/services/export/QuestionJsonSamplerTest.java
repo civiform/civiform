@@ -182,7 +182,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
         .isEqualTo(
             "{\n"
                 + "  \"application\" : {\n"
-                + "    \"name\" : {\n"
+                + "    \"sample_name_question\" : {\n"
                 + "      \"last_name\" : \"Simpson\",\n"
                 + "      \"middle_name\" : \"Jay\",\n"
                 + "      \"first_name\" : \"Homer\"\n"
