@@ -123,11 +123,7 @@ public final class PhoneQuestion extends Question {
               getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
-      logger.error(
-          "Unable to retrieve or parse phone number "
-              + getPhoneNumberValue().orElse("")
-              + "for country_code "
-              + getCountryCodeValue().orElse(""));
+      logger.warn("Unable to retrieve or parse phone number");
     }
     return "-";
   }
