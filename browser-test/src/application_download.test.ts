@@ -34,12 +34,17 @@ describe('normal application flow', () => {
     })
     await adminQuestions.addDateQuestion({questionName: 'csv-date'})
     await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
-    await adminQuestions.exportQuestion('Name')
+    await adminQuestions.exportQuestion('Sample Name Question')
     await adminQuestions.exportQuestion('dropdown-csv-download')
     await adminQuestions.exportQuestion('csv-date')
     await adminQuestions.exportQuestion('csv-currency')
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'dropdown-csv-download', 'csv-date', 'csv-currency'],
+      [
+        'Sample Name Question',
+        'dropdown-csv-download',
+        'csv-date',
+        'csv-currency',
+      ],
       programName,
     )
 
@@ -127,9 +132,15 @@ describe('normal application flow', () => {
     expect(
       postEditJsonContent[0].application.dropdowncsvdownload.selection,
     ).toEqual('op2')
-    expect(postEditJsonContent[0].application.name.first_name).toEqual('Gus')
-    expect(postEditJsonContent[0].application.name.middle_name).toBeNull()
-    expect(postEditJsonContent[0].application.name.last_name).toEqual('Guest')
+    expect(
+      postEditJsonContent[0].application.sample_name_question.first_name,
+    ).toEqual('Gus')
+    expect(
+      postEditJsonContent[0].application.sample_name_question.middle_name,
+    ).toBeNull()
+    expect(
+      postEditJsonContent[0].application.sample_name_question.last_name,
+    ).toEqual('Guest')
     expect(postEditJsonContent[0].application.csvdate.date).toEqual(
       '1990-01-01',
     )
@@ -146,7 +157,9 @@ describe('normal application flow', () => {
     )
     const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
-    expect(filteredJsonContent[0].application.name.first_name).toEqual('sarah')
+    expect(
+      filteredJsonContent[0].application.sample_name_question.first_name,
+    ).toEqual('sarah')
     // Ensures that choosing not to apply filters continues to return all
     // results.
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
@@ -154,9 +167,15 @@ describe('normal application flow', () => {
     expect(allCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
     const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
-    expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
-    expect(allJsonContent[1].application.name.first_name).toEqual('Gus')
-    expect(allJsonContent[2].application.name.first_name).toEqual('sarah')
+    expect(
+      allJsonContent[0].application.sample_name_question.first_name,
+    ).toEqual('Gus')
+    expect(
+      allJsonContent[1].application.sample_name_question.first_name,
+    ).toEqual('Gus')
+    expect(
+      allJsonContent[2].application.sample_name_question.first_name,
+    ).toEqual('sarah')
 
     await logout(page)
 
@@ -186,22 +205,22 @@ describe('normal application flow', () => {
     // so test for both situations.
     if (demographicsCsvContent.includes('Status')) {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,Status,sample_name_question (first_name),sample_name_question (middle_name),sample_name_question (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
       )
       expect(demographicsCsvContent).toContain(
         ',,sarah,,smith,1000.00,05/10/2021,op2',
       )
     } else {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+        'Opaque ID,Program,Submitter Email (Opaque),TI Organization,Create time,Submit time,sample_name_question (first_name),sample_name_question (middle_name),sample_name_question (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
       )
       expect(demographicsCsvContent).toContain(
         'sarah,,smith,1000.00,05/10/2021,op2',
       )
     }
 
-    await adminQuestions.createNewVersion('Name')
-    await adminQuestions.exportQuestionOpaque('Name')
+    await adminQuestions.createNewVersion('Sample Name Question')
+    await adminQuestions.exportQuestionOpaque('Sample Name Question')
     await adminPrograms.publishProgram(programName)
 
     await adminPrograms.gotoAdminProgramsPage()
