@@ -115,6 +115,8 @@ GET     /admin/demographics                                               contro
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
+GET     /admin/apiKeys/retired                      controllers.admin.AdminApiKeysController.indexRetired(request: Request)
+GET     /admin/apiKeys/expired                      controllers.admin.AdminApiKeysController.indexExpired(request: Request)
 GET     /admin/apiKeys/new                          controllers.admin.AdminApiKeysController.newOne(request: Request)
 POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
