@@ -8,6 +8,9 @@ import controllers.routes;
 import play.mvc.Http;
 import play.mvc.Result;
 
+/**
+ * Contains methods related to redirecting for the purpose of creating guest accounts for new users.
+ */
 public final class DefaultToGuestRedirector {
 
   /**
