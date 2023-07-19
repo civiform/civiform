@@ -22,7 +22,6 @@ import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
-
 import java.time.Instant;
 import java.util.Locale;
 import java.util.StringJoiner;
