@@ -14,7 +14,7 @@ import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.api.ApiDocsView;
 
-public class ApiDocsController {
+public final class ApiDocsController {
 
   private final ApiDocsView docsView;
   private final ProgramService programService;
