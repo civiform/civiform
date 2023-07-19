@@ -154,6 +154,7 @@ public final class SettingsService {
                 validationErrors.put(
                     settingDescription.variableName(),
                     SettingsGroupUpdateResult.UpdateError.create(newValue, "Required"));
+                return;
               }
 
               switch (settingDescription.settingType()) {
@@ -189,12 +190,6 @@ public final class SettingsService {
                     }
                     break;
                   }
-
-                default:
-                  throw new IllegalStateException(
-                      String.format(
-                          "Settings of type %s are not writeable",
-                          settingDescription.settingType()));
               }
             });
 
