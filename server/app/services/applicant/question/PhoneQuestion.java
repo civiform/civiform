@@ -111,7 +111,10 @@ public final class PhoneQuestion extends Question {
   public Path getCountryCodePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.COUNTRY_CODE);
   }
-
+  /**
+   * Returns formatted phone number or defaults to "-" if formatting fails. Format example:+1
+   * 206-648-2489
+   */
   @Override
   public String getAnswerString() {
     try {
