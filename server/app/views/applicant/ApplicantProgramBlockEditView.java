@@ -87,7 +87,11 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
               params.applicantId(), params.programId(), params.messages()));
     }
     return layout.renderWithNav(
-        params.request(), params.applicantPersonalInfo(), params.messages(), bundle);
+        params.request(),
+        params.applicantPersonalInfo(),
+        params.messages(),
+        bundle,
+        params.applicantId());
   }
 
   /**
