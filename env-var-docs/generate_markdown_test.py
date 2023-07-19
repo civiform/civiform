@@ -112,12 +112,14 @@ class TestGenerateMarkdown(unittest.TestCase):
             "MY_VAR": {
                 "description": "A var.",
                 "type": "string",
-                "mode": "HIDDEN"
+                "mode": "ADMIN_WRITEABLE"
             }
         }
         """
         expected = """\
         # MY_VAR
+
+        **Admin writeable**
 
         A var.
 
@@ -143,6 +145,8 @@ class TestGenerateMarkdown(unittest.TestCase):
         expected = """\
         # MY_VAR
 
+        **Server setting**
+
         A var. **Required**.
 
         - Type: string
@@ -167,12 +171,14 @@ class TestGenerateMarkdown(unittest.TestCase):
         expected = """\
         # MY_VAR
 
+        **Server setting**
+
         A var.
 
         - Type: string
         - Allowed values:
-           - one
-           - two
+           - `one`
+           - `two`
 
         """
         with io.StringIO(input) as f:
@@ -197,6 +203,8 @@ class TestGenerateMarkdown(unittest.TestCase):
         """
         expected = """\
         # MY_VAR
+
+        **Server setting**
 
         A var.
 
@@ -282,6 +290,8 @@ class TestGenerateMarkdown(unittest.TestCase):
         A group.
 
         ## MY_VAR
+
+        **Server setting**
 
         A var.
 
