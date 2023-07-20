@@ -55,7 +55,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
     // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
-    ImmutableMap<Path, ?> entries = getJsonPresenter().getJsonEntries(question);
+    ImmutableMap<Path, Optional<?>> entries = getJsonPresenter().getJsonEntries(question);
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
 
     exportEntriesToJsonApplication(jsonApplication, entries);
