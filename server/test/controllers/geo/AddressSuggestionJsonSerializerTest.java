@@ -1,6 +1,6 @@
 package controllers.geo;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -52,6 +52,6 @@ public class AddressSuggestionJsonSerializerTest {
     ImmutableList<AddressSuggestion> deserialzedSuggestions =
         addressSuggestionJsonSerializer.deserialize(serializedSuggestions);
 
-    assertEquals(suggestions, deserialzedSuggestions);
+    assertThat(deserialzedSuggestions).isEqualTo(suggestions);
   }
 }

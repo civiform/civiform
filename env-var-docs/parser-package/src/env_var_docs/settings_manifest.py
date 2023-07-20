@@ -11,7 +11,7 @@ import sys
 import dataclasses
 import env_var_docs.errors_formatter
 from jinja2 import Environment, PackageLoader, select_autoescape
-from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
+from env_var_docs.parser import Variable, Mode, Node, Group, NodeParseError, visit
 from io import StringIO
 
 
@@ -82,8 +82,9 @@ def render_sections(root_group: ParsedGroup) -> str:
 
     if root_group.variables:
         group_for_top_level_vars = ParsedGroup(
-            "ROOT", "Top level vars", [], root_group.variables)
-        out.write(f', "ROOT", {render_group(group_for_top_level_vars)}')
+            "Miscellaneous", "Top level vars", [], root_group.variables)
+        out.write(
+            f', "Miscellaneous", {render_group(group_for_top_level_vars)}')
 
     out.write(")")
 
@@ -102,9 +103,18 @@ def render_group(group: ParsedGroup) -> str:
 
 
 def render_variable(name: str, variable: Variable) -> str:
+    is_required = str(variable.required).lower()
     setting_type = _get_java_setting_type(variable)
     setting_mode = str(variable.mode).replace("Mode.", "")
-    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode})'
+
+    if setting_type == "ENUM" and variable.values:
+        allowable_values = ", ".join([f'"{val}"' for val in variable.values])
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
+
+    if setting_type == "STRING" and variable.regex:
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode}, Pattern.compile("{variable.regex}"))'
+
+    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode})'
 
 
 def _get_java_setting_type(variable: Variable) -> str:
@@ -162,18 +172,18 @@ class GetterMethodSpec:
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
-            return "String"
+            return "Optional<String>"
         elif self.variable.type == "bool":
-            return "Boolean"
+            return "boolean"
         elif self.variable.type == "int":
-            return "Integer"
+            return "Optional<Integer>"
         elif self.variable.type == "index-list":
-            return "ImmutableList<String>"
+            return "Optional<ImmutableList<String>>"
 
 
 def generate_manifest(
         docs_file: typing.TextIO) -> tuple[str | None, list[NodeParseError]]:
-    root_group = ParsedGroup("ROOT", "ROOT")
+    root_group = ParsedGroup("Miscellaneous", "Miscellaneous")
     docs: dict[str, ParsedGroup | Variable] = {"file": root_group}
     getter_method_specs: list[GetterMethodSpec] = []
 
@@ -205,7 +215,9 @@ def generate_manifest(
     template = env.get_template("SettingsManifest.java.jinja")
 
     return template.render(
-        sections=sections, getter_method_specs=getter_method_specs), []
+        sections=sections,
+        getter_method_specs=getter_method_specs,
+        writeable_mode=Mode.ADMIN_WRITEABLE), []
 
 
 if __name__ == "__main__":

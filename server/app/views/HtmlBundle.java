@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.components.Modal;
 import views.components.ToastMessage;
@@ -58,8 +59,10 @@ public final class HtmlBundle {
   private final ArrayList<LinkTag> stylesheets = new ArrayList<>();
   private final ArrayList<ToastMessage> toastMessages = new ArrayList<>();
   private final ViewUtils viewUtils;
+  private final Http.RequestHeader request;
 
-  public HtmlBundle(ViewUtils viewUtils) {
+  public HtmlBundle(Http.RequestHeader request, ViewUtils viewUtils) {
+    this.request = checkNotNull(request);
     this.viewUtils = checkNotNull(viewUtils);
   }
 
@@ -135,6 +138,10 @@ public final class HtmlBundle {
   public HtmlBundle setJsBundle(JsBundle jsBundle) {
     this.jsBundle = jsBundle;
     return this;
+  }
+
+  public Http.RequestHeader getRequest() {
+    return request;
   }
 
   private HtmlTag getContent() {

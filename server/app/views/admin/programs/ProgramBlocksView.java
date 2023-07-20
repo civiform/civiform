@@ -1,10 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PHONE_QUESTION_TYPE_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
@@ -19,9 +15,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
-import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import forms.BlockForm;
 import j2html.TagCreator;
 import j2html.tags.DomContent;
@@ -45,6 +39,7 @@ import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -55,7 +50,7 @@ import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
-import views.components.QuestionBank;
+import views.components.ProgramQuestionBank;
 import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
@@ -81,8 +76,7 @@ import views.style.StyleUtils;
 public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
-  private final FeatureFlags featureFlags;
-  private final boolean featureFlagOptionalQuestions;
+  private final SettingsManifest settingsManifest;
   private final ProgramDisplayType programDisplayType;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
@@ -98,11 +92,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
   public ProgramBlocksView(
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
-      Config config,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
-    this.featureFlags = checkNotNull(featureFlags);
-    this.featureFlagOptionalQuestions = checkNotNull(config).hasPath("cf_optional_questions");
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.programDisplayType = programViewType;
   }
 
@@ -152,7 +144,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div()
@@ -164,7 +156,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
                         renderProgramInfo(programDefinition)
-                            .with(renderEditButton(request, programDefinition)),
+                            .with(
+                                div()
+                                    .withClasses("flex")
+                                    .with(renderEditButton(request, programDefinition))
+                                    .with(renderPreviewButton(programDefinition))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(renderBlockOrderPanel(request, programDefinition, blockId))
@@ -179,7 +175,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
                                     blockDeleteScreenModal.getButton(),
-                                    featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+                                    settingsManifest.getIntakeFormEnabled(request),
                                     request))));
 
     // Add top level UI that is only visible in the editable version.
@@ -191,14 +187,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  QuestionBank.shouldShowQuestionBank(request),
-                  featureFlags.getFlagEnabled(request, PHONE_QUESTION_TYPE_ENABLED)))
+                  ProgramQuestionBank.shouldShowQuestionBank(request),
+                  settingsManifest.getPhoneQuestionTypeEnabled(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
 
     // Add toast messages
-    request.flash().get("error").map(ToastMessage::error).ifPresent(htmlBundle::addToastMessages);
+    request
+        .flash()
+        .get("error")
+        .map(ToastMessage::errorNonLocalized)
+        .ifPresent(htmlBundle::addToastMessages);
     message.ifPresent(htmlBundle::addToastMessages);
 
     return layout.render(htmlBundle);
@@ -419,8 +419,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions,
-                  request));
+                  allQuestions));
     }
 
     DivTag programQuestions =
@@ -553,15 +552,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      Request request) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withClasses("my-4")
             .with(div("Eligibility condition").withClasses("text-lg", "font-bold", "py-2"))
-            .with(
-                renderEmptyEligibilityPredicate(program, request)
-                    .withClasses("text-lg", "max-w-prose"));
+            .with(renderEmptyEligibilityPredicate(program).withClasses("text-lg", "max-w-prose"));
     if (!predicate.isEmpty()) {
       div.with(renderExistingPredicate(blockName, predicate.get().predicate(), questions));
     }
@@ -579,38 +575,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return div;
   }
 
-  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program, Request request) {
-    DivTag emptyPredicateDiv;
-    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
-      ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
-      if (program.eligibilityIsGating()) {
-        emptyPredicateContentBuilder.add(
-            text(
-                "You can add eligibility conditions to determine if an applicant qualifies for the"
-                    + " program. Applicants who do not meet the minimum requirements will be"
-                    + " blocked from submitting an application."));
-      } else {
-        emptyPredicateContentBuilder.add(
-            text(
-                "You can add eligibility conditions to determine if an applicant qualifies for the"
-                    + " program. Applicants can submit an application even if they do not meet the"
-                    + " minimum requirements."));
-      }
-      emptyPredicateContentBuilder
-          .add(text(" You can change this in the "))
-          .add(
-              a().withText("program settings.")
-                  .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
-                  .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
-      emptyPredicateDiv = div().with(emptyPredicateContentBuilder.build());
+  private DivTag renderEmptyEligibilityPredicate(ProgramDefinition program) {
+    ImmutableList.Builder<DomContent> emptyPredicateContentBuilder = ImmutableList.builder();
+    if (program.eligibilityIsGating()) {
+      emptyPredicateContentBuilder.add(
+          text(
+              "You can add eligibility conditions to determine if an applicant qualifies for the"
+                  + " program. Applicants who do not meet the minimum requirements will be"
+                  + " blocked from submitting an application."));
     } else {
-      emptyPredicateDiv =
-          div(
-              "You can add eligibility conditions to help screen applicants who do not"
-                  + " meet the minimum requirements for a program early in the application"
-                  + " process.");
+      emptyPredicateContentBuilder.add(
+          text(
+              "You can add eligibility conditions to determine if an applicant qualifies for the"
+                  + " program. Applicants can submit an application even if they do not meet the"
+                  + " minimum requirements."));
     }
-    return emptyPredicateDiv;
+    emptyPredicateContentBuilder
+        .add(text(" You can change this in the "))
+        .add(
+            a().withText("program settings.")
+                .withHref(routes.AdminProgramController.editProgramSettings(program.id()).url())
+                .withClasses(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT));
+    return div().with(emptyPredicateContentBuilder.build());
   }
 
   /**
@@ -660,7 +646,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     Optional<FormTag> maybeOptionalToggle =
         renderOptionalToggle(
-            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
+            request,
+            csrfTag,
+            programDefinition.id(),
+            blockDefinition.id(),
+            questionDefinition,
+            isOptional);
 
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -781,12 +772,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * optional or mandatory.
    */
   private Optional<FormTag> renderOptionalToggle(
+      Request request,
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean isOptional) {
-    if (!featureFlagOptionalQuestions) {
+    if (!settingsManifest.getCfOptionalQuestions(request)) {
       return Optional.empty();
     }
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
@@ -891,7 +883,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (!featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)) {
+    if (!settingsManifest.getEsriAddressCorrectionEnabled(request)) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=
@@ -1000,7 +992,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      QuestionBank.Visibility questionBankVisibility,
+      ProgramQuestionBank.Visibility questionBankVisibility,
       boolean phoneQuestionTypeEnabled) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
@@ -1008,13 +1000,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .url();
 
     String redirectUrl =
-        QuestionBank.addShowQuestionBankParam(
+        ProgramQuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(
                     program.id(), blockDefinition.id())
                 .url());
-    QuestionBank qb =
-        new QuestionBank(
-            QuestionBank.QuestionBankParams.builder()
+    ProgramQuestionBank qb =
+        new ProgramQuestionBank(
+            ProgramQuestionBank.ProgramQuestionBankParams.builder()
                 .setQuestionAction(addQuestionAction)
                 .setCsrfTag(csrfTag)
                 .setQuestions(questionDefinitions)
@@ -1169,6 +1161,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
       String editLink = routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
       return toLinkButtonForPost(editButton, editLink, request);
     }
+  }
+
+  private ButtonTag renderPreviewButton(ProgramDefinition programDefinition) {
+    return asRedirectElement(
+        ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
+            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mx-2"),
+        controllers.admin.routes.AdminProgramPreviewController.preview(programDefinition.id())
+            .url());
   }
 
   /** Indicates if this view is showing a draft or published program. */

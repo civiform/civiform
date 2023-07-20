@@ -79,6 +79,57 @@ function docker::compose_browser_test_dev_local() {
 }
 
 #######################################
+# Runs docker compose up to bring up the Python-based container
+# needed for env-var-docs. Additionally, installs dependencies
+# and installs (or updates, if the container is already running)
+# the env-var-docs parser-package.
+#######################################
+function docker::compose_env_var_docs_up() {
+  docker compose \
+    -f env-var-docs/docker-compose.env-var-docs.yml \
+    up -d
+  docker exec civiform-vars-parser-package env-var-docs/update-container-parser-package
+}
+
+#######################################
+# Runs docker compose down to tear down the civiform-vars-parser-package container.
+#######################################
+function docker::compose_env_var_docs_down() {
+  docker compose \
+    -f env-var-docs/docker-compose.env-var-docs.yml \
+    down --remove-orphans
+}
+
+#######################################
+# Executes a shell command in the running civiform-vars-parser-package
+# container. Passes in a superset of environment variables used by the various
+# env-var-docs commands. Before running the command, checks if parser-package
+# has any updates, and if so, reinstalls the package.
+# Arguments:
+#   @: command to run
+#######################################
+function docker::run_env_var_docs_command() {
+  docker exec civiform-vars-parser-package env-var-docs/update-container-parser-package
+
+  # If we're running in a tty, use -t so we get pretty colors
+  TTY_FLAG=""
+  if [[ -t 0 ]]; then
+    TTY_FLAG="-t"
+  fi
+
+  docker exec \
+    ${TTY_FLAG} \
+    -e APPLICATION_CONF_PATH="${APPLICATION_CONF_PATH:-server/conf/application.conf}" \
+    -e ENV_VAR_DOCS_PATH="${ENV_VAR_DOCS_PATH:-server/conf/env-var-docs.json}" \
+    -e LOCAL_OUTPUT="${LOCAL_OUTPUT:-true}" \
+    -e RELEASE_VERSION="${RELEASE_VERSION}" \
+    -e GITHUB_ACCESS_TOKEN="${GITHUB_ACCESS_TOKEN}" \
+    -e TARGET_REPO="${TARGET_REPO}" \
+    -e TARGET_PATH="${TARGET_PATH}" \
+    civiform-vars-parser-package "$@"
+}
+
+#######################################
 # Starts a bash shell in the civiform-shell container
 #######################################
 function docker::run_shell_container() {
@@ -133,6 +184,20 @@ function docker::remove_shell_container() {
 function docker::set_project_name_dev() {
   export COMPOSE_PROJECT_NAME="$(basename $(pwd))"
   export DOCKER_NETWORK_NAME="${COMPOSE_PROJECT_NAME}_default"
+}
+
+#######################################
+# Set COMPOSE_PROJECT_NAME and DOCKER_NETWORK_NAME to the network name used by
+# the dev environment. Use a special project name for env-var-docs, since
+# we run this from the civiform directory and want to have it be a separate
+# project.
+# Globals:
+#   DOCKER_NETWORK_NAME
+#   COMPOSE_PROJECT_NAME
+#######################################
+function docker::set_project_name_env_var_docs() {
+  export COMPOSE_PROJECT_NAME="env-var-docs"
+  export DOCKER_NETWORK_NAME="env-var-docs_default"
 }
 
 #######################################

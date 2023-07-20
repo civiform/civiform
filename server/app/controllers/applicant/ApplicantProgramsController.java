@@ -1,8 +1,8 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static views.components.ToastMessage.ToastType.ALERT;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -16,6 +16,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
@@ -38,7 +39,6 @@ public final class ApplicantProgramsController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ProgramIndexView programIndexView;
   private final ApplicantProgramInfoView programInfoView;
-  private final ProfileUtils profileUtils;
 
   @Inject
   public ApplicantProgramsController(
@@ -47,38 +47,41 @@ public final class ApplicantProgramsController extends CiviFormController {
       MessagesApi messagesApi,
       ProgramIndexView programIndexView,
       ApplicantProgramInfoView programInfoView,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.programIndexView = checkNotNull(programIndexView);
     this.programInfoView = checkNotNull(programInfoView);
-    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
-    Optional<ToastMessage> banner =
-        request.flash().get("banner").map(m -> new ToastMessage(m, ALERT));
+    Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
             httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
-              return ok(
-                  programIndexView.render(
+              return ok(programIndexView.render(
                       messagesApi.preferred(request),
                       request,
                       applicantId,
                       applicantStage.toCompletableFuture().join(),
                       applicationPrograms,
-                      banner));
+                      banner))
+                  // If the user has been to the index page, any existing redirects should be
+                  // cleared to avoid an experience where they're unexpectedly redirected after
+                  // logging in.
+                  .removingFromSession(request, REDIRECT_TO_SESSION_KEY);
             },
             httpContext.current())
         .exceptionally(
@@ -99,7 +102,7 @@ public final class ApplicantProgramsController extends CiviFormController {
 
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
-        .thenComposeAsync(v -> checkApplicantAuthorization(profileUtils, request, applicantId))
+        .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
             v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
             httpContext.current())
@@ -138,7 +141,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
 
     // Determine first incomplete block, then redirect to other edit.
-    return checkApplicantAuthorization(profileUtils, request, applicantId)
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId))
         .thenApplyAsync(

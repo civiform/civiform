@@ -2,6 +2,7 @@ package services.settings;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -12,11 +13,13 @@ public abstract class SettingDescription {
   public static SettingDescription create(
       String variableName,
       String variableDescription,
+      boolean isRequired,
       SettingType settingType,
       SettingMode settingMode) {
     return new AutoValue_SettingDescription(
         variableName,
         variableDescription,
+        isRequired,
         settingType,
         settingMode,
         /* allowableValues= */ Optional.empty(),
@@ -26,12 +29,14 @@ public abstract class SettingDescription {
   public static SettingDescription create(
       String variableName,
       String variableDescription,
+      boolean isRequired,
       SettingType settingType,
       SettingMode settingMode,
       ImmutableList<String> allowableValues) {
     return new AutoValue_SettingDescription(
         variableName,
         variableDescription,
+        isRequired,
         settingType,
         settingMode,
         Optional.of(allowableValues),
@@ -41,12 +46,14 @@ public abstract class SettingDescription {
   public static SettingDescription create(
       String variableName,
       String variableDescription,
+      boolean isRequired,
       SettingType settingType,
       SettingMode settingMode,
       Pattern validationRegex) {
     return new AutoValue_SettingDescription(
         variableName,
         variableDescription,
+        isRequired,
         settingType,
         settingMode,
         /* allowableValues= */ Optional.empty(),
@@ -58,6 +65,9 @@ public abstract class SettingDescription {
 
   /** A sentence or two describing the setting. */
   public abstract String settingDescription();
+
+  // True if the setting must be present.
+  public abstract boolean isRequired();
 
   /** The type of this setting. */
   public abstract SettingType settingType();
@@ -73,8 +83,15 @@ public abstract class SettingDescription {
   // the value of this setting must match the regex.
   public abstract Optional<Pattern> validationRegex();
 
+  public boolean isReadOnly() {
+    return !settingMode().equals(SettingMode.ADMIN_WRITEABLE);
+  }
+
+  private static final ImmutableSet<SettingMode> DISPLAYABLE_SETTING_MODES =
+      ImmutableSet.of(SettingMode.ADMIN_WRITEABLE, SettingMode.ADMIN_READABLE);
+
   /** True if the setting should be displayed in the UI. */
   public boolean shouldDisplay() {
-    return settingMode().equals(SettingMode.ADMIN_READABLE);
+    return DISPLAYABLE_SETTING_MODES.contains(settingMode());
   }
 }

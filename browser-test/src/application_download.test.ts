@@ -6,7 +6,7 @@ import {
   loginAsProgramAdmin,
   loginAsTestUser,
   logout,
-  seedCanonicalQuestions,
+  seedQuestions,
   validateScreenshot,
 } from './support'
 
@@ -16,7 +16,7 @@ describe('normal application flow', () => {
   beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
-    await seedCanonicalQuestions(page)
+    await seedQuestions(page)
   })
 
   it('all major steps', async () => {

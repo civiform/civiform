@@ -95,7 +95,7 @@ describe('applicant auth', () => {
     await loginAsAdmin(page)
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     await logout(page)
     await applicantQuestions.clickApplyProgramButton(programName)

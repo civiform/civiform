@@ -28,7 +28,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       'https://usa.gov',
       ProgramVisibility.HIDDEN,
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Login as applicant
     await logout(page)
@@ -55,7 +55,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       'https://usa.gov',
       ProgramVisibility.PUBLIC,
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Login as applicant
     await logout(page)
@@ -82,7 +82,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       'https://usa.gov',
       ProgramVisibility.TI_ONLY,
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
     await logout(page)
@@ -141,7 +141,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       /* isCommonIntake= */ false,
       'groupTwo',
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
     await logout(page)
@@ -157,14 +157,16 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await loginAsTrustedIntermediary(page)
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
+
     const client: ClientInformation = {
-      emailAddress: 'fake@sample.com',
+      emailAddress: 'fakeOne@sample.com',
       firstName: 'first',
       middleName: 'middle',
       lastName: 'last',
       dobDate: '2021-05-10',
     }
     await tiDashboard.createClient(client)
+
     await tiDashboard.expectDashboardContainClient(client)
     await tiDashboard.clickOnApplicantDashboard()
     await applicantQuestions.expectProgramHidden(programName)
@@ -215,7 +217,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
       /* isCommonIntake= */ false,
       'groupTwo',
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
 
     // Login as applicant, verify program is hidden
     await logout(page)
@@ -232,7 +234,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     await tiDashboard.gotoTIDashboardPage(page)
     await waitForPageJsLoad(page)
     const client: ClientInformation = {
-      emailAddress: 'fake@sample.com',
+      emailAddress: 'fakeThree@sample.com',
       firstName: 'first',
       middleName: 'middle',
       lastName: 'last',
@@ -251,7 +253,7 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     // login again as Admin and change the visibility to TI_Only, check if they can see the program
     await loginAsAdmin(page)
     await adminPrograms.editProgram(programName, ProgramVisibility.TI_ONLY)
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await logout(page)
 
     await loginAsTrustedIntermediary(page)

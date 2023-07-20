@@ -8,12 +8,12 @@
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
         "type": "string"
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
         "type": "string"
       },
@@ -41,8 +41,7 @@
               "login-gov",
               "auth0",
               "disabled"
-            ],
-            "required": true
+            ]
           },
           "APPLICANT_REGISTER_URI": {
             "mode": "ADMIN_READABLE",
@@ -50,7 +49,7 @@
             "type": "string"
           },
           "APPLICANT_PORTAL_NAME": {
-            "mode": "ADMIN_READABLE",
+            "mode": "ADMIN_WRITEABLE",
             "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
             "type": "string"
           },
@@ -80,20 +79,17 @@
               "LOGIN_RADIUS_API_KEY": {
                 "mode": "HIDDEN",
                 "description": "The API key used to interact with LoginRadius.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "LOGIN_RADIUS_METADATA_URI": {
                 "mode": "HIDDEN",
                 "description": "The base URL to construct SAML endpoints, based on the SAML2 spec.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "LOGIN_RADIUS_SAML_APP_NAME": {
                 "mode": "HIDDEN",
                 "description": "The name for the app, based on the SAML2 spec.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "LOGIN_RADIUS_KEYSTORE_NAME": {
                 "mode": "HIDDEN",
@@ -148,8 +144,7 @@
               "APPLICANT_OIDC_DISCOVERY_URI": {
                 "mode": "HIDDEN",
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with a given auth provider.",
-                "type": "string",
-                "required": true
+                "type": "string"
               },
               "APPLICANT_OIDC_RESPONSE_MODE": {
                 "mode": "HIDDEN",
@@ -240,8 +235,7 @@
           "ADFS_DISCOVERY_URI": {
             "mode": "HIDDEN",
             "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "ADFS_GLOBAL_ADMIN_GROUP": {
             "mode": "HIDDEN",
@@ -339,20 +333,10 @@
       "ESRI Address Validation": {
         "group_description": "Configuration options for the ESRI GIS client and address validation/correction feature.",
         "members": {
-          "ESRI_ADDRESS_CORRECTION_ENABLED": {
-            "mode": "ADMIN_READABLE",
-            "description": "Enables the feature that allows address correction for address questions.",
-            "type": "bool"
-          },
           "ESRI_FIND_ADDRESS_CANDIDATES_URL": {
             "mode": "ADMIN_READABLE",
             "description": "The URL CiviForm will use to call Esri’s [findAddressCandidates service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
             "type": "string"
-          },
-          "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
-            "mode": "ADMIN_READABLE",
-            "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
-            "type": "bool"
           },
           "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS": {
             "mode": "ADMIN_READABLE",
@@ -387,12 +371,12 @@
     "group_description": "Configuration options for [CiviForm email usage](https://docs.civiform.us/it-manual/sre-playbook/email-configuration).",
     "members": {
       "SUPPORT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "This email address is listed in the footer for applicants to contact support.",
         "type": "string"
       },
       "IT_EMAIL_ADDRESS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "This email address receives error notifications from CiviForm when things break.",
         "type": "string"
       },
@@ -417,14 +401,20 @@
     "group_description": "Text specific to a civic entity.",
     "members": {
       "COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The text for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
         "type": "string"
       },
       "COMMON_INTAKE_MORE_RESOURCES_LINK_HREF": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for a link on the Common Intake confirmation page that links to more resources. Shown when the applicant is not eligible for any programs in CiviForm.",
-        "type": "string"
+        "type": "string",
+        "regex": "^(http://|https://).+",
+        "regex_tests": [
+          {"val": "http://my-civiform.org", "should_match": true},
+          {"val": "https://my-civiform.org", "should_match": true},
+          {"val": "my-civiform.org", "should_match": false}
+        ]
       }
     }
   },
@@ -437,19 +427,18 @@
     "mode": "ADMIN_READABLE",
     "description": "The URL of the CiviForm deployment.  Must start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(http://|https://)",
+    "regex": "^(http://|https://).+",
     "regex_tests": [
       {"val": "http://my-civiform.org", "should_match": true},
       {"val": "https://my-civiform.org", "should_match": true},
       {"val": "my-civiform.org", "should_match": false}
-    ],
-    "required": true
+    ]
   },
   "STAGING_HOSTNAME": {
     "mode": "HIDDEN",
     "description": "DNS name of the staging deployment.  Must not start with 'https://' or 'http://'.",
     "type": "string",
-    "regex": "^(?!http://|https://)",
+    "regex": "^(?!http://|https://).+",
     "regex_tests": [
       {"val": "my-civiform.org", "should_match": true},
       {"val": "http://my-civiform.org", "should_match": false},
@@ -477,7 +466,7 @@
     "type": "string"
   },
   "CLIENT_IP_TYPE": {
-    "mode": "HIDDEN",
+    "mode": "ADMIN_READABLE",
     "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
     "type": "string",
     "values": ["DIRECT", "FORWARDED"]
@@ -540,39 +529,39 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
+      "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+        "type": "bool"
+      },
+      "ESRI_ADDRESS_CORRECTION_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows address correction for address questions.",
+        "type": "bool"
+      },
       "ADMIN_SETTINGS_PANEL_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "If enabled, adds a page in the CiviForm Admin UI for accessing application settings.",
         "type": "bool"
       },
       "CF_OPTIONAL_QUESTIONS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, allows questions to be optional in programs. Is enabled by default.",
         "type": "bool"
       },
       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by default.",
         "type": "bool"
       },
       "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by default.",
         "type": "bool"
       },
-      "FEATURE_FLAG_OVERRIDES_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Allows feature flags to be overridden via request cookies. Is used by browser tests. Should only be enabled in test and staging deployments.",
-        "type": "bool"
-      },
       "INTAKE_FORM_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the Common Intake Form feature.",
-        "type": "bool"
-      },
-      "NONGATED_ELIGIBILITY_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables the feature that allows setting eligibility criteria to non-gating.",
         "type": "bool"
       },
       "STAGING_ADD_NOINDEX_META_TAG": {
@@ -586,13 +575,8 @@
         "type": "bool"
       },
       "PHONE_QUESTION_TYPE_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the phone number question type.",
-        "type": "bool"
-      },
-      "PUBLISH_SINGLE_PROGRAM_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables the feature that allows publishing a single program on its own.",
         "type": "bool"
       }
     }

@@ -4,58 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines a text question. */
 public final class TextQuestionDefinition extends QuestionDefinition {
 
-  public TextQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      TextValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
-  }
-
-  public TextQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      TextValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
-  }
-
-  public TextQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        TextValidationPredicates.create());
+  public TextQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @JsonDeserialize(
@@ -114,6 +69,11 @@ public final class TextQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.TEXT;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return TextValidationPredicates.create();
   }
 
   public OptionalInt getMinLength() {

@@ -9,12 +9,13 @@ public class SettingDescriptionTest {
   @Test
   public void shouldDisplay() {
     assertThat(
-            SettingDescription.create("HIDDEN_NAME", "", SettingType.STRING, SettingMode.HIDDEN)
+            SettingDescription.create(
+                    "HIDDEN_NAME", "", true, SettingType.STRING, SettingMode.HIDDEN)
                 .shouldDisplay())
         .isFalse();
     assertThat(
             SettingDescription.create(
-                    "READABLE_NAME", "", SettingType.STRING, SettingMode.ADMIN_READABLE)
+                    "READABLE_NAME", "", true, SettingType.STRING, SettingMode.ADMIN_READABLE)
                 .shouldDisplay())
         .isTrue();
   }

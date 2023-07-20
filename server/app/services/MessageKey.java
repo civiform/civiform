@@ -167,6 +167,7 @@ public enum MessageKey {
   TITLE_STATUS("title.status"),
   TOAST_APPLICATION_SAVED("toast.applicationSaved"),
   TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
+  TOAST_ERROR_MSG_OUTLINE("toast.errorMessageOutline"),
   TOAST_LOCALE_NOT_SUPPORTED("toast.localeNotSupported"),
   TOAST_MAY_NOT_QUALIFY("toast.mayNotQualify"),
   TOAST_MAY_NOT_QUALIFY_TI("toast.mayNotQualifyTi"),

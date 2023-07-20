@@ -188,7 +188,7 @@ describe('Text question for applicant flow', () => {
         ['second-text-q'],
         'first-text-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

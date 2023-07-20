@@ -9,7 +9,12 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import junitparams.JUnitParamsRunner;
@@ -42,6 +47,18 @@ public class MessagesTest {
   // copy-pasting text. Check for this error in all messages files.
   private static final Set<String> PROHIBITED_CHARACTERS = Set.of("â");
 
+  // Words that should not be in the internationalization files, such as civic entity-specific
+  // names.
+  private static final Set<String> PROHIBITED_WORDS =
+      Set.of(
+          "Seattle",
+          "Washington",
+          "Bloomington",
+          "Indiana",
+          "Arkansas",
+          "Charlotte",
+          "North Carolina");
+
   @Test
   @Parameters(method = "foreignLanguageFiles")
   public void messages_keysInForeignLanguageFileAreInPrimaryLanguageFile(String foreignLanguageFile)
@@ -63,6 +80,23 @@ public class MessagesTest {
 
     // messages.en-US should be empty and allow all keys to fall back to the messages file.
     assertThat(entriesInEnUsLanguageFile).isEmpty();
+  }
+
+  @Test
+  public void messages_primaryFile_containsNoProhibitedWords() throws Exception {
+    TreeMap<String, String> entriesInPrimaryLanguageFile =
+        entriesInFile(PRIMARY_LANGUAGE_FILE_PATH);
+
+    assertThat(entriesInPrimaryLanguageFile.values())
+        .allSatisfy(
+            sourceString -> {
+              PROHIBITED_WORDS.forEach(
+                  prohibitedWord -> {
+                    assertThat(sourceString.toLowerCase(Locale.US))
+                        .withFailMessage(prohibitedWord + " found in primary language file.")
+                        .doesNotContain(prohibitedWord.toLowerCase(Locale.US));
+                  });
+            });
   }
 
   @Test

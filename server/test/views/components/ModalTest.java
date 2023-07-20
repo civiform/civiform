@@ -3,7 +3,7 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.text;
 import static org.assertj.core.api.Assertions.assertThat;
-import static views.components.Modal.RepeatOpenBehavior.Group.*;
+import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAMS_INDEX_LOGIN_PROMPT;
 
 import org.junit.Test;
 

@@ -89,7 +89,7 @@ describe('currency applicant flow', () => {
         ['currency-b-q'],
         'currency-a-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

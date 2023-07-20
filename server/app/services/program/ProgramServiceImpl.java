@@ -64,9 +64,9 @@ public final class ProgramServiceImpl implements ProgramService {
       "A program URL may only contain lowercase letters, numbers, and dashes";
   private static final String INVALID_PROGRAM_LINK_FORMAT_MSG =
       "A program link must begin with 'http://' or 'https://'";
-
   private static final String MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE =
       "One or more TI Org must be selected for program visibility";
+
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
@@ -88,15 +88,20 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
-    try {
-      return getActiveProgramDefinitionAsync(id).toCompletableFuture().join();
-    } catch (CompletionException e) {
-      if (e.getCause() instanceof ProgramNotFoundException) {
-        throw new ProgramNotFoundException(id);
-      }
-      throw new RuntimeException(e);
-    }
+  public ImmutableSet<String> getAllProgramNames() {
+    return programRepository.getAllProgramNames();
+  }
+
+  @Override
+  public ImmutableSet<String> getAllProgramSlugs() {
+    return getAllProgramNames().stream()
+        .map(MainModule.SLUGIFIER::slugify)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  @Override
+  public ImmutableSet<String> getActiveProgramNames() {
+    return versionRepository.getActiveVersion().getProgramNames();
   }
 
   @Override
@@ -110,7 +115,26 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(long id) {
+  public Optional<ProgramDefinition> getCommonIntakeForm() {
+    return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+        .filter(ProgramDefinition::isCommonIntakeForm)
+        .findFirst();
+  }
+
+  @Override
+  public ProgramDefinition getProgramDefinition(long id) throws ProgramNotFoundException {
+    try {
+      return getProgramDefinitionAsync(id).toCompletableFuture().join();
+    } catch (CompletionException e) {
+      if (e.getCause() instanceof ProgramNotFoundException) {
+        throw new ProgramNotFoundException(id);
+      }
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public CompletionStage<ProgramDefinition> getProgramDefinitionAsync(long id) {
     return programRepository
         .lookupProgram(id)
         .thenComposeAsync(
@@ -127,39 +151,15 @@ public final class ProgramServiceImpl implements ProgramService {
   @Override
   public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
     return programRepository
-        .getForSlug(programSlug)
+        .getActiveProgramFromSlug(programSlug)
         .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
   }
 
   @Override
-  public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
-      ImmutableList<ProgramDefinition> programDefinitions) {
-
-    /* TEMP BUG FIX
-     * Because some of the programs are not in the active version,
-     * and we need to sync the questions for each program to calculate
-     * eligibility state, we must sync each program with a version it
-     * is associated with. This diverges from previous behavior where
-     * we did not need to sync the programs because the contents of their
-     * questions was not needed in the index view.
-     */
-    return CompletableFuture.completedFuture(
-        programDefinitions.stream()
-            .map(
-                programDef -> {
-                  Program p = programDef.toProgram();
-                  p.refresh();
-                  Version v = p.getVersions().stream().findAny().orElseThrow();
-                  try {
-                    return syncProgramDefinitionQuestions(
-                        programDef, questionService.getReadOnlyVersionedQuestionService(v));
-                    /* END TEMP BUG FIX */
-                  } catch (QuestionNotFoundException e) {
-                    throw new RuntimeException(
-                        String.format("Question not found for Program %s", programDef.id()), e);
-                  }
-                })
-            .collect(ImmutableList.toImmutableList()));
+  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
+    return programRepository.getAllProgramVersions(programId).stream()
+        .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
+        .collect(ImmutableList.toImmutableList());
   }
 
   private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
@@ -176,49 +176,11 @@ public final class ProgramServiceImpl implements ProgramService {
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
 
-  @Override
-  public ImmutableSet<String> getActiveProgramNames() {
-    return versionRepository.getActiveVersion().getProgramsNames();
-  }
-
-  @Override
-  public ImmutableSet<String> getAllProgramNames() {
-    return programRepository.getAllProgramNames();
-  }
-
-  @Override
-  public ImmutableSet<String> getAllProgramSlugs() {
-    return getAllProgramNames().stream()
-        .map(MainModule.SLUGIFIER::slugify)
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  @Override
-  public ImmutableSet<CiviFormError> validateProgramDataForCreate(
-      String adminName,
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String externalLink,
-      String displayMode,
-      ImmutableList<Long> tiGroups) {
-    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    errorsBuilder.addAll(
-        validateProgramData(
-            adminDescription,
-            displayName,
-            displayDescription,
-            externalLink,
-            displayMode,
-            tiGroups));
-    if (adminName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
-    } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
-      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
-    } else if (hasProgramNameCollision(adminName)) {
-      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
-    }
-    return errorsBuilder.build();
+  private boolean isActiveOrDraftProgram(Program program) {
+    return Streams.concat(
+            versionRepository.getActiveVersion().getPrograms().stream(),
+            versionRepository.getDraftVersion().getPrograms().stream())
+        .anyMatch(p -> p.id.equals(program.id));
   }
 
   @Override
@@ -279,15 +241,41 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
+  public ImmutableSet<CiviFormError> validateProgramDataForCreate(
+      String adminName,
       String adminDescription,
       String displayName,
       String displayDescription,
       String externalLink,
       String displayMode,
       ImmutableList<Long> tiGroups) {
-    return validateProgramData(
-        adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    errorsBuilder.addAll(
+        validateProgramData(
+            adminDescription,
+            displayName,
+            displayDescription,
+            externalLink,
+            displayMode,
+            tiGroups));
+    if (adminName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_NAME_MSG));
+    } else if (!MainModule.SLUGIFIER.slugify(adminName).equals(adminName)) {
+      errorsBuilder.add(CiviFormError.of(INVALID_ADMIN_NAME_MSG));
+    } else if (hasProgramNameCollision(adminName)) {
+      errorsBuilder.add(CiviFormError.of("A program URL of " + adminName + " already exists"));
+    }
+    return errorsBuilder.build();
+  }
+
+  // Program names and program URL slugs must be unique in a given CiviForm
+  // system. If the slugs of two names collide, the names also collide, so
+  // we can check both by just checking for slug collisions.
+  // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
+  private boolean hasProgramNameCollision(String programName) {
+    return getAllProgramNames().stream()
+        .map(MainModule.SLUGIFIER::slugify)
+        .anyMatch(MainModule.SLUGIFIER.slugify(programName)::equals);
   }
 
   @Override
@@ -355,14 +343,18 @@ public final class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  // Checks whether a URL would work correctly if an href attribute was set to it.
-  // That is, it must start with http:// or https:// so that the href link doesn't
-  // treat it as relative to the current URL.
-  //
-  // We treat blank links as an exception, so that we can default to the program
-  // details page if a link isn't provided.
-  private boolean isValidAbsoluteLink(String url) {
-    return url.isBlank() || url.startsWith("http://") || url.startsWith("https://");
+  /** Removes eligibility predicates from all blocks in this program. */
+  private ProgramDefinition removeAllEligibilityPredicates(ProgramDefinition programDefinition)
+      throws ProgramNotFoundException {
+    try {
+      return updateProgramDefinitionWithBlockDefinitions(
+          programDefinition,
+          programDefinition.blockDefinitions().stream()
+              .map(block -> block.toBuilder().setEligibilityDefinition(Optional.empty()).build())
+              .collect(ImmutableList.toImmutableList()));
+    } catch (IllegalPredicateOrderingException e) {
+      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
+    }
   }
 
   /**
@@ -384,25 +376,88 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   /**
-   * Determines whether the list of provided localized application status updates exactly correspond
-   * to the list of configured application statuses within the program. This means that:
-   * <li>The lists are of the same length
-   * <li>Have the exact same ordering of statuses
+   * Clears the common intake form if it exists.
+   *
+   * <p>If there is a program among the most recent versions of all programs marked as the common
+   * intake form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
+   * necessary.
    */
-  private void validateLocalizationStatuses(
-      LocalizationUpdate localizationUpdate, ProgramDefinition program)
-      throws OutOfDateStatusesException {
-    ImmutableList<String> localizationStatusNames =
-        localizationUpdate.statuses().stream()
-            .map(LocalizationUpdate.StatusUpdate::statusKeyToUpdate)
-            .collect(ImmutableList.toImmutableList());
-    ImmutableList<String> configuredStatusNames =
-        program.statusDefinitions().getStatuses().stream()
-            .map(StatusDefinitions.Status::statusText)
-            .collect(ImmutableList.toImmutableList());
-    if (!localizationStatusNames.equals(configuredStatusNames)) {
-      throw new OutOfDateStatusesException();
+  private void clearCommonIntakeForm() {
+    Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
+    if (!maybeCommonIntakeForm.isPresent()) {
+      return;
     }
+    ProgramDefinition draftCommonIntakeProgramDefinition =
+        programRepository
+            .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
+            .getProgramDefinition();
+    Program commonIntakeProgram =
+        draftCommonIntakeProgramDefinition.toBuilder()
+            .setProgramType(ProgramType.DEFAULT)
+            .build()
+            .toProgram();
+    programRepository.updateProgramSync(commonIntakeProgram);
+  }
+
+  @Override
+  public ImmutableSet<CiviFormError> validateProgramDataForUpdate(
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode,
+      ImmutableList<Long> tiGroups) {
+    return validateProgramData(
+        adminDescription, displayName, displayDescription, externalLink, displayMode, tiGroups);
+  }
+
+  @Override
+  public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
+    // Note: It's unclear that we actually want to update an existing draft this way, as it would
+    // effectively reset the  draft which is not part of any user flow. Given the interdependency of
+    // draft updates this is likely to cause issues as in #2179.
+    return programRepository
+        .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
+        .getProgramDefinition();
+  }
+
+  private ImmutableSet<CiviFormError> validateProgramData(
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String externalLink,
+      String displayMode,
+      List<Long> tiGroups) {
+    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
+    if (displayName.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
+    }
+    if (displayDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
+    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
+    }
+    if (displayMode.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
+    }
+    if (adminDescription.isBlank()) {
+      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
+    }
+    if (!isValidAbsoluteLink(externalLink)) {
+      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
+    }
+
+    return errorsBuilder.build();
+  }
+
+  // Checks whether a URL would work correctly if an href attribute was set to it.
+  // That is, it must start with http:// or https:// so that the href link doesn't
+  // treat it as relative to the current URL.
+  //
+  // We treat blank links as an exception, so that we can default to the program
+  // details page if a link isn't provided.
+  private boolean isValidAbsoluteLink(String url) {
+    return url.isBlank() || url.startsWith("http://") || url.startsWith("https://");
   }
 
   @Override
@@ -480,16 +535,6 @@ public final class ProgramServiceImpl implements ProgramService {
             .join());
   }
 
-  // Program names and program URL slugs must be unique in a given CiviForm
-  // system. If the slugs of two names collide, the names also collide, so
-  // we can check both by just checking for slug collisions.
-  // For more info on URL slugs see: https://en.wikipedia.org/wiki/Clean_URL#Slug
-  private boolean hasProgramNameCollision(String programName) {
-    return getAllProgramNames().stream()
-        .map(MainModule.SLUGIFIER::slugify)
-        .anyMatch(MainModule.SLUGIFIER.slugify(programName)::equals);
-  }
-
   private void validateProgramText(
       ImmutableSet.Builder<CiviFormError> builder, String fieldName, String text) {
     if (text.isBlank()) {
@@ -497,91 +542,44 @@ public final class ProgramServiceImpl implements ProgramService {
     }
   }
 
-  @Override
-  @Transactional
-  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
-      throws ProgramNotFoundException {
-    try {
-      return addBlockToProgram(programId, Optional.empty());
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(
-          "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
-              + " id is empty.");
+  /**
+   * Determines whether the list of provided localized application status updates exactly correspond
+   * to the list of configured application statuses within the program. This means that:
+   * <li>The lists are of the same length
+   * <li>Have the exact same ordering of statuses
+   */
+  private void validateLocalizationStatuses(
+      LocalizationUpdate localizationUpdate, ProgramDefinition program)
+      throws OutOfDateStatusesException {
+    ImmutableList<String> localizationStatusNames =
+        localizationUpdate.statuses().stream()
+            .map(LocalizationUpdate.StatusUpdate::statusKeyToUpdate)
+            .collect(ImmutableList.toImmutableList());
+    ImmutableList<String> configuredStatusNames =
+        program.statusDefinitions().getStatuses().stream()
+            .map(StatusDefinitions.Status::statusText)
+            .collect(ImmutableList.toImmutableList());
+    if (!localizationStatusNames.equals(configuredStatusNames)) {
+      throw new OutOfDateStatusesException();
     }
   }
 
   @Override
-  @Transactional
-  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
-      long programId, long enumeratorBlockId)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
-  }
-
-  private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
-      long blockId, Optional<Long> maybeEnumeratorBlockId) {
-    String blockName =
-        maybeEnumeratorBlockId.isPresent()
-            ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
-            : String.format("Screen %d", blockId);
-    String blockDescription = String.format("Screen %d description", blockId);
-    BlockDefinition blockDefinition =
-        BlockDefinition.builder()
-            .setId(blockId)
-            .setName(blockName)
-            .setDescription(blockDescription)
-            .setEnumeratorId(maybeEnumeratorBlockId)
-            .build();
-    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
-    return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);
-  }
-
-  private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId, Optional<Long> enumeratorBlockId)
-      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-    if (enumeratorBlockId.isPresent()
-        && !programDefinition.hasEnumerator(enumeratorBlockId.get())) {
-      throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
+  public ImmutableList<String> getNotificationEmailAddresses(String programName) {
+    ImmutableList<String> explicitProgramAdmins =
+        programRepository.getProgramAdministrators(programName).stream()
+            .map(Account::getEmailAddress)
+            .filter(address -> !Strings.isNullOrEmpty(address))
+            .collect(ImmutableList.toImmutableList());
+    // If there are any program admins, return them.
+    if (explicitProgramAdmins.size() > 0) {
+      return explicitProgramAdmins;
     }
-
-    ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
-        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
-    if (maybeBlockDefinition.isError()) {
-      return ErrorAnd.errorAnd(
-          maybeBlockDefinition.getErrors(),
-          ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
-    }
-    BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
-    Program program =
-        programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
-    ProgramDefinition updatedProgram =
-        syncProgramDefinitionQuestions(
-                programRepository.updateProgramSync(program).getProgramDefinition())
-            .toCompletableFuture()
-            .join();
-    BlockDefinition updatedBlockDefinition =
-        updatedProgram.getBlockDefinition(blockDefinition.id());
-    return ErrorAnd.of(
-        ProgramBlockAdditionResult.of(updatedProgram, Optional.of(updatedBlockDefinition)));
-  }
-
-  @Override
-  @Transactional
-  public ProgramDefinition moveBlock(
-      long programId, long blockId, ProgramDefinition.Direction direction)
-      throws ProgramNotFoundException, IllegalPredicateOrderingException {
-    final Program program;
-    try {
-      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(
-          "Something happened to the program's block while trying to move it", e);
-    }
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
+    // Return all the global admins email addresses.
+    return userRepository.getGlobalAdmins().stream()
+        .map(Account::getEmailAddress)
+        .filter(address -> !Strings.isNullOrEmpty(address))
+        .collect(ImmutableList.toImmutableList());
   }
 
   @Override
@@ -705,6 +703,89 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ProgramDefinition setEligibilityIsGating(long programId, boolean gating)
+      throws ProgramNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(long programId)
+      throws ProgramNotFoundException {
+    try {
+      return addBlockToProgram(programId, Optional.empty());
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(
+          "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
+              + " id is empty.");
+    }
+  }
+
+  @Override
+  @Transactional
+  public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
+      long programId, long enumeratorBlockId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    return addBlockToProgram(programId, Optional.of(enumeratorBlockId));
+  }
+
+  private ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
+      long programId, Optional<Long> enumeratorBlockId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    if (enumeratorBlockId.isPresent()
+        && !programDefinition.hasEnumerator(enumeratorBlockId.get())) {
+      throw new ProgramBlockDefinitionNotFoundException(programId, enumeratorBlockId.get());
+    }
+
+    ErrorAnd<BlockDefinition, CiviFormError> maybeBlockDefinition =
+        createEmptyBlockDefinition(getNextBlockId(programDefinition), enumeratorBlockId);
+    if (maybeBlockDefinition.isError()) {
+      return ErrorAnd.errorAnd(
+          maybeBlockDefinition.getErrors(),
+          ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
+    }
+    BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
+    Program program =
+        programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
+    ProgramDefinition updatedProgram =
+        syncProgramDefinitionQuestions(
+                programRepository.updateProgramSync(program).getProgramDefinition())
+            .toCompletableFuture()
+            .join();
+    BlockDefinition updatedBlockDefinition =
+        updatedProgram.getBlockDefinition(blockDefinition.id());
+    return ErrorAnd.of(
+        ProgramBlockAdditionResult.of(updatedProgram, Optional.of(updatedBlockDefinition)));
+  }
+
+  private long getNextBlockId(ProgramDefinition programDefinition) {
+    return programDefinition.getMaxBlockDefinitionId() + 1;
+  }
+
+  @Override
+  @Transactional
+  public ProgramDefinition moveBlock(
+      long programId, long blockId, ProgramDefinition.Direction direction)
+      throws ProgramNotFoundException, IllegalPredicateOrderingException {
+    final Program program;
+    try {
+      program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      throw new RuntimeException(
+          "Something happened to the program's block while trying to move it", e);
+    }
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Override
   @Transactional
   public ErrorAnd<ProgramDefinition, CiviFormError> updateBlock(
       long programId, long blockDefinitionId, BlockForm blockForm)
@@ -728,18 +809,6 @@ public final class ProgramServiceImpl implements ProgramService {
       throw new RuntimeException(
           "Unexpected error: updating this block invalidated a block condition");
     }
-  }
-
-  private static ImmutableSet<CiviFormError> validateBlockDefinition(
-      BlockDefinition blockDefinition) {
-    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
-    if (blockDefinition.name().isBlank()) {
-      errors.add(CiviFormError.of("screen name cannot be blank"));
-    }
-    if (blockDefinition.description().isBlank()) {
-      errors.add(CiviFormError.of("screen description cannot be blank"));
-    }
-    return errors.build();
   }
 
   @Override
@@ -904,6 +973,55 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   @Transactional
+  public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramNeedsABlockException,
+          IllegalPredicateOrderingException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+
+    ImmutableList<BlockDefinition> newBlocks =
+        programDefinition.blockDefinitions().stream()
+            .filter(block -> block.id() != blockDefinitionId)
+            .collect(ImmutableList.toImmutableList());
+    if (newBlocks.isEmpty()) {
+      throw new ProgramNeedsABlockException(programId);
+    }
+
+    return updateProgramDefinitionWithBlockDefinitions(programDefinition, newBlocks);
+  }
+
+  @Override
+  public CompletionStage<ImmutableList<ProgramDefinition>> syncQuestionsToProgramDefinitions(
+      ImmutableList<ProgramDefinition> programDefinitions) {
+
+    /* TEMP BUG FIX
+     * Because some of the programs are not in the active version,
+     * and we need to sync the questions for each program to calculate
+     * eligibility state, we must sync each program with a version it
+     * is associated with. This diverges from previous behavior where
+     * we did not need to sync the programs because the contents of their
+     * questions was not needed in the index view.
+     */
+    return CompletableFuture.completedFuture(
+        programDefinitions.stream()
+            .map(
+                programDef -> {
+                  Program p = programDef.toProgram();
+                  p.refresh();
+                  Version v = p.getVersions().stream().findAny().orElseThrow();
+                  try {
+                    return syncProgramDefinitionQuestions(
+                        programDef, questionService.getReadOnlyVersionedQuestionService(v));
+                    /* END TEMP BUG FIX */
+                  } catch (QuestionNotFoundException e) {
+                    throw new RuntimeException(
+                        String.format("Question not found for Program %s", programDef.id()), e);
+                  }
+                })
+            .collect(ImmutableList.toImmutableList()));
+  }
+
+  @Override
+  @Transactional
   public ProgramDefinition setProgramQuestionDefinitionOptionality(
       long programId, long blockDefinitionId, long questionDefinitionId, boolean optional)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException,
@@ -1032,24 +1150,6 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  @Transactional
-  public ProgramDefinition deleteBlock(long programId, long blockDefinitionId)
-      throws ProgramNotFoundException, ProgramNeedsABlockException,
-          IllegalPredicateOrderingException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-
-    ImmutableList<BlockDefinition> newBlocks =
-        programDefinition.blockDefinitions().stream()
-            .filter(block -> block.id() != blockDefinitionId)
-            .collect(ImmutableList.toImmutableList());
-    if (newBlocks.isEmpty()) {
-      throw new ProgramNeedsABlockException(programId);
-    }
-
-    return updateProgramDefinitionWithBlockDefinitions(programDefinition, newBlocks);
-  }
-
-  @Override
   public ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
     Optional<Program> programMaybe =
@@ -1070,112 +1170,34 @@ public final class ProgramServiceImpl implements ProgramService {
         programId, paginationSpecEither, filters);
   }
 
-  @Override
-  public ProgramDefinition newDraftOf(long id) throws ProgramNotFoundException {
-    // Note: It's unclear that we actually want to update an existing draft this way, as it would
-    // effectively reset the  draft which is not part of any user flow. Given the interdependency of
-    // draft updates this is likely to cause issues as in #2179.
-    return programRepository
-        .createOrUpdateDraft(this.getProgramDefinition(id).toProgram())
-        .getProgramDefinition();
-  }
-
-  @Override
-  public ImmutableList<String> getNotificationEmailAddresses(String programName) {
-    ImmutableList<String> explicitProgramAdmins =
-        programRepository.getProgramAdministrators(programName).stream()
-            .map(Account::getEmailAddress)
-            .filter(address -> !Strings.isNullOrEmpty(address))
-            .collect(ImmutableList.toImmutableList());
-    // If there are any program admins, return them.
-    if (explicitProgramAdmins.size() > 0) {
-      return explicitProgramAdmins;
+  private static ImmutableSet<CiviFormError> validateBlockDefinition(
+      BlockDefinition blockDefinition) {
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
+    if (blockDefinition.name().isBlank()) {
+      errors.add(CiviFormError.of("screen name cannot be blank"));
     }
-    // Return all the global admins email addresses.
-    return userRepository.getGlobalAdmins().stream()
-        .map(Account::getEmailAddress)
-        .filter(address -> !Strings.isNullOrEmpty(address))
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  @Override
-  public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
-    return programRepository.getAllProgramVersions(programId).stream()
-        .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
-        .collect(ImmutableList.toImmutableList());
-  }
-
-  @Override
-  public ProgramDefinition setEligibilityIsGating(
-      long programId, boolean gating, boolean isNongatedEligibilityFeatureEnabled)
-      throws ProgramNotFoundException {
-    ProgramDefinition programDefinition = getProgramDefinition(programId);
-    if (!isNongatedEligibilityFeatureEnabled) {
-      return programDefinition;
+    if (blockDefinition.description().isBlank()) {
+      errors.add(CiviFormError.of("screen description cannot be blank"));
     }
-    programDefinition = programDefinition.toBuilder().setEligibilityIsGating(gating).build();
-    return programRepository
-        .updateProgramSync(programDefinition.toProgram())
-        .getProgramDefinition();
+    return errors.build();
   }
 
-  @Override
-  public Optional<ProgramDefinition> getCommonIntakeForm() {
-    return getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
-        .filter(ProgramDefinition::isCommonIntakeForm)
-        .findFirst();
-  }
-
-  /** Removes eligibility predicates from all blocks in this program. */
-  private ProgramDefinition removeAllEligibilityPredicates(ProgramDefinition programDefinition)
-      throws ProgramNotFoundException {
-    try {
-      return updateProgramDefinitionWithBlockDefinitions(
-          programDefinition,
-          programDefinition.blockDefinitions().stream()
-              .map(block -> block.toBuilder().setEligibilityDefinition(Optional.empty()).build())
-              .collect(ImmutableList.toImmutableList()));
-    } catch (IllegalPredicateOrderingException e) {
-      throw new RuntimeException("Unexpected error: removing this predicate invalidates another");
-    }
-  }
-
-  private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(
-      ProgramDefinition programDefinition, ImmutableList<BlockDefinition> blocks)
-      throws IllegalPredicateOrderingException {
-    ProgramDefinition program = programDefinition.toBuilder().setBlockDefinitions(blocks).build();
-
-    if (!program.hasValidPredicateOrdering()) {
-      throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
-    }
-
-    return syncProgramDefinitionQuestions(
-            programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
-        .toCompletableFuture()
-        .join();
-  }
-
-  private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
-      ProgramDefinition programDefinition, BlockDefinition blockDefinition)
-      throws IllegalPredicateOrderingException {
-
-    ImmutableList<BlockDefinition> updatedBlockDefinitions =
-        programDefinition.blockDefinitions().stream()
-            .map(b -> b.id() == blockDefinition.id() ? blockDefinition : b)
-            .collect(ImmutableList.toImmutableList());
-
-    return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
-  }
-
-  private long getNextBlockId(ProgramDefinition programDefinition) {
-    return programDefinition.getMaxBlockDefinitionId() + 1;
-  }
-
-  private boolean isActiveOrDraftProgram(Program program) {
-    return Streams.concat(
-            versionRepository.getActiveVersion().getPrograms().stream(),
-            versionRepository.getDraftVersion().getPrograms().stream())
-        .anyMatch(p -> p.id.equals(program.id));
+  private static ErrorAnd<BlockDefinition, CiviFormError> createEmptyBlockDefinition(
+      long blockId, Optional<Long> maybeEnumeratorBlockId) {
+    String blockName =
+        maybeEnumeratorBlockId.isPresent()
+            ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
+            : String.format("Screen %d", blockId);
+    String blockDescription = String.format("Screen %d description", blockId);
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(blockId)
+            .setName(blockName)
+            .setDescription(blockDescription)
+            .setEnumeratorId(maybeEnumeratorBlockId)
+            .build();
+    ImmutableSet<CiviFormError> errors = validateBlockDefinition(blockDefinition);
+    return errors.isEmpty() ? ErrorAnd.of(blockDefinition) : ErrorAnd.error(errors);
   }
 
   /**
@@ -1257,56 +1279,30 @@ public final class ProgramServiceImpl implements ProgramService {
     return pqd.loadCompletely(programDefinitionId, questionDefinition);
   }
 
-  /**
-   * Clears the common intake form if it exists.
-   *
-   * <p>If there is a program among the most recent versions of all programs marked as the common
-   * intake form, this changes its ProgramType to DEFAULT, creating a new draft to do so if
-   * necessary.
-   */
-  private void clearCommonIntakeForm() {
-    Optional<ProgramDefinition> maybeCommonIntakeForm = getCommonIntakeForm();
-    if (!maybeCommonIntakeForm.isPresent()) {
-      return;
+  private ProgramDefinition updateProgramDefinitionWithBlockDefinitions(
+      ProgramDefinition programDefinition, ImmutableList<BlockDefinition> blocks)
+      throws IllegalPredicateOrderingException {
+    ProgramDefinition program = programDefinition.toBuilder().setBlockDefinitions(blocks).build();
+
+    if (!program.hasValidPredicateOrdering()) {
+      throw new IllegalPredicateOrderingException("This action would invalidate a block condition");
     }
-    ProgramDefinition draftCommonIntakeProgramDefinition =
-        programRepository
-            .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
-            .getProgramDefinition();
-    Program commonIntakeProgram =
-        draftCommonIntakeProgramDefinition.toBuilder()
-            .setProgramType(ProgramType.DEFAULT)
-            .build()
-            .toProgram();
-    programRepository.updateProgramSync(commonIntakeProgram);
+
+    return syncProgramDefinitionQuestions(
+            programRepository.updateProgramSync(program.toProgram()).getProgramDefinition())
+        .toCompletableFuture()
+        .join();
   }
 
-  private ImmutableSet<CiviFormError> validateProgramData(
-      String adminDescription,
-      String displayName,
-      String displayDescription,
-      String externalLink,
-      String displayMode,
-      List<Long> tiGroups) {
-    ImmutableSet.Builder<CiviFormError> errorsBuilder = ImmutableSet.builder();
-    if (displayName.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_NAME_MSG));
-    }
-    if (displayDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_DESCRIPTION_MSG));
-    } else if (displayMode.equals(DisplayMode.SELECT_TI.getValue()) && tiGroups.isEmpty()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_TI_ORGS_FOR_THE_DISPLAY_MODE));
-    }
-    if (displayMode.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_DISPLAY_MODE_MSG));
-    }
-    if (adminDescription.isBlank()) {
-      errorsBuilder.add(CiviFormError.of(MISSING_ADMIN_DESCRIPTION_MSG));
-    }
-    if (!isValidAbsoluteLink(externalLink)) {
-      errorsBuilder.add(CiviFormError.of(INVALID_PROGRAM_LINK_FORMAT_MSG));
-    }
+  private ProgramDefinition updateProgramDefinitionWithBlockDefinition(
+      ProgramDefinition programDefinition, BlockDefinition blockDefinition)
+      throws IllegalPredicateOrderingException {
 
-    return errorsBuilder.build();
+    ImmutableList<BlockDefinition> updatedBlockDefinitions =
+        programDefinition.blockDefinitions().stream()
+            .map(b -> b.id() == blockDefinition.id() ? blockDefinition : b)
+            .collect(ImmutableList.toImmutableList());
+
+    return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
   }
 }

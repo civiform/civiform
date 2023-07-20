@@ -4,58 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines an id question. */
 public final class IdQuestionDefinition extends QuestionDefinition {
 
-  public IdQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      IdValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
-  }
-
-  public IdQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      IdValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
-  }
-
-  public IdQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        IdValidationPredicates.create());
+  public IdQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @JsonDeserialize(builder = AutoValue_IdQuestionDefinition_IdValidationPredicates.Builder.class)
@@ -113,6 +68,11 @@ public final class IdQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ID;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return IdValidationPredicates.create();
   }
 
   public OptionalInt getMinLength() {

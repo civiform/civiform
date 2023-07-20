@@ -1,21 +1,19 @@
 package views.admin;
 
-import static featureflags.FeatureFlag.ADMIN_SETTINGS_PANEL_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
-import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlags;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
 import play.twirl.api.Content;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 import views.BaseHtmlLayout;
 import views.HtmlBundle;
 import views.JsBundle;
@@ -48,11 +46,10 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   AdminLayout(
       ViewUtils viewUtils,
-      Config configuration,
       NavPage activeNavPage,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       DeploymentType deploymentType) {
-    super(viewUtils, configuration, featureFlags, deploymentType);
+    super(viewUtils, settingsManifest, deploymentType);
     this.activeNavPage = activeNavPage;
   }
 
@@ -169,7 +166,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     return adminHeader.with(
         headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
-        featureFlags.getFlagEnabledFromConfig(ADMIN_SETTINGS_PANEL_ENABLED).orElse(false)
+        getSettingsManifest().getAdminSettingsPanelEnabled()
                 && primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
             ? a(Icons.svg(Icons.COG)
                     .withClasses("h-6", "w-6", "opacity-75", StyleUtils.hover("opacity-100")))

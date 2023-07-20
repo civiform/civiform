@@ -169,7 +169,7 @@ public final class ApplicantService {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getActiveProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenApplyAsync(
@@ -279,7 +279,7 @@ public final class ApplicantService {
         userRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getActiveProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     return CompletableFuture.allOf(applicantCompletableFuture, programDefinitionCompletableFuture)
         .thenComposeAsync(
@@ -391,16 +391,10 @@ public final class ApplicantService {
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<Application> submitApplication(
-      long applicantId,
-      long programId,
-      CiviFormProfile submitterProfile,
-      boolean nonGatedEligibilityFeatureEnabled) {
+      long applicantId, long programId, CiviFormProfile submitterProfile) {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
-          .thenCompose(
-              ro ->
-                  validateApplicationForSubmission(
-                      ro, nonGatedEligibilityFeatureEnabled, programId))
+          .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
           .thenCompose(v -> submitterProfile.getAccount())
           .thenComposeAsync(
               account ->
@@ -412,9 +406,7 @@ public final class ApplicantService {
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
-        .thenCompose(
-            ro ->
-                validateApplicationForSubmission(ro, nonGatedEligibilityFeatureEnabled, programId))
+        .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
         .thenCompose(
             v ->
                 submitApplication(
@@ -538,17 +530,14 @@ public final class ApplicantService {
    *     wrapped in a failed future with a user visible message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      boolean nonGatedEligibilityFeatureEnabled,
-      long programId) {
+      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService.getFirstIncompleteBlockExcludingStatic().isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
 
     try {
-      if (nonGatedEligibilityFeatureEnabled
-          && !programService.getProgramDefinition(programId).eligibilityIsGating()) {
+      if (!programService.getProgramDefinition(programId).eligibilityIsGating()) {
         return CompletableFuture.completedFuture(null);
       }
     } catch (ProgramNotFoundException e) {
@@ -568,7 +557,7 @@ public final class ApplicantService {
    */
   private CompletionStage<Void> updateStoredFileAclsForSubmit(long applicantId, long programId) {
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
-        programService.getActiveProgramDefinitionAsync(programId).toCompletableFuture();
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFile>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
@@ -839,12 +828,13 @@ public final class ApplicantService {
                         .map(Program::getProgramDefinition)
                         .filter(
                             pdef ->
-                                !pdef.displayMode().equals(DisplayMode.DISABLED)
-                                    || pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (requesterProfile.isTrustedIntermediary()
-                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY))
-                                    || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
-                                        && pdef.acls().hasProgramViewPermission(requesterProfile)))
+                                (pdef.displayMode().equals(DisplayMode.PUBLIC)
+                                        || (requesterProfile.isTrustedIntermediary()
+                                            && pdef.displayMode().equals(DisplayMode.TI_ONLY))
+                                        || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
+                                            && pdef.acls()
+                                                .hasProgramViewPermission(requesterProfile)))
+                                    && !pdef.displayMode().equals(DisplayMode.DISABLED))
                         .collect(ImmutableList.toImmutableList()))
             .toCompletableFuture();
 

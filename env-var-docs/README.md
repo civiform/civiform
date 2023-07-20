@@ -41,9 +41,6 @@ server is deployed.
 ### Running locally
 
 ```sh
-# Before running any env-var-docs scripts, a python virtual environment (venv) must be created:
-bin/env-var-docs-create-venv
-
 # Run check_vars_documented.py and run_regex_tests.py:
 bin/env-var-docs-check-vars
 
@@ -57,38 +54,14 @@ bin/env-var-docs-generate-markdown
 
 1. Make code changes and add tests exercising the changes.
 1. Run `bin/fmt`.
-1. Run `bin/env-var-docs-create-venv`.
 1. Run `bin/env-var-docs-run-tests`.
 
 ### Python dependencies
 
-To contribute to any of the python files in this directory, ensure you have a
-system installation of python version 3.10 or greater:
-
-```sh
-$ python3 --version
-```
-
-We use [virtual python
-environments](https://docs.python.org/3/library/venv.html) (venv) to install
-python dependencies rather than installing them in the system-wide packages.
-Because a venv is just a directory, it is easier and less risky to manage its
-lifecycle than the system-wide python installation. It also makes it less
-likely that developers run into package version conflicts. For example, say you
-had a project that requires PyGithub v1 and that version is installed in your
-system-wide packages. Say generate_markdown.py requires PyGithub v2. To run
-generate_markdown.py locally without a venv, you would need to upgrade the
-system-wide version to v2. But then your other project would fail to run. Using
-a venv allows us to install PyGithub v2 for generate_markdown.py while
-retaining PyGithub v1 in your system-wide packages.
-
-To set up a virtual environment with the required dependencies, run
-`bin/env-var-docs-create-venv` from the repository root. This creates a venv in
-`env-var-docs/venv`. To make the `python` and `pip` executables in your shell
-point to the venv, run `source env-var-docs/venv/bin/activate`. To make them
-point back to your system-wide installation, run `deactivate`. Re-running
-`bin/env-var-docs-create-venv` will delete and re-create the virtual
-environment. Doing so is a good way to get back to a known good state.
+We use a Docker container to install dependencies and run actions, rather than
+running python locally, to ensure the actions are always able to run, regardless
+of the system version of python you have installed. Ensure that you have docker
+installed and the `docker run` command is available.
 
 ### Tests
 

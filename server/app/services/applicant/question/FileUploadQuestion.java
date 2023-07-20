@@ -8,7 +8,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.FileUploadQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a file upload question in the context of a specific applicant.
@@ -27,11 +26,6 @@ public final class FileUploadQuestion extends Question {
     super(applicantQuestion);
     this.fileKeyValueCache = Optional.empty();
     this.originalFileNameValueCache = Optional.empty();
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.FILEUPLOAD);
   }
 
   @Override

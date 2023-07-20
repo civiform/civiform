@@ -2,46 +2,12 @@ package services.question.types;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines an email question. */
 public final class EmailQuestionDefinition extends QuestionDefinition {
 
-  public EmailQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EmailQuestionDefinition.EmailValidationPredicates.create());
-  }
-
-  public EmailQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        EmailQuestionDefinition.EmailValidationPredicates.create(),
-        lastModifiedTime);
+  public EmailQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @AutoValue
@@ -68,5 +34,10 @@ public final class EmailQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.EMAIL;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return EmailValidationPredicates.create();
   }
 }

@@ -1,6 +1,5 @@
 package services.applicant.question;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -29,21 +28,17 @@ public abstract class Question {
 
   public Question(ApplicantQuestion applicantQuestion) {
     this.applicantQuestion = Preconditions.checkNotNull(applicantQuestion);
-    if (!validQuestionTypes().contains(applicantQuestion.getType())) {
+
+    QuestionType supportedQuestionType = applicantQuestion.getType();
+    if (!getClass().equals(supportedQuestionType.getSupportedQuestion())) {
       throw new RuntimeException(
           String.format(
-              "Question is not a question of the following types: [%s]: %s (type: %s)",
-              Joiner.on(", ").join(validQuestionTypes().stream().toArray()),
-              applicantQuestion.getQuestionDefinition().getQuestionPathSegment(),
-              applicantQuestion.getQuestionDefinition().getQuestionType()));
+              "The Question class %s is not equal to the one supported by %s, which is %s.",
+              getClass(),
+              supportedQuestionType,
+              supportedQuestionType.getSupportedQuestion().toString()));
     }
   }
-
-  /**
-   * The set of acceptable question types for the {@link ApplicantQuestion} provided in the
-   * constructor. This is used for validation purposes.
-   */
-  protected abstract ImmutableSet<QuestionType> validQuestionTypes();
 
   /**
    * Returns any {@link ValidationErrorMessage}s to be shown to the applicant, keyed by the relevant
@@ -125,5 +120,9 @@ public abstract class Question {
 
   public final ImmutableMap<Path, String> getFailedUpdates() {
     return applicantQuestion.getApplicantData().getFailedUpdates();
+  }
+
+  public ApplicantQuestion getApplicantQuestion() {
+    return applicantQuestion;
   }
 }

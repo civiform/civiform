@@ -4,57 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import java.time.Instant;
 import java.util.Optional;
-import java.util.OptionalLong;
-import services.LocalizedStrings;
 
 /** Defines an address question. */
 public final class AddressQuestionDefinition extends QuestionDefinition {
 
-  public AddressQuestionDefinition(
-      OptionalLong id,
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      AddressValidationPredicates validationPredicates,
-      Optional<Instant> lastModifiedTime) {
-    super(
-        id,
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        validationPredicates,
-        lastModifiedTime);
-  }
-
-  public AddressQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText,
-      AddressValidationPredicates validationPredicates) {
-    super(name, enumeratorId, description, questionText, questionHelpText, validationPredicates);
-  }
-
-  public AddressQuestionDefinition(
-      String name,
-      Optional<Long> enumeratorId,
-      String description,
-      LocalizedStrings questionText,
-      LocalizedStrings questionHelpText) {
-    super(
-        name,
-        enumeratorId,
-        description,
-        questionText,
-        questionHelpText,
-        AddressValidationPredicates.create());
+  public AddressQuestionDefinition(QuestionDefinitionConfig config) {
+    super(config);
   }
 
   @JsonDeserialize(
@@ -103,6 +59,11 @@ public final class AddressQuestionDefinition extends QuestionDefinition {
   @Override
   public QuestionType getQuestionType() {
     return QuestionType.ADDRESS;
+  }
+
+  @Override
+  ValidationPredicates getDefaultValidationPredicates() {
+    return AddressValidationPredicates.create();
   }
 
   public boolean getDisallowPoBox() {

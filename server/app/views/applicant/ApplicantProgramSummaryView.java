@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
@@ -12,7 +11,6 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
-import featureflags.FeatureFlags;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.DivTag;
 import java.time.LocalDate;
@@ -27,6 +25,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -44,14 +43,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantProgramSummaryView(
-      ApplicantLayout layout, DateConverter dateConverter, FeatureFlags featureFlags) {
+      ApplicantLayout layout, DateConverter dateConverter, SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
     this.dateConverter = checkNotNull(dateConverter);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /**
@@ -72,7 +71,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(params.request());
 
     if (params.loginPromptModal().isPresent()) {
       bundle.addModals(params.loginPromptModal().get());
@@ -127,15 +126,20 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         .request()
         .flash()
         .get("error")
-        .map(ToastMessage::error)
+        .map(msg -> ToastMessage.error(msg, messages))
         .ifPresent(bundle::addToastMessages);
 
     String pageTitle =
-        featureFlags.getFlagEnabled(params.request(), INTAKE_FORM_ENABLED)
+        settingsManifest.getIntakeFormEnabled(params.request())
                 && params.programType().equals(ProgramType.COMMON_INTAKE_FORM)
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_SUMMARY.getKeyName())
             : messages.at(MessageKey.TITLE_PROGRAM_SUMMARY.getKeyName());
     bundle.setTitle(String.format("%s — %s", pageTitle, params.programTitle()));
+    Optional<DivTag> maybeBackToAdminViewButton =
+        layout.maybeRenderBackToAdminViewButton(params.request(), params.programId());
+    if (maybeBackToAdminViewButton.isPresent()) {
+      bundle.addMainContent(maybeBackToAdminViewButton.get());
+    }
     bundle.addMainContent(
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),

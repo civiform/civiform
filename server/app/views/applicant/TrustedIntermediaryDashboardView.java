@@ -40,6 +40,7 @@ import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
@@ -68,7 +69,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       Messages messages) {
     HtmlBundle bundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle("CiviForm")
             .addMainContent(
                 renderHeader(tiGroup.getName()),
@@ -90,7 +91,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     if (flash.get("error").isPresent()) {
       LoggerFactory.getLogger(TrustedIntermediaryGroupListView.class)
           .info(request.flash().get("error").get());
-      bundle.addToastMessages(ToastMessage.error(flash.get("error").get()).setDuration(-1));
+      bundle.addToastMessages(
+          ToastMessage.errorNonLocalized(flash.get("error").get()).setDuration(-1));
     } else if (flash.get("success").isPresent()) {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
@@ -181,19 +183,21 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("first-name-input")
             .setFieldName("firstName")
-            .setLabelText("First Name (Required)")
+            .setLabelText("First Name")
+            .setRequired(true)
             .setValue(request.flash().get("providedFirstName").orElse(""));
     FieldWithLabel middleNameField =
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name (Optional)")
+            .setLabelText("Middle Name")
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
             .setId("last-name-input")
             .setFieldName("lastName")
-            .setLabelText("Last Name (Required)")
+            .setLabelText("Last Name")
+            .setRequired(true)
             .setValue(request.flash().get("providedLastName").orElse(""));
     // TODO: do something with this field.  currently doesn't do anything. Add a Path
     // to WellKnownPaths referencing the canonical date of birth question.
@@ -202,17 +206,24 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
             .setId("date-of-birth-input")
             .setFieldName("dob")
             .setLabelText("Date Of Birth")
+            .setRequired(true)
             .setValue(request.flash().get("providedDob").orElse(""));
     FieldWithLabel emailField =
-        FieldWithLabel.input()
+        FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address (Required)")
+            .setLabelText("Email Address")
+            .setToolTipIcon(Icons.INFO)
+            .setToolTipText(
+                "Add an email address for your client to receive status updates about their"
+                    + " application automatically. Without an email, you or your community-based"
+                    + " organization will be responsible for communicating updates to your"
+                    + " client.")
             .setValue(request.flash().get("providedEmail").orElse(""));
     return div()
         .with(
             formTag.with(
-                emailField.getInputTag(),
+                emailField.getEmailTag(),
                 firstNameField.getInputTag(),
                 middleNameField.getInputTag(),
                 lastNameField.getInputTag(),

@@ -1,8 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -24,9 +22,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import controllers.routes;
-import featureflags.FeatureFlags;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
@@ -54,6 +50,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.TranslationUtils;
@@ -73,25 +70,21 @@ import views.style.StyleUtils;
 public final class ProgramIndexView extends BaseHtmlView {
 
   private final ApplicantLayout layout;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final ProfileUtils profileUtils;
   private final String authProviderName;
-  private final String civicEntityShortName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ZoneId zoneId,
-      Config config,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       ProfileUtils profileUtils,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.profileUtils = checkNotNull(profileUtils);
-    this.civicEntityShortName =
-        checkNotNull(config).getString("whitelabel_civic_entity_short_name");
     this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
   }
@@ -113,7 +106,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<ToastMessage> bannerMessage) {
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
 
@@ -124,7 +117,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setDuration(5000));
 
     bundle.addMainContent(
-        topContent(messages, personalInfo),
+        topContent(request, messages, personalInfo),
         mainContent(
             request,
             messages,
@@ -138,7 +131,8 @@ public final class ProgramIndexView extends BaseHtmlView {
         request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true);
   }
 
-  private DivTag topContent(Messages messages, ApplicantPersonalInfo personalInfo) {
+  private DivTag topContent(
+      Http.Request request, Messages messages, ApplicantPersonalInfo personalInfo) {
 
     String h1Text, infoDivText, widthClass;
 
@@ -152,7 +146,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       // "Get benefits"
       h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
       infoDivText =
-          messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName);
+          messages.at(
+              MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(),
+              settingsManifest.getWhitelabelCivicEntityShortName(request).get());
       widthClass = "w-5/12";
     }
 
@@ -232,7 +228,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                 Math.max(relevantPrograms.unapplied().size(), relevantPrograms.submitted().size()),
                 relevantPrograms.inProgress().size()));
 
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    if (settingsManifest.getIntakeFormEnabled(request)
         && relevantPrograms.commonIntakeForm().isPresent()) {
       content.with(
           findServicesSection(
@@ -445,7 +441,7 @@ public final class ProgramIndexView extends BaseHtmlView {
           programCardApplicationStatus(
               messages, preferredLocale, cardData.latestSubmittedApplicationStatus().get()));
     }
-    if (shouldShowEligibilityTag(request, cardData)) {
+    if (shouldShowEligibilityTag(cardData)) {
       programData.with(eligibilityTag(request, messages, cardData.isProgramMaybeEligible().get()));
     }
     programData.with(title, description);
@@ -486,7 +482,9 @@ public final class ProgramIndexView extends BaseHtmlView {
         createLoginPromptModal(
                 messages,
                 actionUrl,
-                MessageKey.INITIAL_LOGIN_MODAL_PROMPT,
+                messages.at(
+                    MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
+                    settingsManifest.getApplicantPortalName(request).get()),
                 MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
             .setRepeatOpenBehavior(
                 RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))
@@ -525,15 +523,12 @@ public final class ProgramIndexView extends BaseHtmlView {
    * If eligibility is gating, the eligibility tag should always show when present. If eligibility
    * is non-gating, the eligibility tag should only show if the user may be eligible.
    */
-  private boolean shouldShowEligibilityTag(
-      Http.Request request, ApplicantService.ApplicantProgramData cardData) {
+  private boolean shouldShowEligibilityTag(ApplicantService.ApplicantProgramData cardData) {
     if (!cardData.isProgramMaybeEligible().isPresent()) {
       return false;
     }
 
-    return !featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
-        || cardData.program().eligibilityIsGating()
-        || cardData.isProgramMaybeEligible().get();
+    return cardData.program().eligibilityIsGating() || cardData.isProgramMaybeEligible().get();
   }
 
   private PTag programCardApplicationStatus(

@@ -7,7 +7,6 @@ import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.EmailQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents an email question in the context of a specific applicant.
@@ -20,11 +19,6 @@ public final class EmailQuestion extends Question {
 
   EmailQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.EMAIL);
   }
 
   @Override

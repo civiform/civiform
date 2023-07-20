@@ -3,12 +3,12 @@ package forms;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import services.LocalizedStrings;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 
 public class IdQuestionFormTest {
 
@@ -25,12 +25,13 @@ public class IdQuestionFormTest {
 
     IdQuestionDefinition expected =
         new IdQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            IdQuestionDefinition.IdValidationPredicates.create(4, 6));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(4, 6))
+                .build());
 
     QuestionDefinition actual = builder.build();
 
@@ -41,12 +42,13 @@ public class IdQuestionFormTest {
   public void getBuilder_withQdConstructor_returnsCompleteBuilder() throws Exception {
     IdQuestionDefinition originalQd =
         new IdQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            IdQuestionDefinition.IdValidationPredicates.create(4, 6));
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setValidationPredicates(IdQuestionDefinition.IdValidationPredicates.create(4, 6))
+                .build());
 
     IdQuestionForm form = new IdQuestionForm(originalQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
@@ -69,12 +71,12 @@ public class IdQuestionFormTest {
 
     IdQuestionDefinition expected =
         new IdQuestionDefinition(
-            "name",
-            Optional.empty(),
-            "description",
-            LocalizedStrings.of(Locale.US, "What is the question text?"),
-            LocalizedStrings.empty(),
-            IdQuestionDefinition.IdValidationPredicates.create());
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
 
     QuestionDefinition actual = builder.build();
 

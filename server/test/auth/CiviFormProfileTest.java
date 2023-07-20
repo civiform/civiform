@@ -2,11 +2,9 @@ package auth;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static play.test.Helpers.fakeRequest;
+import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import featureflags.FeatureFlag;
 import models.Account;
 import models.Applicant;
 import org.junit.Before;
@@ -80,7 +78,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     assertThatThrownBy(
-            () -> profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+            () ->
+                profile
+                    .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
+                    .join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -92,7 +93,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     profile.getAccount().join().addAdministeredProgram(programOne);
 
     assertThatThrownBy(
-            () -> profile.checkProgramAuthorization("program2", fakeRequest().build()).join())
+            () ->
+                profile
+                    .checkProgramAuthorization("program2", requestBuilderWithSettings().build())
+                    .join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -111,7 +115,10 @@ public class CiviFormProfileTest extends ResetPostgres {
         .join();
 
     profile.getAccount().join().addAdministeredProgram(programOne);
-    assertThat(profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+    assertThat(
+            profile
+                .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
+                .join())
         .isEqualTo(null);
   }
 
@@ -120,7 +127,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
     assertThatThrownBy(
-            () -> profile.checkProgramAuthorization("program1", fakeRequest().build()).join())
+            () ->
+                profile
+                    .checkProgramAuthorization("program1", requestBuilderWithSettings().build())
+                    .join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
@@ -128,9 +138,8 @@ public class CiviFormProfileTest extends ResetPostgres {
   public void checkProgramAuthorization_CiviformAdminAllowed_success() {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
-    ImmutableMap<String, String> civiformAdminAllowedMap =
-        ImmutableMap.of(FeatureFlag.ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS.toString(), "true");
-    Request civiformAdminAllowedRequest = fakeRequest().session(civiformAdminAllowedMap).build();
+    Request civiformAdminAllowedRequest =
+        requestBuilderWithSettings("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", "true").build();
 
     assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())
         .isEqualTo(null);

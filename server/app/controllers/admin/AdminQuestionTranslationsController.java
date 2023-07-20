@@ -1,9 +1,9 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.translation.EnumeratorQuestionTranslationForm;
 import forms.translation.MultiOptionQuestionTranslationForm;
@@ -18,6 +18,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
@@ -42,11 +43,14 @@ public class AdminQuestionTranslationsController extends CiviFormController {
 
   @Inject
   public AdminQuestionTranslationsController(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
       HttpExecutionContext httpExecutionContext,
       QuestionService questionService,
       QuestionTranslationView translationView,
       FormFactory formFactory,
       TranslationLocales translationLocales) {
+    super(profileUtils, versionRepository);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.questionService = checkNotNull(questionService);
     this.translationView = checkNotNull(translationView);
@@ -141,7 +145,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
                     questionService.update(definitionWithUpdates);
 
                 if (result.isError()) {
-                  ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+                  ToastMessage message =
+                      ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
                   return ok(
                       translationView.renderErrors(
                           request, localeToUpdate, definitionWithUpdates, message));

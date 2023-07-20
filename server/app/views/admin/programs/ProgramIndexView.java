@@ -1,8 +1,6 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -21,8 +19,6 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import controllers.admin.routes;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LiTag;
@@ -37,6 +33,7 @@ import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
@@ -57,22 +54,20 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final String baseUrl;
   private final TranslationLocales translationLocales;
   private final ProgramCardFactory programCardFactory;
-  private final String civicEntityShortName;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramIndexView(
       AdminLayoutFactory layoutFactory,
       Config config,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       TranslationLocales translationLocales,
       ProgramCardFactory programCardFactory) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.baseUrl = checkNotNull(config).getString("base_url");
     this.translationLocales = checkNotNull(translationLocales);
     this.programCardFactory = checkNotNull(programCardFactory);
-    this.civicEntityShortName = config.getString("whitelabel_civic_entity_short_name");
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(
@@ -88,7 +83,9 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     // Revisit if we introduce internationalization because the word order could change in other
     // languages.
-    String pageExplanation = "Create, edit and publish programs in " + civicEntityShortName;
+    String pageExplanation =
+        "Create, edit and publish programs in "
+            + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
     Optional<Modal> maybePublishModal = maybeRenderPublishAllModal(programs, questions, request);
 
     Modal demographicsCsvModal = renderDemographicsCsvModal();
@@ -135,7 +132,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(pageTitle)
             .addMainContent(contentDiv)
             .addModals(demographicsCsvModal);
@@ -143,7 +140,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
-      htmlBundle.addToastMessages(ToastMessage.error(flash.get("error").get()));
+      htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
     } else if (flash.get("success").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.success(flash.get("success").get()));
     }
@@ -319,9 +316,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     if (draftProgram.isPresent()) {
       List<ButtonTag> draftRowActions = Lists.newArrayList();
       List<ButtonTag> draftRowExtraActions = Lists.newArrayList();
-      if (featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
-        draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
-      }
+      draftRowActions.add(renderPublishProgramLink(draftProgram.get(), request));
       draftRowActions.add(renderEditLink(/* isActive = */ false, draftProgram.get(), request));
       draftRowExtraActions.add(renderManageProgramAdminsLink(draftProgram.get()));
       Optional<ButtonTag> maybeManageTranslationsLink =
@@ -330,7 +325,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         draftRowExtraActions.add(maybeManageTranslationsLink.get());
       }
       draftRowExtraActions.add(renderEditStatusesLink(draftProgram.get()));
-      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(request, draftProgram.get());
+      Optional<ButtonTag> maybeSettingsLink = maybeRenderSettingsLink(draftProgram.get());
       if (maybeSettingsLink.isPresent()) {
         draftRowExtraActions.add(maybeSettingsLink.get());
       }
@@ -375,7 +370,7 @@ public final class ProgramIndexView extends BaseHtmlView {
   ButtonTag renderShareLink(ProgramDefinition program) {
     String programLink =
         baseUrl
-            + controllers.applicant.routes.RedirectController.programBySlug(program.slug()).url();
+            + controllers.applicant.routes.DeepLinkController.programBySlug(program.slug()).url();
     return makeSvgTextButton("Share link", Icons.CONTENT_COPY)
         .withClass(ButtonStyles.CLEAR_WITH_ICON)
         .withData("copyable-program-link", programLink);
@@ -480,8 +475,7 @@ public final class ProgramIndexView extends BaseHtmlView {
               .url();
 
       String buttonText =
-          featureFlags.getFlagEnabled(request, FeatureFlag.INTAKE_FORM_ENABLED)
-                  && activeProgram.isCommonIntakeForm()
+          settingsManifest.getIntakeFormEnabled(request) && activeProgram.isCommonIntakeForm()
               ? "Forms"
               : "Applications";
       ButtonTag button =
@@ -500,11 +494,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     return asRedirectElement(button, adminLink);
   }
 
-  private Optional<ButtonTag> maybeRenderSettingsLink(
-      Http.Request request, ProgramDefinition program) {
-    if (!featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)) {
-      return Optional.empty();
-    }
+  private Optional<ButtonTag> maybeRenderSettingsLink(ProgramDefinition program) {
     if (program.isCommonIntakeForm()) {
       return Optional.empty();
     }

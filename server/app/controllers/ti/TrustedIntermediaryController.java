@@ -100,12 +100,8 @@ public final class TrustedIntermediaryController {
     return ok(
         tiDashboardView.render(
             trustedIntermediaryGroup.get(),
-            // TODO(#4976): Don't show the "Applying as" message if the TI hasn't gone to the
-            // applicant dashboard yet.
-            applicantName.isPresent()
-                ? ApplicantPersonalInfo.ofLoggedInUser(
-                    Representation.builder().setName(applicantName).build())
-                : ApplicantPersonalInfo.ofGuestUser(),
+            ApplicantPersonalInfo.ofLoggedInUser(
+                Representation.builder().setName(applicantName).build()),
             pageInfo.getPageItems(),
             pageInfo.getPageCount(),
             pageInfo.getPage(),

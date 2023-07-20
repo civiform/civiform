@@ -2,9 +2,9 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
@@ -22,6 +22,7 @@ import play.data.FormFactory;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -51,11 +52,14 @@ public final class AdminQuestionController extends CiviFormController {
 
   @Inject
   public AdminQuestionController(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
       QuestionService service,
       QuestionsListView listView,
       QuestionEditView editView,
       FormFactory formFactory,
       HttpExecutionContext httpExecutionContext) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
     this.editView = checkNotNull(editView);
@@ -82,7 +86,7 @@ public final class AdminQuestionController extends CiviFormController {
    * it.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(long id) {
+  public CompletionStage<Result> show(Request request, long id) {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
@@ -98,7 +102,8 @@ public final class AdminQuestionController extends CiviFormController {
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               try {
                 return ok(
-                    editView.renderViewQuestionForm(questionDefinition, maybeEnumerationQuestion));
+                    editView.renderViewQuestionForm(
+                        request, questionDefinition, maybeEnumerationQuestion));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -155,7 +160,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> result = service.create(questionDefinition);
     if (result.isError()) {
-      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
@@ -295,7 +300,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
       ToastMessage errorMessage =
-          new ToastMessage(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()), ERROR);
+          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
       return ok(

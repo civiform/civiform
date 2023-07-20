@@ -1,4 +1,4 @@
-package tasks;
+package services.seeding;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,7 +30,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /**
- * Task for seeding the database.
+ * Task for seeding the production database.
  *
  * <p>Logic for seeding different resources should be factored into separate methods for clarity.
  *

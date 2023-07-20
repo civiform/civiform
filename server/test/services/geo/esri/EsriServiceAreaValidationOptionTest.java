@@ -1,6 +1,6 @@
 package services.geo.esri;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
@@ -55,8 +55,8 @@ public class EsriServiceAreaValidationOptionTest {
 
   @Test
   public void isServiceAreaOptionInInclusionGroup() {
-    assertEquals(
-        true, esriServiceAreaValidationOption.isServiceAreaOptionInInclusionGroup(inclusionGroup));
+    assertThat(esriServiceAreaValidationOption.isServiceAreaOptionInInclusionGroup(inclusionGroup))
+        .isTrue();
   }
 
   @Test
@@ -69,6 +69,6 @@ public class EsriServiceAreaValidationOptionTest {
             .setAttribute("CITYNAME")
             .build();
 
-    assertEquals(false, option.isServiceAreaOptionInInclusionGroup(inclusionGroup));
+    assertThat(option.isServiceAreaOptionInInclusionGroup(inclusionGroup)).isFalse();
   }
 }

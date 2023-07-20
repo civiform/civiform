@@ -3,9 +3,9 @@ package controllers.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.ViewUtils.ProgramDisplayType.ACTIVE;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.BlockForm;
 import java.util.Optional;
@@ -16,6 +16,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.program.BlockDefinition;
@@ -48,7 +49,10 @@ public final class AdminProgramBlocksController extends CiviFormController {
       QuestionService questionService,
       ProgramBlocksView.Factory programBlockViewFactory,
       FormFactory formFactory,
-      RequestChecker requestChecker) {
+      RequestChecker requestChecker,
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.editView = checkNotNull(programBlockViewFactory.create(DRAFT));
@@ -129,7 +133,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
               ? program.getLastBlockDefinition()
               : result.getResult().maybeAddedBlock().get();
       if (result.isError()) {
-        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(request, program, block, Optional.of(message));
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, block.id()).url());
@@ -190,7 +194,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       ErrorAnd<ProgramDefinition, CiviFormError> result =
           programService.updateBlock(programId, blockId, blockForm);
       if (result.isError()) {
-        ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
         return renderEditViewWithMessage(
             request, result.getResult(), blockId, blockForm, Optional.of(message));
       }

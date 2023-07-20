@@ -3,7 +3,7 @@ import {
   createTestContext,
   dropTables,
   loginAsAdmin,
-  seedCanonicalQuestions,
+  seedQuestions,
   validateScreenshot,
   waitForPageJsLoad,
 } from './support'
@@ -13,17 +13,18 @@ import {BASE_URL} from './support/config'
 describe('normal question lifecycle', () => {
   const ctx = createTestContext()
 
-  it('canonical question seeding works', async () => {
+  it('sample question seeding works', async () => {
     const {page, adminQuestions} = ctx
     await dropTables(page)
-    await seedCanonicalQuestions(page)
+    await seedQuestions(page)
 
     await page.goto(BASE_URL)
     await loginAsAdmin(page)
 
     await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.expectDraftQuestionExist('Sample Address Question')
+    await adminQuestions.expectDraftQuestionExist('Sample Number Question')
     await adminQuestions.expectDraftQuestionExist('Name')
-    await adminQuestions.expectDraftQuestionExist('Applicant Date of Birth')
   })
 
   // Run create-update-publish test for each question type individually to keep

@@ -1,13 +1,12 @@
 package controllers.admin;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static play.mvc.Results.badRequest;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import forms.ManageProgramAdminsForm;
@@ -53,34 +52,40 @@ public final class ProgramAdminManagementController {
     return this.loadProgram(request, programId, Optional.empty());
   }
 
-  /**
-   * Promotes the given account emails to the role of PROGRAM_ADMIN. If there are errors, return a
-   * redirect with flashing error message.
-   */
+  /** Removes `adminEmail` as a program admin for the program identified by `programId`. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Http.Request request, long programId) {
-    Form<ManageProgramAdminsForm> form = formFactory.form(ManageProgramAdminsForm.class);
-    if (form.hasErrors()) {
-      return badRequest();
-    }
-    ManageProgramAdminsForm manageAdminForm = form.bindFromRequest(request).get();
-
+  public Result delete(Http.Request request, long programId) {
+    Form<ManageProgramAdminsForm> form =
+        formFactory.form(ManageProgramAdminsForm.class).bindFromRequest(request);
     try {
-      // Remove first, in case the admin accidentally removed an admin and then re-added them.
-      roleService.removeProgramAdmins(
-          programId, ImmutableSet.copyOf(manageAdminForm.getRemoveAdminEmails()));
+      roleService.removeProgramAdmins(programId, ImmutableSet.of(form.get().getAdminEmail()));
+      return redirect(routes.ProgramAdminManagementController.edit(programId));
+    } catch (ProgramNotFoundException e) {
+      return notFound(e.getLocalizedMessage());
+    }
+  }
+
+  /** Adds a new admin email. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result add(Http.Request request, long programId) {
+    Form<ManageProgramAdminsForm> form =
+        formFactory.form(ManageProgramAdminsForm.class).bindFromRequest(request);
+    String adminEmail = Strings.nullToEmpty(form.get().getAdminEmail()).trim();
+    if (adminEmail.isEmpty()) {
+      ToastMessage message = ToastMessage.errorNonLocalized("Enter an admin email");
+      return this.loadProgram(request, programId, Optional.of(message));
+    }
+    try {
       Optional<CiviFormError> maybeError =
-          roleService.makeProgramAdmins(
-              programId, ImmutableSet.copyOf(manageAdminForm.getAdminEmails()));
-      Result result = redirect(routes.AdminProgramController.index());
+          roleService.makeProgramAdmins(programId, ImmutableSet.of(adminEmail));
 
       if (maybeError.isEmpty()) {
-        return result;
+        return redirect(routes.ProgramAdminManagementController.edit(programId));
       }
 
-      ToastMessage message = new ToastMessage(maybeError.get().message(), ERROR);
-      return this.loadProgram(request, programId, Optional.of(message));
+      ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
 
+      return this.loadProgram(request, programId, Optional.of(message));
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }

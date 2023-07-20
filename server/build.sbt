@@ -13,7 +13,7 @@ lazy val root = (project in file("."))
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
-    scalaVersion := "2.13.10",
+    scalaVersion := "2.13.11",
     maintainer := "uat-public-contact@google.com",
     libraryDependencies ++= Seq(
       // Provides in-memory caching via the Play cache interface.
@@ -24,9 +24,9 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.1",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.1",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -34,16 +34,16 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.73",
-      "software.amazon.awssdk" % "ses" % "2.20.73",
+      "software.amazon.awssdk" % "s3" % "2.20.100",
+      "software.amazon.awssdk" % "ses" % "2.20.100",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.9.0",
-      "com.azure" % "azure-storage-blob" % "12.22.2",
+      "com.azure" % "azure-identity" % "1.9.1",
+      "com.azure" % "azure-storage-blob" % "12.22.3",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
-      "com.h2database" % "h2" % "2.1.214" % Test,
+      "com.h2database" % "h2" % "2.2.220" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "31.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.1.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -79,9 +79,8 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.1",
-      "com.google.auto.value" % "auto-value" % "1.10.1",
-      "com.google.auto.value" % "auto-value-parent" % "1.10.1" pomOnly (),
+      "com.google.auto.value" % "auto-value-annotations" % "1.10.2",
+      "com.google.auto.value" % "auto-value" % "1.10.2",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.19.1",
@@ -93,10 +92,10 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.12",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.15",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.4",
+      "com.github.slugify" % "slugify" % "3.0.5",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.9.0",
@@ -106,7 +105,7 @@ lazy val root = (project in file("."))
 
       // Override defaul Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.4.7"
+      "ch.qos.logback" % "logback-classic" % "1.4.8"
     ),
     javacOptions ++= Seq(
       "-encoding",
@@ -117,9 +116,15 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR",
       "-implicit:class",
-      "-Werror"
+      "-Werror",
+      // The compile option below is a hack that preserves generated files. Normally,
+      // AutoValue generates .java files, compiles them into .class files, and then deletes
+      // the .java files. This option keeps the .java files in the specified directory,
+      // which allows an IDE to recognize the symbols.
+      "-s",
+      generateSourcePath(scalaVersion = scalaVersion.value)
     ),
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinate
@@ -213,9 +218,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.1",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.1",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.1"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.2"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
@@ -233,3 +238,10 @@ addCommandAlias(
   "runBrowserTestsServer",
   ";eval System.setProperty(\"config.file\", \"conf/application.dev-browser-tests.conf\");run"
 )
+
+// scalaVersion is formatted as x.y.z, but we only want x.y in our path. This function
+// removes the .z component and returns the path to the generated source file directory.
+def generateSourcePath(scalaVersion: String): String = {
+  val version = scalaVersion.split("\\.").take(2).mkString(".")
+  s"target/scala-$version/src_managed/main"
+}

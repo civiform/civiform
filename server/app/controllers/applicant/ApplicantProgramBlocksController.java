@@ -1,13 +1,9 @@
 package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED;
-import static featureflags.FeatureFlag.ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static views.components.ToastMessage.ToastType.SUCCESS;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -17,7 +13,6 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.geo.AddressSuggestionJsonSerializer;
-import featureflags.FeatureFlags;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +31,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
+import repository.VersionRepository;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
@@ -54,6 +50,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
+import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.applicant.AddressCorrectionBlockView;
@@ -79,8 +76,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final FormFactory formFactory;
   private final StorageClient storageClient;
   private final StoredFileRepository storedFileRepository;
-  private final ProfileUtils profileUtils;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
   private final String baseUrl;
   private final IneligibleBlockView ineligibleBlockView;
   private final AddressCorrectionBlockView addressCorrectionBlockView;
@@ -100,21 +96,22 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       StoredFileRepository storedFileRepository,
       ProfileUtils profileUtils,
       Config configuration,
-      FeatureFlags featureFlags,
+      SettingsManifest settingsManifest,
       FileUploadViewStrategy fileUploadViewStrategy,
       IneligibleBlockView ineligibleBlockView,
       AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
-      ProgramService programService) {
+      ProgramService programService,
+      VersionRepository versionRepository) {
+    super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.messagesApi = checkNotNull(messagesApi);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.formFactory = checkNotNull(formFactory);
     this.storageClient = checkNotNull(storageClient);
     this.storedFileRepository = checkNotNull(storedFileRepository);
-    this.profileUtils = checkNotNull(profileUtils);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
     this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
@@ -183,7 +180,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantService.getPersonalInfo(applicantId).toCompletableFuture();
 
     return CompletableFuture.allOf(
-            checkApplicantAuthorization(profileUtils, request, applicantId), applicantStage)
+            checkApplicantAuthorization(request, applicantId), applicantStage)
         .thenComposeAsync(
             v ->
                 applicantService.getCorrectedAddress(
@@ -196,8 +193,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     cleanForm(questionPathToValueMap),
-                    featureFlags.getFlagEnabled(
-                        request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -237,12 +233,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CompletableFuture<Void> applicantAuthCompletableFuture =
         applicantStage
             .thenComposeAsync(
-                v -> checkApplicantAuthorization(profileUtils, request, applicantId),
+                v -> checkApplicantAuthorization(request, applicantId),
                 httpExecutionContext.current())
             .toCompletableFuture();
 
     CompletableFuture<ReadOnlyApplicantProgramService> applicantProgramServiceCompletableFuture =
         applicantStage
+            .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
             .thenComposeAsync(
                 v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
                 httpExecutionContext.current())
@@ -300,12 +297,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         this.applicantService.getPersonalInfo(applicantId);
 
     Optional<ToastMessage> flashSuccessBanner =
-        request.flash().get("success-banner").map(m -> new ToastMessage(m, SUCCESS));
+        request.flash().get("success-banner").map(m -> ToastMessage.success(m));
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -364,8 +361,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
+        .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
             httpExecutionContext.current())
@@ -417,8 +414,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               programId,
                               blockId,
                               fileUploadQuestionFormData.build(),
-                              featureFlags.getFlagEnabled(
-                                  request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)));
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(
+                                  request)));
             },
             httpExecutionContext.current())
         .thenComposeAsync(
@@ -455,8 +452,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     return applicantStage
         .thenComposeAsync(
-            v -> checkApplicantAuthorization(profileUtils, request, applicantId),
-            httpExecutionContext.current())
+            v -> checkApplicantAuthorization(request, applicantId), httpExecutionContext.current())
         .thenComposeAsync(
             v -> {
               DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -472,8 +468,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     formData,
-                    featureFlags.getFlagEnabled(
-                        request, ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED)),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)),
             httpExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService ->
@@ -521,7 +516,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
-    if (featureFlags.getFlagEnabled(request, ESRI_ADDRESS_CORRECTION_ENABLED)
+    if (settingsManifest.getEsriAddressCorrectionEnabled(request)
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
       AddressQuestion addressQuestion =
@@ -553,8 +548,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     try {
       ProgramDefinition programDefinition = programService.getProgramDefinition(programId);
-      if (shouldRenderIneligibleBlockView(
-          request, roApplicantProgramService, programDefinition, blockId)) {
+      if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
         return supplyAsync(
             () ->
                 ok(
@@ -673,15 +667,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   /** Returns true if eligibility is gating and the block is ineligible, false otherwise. */
   private boolean shouldRenderIneligibleBlockView(
-      Request request,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       ProgramDefinition programDefinition,
       String blockId) {
-    if (featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED)
-        && !programDefinition.eligibilityIsGating()) {
-      return false;
+    if (programDefinition.eligibilityIsGating()) {
+      return !roApplicantProgramService.isBlockEligible(blockId);
     }
-    return !roApplicantProgramService.isBlockEligible(blockId);
+    return false;
   }
 
   private ImmutableMap<String, String> cleanForm(Map<String, String> formData) {

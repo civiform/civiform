@@ -3,12 +3,8 @@ package services.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import com.google.i18n.phonenumbers.NumberParseException;
-import com.google.i18n.phonenumbers.PhoneNumberUtil;
-import com.google.i18n.phonenumbers.Phonenumber;
+import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -25,15 +21,9 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.applicant.question.CurrencyQuestion;
-import services.applicant.question.DateQuestion;
-import services.applicant.question.MultiSelectQuestion;
-import services.applicant.question.NumberQuestion;
-import services.applicant.question.PhoneQuestion;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.question.LocalizedQuestionOption;
 
 /** Exports all applications for a given program as JSON. */
 public final class JsonExporter {
@@ -41,16 +31,18 @@ public final class JsonExporter {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final DateConverter dateConverter;
-  private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
+  private final QuestionJsonPresenter.Factory presenterFactory;
 
   @Inject
   JsonExporter(
       ApplicantService applicantService,
       ProgramService programService,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      QuestionJsonPresenter.Factory presenterFactory) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.dateConverter = dateConverter;
+    this.presenterFactory = checkNotNull(presenterFactory);
   }
 
   public Pair<String, PaginationResult<Application>> export(
@@ -119,106 +111,56 @@ public final class JsonExporter {
             () -> jsonApplication.putNull(statusPath));
 
     for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
-      // Answers to enumerator questions should not be included because the path is incompatible
-      // with the JSON export schema. This is because enumerators store an identifier value for
-      // each repeated entity, which with the current export logic conflicts with the answers
-      // stored for repeated entities.
-      if (answerData.questionDefinition().isEnumerator()) {
-        continue;
-      }
-
-      switch (answerData.questionDefinition().getQuestionType()) {
-        case CHECKBOX:
-          {
-            MultiSelectQuestion multiSelectQuestion =
-                answerData.applicantQuestion().createMultiSelectQuestion();
-            Path path = multiSelectQuestion.getSelectionPath().asApplicationPath();
-
-            if (multiSelectQuestion.getSelectedOptionsValue().isPresent()) {
-              ImmutableList<String> selectedOptions =
-                  multiSelectQuestion.getSelectedOptionsValue().get().stream()
-                      .map(LocalizedQuestionOption::optionText)
-                      .collect(ImmutableList.toImmutableList());
-
-              jsonApplication.putArray(path, selectedOptions);
-            }
-            break;
-          }
-        case CURRENCY:
-          {
-            CurrencyQuestion currencyQuestion =
-                answerData.applicantQuestion().createCurrencyQuestion();
-            Path path =
-                currencyQuestion
-                    .getCurrencyPath()
-                    .asApplicationPath()
-                    .replacingLastSegment("currency_dollars");
-
-            if (currencyQuestion.getCurrencyValue().isPresent()) {
-              Long centsTotal = Long.valueOf(currencyQuestion.getCurrencyValue().get().getCents());
-
-              jsonApplication.putDouble(path, centsTotal.doubleValue() / 100.0);
-            } else {
-              jsonApplication.putNull(path);
-            }
-
-            break;
-          }
-        case NUMBER:
-          {
-            NumberQuestion numberQuestion = answerData.applicantQuestion().createNumberQuestion();
-            Path path = numberQuestion.getNumberPath().asApplicationPath();
-
-            if (numberQuestion.getNumberValue().isPresent()) {
-              jsonApplication.putLong(path, numberQuestion.getNumberValue().get());
-            } else {
-              jsonApplication.putNull(path);
-            }
-
-            break;
-          }
-        case DATE:
-          {
-            DateQuestion dateQuestion = answerData.applicantQuestion().createDateQuestion();
-            Path path = dateQuestion.getDatePath().asApplicationPath();
-
-            if (dateQuestion.getDateValue().isPresent()) {
-              LocalDate date = dateQuestion.getDateValue().get();
-              jsonApplication.putString(path, DateTimeFormatter.ISO_DATE.format(date));
-            } else {
-              jsonApplication.putNull(path);
-            }
-
-            break;
-          }
-        case PHONE:
-          {
-            PhoneQuestion phoneQuestion = answerData.applicantQuestion().createPhoneQuestion();
-            Path path = phoneQuestion.getPhoneNumberPath().asApplicationPath();
-
-            if (phoneQuestion.getPhoneNumberValue().isPresent()
-                && phoneQuestion.getCountryCodeValue().isPresent()) {
-              String formattedPhone =
-                  getFormattedPhoneNumber(
-                      phoneQuestion.getPhoneNumberValue().get(),
-                      phoneQuestion.getCountryCodeValue().get());
-              jsonApplication.putString(path, formattedPhone);
-            } else {
-              jsonApplication.putNull(path);
-            }
-            break;
-          }
-        default:
-          {
-            for (Map.Entry<Path, String> answer :
-                answerData.scalarAnswersInDefaultLocale().entrySet()) {
-              jsonApplication.putString(answer.getKey().asApplicationPath(), answer.getValue());
-            }
-          }
-      }
+      exportToJsonApplication(jsonApplication, answerData);
     }
 
     return jsonApplication;
+  }
+
+  private void exportToJsonApplication(
+      CfJsonDocumentContext jsonApplication, AnswerData answerData) {
+    // We suppress the unchecked warning because create() returns a genericized
+    // QuestionJsonPresenter, but we ignore the generic's type so that we can get
+    // the json entries for any Question in one line.
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, ?> entries =
+        presenterFactory
+            .create(answerData.applicantQuestion().getType())
+            .getJsonEntries(answerData.createQuestion());
+
+    exportEntriesToJsonApplication(jsonApplication, entries);
+  }
+
+  public static void exportEntriesToJsonApplication(
+      CfJsonDocumentContext jsonApplication, ImmutableMap<Path, ?> entries) {
+
+    for (Map.Entry<Path, ?> entry : entries.entrySet()) {
+      Path path = entry.getKey().asApplicationPath();
+
+      Object value = entry.getValue();
+      if (value instanceof String) {
+        jsonApplication.putString(path, (String) value);
+      } else if (value instanceof Long) {
+        jsonApplication.putLong(path, (Long) value);
+      } else if (value instanceof Double) {
+        jsonApplication.putDouble(path, (Double) value);
+      } else if (instanceOfNonEmptyImmutableListOfString(value)) {
+        @SuppressWarnings("unchecked")
+        ImmutableList<String> list = (ImmutableList<String>) value;
+        jsonApplication.putArray(path, list);
+      }
+    }
+  }
+
+  // Returns true if value is a non-empty ImmutableList<String>. This is the best
+  // we can do given Java type erasure.
+  private static boolean instanceOfNonEmptyImmutableListOfString(Object value) {
+    if (!(value instanceof ImmutableList<?>)) {
+      return false;
+    }
+
+    ImmutableList<?> list = (ImmutableList<?>) value;
+    return !list.isEmpty() && list.get(0) instanceof String;
   }
 
   private DocumentContext makeEmptyJsonArray() {
@@ -227,18 +169,5 @@ public final class JsonExporter {
 
   private DocumentContext makeEmptyJsonObject() {
     return JsonPathProvider.getJsonPath().parse("{}");
-  }
-  /**
-   * This method accepts a phoneNumber as String and the countryCode which is iso alpha 2 format as
-   * a String. It formats the phone number per E164 format. For a sample input of
-   * phoneNumberValue="2123456789" with countryCode="US", the output will be +12123456789
-   */
-  private String getFormattedPhoneNumber(String phoneNumberValue, String countryCode) {
-    try {
-      Phonenumber.PhoneNumber phoneNumber = PHONE_NUMBER_UTIL.parse(phoneNumberValue, countryCode);
-      return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.E164);
-    } catch (NumberParseException e) {
-      throw new RuntimeException(e);
-    }
   }
 }

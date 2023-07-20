@@ -2,7 +2,6 @@ package durablejobs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 
 import models.PersistedDurableJob;
 import org.junit.Test;
@@ -24,7 +23,8 @@ public class DurableJobRegistryTest {
   public void get_aMissingJob_throwsException() {
     var registry = new DurableJobRegistry();
 
-    assertThrows(JobNotFoundException.class, () -> registry.get(DurableJobName.OLD_JOB_CLEANUP));
+    assertThatThrownBy(() -> registry.get(DurableJobName.OLD_JOB_CLEANUP))
+        .isInstanceOf(JobNotFoundException.class);
   }
 
   @Test

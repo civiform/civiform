@@ -54,7 +54,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div().withClasses("my-5").with(renderAddNewButton(tiGroup, request)),
@@ -73,7 +73,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       String error = request.flash().get("error").get();
       htmlBundle.addToastMessages(
-          ToastMessage.error(error)
+          ToastMessage.errorNonLocalized(error)
               .setId("warning-message-ti-form-fill")
               .setIgnorable(false)
               .setDuration(0));

@@ -6,5 +6,7 @@ public enum SettingMode {
   // They include secrets such as cryptographic values and passwords.
   HIDDEN,
   // May be displayed to admins.
-  ADMIN_READABLE;
+  ADMIN_READABLE,
+  // May be displayed to and updated by admins.
+  ADMIN_WRITEABLE;
 }

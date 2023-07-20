@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertThrows;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
@@ -18,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
-import featureflags.FeatureFlags;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,6 +42,7 @@ import play.mvc.Result;
 import play.test.Helpers;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.DateConverter;
 import services.LocalizedStrings;
 import services.applicant.ApplicantService;
@@ -58,6 +57,7 @@ import services.program.ProgramService;
 import services.program.StatusDefinitions;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramApplicationListView;
 import views.admin.programs.ProgramApplicationView;
@@ -201,9 +201,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             .build();
 
     // Execute
-    assertThrows(
-        StatusNotFoundException.class,
-        () -> controller.updateStatus(request, program.id, application.id));
+    assertThatThrownBy(() -> controller.updateStatus(request, program.id, application.id))
+        .isInstanceOf(StatusNotFoundException.class);
   }
 
   @Test
@@ -584,7 +583,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
             instanceOf(DatabaseExecutionContext.class),
             instanceOf(HttpExecutionContext.class),
             instanceOf(CiviFormProfileData.class),
-            instanceOf(FeatureFlags.class),
+            instanceOf(SettingsManifest.class),
             adminAccount);
     ProfileUtils profileUtilsNoOpTester =
         new ProfileUtilsNoOpTester(
@@ -602,7 +601,8 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         profileUtilsNoOpTester,
         instanceOf(MessagesApi.class),
         instanceOf(DateConverter.class),
-        Providers.of(LocalDateTime.now(ZoneId.systemDefault())));
+        Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
+        instanceOf(VersionRepository.class));
   }
 
   // A test version of ProfileUtils that disable functionality that is hard
@@ -631,9 +631,9 @@ public class AdminApplicationControllerTest extends ResetPostgres {
           DatabaseExecutionContext dbContext,
           HttpExecutionContext httpContext,
           CiviFormProfileData profileData,
-          FeatureFlags featureFlags,
+          SettingsManifest settingsManifest,
           Optional<Account> adminAccount) {
-        super(dbContext, httpContext, profileData, featureFlags);
+        super(dbContext, httpContext, profileData, settingsManifest);
         this.adminAccount = adminAccount;
       }
 

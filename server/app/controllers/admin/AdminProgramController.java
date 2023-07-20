@@ -1,10 +1,6 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static featureflags.FeatureFlag.INTAKE_FORM_ENABLED;
-import static featureflags.FeatureFlag.NONGATED_ELIGIBILITY_ENABLED;
-import static featureflags.FeatureFlag.PUBLISH_SINGLE_PROGRAM_ENABLED;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
 import auth.CiviFormProfile;
@@ -12,7 +8,6 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
-import featureflags.FeatureFlags;
 import forms.ProgramForm;
 import forms.ProgramSettingsForm;
 import java.util.Optional;
@@ -33,6 +28,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -49,10 +45,8 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramMetaDataEditView editView;
   private final ProgramSettingsEditView programSettingsEditView;
   private final FormFactory formFactory;
-  private final VersionRepository versionRepository;
-  private final ProfileUtils profileUtils;
   private final RequestChecker requestChecker;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramController(
@@ -66,18 +60,17 @@ public final class AdminProgramController extends CiviFormController {
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
+    super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.programSettingsEditView = checkNotNull(programSettingsEditView);
-    this.versionRepository = checkNotNull(versionRepository);
-    this.profileUtils = checkNotNull(profileUtils);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.featureFlags = featureFlags;
+    this.settingsManifest = settingsManifest;
   }
 
   /**
@@ -121,13 +114,13 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!errors.isEmpty()) {
-      ToastMessage message = new ToastMessage(joinErrors(errors), ERROR);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
     }
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    if (settingsManifest.getIntakeFormEnabled(request)
         && programData.getIsCommonIntakeForm()
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
@@ -150,12 +143,12 @@ public final class AdminProgramController extends CiviFormController {
             programData.getIsCommonIntakeForm()
                 ? ProgramType.COMMON_INTAKE_FORM
                 : ProgramType.DEFAULT,
-            featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+            settingsManifest.getIntakeFormEnabled(request),
             ImmutableList.copyOf(programData.getTiGroups()));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
-      ToastMessage message = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(newOneView.render(request, programData, message));
     }
     return redirect(routes.AdminProgramBlocksController.index(result.getResult().id()).url());
@@ -182,10 +175,6 @@ public final class AdminProgramController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result publishProgram(Request request, long programId) throws ProgramNotFoundException {
-    if (!featureFlags.getFlagEnabled(request, PUBLISH_SINGLE_PROGRAM_ENABLED)) {
-      return redirect(routes.AdminProgramController.index());
-    }
-
     ProgramDefinition program = programService.getProgramDefinition(programId);
     requestChecker.throwIfProgramNotDraft(programId);
 
@@ -246,13 +235,13 @@ public final class AdminProgramController extends CiviFormController {
             programData.getDisplayMode(),
             ImmutableList.copyOf(programData.getTiGroups()));
     if (!validationErrors.isEmpty()) {
-      ToastMessage message = new ToastMessage(joinErrors(validationErrors), ERROR);
+      ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(editView.render(request, programDefinition, programData, message));
     }
 
     // If the user needs to confirm that they want to change the common intake form from a different
     // program to this one, show the confirmation dialog.
-    if (featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED)
+    if (settingsManifest.getIntakeFormEnabled(request)
         && programData.getIsCommonIntakeForm()
         && !programData.getConfirmedChangeCommonIntakeForm()) {
       Optional<ProgramDefinition> maybeCommonIntakeForm = programService.getCommonIntakeForm();
@@ -277,7 +266,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getExternalLink(),
         programData.getDisplayMode(),
         programData.getIsCommonIntakeForm() ? ProgramType.COMMON_INTAKE_FORM : ProgramType.DEFAULT,
-        featureFlags.getFlagEnabled(request, INTAKE_FORM_ENABLED),
+        settingsManifest.getIntakeFormEnabled(request),
         ImmutableList.copyOf(programData.getTiGroups()));
     return redirect(routes.AdminProgramBlocksController.index(programId).url());
   }
@@ -301,9 +290,7 @@ public final class AdminProgramController extends CiviFormController {
 
     try {
       programService.setEligibilityIsGating(
-          programId,
-          programSettingsForm.getEligibilityIsGating(),
-          featureFlags.getFlagEnabled(request, NONGATED_ELIGIBILITY_ENABLED));
+          programId, programSettingsForm.getEligibilityIsGating());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     }

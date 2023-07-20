@@ -13,7 +13,6 @@ import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a multi-select question in the context of a specific applicant.
@@ -29,11 +28,6 @@ public final class MultiSelectQuestion extends Question {
 
   MultiSelectQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
   }
 
   @Override

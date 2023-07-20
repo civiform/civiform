@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
-import controllers.dev.routes;
+import controllers.dev.seeding.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -63,22 +63,21 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("Generate mock program"))
+                            .with(submitButton("Seed sample programs"))
                             .withMethod("post")
-                            .withAction(routes.DatabaseSeedController.seed().url()))
+                            .withAction(routes.DevDatabaseSeedController.seedPrograms().url()))
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
-                            .with(submitButton("canonical-questions", "Seed canonical questions"))
+                            .with(submitButton("sample-questions", "Seed sample questions"))
                             .withMethod("post")
-                            .withAction(
-                                routes.DatabaseSeedController.seedCanonicalQuestions().url()))
+                            .withAction(routes.DevDatabaseSeedController.seedQuestions().url()))
                     .with(
                         form()
                             .with(makeCsrfTokenInputTag(request))
                             .with(submitButton("clear", "Clear entire database (irreversible!)"))
                             .withMethod("post")
-                            .withAction(routes.DatabaseSeedController.clear().url())))
+                            .withAction(routes.DevDatabaseSeedController.clear().url())))
             .with(
                 div()
                     .withClasses("grid", "grid-cols-2")
@@ -88,7 +87,7 @@ public class DatabaseSeedView extends BaseHtmlView {
                     .with(div().with(h2("Current Questions:")).with(pre(prettyQuestions))))
             .withClasses("px-6", "py-6");
 
-    HtmlBundle bundle = layout.getBundle().setTitle(title).addMainContent(content);
+    HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
   }
 

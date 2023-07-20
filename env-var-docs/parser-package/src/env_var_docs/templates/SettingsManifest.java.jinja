@@ -15,7 +15,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
+import play.mvc.Http.RequestHeader;
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -41,10 +43,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   {% for method_spec in getter_method_specs %}
+  {% if method_spec.variable.mode == writeable_mode %}
   /** {{method_spec.doc()}} */
-  public Optional<{{method_spec.return_type()}}> get{{method_spec.method_name()}}() {
+  public {{method_spec.return_type()}} get{{method_spec.method_name()}}(RequestHeader request) {
+    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}", request);
+  }
+  {% else %}
+  /** {{method_spec.doc()}} */
+  public {{method_spec.return_type()}} get{{method_spec.method_name()}}() {
     return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}");
   }
+  {% endif %}
   {% endfor %}
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =

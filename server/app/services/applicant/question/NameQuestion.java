@@ -10,7 +10,6 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.NameQuestionDefinition;
-import services.question.types.QuestionType;
 
 /**
  * Represents a name question in the context of a specific applicant.
@@ -25,11 +24,6 @@ public final class NameQuestion extends Question {
 
   NameQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
-  }
-
-  @Override
-  protected ImmutableSet<QuestionType> validQuestionTypes() {
-    return ImmutableSet.of(QuestionType.NAME);
   }
 
   @Override

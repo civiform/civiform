@@ -51,7 +51,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
     String title = "Manage trusted intermediaries";
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 renderHeader("Create New Trusted Intermediary").withClass("mt-8"),
@@ -64,7 +64,7 @@ public class TrustedIntermediaryGroupListView extends BaseHtmlView {
           .info(request.flash().get("error").get());
       String error = request.flash().get("error").get();
       htmlBundle.addToastMessages(
-          ToastMessage.error(error)
+          ToastMessage.errorNonLocalized(error)
               .setId("warning-message-ti-form-fill")
               .setIgnorable(false)
               .setDuration(0));

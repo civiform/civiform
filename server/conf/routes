@@ -18,6 +18,8 @@ GET     /securePlayIndex            controllers.HomeController.securePlayIndex()
 GET     /admin/programs                                         controllers.admin.AdminProgramController.index(request: Request)
 GET     /admin/programs/new                                     controllers.admin.AdminProgramController.newOne(request: Request)
 GET     /admin/programs/:programId/edit                         controllers.admin.AdminProgramController.edit(request: Request, programId: Long)
+GET     /admin/programs/:programId/preview                      controllers.admin.AdminProgramPreviewController.preview(request: Request, programId: Long)
+GET     /admin/programs/:programId/back                         controllers.admin.AdminProgramPreviewController.back(request: Request, programId: Long)
 GET     /admin/programs/:programId/settings/edit                controllers.admin.AdminProgramController.editProgramSettings(request: Request, programId: Long)
 POST    /admin/programs/:programId/newVersion                   controllers.admin.AdminProgramController.newVersionFrom(request: Request, programId: Long)
 POST    /admin/programs                                         controllers.admin.AdminProgramController.create(request: Request)
@@ -27,8 +29,9 @@ POST    /admin/programs/:programId                              controllers.admi
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
-GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
-POST    /admin/programs/:programId/admins       controllers.admin.ProgramAdminManagementController.update(request: Request, programId: Long)
+GET     /admin/programs/:programId/admins/edit    controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
+POST    /admin/programs/:programId/admins/delete  controllers.admin.ProgramAdminManagementController.delete(request: Request, programId: Long)
+POST    /admin/programs/:programId/admins/add     controllers.admin.ProgramAdminManagementController.add(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage application statuses for a given program.
 POST    /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusesController.createOrUpdate(request: Request, programId: Long)
@@ -75,7 +78,7 @@ GET     /admin/questions             controllers.admin.AdminQuestionController.i
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new         controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String)
 GET     /admin/questions/:id/edit    controllers.admin.AdminQuestionController.edit(request: Request, id: Long)
-GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(id: Long)
+GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(request: Request, id: Long)
 POST    /admin/questions/:id         controllers.admin.AdminQuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.AdminQuestionController.create(request: Request, type: String)
 POST    /admin/questions/:id/discard controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
@@ -117,7 +120,8 @@ POST    /admin/apiKeys                              controllers.admin.AdminApiKe
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
 
 # Admin settings
-GET     /admin/settings                             controllers.admin.AdminSettingsController.index()
+GET      /admin/settings                             controllers.admin.AdminSettingsController.index(request: Request)
+POST     /admin/settings                             controllers.admin.AdminSettingsController.update(request: Request)
 
 # Admin reporting
 GET     /admin/reporting                            controllers.admin.AdminReportingController.index(request: Request)
@@ -156,14 +160,16 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
-GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser()
+GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser(request: Request)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
 
 # Deep-link methods
-GET     /programs/:programSlug      controllers.applicant.RedirectController.programBySlug(request: Request, programSlug: String)
-GET     /considerSignIn             controllers.applicant.RedirectController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
+GET     /programs/:programSlug      controllers.applicant.DeepLinkController.programBySlug(request: Request, programSlug: String)
+
+# Upsell methods
+GET     /considerSignIn             controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
 
 # User profile pages
 GET     /users/me                    controllers.ProfileController.myProfile(request: Request)
@@ -194,16 +200,15 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 
 ## Methods for development
 # Seed the database with test content to develop against, and clear the database
-GET     /dev/seed                        controllers.dev.DatabaseSeedController.index(request: Request)
-POST    /dev/seed/canonicalQuestions     controllers.dev.DatabaseSeedController.seedCanonicalQuestions()
-GET     /dev/icons                       controllers.dev.IconsController.index()
-POST    /dev/seed                        controllers.dev.DatabaseSeedController.seed()
-POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.clear()
+GET     /dev/seed                        controllers.dev.seeding.DevDatabaseSeedController.index(request: Request)
+POST    /dev/seedQuestions               controllers.dev.seeding.DevDatabaseSeedController.seedQuestions()
+POST    /dev/seedPrograms                controllers.dev.seeding.DevDatabaseSeedController.seedPrograms()
+POST    /dev/seed/clear                  controllers.dev.seeding.DevDatabaseSeedController.clear()
+GET     /dev/icons                       controllers.dev.IconsController.index(request: Request)
+
 # Change feature flags.
-GET     /dev/feature                  controllers.dev.FeatureFlagOverrideController.index(request: Request)
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
-GET     /dev/feature/:flag/status      controllers.dev.FeatureFlagOverrideController.status(request: Request, flag: String)
 
 ## Prometheus metrics export
 GET         /metrics          controllers.monitoring.MetricsController.getMetrics()

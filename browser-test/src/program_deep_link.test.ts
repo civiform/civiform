@@ -1,6 +1,5 @@
 import {
   createTestContext,
-  enableFeatureFlag,
   gotoEndpoint,
   loginAsAdmin,
   loginAsTestUser,
@@ -19,8 +18,6 @@ describe('navigating to a deep link', () => {
   beforeEach(async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
-    await enableFeatureFlag(page, 'bypass_login_language_screens')
-
     // Arrange
     await loginAsAdmin(page)
 
@@ -37,7 +34,7 @@ describe('navigating to a deep link', () => {
 
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram(programName)
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminPrograms.expectActiveProgram(programName)
 
     await logout(page)
@@ -134,5 +131,22 @@ describe('navigating to a deep link', () => {
     )
 
     await logout(page)
+  })
+
+  it('Going to a deep link does not retain redirect in session', async () => {
+    await resetContext(ctx)
+    const {page, browserContext} = ctx
+    await browserContext.clearCookies()
+
+    // Go to a deep link
+    await gotoEndpoint(page, '/programs/test-deep-link')
+    await page.click('text="Continue to application"')
+
+    // Logging out should not take us back to /programs/test-deep-link, but rather
+    // to the program index page.
+    await logout(page)
+    expect(await page.innerText('h1')).toContain(
+      'Save time when applying for benefits',
+    )
   })
 })

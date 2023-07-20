@@ -3,8 +3,10 @@
 # DOC: Generates the SettingsManifest.java file based on the contents of env_var_docs.json
 
 source bin/lib.sh
+docker::set_project_name_env_var_docs
+docker::compose_env_var_docs_up
 
-ENV_VAR_DOCS_PATH=server/conf/env-var-docs.json \
-  python3 env-var-docs/parser-package/src/env_var_docs/settings_manifest.py
+LOCAL_OUTPUT=false docker::run_env_var_docs_command \
+  python env-var-docs/parser-package/src/env_var_docs/settings_manifest.py
 
 echo "Wrote server/app/services/settings/SettingsManifest.java"

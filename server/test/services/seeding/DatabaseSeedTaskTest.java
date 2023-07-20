@@ -1,8 +1,7 @@
-package tasks;
+package services.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
 import java.util.Set;
 import models.Question;
 import org.junit.Before;
@@ -14,6 +13,7 @@ import services.LocalizedStrings;
 import services.question.QuestionService;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 
 public class DatabaseSeedTaskTest extends ResetPostgres {
 
@@ -27,8 +27,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedCanonicalQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions()
-      throws Exception {
+  public void seedQuestions_whenQuestionsNotSeededYet_itSeedsTheQuestions() throws Exception {
     assertThat(getAllQuestions().size()).isEqualTo(0);
 
     databaseSeedTask.run();
@@ -42,17 +41,19 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedCanonicalQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
+  public void seedQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
     instanceOf(QuestionService.class)
         .create(
             new DateQuestionDefinition(
-                /* name= */ "Applicant Date of Birth",
-                /* enumeratorId= */ Optional.empty(),
-                /* description= */ "Applicant's date of birth",
-                /* questionText= */ LocalizedStrings.of(
-                    Lang.forCode("en-US").toLocale(),
-                    "Please enter your date of birth in the format mm/dd/yyyy"),
-                /* questionHelpText= */ LocalizedStrings.empty()));
+                QuestionDefinitionConfig.builder()
+                    .setName("Applicant Date of Birth")
+                    .setDescription("Applicant's date of birth")
+                    .setQuestionText(
+                        LocalizedStrings.of(
+                            Lang.forCode("en-US").toLocale(),
+                            "Please enter your date of birth in the format mm/dd/yyyy"))
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build()));
     assertThat(getAllQuestions().size()).isEqualTo(1);
 
     databaseSeedTask.run();

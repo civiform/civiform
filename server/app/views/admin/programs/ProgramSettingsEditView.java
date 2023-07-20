@@ -107,7 +107,8 @@ public final class ProgramSettingsEditView extends BaseHtmlView {
                 p(ELIGIBILITY_IS_GATING_DESCRIPTION)
                     .withClasses("text-md", "max-w-prose", "mt-6", "text-gray-700"));
 
-    return layout.renderCentered(layout.getBundle().setTitle(title).addMainContent(contentDiv));
+    return layout.renderCentered(
+        layout.getBundle(request).setTitle(title).addMainContent(contentDiv));
   }
 
   private ATag getBackButton(Request request) {

@@ -133,7 +133,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 + "(select id from programs where name = 'Old Schema Entry'));")
         .execute();
 
-    Program found = repo.getForSlug("old-schema-entry").toCompletableFuture().join();
+    Program found = repo.getActiveProgramFromSlug("old-schema-entry").toCompletableFuture().join();
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
     assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
@@ -143,7 +143,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getForSlug_findsCorrectProgram() {
     Program program = resourceCreator.insertActiveProgram("Something With A Name");
 
-    Program found = repo.getForSlug("something-with-a-name").toCompletableFuture().join();
+    Program found =
+        repo.getActiveProgramFromSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
   }
@@ -343,17 +344,20 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
     Application firstStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     createStatusEvents(
         adminAccount, firstStatusApplication, ImmutableList.of(Optional.of(FIRST_STATUS)));
 
     Application secondStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     createStatusEvents(
         adminAccount, secondStatusApplication, ImmutableList.of(Optional.of(SECOND_STATUS)));
 
     Application thirdStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     // Create a few status events before-hand to ensure that the latest status is used.
     createStatusEvents(
         adminAccount,
@@ -362,10 +366,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
             Optional.of(FIRST_STATUS), Optional.of(SECOND_STATUS), Optional.of(THIRD_STATUS)));
 
     Application noStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
 
     Application backToNoStatusApplication =
-        resourceCreator.insertActiveApplication(resourceCreator.insertApplicant(), program);
+        resourceCreator.insertActiveApplication(
+            resourceCreator.insertApplicantWithAccount(), program);
     // Application has transitioned through statuses and arrived back at an unset status.
     createStatusEvents(
         adminAccount,

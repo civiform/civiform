@@ -7,13 +7,13 @@ import static j2html.TagCreator.script;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
-import com.typesafe.config.Config;
-import featureflags.FeatureFlags;
 import j2html.tags.specialized.ScriptTag;
 import java.util.Optional;
 import javax.inject.Inject;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
+import services.settings.SettingsManifest;
 import views.components.ToastMessage;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
@@ -27,7 +27,6 @@ import views.components.ToastMessage;
  */
 public class BaseHtmlLayout {
   private final String civiformImageTag;
-  private final String civiformFaviconUrl;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
@@ -35,41 +34,32 @@ public class BaseHtmlLayout {
       "Do not enter actual or personal data in this demo site";
 
   public final ViewUtils viewUtils;
-  protected final FeatureFlags featureFlags;
+  protected final SettingsManifest settingsManifest;
   private final Optional<String> measurementId;
   private final boolean isDevOrStaging;
   private final boolean addNoindexMetaTag;
 
   @Inject
   public BaseHtmlLayout(
-      ViewUtils viewUtils,
-      Config configuration,
-      FeatureFlags featureFlags,
-      DeploymentType deploymentType) {
-    checkNotNull(configuration);
+      ViewUtils viewUtils, SettingsManifest settingsManifest, DeploymentType deploymentType) {
     this.viewUtils = checkNotNull(viewUtils);
-    this.featureFlags = checkNotNull(featureFlags);
-    this.measurementId =
-        configuration.hasPath("measurement_id")
-            ? Optional.of(configuration.getString("measurement_id"))
-            : Optional.empty();
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.measurementId = settingsManifest.getMeasurementId();
 
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
-    this.addNoindexMetaTag =
-        this.isDevOrStaging && configuration.getBoolean("staging_add_noindex_meta_tag");
+    this.addNoindexMetaTag = this.isDevOrStaging && settingsManifest.getStagingAddNoindexMetaTag();
 
-    civiformImageTag = configuration.getString("civiform_image_tag");
-    civiformFaviconUrl = configuration.getString("favicon_url");
+    civiformImageTag = settingsManifest.getCiviformImageTag().get();
   }
 
   /** Creates a new {@link HtmlBundle} with default css, scripts, and toast messages. */
-  public HtmlBundle getBundle() {
-    return getBundle(new HtmlBundle(viewUtils));
+  public HtmlBundle getBundle(Http.RequestHeader request) {
+    return getBundle(new HtmlBundle(request, viewUtils));
   }
 
   /** Get the application feature flags. */
-  public FeatureFlags getFeatureFlags() {
-    return featureFlags;
+  public SettingsManifest getSettingsManifest() {
+    return settingsManifest;
   }
 
   /**
@@ -115,7 +105,7 @@ public class BaseHtmlLayout {
         .ifPresent(bundle::addFooterScripts);
 
     // Add the favicon link
-    bundle.setFavicon(civiformFaviconUrl);
+    bundle.setFavicon(settingsManifest.getFaviconUrl().get());
     bundle.setJsBundle(getJsBundle());
 
     return bundle;

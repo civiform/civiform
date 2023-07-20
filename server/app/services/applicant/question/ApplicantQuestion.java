@@ -59,7 +59,7 @@ public final class ApplicantQuestion {
     this.repeatedEntity = checkNotNull(repeatedEntity);
   }
 
-  ApplicantData getApplicantData() {
+  public ApplicantData getApplicantData() {
     return this.applicantData;
   }
 
@@ -69,6 +69,10 @@ public final class ApplicantQuestion {
 
   public QuestionType getType() {
     return getQuestionDefinition().getQuestionType();
+  }
+
+  public long getProgramId() {
+    return programQuestionDefinition.getProgramDefinitionId();
   }
 
   public boolean isOptional() {

@@ -238,7 +238,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(String.format("Configure %s predicate", typeDisplayName))
             .addMainContent(
                 renderProgramInfo(programDefinition)
@@ -814,7 +814,7 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
                 .collect(Collectors.joining(","));
           }
 
-          return predicateValue.value();
+          return predicateValue.valueWithoutSurroundingQuotes();
         }
 
       default:

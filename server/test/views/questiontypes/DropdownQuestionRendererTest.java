@@ -18,26 +18,31 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionOption;
-import services.question.types.DropdownQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.QuestionDefinitionConfig;
 import support.QuestionAnswerer;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class DropdownQuestionRendererTest extends ResetPostgres {
 
-  private static final DropdownQuestionDefinition QUESTION =
-      new DropdownQuestionDefinition(
-          OptionalLong.of(1),
-          "favorite ice cream",
-          Optional.empty(),
-          "description",
-          LocalizedStrings.of(Locale.US, "question?"),
-          LocalizedStrings.of(Locale.US, "help text"),
-          ImmutableList.of(
-              QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
-              QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
-              QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-              QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry"))),
-          /* lastModifiedTime= */ Optional.empty());
+  private static final QuestionDefinitionConfig CONFIG =
+      QuestionDefinitionConfig.builder()
+          .setName("favorite ice cream")
+          .setDescription("description")
+          .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+          .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+          .setLastModifiedTime(Optional.empty())
+          .setId(OptionalLong.of(1))
+          .build();
+  private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
+      ImmutableList.of(
+          QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
+          QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
+          QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
+          QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry")));
+  private static final MultiOptionQuestionDefinition QUESTION =
+      new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
 
   private final ApplicantData applicantData = new ApplicantData();
 

@@ -153,6 +153,36 @@ public class ApiKeyServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void createApiKey_stripsWhitespace() {
+    resourceCreator.insertActiveProgram("test program");
+
+    DynamicForm form =
+        buildForm(
+            ImmutableMap.of(
+                "keyName", "test key",
+                "expiration", "2020-01-30",
+                "subnet", "\t0.0.0.1/32,1.1.1.0/32 ",
+                "grant-program-read[test-program]", "true"));
+
+    ApiKeyCreationResult apiKeyCreationResult = apiKeyService.createApiKey(form, adminProfile);
+
+    assertThat(apiKeyCreationResult.isSuccessful()).isTrue();
+
+    String credentialString = apiKeyCreationResult.getEncodedCredentials();
+    byte[] keyIdBytes = Base64.getDecoder().decode(credentialString);
+    String keyId =
+        Iterables.get(Splitter.on(':').split(new String(keyIdBytes, StandardCharsets.UTF_8)), 0);
+    ApiKey apiKey = apiKeyRepository.lookupApiKey(keyId).toCompletableFuture().join().get();
+
+    assertThat(apiKey.getName()).isEqualTo("test key");
+    assertThat(apiKey.getSubnet()).isEqualTo("0.0.0.1/32,1.1.1.0/32");
+    assertThat(apiKey.getSubnetSet()).isEqualTo(ImmutableSet.of("0.0.0.1/32", "1.1.1.0/32"));
+    assertThat(apiKey.getExpiration())
+        .isEqualTo(dateConverter.parseIso8601DateToStartOfDateInstant("2020-01-30"));
+    assertThat(apiKey.getGrants().hasProgramPermission("test-program", Permission.READ)).isTrue();
+  }
+
+  @Test
   public void createApiKey_missingKeyName_reportsError() {
     DynamicForm form =
         buildForm(

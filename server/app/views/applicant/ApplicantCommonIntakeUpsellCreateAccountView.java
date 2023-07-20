@@ -14,7 +14,6 @@ import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
@@ -25,6 +24,7 @@ import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
@@ -36,16 +36,16 @@ import views.style.ReferenceClasses;
 public final class ApplicantCommonIntakeUpsellCreateAccountView extends ApplicantUpsellView {
 
   private final ApplicantLayout layout;
-  private final Config configuration;
   private final String authProviderName;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantCommonIntakeUpsellCreateAccountView(
       ApplicantLayout layout,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName,
-      Config configuration) {
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layout);
-    this.configuration = checkNotNull(configuration);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.authProviderName = checkNotNull(authProviderName);
   }
 
@@ -67,7 +67,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         createLoginPromptModal(
                 messages,
                 redirectTo,
-                /*description=*/ MessageKey.GENERAL_LOGIN_MODAL_PROMPT,
+                /* description =*/ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
 
@@ -105,7 +105,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
     var content =
         createMainContent(
             title,
-            eligibleProgramsSection(eligiblePrograms, messages, isTrustedIntermediary)
+            eligibleProgramsSection(request, eligiblePrograms, messages, isTrustedIntermediary)
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,
@@ -115,26 +115,27 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         request,
         personalInfo,
         messages,
-        createHtmlBundle(layout, title, bannerMessage, loginPromptModal, content));
+        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content));
   }
 
   private SectionTag eligibleProgramsSection(
+      Http.Request request,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
       boolean isTrustedIntermediary) {
     var eligibleProgramsSection = section();
 
     if (eligiblePrograms.isEmpty()) {
+      String linkText = settingsManifest.getCommonIntakeMoreResourcesLinkText(request).get();
       var moreLink =
           new LinkElement()
               .setStyles("underline")
-              .setText(configuration.getString("common_intake_more_resources_link_text"))
-              .setHref(configuration.getString("common_intake_more_resources_link_href"))
+              .setText(linkText)
+              .setHref(settingsManifest.getCommonIntakeMoreResourcesLinkHref(request).get())
               .opensInNewTab()
               .setIcon(Icons.OPEN_IN_NEW, LinkElement.IconPosition.END)
               .asAnchorText()
-              .attr(
-                  "aria-label", configuration.getString("common_intake_more_resources_link_text"));
+              .attr("aria-label", linkText);
 
       return eligibleProgramsSection.with(
           p(isTrustedIntermediary

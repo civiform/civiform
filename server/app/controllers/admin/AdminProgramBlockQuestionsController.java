@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
-import featureflags.FeatureFlag;
-import featureflags.FeatureFlags;
 import forms.ProgramQuestionDefinitionAddressCorrectionEnabledForm;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import java.util.Map.Entry;
@@ -29,8 +27,9 @@ import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.question.exceptions.QuestionNotFoundException;
+import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
-import views.components.QuestionBank;
+import views.components.ProgramQuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
@@ -39,7 +38,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final VersionRepository versionRepository;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
-  private final FeatureFlags featureFlags;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramBlockQuestionsController(
@@ -47,12 +46,12 @@ public class AdminProgramBlockQuestionsController extends Controller {
       VersionRepository versionRepository,
       FormFactory formFactory,
       RequestChecker requestChecker,
-      FeatureFlags featureFlags) {
+      SettingsManifest settingsManifest) {
     this.programService = checkNotNull(programService);
     this.versionRepository = checkNotNull(versionRepository);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.featureFlags = checkNotNull(featureFlags);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -92,7 +91,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     }
 
     return redirect(
-        QuestionBank.addShowQuestionBankParam(
+        ProgramQuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(programId, blockId).url()));
   }
 
@@ -167,7 +166,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
       // In these cases, we warn admins that changing address correction is not allowed in the
       // tooltip, so we can silently ignore the request.
-      if (!featureFlags.getFlagEnabled(request, FeatureFlag.ESRI_ADDRESS_CORRECTION_ENABLED)
+      if (!settingsManifest.getEsriAddressCorrectionEnabled(request)
           || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
           || programDefinition
               .getBlockDefinition(blockDefinitionId)

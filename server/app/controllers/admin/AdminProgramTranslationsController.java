@@ -1,9 +1,9 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.components.ToastMessage.ToastType.ERROR;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
@@ -13,6 +13,7 @@ import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
@@ -35,10 +36,13 @@ public class AdminProgramTranslationsController extends CiviFormController {
 
   @Inject
   public AdminProgramTranslationsController(
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
       ProgramService service,
       ProgramTranslationView translationView,
       FormFactory formFactory,
       TranslationLocales translationLocales) {
+    super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
@@ -78,7 +82,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
     ProgramDefinition program = service.getProgramDefinition(programId);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
-        request.flash().get("error").map(m -> new ToastMessage(m, ERROR));
+        request.flash().get("error").map(m -> ToastMessage.errorNonLocalized(m));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", String.format("The %s locale is not supported", locale));
@@ -125,7 +129,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
           .flashing("error", e.userFacingMessage());
     }
     if (result.isError()) {
-      ToastMessage errorMessage = new ToastMessage(joinErrors(result.getErrors()), ERROR);
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
               request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
