@@ -3,6 +3,7 @@ package views.components;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -63,6 +64,8 @@ public class FieldWithLabel {
   private Optional<String> autocomplete = Optional.empty();
   protected String placeholderText = "";
   private String screenReaderText = "";
+  private Optional<String> toolTipText = Optional.empty();
+  private Optional<Icons> toolTipIcon = Optional.empty();
   private Messages messages;
   private ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   private boolean showFieldErrors = true;
@@ -159,6 +162,16 @@ public class FieldWithLabel {
 
   public FieldWithLabel setId(String inputId) {
     this.id = inputId;
+    return this;
+  }
+
+  public FieldWithLabel setToolTipText(String toolTipText) {
+    this.toolTipText = Optional.of(toolTipText);
+    return this;
+  }
+
+  public FieldWithLabel setToolTipIcon(Icons icon) {
+    this.toolTipIcon = Optional.of(icon);
     return this;
   }
 
@@ -462,13 +475,27 @@ public class FieldWithLabel {
   }
 
   private LabelTag genLabelTag() {
+    if (toolTipText.isPresent() ^ toolTipIcon.isPresent()) {
+      throw new RuntimeException("Tool tip text and icon must both be defined");
+    }
+    // Add some space between text and icon when there is a tool tip
+    String text =
+        labelText.isEmpty()
+            ? screenReaderText
+            : toolTipText.isPresent() ? labelText + " " : labelText;
     return label()
         .withFor(this.id)
         // If the text is screen-reader text, then we want the label to be screen-reader
         // only.
         .withClass(labelText.isEmpty() ? "sr-only" : BaseStyles.INPUT_LABEL)
-        .withText(labelText.isEmpty() ? screenReaderText : labelText)
-        .condWith(required, ViewUtils.requiredQuestionIndicator());
+        .withText(text)
+        .condWith(required, ViewUtils.requiredQuestionIndicator())
+        // The DomContent is evaluated even if the condition is false, so provide
+        // some defaults we will never use.
+        .condWith(
+            toolTipText.isPresent(),
+            span(ViewUtils.makeSvgToolTip(toolTipText.orElse(""), toolTipIcon.orElse(Icons.INFO))))
+        .withCondClass(toolTipText.isPresent(), "block");
   }
 
   private DivTag buildBaseContainer(Tag fieldTag, Tag labelTag, String fieldErrorsId) {

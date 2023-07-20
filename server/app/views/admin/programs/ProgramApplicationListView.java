@@ -143,7 +143,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
     HtmlBundle htmlBundle =
         layout
             .setAdminType(profile)
-            .getBundle()
+            .getBundle(request)
             .setTitle(program.adminName() + " - Applications")
             .addModals(downloadModal)
             .addMainStyles("flex")

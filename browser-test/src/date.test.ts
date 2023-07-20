@@ -81,7 +81,7 @@ describe('Date question for applicant flow', () => {
         ['birthday-date-q'],
         'todays-date-q', // optional
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

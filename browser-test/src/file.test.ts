@@ -3,7 +3,7 @@ import {
   dropTables,
   loginAsAdmin,
   logout,
-  seedCanonicalQuestions,
+  seedQuestions,
   validateAccessibility,
   validateScreenshot,
 } from './support'
@@ -15,7 +15,7 @@ describe('file upload applicant flow', () => {
   beforeAll(async () => {
     const {page} = ctx
     await dropTables(page)
-    await seedCanonicalQuestions(page)
+    await seedQuestions(page)
     await page.goto(BASE_URL)
   })
 
@@ -114,7 +114,7 @@ describe('file upload applicant flow', () => {
         [],
         'file-upload-test-optional-q',
       )
-      await adminPrograms.publishAllPrograms()
+      await adminPrograms.publishAllDrafts()
 
       await logout(page)
     })

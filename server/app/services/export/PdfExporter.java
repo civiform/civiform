@@ -59,8 +59,11 @@ public final class PdfExporter {
             .join();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryData();
 
-    String applicantNameWithApplicationId =
-        String.format("%s (%d)", application.getApplicantData().getApplicantName(), application.id);
+    // We expect a name to be present at this point. However, if it's not, we use a placeholder
+    // rather than throwing an error here.
+    String applicantName =
+        application.getApplicantData().getApplicantName().orElse("name-unavailable");
+    String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     byte[] bytes =
         buildPDF(

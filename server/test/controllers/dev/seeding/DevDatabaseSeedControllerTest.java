@@ -1,4 +1,4 @@
-package controllers.dev;
+package controllers.dev.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
@@ -16,10 +16,10 @@ import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class DatabaseSeedControllerTest {
+public class DevDatabaseSeedControllerTest {
 
   private Optional<Application> maybeApp = Optional.empty();
-  private DatabaseSeedController controller;
+  private DevDatabaseSeedController controller;
 
   @After
   public void stopApplication() {
@@ -35,23 +35,23 @@ public class DatabaseSeedControllerTest {
     // Navigate to index before seeding - should not have the fake program.
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("mock-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
 
     // Seed the fake data.
-    result = controller.seed();
-    assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
+    result = controller.seedPrograms();
+    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get("success")).hasValue("The database has been seeded");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("mock-program");
+    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
 
     // Clear the data.
     result = controller.clear();
-    assertThat(result.redirectLocation()).hasValue(routes.DatabaseSeedController.index().url());
+    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
     assertThat(result.flash().get("success")).hasValue("The database has been cleared");
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("mock-program");
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
   }
 
   @Test
@@ -63,9 +63,9 @@ public class DatabaseSeedControllerTest {
   }
 
   @Test
-  public void seed_inNonDevMode_returnsNotFound() {
+  public void seedPrograms_inNonDevMode_returnsNotFound() {
     setupControllerInMode(Mode.TEST);
-    Result result = controller.seed();
+    Result result = controller.seedPrograms();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -80,6 +80,6 @@ public class DatabaseSeedControllerTest {
 
   private void setupControllerInMode(Mode mode) {
     maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
-    controller = maybeApp.get().injector().instanceOf(DatabaseSeedController.class);
+    controller = maybeApp.get().injector().instanceOf(DevDatabaseSeedController.class);
   }
 }

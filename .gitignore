@@ -26,6 +26,7 @@ logs/
 !/browser-test/sbt_cache/.keep
 sbt_cache/*
 !sbt_cache/.keep
+server/.settings/org.eclipse.*
 target/
 test-support/sbt_cache/
 

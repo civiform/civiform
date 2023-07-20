@@ -14,7 +14,7 @@ describe('Managing API keys', () => {
       programDescription,
       'https://usa.gov',
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminApiKeys.gotoNewApiKeyPage()
     await validateScreenshot(page, 'new-api-key-page')
 
@@ -40,6 +40,7 @@ describe('Managing API keys', () => {
     await adminApiKeys.expectKeyCallCount('test-api-key', 2)
 
     await adminApiKeys.retireApiKey('test-api-key')
+    await validateScreenshot(page, 'api-key-index-page-no-active-keys')
     await adminApiKeys.expectApiKeyIsRetired('Test API key')
   })
 })

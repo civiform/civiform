@@ -1,6 +1,6 @@
 package services.geo;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
@@ -11,9 +11,9 @@ public class ServiceAreaInclusionGroupTest {
     ImmutableList<ServiceAreaInclusion> serviceAreaInclusionList =
         ServiceAreaInclusionGroup.deserialize(
             "bloomington_Failed_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765");
-    assertEquals("bloomington", serviceAreaInclusionList.get(0).getServiceAreaId());
-    assertEquals(ServiceAreaState.FAILED, serviceAreaInclusionList.get(0).getState());
-    assertEquals(1234, serviceAreaInclusionList.get(0).getTimeStamp());
+    assertThat(serviceAreaInclusionList.get(0).getServiceAreaId()).isEqualTo("bloomington");
+    assertThat(serviceAreaInclusionList.get(0).getState()).isEqualTo(ServiceAreaState.FAILED);
+    assertThat(serviceAreaInclusionList.get(0).getTimeStamp()).isEqualTo(1234);
   }
 
   @Test
@@ -45,8 +45,8 @@ public class ServiceAreaInclusionGroupTest {
                 .setTimeStamp(8765)
                 .build());
     String serialized = ServiceAreaInclusionGroup.serialize(listBuilder.build());
-    assertEquals(
-        "bloomington_Failed_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765",
-        serialized);
+    assertThat(serialized)
+        .isEqualTo(
+            "bloomington_Failed_1234,king-county_InArea_2222,seattle_InArea_5678,Arkansas_NotInArea_8765");
   }
 }

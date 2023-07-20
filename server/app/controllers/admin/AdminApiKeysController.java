@@ -14,7 +14,6 @@ import play.data.FormFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
-import services.PageNumberBasedPaginationSpec;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
@@ -56,9 +55,28 @@ public class AdminApiKeysController extends CiviFormController {
     return ok(
         indexView.render(
             request,
-            // The backend service supports pagination but the front end doesn't
-            // in its initial implementation so we load all of them here.
-            apiKeyService.listApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC),
+            /* selectedStatus= */ "Active",
+            apiKeyService.listActiveApiKeys(),
+            programService.getAllProgramNames()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexRetired(Http.Request request) {
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Retired",
+            apiKeyService.listRetiredApiKeys(),
+            programService.getAllProgramNames()));
+  }
+
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result indexExpired(Http.Request request) {
+    return ok(
+        indexView.render(
+            request,
+            /* selectedStatus= */ "Expired",
+            apiKeyService.listExpiredApiKeys(),
             programService.getAllProgramNames()));
   }
 
@@ -94,6 +112,7 @@ public class AdminApiKeysController extends CiviFormController {
     if (result.isSuccessful()) {
       return created(
           apiKeyCredentialsView.render(
+              request,
               result.getApiKey(),
               result.getEncodedCredentials(),
               result.getKeyId(),

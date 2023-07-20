@@ -46,7 +46,7 @@ public final class AdminReportingController extends CiviFormController {
     return ok(
         adminReportingIndexView
             .get()
-            .render(getCiviFormProfile(request), reportingService.getMonthlyStats()));
+            .render(request, getCiviFormProfile(request), reportingService.getMonthlyStats()));
   }
 
   private CiviFormProfile getCiviFormProfile(Http.Request request) {
@@ -68,6 +68,7 @@ public final class AdminReportingController extends CiviFormController {
         adminReportingShowView
             .get()
             .render(
+                request,
                 getCiviFormProfile(request),
                 programSlug,
                 programName,

@@ -250,6 +250,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     // Applicant five have file uploaded for the optional file upload question
     applicantFive = resourceCreator.insertApplicantWithAccount();
+    applicantFive.getApplicantData().setUserName("Example Five");
     QuestionAnswerer.answerNameQuestion(
         applicantFive.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(

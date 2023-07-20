@@ -50,12 +50,12 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
 
     HtmlBundle bundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .addMainStyles("mx-12", "my-8")
             .addMainContent(topContent(programTitle, programInfo, messages))
             .addMainContent(createButtons(applicantId, program.id(), messages));
 
-    return layout.renderWithNav(request, personalInfo, messages, bundle);
+    return layout.renderWithNav(request, personalInfo, messages, bundle, applicantId);
   }
 
   private DivTag topContent(String programTitle, String programInfo, Messages messages) {

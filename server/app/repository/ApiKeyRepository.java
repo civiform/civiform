@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.PagedList;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -29,11 +30,68 @@ public final class ApiKeyRepository {
     this.executionContext = checkNotNull(executionContext);
   }
 
-  /** List {@link ApiKey}s ordered by creation time descending. */
-  public PaginationResult<ApiKey> listApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+  /**
+   * List active, i.e. unexpired and unretired, {@link ApiKey}s ordered by creation time descending.
+   */
+  public PaginationResult<ApiKey> listActiveApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+    Instant now = Instant.now();
     PagedList<ApiKey> pagedList =
         database
             .find(ApiKey.class)
+            .where()
+            .isNull("retired_time")
+            .and()
+            .gt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
+            // This is a proxy for creation time descending. Both get the desired ordering
+            // behavior but ID is indexed.
+            .order("id desc")
+            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
+            .setMaxRows(paginationSpec.getPageSize())
+            .findPagedList();
+
+    pagedList.loadCount();
+
+    return new PaginationResult<>(
+        pagedList.hasNext(),
+        pagedList.getTotalPageCount(),
+        ImmutableList.copyOf(pagedList.getList()));
+  }
+
+  /** List retired {@link ApiKey}s ordered by creation time descending. */
+  public PaginationResult<ApiKey> listRetiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+    PagedList<ApiKey> pagedList =
+        database
+            .find(ApiKey.class)
+            .where()
+            .isNotNull("retired_time")
+            // This is a proxy for creation time descending. Both get the desired ordering
+            // behavior but ID is indexed.
+            .order("id desc")
+            .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
+            .setMaxRows(paginationSpec.getPageSize())
+            .findPagedList();
+
+    pagedList.loadCount();
+
+    return new PaginationResult<>(
+        pagedList.hasNext(),
+        pagedList.getTotalPageCount(),
+        ImmutableList.copyOf(pagedList.getList()));
+  }
+
+  /**
+   * List expired {@link ApiKey}s ordered by creation time descending. Note that if a key is both
+   * retired and expired, it will not be returned here.
+   */
+  public PaginationResult<ApiKey> listExpiredApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
+    Instant now = Instant.now();
+    PagedList<ApiKey> pagedList =
+        database
+            .find(ApiKey.class)
+            .where()
+            .lt("EXTRACT(EPOCH FROM expiration) * 1000", now.toEpochMilli())
+            .and()
+            .isNull("retired_time")
             // This is a proxy for creation time descending. Both get the desired ordering
             // behavior but ID is indexed.
             .order("id desc")

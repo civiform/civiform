@@ -22,7 +22,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.typesafe.config.Config;
 import controllers.routes;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -74,24 +73,18 @@ public final class ProgramIndexView extends BaseHtmlView {
   private final SettingsManifest settingsManifest;
   private final ProfileUtils profileUtils;
   private final String authProviderName;
-  private final String civicEntityShortName;
-  private final String applicantPortalName;
   private final ZoneId zoneId;
 
   @Inject
   public ProgramIndexView(
       ApplicantLayout layout,
       ZoneId zoneId,
-      Config config,
       SettingsManifest settingsManifest,
       ProfileUtils profileUtils,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.profileUtils = checkNotNull(profileUtils);
-    this.civicEntityShortName =
-        checkNotNull(config).getString("whitelabel_civic_entity_short_name");
-    this.applicantPortalName = checkNotNull(config).getString("applicant_portal_name");
     this.authProviderName = checkNotNull(authProviderName);
     this.zoneId = checkNotNull(zoneId);
   }
@@ -113,7 +106,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       ApplicantPersonalInfo personalInfo,
       ApplicantService.ApplicationPrograms applicationPrograms,
       Optional<ToastMessage> bannerMessage) {
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(request);
     bundle.setTitle(messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName()));
     bannerMessage.ifPresent(bundle::addToastMessages);
 
@@ -124,7 +117,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             .setDuration(5000));
 
     bundle.addMainContent(
-        topContent(messages, personalInfo),
+        topContent(request, messages, personalInfo),
         mainContent(
             request,
             messages,
@@ -135,10 +128,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             bundle));
 
     return layout.renderWithNav(
-        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true);
+        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true, applicantId);
   }
 
-  private DivTag topContent(Messages messages, ApplicantPersonalInfo personalInfo) {
+  private DivTag topContent(
+      Http.Request request, Messages messages, ApplicantPersonalInfo personalInfo) {
 
     String h1Text, infoDivText, widthClass;
 
@@ -152,7 +146,9 @@ public final class ProgramIndexView extends BaseHtmlView {
       // "Get benefits"
       h1Text = messages.at(MessageKey.CONTENT_GET_BENEFITS.getKeyName());
       infoDivText =
-          messages.at(MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(), civicEntityShortName);
+          messages.at(
+              MessageKey.CONTENT_CIVIFORM_DESCRIPTION.getKeyName(),
+              settingsManifest.getWhitelabelCivicEntityShortName(request).get());
       widthClass = "w-5/12";
     }
 
@@ -487,7 +483,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                 messages,
                 actionUrl,
                 messages.at(
-                    MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(), applicantPortalName),
+                    MessageKey.INITIAL_LOGIN_MODAL_PROMPT.getKeyName(),
+                    settingsManifest.getApplicantPortalName(request).get()),
                 MessageKey.BUTTON_CONTINUE_TO_APPLICATION)
             .setRepeatOpenBehavior(
                 RepeatOpenBehavior.showOnlyOnce(PROGRAMS_INDEX_LOGIN_PROMPT, actionUrl))

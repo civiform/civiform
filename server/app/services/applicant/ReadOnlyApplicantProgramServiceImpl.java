@@ -267,22 +267,22 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     for (Block block : blocks) {
       ImmutableList<ApplicantQuestion> questions = block.getQuestions();
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
-        ApplicantQuestion question = questions.get(questionIndex);
+        ApplicantQuestion applicantQuestion = questions.get(questionIndex);
         // Don't include static content in summary data.
-        if (question.getType().equals(QuestionType.STATIC)) {
+        if (applicantQuestion.getType().equals(QuestionType.STATIC)) {
           continue;
         }
-        boolean isAnswered = question.isAnswered();
-        boolean isEligible = isQuestionEligibleInBlock(block, question);
-        String questionText = question.getQuestionText();
-        String questionTextForScreenReader = question.getQuestionTextForScreenReader();
-        String answerText = question.errorsPresenter().getAnswerString();
-        Optional<Long> timestamp = question.getLastUpdatedTimeMetadata();
-        Optional<Long> updatedProgram = question.getUpdatedInProgramMetadata();
+        boolean isAnswered = applicantQuestion.isAnswered();
+        boolean isEligible = isQuestionEligibleInBlock(block, applicantQuestion);
+        String questionText = applicantQuestion.getQuestionText();
+        String questionTextForScreenReader = applicantQuestion.getQuestionTextForScreenReader();
+        String answerText = applicantQuestion.getQuestion().getAnswerString();
+        Optional<Long> timestamp = applicantQuestion.getLastUpdatedTimeMetadata();
+        Optional<Long> updatedProgram = applicantQuestion.getUpdatedInProgramMetadata();
         Optional<String> originalFileName = Optional.empty();
         Optional<String> encodedFileKey = Optional.empty();
-        if (isAnswered && question.isFileUploadQuestion()) {
-          FileUploadQuestion fileUploadQuestion = question.createFileUploadQuestion();
+        if (isAnswered && applicantQuestion.isFileUploadQuestion()) {
+          FileUploadQuestion fileUploadQuestion = applicantQuestion.createFileUploadQuestion();
           originalFileName = fileUploadQuestion.getOriginalFileName();
           encodedFileKey =
               fileUploadQuestion
@@ -295,9 +295,9 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             AnswerData.builder()
                 .setProgramId(programDefinition.id())
                 .setBlockId(block.getId())
-                .setContextualizedPath(question.getContextualizedPath())
-                .setQuestionDefinition(question.getQuestionDefinition())
-                .setApplicantQuestion(question)
+                .setContextualizedPath(applicantQuestion.getContextualizedPath())
+                .setQuestionDefinition(applicantQuestion.getQuestionDefinition())
+                .setApplicantQuestion(applicantQuestion)
                 .setRepeatedEntity(block.getRepeatedEntity())
                 .setQuestionIndex(questionIndex)
                 .setQuestionText(questionText)
@@ -311,7 +311,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
                 .setScalarAnswersInDefaultLocale(
-                    getScalarAnswers(question, LocalizedStrings.DEFAULT_LOCALE))
+                    getScalarAnswers(applicantQuestion, LocalizedStrings.DEFAULT_LOCALE))
                 .build();
         builder.add(data);
       }

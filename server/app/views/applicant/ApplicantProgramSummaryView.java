@@ -71,7 +71,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
    */
   public Content render(Params params) {
     Messages messages = params.messages();
-    HtmlBundle bundle = layout.getBundle();
+    HtmlBundle bundle = layout.getBundle(params.request());
 
     if (params.loginPromptModal().isPresent()) {
       bundle.addModals(params.loginPromptModal().get());
@@ -149,7 +149,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
     return layout.renderWithNav(
-        params.request(), params.applicantPersonalInfo(), params.messages(), bundle);
+        params.request(),
+        params.applicantPersonalInfo(),
+        params.messages(),
+        bundle,
+        params.applicantId());
   }
 
   /** Renders {@code data} including the question and any existing answer to it. */

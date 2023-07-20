@@ -1,4 +1,4 @@
-package tasks;
+package services.seeding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,8 +27,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedCanonicalQuestions_whenQuestionsNotSeededYet_itSeedsTheCanonicalQuestions()
-      throws Exception {
+  public void seedQuestions_whenQuestionsNotSeededYet_itSeedsTheQuestions() throws Exception {
     assertThat(getAllQuestions().size()).isEqualTo(0);
 
     databaseSeedTask.run();
@@ -42,7 +41,7 @@ public class DatabaseSeedTaskTest extends ResetPostgres {
   }
 
   @Test
-  public void seedCanonicalQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
+  public void seedQuestions_whenSomeQuestionsAlreadySeeded_itSeedsTheMissingOnes() {
     instanceOf(QuestionService.class)
         .create(
             new DateQuestionDefinition(

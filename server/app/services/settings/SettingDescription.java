@@ -13,11 +13,13 @@ public abstract class SettingDescription {
   public static SettingDescription create(
       String variableName,
       String variableDescription,
+      boolean isRequired,
       SettingType settingType,
       SettingMode settingMode) {
     return new AutoValue_SettingDescription(
         variableName,
         variableDescription,
+        isRequired,
         settingType,
         settingMode,
         /* allowableValues= */ Optional.empty(),
@@ -27,12 +29,14 @@ public abstract class SettingDescription {
   public static SettingDescription create(
       String variableName,
       String variableDescription,
+      boolean isRequired,
       SettingType settingType,
       SettingMode settingMode,
       ImmutableList<String> allowableValues) {
     return new AutoValue_SettingDescription(
         variableName,
         variableDescription,
+        isRequired,
         settingType,
         settingMode,
         Optional.of(allowableValues),
@@ -42,12 +46,14 @@ public abstract class SettingDescription {
   public static SettingDescription create(
       String variableName,
       String variableDescription,
+      boolean isRequired,
       SettingType settingType,
       SettingMode settingMode,
       Pattern validationRegex) {
     return new AutoValue_SettingDescription(
         variableName,
         variableDescription,
+        isRequired,
         settingType,
         settingMode,
         /* allowableValues= */ Optional.empty(),
@@ -59,6 +65,9 @@ public abstract class SettingDescription {
 
   /** A sentence or two describing the setting. */
   public abstract String settingDescription();
+
+  // True if the setting must be present.
+  public abstract boolean isRequired();
 
   /** The type of this setting. */
   public abstract SettingType settingType();

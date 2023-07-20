@@ -83,7 +83,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   @Override
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
-
     // Unwrap exceptions thrown within a CompletableFuture, to handle the
     // original error stack trace.
     if (exception instanceof CompletionException) {

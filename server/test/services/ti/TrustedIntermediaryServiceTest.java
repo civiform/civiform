@@ -14,6 +14,7 @@ import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.Form;
@@ -44,10 +45,28 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     createTIWithMockedProfile(managedApplicant);
     Applicant managedApplicant2 = createApplicant();
     createTIWithMockedProfile(managedApplicant2);
-    repo = instanceOf(UserRepository.class);
     profileFactory.createFakeTrustedIntermediary();
     tiGroup = repo.listTrustedIntermediaryGroups().get(0);
     tiGroup2 = repo.listTrustedIntermediaryGroups().get(1);
+  }
+
+  @After
+  public void teardown() {
+    // Clean up accounts between tests
+    tiGroup.getManagedAccounts().stream()
+        .forEach(
+            acct -> {
+              acct.getApplicants().stream().forEach(app -> app.delete());
+              acct.delete();
+            });
+    tiGroup2.getManagedAccounts().stream()
+        .forEach(
+            acct -> {
+              acct.getApplicants().stream().forEach(app -> app.delete());
+              acct.delete();
+            });
+    tiGroup.delete();
+    tiGroup2.delete();
   }
 
   @Test
@@ -189,30 +208,37 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addClient_WithInvalidEmailAddress() {
+  public void addClient_WithEmptyEmailAddress() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
                 .bodyForm(
                     ImmutableMap.of(
                         "firstName",
-                        "First",
+                        "No",
                         "middleName",
                         "middle",
                         "lastName",
-                        "Last",
+                        "Email",
                         "emailAddress",
                         "",
                         "dob",
-                        "2012-07-07")));
+                        "2011-11-11")));
     Form<AddApplicantToTrustedIntermediaryGroupForm> form =
         formFactory
             .form(AddApplicantToTrustedIntermediaryGroupForm.class)
             .bindFromRequest(requestBuilder.build());
     Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
         service.addNewClient(form, tiGroup);
-    assertThat(returnedForm.error("emailAddress").get().message())
-        .isEqualTo("Email Address required");
+    assertThat(returnedForm.errors()).isEmpty();
+    Account account =
+        tiGroup.getManagedAccounts().stream()
+            .filter(acct -> acct.getApplicantName().equals("Email, No"))
+            .findFirst()
+            .get();
+    assertThat(account.getApplicants().get(0).getApplicantData().getDateOfBirth().get().toString())
+        .isEqualTo("2011-11-11");
+    assertThat(account.getEmailAddress()).isNull();
   }
 
   @Test
@@ -321,6 +347,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Test
   public void updateApplicantDateOfBirth_throwsApplicantNotFoundExceptionDueToIncorrectTIGroup() {
+    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-07-07")));
     Form<UpdateApplicantDobForm> form =
@@ -333,11 +360,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Test
   public void updateApplicantDateOfBirth_unformattedDate() throws ApplicantNotFoundException {
+    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2022-20-20")));
     Form<UpdateApplicantDobForm> form =
         formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    Account account = repo.lookupAccountByEmail("email30").get();
+    Account account = repo.lookupAccountByEmail("fake@email.com").get();
     Form<UpdateApplicantDobForm> returnedForm =
         service.updateApplicantDateOfBirth(tiGroup, account.id, form);
     assertThat(returnedForm.hasErrors()).isTrue();
@@ -347,11 +375,12 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Test
   public void updateApplicantDateOfBirth_ApplicantDobUpdated() throws ApplicantNotFoundException {
+    setupTIAccount("First", "2021-11-11", "fake@email.com", tiGroup);
     Http.RequestBuilder requestBuilder =
         addCSRFToken(fakeRequest().bodyForm(ImmutableMap.of("dob", "2021-09-09")));
     Form<UpdateApplicantDobForm> form =
         formFactory.form(UpdateApplicantDobForm.class).bindFromRequest(requestBuilder.build());
-    Account account = repo.lookupAccountByEmail("email30").get();
+    Account account = repo.lookupAccountByEmail("fake@email.com").get();
     Form<UpdateApplicantDobForm> returnedForm =
         service.updateApplicantDateOfBirth(tiGroup, account.id, form);
     assertThat(returnedForm.hasErrors()).isFalse();

@@ -12,6 +12,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.PTag;
 import javax.inject.Inject;
 import models.ApiKey;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -50,7 +51,12 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.API_KEYS);
   }
 
-  public Content render(ApiKey apiKey, String encodedCredentials, String keyId, String keySecret) {
+  public Content render(
+      Http.Request request,
+      ApiKey apiKey,
+      String encodedCredentials,
+      String keyId,
+      String keySecret) {
     String title = "Created API key: " + apiKey.getName();
 
     DivTag contentDiv =
@@ -70,7 +76,7 @@ public final class ApiKeyCredentialsView extends BaseHtmlView {
                 p(text("API Username: "), span(keyId).withClasses("font-mono")),
                 p(text("API Password: "), span(keySecret).withClasses("font-mono")));
 
-    HtmlBundle htmlBundle = layout.getBundle().setTitle(title).addMainContent(contentDiv);
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
 
     return layout.renderCentered(htmlBundle);
   }

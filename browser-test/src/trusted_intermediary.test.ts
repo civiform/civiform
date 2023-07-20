@@ -9,6 +9,7 @@ import {
   logout,
   AdminQuestions,
   dismissToast,
+  selectApplicantLanguage,
 } from './support'
 
 describe('Trusted intermediaries', () => {
@@ -57,10 +58,112 @@ describe('Trusted intermediaries', () => {
     await validateScreenshot(page, 'dashboard-with-one-client')
   })
 
+  it('expect clients can be added without an email address', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+
+    const client1: ClientInformation = {
+      emailAddress: '',
+      firstName: 'Jean-Luc',
+      middleName: '',
+      lastName: 'Picard',
+      dobDate: '1940-07-13',
+    }
+    await tiDashboard.createClient(client1)
+    await tiDashboard.expectDashboardContainClient(client1)
+
+    const client2: ClientInformation = {
+      emailAddress: '',
+      firstName: 'William',
+      middleName: 'Thomas',
+      lastName: 'Riker',
+      dobDate: '1952-08-19',
+    }
+    await tiDashboard.createClient(client2)
+    await tiDashboard.expectDashboardContainClient(client2)
+
+    await validateScreenshot(page, 'dashboard-add-clients-no-email')
+  })
+
+  it('expect client cannot be added with invalid email address', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'bademail',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '2023-07-11',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardNotContainClient(client)
+    // In an email-type input field, when the text is not formatted as a valid
+    // email address, there is a popup that shows and disappears after a period
+    // of time or when you move focus away from the field. Move focus away
+    // from the field in order to get a stable snapshot.
+    await page.focus('label:has-text("First Name")')
+    await validateScreenshot(page, 'dashboard-add-client-invalid-email')
+  })
+
   it('ti landing page is the TI Dashboard', async () => {
     const {page} = ctx
     await loginAsTrustedIntermediary(page)
     await validateScreenshot(page, 'ti')
+  })
+  it('Applicant sees the program review page fully translated', async () => {
+    const {
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantQuestions,
+      adminTranslations,
+      tiDashboard,
+    } = ctx
+
+    // Add a new program with one non-translated question
+    await loginAsAdmin(page)
+
+    const programName = 'TI Client Translation program'
+    await adminPrograms.addProgram(programName)
+
+    const questionName = 'name-translated'
+    await adminQuestions.addNameQuestion({questionName})
+    // Go to the question translation page and add a translation for Spanish
+
+    await adminQuestions.goToQuestionTranslationPage(questionName)
+    await adminTranslations.selectLanguage('Spanish')
+    await validateScreenshot(page, 'question-translation')
+    await adminTranslations.editQuestionTranslations(
+      'Spanish question text',
+      'Spanish help text',
+    )
+    await adminPrograms.editProgramBlock(programName, 'block', [questionName])
+    await adminPrograms.publishProgram(programName)
+    await logout(page)
+
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake12@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.clickOnApplicantDashboard()
+
+    await applicantQuestions.applyProgram(programName)
+    await selectApplicantLanguage(page, 'Español')
+
+    await validateScreenshot(page, 'applicant-program-spanish')
   })
 
   it('search For Client In TI Dashboard', async () => {

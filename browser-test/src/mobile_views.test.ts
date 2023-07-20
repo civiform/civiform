@@ -39,7 +39,7 @@ describe('views render well on mobile', () => {
       'second-q',
     ])
 
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await logout(page)
 
     // Use mobile view for all tests in this file. We must set it here so that the

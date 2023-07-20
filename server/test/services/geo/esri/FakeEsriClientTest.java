@@ -2,7 +2,6 @@ package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.assertEquals;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -32,8 +31,8 @@ public class FakeEsriClientTest {
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertEquals(4326, resp.get("spatialReference").get("wkid").asInt());
-    assertEquals(5, candidates.size());
+    assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
+    assertThat(candidates).hasSize(5);
   }
 
   @Test
@@ -45,7 +44,7 @@ public class FakeEsriClientTest {
     assertThat(maybeResp.isPresent()).isTrue();
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
-    assertEquals(0, candidates.size());
+    assertThat(candidates).isEmpty();
   }
 
   @Test
@@ -54,7 +53,7 @@ public class FakeEsriClientTest {
     addressJson.put("street", "Error Address");
     Optional<JsonNode> maybeResp =
         helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
-    assertEquals(Optional.empty(), maybeResp);
+    assertThat(maybeResp.isPresent()).isFalse();
   }
 
   @Test
@@ -81,7 +80,7 @@ public class FakeEsriClientTest {
     List<String> features = ctx.read("features[*].attributes.CITYNAME");
     Optional<String> feature = features.stream().filter(val -> "Seattle".equals(val)).findFirst();
     assertThat(feature.isPresent()).isTrue();
-    assertEquals("Seattle", feature.get());
+    assertThat(feature.get()).isEqualTo("Seattle");
   }
 
   @Test
@@ -98,7 +97,7 @@ public class FakeEsriClientTest {
     JsonNode resp = maybeResp.get();
     ReadContext ctx = JsonPath.parse(resp.toString());
     List<String> features = ctx.read("features[*]");
-    assertEquals(0, features.size());
+    assertThat(features).isEmpty();
   }
 
   @Test
@@ -129,6 +128,6 @@ public class FakeEsriClientTest {
             .fetchServiceAreaFeatures(location, "/query")
             .toCompletableFuture()
             .join();
-    assertEquals(Optional.empty(), maybeResp);
+    assertThat(maybeResp.isPresent()).isFalse();
   }
 }

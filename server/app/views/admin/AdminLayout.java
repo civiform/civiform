@@ -6,7 +6,6 @@ import static j2html.TagCreator.nav;
 import static j2html.TagCreator.span;
 
 import auth.CiviFormProfile;
-import com.typesafe.config.Config;
 import controllers.admin.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -47,11 +46,10 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   AdminLayout(
       ViewUtils viewUtils,
-      Config configuration,
       NavPage activeNavPage,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType) {
-    super(viewUtils, configuration, settingsManifest, deploymentType);
+    super(viewUtils, settingsManifest, deploymentType);
     this.activeNavPage = activeNavPage;
   }
 

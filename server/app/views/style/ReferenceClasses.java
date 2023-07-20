@@ -56,6 +56,7 @@ public final class ReferenceClasses {
   public static final String CLOSE_QUESTION_BANK_BUTTON = "cf-close-question-bank-button";
   public static final String QUESTION_BANK_GLASSPANE = "cf-question-bank-glasspane";
   public static final String QUESTION_BANK_PANEL = "cf-question-bank-panel";
+  public static final String SORTABLE_QUESTIONS_CONTAINER = "cf-sortable-questions";
 
   public static final String DOWNLOAD_ALL_BUTTON = "cf-download-all-button";
   public static final String DOWNLOAD_BUTTON = "cf-download-button";

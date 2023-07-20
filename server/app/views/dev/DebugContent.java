@@ -52,7 +52,7 @@ public final class DebugContent extends BaseHtmlView {
             redirectButton(
                 "database-seed",
                 "Seed Database",
-                controllers.dev.routes.DatabaseSeedController.index().url()));
+                controllers.dev.seeding.routes.DevDatabaseSeedController.index().url()));
   }
 
   public DivTag civiformVersionDiv() {

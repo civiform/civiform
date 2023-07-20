@@ -95,7 +95,7 @@ public final class VersionRepository {
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
 
-      ImmutableSet<String> draftProgramsNames = draft.getProgramsNames();
+      ImmutableSet<String> draftProgramsNames = draft.getProgramNames();
       ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
 
       // Is a program being deleted in the draft version?

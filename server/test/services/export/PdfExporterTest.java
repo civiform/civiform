@@ -29,9 +29,9 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void validatePDFExport() throws IOException, DocumentException {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
+    String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
-        String.format(
-            "%s (%d)", applicationOne.getApplicantData().getApplicantName(), applicationOne.id);
+        String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result = exporter.export(applicationOne);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
@@ -74,9 +74,12 @@ public class PdfExporterTest extends AbstractExporterTest {
     createFakeProgramWithOptionalQuestion();
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
+    // The applicant for this application has a value for the name, so ensure that it is reflected
+    // in the generated filename, and later, in the PDF contents.
+    assertThat(applicationFive.getApplicantData().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicantData().getApplicantName().get();
     String applicantNameWithApplicationId =
-        String.format(
-            "%s (%d)", applicationFive.getApplicantData().getApplicantName(), applicationFive.id);
+        String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result = exporter.export(applicationFive);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
@@ -117,9 +120,9 @@ public class PdfExporterTest extends AbstractExporterTest {
     createFakeProgramWithOptionalQuestion();
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
+    String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
-        String.format(
-            "%s (%d)", applicationSix.getApplicantData().getApplicantName(), applicationSix.id);
+        String.format("%s (%d)", applicantName, applicationSix.id);
     PdfExporter.InMemoryPdf result = exporter.export(applicationSix);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
@@ -149,9 +152,9 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
+    String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
-        String.format(
-            "%s (%d)", applicationTwo.getApplicantData().getApplicantName(), applicationTwo.id);
+        String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result = exporter.export(applicationTwo);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();

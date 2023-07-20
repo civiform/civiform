@@ -29,8 +29,9 @@ POST    /admin/programs/:programId                              controllers.admi
 POST    /admin/programs/:programId/setEligibilityIsGating       controllers.admin.AdminProgramController.setEligibilityIsGating(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage program admins for a given program.
-GET     /admin/programs/:programId/admins/edit  controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
-POST    /admin/programs/:programId/admins       controllers.admin.ProgramAdminManagementController.update(request: Request, programId: Long)
+GET     /admin/programs/:programId/admins/edit    controllers.admin.ProgramAdminManagementController.edit(request: Request, programId: Long)
+POST    /admin/programs/:programId/admins/delete  controllers.admin.ProgramAdminManagementController.delete(request: Request, programId: Long)
+POST    /admin/programs/:programId/admins/add     controllers.admin.ProgramAdminManagementController.add(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage application statuses for a given program.
 POST    /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusesController.createOrUpdate(request: Request, programId: Long)
@@ -77,7 +78,7 @@ GET     /admin/questions             controllers.admin.AdminQuestionController.i
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new         controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String)
 GET     /admin/questions/:id/edit    controllers.admin.AdminQuestionController.edit(request: Request, id: Long)
-GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(id: Long)
+GET     /admin/questions/:id         controllers.admin.AdminQuestionController.show(request: Request, id: Long)
 POST    /admin/questions/:id         controllers.admin.AdminQuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions             controllers.admin.AdminQuestionController.create(request: Request, type: String)
 POST    /admin/questions/:id/discard controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
@@ -114,6 +115,8 @@ GET     /admin/demographics                                               contro
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
+GET     /admin/apiKeys/retired                      controllers.admin.AdminApiKeysController.indexRetired(request: Request)
+GET     /admin/apiKeys/expired                      controllers.admin.AdminApiKeysController.indexExpired(request: Request)
 GET     /admin/apiKeys/new                          controllers.admin.AdminApiKeysController.newOne(request: Request)
 POST    /admin/apiKeys                              controllers.admin.AdminApiKeysController.create(request: Request)
 POST    /admin/apiKeys/:apiKeyId/retire             controllers.admin.AdminApiKeysController.retire(request: Request, apiKeyId: Long)
@@ -159,7 +162,7 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
-GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser()
+GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser(request: Request)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
@@ -199,11 +202,11 @@ GET     /logout                      @org.pac4j.play.LogoutController.logout(req
 
 ## Methods for development
 # Seed the database with test content to develop against, and clear the database
-GET     /dev/seed                        controllers.dev.DatabaseSeedController.index(request: Request)
-POST    /dev/seed/canonicalQuestions     controllers.dev.DatabaseSeedController.seedCanonicalQuestions()
-GET     /dev/icons                       controllers.dev.IconsController.index()
-POST    /dev/seed                        controllers.dev.DatabaseSeedController.seed()
-POST    /dev/seed/clear                  controllers.dev.DatabaseSeedController.clear()
+GET     /dev/seed                        controllers.dev.seeding.DevDatabaseSeedController.index(request: Request)
+POST    /dev/seedQuestions               controllers.dev.seeding.DevDatabaseSeedController.seedQuestions()
+POST    /dev/seedPrograms                controllers.dev.seeding.DevDatabaseSeedController.seedPrograms()
+POST    /dev/seed/clear                  controllers.dev.seeding.DevDatabaseSeedController.clear()
+GET     /dev/icons                       controllers.dev.IconsController.index(request: Request)
 
 # Change feature flags.
 GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)

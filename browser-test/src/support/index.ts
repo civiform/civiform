@@ -456,9 +456,9 @@ export const dropTables = async (page: Page) => {
   await page.click('#clear')
 }
 
-export const seedCanonicalQuestions = async (page: Page) => {
+export const seedQuestions = async (page: Page) => {
   await page.goto(BASE_URL + '/dev/seed')
-  await page.click('#canonical-questions')
+  await page.click('#sample-questions')
 }
 
 export const disableFeatureFlag = async (page: Page, flag: string) => {
@@ -578,7 +578,14 @@ const normalizeElements = async (page: Frame | Page) => {
     }
     for (const [selector, replacement] of Object.entries(replacements)) {
       for (const element of Array.from(document.querySelectorAll(selector))) {
-        element.textContent = replacement(element.textContent!)
+        if (
+          selector == '.cf-bt-email' &&
+          element.textContent == '(no email address)'
+        ) {
+          continue
+        } else {
+          element.textContent = replacement(element.textContent!)
+        }
       }
     }
   })

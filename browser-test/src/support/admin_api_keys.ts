@@ -134,7 +134,7 @@ export class AdminApiKeys {
   }
 
   async expectApiKeyIsRetired(keyName: string) {
-    await this.gotoApiKeyIndexPage()
+    await this.gotoRetiredApiKeyIndexPage()
     expect(await this.page.innerText('.cf-api-key-name')).toContain(
       `${keyName} retired`,
     )
@@ -144,6 +144,13 @@ export class AdminApiKeys {
     await this.page.click('nav :text("API keys")')
     await waitForPageJsLoad(this.page)
     await this.expectApiKeysIndexPage()
+  }
+
+  async gotoRetiredApiKeyIndexPage() {
+    await this.page.click('nav :text("API keys")')
+    await waitForPageJsLoad(this.page)
+    await this.page.click('a:has-text("Retired")')
+    await waitForPageJsLoad(this.page)
   }
 
   async expectApiKeysIndexPage() {

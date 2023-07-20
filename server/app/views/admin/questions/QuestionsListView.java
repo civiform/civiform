@@ -7,7 +7,6 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
-import static j2html.TagCreator.input;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -21,7 +20,6 @@ import com.google.inject.Inject;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.PTag;
 import java.time.Instant;
 import java.util.Collection;
@@ -51,7 +49,8 @@ import views.components.CreateQuestionButton;
 import views.components.Icons;
 import views.components.Modal;
 import views.components.Modal.Width;
-import views.components.SvgTag;
+import views.components.QuestionBank;
+import views.components.QuestionSortOption;
 import views.components.ToastMessage;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
@@ -85,34 +84,12 @@ public final class QuestionsListView extends BaseHtmlView {
     Pair<DivTag, ImmutableList<Modal>> questionRowsAndModals =
         renderAllQuestionRows(activeAndDraftQuestions, request);
 
-    InputTag filterInput =
-        input()
-            .withId("question-bank-filter")
-            .withType("text")
-            .withName("questionFilter")
-            .withPlaceholder("Search questions")
-            .withClasses(
-                "h-10",
-                "px-10",
-                "pr-5",
-                "w-full",
-                "rounded-full",
-                "text-sm",
-                "border",
-                "border-gray-200",
-                "shadow",
-                StyleUtils.focus("outline-none"));
-    SvgTag filterIcon = Icons.svg(Icons.SEARCH).withClasses("h-4", "w-4");
-    DivTag filterIconDiv = div().withClasses("absolute", "ml-4", "mt-3", "mr-4").with(filterIcon);
-    DivTag filterDiv =
-        div().withClasses("mt-6", "mb-2", "relative").with(filterIconDiv, filterInput);
-
     DivTag contentDiv =
         div()
             .withClasses("px-4")
             .with(
                 div()
-                    .withClasses("flex", "items-center", "space-x-4", "mt-12")
+                    .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-6")
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
@@ -121,17 +98,16 @@ public final class QuestionsListView extends BaseHtmlView {
                             /* isPrimaryButton= */ true,
                             /* phoneQuestionTypeEnabled= */ settingsManifest
                                 .getPhoneQuestionTypeEnabled(request))),
-                filterDiv,
-                div()
-                    .withClasses("mt-10", "flex")
-                    .with(
-                        div().withClass("flex-grow"),
-                        p("Sorting by most recently updated").withClass("text-sm")))
+                QuestionBank.renderFilterAndSort(
+                    ImmutableList.of(
+                        QuestionSortOption.LAST_MODIFIED,
+                        QuestionSortOption.ADMIN_NAME,
+                        QuestionSortOption.NUM_PROGRAMS)))
             .with(div().withClass("mt-6").with(questionRowsAndModals.getLeft()))
             .with(renderSummary(activeAndDraftQuestions));
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addModals(questionRowsAndModals.getRight())
             .addMainContent(contentDiv);
@@ -173,18 +149,21 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Pair<DivTag, ImmutableList<Modal>> renderAllQuestionRows(
       ActiveAndDraftQuestions activeAndDraftQuestions, Http.Request request) {
-    ImmutableList.Builder<DomContent> nonArchivedQuestionRows = ImmutableList.builder();
-    ImmutableList.Builder<DomContent> archivedQuestionRows = ImmutableList.builder();
-    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     ImmutableList<QuestionCardData> cards =
         activeAndDraftQuestions.getQuestionNames().stream()
             .map(
-                name ->
-                    QuestionCardData.builder()
-                        .setActiveQuestion(
-                            activeAndDraftQuestions.getActiveQuestionDefinition(name))
-                        .setDraftQuestion(activeAndDraftQuestions.getDraftQuestionDefinition(name))
-                        .build())
+                name -> {
+                  ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
+                      activeAndDraftQuestions.getReferencingPrograms(name);
+                  return QuestionCardData.builder()
+                      .setActiveQuestion(activeAndDraftQuestions.getActiveQuestionDefinition(name))
+                      .setDraftQuestion(activeAndDraftQuestions.getDraftQuestionDefinition(name))
+                      .setReferencingPrograms(
+                          createReferencingPrograms(
+                              referencingPrograms.activeReferences(),
+                              referencingPrograms.draftReferences()))
+                      .build();
+                })
             .sorted(
                 Comparator.<QuestionCardData, Instant>comparing(
                         card ->
@@ -198,6 +177,9 @@ public final class QuestionsListView extends BaseHtmlView {
                                 .toLowerCase(Locale.ROOT)))
             .collect(ImmutableList.toImmutableList());
 
+    ImmutableList.Builder<DomContent> nonArchivedQuestionRows = ImmutableList.builder();
+    ImmutableList.Builder<DomContent> archivedQuestionRows = ImmutableList.builder();
+    ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     for (QuestionCardData card : cards) {
       Pair<DivTag, ImmutableList<Modal>> rowAndModals =
           renderQuestionCard(card, activeAndDraftQuestions, request);
@@ -209,7 +191,11 @@ public final class QuestionsListView extends BaseHtmlView {
       modals.addAll(rowAndModals.getRight());
     }
 
-    DivTag questionContent = div(div().with(nonArchivedQuestionRows.build()));
+    DivTag questionContent =
+        div(
+            div()
+                .withClass(ReferenceClasses.SORTABLE_QUESTIONS_CONTAINER)
+                .with(nonArchivedQuestionRows.build()));
     if (!archivedQuestionRows.build().isEmpty()) {
       questionContent.with(
           div()
@@ -225,6 +211,8 @@ public final class QuestionsListView extends BaseHtmlView {
 
     abstract Optional<QuestionDefinition> draftQuestion();
 
+    abstract GroupedReferencingPrograms referencingPrograms();
+
     static Builder builder() {
       return new AutoValue_QuestionsListView_QuestionCardData.Builder();
     }
@@ -234,6 +222,8 @@ public final class QuestionsListView extends BaseHtmlView {
       abstract Builder setActiveQuestion(Optional<QuestionDefinition> v);
 
       abstract Builder setDraftQuestion(Optional<QuestionDefinition> v);
+
+      abstract Builder setReferencingPrograms(GroupedReferencingPrograms v);
 
       abstract QuestionCardData build();
     }
@@ -255,7 +245,7 @@ public final class QuestionsListView extends BaseHtmlView {
 
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     Pair<DivTag, ImmutableList<Modal>> referencingProgramAndModal =
-        renderReferencingPrograms(latestDefinition.getName(), activeAndDraftQuestions);
+        renderReferencingPrograms(latestDefinition.getName(), cardData.referencingPrograms());
     modals.addAll(referencingProgramAndModal.getRight());
 
     DivTag row =
@@ -267,21 +257,13 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag draftAndActiveRows = div().withClasses("flex-grow");
     if (cardData.draftQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> draftRow =
-          renderActiveOrDraftRow(
-              /* isActive= */ false,
-              cardData.draftQuestion().get(),
-              activeAndDraftQuestions,
-              request);
+          renderActiveOrDraftRow(/* isActive= */ false, cardData, activeAndDraftQuestions, request);
       modals.addAll(draftRow.getRight());
       draftAndActiveRows.with(draftRow.getLeft());
     }
     if (cardData.activeQuestion().isPresent()) {
       Pair<DivTag, ImmutableList<Modal>> activeRow =
-          renderActiveOrDraftRow(
-              /* isActive= */ true,
-              cardData.activeQuestion().get(),
-              activeAndDraftQuestions,
-              request);
+          renderActiveOrDraftRow(/* isActive= */ true, cardData, activeAndDraftQuestions, request);
       modals.addAll(activeRow.getRight());
       draftAndActiveRows.with(activeRow.getLeft());
     }
@@ -309,7 +291,15 @@ public final class QuestionsListView extends BaseHtmlView {
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
             .with(row)
-            .with(adminNote);
+            .with(adminNote)
+            // Add data attributes used for sorting.
+            .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), latestDefinition.getName())
+            .withData(
+                QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
+                latestDefinition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
+            .withData(
+                QuestionSortOption.NUM_PROGRAMS.getDataAttribute(),
+                Integer.toString(cardData.referencingPrograms().getTotalNumReferencingPrograms()));
     return Pair.of(rowWithAdminNote, modals.build());
   }
 
@@ -319,15 +309,17 @@ public final class QuestionsListView extends BaseHtmlView {
    */
   private Pair<DivTag, ImmutableList<Modal>> renderActiveOrDraftRow(
       boolean isActive,
-      QuestionDefinition question,
+      QuestionCardData cardData,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
+    QuestionDefinition question =
+        isActive ? cardData.activeQuestion().get() : cardData.draftQuestion().get();
     boolean isSecondRow =
         isActive
             && activeAndDraftQuestions.getDraftQuestionDefinition(question.getName()).isPresent();
 
     Pair<DivTag, ImmutableList<Modal>> actionsCellAndModal =
-        renderActionsCell(isActive, question, activeAndDraftQuestions, request);
+        renderActionsCell(isActive, cardData, activeAndDraftQuestions, request);
 
     ProgramDisplayType displayType = ProgramDisplayType.ACTIVE;
     if (!isActive) {
@@ -388,14 +380,7 @@ public final class QuestionsListView extends BaseHtmlView {
    * listing all such programs.
    */
   private Pair<DivTag, ImmutableList<Modal>> renderReferencingPrograms(
-      String questionName, ActiveAndDraftQuestions activeAndDraftQuestions) {
-    ActiveAndDraftQuestions.ReferencingPrograms referencingPrograms =
-        activeAndDraftQuestions.getReferencingPrograms(questionName);
-    Collection<ProgramDefinition> activePrograms = referencingPrograms.activeReferences();
-    Collection<ProgramDefinition> draftPrograms = referencingPrograms.draftReferences();
-    GroupedReferencingPrograms groupedReferencingPrograms =
-        createReferencingPrograms(activePrograms, draftPrograms);
-
+      String questionName, GroupedReferencingPrograms groupedReferencingPrograms) {
     Optional<Modal> maybeReferencingProgramsModal =
         makeReferencingProgramsModal(
             questionName, groupedReferencingPrograms, /* modalHeader= */ Optional.empty());
@@ -413,15 +398,15 @@ public final class QuestionsListView extends BaseHtmlView {
     } else {
       if (!groupedReferencingPrograms.usedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.usedPrograms().size();
-        tag.with(p("Used in " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+        tag.with(p(formatReferencingProgramsText("Used in", numPrograms)));
       }
       if (!groupedReferencingPrograms.addedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.addedPrograms().size();
-        tag.with(p("Added to " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+        tag.with(p(formatReferencingProgramsText("Added to", numPrograms)));
       }
       if (!groupedReferencingPrograms.removedPrograms().isEmpty()) {
         int numPrograms = groupedReferencingPrograms.removedPrograms().size();
-        tag.with(p("Removed from " + numPrograms + " program" + (numPrograms > 1 ? "s." : ".")));
+        tag.with(p(formatReferencingProgramsText("Removed from", numPrograms)));
       }
     }
     if (maybeReferencingProgramsModal.isPresent()) {
@@ -439,6 +424,10 @@ public final class QuestionsListView extends BaseHtmlView {
         tag, maybeReferencingProgramsModal.map(ImmutableList::of).orElse(ImmutableList.of()));
   }
 
+  private static String formatReferencingProgramsText(String prefix, int numPrograms) {
+    return String.format("%s %d program%s.", prefix, numPrograms, (numPrograms > 1 ? "s" : ""));
+  }
+
   @AutoValue
   abstract static class GroupedReferencingPrograms {
     abstract ImmutableList<ProgramDefinition> usedPrograms();
@@ -453,6 +442,10 @@ public final class QuestionsListView extends BaseHtmlView {
 
     boolean isEmpty() {
       return usedPrograms().isEmpty() && addedPrograms().isEmpty() && removedPrograms().isEmpty();
+    }
+
+    int getTotalNumReferencingPrograms() {
+      return usedPrograms().size() + addedPrograms().size();
     }
 
     @AutoValue.Builder
@@ -599,9 +592,11 @@ public final class QuestionsListView extends BaseHtmlView {
 
   private Pair<DivTag, ImmutableList<Modal>> renderActionsCell(
       boolean isActive,
-      QuestionDefinition question,
+      QuestionCardData cardData,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
+    QuestionDefinition question =
+        isActive ? cardData.activeQuestion().get() : cardData.draftQuestion().get();
     ImmutableList.Builder<DomContent> extraActions = ImmutableList.builder();
     ImmutableList.Builder<Modal> modals = ImmutableList.builder();
     // some actions such as "edit" or "archive" need to be rendered only on one of two rows.
@@ -625,7 +620,7 @@ public final class QuestionsListView extends BaseHtmlView {
     // draft version of the question.
     if (isEditable) {
       Pair<DomContent, Optional<Modal>> archiveOptionsAndModal =
-          renderArchiveOptions(question, activeAndDraftQuestions, request);
+          renderArchiveOptions(cardData, question, activeAndDraftQuestions, request);
       extraActions.add(archiveOptionsAndModal.getLeft());
       archiveOptionsAndModal.getRight().ifPresent(modals::add);
     }
@@ -700,6 +695,7 @@ public final class QuestionsListView extends BaseHtmlView {
   }
 
   private Pair<DomContent, Optional<Modal>> renderArchiveOptions(
+      QuestionCardData cardData,
       QuestionDefinition definition,
       ActiveAndDraftQuestions activeAndDraftQuestions,
       Http.Request request) {
@@ -734,10 +730,7 @@ public final class QuestionsListView extends BaseHtmlView {
                             + " using it. Please remove all usages from the below"
                             + " programs before attempting to archive."));
 
-        ActiveAndDraftQuestions.ReferencingPrograms programs =
-            activeAndDraftQuestions.getReferencingPrograms(definition.getName());
-        GroupedReferencingPrograms referencingPrograms =
-            createReferencingPrograms(programs.activeReferences(), programs.draftReferences());
+        GroupedReferencingPrograms referencingPrograms = cardData.referencingPrograms();
         Optional<Modal> maybeModal =
             makeReferencingProgramsModal(
                 definition.getName(), referencingPrograms, Optional.of(modalHeader));

@@ -16,7 +16,7 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-import play.mvc.Http.Request;
+import play.mvc.Http.RequestHeader;
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -47,13 +47,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
-  public Optional<String> getWhitelabelCivicEntityShortName() {
-    return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME");
+  public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
+    return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
   }
 
   /** The full display name of the civic entity, will use 'City of TestCity' if not set. */
-  public Optional<String> getWhitelabelCivicEntityFullName() {
-    return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME");
+  public Optional<String> getWhitelabelCivicEntityFullName(RequestHeader request) {
+    return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
   }
 
   /**
@@ -79,8 +79,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The name of the portal that applicants log into, used in sentences like 'Log into your
    * APPLICANT_PORTAL_NAME account.'
    */
-  public Optional<String> getApplicantPortalName() {
-    return getString("APPLICANT_PORTAL_NAME");
+  public Optional<String> getApplicantPortalName(RequestHeader request) {
+    return getString("APPLICANT_PORTAL_NAME", request);
   }
 
   /**
@@ -147,14 +147,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getApplicantOidcProviderLogout() {
     return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT");
-  }
-
-  /**
-   * Enables [central
-   * logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).
-   */
-  public boolean getApplicantOidcProviderLogout(Request request) {
-    return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT", request);
   }
 
   /**
@@ -345,15 +337,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("DATABASE_APPLY_DESTRUCTIVE_CHANGES");
   }
 
-  /**
-   * If enabled, [playframework down
-   * evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions#Evolutions-scripts)
-   * are automatically applied on server start if needed.
-   */
-  public boolean getDatabaseApplyDestructiveChanges(Request request) {
-    return getBool("DATABASE_APPLY_DESTRUCTIVE_CHANGES", request);
-  }
-
   /** Sets how many connections to the database are maintained. */
   public Optional<Integer> getDatabaseConnectionPoolSize() {
     return getInt("DATABASE_CONNECTION_POOL_SIZE");
@@ -465,13 +448,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** This email address is listed in the footer for applicants to contact support. */
-  public Optional<String> getSupportEmailAddress() {
-    return getString("SUPPORT_EMAIL_ADDRESS");
+  public Optional<String> getSupportEmailAddress(RequestHeader request) {
+    return getString("SUPPORT_EMAIL_ADDRESS", request);
   }
 
   /** This email address receives error notifications from CiviForm when things break. */
-  public Optional<String> getItEmailAddress() {
-    return getString("IT_EMAIL_ADDRESS");
+  public Optional<String> getItEmailAddress(RequestHeader request) {
+    return getString("IT_EMAIL_ADDRESS", request);
   }
 
   /**
@@ -502,16 +485,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The text for a link on the Common Intake confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkText() {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT");
+  public Optional<String> getCommonIntakeMoreResourcesLinkText(RequestHeader request) {
+    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT", request);
   }
 
   /**
    * The HREF for a link on the Common Intake confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkHref() {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF");
+  public Optional<String> getCommonIntakeMoreResourcesLinkHref(RequestHeader request) {
+    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
   }
 
   /**
@@ -585,14 +568,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * If enabled, allows server Prometheus metrics to be retrieved via the '/metrics' URL path.  If
-   * disabled, '/metrics' returns a 404.
-   */
-  public boolean getCiviformServerMetricsEnabled(Request request) {
-    return getBool("CIVIFORM_SERVER_METRICS_ENABLED", request);
-  }
-
-  /**
    * The Google Analytics tracking ID.  If set, Google Analytics JavaScript scripts are added to the
    * CiviForm pages.
    */
@@ -616,14 +591,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getCiviformApiKeysBanGlobalSubnet() {
     return getBool("CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET");
-  }
-
-  /**
-   * When true prevents the CiviForm admin from issuing API keys that allow callers from all IP
-   * addresses (i.e. a CIDR mask of /0).
-   */
-  public boolean getCiviformApiKeysBanGlobalSubnet(Request request) {
-    return getBool("CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET", request);
   }
 
   /**
@@ -664,25 +631,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
    */
-  public boolean getEsriAddressServiceAreaValidationEnabled() {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
-  }
-
-  /**
-   * Enables the feature that allows for service area validation of a corrected address.
-   * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
-   */
-  public boolean getEsriAddressServiceAreaValidationEnabled(Request request) {
+  public boolean getEsriAddressServiceAreaValidationEnabled(RequestHeader request) {
     return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
   }
 
   /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled() {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED");
-  }
-
-  /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled(Request request) {
+  public boolean getEsriAddressCorrectionEnabled(RequestHeader request) {
     return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
   }
 
@@ -691,18 +645,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ADMIN_SETTINGS_PANEL_ENABLED");
   }
 
-  /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
-  public boolean getAdminSettingsPanelEnabled(Request request) {
-    return getBool("ADMIN_SETTINGS_PANEL_ENABLED", request);
-  }
-
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
-  public boolean getCfOptionalQuestions() {
-    return getBool("CF_OPTIONAL_QUESTIONS");
-  }
-
-  /** If enabled, allows questions to be optional in programs. Is enabled by default. */
-  public boolean getCfOptionalQuestions(Request request) {
+  public boolean getCfOptionalQuestions(RequestHeader request) {
     return getBool("CF_OPTIONAL_QUESTIONS", request);
   }
 
@@ -710,15 +654,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
    */
-  public boolean getAllowCiviformAdminAccessPrograms() {
-    return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS");
-  }
-
-  /**
-   * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
-   * default.
-   */
-  public boolean getAllowCiviformAdminAccessPrograms(Request request) {
+  public boolean getAllowCiviformAdminAccessPrograms(RequestHeader request) {
     return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
   }
 
@@ -726,25 +662,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
    * default.
    */
-  public boolean getShowCiviformImageTagOnLandingPage() {
-    return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE");
-  }
-
-  /**
-   * If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login screen. Is disabled by
-   * default.
-   */
-  public boolean getShowCiviformImageTagOnLandingPage(Request request) {
+  public boolean getShowCiviformImageTagOnLandingPage(RequestHeader request) {
     return getBool("SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE", request);
   }
 
   /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled() {
-    return getBool("INTAKE_FORM_ENABLED");
-  }
-
-  /** Enables the Common Intake Form feature. */
-  public boolean getIntakeFormEnabled(Request request) {
+  public boolean getIntakeFormEnabled(RequestHeader request) {
     return getBool("INTAKE_FORM_ENABLED", request);
   }
 
@@ -759,16 +682,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * If this is a staging deployment and this variable is set to true, a [robots
-   * noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag) metadata
-   * tag is added to the CiviForm pages. This causes the staging site to not be listed on search
-   * engines.
-   */
-  public boolean getStagingAddNoindexMetaTag(Request request) {
-    return getBool("STAGING_ADD_NOINDEX_META_TAG", request);
-  }
-
-  /**
    * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
    * buttons are not shown on the login page.
    */
@@ -776,21 +689,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
   }
 
-  /**
-   * If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:'
-   * buttons are not shown on the login page.
-   */
-  public boolean getStagingDisableDemoModeLogins(Request request) {
-    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
-  }
-
   /** Enables the phone number question type. */
-  public boolean getPhoneQuestionTypeEnabled() {
-    return getBool("PHONE_QUESTION_TYPE_ENABLED");
-  }
-
-  /** Enables the phone number question type. */
-  public boolean getPhoneQuestionTypeEnabled(Request request) {
+  public boolean getPhoneQuestionTypeEnabled(RequestHeader request) {
     return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
   }
 
@@ -805,17 +705,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "WHITELABEL_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -823,6 +726,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The URL of a 32x32 or 16x16 pixel"
                           + " [favicon](https://developer.mozilla.org/en-US/docs/Glossary/Favicon)"
                           + " image, in GIF, PNG, or ICO format.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE))),
           "External Services",
@@ -848,6 +752,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " Connect) to request data from authorization servers,"
                                           + " specifically communicating with IDCS. A Civiform"
                                           + " instance is always the client.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -857,12 +762,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " systems. This secret essentially acts as the"
                                           + " client’s “password” for accessing data from the auth"
                                           + " server.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "IDCS_DISCOVERY_URI",
                                       "A URL that returns a JSON listing of OIDC (OpenID Connect)"
                                           + " data associated with the IDCS auth provider.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
                           SettingsSection.create(
@@ -875,35 +782,41 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_API_KEY",
                                       "The API key used to interact with LoginRadius.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_METADATA_URI",
                                       "The base URL to construct SAML endpoints, based on the"
                                           + " SAML2 spec.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_SAML_APP_NAME",
                                       "The name for the app, based on the SAML2 spec.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_KEYSTORE_NAME",
                                       "Name of the SAML2 keystore, used to store digital"
                                           + " certificates and private keys for SAML auth.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_KEYSTORE_PASS",
                                       "The password used the protect the integrity of the SAML"
                                           + " keystore file.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "LOGIN_RADIUS_PRIVATE_KEY_PASS",
                                       "The password used to protect the private key of the SAML"
                                           + " digital certificate.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
                           SettingsSection.create(
@@ -917,6 +830,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "APPLICANT_OIDC_PROVIDER_LOGOUT",
                                       "Enables [central"
                                           + " logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).",
+                                      /* isRequired= */ false,
                                       SettingType.BOOLEAN,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -926,6 +840,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " logout endpoint. However for some integrations that"
                                           + " standard flow might not work and we need to override"
                                           + " logout URL.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -938,12 +853,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " and instead it needs to be hardcoded on the the auth"
                                           + " provider (otherwise the user won't be redirected"
                                           + " back to civiform after logout).",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_PROVIDER_NAME",
                                       "The name of the OIDC (OpenID Connect) auth provider"
                                           + " (server), such as “Auth0” or “LoginRadius”.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -951,6 +868,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "An opaque public identifier for apps that use OIDC (OpenID"
                                           + " Connect) to request data from authorization servers."
                                           + " A Civiform instance is always the client.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -959,18 +877,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " authorization server. This secret essentially acts"
                                           + " as the client’s “password” for accessing data from"
                                           + " the auth server.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_DISCOVERY_URI",
                                       "A URL that returns a JSON listing of OIDC (OpenID Connect)"
                                           + " data associated with a given auth provider.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_RESPONSE_MODE",
                                       "Informs the auth server of the desired auth processing"
                                           + " flow, based on the OpenID Connect spec.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -978,6 +899,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "Informs the auth server of the mechanism to be used for"
                                           + " returning response params from the auth endpoint,"
                                           + " based on the OpenID Connect spec.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -985,31 +907,37 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "Scopes the client (CiviForm) is requesting in addition to"
                                           + " the standard scopes the OpenID Connect spec"
                                           + " provides.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_LOCALE_ATTRIBUTE",
                                       "The locale of the user, such as “en-US”.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_EMAIL_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s email address.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_FIRST_NAME_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s first name.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_MIDDLE_NAME_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s middle name.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_LAST_NAME_ATTRIBUTE",
                                       "The OIDC attribute name for the user’s last name.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN))),
                           SettingsSection.create(
@@ -1025,6 +953,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " Connect) to request data from authorization servers,"
                                           + " specifically communicating with Login.gov. A"
                                           + " Civiform instance is always the client.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -1032,6 +961,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "A URL that returns a JSON listing of OIDC (OpenID Connect)"
                                           + " data associated with a given auth provider,"
                                           + " specifically for Login.gov.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -1039,6 +969,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "Scopes the client (CiviForm) is requesting in addition to"
                                           + " the standard scopes the OpenID Connect spec"
                                           + " provides. Scopes should be separated by a space.",
+                                      /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
@@ -1047,6 +978,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " requests](https://developers.login.gov/oidc/#request-parameters)."
                                           + " ial/1 is for open registration, email only. ial/2 is"
                                           + " for requiring identity verification.",
+                                      /* isRequired= */ false,
                                       SettingType.ENUM,
                                       SettingMode.HIDDEN,
                                       ImmutableList.of(
@@ -1056,6 +988,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "CIVIFORM_APPLICANT_IDP",
                               "What identity provider to use for applicants.",
+                              /* isRequired= */ true,
                               SettingType.ENUM,
                               SettingMode.ADMIN_READABLE,
                               ImmutableList.of(
@@ -1068,12 +1001,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "APPLICANT_REGISTER_URI",
                               "URI to create a new account in the applicant identity provider.",
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "APPLICANT_PORTAL_NAME",
                               "The name of the portal that applicants log into, used in sentences"
                                   + " like 'Log into your APPLICANT_PORTAL_NAME account.'",
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.ADMIN_WRITEABLE))),
                   SettingsSection.create(
@@ -1088,6 +1023,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " to request data from authorization servers, specifically"
                                   + " communicating with ADFS. A Civiform instance is always the"
                                   + " client.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
@@ -1095,18 +1031,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "A secret known only to the client (Civiform) and authorization"
                                   + " server. This secret essentially acts as the client’s"
                                   + " “password” for accessing data from the auth server.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "ADFS_DISCOVERY_URI",
                               "A URL that returns a JSON listing of OIDC (OpenID Connect) data"
                                   + " associated with the IDCS auth provider.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "ADFS_GLOBAL_ADMIN_GROUP",
                               "The name of the admin group in Active Directory, typically used to"
                                   + " tell if a user is a global admin.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
@@ -1114,12 +1053,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "Scopes the client (CiviForm) is requesting in addition to the"
                                   + " standard scopes the OpenID Connect spec provides. Scopes"
                                   + " should be separated by a space.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "AD_GROUPS_ATTRIBUTE_NAME",
                               "The attribute name for looking up the groups associated with a"
                                   + " particular user.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN))),
                   SettingsSection.create(
@@ -1132,26 +1073,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "If enabled, [playframework down"
                                   + " evolutions](https://www.playframework.com/documentation/2.8.x/Evolutions#Evolutions-scripts)"
                                   + " are automatically applied on server start if needed.",
+                              /* isRequired= */ false,
                               SettingType.BOOLEAN,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DATABASE_CONNECTION_POOL_SIZE",
                               "Sets how many connections to the database are maintained.",
+                              /* isRequired= */ false,
                               SettingType.INT,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_JDBC_STRING",
                               "The database URL.",
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_USERNAME",
                               "The username used to connect to the database.",
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_PASSWORD",
                               "The password used to connect to the database.",
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.HIDDEN))),
                   SettingsSection.create(
@@ -1162,27 +1108,32 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "STORAGE_SERVICE_NAME",
                               "What static file storage provider to use.",
+                              /* isRequired= */ false,
                               SettingType.ENUM,
                               SettingMode.HIDDEN,
                               ImmutableList.of("s3", "azure-blob")),
                           SettingDescription.create(
                               "AWS_S3_BUCKET_NAME",
                               "s3 bucket to store files in.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "AWS_S3_FILE_LIMIT_MB",
                               "The max size (in Mb) of files uploaded to s3.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_NAME",
                               "The azure account name where the blob storage service exists.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "AZURE_STORAGE_ACCOUNT_CONTAINER",
                               "Azure blob storage container name to store files in.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
@@ -1190,6 +1141,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "Allows local [Azurite"
                                   + " emulator](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)"
                                   + " to be used for developer deployments.",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN))),
                   SettingsSection.create(
@@ -1202,18 +1154,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "ESRI_FIND_ADDRESS_CANDIDATES_URL",
                               "The URL CiviForm will use to call Esri’s [findAddressCandidates"
                                   + " service](https://developers.arcgis.com/rest/geocode/api-reference/geocoding-find-address-candidates.htm).",
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_LABELS",
                               "Human readable labels used to present the service area validation"
                                   + " options in CiviForm’s admin UI.",
+                              /* isRequired= */ false,
                               SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_IDS",
                               "The value CiviForm uses to validate if an address is in a service"
                                   + " area.",
+                              /* isRequired= */ false,
                               SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
@@ -1221,18 +1176,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "The URL CiviForm will use to call Esri’s [map query"
                                   + " service](https://developers.arcgis.com/rest/services-reference/enterprise/query-feature-service-layer-.htm)"
                                   + " for service area validation.",
+                              /* isRequired= */ false,
                               SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ATTRIBUTES",
                               "The attribute CiviForm checks from the service area validation"
                                   + " response to get the service area validation ID.",
+                              /* isRequired= */ false,
                               SettingType.LIST_OF_STRINGS,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(
                               "ESRI_EXTERNAL_CALL_TRIES",
                               "The number of tries CiviForm will attempt requests to external Esri"
                                   + " services.",
+                              /* isRequired= */ false,
                               SettingType.INT,
                               SettingMode.ADMIN_READABLE)))),
               ImmutableList.of(
@@ -1240,12 +1198,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "AWS_REGION",
                       "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to"
                           + " 'aws', it is also the region where the AWS s3 service exists.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "AWS_SES_SENDER",
                       "The email address used for the 'from' email header for emails sent by"
                           + " CiviForm.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Email Addresses",
@@ -1259,12 +1219,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SUPPORT_EMAIL_ADDRESS",
                       "This email address is listed in the footer for applicants to contact"
                           + " support.",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "IT_EMAIL_ADDRESS",
                       "This email address receives error notifications from CiviForm when things"
                           + " break.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1272,6 +1234,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the program administrator's email"
                           + " address.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1279,12 +1242,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the trusted intermediary's email"
                           + " address.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "STAGING_APPLICANT_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the applicant's email address.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Custom Text",
@@ -1298,6 +1263,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The text for a link on the Common Intake confirmation page that links to"
                           + " more resources. Shown when the applicant is not eligible for any"
                           + " programs in CiviForm.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1305,6 +1271,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The HREF for a link on the Common Intake confirmation page that links to"
                           + " more resources. Shown when the applicant is not eligible for any"
                           + " programs in CiviForm.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE,
                       Pattern.compile("^(http://|https://).+")))),
@@ -1318,12 +1285,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "CIVIFORM_SERVER_METRICS_ENABLED",
                       "If enabled, allows server Prometheus metrics to be retrieved via the"
                           + " '/metrics' URL path.  If disabled, '/metrics' returns a 404.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "MEASUREMENT_ID",
                       "The Google Analytics tracking ID.  If set, Google Analytics JavaScript"
                           + " scripts are added to the CiviForm pages.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE))),
           "Data Export API",
@@ -1342,18 +1311,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " secret has been leaked or otherwise comprised it should be changed"
                           + " and all active API keys should be retired and reissued. Default"
                           + " value is 'changeme'.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET",
                       "When true prevents the CiviForm admin from issuing API keys that allow"
                           + " callers from all IP addresses (i.e. a CIDR mask of /0).",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "CIVIFORM_API_APPLICATIONS_LIST_MAX_PAGE_SIZE",
                       "An integer specifying the maximum number of entries returned in a page of"
                           + " results for the applications export API.",
+                      /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.ADMIN_READABLE))),
           "Durable Jobs",
@@ -1369,6 +1341,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " results in jobs running sooner when they are scheduled to be run"
                           + " immediately, at the cost of more pressure on the database. Default"
                           + " value is 5.",
+                      /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1376,6 +1349,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "An integer specifying the timeout in minutes for durable jobs i.e. how long"
                           + " a single job is allowed to run before the system attempts to"
                           + " interrupt it. Default value is 30.",
+                      /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1383,6 +1357,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The number of server threads available for the durable job runner. More"
                           + " than a single thread will the server execute multiple jobs in"
                           + " parallel. Default value is 1.",
+                      /* isRequired= */ false,
                       SettingType.INT,
                       SettingMode.HIDDEN))),
           "Feature Flags",
@@ -1395,40 +1370,47 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
                       "Enables the feature that allows for service area validation of a corrected"
                           + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ESRI_ADDRESS_CORRECTION_ENABLED",
                       "Enables the feature that allows address correction for address questions.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ADMIN_SETTINGS_PANEL_ENABLED",
                       "If enabled, adds a page in the CiviForm Admin UI for accessing application"
                           + " settings.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "CF_OPTIONAL_QUESTIONS",
                       "If enabled, allows questions to be optional in programs. Is enabled by"
                           + " default.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS",
                       "If enabled, CiviForm Admins are able to see all applications for all"
                           + " programs. Is disabled by default.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE",
                       "If enabled, the value of CIVIFORM_IMAGE_TAG will be shown on the login"
                           + " screen. Is disabled by default.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "INTAKE_FORM_ENABLED",
                       "Enables the Common Intake Form feature.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1437,17 +1419,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " noindex](https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag)"
                           + " metadata tag is added to the CiviForm pages. This causes the staging"
                           + " site to not be listed on search engines.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "STAGING_DISABLE_DEMO_MODE_LOGINS",
                       "If this is a staging deployment and this variable is set to true, the 'DEMO"
                           + " MODE. LOGIN AS:' buttons are not shown on the login page.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "PHONE_QUESTION_TYPE_ENABLED",
                       "Enables the phone number question type.",
+                      /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
@@ -1462,12 +1447,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " key](http://www.playframework.com/documentation/latest/ApplicationSecret)"
                           + " is used to sign Play's session cookie. This must be changed for"
                           + " production.",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "BASE_URL",
                       "The URL of the CiviForm deployment.  Must start with 'https://' or"
                           + " 'http://'.",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE,
                       Pattern.compile("^(http://|https://).+")),
@@ -1475,6 +1462,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "STAGING_HOSTNAME",
                       "DNS name of the staging deployment.  Must not start with 'https://' or"
                           + " 'http://'.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN,
                       Pattern.compile("^(?!http://|https://).+")),
@@ -1483,6 +1471,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "The languages that applicants can choose from when specifying their"
                           + " language preference and that admins can choose from when adding"
                           + " translations for programs and applications.",
+                      /* isRequired= */ false,
                       SettingType.LIST_OF_STRINGS,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1492,6 +1481,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " indicating the time zone for this CiviForm deployment. All times in"
                           + " the system will be calculated in this zone. Default value is"
                           + " 'America/Los_Angeles'",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1501,6 +1491,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
                           + " shown on the login page if CIVIFORM_VERSION is the empty string or"
                           + " set to 'latest'.",
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1509,6 +1500,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
                           + " shown on the login page if it a value other than the empty string or"
                           + " 'latest'.",
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1517,6 +1509,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " where the IP address of the request is the originating IP address."
                           + " If \"FORWARDED\" then request has been reverse proxied and the"
                           + " originating IP address is stored in the X-Forwarded-For header.",
+                      /* isRequired= */ false,
                       SettingType.ENUM,
                       SettingMode.ADMIN_READABLE,
                       ImmutableList.of("DIRECT", "FORWARDED")))));

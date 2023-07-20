@@ -93,10 +93,28 @@ class AdminPredicateConfiguration {
     // Check if any inputs are missing a value.
     document
       ?.querySelector('#predicate-config-value-row-container')
-      ?.querySelectorAll('input')
-      .forEach((input) => {
-        if (input.value == '') {
-          hasValueMissing = true
+      ?.querySelectorAll('[data-question-id]')
+      .forEach((questionAnswerGroup) => {
+        const inputs = questionAnswerGroup?.querySelectorAll('input')
+        // Single input field that needs a value, e.g. a textbox or date field.
+        if (inputs.length == 1) {
+          if (inputs[0].value == '') {
+            hasValueMissing = true
+            return // Return early if we've found an issue.
+          }
+        }
+        // Multi-input field that needs a checked option, e.g. checkboxes or dropdowns.
+        if (inputs.length > 1) {
+          let hasCheckedOption = false
+          inputs.forEach((input) => {
+            if (input.checked) {
+              hasCheckedOption = true
+            }
+          })
+          if (!hasCheckedOption) {
+            hasValueMissing = true
+            return // Return early if we've found an issue.
+          }
         }
       })
 

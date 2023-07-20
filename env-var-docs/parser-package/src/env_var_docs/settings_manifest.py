@@ -11,7 +11,7 @@ import sys
 import dataclasses
 import env_var_docs.errors_formatter
 from jinja2 import Environment, PackageLoader, select_autoescape
-from env_var_docs.parser import Variable, Node, Group, NodeParseError, visit
+from env_var_docs.parser import Variable, Mode, Node, Group, NodeParseError, visit
 from io import StringIO
 from typing import Union
 
@@ -104,17 +104,18 @@ def render_group(group: ParsedGroup) -> str:
 
 
 def render_variable(name: str, variable: Variable) -> str:
+    is_required = str(variable.required).lower()
     setting_type = _get_java_setting_type(variable)
     setting_mode = str(variable.mode).replace("Mode.", "")
 
     if setting_type == "ENUM" and variable.values:
         allowable_values = ", ".join([f'"{val}"' for val in variable.values])
-        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode}, ImmutableList.of({allowable_values}))'
 
     if setting_type == "STRING" and variable.regex:
-        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode}, Pattern.compile("{variable.regex}"))'
+        return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode}, Pattern.compile("{variable.regex}"))'
 
-    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", SettingType.{setting_type}, SettingMode.{setting_mode})'
+    return f'SettingDescription.create("{name}", "{_escape_double_quotes(variable.description)}", /* isRequired= */ {is_required}, SettingType.{setting_type}, SettingMode.{setting_mode})'
 
 
 def _get_java_setting_type(variable: Variable) -> str:
@@ -216,7 +217,9 @@ def generate_manifest(
     template = env.get_template("SettingsManifest.java.jinja")
 
     return template.render(
-        sections=sections, getter_method_specs=getter_method_specs), []
+        sections=sections,
+        getter_method_specs=getter_method_specs,
+        writeable_mode=Mode.ADMIN_WRITEABLE), []
 
 
 if __name__ == "__main__":

@@ -50,7 +50,7 @@ import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
 import views.components.Modal;
-import views.components.QuestionBank;
+import views.components.ProgramQuestionBank;
 import views.components.SvgTag;
 import views.components.ToastMessage;
 import views.style.AdminStyles;
@@ -77,7 +77,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   private final AdminLayout layout;
   private final SettingsManifest settingsManifest;
-  private final boolean featureFlagOptionalQuestions;
   private final ProgramDisplayType programDisplayType;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
@@ -96,7 +95,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.featureFlagOptionalQuestions = settingsManifest.getCfOptionalQuestions();
     this.programDisplayType = programViewType;
   }
 
@@ -146,7 +144,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 div()
@@ -189,8 +187,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  QuestionBank.shouldShowQuestionBank(request),
-                  settingsManifest.getPhoneQuestionTypeEnabled()))
+                  ProgramQuestionBank.shouldShowQuestionBank(request),
+                  settingsManifest.getPhoneQuestionTypeEnabled(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -648,7 +646,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     Optional<FormTag> maybeOptionalToggle =
         renderOptionalToggle(
-            csrfTag, programDefinition.id(), blockDefinition.id(), questionDefinition, isOptional);
+            request,
+            csrfTag,
+            programDefinition.id(),
+            blockDefinition.id(),
+            questionDefinition,
+            isOptional);
 
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
@@ -769,12 +772,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * optional or mandatory.
    */
   private Optional<FormTag> renderOptionalToggle(
+      Request request,
       InputTag csrfTag,
       long programDefinitionId,
       long blockDefinitionId,
       QuestionDefinition questionDefinition,
       boolean isOptional) {
-    if (!featureFlagOptionalQuestions) {
+    if (!settingsManifest.getCfOptionalQuestions(request)) {
       return Optional.empty();
     }
     if (questionDefinition instanceof StaticContentQuestionDefinition) {
@@ -988,7 +992,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      QuestionBank.Visibility questionBankVisibility,
+      ProgramQuestionBank.Visibility questionBankVisibility,
       boolean phoneQuestionTypeEnabled) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
@@ -996,13 +1000,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .url();
 
     String redirectUrl =
-        QuestionBank.addShowQuestionBankParam(
+        ProgramQuestionBank.addShowQuestionBankParam(
             controllers.admin.routes.AdminProgramBlocksController.edit(
                     program.id(), blockDefinition.id())
                 .url());
-    QuestionBank qb =
-        new QuestionBank(
-            QuestionBank.QuestionBankParams.builder()
+    ProgramQuestionBank qb =
+        new ProgramQuestionBank(
+            ProgramQuestionBank.ProgramQuestionBankParams.builder()
                 .setQuestionAction(addQuestionAction)
                 .setCsrfTag(csrfTag)
                 .setQuestions(questionDefinitions)

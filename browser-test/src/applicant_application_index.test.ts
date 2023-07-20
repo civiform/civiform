@@ -45,7 +45,7 @@ describe('applicant program index page', () => {
       'first-q',
     ])
 
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await logout(page)
   })
 
@@ -163,7 +163,7 @@ describe('applicant program index page', () => {
       'admin description',
       /* isCommonIntake= */ true,
     )
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await logout(page)
 
     await applicantQuestions.applyProgram(primaryProgramName)

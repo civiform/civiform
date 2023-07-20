@@ -1,7 +1,6 @@
 package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -24,7 +23,7 @@ public class EsriServiceAreaValidationConfigTest {
 
   @Test
   public void isConfigurationValid() {
-    assertEquals(true, esriServiceAreaValidationConfig.isConfigurationValid());
+    assertThat(esriServiceAreaValidationConfig.isConfigurationValid()).isTrue();
   }
 
   @Test
@@ -32,24 +31,27 @@ public class EsriServiceAreaValidationConfigTest {
     ImmutableMap<String, EsriServiceAreaValidationOption> map =
         esriServiceAreaValidationConfig.getImmutableMap();
     EsriServiceAreaValidationOption option = map.get("Seattle");
-    assertEquals("Seattle", option.getLabel());
-    assertEquals("Seattle", option.getId());
-    assertEquals("/query", option.getUrl());
-    assertEquals("CITYNAME", option.getAttribute());
+    assertThat(option.getLabel()).isEqualTo("Seattle");
+    assertThat(option.getId()).isEqualTo("Seattle");
+    assertThat(option.getUrl()).isEqualTo("/query");
+    assertThat(option.getAttribute()).isEqualTo("CITYNAME");
   }
 
   @Test
   public void getImmutableMapStored() {
-    assertEquals(esriServiceAreaValidationConfig.esriServiceAreaValidationMap, null);
+    assertThat(esriServiceAreaValidationConfig.esriServiceAreaValidationMap).isNull();
     esriServiceAreaValidationConfig.getImmutableMap();
-    assertEquals(
-        "CITYNAME",
-        esriServiceAreaValidationConfig.esriServiceAreaValidationMap.get("Seattle").getAttribute());
+    assertThat(
+            esriServiceAreaValidationConfig
+                .esriServiceAreaValidationMap
+                .get("Seattle")
+                .getAttribute())
+        .isEqualTo("CITYNAME");
   }
 
   @Test
   public void getOptionsWithSharedBackend() {
-    assertEquals(true, esriServiceAreaValidationConfig.isConfigurationValid());
+    assertThat(esriServiceAreaValidationConfig.isConfigurationValid()).isTrue();
     ImmutableMap<String, EsriServiceAreaValidationOption> map =
         esriServiceAreaValidationConfig.getImmutableMap();
     EsriServiceAreaValidationOption option = map.get("Seattle");
@@ -60,28 +62,28 @@ public class EsriServiceAreaValidationConfigTest {
     Optional<EsriServiceAreaValidationOption> maybeOptionFromList = optionList.stream().findFirst();
     assertThat(maybeOptionFromList.isPresent()).isTrue();
     EsriServiceAreaValidationOption optionFromList = maybeOptionFromList.get();
-    assertEquals("Seattle", optionFromList.getLabel());
-    assertEquals("Seattle", optionFromList.getId());
-    assertEquals("/query", optionFromList.getUrl());
-    assertEquals("CITYNAME", optionFromList.getAttribute());
+    assertThat(optionFromList.getLabel()).isEqualTo("Seattle");
+    assertThat(optionFromList.getId()).isEqualTo("Seattle");
+    assertThat(optionFromList.getUrl()).isEqualTo("/query");
+    assertThat(optionFromList.getAttribute()).isEqualTo("CITYNAME");
   }
 
   @Test
   public void getOptionByServiceAreaId() {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Seattle");
-    assertEquals(true, serviceAreaOption.isPresent());
-    assertEquals("Seattle", serviceAreaOption.get().getLabel());
-    assertEquals("Seattle", serviceAreaOption.get().getId());
-    assertEquals("/query", serviceAreaOption.get().getUrl());
-    assertEquals("CITYNAME", serviceAreaOption.get().getAttribute());
+    assertThat(serviceAreaOption.isPresent()).isTrue();
+    assertThat(serviceAreaOption.get().getLabel()).isEqualTo("Seattle");
+    assertThat(serviceAreaOption.get().getId()).isEqualTo("Seattle");
+    assertThat(serviceAreaOption.get().getUrl()).isEqualTo("/query");
+    assertThat(serviceAreaOption.get().getAttribute()).isEqualTo("CITYNAME");
   }
 
   @Test
   public void getOptionByServiceAreaIdDoesNotExist() {
     Optional<EsriServiceAreaValidationOption> serviceAreaOption =
         esriServiceAreaValidationConfig.getOptionByServiceAreaId("Mars");
-    assertEquals(true, serviceAreaOption.isEmpty());
+    assertThat(serviceAreaOption).isEmpty();
   }
 
   @Test
@@ -89,10 +91,10 @@ public class EsriServiceAreaValidationConfigTest {
     Optional<ImmutableList<EsriServiceAreaValidationOption>> serviceAreaOptions =
         esriServiceAreaValidationConfig.getOptionsByServiceAreaIds(
             ImmutableList.of("Seattle", "Bloomington"));
-    assertEquals(true, serviceAreaOptions.isPresent());
-    assertEquals("Seattle", serviceAreaOptions.get().get(0).getLabel());
-    assertEquals("Seattle", serviceAreaOptions.get().get(0).getId());
-    assertEquals("/query", serviceAreaOptions.get().get(0).getUrl());
-    assertEquals("CITYNAME", serviceAreaOptions.get().get(0).getAttribute());
+    assertThat(serviceAreaOptions.isPresent()).isTrue();
+    assertThat(serviceAreaOptions.get().get(0).getLabel()).isEqualTo("Seattle");
+    assertThat(serviceAreaOptions.get().get(0).getId()).isEqualTo("Seattle");
+    assertThat(serviceAreaOptions.get().get(0).getUrl()).isEqualTo("/query");
+    assertThat(serviceAreaOptions.get().get(0).getAttribute()).isEqualTo("CITYNAME");
   }
 }

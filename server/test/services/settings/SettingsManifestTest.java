@@ -19,18 +19,21 @@ public class SettingsManifestTest {
       SettingDescription.create(
           "BOOL_VARIABLE",
           "Fake subsection variable for testing",
+          true,
           SettingType.BOOLEAN,
           SettingMode.ADMIN_READABLE);
   private static SettingDescription STRING_VARIABLE =
       SettingDescription.create(
           "STRING_VARIABLE",
           "Fake subsection variable for testing",
+          true,
           SettingType.STRING,
           SettingMode.ADMIN_READABLE);
   private static SettingDescription ENUM_VARIABLE =
       SettingDescription.create(
           "ENUM_VARIABLE",
           "Fake subsection variable for testing",
+          true,
           SettingType.ENUM,
           SettingMode.ADMIN_READABLE,
           ImmutableList.of("foo", "bar", "baz"));
@@ -38,18 +41,21 @@ public class SettingsManifestTest {
       SettingDescription.create(
           "LIST_OF_STRINGS_VARIABLE",
           "Fake subsection variable for testing",
+          true,
           SettingType.LIST_OF_STRINGS,
           SettingMode.ADMIN_READABLE);
   private static SettingDescription INT_VARIABLE =
       SettingDescription.create(
           "INT_VARIABLE",
           "Fake subsection variable for testing",
+          true,
           SettingType.INT,
           SettingMode.ADMIN_READABLE);
   private static SettingDescription UNSET_STRING_VARIABLE =
       SettingDescription.create(
           "UNSET_STRING_VARIABLE",
           "Fake subsection variable for testing",
+          true,
           SettingType.INT,
           SettingMode.ADMIN_READABLE);
 
@@ -90,6 +96,7 @@ public class SettingsManifestTest {
                   SettingDescription.create(
                       "STRING_VARIABLE",
                       "Fake string variable for testing",
+                      true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE))));
   private SettingsManifest testManifest = new SettingsManifest(SECTIONS, CONFIG);

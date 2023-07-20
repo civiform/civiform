@@ -1,6 +1,7 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableSet;
@@ -162,6 +163,28 @@ public class FieldWithLabelTest {
     String rendered = fieldWithLabel.getNumberTag().render();
 
     assertThat(rendered).doesNotContain("aria-");
+  }
+
+  @Test
+  public void input_withToolTip() {
+    FieldWithLabel fieldWithLabel =
+        FieldWithLabel.input().setToolTipIcon(Icons.INFO).setToolTipText("Live long and prosper");
+    assertThat(fieldWithLabel.getInputTag().render()).contains("Live long and prosper");
+    assertThat(fieldWithLabel.getInputTag().render()).contains(Icons.INFO.path);
+  }
+
+  @Test
+  public void throwsExceptionWhenOnlyToolTipTextOrIconIsSet() {
+    FieldWithLabel fieldWithLabelTextOnly =
+        FieldWithLabel.input().setToolTipText("Live long and prosper");
+    FieldWithLabel fieldWithLabelIconOnly = FieldWithLabel.input().setToolTipIcon(Icons.INFO);
+    String expectedMessage = "Tool tip text and icon must both be defined";
+    assertThatThrownBy(() -> fieldWithLabelTextOnly.getInputTag())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(expectedMessage);
+    assertThatThrownBy(() -> fieldWithLabelIconOnly.getInputTag())
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage(expectedMessage);
   }
 
   @Test

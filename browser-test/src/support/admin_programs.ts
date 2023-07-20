@@ -618,7 +618,7 @@ export class AdminPrograms {
   async publishProgram(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-    await this.publishAllPrograms()
+    await this.publishAllDrafts()
     await this.expectActiveProgram(programName)
   }
 
@@ -631,16 +631,16 @@ export class AdminPrograms {
     )
   }
 
-  async publishAllPrograms() {
+  async publishAllDrafts() {
     await this.gotoAdminProgramsPage()
-    const modal = await this.openPublishAllProgramsModal()
+    const modal = await this.openPublishAllDraftsModal()
     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
     await confirmHandle.click()
 
     await waitForPageJsLoad(this.page)
   }
 
-  async openPublishAllProgramsModal() {
+  async openPublishAllDraftsModal() {
     await this.page.click('button:has-text("Publish all drafts")')
     const modal = await waitForAnyModal(this.page)
     expect(await modal.innerText()).toContain(
@@ -656,7 +656,7 @@ export class AdminPrograms {
     expectedQuestionsContents: string[]
     expectedProgramsContents: string[]
   }) {
-    const modal = await this.openPublishAllProgramsModal()
+    const modal = await this.openPublishAllDraftsModal()
 
     const editedQuestions = await modal.$$(
       '.cf-admin-publish-references-question li',

@@ -43,7 +43,7 @@ describe('admin program preview', () => {
     await adminPrograms.editProgramBlock(programName, 'description', [
       'email-q',
     ])
-    await adminPrograms.publishAllPrograms()
+    await adminPrograms.publishAllDrafts()
     await adminPrograms.gotoViewActiveProgramPage(programName)
 
     await page.click('button:has-text("Preview as applicant")')

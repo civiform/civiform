@@ -197,21 +197,6 @@ function moveMultiOptionQuestionDown(event: Event) {
 }
 
 /**
- * If we want to remove an existing element, hide the input div and set disabled to false
- * so the field is submitted.
- * @param {Event} event The event that triggered this action.
- */
-function hideInput(event: Event) {
-  const inputDiv = assertNotNull(
-    (event.currentTarget as Element)!.parentElement,
-  )
-  // Remove 'disabled' so the field is submitted with the form
-  inputDiv.querySelector('input')!.disabled = false
-  // Hide the entire div from the user
-  inputDiv.classList.add('hidden')
-}
-
-/**
  * Remove line-clamp from div on click.
  *
  * NOTE: This is in no way discoverable, but it's just a temporary fix until we have a program
@@ -280,9 +265,13 @@ function attachStopPropogationListenerOnFormButtons() {
 function disableEnterToSubmitBehaviorOnForms() {
   addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
     const target = (e.target as HTMLElement).tagName.toLowerCase()
-    // if event originated from a button or link - it should proceed with
-    // default action.
-    if (target !== 'button' && target !== 'a' && e.key === 'Enter') {
+    // If event originated from a button, link, or textarea, it should proceed with the default action.
+    if (
+      target !== 'button' &&
+      target !== 'a' &&
+      target !== 'textarea' &&
+      e.key === 'Enter'
+    ) {
       e.preventDefault()
     }
   })
@@ -331,25 +320,6 @@ export function init() {
     '.multi-option-question-field-move-down-button',
     'click',
     moveMultiOptionQuestionDown,
-  )
-
-  // Configure the button on the manage program admins form to add more email inputs
-  const adminEmailButton = document.getElementById('add-program-admin-button')
-  if (adminEmailButton) {
-    adminEmailButton.addEventListener('click', function () {
-      addNewInput(
-        'program-admin-email-template',
-        'add-program-admin-button',
-        'program-admin-emails',
-      )
-    })
-  }
-
-  // Bind click handler for removing program admins in the program admin management view
-  addEventListenerToElements(
-    '.cf-program-admin-remove-button',
-    'click',
-    hideInput,
   )
 
   attachFormDebouncers()

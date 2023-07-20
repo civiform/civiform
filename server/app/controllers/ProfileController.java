@@ -35,14 +35,14 @@ public class ProfileController extends Controller {
     Optional<CiviFormProfile> maybeProfile = profileUtils.currentUserProfile(request);
 
     if (maybeProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(ok(profileView.renderNoProfile()));
+      return CompletableFuture.completedFuture(ok(profileView.renderNoProfile(request)));
     }
 
     return maybeProfile
         .get()
         .getApplicant()
         .thenApplyAsync(
-            applicant -> ok(profileView.render(maybeProfile.get(), applicant)),
+            applicant -> ok(profileView.render(request, maybeProfile.get(), applicant)),
             httpExecutionContext.current());
   }
 

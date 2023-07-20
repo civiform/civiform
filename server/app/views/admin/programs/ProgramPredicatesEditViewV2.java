@@ -240,7 +240,7 @@ public final class ProgramPredicatesEditViewV2 extends ProgramBaseView {
 
     HtmlBundle htmlBundle =
         layout
-            .getBundle()
+            .getBundle(request)
             .setTitle(title)
             .addMainContent(
                 renderProgramInfo(programDefinition)

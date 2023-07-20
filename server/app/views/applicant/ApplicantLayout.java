@@ -17,7 +17,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.typesafe.config.Config;
 import controllers.routes;
 import io.jsonwebtoken.lang.Strings;
 import j2html.TagCreator;
@@ -75,10 +74,6 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private final BaseHtmlLayout layout;
   private final ProfileUtils profileUtils;
   public final LanguageSelector languageSelector;
-  public final String supportEmail;
-  private final Optional<String> maybeLogoUrl;
-  private final String civicEntityFullName;
-  private final String civicEntityShortName;
   private final boolean isDevOrStaging;
   private final boolean disableDemoModeLogins;
   private final DebugContent debugContent;
@@ -87,26 +82,18 @@ public class ApplicantLayout extends BaseHtmlLayout {
   public ApplicantLayout(
       BaseHtmlLayout layout,
       ViewUtils viewUtils,
-      Config configuration,
       ProfileUtils profileUtils,
       LanguageSelector languageSelector,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
       DebugContent debugContent) {
-    super(viewUtils, configuration, settingsManifest, deploymentType);
+    super(viewUtils, settingsManifest, deploymentType);
     this.layout = layout;
     this.profileUtils = checkNotNull(profileUtils);
     this.languageSelector = checkNotNull(languageSelector);
-    this.supportEmail = checkNotNull(configuration).getString("support_email_address");
-    this.maybeLogoUrl =
-        checkNotNull(configuration).hasPath("whitelabel_small_logo_url")
-            ? Optional.of(configuration.getString("whitelabel_small_logo_url"))
-            : Optional.empty();
-    this.civicEntityFullName = configuration.getString("whitelabel_civic_entity_full_name");
-    this.civicEntityShortName = configuration.getString("whitelabel_civic_entity_short_name");
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.disableDemoModeLogins =
-        this.isDevOrStaging && configuration.getBoolean("staging_disable_demo_mode_logins");
+        this.isDevOrStaging && settingsManifest.getStagingDisableDemoModeLogins();
     this.debugContent = debugContent;
   }
 
@@ -133,8 +120,15 @@ public class ApplicantLayout extends BaseHtmlLayout {
       Http.Request request,
       ApplicantPersonalInfo personalInfo,
       Messages messages,
-      HtmlBundle bundle) {
-    return renderWithNav(request, personalInfo, messages, bundle, /*includeAdminLogin=*/ false);
+      HtmlBundle bundle,
+      Long applicantId) {
+    return renderWithNav(
+        request,
+        personalInfo,
+        messages,
+        bundle,
+        /*includeAdminLogin=*/ false,
+        /*applicantId=*/ applicantId);
   }
 
   public Content renderWithNav(
@@ -142,10 +136,12 @@ public class ApplicantLayout extends BaseHtmlLayout {
       ApplicantPersonalInfo personalInfo,
       Messages messages,
       HtmlBundle bundle,
-      boolean includeAdminLogin) {
+      boolean includeAdminLogin,
+      Long applicantId) {
+    String supportEmail = settingsManifest.getSupportEmailAddress(request).get();
     String language = languageSelector.getPreferredLangage(request).code();
     bundle.setLanguage(language);
-    bundle.addHeaderContent(renderNavBar(request, personalInfo, messages));
+    bundle.addHeaderContent(renderNavBar(request, personalInfo, messages, applicantId));
 
     ATag emailAction =
         new LinkElement()
@@ -197,13 +193,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private NavTag renderNavBar(
-      Http.Request request, ApplicantPersonalInfo applicantPersonalInfo, Messages messages) {
+      Http.Request request,
+      ApplicantPersonalInfo applicantPersonalInfo,
+      Messages messages,
+      Long applicantId) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     return nav()
         .withClasses("bg-white", "border-b", "align-middle", "p-1", "flex", "flex-row", "flex-wrap")
         .with(
-            div(branding())
+            div(branding(request))
                 .withClasses(
                     "items-center",
                     "place-items-center",
@@ -214,7 +213,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
             maybeRenderTiButton(profile, applicantPersonalInfo.getDisplayString(messages), request))
         .with(
             div(
-                    getLanguageForm(request, profile, messages),
+                    getLanguageForm(request, messages, applicantId),
                     authDisplaySection(applicantPersonalInfo, profile, messages))
                 .withClasses(
                     "flex",
@@ -226,60 +225,52 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private ContainerTag<?> getLanguageForm(
-      Http.Request request, Optional<CiviFormProfile> profile, Messages messages) {
+      Http.Request request, Messages messages, Long applicantId) {
     ContainerTag<?> languageFormDiv = div().withClasses("flex", "flex-col", "justify-center");
 
-    if (profile.isPresent()) { // Show language switcher.
-      long userId = profile.get().getApplicant().join().id;
+    String updateLanguageAction =
+        controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(applicantId)
+            .url();
 
-      String updateLanguageAction =
-          controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(userId)
-              .url();
-
-      String csrfToken = CSRF.getToken(request.asScala()).value();
-      InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
-      InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
-      String preferredLanguage = languageSelector.getPreferredLangage(request).code();
-      SelectTag languageDropdown =
-          languageSelector
-              .renderDropdown(preferredLanguage)
-              .attr("onchange", "this.form.submit()")
-              .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
-      languageFormDiv =
-          languageFormDiv.with(
-              form()
-                  .withAction(updateLanguageAction)
-                  .withMethod(Http.HttpVerbs.POST)
-                  .with(csrfInput)
-                  .with(redirectInput)
-                  .with(languageDropdown)
-                  .condWith(
-                      isDevOrStaging && !disableDemoModeLogins,
-                      div()
-                          .withClasses("w-full", "flex", "justify-center")
-                          .with(
-                              a("DevTools")
-                                  .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
-                                  .withClasses(ApplicantStyles.LINK)
-                                  .withStyle("cursor:pointer")))
-                  .with(
-                      TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
-    }
+    String csrfToken = CSRF.getToken(request.asScala()).value();
+    InputTag csrfInput = input().isHidden().withValue(csrfToken).withName("csrfToken");
+    InputTag redirectInput = input().isHidden().withValue(request.uri()).withName("redirectLink");
+    String preferredLanguage = languageSelector.getPreferredLangage(request).code();
+    SelectTag languageDropdown =
+        languageSelector
+            .renderDropdown(preferredLanguage)
+            .attr("onchange", "this.form.submit()")
+            .attr("aria-label", messages.at(MessageKey.LANGUAGE_LABEL_SR.getKeyName()));
+    languageFormDiv =
+        languageFormDiv.with(
+            form()
+                .withAction(updateLanguageAction)
+                .withMethod(Http.HttpVerbs.POST)
+                .with(csrfInput)
+                .with(redirectInput)
+                .with(languageDropdown)
+                .condWith(
+                    isDevOrStaging && !disableDemoModeLogins,
+                    div()
+                        .withClasses("w-full", "flex", "justify-center")
+                        .with(
+                            a("DevTools")
+                                .withId(DEBUG_CONTENT_MODAL.getTriggerButtonId())
+                                .withClasses(ApplicantStyles.LINK)
+                                .withStyle("cursor:pointer")))
+                .with(TagCreator.button().withId("cf-update-lang").withType("submit").isHidden()));
     return languageFormDiv;
   }
 
-  private ATag branding() {
-    ImgTag cityImage;
-
-    if (maybeLogoUrl.isPresent()) {
-      cityImage = img().withSrc(maybeLogoUrl.get());
-    } else {
-      cityImage = this.layout.viewUtils.makeLocalImageTag("civiform-staging");
-    }
+  private ATag branding(Http.Request request) {
+    ImgTag cityImage =
+        settingsManifest
+            .getWhitelabelSmallLogoUrl()
+            .map(url -> img().withSrc(url))
+            .orElseGet(() -> this.layout.viewUtils.makeLocalImageTag("civiform-staging"));
 
     cityImage
-        .withAlt(civicEntityFullName + " Logo")
-        .attr("aria-hidden", "true")
+        .withAlt(settingsManifest.getWhitelabelCivicEntityFullName(request).get() + " Logo")
         .withClasses("w-16", "py-1");
 
     return a().withHref(routes.HomeController.index().url())
@@ -291,7 +282,10 @@ public class ApplicantLayout extends BaseHtmlLayout {
                 .withId("brand-id")
                 .withLang(Locale.ENGLISH.toLanguageTag())
                 .withClasses(ApplicantStyles.CIVIFORM_LOGO)
-                .with(p(b(civicEntityShortName), span(text(" CiviForm")))));
+                .with(
+                    p(
+                        b(settingsManifest.getWhitelabelCivicEntityShortName(request).get()),
+                        span(text(" CiviForm")))));
   }
 
   private DivTag maybeRenderTiButton(

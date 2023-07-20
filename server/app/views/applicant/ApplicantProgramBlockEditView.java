@@ -61,7 +61,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
 
     HtmlBundle bundle =
         layout
-            .getBundle()
+            .getBundle(params.request())
             .setTitle(
                 layout.renderPageTitleWithBlockProgress(
                         params.programTitle(), params.blockIndex(), params.totalBlockCount())
@@ -87,7 +87,11 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
               params.applicantId(), params.programId(), params.messages()));
     }
     return layout.renderWithNav(
-        params.request(), params.applicantPersonalInfo(), params.messages(), bundle);
+        params.request(),
+        params.applicantPersonalInfo(),
+        params.messages(),
+        bundle,
+        params.applicantId());
   }
 
   /**
