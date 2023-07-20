@@ -53,7 +53,7 @@ public class QuestionAnswererTest {
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 0, 5L);
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 1, 6L);
 
-    assertThat(applicantData.readLongList(path.join(Scalar.SELECTIONS)))
+    assertThat(applicantData.<Long>readList(path.join(Scalar.SELECTIONS)))
         .contains(ImmutableList.of(5L, 6L));
   }
 

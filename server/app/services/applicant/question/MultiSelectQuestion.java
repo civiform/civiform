@@ -83,7 +83,7 @@ public final class MultiSelectQuestion extends Question {
   /** Get the selected options in the specified locale. */
   public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue(Locale locale) {
     Optional<ImmutableList<Long>> maybeOptionIds =
-        applicantQuestion.getApplicantData().readLongList(getSelectionPath());
+        applicantQuestion.getApplicantData().readList(getSelectionPath());
 
     if (maybeOptionIds.isEmpty()) {
       selectedOptionsValue = Optional.empty();

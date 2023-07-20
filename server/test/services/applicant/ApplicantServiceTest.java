@@ -242,7 +242,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
     ApplicantData applicantDataMiddle =
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    assertThat(applicantDataMiddle.readLongList(questionPath.join(Scalar.SELECTIONS))).isNotEmpty();
+    assertThat(applicantDataMiddle.readList(questionPath.join(Scalar.SELECTIONS))).isNotEmpty();
 
     // Now put empty updates
     updates = ImmutableMap.of(questionPath.join(Scalar.SELECTIONS).asArrayElement().toString(), "");
@@ -544,8 +544,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-            applicantDataAfter.readLongList(
-                Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
         .hasValue(ImmutableList.of(1L, 2L, 3L));
 
     // Ensure that we can successfully overwrite the array.
@@ -562,8 +561,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-            applicantDataAfter.readLongList(
-                Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
         .hasValue(ImmutableList.of(3L, 1L));
 
     // Clear values by sending an empty item.
@@ -577,8 +575,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
-            applicantDataAfter.readLongList(
-                Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
+            applicantDataAfter.readList(Path.create("applicant.checkbox").join(Scalar.SELECTIONS)))
         .isEmpty();
   }
 

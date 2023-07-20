@@ -418,35 +418,13 @@ public class CfJsonDocumentContext {
 
   /**
    * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
-   * does not exist or a value other than an {@link ImmutableList} of Longs is found.
-   *
-   * @param path the {@link Path} to the list
-   * @return an Optional containing an ImmutableList<Long>
-   */
-  public Optional<ImmutableList<Long>> readLongList(Path path) {
-    return this.readList(path);
-  }
-
-  /**
-   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
-   * does not exist or a value other than an {@link ImmutableList} of Strings is found.
-   *
-   * @param path the {@link Path} to the list
-   * @return an Optional containing an ImmutableList<String>
-   */
-  public Optional<ImmutableList<String>> readStringList(Path path) {
-    return this.readList(path);
-  }
-
-  /**
-   * Attempt to read a list at the given {@link Path}. Returns {@code Optional#empty} if the path
    * does not exist or a value other than an {@link ImmutableList} of T is found.
    *
    * @param path the {@link Path} to the list.
    * @param <T> the type T of ImmutableList<T>.
    * @return an Optional containing an ImmutableList<T>.
    */
-  private <T> Optional<ImmutableList<T>> readList(Path path) {
+  public <T> Optional<ImmutableList<T>> readList(Path path) {
     try {
       TypeRef<ImmutableList<T>> typeRef = new TypeRef<>() {};
       return this.read(path, typeRef);
@@ -537,7 +515,7 @@ public class CfJsonDocumentContext {
    */
   public Optional<String> readAsString(Path path) {
     if (isJsonArrayOfLongs(path)) {
-      return readLongList(path).map(ImmutableList::toString);
+      return this.<Long>readList(path).map(ImmutableList::toString);
     }
 
     return readString(path);
