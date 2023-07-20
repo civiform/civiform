@@ -27,7 +27,22 @@ public class SettingsServiceTest extends ResetPostgres {
   private SettingsService settingsService;
   private static ImmutableMap<String, String> TEST_SETTINGS =
       ImmutableMap.of(
-          "TEST_BOOL", "true", "TEST_ENUM", "test-2", "TEST_REGEX_VALIDATED_STRING", "test");
+          "TEST_BOOL",
+          "true",
+          "TEST_ENUM",
+          "test-2",
+          "TEST_REGEX_VALIDATED_STRING",
+          "test",
+          "TEST_WRITEABLE_STRING_WITH_NO_HOCON_VALUE",
+          "CHANGE ME",
+          "TEST_WRITEABLE_INT_WITH_NO_HOCON_VALUE",
+          "0",
+          "TEST_WRITEABLE_ENUM_WITH_NO_HOCON_VALUE",
+          "test",
+          "TEST_WRITEABLE_BOOLEAN_WITH_NO_HOCON_VALUE",
+          "false",
+          "TEST_WRITEABLE_LIST_OF_STRINGS_WITH_NO_HOCON_VALUE",
+          "CHANGE ME");
   private SettingsManifest testManifest =
       new SettingsManifest(
           ImmutableMap.of(
@@ -62,7 +77,38 @@ public class SettingsServiceTest extends ResetPostgres {
                           true,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE,
-                          Pattern.compile("^test$"))))),
+                          Pattern.compile("^test$")),
+                      SettingDescription.create(
+                          "TEST_WRITEABLE_STRING_WITH_NO_HOCON_VALUE",
+                          "",
+                          true,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "TEST_WRITEABLE_INT_WITH_NO_HOCON_VALUE",
+                          "",
+                          true,
+                          SettingType.INT,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "TEST_WRITEABLE_ENUM_WITH_NO_HOCON_VALUE",
+                          "",
+                          true,
+                          SettingType.ENUM,
+                          SettingMode.ADMIN_WRITEABLE,
+                          ImmutableList.of("test", "test-2")),
+                      SettingDescription.create(
+                          "TEST_WRITEABLE_BOOLEAN_WITH_NO_HOCON_VALUE",
+                          "",
+                          true,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "TEST_WRITEABLE_LIST_OF_STRINGS_WITH_NO_HOCON_VALUE",
+                          "",
+                          true,
+                          SettingType.LIST_OF_STRINGS,
+                          SettingMode.ADMIN_WRITEABLE)))),
           ConfigFactory.parseMap(
               ImmutableMap.of(
                   "test_bool",

@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Stream;
 import models.SettingsGroup;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +150,13 @@ public final class SettingsService {
               SettingDescription settingDescription = pair.getLeft();
               String newValue = pair.getRight();
 
+              if (settingDescription.isRequired() && newValue.isBlank()) {
+                validationErrors.put(
+                    settingDescription.variableName(),
+                    SettingsGroupUpdateResult.UpdateError.create(newValue, "Required"));
+                return;
+              }
+
               switch (settingDescription.settingType()) {
                 case BOOLEAN:
                   {
@@ -163,6 +171,17 @@ public final class SettingsService {
                   validateEnum(settingDescription, newValue);
                   break;
 
+                case INT:
+                  if (!StringUtils.isNumeric(newValue)) {
+                    throw new BadRequestException(String.format("Invalid int value: %s", newValue));
+                  }
+                  break;
+
+                  // LIST_OF_STRINGS included here for completeness since errorprone will produce a
+                  // warning if a case statement isn't exhaustive.
+                case LIST_OF_STRINGS:
+                  break;
+
                 case STRING:
                   {
                     Optional<SettingsGroupUpdateResult.UpdateError> error =
@@ -173,12 +192,6 @@ public final class SettingsService {
                     }
                     break;
                   }
-
-                default:
-                  throw new IllegalStateException(
-                      String.format(
-                          "Settings of type %s are not writeable",
-                          settingDescription.settingType()));
               }
             });
 
@@ -237,18 +250,15 @@ public final class SettingsService {
     ImmutableMap.Builder<String, String> settingsBuilder = ImmutableMap.builder();
 
     for (var settingDescription : settingsManifest.getAllAdminWriteableSettingDescriptions()) {
-      maybeExistingSettings
-          .flatMap(
-              existingSettings ->
-                  Optional.ofNullable(existingSettings.get(settingDescription.variableName())))
-          .ifPresentOrElse(
-              existingValue ->
-                  settingsBuilder.put(settingDescription.variableName(), existingValue),
-              () ->
-                  settingsManifest
-                      .getSettingSerializationValue(settingDescription)
-                      .ifPresent(
-                          value -> settingsBuilder.put(settingDescription.variableName(), value)));
+      String serializedSettingValue =
+          maybeExistingSettings
+              .flatMap(
+                  existingSettings ->
+                      Optional.ofNullable(existingSettings.get(settingDescription.variableName())))
+              .or(() -> settingsManifest.getSettingSerializationValue(settingDescription))
+              .orElseGet(() -> getDefaultValue(settingDescription));
+
+      settingsBuilder.put(settingDescription.variableName(), serializedSettingValue);
     }
 
     var settings = settingsBuilder.build();
@@ -263,6 +273,23 @@ public final class SettingsService {
     LOGGER.info("Migrated {} settings from config to database.", settings.size());
 
     return group;
+  }
+
+  private static String getDefaultValue(SettingDescription settingDescription) {
+    switch (settingDescription.settingType()) {
+      case INT:
+        return "0";
+      case ENUM:
+        return settingDescription.allowableValues().get().stream().findFirst().get();
+      case LIST_OF_STRINGS:
+      case STRING:
+        return "CHANGE ME";
+      case BOOLEAN:
+        return "false";
+      default:
+        throw new IllegalStateException(
+            String.format("Unrecognized setting type: %s", settingDescription.settingType()));
+    }
   }
 
   /** Represents the result of an update attempt. */
