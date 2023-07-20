@@ -93,7 +93,7 @@ class AdminPredicateConfiguration {
     // Check if any inputs are missing a value.
     document
       ?.querySelector('#predicate-config-value-row-container')
-      ?.querySelectorAll('[data-question-id')
+      ?.querySelectorAll('[data-question-id]')
       .forEach((questionAnswerGroup) => {
         const inputs = questionAnswerGroup?.querySelectorAll('input')
         // Single input field that needs a value, e.g. a textbox or date field.
