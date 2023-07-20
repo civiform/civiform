@@ -67,13 +67,13 @@ public class ApplicantQuestionTest {
   public void errorsPresenterExtendedForAllTypes(QuestionType questionType) {
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
-    ApplicantQuestion question =
+    ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(
             ProgramQuestionDefinition.create(definition, Optional.empty()).setOptional(true),
             new ApplicantData(),
             Optional.empty());
 
-    assertThat(question.errorsPresenter().getValidationErrors().isEmpty()).isTrue();
+    assertThat(applicantQuestion.getQuestion().getValidationErrors().isEmpty()).isTrue();
   }
 
   @Test

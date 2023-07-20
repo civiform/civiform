@@ -512,7 +512,7 @@ public class BlockTest {
                 .anyMatch(
                     q ->
                         q
-                            .errorsPresenter()
+                            .getQuestion()
                             .getValidationErrors()
                             .get(q.getContextualizedPath())
                             .stream()

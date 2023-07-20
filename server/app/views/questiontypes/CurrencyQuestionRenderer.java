@@ -30,13 +30,13 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
+    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
 
     FieldWithLabel currencyField =
         FieldWithLabel.currency()
             .setFieldName(currencyQuestion.getCurrencyPath().toString())
             .addReferenceClass(ReferenceClasses.CURRENCY_VALUE)
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),

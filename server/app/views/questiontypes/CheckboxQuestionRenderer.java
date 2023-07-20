@@ -38,7 +38,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean isOptional) {
 
     boolean hasErrors = !validationErrors.isEmpty();
-    MultiSelectQuestion multiOptionQuestion = question.createMultiSelectQuestion();
+    MultiSelectQuestion multiOptionQuestion = applicantQuestion.createMultiSelectQuestion();
 
     DivTag checkboxQuestionFormContent =
         div()
@@ -71,7 +71,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean isSelected,
       boolean hasErrors,
       boolean isOptional) {
-    String id = "checkbox-" + question.getContextualizedPath() + "-" + option.id();
+    String id = "checkbox-" + applicantQuestion.getContextualizedPath() + "-" + option.id();
     LabelTag labelTag =
         label()
             .withClasses(

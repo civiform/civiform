@@ -35,7 +35,7 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
     Messages messages = params.messages();
-    SingleSelectQuestion singleSelectQuestion = question.createSingleSelectQuestion();
+    SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     SelectWithLabel select =
         new SelectWithLabel()
@@ -57,7 +57,7 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
     }
-    select.setScreenReaderText(question.getQuestionTextForScreenReader());
+    select.setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
     if (singleSelectQuestion.getSelectedOptionId().isPresent()) {
       select.setValue(String.valueOf(singleSelectQuestion.getSelectedOptionId().get()));
