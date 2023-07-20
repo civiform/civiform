@@ -31,12 +31,12 @@ public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    DateQuestion dateQuestion = question.createDateQuestion();
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
     FieldWithLabel dateField =
         FieldWithLabel.date()
             .setFieldName(dateQuestion.getDatePath().toString())
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .setAriaRequired(!isOptional)
             .setFieldErrors(
                 params.messages(),

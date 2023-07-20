@@ -65,7 +65,7 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             label()
                 .withFor(fileInputId)
                 .withClass("sr-only")
-                .withText(question.getQuestionTextForScreenReader()))
+                .withText(applicantQuestion.getQuestionTextForScreenReader()))
         .with(
             fileUploadViewStrategy.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))

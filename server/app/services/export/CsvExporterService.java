@@ -393,7 +393,7 @@ public final class CsvExporterService {
         ProgramQuestionDefinition pqd =
             ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
         Question applicantQuestion =
-            new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).errorsPresenter();
+            new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).getQuestion();
         for (Path path : applicantQuestion.getAllPaths()) {
           columnsBuilder.add(
               Column.builder()

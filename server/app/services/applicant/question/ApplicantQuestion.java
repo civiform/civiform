@@ -114,7 +114,7 @@ public final class ApplicantQuestion {
   }
 
   public boolean isAnswered() {
-    return errorsPresenter().isAnswered();
+    return getQuestion().isAnswered();
   }
 
   /** Returns true if this question was most recently updated in this program. */
@@ -187,7 +187,7 @@ public final class ApplicantQuestion {
   }
 
   public boolean hasErrors() {
-    return !errorsPresenter().getValidationErrors().isEmpty();
+    return !getQuestion().getValidationErrors().isEmpty();
   }
 
   public Optional<Long> getUpdatedInProgramMetadata() {
@@ -279,7 +279,7 @@ public final class ApplicantQuestion {
     return new TextQuestion(this);
   }
 
-  public Question errorsPresenter() {
+  public Question getQuestion() {
     switch (getType()) {
       case ADDRESS:
         return createAddressQuestion();

@@ -33,7 +33,7 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
     Messages messages = params.messages();
-    NameQuestion nameQuestion = question.createNameQuestion();
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
 
     FieldWithLabel firstNameField =
         FieldWithLabel.input()

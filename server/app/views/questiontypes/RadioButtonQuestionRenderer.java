@@ -38,7 +38,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       ApplicantQuestionRendererParams params,
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       boolean isOptional) {
-    SingleSelectQuestion singleOptionQuestion = question.createSingleSelectQuestion();
+    SingleSelectQuestion singleOptionQuestion = applicantQuestion.createSingleSelectQuestion();
     boolean hasErrors = !validationErrors.isEmpty();
 
     DivTag radioQuestionFormContent =
