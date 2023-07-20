@@ -170,7 +170,7 @@ public abstract class QuestionDefinition {
       return config.questionText().locales();
     } else {
       return ImmutableSet.copyOf(
-          Sets.intersection(config.questionText().locales(), config.questionHelpText().locales()));
+          Sets.intersection(config.questionText().locales(), getQuestionHelpText().locales()));
     }
   }
 
@@ -285,7 +285,7 @@ public abstract class QuestionDefinition {
 
   @Override
   public int hashCode() {
-    return Objects.hash(config.id());
+    return Objects.hash(getId());
   }
 
   /** Two QuestionDefinitions are considered equal if all of their properties are the same. */
@@ -315,24 +315,35 @@ public abstract class QuestionDefinition {
     if (other instanceof QuestionDefinition) {
       QuestionDefinition o = (QuestionDefinition) other;
 
-      return this.getQuestionType().equals(o.getQuestionType())
-          && config.name().equals(o.getName())
-          && config.description().equals(o.getDescription())
-          && config.questionText().equals(o.getQuestionText())
-          && config.questionHelpText().equals(o.getQuestionHelpText())
-          && config.validationPredicates().equals(Optional.of(o.getValidationPredicates()));
+      return getQuestionType().equals(o.getQuestionType())
+          && getName().equals(o.getName())
+          && getDescription().equals(o.getDescription())
+          && getQuestionText().equals(o.getQuestionText())
+          && getQuestionHelpText().equals(o.getQuestionHelpText())
+          && getValidationPredicates().equals(o.getValidationPredicates());
     }
     return false;
   }
 
   private boolean questionTextAndHelpTextContainsRepeatedEntityNameFormatString() {
     boolean textMissingFormatString =
-        config.questionText().translations().values().stream()
+        getQuestionText().translations().values().stream()
             .anyMatch(text -> !text.contains("$this"));
     boolean helpTextMissingFormatString =
-        config.questionHelpText().translations().values().stream()
+        getQuestionHelpText().translations().values().stream()
             .anyMatch(helpText -> !helpText.contains("$this"));
     return !textMissingFormatString && !helpTextMissingFormatString;
+  }
+
+  /**
+   * TODO(#5271): remove this. This is only used for {@link QuestionDefinitionBuilder} in order to
+   * construct new instances, and {@link QuestionDefinitionBuilder} should be removed.
+   *
+   * <p>The {@link QuestionDefinitionConfig} should be entirely internal to {@link
+   * QuestionDefinition}.
+   */
+  QuestionDefinitionConfig getConfig() {
+    return config;
   }
 
   /**

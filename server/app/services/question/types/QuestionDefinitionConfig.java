@@ -22,7 +22,11 @@ public abstract class QuestionDefinitionConfig {
    */
   abstract LocalizedStrings questionText();
 
-  abstract LocalizedStrings questionHelpText();
+  LocalizedStrings questionHelpText() {
+    return questionHelpTextInternal().orElse(LocalizedStrings.empty());
+  }
+
+  abstract Optional<LocalizedStrings> questionHelpTextInternal();
 
   abstract Optional<QuestionDefinition.ValidationPredicates> validationPredicates();
 
@@ -49,16 +53,12 @@ public abstract class QuestionDefinitionConfig {
   }
 
   public interface RequiredQuestionText {
-    RequiredQuestionHelpText setQuestionText(LocalizedStrings questionText);
-  }
-
-  public interface RequiredQuestionHelpText {
-    Builder setQuestionHelpText(LocalizedStrings questionHelpText);
+    Builder setQuestionText(LocalizedStrings questionText);
   }
 
   @AutoValue.Builder
   public abstract static class Builder
-      implements RequiredName, RequiredDescription, RequiredQuestionText, RequiredQuestionHelpText {
+      implements RequiredName, RequiredDescription, RequiredQuestionText {
     public abstract Builder setId(long id);
 
     public abstract Builder setId(OptionalLong id);
@@ -73,6 +73,12 @@ public abstract class QuestionDefinitionConfig {
 
     public abstract Builder setValidationPredicates(
         QuestionDefinition.ValidationPredicates validationPredicates);
+
+    public Builder setQuestionHelpText(LocalizedStrings questionHelpText) {
+      return setQuestionHelpTextInternal(questionHelpText);
+    }
+
+    abstract Builder setQuestionHelpTextInternal(LocalizedStrings questionHelpText);
 
     public abstract QuestionDefinitionConfig build();
   }
