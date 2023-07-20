@@ -424,8 +424,7 @@ public class CfJsonDocumentContext {
    * @return an Optional containing an ImmutableList<Long>
    */
   public Optional<ImmutableList<Long>> readLongList(Path path) {
-    TypeRef<ImmutableList<Long>> typeRef = new TypeRef<ImmutableList<Long>>() {};
-    return this.readList(path, typeRef);
+    return this.readList(path);
   }
 
   /**
@@ -436,8 +435,7 @@ public class CfJsonDocumentContext {
    * @return an Optional containing an ImmutableList<String>
    */
   public Optional<ImmutableList<String>> readStringList(Path path) {
-    TypeRef<ImmutableList<String>> typeRef = new TypeRef<ImmutableList<String>>() {};
-    return this.readList(path, typeRef);
+    return this.readList(path);
   }
 
   /**
@@ -446,11 +444,11 @@ public class CfJsonDocumentContext {
    *
    * @param path the {@link Path} to the list.
    * @param <T> the type T of ImmutableList<T>.
-   * @param typeRef the {@link TypeRef} of the expected ImmutableList<T> type.
    * @return an Optional containing an ImmutableList<T>.
    */
-  private <T> Optional<ImmutableList<T>> readList(Path path, TypeRef<ImmutableList<T>> typeRef) {
+  private <T> Optional<ImmutableList<T>> readList(Path path) {
     try {
+      TypeRef<ImmutableList<T>> typeRef = new TypeRef<>() {};
       return this.read(path, typeRef);
     } catch (JsonPathTypeMismatchException e) {
       return Optional.empty();
