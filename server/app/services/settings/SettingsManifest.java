@@ -1085,19 +1085,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "DB_JDBC_STRING",
                               "The database URL.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_USERNAME",
                               "The username used to connect to the database.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_PASSWORD",
                               "The password used to connect to the database.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN))),
                   SettingsSection.create(
@@ -1447,7 +1447,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " key](http://www.playframework.com/documentation/latest/ApplicationSecret)"
                           + " is used to sign Play's session cookie. This must be changed for"
                           + " production.",
-                      /* isRequired= */ true,
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1491,7 +1491,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
                           + " shown on the login page if CIVIFORM_VERSION is the empty string or"
                           + " set to 'latest'.",
-                      /* isRequired= */ true,
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
