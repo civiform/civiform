@@ -91,7 +91,7 @@ public final class VersionRepository {
       // Regardless of whether changes are published or not, we still perform
       // this operation inside of a transaction in order to ensure we have
       // consistent reads.
-      database.beginTransaction();
+      database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
 
