@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -139,7 +138,7 @@ public class ApiDocsView extends BaseHtmlView {
   private DivTag apiResponseSampleDiv(ProgramDefinition programDefinition) {
     DivTag apiResponseSampleDiv = div();
 
-    List<QuestionDefinition> questionDefinitions =
+    ImmutableList<QuestionDefinition> questionDefinitions =
         programDefinition.streamQuestionDefinitions().collect(toImmutableList());
 
     CfJsonDocumentContext sampleJson = new CfJsonDocumentContext();
@@ -205,20 +204,7 @@ public class ApiDocsView extends BaseHtmlView {
     ImmutableList<String> optionsText =
         options.stream().map(LocalizedQuestionOption::optionText).collect(toImmutableList());
 
-    StringBuilder stringBuilder = new StringBuilder();
-
-    String commaSpace = ", ";
-    optionsText.forEach(
-        option -> stringBuilder.append("\"").append(option).append("\"").append(commaSpace));
-
-    String optionsString = stringBuilder.toString();
-
-    // Remove the trailing comma if there is one.
-    if (optionsString.endsWith(commaSpace)) {
-      optionsString = optionsString.substring(0, optionsString.length() - commaSpace.length());
-    }
-
-    return optionsString;
+    return "\"" + String.join("\", \"", optionsText) + "\"";
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {

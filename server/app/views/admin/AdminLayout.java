@@ -155,8 +155,6 @@ public final class AdminLayout extends BaseHtmlLayout {
         headerLink(
             "API keys", apiKeysLink, NavPage.API_KEYS.equals(activeNavPage) ? activeNavStyle : "");
 
-    // For API docs, no styling is necessary because this tab is never "active" - we only use it to
-    // open a new tab.
     ATag apiDocsHeaderLink =
         headerLink(
             "API docs", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage) ? activeNavStyle : "");
@@ -180,11 +178,6 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(reportingHeaderLink)
               .condWith(getSettingsManifest().getApiGeneratedDocsEnabled(), apiDocsHeaderLink);
           break;
-        }
-      default:
-        {
-          // Not authenticated
-          adminHeader.with(apiDocsHeaderLink);
         }
     }
 
