@@ -48,6 +48,7 @@ public class CsvExporterTest extends AbstractExporterTest {
             "Submitted by",
             "Status",
             "applicant email address (email)",
+            "applicant monthly income (currency)",
             "applicant name (first_name)",
             "applicant name (middle_name)",
             "applicant name (last_name)",
@@ -55,7 +56,6 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant phone (country_code)",
             "kitchen tools (selections)",
             "number of items applicant can juggle (number)",
-            "radio (selection)",
             "applicant address (street)",
             "applicant address (line2)",
             "applicant address (city)",
@@ -68,10 +68,10 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant address (service_area)",
             "applicant birth date (date)",
             "applicant favorite color (text)",
+            "applicant favorite season (selection)",
             "applicant file (file_key)",
             "applicant ice cream (selection)",
-            "applicant id (id)",
-            "applicant monthly income (currency)");
+            "applicant id (id)");
 
     NameQuestion nameApplicantQuestion =
         getApplicantQuestion(testQuestionBank.applicantName().getQuestionDefinition())

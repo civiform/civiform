@@ -123,7 +123,7 @@ public final class JsonExporter {
     // QuestionJsonPresenter, but we ignore the generic's type so that we can get
     // the json entries for any Question in one line.
     @SuppressWarnings("unchecked")
-    ImmutableMap<Path, ?> entries =
+    ImmutableMap<Path, Optional<?>> entries =
         presenterFactory
             .create(answerData.applicantQuestion().getType())
             .getJsonEntries(answerData.createQuestion());
@@ -132,22 +132,25 @@ public final class JsonExporter {
   }
 
   public static void exportEntriesToJsonApplication(
-      CfJsonDocumentContext jsonApplication, ImmutableMap<Path, ?> entries) {
-
-    for (Map.Entry<Path, ?> entry : entries.entrySet()) {
+      CfJsonDocumentContext jsonApplication, ImmutableMap<Path, Optional<?>> entries) {
+    for (Map.Entry<Path, Optional<?>> entry : entries.entrySet()) {
       Path path = entry.getKey().asApplicationPath();
 
-      Object value = entry.getValue();
-      if (value instanceof String) {
-        jsonApplication.putString(path, (String) value);
-      } else if (value instanceof Long) {
-        jsonApplication.putLong(path, (Long) value);
-      } else if (value instanceof Double) {
-        jsonApplication.putDouble(path, (Double) value);
-      } else if (instanceOfNonEmptyImmutableListOfString(value)) {
+      var maybeJsonValue = entry.getValue();
+      if (maybeJsonValue.isEmpty()) {
+        jsonApplication.putNull(path);
+      } else if (maybeJsonValue.get() instanceof String) {
+        jsonApplication.putString(path, (String) maybeJsonValue.get());
+      } else if (maybeJsonValue.get() instanceof Long) {
+        jsonApplication.putLong(path, (Long) maybeJsonValue.get());
+      } else if (maybeJsonValue.get() instanceof Double) {
+        jsonApplication.putDouble(path, (Double) maybeJsonValue.get());
+      } else if (instanceOfNonEmptyImmutableListOfString(maybeJsonValue.get())) {
         @SuppressWarnings("unchecked")
-        ImmutableList<String> list = (ImmutableList<String>) value;
+        ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();
         jsonApplication.putArray(path, list);
+      } else if (instanceOfEmptyImmutableList(maybeJsonValue.get())) {
+        jsonApplication.putArray(path, ImmutableList.of());
       }
     }
   }
@@ -161,6 +164,15 @@ public final class JsonExporter {
 
     ImmutableList<?> list = (ImmutableList<?>) value;
     return !list.isEmpty() && list.get(0) instanceof String;
+  }
+
+  // Returns true if value is an empty ImmutableList<>.
+  private static boolean instanceOfEmptyImmutableList(Object value) {
+    if (!(value instanceof ImmutableList<?>)) {
+      return false;
+    }
+
+    return ((ImmutableList<?>) value).isEmpty();
   }
 
   private DocumentContext makeEmptyJsonArray() {

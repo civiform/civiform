@@ -81,15 +81,15 @@ public class TestQuestionBank {
         .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
+        .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.FILEUPLOAD, applicantFile())
         .put(QuestionType.ID, applicantId())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
-        .put(QuestionType.RADIO_BUTTON, applicantSeason())
-        .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
-        .put(QuestionType.TEXT, applicantFavoriteColor())
-        .put(QuestionType.STATIC, staticContent())
         .put(QuestionType.PHONE, applicantPhone())
+        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.STATIC, staticContent())
+        .put(QuestionType.TEXT, applicantFavoriteColor())
         .build();
   }
 
@@ -446,7 +446,7 @@ public class TestQuestionBank {
   private Question applicantSeason(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
-            .setName("radio")
+            .setName("applicant favorite season")
             .setDescription("Favorite season in the year")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite season?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
