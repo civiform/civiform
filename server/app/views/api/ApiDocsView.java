@@ -153,7 +153,7 @@ public class ApiDocsView extends BaseHtmlView {
             .withStyle(
                 "background-color: lightgray; max-width: 100ch; overflow-wrap: break-word;"
                     + " white-space: pre-wrap;")
-            .withClass("m-4"));
+            .withClasses("m-4", "rounded-lg"));
 
     return apiResponseSampleDiv;
   }
