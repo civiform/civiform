@@ -2,14 +2,29 @@ package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import models.Question;
+import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.ProgramDefinition;
+import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
 public class ProgramBlockValidationTest extends ResetPostgres {
+
+  ProgramBlockValidation programBlockValidation;
+  QuestionService questionService;
+  VersionRepository versionRepository;
+
+  @Before
+  public void setProgramBlockValidation() {
+    programBlockValidation = instanceOf(ProgramBlockValidation.class);
+    questionService = instanceOf(services.question.QuestionService.class);
+    versionRepository = instanceOf(repository.VersionRepository.class);
+  }
 
   @Test
   public void canAddQuestion_eligible() throws Exception {
@@ -17,7 +32,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), question))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
@@ -31,7 +46,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .withRequiredQuestionDefinition(question)
             .buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), question))
         .isEqualTo(AddQuestionResult.DUPLICATE);
   }
@@ -46,9 +61,24 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .withRequiredQuestionDefinition(fileQuestion)
             .buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), nameQuestion))
         .isEqualTo(AddQuestionResult.BLOCK_IS_SINGLE_QUESTION);
+  }
+
+  @Test
+  public void canAddQuestions_cantAddArchivedQuestion() throws Exception {
+    Question addressQuestion = testQuestionBank.applicantAddress();
+    questionService.archiveQuestion(addressQuestion.id);
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestionDefinition(addressQuestion.getQuestionDefinition())
+            .buildDefinition();
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program, program.getLastBlockDefinition(), addressQuestion.getQuestionDefinition()))
+        .isEqualTo(services.ProgramBlockValidation.AddQuestionResult.QUESTION_TOMBSTONED);
   }
 
   @Test
@@ -61,7 +91,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .withRequiredQuestionDefinition(nameQuestion)
             .buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), fileQuestion))
         .isEqualTo(AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK);
   }
@@ -73,7 +103,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), question))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
@@ -90,7 +120,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .withRepeatedBlock()
             .buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), nameQuestion))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
@@ -108,7 +138,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             .withRepeatedBlock()
             .buildDefinition();
     assertThat(
-            ProgramBlockValidation.canAddQuestion(
+            programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), householdMemberNameQuestion))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }

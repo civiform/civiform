@@ -38,6 +38,7 @@ public final class ProgramQuestionBank {
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
 
   private final ProgramQuestionBankParams params;
+  private final ProgramBlockValidation programBlockValidation;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -49,8 +50,10 @@ public final class ProgramQuestionBank {
     HIDDEN
   }
 
-  public ProgramQuestionBank(ProgramQuestionBankParams params) {
+  public ProgramQuestionBank(
+      ProgramQuestionBankParams params, ProgramBlockValidation programBlockValidation) {
     this.params = checkNotNull(params);
+    this.programBlockValidation = checkNotNull(programBlockValidation);
   }
 
   public DivTag getContainer(Visibility questionBankVisibility, boolean phoneQuestionTypeEnabled) {
@@ -226,7 +229,7 @@ public final class ProgramQuestionBank {
     return params.questions().stream()
         .filter(
             q ->
-                ProgramBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
+                programBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
                     == ProgramBlockValidation.AddQuestionResult.ELIGIBLE);
   }
 

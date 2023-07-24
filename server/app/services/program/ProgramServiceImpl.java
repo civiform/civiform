@@ -72,6 +72,7 @@ public final class ProgramServiceImpl implements ProgramService {
   private final HttpExecutionContext httpExecutionContext;
   private final UserRepository userRepository;
   private final VersionRepository versionRepository;
+  private final ProgramBlockValidation programBlockValidation;
 
   @Inject
   public ProgramServiceImpl(
@@ -79,12 +80,14 @@ public final class ProgramServiceImpl implements ProgramService {
       QuestionService questionService,
       UserRepository userRepository,
       VersionRepository versionRepository,
-      HttpExecutionContext ec) {
+      HttpExecutionContext ec,
+      ProgramBlockValidation programBlockValidation) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
+    this.programBlockValidation = checkNotNull(programBlockValidation);
   }
 
   @Override
@@ -852,7 +855,7 @@ public final class ProgramServiceImpl implements ProgramService {
           ProgramQuestionDefinition.create(
               roQuestionService.getQuestionDefinition(questionId), Optional.of(programId));
       ProgramBlockValidation.AddQuestionResult canAddQuestion =
-          ProgramBlockValidation.canAddQuestion(
+          programBlockValidation.canAddQuestion(
               programDefinition, blockDefinition, question.getQuestionDefinition());
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
