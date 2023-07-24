@@ -23,5 +23,8 @@ describe('Viewing API docs', () => {
 
     await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
     await validateScreenshot(page, 'api-docs-page-minimal-program')
+
+    await page.click('text=How does this work?')
+    await validateScreenshot(page, 'api-docs-page-accordion-open')
   })
 })
