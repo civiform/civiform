@@ -19,6 +19,9 @@ describe('Viewing API docs', () => {
     await adminPrograms.publishAllDrafts()
 
     await page.click('text=API docs')
-    await validateScreenshot(page, 'api-docs-page')
+    await validateScreenshot(page, 'api-docs-page-comprehensive-program')
+
+    await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
+    await validateScreenshot(page, 'api-docs-page-minimal-program')
   })
 })
