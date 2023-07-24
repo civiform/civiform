@@ -32,7 +32,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.CfJsonDocumentContext;
 import services.TranslationNotFoundException;
-import services.export.QuestionJsonSampler;
+import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -51,18 +51,18 @@ public class ApiDocsView extends BaseHtmlView {
   private final ProfileUtils profileUtils;
   private final BaseHtmlLayout unauthenticatedlayout;
   private final AdminLayout authenticatedlayout;
-  private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
+  private final ProgramJsonSampler programJsonSampler;
 
   @Inject
   public ApiDocsView(
       ProfileUtils profileUtils,
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
-      QuestionJsonSampler.Factory questionJsonSamplerFactory) {
+      ProgramJsonSampler programJsonSampler) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
-    this.questionJsonSamplerFactory = questionJsonSamplerFactory;
+    this.programJsonSampler = programJsonSampler;
   }
 
   public Content render(
@@ -137,17 +137,7 @@ public class ApiDocsView extends BaseHtmlView {
 
   private DivTag apiResponseSampleDiv(ProgramDefinition programDefinition) {
     DivTag apiResponseSampleDiv = div();
-
-    ImmutableList<QuestionDefinition> questionDefinitions =
-        programDefinition.streamQuestionDefinitions().collect(toImmutableList());
-
-    CfJsonDocumentContext sampleJson = new CfJsonDocumentContext();
-    for (QuestionDefinition questionDefinition : questionDefinitions) {
-      sampleJson.mergeFrom(
-          questionJsonSamplerFactory
-              .create(questionDefinition.getQuestionType())
-              .getSampleJson(questionDefinition));
-    }
+    CfJsonDocumentContext sampleJson = programJsonSampler.getSampleJson(programDefinition);
 
     apiResponseSampleDiv.with(
         pre(code(sampleJson.asPrettyJsonString()))
