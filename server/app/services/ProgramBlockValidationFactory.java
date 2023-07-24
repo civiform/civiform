@@ -8,7 +8,7 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
-public class ProgramBlockValidationFactory {
+public final class ProgramBlockValidationFactory {
 
   private final ProgramBlockValidation programBlockValidation;
 
