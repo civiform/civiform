@@ -13,7 +13,7 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
-public class ProgramBlockValidationTest extends ResetPostgres {
+public final class ProgramBlockValidationTest extends ResetPostgres {
 
   ProgramBlockValidation programBlockValidation;
   QuestionService questionService;
