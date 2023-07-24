@@ -1,14 +1,15 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
-import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
+import controllers.BadRequestException;
 import java.util.Locale;
 import models.Question;
 import models.Version;
@@ -53,10 +54,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     Question question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
-        controller
-            .edit(addCSRFToken(fakeRequest()).build(), question.id, "en-US")
-            .toCompletableFuture()
-            .join();
+        controller.edit(
+            addCSRFToken(fakeRequest()).build(),
+            question.getQuestionDefinition().getName(),
+            "en-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue(routes.AdminQuestionController.index().url());
@@ -69,10 +70,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     Question question = createDraftQuestionEnglishAndSpanish();
 
     Result result =
-        controller
-            .edit(addCSRFToken(fakeRequest()).build(), question.id, "es-US")
-            .toCompletableFuture()
-            .join();
+        controller.edit(
+            addCSRFToken(fakeRequest()).build(),
+            question.getQuestionDefinition().getName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -88,13 +89,12 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_questionNotFound_returnsNotFound() {
-    Result result =
-        controller
-            .edit(addCSRFToken(fakeRequest()).build(), 1000L, "es-US")
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThatThrownBy(
+            () ->
+                controller.edit(
+                    addCSRFToken(fakeRequest()).build(), "non-existent question name", "es-US"))
+        .hasMessage("No draft found for question: \"non-existent question name\"")
+        .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -110,10 +110,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                     "updated spanish help text"));
 
     Result result =
-        controller
-            .update(addCSRFToken(requestBuilder).build(), question.id, "es-US")
-            .toCompletableFuture()
-            .join();
+        controller.update(
+            addCSRFToken(requestBuilder).build(),
+            question.getQuestionDefinition().getName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -144,10 +144,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                     "updated spanish question help text"));
 
     Result result =
-        controller
-            .update(addCSRFToken(requestBuilder).build(), question.id, "es-US")
-            .toCompletableFuture()
-            .join();
+        controller.update(
+            addCSRFToken(requestBuilder).build(),
+            question.getQuestionDefinition().getName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -166,13 +166,12 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_questionNotFound_returnsNotFound() {
-    Result result =
-        controller
-            .update(addCSRFToken(fakeRequest()).build(), 1000L, "es-US")
-            .toCompletableFuture()
-            .join();
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThatThrownBy(
+            () ->
+                controller.update(
+                    addCSRFToken(fakeRequest()).build(), "non-existent question name", "es-US"))
+        .hasMessage("No draft found for question: \"non-existent question name\"")
+        .isInstanceOf(BadRequestException.class);
   }
 
   @Test
@@ -183,10 +182,10 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
         fakeRequest().bodyForm(ImmutableMap.of("questionText", "", "questionHelpText", ""));
 
     Result result =
-        controller
-            .update(addCSRFToken(requestBuilder).build(), question.id, "es-US")
-            .toCompletableFuture()
-            .join();
+        controller.update(
+            addCSRFToken(requestBuilder).build(),
+            question.getQuestionDefinition().getName(),
+            "es-US");
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))

@@ -14,7 +14,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -32,7 +31,6 @@ import views.components.ToastMessage;
 /** Provides controller methods for editing and updating question translations. */
 public class AdminQuestionTranslationsController extends CiviFormController {
 
-  private final HttpExecutionContext httpExecutionContext;
   private final QuestionService questionService;
   private final QuestionTranslationView translationView;
   private final FormFactory formFactory;
@@ -43,13 +41,11 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   public AdminQuestionTranslationsController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      HttpExecutionContext httpExecutionContext,
       QuestionService questionService,
       QuestionTranslationView translationView,
       FormFactory formFactory,
       TranslationLocales translationLocales) {
     super(profileUtils, versionRepository);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
     this.questionService = checkNotNull(questionService);
     this.translationView = checkNotNull(translationView);
     this.formFactory = checkNotNull(formFactory);
