@@ -24,7 +24,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.gotoAdminQuestionsPage()
     await adminQuestions.expectDraftQuestionExist('Sample Address Question')
     await adminQuestions.expectDraftQuestionExist('Sample Number Question')
-    await adminQuestions.expectDraftQuestionExist('Sample Name Question')
+    await adminQuestions.expectDraftQuestionExist('Name')
   })
 
   // Run create-update-publish test for each question type individually to keep
