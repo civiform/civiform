@@ -49,10 +49,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     ApplicantData applicantData = new ApplicantData();
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(programQuestionDefinition, applicantData, Optional.empty());
-
-    Q question = getQuestion(applicantQuestion);
     addSampleData(applicantData, applicantQuestion);
 
+    Q question = getQuestion(applicantQuestion);
     // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
     // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
