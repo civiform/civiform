@@ -586,6 +586,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the phone number question type.",
         "type": "bool"
+      },
+      "API_GENERATED_DOCS_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables the API docs tab on CiviForm.",
+        "type": "bool"
       }
     }
   }

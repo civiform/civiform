@@ -694,6 +694,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
   }
 
+  /** Enables the API docs tab on CiviForm. */
+  public boolean getApiGeneratedDocsEnabled() {
+    return getBool("API_GENERATED_DOCS_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1434,7 +1439,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the phone number question type.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "API_GENERATED_DOCS_ENABLED",
+                      "Enables the API docs tab on CiviForm.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
