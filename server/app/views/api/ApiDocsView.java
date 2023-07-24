@@ -43,6 +43,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.Accordion;
 
 public class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
@@ -101,7 +102,6 @@ public class ApiDocsView extends BaseHtmlView {
           }
           slugsDropdown.with(slugOption);
         });
-
     DivTag divTag =
         div()
             .withClasses("flex", "flex-col", "flex-grow")
@@ -120,11 +120,11 @@ public class ApiDocsView extends BaseHtmlView {
     fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
     DivTag leftSide = div().withClasses("w-full", "flex-grow");
-    leftSide.with(h2("Questions").withClasses("pl-4"));
+    leftSide.with(h1("Questions").withClasses("pl-4"));
     leftSide.with(programDocsDiv(programDefinition));
 
     DivTag rightSide = div().withClasses("w-full flex-grow");
-    rightSide.with(h2("API Response Preview").withClasses("pl-4"));
+    rightSide.with(h1("API Response Preview").withClasses("pl-4"));
     rightSide.with(apiResponseSampleDiv(programDefinition));
 
     fullProgramDiv.with(leftSide);
@@ -151,14 +151,17 @@ public class ApiDocsView extends BaseHtmlView {
 
     apiResponseSampleDiv.with(
         pre(code(sampleJson.asPrettyJsonString()))
-            .withStyle("background-color: lightgray;")
-            .withClass("m-4"));
+            .withStyle(
+                "background-color: lightgray; max-width: 100ch; overflow-wrap: break-word;"
+                    + " white-space: pre-wrap;")
+            .withClasses("m-4", "rounded-lg"));
 
     return apiResponseSampleDiv;
   }
 
   private DivTag programDocsDiv(ProgramDefinition programDefinition) {
-    DivTag programDocsDiv = div().withClasses("flex", "flex-col", "gap-4");
+    DivTag programDocsDiv =
+        div().withClasses("flex", "flex-col", "border", "border-gray-300", "rounded-lg", "m-4");
 
     for (QuestionDefinition questionDefinition :
         programDefinition.streamQuestionDefinitions().collect(toImmutableList())) {
@@ -169,31 +172,47 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag questionDocsDiv(QuestionDefinition questionDefinition) {
-    DivTag divTag = div().withClasses("pl-4", "border", "border-gray-500", "rounded-lg");
+    DivTag divTag =
+        div()
+            .withClasses("pl-4", "border-b", "border-gray-300", "pt-2", "pb-2", "flex", "flex-col");
 
-    divTag.with(
+    DivTag questionCardHeader = div();
+
+    questionCardHeader.with(
         span(
-            h3(b(questionDefinition.getName())).withClasses("inline"),
-            code(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
-    divTag.with(br(), br());
+            h2(b(questionDefinition.getName())).withClasses("inline"),
+            text(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
+    questionCardHeader.with(br(), br());
 
-    divTag.with(h3("Question Type: " + questionDefinition.getQuestionType().toString()));
+    DivTag questionCardBodyLeftSide = div().withClasses("w-2/5", "flex", "flex-col", "mr-4");
+    DivTag questionCardBodyRightSide = div().withClasses("w-3/5", "flex", "flex-col", "mr-4");
+
+    questionCardBodyLeftSide.with(
+        h3(b("Type")), text(questionDefinition.getQuestionType().toString()));
+
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+          (MultiOptionQuestionDefinition) questionDefinition;
+      questionCardBodyLeftSide.with(
+          br(), br(), h3(b("Options")), text(getOptionsString(multiOptionQuestionDefinition)));
+    }
+
     try {
-      divTag.with(
-          span(
-              h3(text("Question Text:  ")).withClasses("inline"),
-              blockquote(questionDefinition.getQuestionText().get(Locale.US))
-                  .withClasses("inline")));
+      questionCardBodyRightSide.with(
+          h3(b("Text")).withClasses("inline"),
+          blockquote(questionDefinition.getQuestionText().get(Locale.US)).withClasses("inline"));
 
     } catch (TranslationNotFoundException e) {
       logger.error("No translation found for locale US in question text: " + e.getMessage());
     }
 
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
-          (MultiOptionQuestionDefinition) questionDefinition;
-      divTag.with(h3("Question Options: " + getOptionsString(multiOptionQuestionDefinition)));
-    }
+    DivTag questionCardBody = div().withClasses("flex", "flex-row");
+
+    questionCardBody.with(questionCardBodyLeftSide);
+    questionCardBody.with(questionCardBodyRightSide);
+
+    divTag.with(questionCardHeader);
+    divTag.with(questionCardBody);
 
     return divTag;
   }
@@ -220,7 +239,6 @@ public class ApiDocsView extends BaseHtmlView {
 
     DivTag notesTag = div().withClasses("mt-6");
 
-    notesTag.with(h2(b("How does this work?")));
     notesTag.with(
         text(
             "The API Response Preview is a sample of what the API response might look like for a"
@@ -251,6 +269,9 @@ public class ApiDocsView extends BaseHtmlView {
                 + " Static content questions are not shown on the API Response Preview because"
                 + " they do not include answers to questions."));
 
-    return notesTag;
+    Accordion accordion = new Accordion().setTitle("How does this work?");
+    accordion.addContent(notesTag);
+
+    return accordion.getContainer();
   }
 }
