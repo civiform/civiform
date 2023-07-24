@@ -101,7 +101,6 @@ public class ApiDocsView extends BaseHtmlView {
           }
           slugsDropdown.with(slugOption);
         });
-
     DivTag divTag =
         div()
             .withClasses("flex", "flex-col", "flex-grow")
@@ -172,31 +171,46 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag questionDocsDiv(QuestionDefinition questionDefinition) {
-    DivTag divTag = div().withClasses("pl-4", "border-b", "border-gray-300", "pt-2", "pb-2");
+    DivTag divTag =
+        div()
+            .withClasses("pl-4", "border-b", "border-gray-300", "pt-2", "pb-2", "flex", "flex-col");
 
-    divTag.with(
+    DivTag topHalf = div();
+
+    topHalf.with(
         span(
-            h3(b(questionDefinition.getName())).withClasses("inline"),
+            h3(text("Name: "), b(questionDefinition.getName())).withClasses("inline"),
             text(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
-    divTag.with(br(), br());
+    topHalf.with(br(), br());
 
-    divTag.with(h3("Type: " + questionDefinition.getQuestionType().toString()));
+    DivTag bottomHalfLeftSide = div().withClasses("w-2/5", "flex", "flex-col", "mr-4");
+    DivTag bottomHalfRightSide = div().withClasses("w-3/5", "flex", "flex-col", "mr-4");
+
+    bottomHalfLeftSide.with(h3(b("Type")), text(questionDefinition.getQuestionType().toString()));
+
+    if (questionDefinition.getQuestionType().isMultiOptionType()) {
+      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+          (MultiOptionQuestionDefinition) questionDefinition;
+      bottomHalfLeftSide.with(
+          br(), br(), h3(b("Options")), text(getOptionsString(multiOptionQuestionDefinition)));
+    }
+
     try {
-      divTag.with(
-          span(
-              h3(text("Text:  ")).withClasses("inline"),
-              blockquote(questionDefinition.getQuestionText().get(Locale.US))
-                  .withClasses("inline")));
+      bottomHalfRightSide.with(
+          h3(b("Text")).withClasses("inline"),
+          blockquote(questionDefinition.getQuestionText().get(Locale.US)).withClasses("inline"));
 
     } catch (TranslationNotFoundException e) {
       logger.error("No translation found for locale US in question text: " + e.getMessage());
     }
 
-    if (questionDefinition.getQuestionType().isMultiOptionType()) {
-      MultiOptionQuestionDefinition multiOptionQuestionDefinition =
-          (MultiOptionQuestionDefinition) questionDefinition;
-      divTag.with(h3("Options: " + getOptionsString(multiOptionQuestionDefinition)));
-    }
+    DivTag bottomHalf = div().withClasses("flex", "flex-row");
+
+    bottomHalf.with(bottomHalfLeftSide);
+    bottomHalf.with(bottomHalfRightSide);
+
+    divTag.with(topHalf);
+    divTag.with(bottomHalf);
 
     return divTag;
   }
