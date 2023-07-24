@@ -19,41 +19,42 @@ import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 /**
- * Provides helper functions to build a QuestionDefinition.
+ * DEPRECATED. Provides helper functions to build a {@link QuestionDefinition}.
  *
- * <p>TODO(#4872): Remove this class in favor of QuestionDefinitionConfig.Builder.
+ * <p>TODO(#5271): Remove this class in favor of {@link QuestionDefinitionConfig.Builder}.
  */
 public final class QuestionDefinitionBuilder {
 
-  private OptionalLong id = OptionalLong.empty();
-  private String name;
-  private Optional<Long> enumeratorId = Optional.empty();
-  private String description;
-  private LocalizedStrings questionText;
-  private LocalizedStrings questionHelpText = LocalizedStrings.empty();
-  private QuestionType questionType = QuestionType.TEXT;
-  private String validationPredicatesString = "";
-  private LocalizedStrings entityType;
-  private Optional<Instant> lastModifiedTime = Optional.empty();
+  /**
+   * The {@link QuestionDefinitionConfig.Builder} is the basis for this class. This class
+   * essentially operates as a wrapper around it; this is technical debt, and all usages should
+   * eventually directly use the {@link QuestionDefinitionConfig.Builder} instead.
+   */
+  private final QuestionDefinitionConfig.Builder builder;
 
-  // Multi-option question types only.
+  // Additional per-question fields.
   private ImmutableList<QuestionOption> questionOptions = ImmutableList.of();
+  private String validationPredicatesString = "";
+  private QuestionType questionType;
+  private LocalizedStrings entityType;
 
-  public QuestionDefinitionBuilder() {}
+  public QuestionDefinitionBuilder() {
+    // Cast the builder in order to avoid the "required" methods such as
+    // QuestionDefinitionConfig.RequiredName.
+    // This is appropriate only in this class, since it is itself a builder.
+    builder = (QuestionDefinitionConfig.Builder) QuestionDefinitionConfig.builder();
+  }
 
   public QuestionDefinitionBuilder(QuestionDefinition definition) {
+    this.builder = definition.getConfig().toBuilder();
+
     if (definition.isPersisted()) {
       long definitionId = definition.getId();
-      this.id = OptionalLong.of(definitionId);
+      this.builder.setId(definitionId);
     }
-    name = definition.getName();
-    enumeratorId = definition.getEnumeratorId();
-    description = definition.getDescription();
-    questionText = definition.getQuestionText();
-    questionHelpText = definition.getQuestionHelpText();
-    questionType = definition.getQuestionType();
+
     validationPredicatesString = definition.getValidationPredicatesAsString();
-    lastModifiedTime = definition.getLastModifiedTime();
+    questionType = definition.getQuestionType();
 
     if (definition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
@@ -68,27 +69,27 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder clearId() {
-    this.id = OptionalLong.empty();
+    builder.setId(OptionalLong.empty());
     return this;
   }
 
   public QuestionDefinitionBuilder setId(Void v) {
-    this.id = OptionalLong.empty();
+    builder.setId(OptionalLong.empty());
     return this;
   }
 
   public QuestionDefinitionBuilder setId(long id) {
-    this.id = OptionalLong.of(id);
+    builder.setId(id);
     return this;
   }
 
   public QuestionDefinitionBuilder setName(String name) {
-    this.name = name;
+    builder.setName(name);
     return this;
   }
 
   public QuestionDefinitionBuilder setEnumeratorId(Optional<Long> enumeratorId) {
-    this.enumeratorId = enumeratorId;
+    builder.setEnumeratorId(enumeratorId);
     return this;
   }
 
@@ -98,27 +99,28 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder setDescription(String description) {
-    this.description = description;
+    builder.setDescription(description);
     return this;
   }
 
   public QuestionDefinitionBuilder setQuestionText(LocalizedStrings questionText) {
-    this.questionText = questionText;
+    builder.setQuestionText(questionText);
     return this;
   }
 
   public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
-    questionText = questionText.updateTranslation(locale, text);
+    builder.setQuestionText(builder.build().questionText().updateTranslation(locale, text));
     return this;
   }
 
   public QuestionDefinitionBuilder setQuestionHelpText(LocalizedStrings questionHelpText) {
-    this.questionHelpText = questionHelpText;
+    builder.setQuestionHelpText(questionHelpText);
     return this;
   }
 
   public QuestionDefinitionBuilder updateQuestionHelpText(Locale locale, String helpText) {
-    questionHelpText = questionHelpText.updateTranslation(locale, helpText);
+    builder.setQuestionHelpText(
+        builder.build().questionHelpText().updateTranslation(locale, helpText));
     return this;
   }
 
@@ -145,7 +147,7 @@ public final class QuestionDefinitionBuilder {
   }
 
   public QuestionDefinitionBuilder setLastModifiedTime(Optional<Instant> lastModifiedTime) {
-    this.lastModifiedTime = lastModifiedTime;
+    builder.setLastModifiedTime(lastModifiedTime);
     return this;
   }
 
@@ -164,169 +166,60 @@ public final class QuestionDefinitionBuilder {
   public QuestionDefinition build() throws UnsupportedQuestionTypeException {
     switch (this.questionType) {
       case ADDRESS:
-        QuestionDefinitionConfig.Builder addressConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime);
-
         if (!validationPredicatesString.isEmpty()) {
-          addressConfig.setValidationPredicates(
+          builder.setValidationPredicates(
               AddressValidationPredicates.parse(validationPredicatesString));
         }
-        return new AddressQuestionDefinition(addressConfig.build());
+        return new AddressQuestionDefinition(builder.build());
 
       case CHECKBOX:
-        QuestionDefinitionConfig.Builder checkboxConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime);
-
         if (!validationPredicatesString.isEmpty()) {
-          checkboxConfig.setValidationPredicates(
+          builder.setValidationPredicates(
               MultiOptionValidationPredicates.parse(validationPredicatesString));
         }
 
         return new MultiOptionQuestionDefinition(
-            checkboxConfig.build(), questionOptions, MultiOptionQuestionType.CHECKBOX);
+            builder.build(), questionOptions, MultiOptionQuestionType.CHECKBOX);
 
       case CURRENCY:
-        return new CurrencyQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .build());
+        return new CurrencyQuestionDefinition(builder.build());
 
       case DATE:
-        return new DateQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .setId(id)
-                .build());
+        return new DateQuestionDefinition(builder.build());
 
       case DROPDOWN:
-        QuestionDefinitionConfig dropdownConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .build();
-
         return new MultiOptionQuestionDefinition(
-            dropdownConfig, questionOptions, MultiOptionQuestionType.DROPDOWN);
+            builder.build(), questionOptions, MultiOptionQuestionType.DROPDOWN);
 
       case EMAIL:
-        return new EmailQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setId(id)
-                .setLastModifiedTime(lastModifiedTime)
-                .build());
+        return new EmailQuestionDefinition(builder.build());
 
       case FILEUPLOAD:
-        return new FileUploadQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setId(id)
-                .setLastModifiedTime(lastModifiedTime)
-                .build());
+        return new FileUploadQuestionDefinition(builder.build());
 
       case ID:
-        QuestionDefinitionConfig.Builder idQuestionConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setId(id)
-                .setLastModifiedTime(lastModifiedTime);
-
         if (!validationPredicatesString.isEmpty()) {
-          idQuestionConfig.setValidationPredicates(
-              IdValidationPredicates.parse(validationPredicatesString));
+          builder.setValidationPredicates(IdValidationPredicates.parse(validationPredicatesString));
         }
-        return new IdQuestionDefinition(idQuestionConfig.build());
+        return new IdQuestionDefinition(builder.build());
 
       case NAME:
-        QuestionDefinitionConfig.Builder nameConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setId(id)
-                .setLastModifiedTime(lastModifiedTime);
-
         if (!validationPredicatesString.isEmpty()) {
-          nameConfig.setValidationPredicates(
+          builder.setValidationPredicates(
               NameValidationPredicates.parse(validationPredicatesString));
         }
-        return new NameQuestionDefinition(nameConfig.build());
+        return new NameQuestionDefinition(builder.build());
 
       case NUMBER:
-        QuestionDefinitionConfig.Builder numberConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime);
-
         if (!validationPredicatesString.isEmpty()) {
-          numberConfig.setValidationPredicates(
+          builder.setValidationPredicates(
               NumberValidationPredicates.parse(validationPredicatesString));
         }
-        return new NumberQuestionDefinition(numberConfig.build());
+        return new NumberQuestionDefinition(builder.build());
 
       case RADIO_BUTTON:
-        QuestionDefinitionConfig radioButtonConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .build();
-
         return new MultiOptionQuestionDefinition(
-            radioButtonConfig, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
+            builder.build(), questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
 
       case ENUMERATOR:
         // This shouldn't happen, but protects us in case there are enumerator questions in the prod
@@ -335,63 +228,25 @@ public final class QuestionDefinitionBuilder {
           entityType =
               LocalizedStrings.withDefaultValue(EnumeratorQuestionDefinition.DEFAULT_ENTITY_TYPE);
         }
-        return new EnumeratorQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .build(),
-            entityType);
+        return new EnumeratorQuestionDefinition(builder.build(), entityType);
 
       case STATIC:
-        return new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setId(id)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .build());
+        return new StaticContentQuestionDefinition(builder.build());
 
       case TEXT:
-        QuestionDefinitionConfig.Builder textConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setLastModifiedTime(lastModifiedTime)
-                .setId(id);
-
         if (!validationPredicatesString.isEmpty()) {
-          textConfig.setValidationPredicates(
+          builder.setValidationPredicates(
               TextValidationPredicates.parse(validationPredicatesString));
         }
+        return new TextQuestionDefinition(builder.build());
 
-        return new TextQuestionDefinition(textConfig.build());
       case PHONE:
-        QuestionDefinitionConfig.Builder phoneConfig =
-            QuestionDefinitionConfig.builder()
-                .setName(name)
-                .setDescription(description)
-                .setQuestionText(questionText)
-                .setQuestionHelpText(questionHelpText)
-                .setEnumeratorId(enumeratorId)
-                .setId(id)
-                .setLastModifiedTime(lastModifiedTime);
-
         if (!validationPredicatesString.isEmpty()) {
-          phoneConfig.setValidationPredicates(
+          builder.setValidationPredicates(
               PhoneValidationPredicates.parse(validationPredicatesString));
         }
-        return new PhoneQuestionDefinition(phoneConfig.build());
+        return new PhoneQuestionDefinition(builder.build());
+
       default:
         throw new UnsupportedQuestionTypeException(this.questionType);
     }
