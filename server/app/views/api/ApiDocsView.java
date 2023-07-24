@@ -43,6 +43,7 @@ import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
+import views.components.Accordion;
 
 public class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
@@ -220,7 +221,6 @@ public class ApiDocsView extends BaseHtmlView {
 
     DivTag notesTag = div().withClasses("mt-6");
 
-    notesTag.with(h2(b("How does this work?")));
     notesTag.with(
         text(
             "The API Response Preview is a sample of what the API response might look like for a"
@@ -251,6 +251,9 @@ public class ApiDocsView extends BaseHtmlView {
                 + " Static content questions are not shown on the API Response Preview because"
                 + " they do not include answers to questions."));
 
-    return notesTag;
+    Accordion accordion = new Accordion().setTitle("How does this work?");
+    accordion.addContent(notesTag);
+
+    return accordion.getContainer();
   }
 }
