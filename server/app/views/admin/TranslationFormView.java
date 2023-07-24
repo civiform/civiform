@@ -50,10 +50,10 @@ public abstract class TranslationFormView extends BaseHtmlView {
   }
 
   /**
-   * Given the ID of the entity to translate and a locale for translation, returns a link
+   * Given the name of the entity to translate and a locale for translation, returns a link
    * destination URL for the edit form to translate the entity in the given locale.
    */
-  protected abstract String languageLinkDestination(String entityId, Locale locale);
+  protected abstract String languageLinkDestination(String entityName, Locale locale);
 
   /**
    * Renders a single locale as the English version of the language (ex: es-US would read
