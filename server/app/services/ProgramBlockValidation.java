@@ -63,8 +63,8 @@ public final class ProgramBlockValidation {
         .getDraftVersion()
         .getTombstonedQuestionNames()
         .contains(question.getName())) {
-        return AddQuestionResult.QUESTION_TOMBSTONED;
-      }
+      return AddQuestionResult.QUESTION_TOMBSTONED;
+    }
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }

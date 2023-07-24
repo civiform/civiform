@@ -41,8 +41,8 @@ import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
-import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
+import services.ProgramBlockValidationFactory;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -72,7 +72,7 @@ public final class ProgramServiceImpl implements ProgramService {
   private final HttpExecutionContext httpExecutionContext;
   private final UserRepository userRepository;
   private final VersionRepository versionRepository;
-  private final ProgramBlockValidation programBlockValidation;
+  private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   @Inject
   public ProgramServiceImpl(
@@ -81,13 +81,13 @@ public final class ProgramServiceImpl implements ProgramService {
       UserRepository userRepository,
       VersionRepository versionRepository,
       HttpExecutionContext ec,
-      ProgramBlockValidation programBlockValidation) {
+      ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
     this.userRepository = checkNotNull(userRepository);
     this.versionRepository = checkNotNull(versionRepository);
-    this.programBlockValidation = checkNotNull(programBlockValidation);
+    this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
   @Override
@@ -854,8 +854,8 @@ public final class ProgramServiceImpl implements ProgramService {
       ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(
               roQuestionService.getQuestionDefinition(questionId), Optional.of(programId));
-      ProgramBlockValidation.AddQuestionResult canAddQuestion =
-          programBlockValidation.canAddQuestion(
+      AddQuestionResult canAddQuestion =
+          programBlockValidationFactory.canAddQuestion(
               programDefinition, blockDefinition, question.getQuestionDefinition());
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(

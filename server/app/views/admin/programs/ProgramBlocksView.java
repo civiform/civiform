@@ -30,7 +30,7 @@ import java.util.stream.IntStream;
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
-import services.ProgramBlockValidation;
+import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -79,7 +79,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private final AdminLayout layout;
   private final SettingsManifest settingsManifest;
   private final ProgramDisplayType programDisplayType;
-  private final ProgramBlockValidation programBlockValidation;
+  private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String MOVE_QUESTION_POSITION_FIELD = "position";
@@ -92,14 +92,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   @Inject
   public ProgramBlocksView(
-      ProgramBlockValidation programBlockValidation,
+      ProgramBlockValidationFactory programBlockValidationFactory,
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programDisplayType = programViewType;
-    this.programBlockValidation = checkNotNull(programBlockValidation);
+    this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
   public Content render(
@@ -1018,7 +1018,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setBlockDefinition(blockDefinition)
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
-            programBlockValidation);
+            programBlockValidationFactory);
     return qb.getContainer(questionBankVisibility, phoneQuestionTypeEnabled);
   }
 
