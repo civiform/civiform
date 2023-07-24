@@ -176,28 +176,29 @@ public class ApiDocsView extends BaseHtmlView {
         div()
             .withClasses("pl-4", "border-b", "border-gray-300", "pt-2", "pb-2", "flex", "flex-col");
 
-    DivTag topHalf = div();
+    DivTag questionCardHeader = div();
 
-    topHalf.with(
+    questionCardHeader.with(
         span(
             h2(b(questionDefinition.getName())).withClasses("inline"),
             text(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
-    topHalf.with(br(), br());
+    questionCardHeader.with(br(), br());
 
-    DivTag bottomHalfLeftSide = div().withClasses("w-2/5", "flex", "flex-col", "mr-4");
-    DivTag bottomHalfRightSide = div().withClasses("w-3/5", "flex", "flex-col", "mr-4");
+    DivTag questionCardBodyLeftSide = div().withClasses("w-2/5", "flex", "flex-col", "mr-4");
+    DivTag questionCardBodyRightSide = div().withClasses("w-3/5", "flex", "flex-col", "mr-4");
 
-    bottomHalfLeftSide.with(h3(b("Type")), text(questionDefinition.getQuestionType().toString()));
+    questionCardBodyLeftSide.with(
+        h3(b("Type")), text(questionDefinition.getQuestionType().toString()));
 
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) questionDefinition;
-      bottomHalfLeftSide.with(
+      questionCardBodyLeftSide.with(
           br(), br(), h3(b("Options")), text(getOptionsString(multiOptionQuestionDefinition)));
     }
 
     try {
-      bottomHalfRightSide.with(
+      questionCardBodyRightSide.with(
           h3(b("Text")).withClasses("inline"),
           blockquote(questionDefinition.getQuestionText().get(Locale.US)).withClasses("inline"));
 
@@ -205,13 +206,13 @@ public class ApiDocsView extends BaseHtmlView {
       logger.error("No translation found for locale US in question text: " + e.getMessage());
     }
 
-    DivTag bottomHalf = div().withClasses("flex", "flex-row");
+    DivTag questionCardBody = div().withClasses("flex", "flex-row");
 
-    bottomHalf.with(bottomHalfLeftSide);
-    bottomHalf.with(bottomHalfRightSide);
+    questionCardBody.with(questionCardBodyLeftSide);
+    questionCardBody.with(questionCardBodyRightSide);
 
-    divTag.with(topHalf);
-    divTag.with(bottomHalf);
+    divTag.with(questionCardHeader);
+    divTag.with(questionCardBody);
 
     return divTag;
   }
