@@ -8,6 +8,7 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.code;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.pre;
@@ -179,7 +180,7 @@ public class ApiDocsView extends BaseHtmlView {
 
     topHalf.with(
         span(
-            h3(text("Name: "), b(questionDefinition.getName())).withClasses("inline"),
+            h2(b(questionDefinition.getName())).withClasses("inline"),
             text(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
     topHalf.with(br(), br());
 
