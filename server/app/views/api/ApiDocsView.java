@@ -8,7 +8,6 @@ import static j2html.TagCreator.br;
 import static j2html.TagCreator.code;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
-import static j2html.TagCreator.h2;
 import static j2html.TagCreator.h3;
 import static j2html.TagCreator.option;
 import static j2html.TagCreator.pre;
@@ -121,11 +120,11 @@ public class ApiDocsView extends BaseHtmlView {
     fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
     DivTag leftSide = div().withClasses("w-full", "flex-grow");
-    leftSide.with(h2("Questions").withClasses("pl-4"));
+    leftSide.with(h1("Questions").withClasses("pl-4"));
     leftSide.with(programDocsDiv(programDefinition));
 
     DivTag rightSide = div().withClasses("w-full flex-grow");
-    rightSide.with(h2("API Response Preview").withClasses("pl-4"));
+    rightSide.with(h1("API Response Preview").withClasses("pl-4"));
     rightSide.with(apiResponseSampleDiv(programDefinition));
 
     fullProgramDiv.with(leftSide);
@@ -161,7 +160,8 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag programDocsDiv(ProgramDefinition programDefinition) {
-    DivTag programDocsDiv = div().withClasses("flex", "flex-col", "gap-4");
+    DivTag programDocsDiv =
+        div().withClasses("flex", "flex-col", "border", "border-gray-300", "rounded-lg", "m-4");
 
     for (QuestionDefinition questionDefinition :
         programDefinition.streamQuestionDefinitions().collect(toImmutableList())) {
@@ -172,7 +172,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private DivTag questionDocsDiv(QuestionDefinition questionDefinition) {
-    DivTag divTag = div().withClasses("pl-4", "border", "border-gray-500", "rounded-lg");
+    DivTag divTag = div().withClasses("pl-4", "border-b", "border-gray-300", "pt-2", "pb-2");
 
     divTag.with(
         span(
