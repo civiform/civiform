@@ -579,7 +579,7 @@ public final class QuestionsListView extends BaseHtmlView {
     }
     String link =
         controllers.admin.routes.AdminQuestionTranslationsController.redirectToFirstLocale(
-                definition.getId())
+                definition.getName())
             .url();
 
     ButtonTag button =

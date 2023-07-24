@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import controllers.BadRequestException;
 import controllers.CiviFormController;
 import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
@@ -57,14 +58,15 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * already has separate UI.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result redirectToFirstLocale(Http.Request request, long programId) {
+  public Result redirectToFirstLocale(Http.Request request, String programName) {
     if (maybeFirstTranslatableLocale.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing("error", "Translations are not enabled for this configuration");
     }
+
     return redirect(
         routes.AdminProgramTranslationsController.edit(
-                programId, maybeFirstTranslatableLocale.get().toLanguageTag())
+                programName, maybeFirstTranslatableLocale.get().toLanguageTag())
             .url());
   }
 
@@ -77,9 +79,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result edit(Http.Request request, long programId, String locale)
+  public Result edit(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = service.getProgramDefinition(programId);
+    ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     Optional<ToastMessage> errorMessage =
         request.flash().get("error").map(m -> ToastMessage.errorNonLocalized(m));
@@ -97,6 +99,18 @@ public class AdminProgramTranslationsController extends CiviFormController {
             errorMessage));
   }
 
+  private ProgramDefinition getDraftProgramDefinition(String programName) {
+    ProgramDefinition program =
+        service
+            .getActiveAndDraftPrograms()
+            .getDraftProgramDefinition(programName)
+            .orElseThrow(
+                () ->
+                    new BadRequestException(
+                        String.format("No draft found for program: \"%s\"", programName)));
+    return program;
+  }
+
   /**
    * Save updates to a program's localizations.
    *
@@ -106,9 +120,9 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *     same {@link ProgramTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result update(Http.Request request, long programId, String locale)
+  public Result update(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
-    ProgramDefinition program = service.getProgramDefinition(programId);
+    ProgramDefinition program = getDraftProgramDefinition(programName);
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
@@ -125,7 +139,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
       result =
           service.updateLocalization(program.id(), localeToUpdate, translationForm.getUpdateData());
     } catch (OutOfDateStatusesException e) {
-      return redirect(routes.AdminProgramTranslationsController.edit(programId, locale))
+      return redirect(routes.AdminProgramTranslationsController.edit(programName, locale))
           .flashing("error", e.userFacingMessage());
     }
     if (result.isError()) {

@@ -39,9 +39,9 @@ GET     /admin/programs/:programId/statuses controllers.admin.AdminProgramStatus
 POST    /admin/programs/:programId/statuses/delete controllers.admin.AdminProgramStatusesController.delete(request: Request, programId: Long)
 
 # Routes for managing program localization
-GET     /admin/programs/:programId/translations/edit controllers.admin.AdminProgramTranslationsController.redirectToFirstLocale(request: Request, programId: Long)
-GET     /admin/programs/:programId/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programId: Long, locale: String)
-POST    /admin/programs/:programId/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programId: Long, locale: String)
+GET     /admin/programs/:programName/translations/edit            controllers.admin.AdminProgramTranslationsController.redirectToFirstLocale(request: Request, programName: String)
+GET     /admin/programs/:programName/translations/:locale/edit    controllers.admin.AdminProgramTranslationsController.edit(request: Request, programName: String, locale: String)
+POST    /admin/programs/:programName/translations/:locale         controllers.admin.AdminProgramTranslationsController.update(request: Request, programName: String, locale: String)
 
 
 # A controller for pages for an admin to create and maintain blocks for a program
@@ -86,9 +86,9 @@ POST    /admin/questions/:id/restore controllers.admin.AdminQuestionController.r
 POST    /admin/questions/:id/archive controllers.admin.AdminQuestionController.archive(request: Request, id: Long)
 
 # Routes for editing question localizations
-GET     /admin/questions/:questionId/translations/edit controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionId: Long)
-GET     /admin/questions/:questionId/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, questionId: Long, locale: String)
-POST    /admin/questions/:questionId/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionId: Long, locale: String)
+GET     /admin/questions/:questionName/translations/edit          controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionName: String)
+GET     /admin/questions/:questionName/translations/:locale/edit  controllers.admin.AdminQuestionTranslationsController.edit(request: Request, questionName: String, locale: String)
+POST    /admin/questions/:questionName/translations/:locale       controllers.admin.AdminQuestionTranslationsController.update(request: Request, questionName: String, locale: String)
 
 # Trusted Intermediary routes
 GET     /admin/tiGroups                    controllers.admin.TrustedIntermediaryManagementController.index(request: Request)
