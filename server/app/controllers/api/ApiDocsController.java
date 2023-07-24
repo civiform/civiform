@@ -48,10 +48,10 @@ public final class ApiDocsController {
 
     ImmutableSet<String> allProgramSlugs = programService.getAllProgramSlugs();
 
+    ProgramDefinition programDefinition;
     try {
-      ProgramDefinition programDefinition =
+      programDefinition =
           programService.getActiveProgramDefinitionAsync(programSlug).toCompletableFuture().join();
-      return ok(docsView.render(request, programDefinition, allProgramSlugs));
     } catch (Exception e) {
       return notFound(
           String.format(
@@ -59,5 +59,7 @@ public final class ApiDocsController {
                   + " to continue.",
               programSlug));
     }
+
+    return ok(docsView.render(request, programDefinition, allProgramSlugs));
   }
 }
