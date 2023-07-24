@@ -16,10 +16,10 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
-import support.QuestionAnswerer;
 
 public class TextQuestionRendererTest extends ResetPostgres {
   private static final TextQuestionDefinition TEXT_QUESTION_DEFINITION =

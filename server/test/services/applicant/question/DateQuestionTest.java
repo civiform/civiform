@@ -18,9 +18,9 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionAnswerer;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class DateQuestionTest extends ResetPostgres {

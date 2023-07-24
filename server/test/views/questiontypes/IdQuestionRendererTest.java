@@ -17,10 +17,10 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.IdQuestionDefinition.IdValidationPredicates;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 public class IdQuestionRendererTest extends ResetPostgres {
   private static final IdQuestionDefinition ID_QUESTION_DEFINITION =

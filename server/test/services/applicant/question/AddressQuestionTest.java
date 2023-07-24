@@ -20,9 +20,9 @@ import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
 import services.geo.ServiceAreaState;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.types.AddressQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class AddressQuestionTest {

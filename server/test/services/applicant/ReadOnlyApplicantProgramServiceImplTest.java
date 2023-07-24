@@ -31,10 +31,10 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {

@@ -15,12 +15,12 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
-import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)

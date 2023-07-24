@@ -16,9 +16,9 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.question.QuestionAnswerer;
 import services.question.types.CurrencyQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class CurrencyQuestionRendererTest extends ResetPostgres {

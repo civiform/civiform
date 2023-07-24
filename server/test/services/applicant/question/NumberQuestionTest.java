@@ -23,9 +23,9 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionAnswerer;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class NumberQuestionTest extends ResetPostgres {
