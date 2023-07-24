@@ -123,7 +123,7 @@ public final class DatabaseSeedTask {
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
       if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
         LOGGER.info(
-            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
+            "Canonical question \"{}\" exists at server start", questionDefinition.getName());
         questionDefinitions.add(existingCanonicalQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
@@ -150,7 +150,7 @@ public final class DatabaseSeedTask {
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
+      LOGGER.info("Created canonical question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
@@ -163,7 +163,7 @@ public final class DatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: %s", e);
+      LOGGER.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);

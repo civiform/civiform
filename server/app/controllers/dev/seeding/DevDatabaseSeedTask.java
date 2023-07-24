@@ -319,7 +319,7 @@ public final class DevDatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: %s", e);
+      LOGGER.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);
