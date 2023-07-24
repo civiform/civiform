@@ -100,15 +100,13 @@ public class AdminProgramTranslationsController extends CiviFormController {
   }
 
   private ProgramDefinition getDraftProgramDefinition(String programName) {
-    ProgramDefinition program =
-        service
-            .getActiveAndDraftPrograms()
-            .getDraftProgramDefinition(programName)
-            .orElseThrow(
-                () ->
-                    new BadRequestException(
-                        String.format("No draft found for program: \"%s\"", programName)));
-    return program;
+    return service
+        .getActiveAndDraftPrograms()
+        .getDraftProgramDefinition(programName)
+        .orElseThrow(
+            () ->
+                new BadRequestException(
+                    String.format("No draft found for program: \"%s\"", programName)));
   }
 
   /**

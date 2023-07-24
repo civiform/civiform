@@ -11,8 +11,6 @@ import forms.translation.MultiOptionQuestionTranslationForm;
 import forms.translation.QuestionTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -24,7 +22,6 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.TranslationLocales;
 import services.question.QuestionService;
-import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
@@ -89,24 +86,16 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    *     for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> edit(Http.Request request, String questionName, String locale) {
+  public Result edit(Http.Request request, String questionName, String locale) {
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToEdit.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          redirect(routes.AdminQuestionController.index().url())
-              .flashing("error", String.format("The %s locale is not supported", locale)));
+      return redirect(routes.AdminQuestionController.index().url())
+          .flashing("error", String.format("The %s locale is not supported", locale));
     }
     Locale localeToEdit = maybeLocaleToEdit.get();
 
-    return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyQuestionService -> {
-              QuestionDefinition definition =
-                  getDraftQuestionDefinition(questionName, readOnlyQuestionService);
-              return ok(translationView.render(request, localeToEdit, definition));
-            },
-            httpExecutionContext.current());
+    QuestionDefinition definition = getDraftQuestionDefinition(questionName);
+    return ok(translationView.render(request, localeToEdit, definition));
   }
 
   /**
@@ -118,60 +107,49 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    *     same {@link QuestionTranslationView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> update(Http.Request request, String questionName, String locale) {
+  public Result update(Http.Request request, String questionName, String locale) {
     Optional<Locale> maybeLocaleToUpdate = translationLocales.fromLanguageTag(locale);
     if (maybeLocaleToUpdate.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          redirect(routes.AdminQuestionController.index().url())
-              .flashing("error", String.format("The %s locale is not supported", locale)));
+      return redirect(routes.AdminQuestionController.index().url())
+          .flashing("error", String.format("The %s locale is not supported", locale));
     }
+
     Locale localeToUpdate = maybeLocaleToUpdate.get();
+    QuestionDefinition toUpdate = getDraftQuestionDefinition(questionName);
 
-    return questionService
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyQuestionService -> {
-              try {
-                QuestionDefinition toUpdate =
-                    getDraftQuestionDefinition(questionName, readOnlyQuestionService);
+    try {
+      QuestionDefinition definitionWithUpdates =
+          buildFormFromRequest(request, toUpdate.getQuestionType())
+              .builderWithUpdates(toUpdate, localeToUpdate)
+              .build();
+      ErrorAnd<QuestionDefinition, CiviFormError> result =
+          questionService.update(definitionWithUpdates);
 
-                QuestionTranslationForm form =
-                    buildFormFromRequest(request, toUpdate.getQuestionType());
-                QuestionDefinition definitionWithUpdates =
-                    form.builderWithUpdates(toUpdate, localeToUpdate).build();
+      if (result.isError()) {
+        ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+        return ok(
+            translationView.renderErrors(request, localeToUpdate, definitionWithUpdates, message));
+      }
 
-                ErrorAnd<QuestionDefinition, CiviFormError> result =
-                    questionService.update(definitionWithUpdates);
-
-                if (result.isError()) {
-                  ToastMessage message =
-                      ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-                  return ok(
-                      translationView.renderErrors(
-                          request, localeToUpdate, definitionWithUpdates, message));
-                }
-
-                return redirect(routes.AdminQuestionController.index().url());
-              } catch (UnsupportedQuestionTypeException e) {
-                return badRequest(e.getMessage());
-              } catch (InvalidUpdateException e) {
-                return internalServerError(e.getMessage());
-              }
-            },
-            httpExecutionContext.current());
+      return redirect(routes.AdminQuestionController.index().url());
+    } catch (UnsupportedQuestionTypeException e) {
+      return badRequest(e.getMessage());
+    } catch (InvalidUpdateException e) {
+      return internalServerError(e.getMessage());
+    }
   }
 
-  private static QuestionDefinition getDraftQuestionDefinition(
-      String questionName, ReadOnlyQuestionService readOnlyQuestionService) {
-    QuestionDefinition toUpdate =
-        readOnlyQuestionService
-            .getActiveAndDraftQuestions()
-            .getDraftQuestionDefinition(questionName)
-            .orElseThrow(
-                () ->
-                    new BadRequestException(
-                        String.format("No draft found for question: \"%s\"", questionName)));
-    return toUpdate;
+  private QuestionDefinition getDraftQuestionDefinition(String questionName) {
+    return questionService
+        .getReadOnlyQuestionService()
+        .toCompletableFuture()
+        .join()
+        .getActiveAndDraftQuestions()
+        .getDraftQuestionDefinition(questionName)
+        .orElseThrow(
+            () ->
+                new BadRequestException(
+                    String.format("No draft found for question: \"%s\"", questionName)));
   }
 
   private QuestionTranslationForm buildFormFromRequest(Http.Request request, QuestionType type) {
