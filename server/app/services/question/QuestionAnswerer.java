@@ -7,7 +7,7 @@ import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Scalar;
 
 /** A class that has static methods used to answer {@link ApplicantQuestion}s for each type. */
-public class QuestionAnswerer {
+public final class QuestionAnswerer {
 
   public static void answerAddressQuestion(
       ApplicantData applicantData,
