@@ -174,14 +174,14 @@ public class ApiDocsView extends BaseHtmlView {
     divTag.with(
         span(
             h3(b(questionDefinition.getName())).withClasses("inline"),
-            code(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
+            text(" (" + questionDefinition.getQuestionNameKey().toLowerCase(Locale.US) + ")")));
     divTag.with(br(), br());
 
-    divTag.with(h3("Question Type: " + questionDefinition.getQuestionType().toString()));
+    divTag.with(h3("Type: " + questionDefinition.getQuestionType().toString()));
     try {
       divTag.with(
           span(
-              h3(text("Question Text:  ")).withClasses("inline"),
+              h3(text("Text:  ")).withClasses("inline"),
               blockquote(questionDefinition.getQuestionText().get(Locale.US))
                   .withClasses("inline")));
 
@@ -192,7 +192,7 @@ public class ApiDocsView extends BaseHtmlView {
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
       MultiOptionQuestionDefinition multiOptionQuestionDefinition =
           (MultiOptionQuestionDefinition) questionDefinition;
-      divTag.with(h3("Question Options: " + getOptionsString(multiOptionQuestionDefinition)));
+      divTag.with(h3("Options: " + getOptionsString(multiOptionQuestionDefinition)));
     }
 
     return divTag;
