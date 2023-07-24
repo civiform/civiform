@@ -25,6 +25,9 @@ describe('Viewing API docs', () => {
     await validateScreenshot(page, 'api-docs-page-minimal-program')
 
     await page.click('text=How does this work?')
+    // Wait for the accordion to open, so we don't screenshot during the opening,
+    // causing inconsistent screenshots.
+    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'api-docs-page-accordion-open')
   })
 })
