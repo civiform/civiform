@@ -37,6 +37,7 @@ export enum ProgramVisibility {
   PUBLIC = 'Publicly visible',
   TI_ONLY = 'Trusted Intermediaries ONLY',
   SELECT_TI = 'Visible to Selected Trusted Intermediaries ONLY',
+  DISABLED = 'Disable Program',
 }
 
 function slugify(value: string): string {

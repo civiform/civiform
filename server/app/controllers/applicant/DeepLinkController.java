@@ -88,14 +88,17 @@ public final class DeepLinkController extends CiviFormController {
               return getProgramVersionForApplicant(applicantId, programSlug, request)
                   .thenComposeAsync(
                       (Optional<ProgramDefinition> programForExistingApplication) -> {
+                        if(programForExistingApplication.isPresent() &&
+                          programForExistingApplication
+                          .get()
+                          .displayMode()
+                          .equals(DisplayMode.DISABLED)){
+                          return CompletableFuture.completedFuture(notFound());
+                        }
                         // Check to see if the applicant already has an application
                         // for this program, redirect to program version associated
                         // with that application if so.
-                        if (programForExistingApplication.isPresent()
-                            && !programForExistingApplication
-                                .get()
-                                .displayMode()
-                                .equals(DisplayMode.DISABLED)) {
+                        if (programForExistingApplication.isPresent()) {
                           long programId = programForExistingApplication.get().id();
                           return CompletableFuture.completedFuture(
                               redirectToReviewPage(programId, applicantId, programSlug, request));

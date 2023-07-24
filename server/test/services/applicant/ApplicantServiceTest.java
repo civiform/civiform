@@ -2077,7 +2077,6 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(originalProgramForDraftApp.id);
-    // TODO(#3477): Determine if already submitted applications for hidden
     // programs should show in the index, similar to draft applications.
     assertThat(result.submitted()).isEmpty();
     // As part of test setup, a "test program" is initialized.

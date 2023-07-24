@@ -9,6 +9,7 @@ import {
   validateScreenshot,
   TestContext,
 } from './support'
+import {ProgramVisibility} from './support/admin_programs'
 
 describe('navigating to a deep link', () => {
   const ctx: TestContext = createTestContext()
@@ -148,5 +149,36 @@ describe('navigating to a deep link', () => {
     expect(await page.innerText('h1')).toContain(
       'Save time when applying for benefits',
     )
+  })
+  it('Users cannot access deep link for disabled Programs', async () => {
+    await resetContext(ctx)
+    const {page,adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'disabled deeplink'
+    await adminPrograms.addProgram(
+      programName,
+      'testing disabled view programs',
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+    )
+    await adminPrograms.editProgramBlock(programName, 'first description', [
+      'Test address question',
+    ])
+
+    await adminPrograms.gotoAdminProgramsPage()
+    await adminPrograms.expectDraftProgram(programName)
+    await adminPrograms.publishAllDrafts()
+    await validateScreenshot(
+      page,
+      'program-visibity-shown-as-disabled',
+    )
+
+    await logout(page)
+
+    await gotoEndpoint(page, '/programs/disabled-deeplink')
+    await console.log(await page.innerText('h1'))
+    //expect(await page.innerText('h1'))
+  
   })
 })
