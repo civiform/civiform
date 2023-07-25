@@ -855,8 +855,9 @@ public final class ProgramServiceImpl implements ProgramService {
           ProgramQuestionDefinition.create(
               roQuestionService.getQuestionDefinition(questionId), Optional.of(programId));
       AddQuestionResult canAddQuestion =
-          programBlockValidationFactory.canAddQuestion(
-              programDefinition, blockDefinition, question.getQuestionDefinition());
+          programBlockValidationFactory
+              .create()
+              .canAddQuestion(programDefinition, blockDefinition, question.getQuestionDefinition());
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);

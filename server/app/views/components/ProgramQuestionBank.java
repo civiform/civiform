@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
+import services.ProgramBlockValidation;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
@@ -228,11 +229,11 @@ public final class ProgramQuestionBank {
    * </ul>
    */
   private Stream<QuestionDefinition> filterQuestions() {
+    ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
     return params.questions().stream()
         .filter(
             q ->
-                programBlockValidationFactory.canAddQuestion(
-                        params.program(), params.blockDefinition(), q)
+                programBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
                     == AddQuestionResult.ELIGIBLE);
   }
 

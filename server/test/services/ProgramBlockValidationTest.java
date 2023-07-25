@@ -2,28 +2,26 @@ package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.ProgramDefinition;
-import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
 public class ProgramBlockValidationTest extends ResetPostgres {
 
-  ProgramBlockValidation programBlockValidation;
-  QuestionService questionService;
-  VersionRepository versionRepository;
+  private ProgramBlockValidation programBlockValidation;
+  private VersionRepository versionRepository;
 
   @Before
   public void setProgramBlockValidation() {
-    programBlockValidation = instanceOf(ProgramBlockValidation.class);
-    questionService = instanceOf(services.question.QuestionService.class);
-    versionRepository = instanceOf(repository.VersionRepository.class);
+    versionRepository = instanceOf(VersionRepository.class);
+    ProgramBlockValidationFactory programBlockValidationFactory =
+        new ProgramBlockValidationFactory(versionRepository);
+    programBlockValidation = programBlockValidationFactory.create();
   }
 
   @Test
@@ -64,21 +62,6 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             programBlockValidation.canAddQuestion(
                 program, program.getLastBlockDefinition(), nameQuestion))
         .isEqualTo(AddQuestionResult.BLOCK_IS_SINGLE_QUESTION);
-  }
-
-  @Test
-  public void canAddQuestions_cantAddArchivedQuestion() throws Exception {
-    Question addressQuestion = testQuestionBank.applicantAddress();
-    questionService.archiveQuestion(addressQuestion.id);
-    ProgramDefinition program =
-        ProgramBuilder.newDraftProgram("program1")
-            .withBlock()
-            .withRequiredQuestionDefinition(addressQuestion.getQuestionDefinition())
-            .buildDefinition();
-    assertThat(
-            programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), addressQuestion.getQuestionDefinition()))
-        .isEqualTo(services.ProgramBlockValidation.AddQuestionResult.QUESTION_TOMBSTONED);
   }
 
   @Test

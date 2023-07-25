@@ -1,10 +1,7 @@
 package services;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.Optional;
-import javax.inject.Inject;
-import repository.VersionRepository;
+import models.Version;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
@@ -14,11 +11,10 @@ import services.question.types.QuestionDefinition;
 /** Helper class for performing validation related to creating or modifying program blocks. */
 public final class ProgramBlockValidation {
 
-  private final VersionRepository versionRepository;
+  private final Version version;
 
-  @Inject
-  ProgramBlockValidation(VersionRepository versionRepository) {
-    this.versionRepository = checkNotNull(versionRepository);
+  public ProgramBlockValidation(Version version) {
+    this.version = version;
   }
   /**
    * Result of checking whether a question can be added to a specific block. Only ELIGIBLE means
@@ -59,10 +55,11 @@ public final class ProgramBlockValidation {
    */
   public AddQuestionResult canAddQuestion(
       ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
-    if (versionRepository
-        .getDraftVersion()
-        .getTombstonedQuestionNames()
-        .contains(question.getName())) {
+    System.out.println("question" + question.getName());
+    for (String s : version.getTombstonedQuestionNames()) {
+      System.out.println("SSSS" + s);
+    }
+    if (version.getTombstonedQuestionNames().contains(question.getName())) {
       return AddQuestionResult.QUESTION_TOMBSTONED;
     }
     if (program.hasQuestion(question)) {

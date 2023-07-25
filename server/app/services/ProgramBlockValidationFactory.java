@@ -3,22 +3,20 @@ package services;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import javax.inject.Inject;
-import services.ProgramBlockValidation.AddQuestionResult;
-import services.program.BlockDefinition;
-import services.program.ProgramDefinition;
-import services.question.types.QuestionDefinition;
+import models.Version;
+import repository.VersionRepository;
 
 public final class ProgramBlockValidationFactory {
 
-  private final ProgramBlockValidation programBlockValidation;
+  private final VersionRepository versionRepository;
 
   @Inject
-  public ProgramBlockValidationFactory(ProgramBlockValidation programBlockValidation) {
-    this.programBlockValidation = checkNotNull(programBlockValidation);
+  public ProgramBlockValidationFactory(VersionRepository versionRepository) {
+    this.versionRepository = checkNotNull(versionRepository);
   }
 
-  public AddQuestionResult canAddQuestion(
-      ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
-    return programBlockValidation.canAddQuestion(program, block, question);
+  public ProgramBlockValidation create() {
+    Version version = versionRepository.getDraftVersion();
+    return new ProgramBlockValidation(version);
   }
 }
