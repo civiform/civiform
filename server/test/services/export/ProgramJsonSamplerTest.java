@@ -82,7 +82,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   public void samplesFullProgram() {
     CfJsonDocumentContext json = programJsonSampler.getSampleJson(programDefinition);
 
-    String allJsonSamples =
+    String expectedJson =
         "{\n"
             + "  \"applicant_id\" : 123,\n"
             + "  \"application\" : {\n"
@@ -150,6 +150,6 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             + "  \"submitter_email\" : \"homer.simpson@springfield.gov\"\n"
             + "}";
 
-    assertThat(asPrettyJsonString(json.asJsonString())).isEqualTo(allJsonSamples);
+    assertThat(asPrettyJsonString(json.asJsonString())).isEqualTo(expectedJson);
   }
 }
