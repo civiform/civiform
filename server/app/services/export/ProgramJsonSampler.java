@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.CfJsonDocumentContext;
+import services.DeploymentType;
 import services.Path;
 import services.export.JsonExporter.JsonExportData;
 import services.program.ProgramDefinition;
@@ -20,12 +21,16 @@ public final class ProgramJsonSampler {
 
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
   private final JsonExporter jsonExporter;
+  private final DeploymentType deploymentType;
 
   @Inject
   ProgramJsonSampler(
-      QuestionJsonSampler.Factory questionJsonSamplerFactory, JsonExporter jsonExporter) {
+      QuestionJsonSampler.Factory questionJsonSamplerFactory,
+      JsonExporter jsonExporter,
+      DeploymentType deploymentType) {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
     this.jsonExporter = jsonExporter;
+    this.deploymentType = deploymentType;
   }
 
   /**
@@ -38,7 +43,9 @@ public final class ProgramJsonSampler {
             .setAdminName(programDefinition.adminName())
             .setApplicantId(123L)
             .setApplicationId(456L)
-            .setProgramId(programDefinition.id())
+            // Program ID changes on each browser test run, so set it to a constant
+            // for those tests, otherwise to the actual program ID.
+            .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())
             .setLanguageTag(Locale.US.toLanguageTag())
             .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
             .setSubmitterEmail("homer.simpson@springfield.gov")
