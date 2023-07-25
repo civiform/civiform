@@ -170,7 +170,7 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
-          validateProgramQuestionState();
+          validateProgramQuestionState(active);
           break;
         case DRY_RUN:
           break;
@@ -266,7 +266,7 @@ public final class VersionRepository {
       newDraft.save();
       active.refresh();
       newDraft.refresh();
-      validateProgramQuestionState();
+      validateProgramQuestionState(active);
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -425,8 +425,7 @@ public final class VersionRepository {
   }
 
   /** Validate all programs have associated questions. */
-  private void validateProgramQuestionState() {
-    Version activeVersion = getActiveVersion();
+  private void validateProgramQuestionState(Version activeVersion) {
     Set<Long> newActiveQuestionIds =
         activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition().getId())
