@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -154,7 +155,10 @@ public class ApiDocsView extends BaseHtmlView {
         div().withClasses("flex", "flex-col", "border", "border-gray-300", "rounded-lg", "m-4");
 
     for (QuestionDefinition questionDefinition :
-        programDefinition.streamQuestionDefinitions().collect(toImmutableList())) {
+        programDefinition
+            .streamQuestionDefinitions()
+            .sorted(Comparator.comparing(QuestionDefinition::getQuestionNameKey))
+            .collect(toImmutableList())) {
       programDocsDiv.with(questionDocsDiv(questionDefinition));
     }
 
