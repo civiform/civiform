@@ -10,7 +10,6 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.ProgramDefinition;
-import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
@@ -18,13 +17,11 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   private ProgramBlockValidation programBlockValidation;
   private VersionRepository versionRepository;
-  private QuestionService questionService;
   private Question questionForTombstone;
 
   @Before
   public void setProgramBlockValidation()
       throws services.question.exceptions.QuestionNotFoundException {
-    questionService = instanceOf(services.question.QuestionService.class);
     versionRepository = instanceOf(repository.VersionRepository.class);
     Version version = versionRepository.getDraftVersion();
     String tombstonedQuestionOneName = "tombstoneOne";
