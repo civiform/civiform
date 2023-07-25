@@ -108,7 +108,7 @@ public final class JsonExporter {
             .setCreateTime(application.getCreateTime())
             .setSubmitterEmail(application.getSubmitterEmail().orElse("Applicant"))
             .setSubmitTimeOpt(application.getSubmitTime())
-            .setStatusOpt(application.getLatestStatus())
+            .setStatus(application.getLatestStatus())
             .addApplicationEntries(entriesBuilder.build())
             .build();
 
@@ -138,7 +138,7 @@ public final class JsonExporter {
 
     Path statusPath = Path.create("status");
     jsonExportData
-        .statusOpt()
+        .status()
         .ifPresentOrElse(
             status -> jsonApplication.putString(statusPath, status),
             () -> jsonApplication.putNull(statusPath));
@@ -217,7 +217,7 @@ public final class JsonExporter {
 
     public abstract Instant submitTimeOpt();
 
-    public abstract Optional<String> statusOpt();
+    public abstract Optional<String> status();
 
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
@@ -244,7 +244,7 @@ public final class JsonExporter {
 
       public abstract Builder setSubmitTimeOpt(Instant submitTimeOpt);
 
-      public abstract Builder setStatusOpt(Optional<String> statusOpt);
+      public abstract Builder setStatus(Optional<String> status);
 
       abstract ImmutableMap.Builder<Path, Optional<?>> applicationEntriesBuilder();
 

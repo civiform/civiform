@@ -12,6 +12,7 @@ import services.CfJsonDocumentContext;
 import services.Path;
 import services.export.JsonExporter.JsonExportData;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionDefinition;
 
 /** Contains methods related to sampling JSON data for programs. */
@@ -34,15 +35,18 @@ public final class ProgramJsonSampler {
   public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
     JsonExportData.Builder jsonExportData =
         JsonExportData.builder()
-            .setAdminName("admin name")
+            .setAdminName(programDefinition.adminName())
             .setApplicantId(123L)
             .setApplicationId(456L)
-            .setProgramId(789L)
+            .setProgramId(programDefinition.id())
             .setLanguageTag(Locale.US.toLanguageTag())
             .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
             .setSubmitterEmail("homer.simpson@springfield.gov")
             .setSubmitTimeOpt(Instant.ofEpochSecond(1685133975)) // May 26, 2023 4:46 pm EDT
-            .setStatusOpt(Optional.of("current-status"));
+            .setStatus(
+                programDefinition.statusDefinitions().getStatuses().stream()
+                    .findFirst()
+                    .map(Status::statusText));
 
     ImmutableList<QuestionDefinition> questionDefinitions =
         programDefinition.streamQuestionDefinitions().collect(toImmutableList());

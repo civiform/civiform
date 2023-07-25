@@ -4,6 +4,8 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.ALL_SAMPLE_QUEST
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +14,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import repository.ResetPostgres;
 import services.CfJsonDocumentContext;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
+import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -35,6 +39,19 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   public void setUp() {
     programJsonSampler = instanceOf(ProgramJsonSampler.class);
 
+    StatusDefinitions possibleProgramStatuses =
+        new StatusDefinitions(
+            ImmutableList.of(
+                StatusDefinitions.Status.builder()
+                    .setStatusText("Pending Review")
+                    .setDefaultStatus(Optional.of(true))
+                    .setLocalizedStatusText(LocalizedStrings.empty())
+                    .setLocalizedEmailBodyText(Optional.empty())
+                    .build()));
+
+    when(mockProgramDefinition.statusDefinitions()).thenReturn(possibleProgramStatuses);
+    when(mockProgramDefinition.adminName()).thenReturn("test-program-admin-name");
+    when(mockProgramDefinition.id()).thenReturn(789L);
     when(mockProgramDefinition.streamQuestionDefinitions())
         .thenReturn(ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM);
   }
@@ -104,9 +121,9 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             + "  \"application_id\" : 456,\n"
             + "  \"create_time\" : \"2023/05/25 1:46:15 PM PDT\",\n"
             + "  \"language\" : \"en-US\",\n"
-            + "  \"program_name\" : \"admin name\",\n"
+            + "  \"program_name\" : \"test-program-admin-name\",\n"
             + "  \"program_version_id\" : 789,\n"
-            + "  \"status\" : \"current-status\",\n"
+            + "  \"status\" : \"Pending Review\",\n"
             + "  \"submit_time\" : \"2023/05/26 1:46:15 PM PDT\",\n"
             + "  \"submitter_email\" : \"homer.simpson@springfield.gov\"\n"
             + "}";
