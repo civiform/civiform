@@ -2,6 +2,7 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
@@ -81,54 +82,54 @@ public final class JsonExporter {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 
-    String adminName = application.getProgram().getProgramDefinition().adminName();
-    long applicantId = application.getApplicant().id;
-    long applicationId = application.id;
-    String languageTag =
-        roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag();
-    Instant createTime = application.getCreateTime();
-    String submitterEmail = application.getSubmitterEmail().orElse("Applicant");
-    Instant submitTime = application.getSubmitTime();
-    Optional<String> status = application.getLatestStatus();
     ImmutableList<AnswerData> answerDatas = roApplicantProgramService.getSummaryData();
+    ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
 
-    return buildJsonApplication(
-        adminName,
-        applicantId,
-        applicationId,
-        languageTag,
-        createTime,
-        submitterEmail,
-        submitTime,
-        status,
-        answerDatas,
-        programDefinition);
+    for (AnswerData answerData : answerDatas) {
+      // We suppress the unchecked warning because create() returns a genericized
+      // QuestionJsonPresenter, but we ignore the generic's type so that we can get
+      // the json entries for any Question in one line.
+      @SuppressWarnings("unchecked")
+      ImmutableMap<Path, Optional<?>> questionEntries =
+          presenterFactory
+              .create(answerData.applicantQuestion().getType())
+              .getJsonEntries(answerData.createQuestion());
+      entriesBuilder.putAll(questionEntries);
+    }
+
+    JsonExportData jsonExportData =
+        JsonExportData.builder()
+            .setAdminName(application.getProgram().getProgramDefinition().adminName())
+            .setApplicantId(application.getApplicant().id)
+            .setApplicationId(application.id)
+            .setProgramId(programDefinition.id())
+            .setLanguageTag(
+                roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag())
+            .setCreateTime(application.getCreateTime())
+            .setSubmitterEmail(application.getSubmitterEmail().orElse("Applicant"))
+            .setSubmitTimeOpt(application.getSubmitTime())
+            .setStatusOpt(application.getLatestStatus())
+            .setApplicationEntries(entriesBuilder.build())
+            .build();
+
+    return buildJsonApplication(jsonExportData);
   }
 
-  private CfJsonDocumentContext buildJsonApplication(
-      String adminName,
-      long applicantId,
-      long applicationId,
-      String languageTag,
-      Instant createTime,
-      String submitterEmail,
-      Instant submitTimeOpt,
-      Optional<String> statusOpt,
-      ImmutableList<AnswerData> answerDatas,
-      ProgramDefinition programDefinition) {
+  private CfJsonDocumentContext buildJsonApplication(JsonExportData jsonExportData) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
-    jsonApplication.putString(Path.create("program_name"), adminName);
-    jsonApplication.putLong(Path.create("program_version_id"), programDefinition.id());
-    jsonApplication.putLong(Path.create("applicant_id"), applicantId);
-    jsonApplication.putLong(Path.create("application_id"), applicationId);
-    jsonApplication.putString(Path.create("language"), languageTag);
+    jsonApplication.putString(Path.create("program_name"), jsonExportData.adminName());
+    jsonApplication.putLong(Path.create("program_version_id"), jsonExportData.programId());
+    jsonApplication.putLong(Path.create("applicant_id"), jsonExportData.applicantId());
+    jsonApplication.putLong(Path.create("application_id"), jsonExportData.applicationId());
+    jsonApplication.putString(Path.create("language"), jsonExportData.languageTag());
     jsonApplication.putString(
-        Path.create("create_time"), dateConverter.renderDateTimeDataOnly(createTime));
-    jsonApplication.putString(Path.create("submitter_email"), submitterEmail);
+        Path.create("create_time"),
+        dateConverter.renderDateTimeDataOnly(jsonExportData.createTime()));
+    jsonApplication.putString(Path.create("submitter_email"), jsonExportData.submitterEmail());
 
     Path submitTimePath = Path.create("submit_time");
-    Optional.ofNullable(submitTimeOpt)
+    Optional.ofNullable(jsonExportData.submitTimeOpt())
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
@@ -136,23 +137,13 @@ public final class JsonExporter {
             () -> jsonApplication.putNull(submitTimePath));
 
     Path statusPath = Path.create("status");
-    statusOpt.ifPresentOrElse(
-        status -> jsonApplication.putString(statusPath, status),
-        () -> jsonApplication.putNull(statusPath));
+    jsonExportData
+        .statusOpt()
+        .ifPresentOrElse(
+            status -> jsonApplication.putString(statusPath, status),
+            () -> jsonApplication.putNull(statusPath));
 
-    for (AnswerData answerData : answerDatas) {
-      // We suppress the unchecked warning because create() returns a genericized
-      // QuestionJsonPresenter, but we ignore the generic's type so that we can get
-      // the json entries for any Question in one line.
-      @SuppressWarnings("unchecked")
-      ImmutableMap<Path, Optional<?>> entries =
-          presenterFactory
-              .create(answerData.applicantQuestion().getType())
-              .getJsonEntries(answerData.createQuestion());
-
-      exportEntriesToJsonApplication(jsonApplication, entries);
-    }
-
+    exportEntriesToJsonApplication(jsonApplication, jsonExportData.applicationEntries());
     return jsonApplication;
   }
 
@@ -206,5 +197,59 @@ public final class JsonExporter {
 
   private DocumentContext makeEmptyJsonObject() {
     return JsonPathProvider.getJsonPath().parse("{}");
+  }
+
+  @AutoValue
+  public abstract static class JsonExportData {
+    public abstract String adminName();
+
+    public abstract long applicantId();
+
+    public abstract long applicationId();
+
+    public abstract long programId();
+
+    public abstract String languageTag();
+
+    public abstract Instant createTime();
+
+    public abstract String submitterEmail();
+
+    public abstract Instant submitTimeOpt();
+
+    public abstract Optional<String> statusOpt();
+
+    public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
+
+    static Builder builder() {
+      return new AutoValue_JsonExporter_JsonExportData.Builder();
+    }
+
+    @AutoValue.Builder
+    abstract static class Builder {
+
+      public abstract Builder setAdminName(String adminName);
+
+      public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setApplicationId(long applicationId);
+
+      public abstract Builder setProgramId(long programId);
+
+      public abstract Builder setLanguageTag(String languageTag);
+
+      public abstract Builder setCreateTime(Instant createTime);
+
+      public abstract Builder setSubmitterEmail(String submitterEmail);
+
+      public abstract Builder setSubmitTimeOpt(Instant submitTimeOpt);
+
+      public abstract Builder setStatusOpt(Optional<String> statusOpt);
+
+      public abstract Builder setApplicationEntries(
+          ImmutableMap<Path, Optional<?>> applicationEntries);
+
+      public abstract JsonExportData build();
+    }
   }
 }
