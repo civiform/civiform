@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
 import j2html.tags.specialized.SelectTag;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -32,7 +33,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.CfJsonDocumentContext;
 import services.TranslationNotFoundException;
-import services.export.QuestionJsonSampler;
+import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -51,18 +52,18 @@ public class ApiDocsView extends BaseHtmlView {
   private final ProfileUtils profileUtils;
   private final BaseHtmlLayout unauthenticatedlayout;
   private final AdminLayout authenticatedlayout;
-  private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
+  private final ProgramJsonSampler programJsonSampler;
 
   @Inject
   public ApiDocsView(
       ProfileUtils profileUtils,
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
-      QuestionJsonSampler.Factory questionJsonSamplerFactory) {
+      ProgramJsonSampler programJsonSampler) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
-    this.questionJsonSamplerFactory = questionJsonSamplerFactory;
+    this.programJsonSampler = programJsonSampler;
   }
 
   public Content render(
@@ -137,17 +138,7 @@ public class ApiDocsView extends BaseHtmlView {
 
   private DivTag apiResponseSampleDiv(ProgramDefinition programDefinition) {
     DivTag apiResponseSampleDiv = div();
-
-    ImmutableList<QuestionDefinition> questionDefinitions =
-        programDefinition.streamQuestionDefinitions().collect(toImmutableList());
-
-    CfJsonDocumentContext sampleJson = new CfJsonDocumentContext();
-    for (QuestionDefinition questionDefinition : questionDefinitions) {
-      sampleJson.mergeFrom(
-          questionJsonSamplerFactory
-              .create(questionDefinition.getQuestionType())
-              .getSampleJson(questionDefinition));
-    }
+    CfJsonDocumentContext sampleJson = programJsonSampler.getSampleJson(programDefinition);
 
     apiResponseSampleDiv.with(
         pre(code(sampleJson.asPrettyJsonString()))
@@ -164,7 +155,10 @@ public class ApiDocsView extends BaseHtmlView {
         div().withClasses("flex", "flex-col", "border", "border-gray-300", "rounded-lg", "m-4");
 
     for (QuestionDefinition questionDefinition :
-        programDefinition.streamQuestionDefinitions().collect(toImmutableList())) {
+        programDefinition
+            .streamQuestionDefinitions()
+            .sorted(Comparator.comparing(QuestionDefinition::getQuestionNameKey))
+            .collect(toImmutableList())) {
       programDocsDiv.with(questionDocsDiv(questionDefinition));
     }
 

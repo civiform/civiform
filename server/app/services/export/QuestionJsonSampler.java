@@ -1,13 +1,11 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static services.export.JsonExporter.exportEntriesToJsonApplication;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import javax.inject.Inject;
-import services.CfJsonDocumentContext;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.question.AddressQuestion;
@@ -38,10 +36,11 @@ import services.question.types.QuestionType;
  */
 public interface QuestionJsonSampler<Q extends Question> {
 
-  default CfJsonDocumentContext getSampleJson(QuestionDefinition questionDefinition) {
+  default ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
+      QuestionDefinition questionDefinition) {
     if (questionDefinition.getEnumeratorId().isPresent()) {
       // TODO(#5238): support enumerated questions.
-      return new CfJsonDocumentContext();
+      return ImmutableMap.of();
     }
 
     ProgramQuestionDefinition programQuestionDefinition =
@@ -56,11 +55,8 @@ public interface QuestionJsonSampler<Q extends Question> {
     // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
     ImmutableMap<Path, Optional<?>> entries = getJsonPresenter().getJsonEntries(question);
-    CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext();
 
-    exportEntriesToJsonApplication(jsonApplication, entries);
-
-    return jsonApplication;
+    return entries;
   }
 
   Q getQuestion(ApplicantQuestion applicantQuestion);
@@ -278,8 +274,9 @@ public interface QuestionJsonSampler<Q extends Question> {
   class EmptyJsonSampler implements QuestionJsonSampler<Question> {
 
     @Override
-    public CfJsonDocumentContext getSampleJson(QuestionDefinition questionDefinition) {
-      return new CfJsonDocumentContext();
+    public ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
+        QuestionDefinition questionDefinition) {
+      return ImmutableMap.of();
     }
 
     @Override
