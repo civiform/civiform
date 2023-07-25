@@ -1,21 +1,25 @@
 package services.export;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ALL_SAMPLE_QUESTION_DEFINITIONS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
 
+import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.stream.Stream;
+import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import repository.ResetPostgres;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramQuestionDefinition;
+import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
@@ -27,13 +31,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
 
   private ProgramJsonSampler programJsonSampler;
 
-  /**
-   * We need to mock the AutoValue in order to mock on streamQuestionDefinitions(), and this is
-   * substantially simpler than seeding the complex ProgramDefinition AutoValue with data.
-   */
-  @SuppressWarnings("DoNotMockAutoValue")
-  @Mock
-  private ProgramDefinition mockProgramDefinition;
+  private ProgramDefinition programDefinition;
 
   @Before
   public void setUp() {
@@ -49,16 +47,39 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
                     .setLocalizedEmailBodyText(Optional.empty())
                     .build()));
 
-    when(mockProgramDefinition.statusDefinitions()).thenReturn(possibleProgramStatuses);
-    when(mockProgramDefinition.adminName()).thenReturn("test-program-admin-name");
-    when(mockProgramDefinition.id()).thenReturn(789L);
-    when(mockProgramDefinition.streamQuestionDefinitions())
-        .thenReturn(ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM);
+    ImmutableList<BlockDefinition> blockDefinitions =
+        ImmutableList.of(
+            BlockDefinition.builder()
+                .setId(135L)
+                .setName("Test Block Definition")
+                .setDescription("Test Block Description")
+                .setProgramQuestionDefinitions(
+                    ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM
+                        .map(
+                            questionDefinition ->
+                                ProgramQuestionDefinition.create(
+                                    questionDefinition, Optional.empty()))
+                        .collect(toImmutableList()))
+                .build());
+
+    programDefinition =
+        ProgramDefinition.builder()
+            .setId(789L)
+            .setAdminName("test-program-admin-name")
+            .setAdminDescription("Test Admin Description")
+            .setExternalLink("https://mytestlink.gov")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(false)
+            .setAcls(new ProgramAcls())
+            .setBlockDefinitions(blockDefinitions)
+            .setStatusDefinitions(possibleProgramStatuses)
+            .build();
   }
 
   @Test
   public void samplesFullProgram() {
-    CfJsonDocumentContext json = programJsonSampler.getSampleJson(mockProgramDefinition);
+    CfJsonDocumentContext json = programJsonSampler.getSampleJson(programDefinition);
 
     String allJsonSamples =
         "{\n"
