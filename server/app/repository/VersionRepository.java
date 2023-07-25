@@ -168,7 +168,9 @@ public final class VersionRepository {
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
-          validateProgramQuestionState(active);
+          draft.refresh();
+          active.refresh();
+          validateProgramQuestionState();
           break;
         case DRY_RUN:
           break;
@@ -262,7 +264,9 @@ public final class VersionRepository {
       existingDraft.save();
       active.save();
       newDraft.save();
-      validateProgramQuestionState(active);
+      active.refresh();
+      newDraft.refresh();
+      validateProgramQuestionState();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -421,7 +425,8 @@ public final class VersionRepository {
   }
 
   /** Validate all programs have associated questions. */
-  private void validateProgramQuestionState(Version activeVersion) {
+  private void validateProgramQuestionState() {
+    Version activeVersion = getActiveVersion();
     Set<Long> newActiveQuestionIds =
       activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition().getId())
