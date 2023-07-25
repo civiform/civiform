@@ -14,7 +14,7 @@ public final class ProgramBlockValidation {
   private final Version version;
 
   public ProgramBlockValidation(Version version) {
-    this.version = version;
+    this.version = checkNotNull(version);
   }
   /**
    * Result of checking whether a question can be added to a specific block. Only ELIGIBLE means
