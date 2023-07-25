@@ -11,12 +11,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import controllers.BadRequestException;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -24,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
@@ -87,11 +90,12 @@ public final class VersionRepository {
   }
 
   private Version publishNewSynchronizedVersion(PublishMode publishMode) {
+    // Regardless of whether changes are published or not, we still perform
+    // this operation inside of a transaction in order to ensure we have
+    // consistent reads.
+    Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      // Regardless of whether changes are published or not, we still perform
-      // this operation inside of a transaction in order to ensure we have
-      // consistent reads.
-      database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
 
@@ -166,17 +170,23 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
+
+          var missingQuestions = findMissingQuestionsInPrograms();
+          if (!missingQuestions.isEmpty()) {
+            var questionNames =
+                missingQuestions.stream().map(QuestionDefinition::getQuestionNameKey).toString();
+            throw new BadRequestException(String.format("Questions not found: %s", questionNames));
+          }
           break;
         case DRY_RUN:
           break;
         default:
           throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
       }
-      database.commitTransaction();
-
+      transaction.commit();
       return draft;
     } finally {
-      database.endTransaction();
+      transaction.end();
     }
   }
 
@@ -260,6 +270,13 @@ public final class VersionRepository {
       existingDraft.save();
       active.save();
       newDraft.save();
+
+      var missingQuestions = findMissingQuestionsInPrograms();
+      if (!missingQuestions.isEmpty()) {
+        var questionNames =
+            missingQuestions.stream().map(QuestionDefinition::getQuestionNameKey).toString();
+        throw new BadRequestException(String.format("Questions not found: %s", questionNames));
+      }
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -415,6 +432,20 @@ public final class VersionRepository {
   public boolean isActiveProgram(Long programId) {
     return getActiveVersion().getPrograms().stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));
+  }
+
+  /** Check all programs in the active version to see if any questions are not defined. */
+  private Set<QuestionDefinition> findMissingQuestionsInPrograms() {
+    Version newActive = getActiveVersion();
+    Set<Long> newActiveQuestionIds =
+        newActive.getQuestions().stream()
+            .map(question -> question.getQuestionDefinition().getId())
+            .collect(Collectors.toSet());
+    return newActive.getPrograms().stream()
+        .map(program -> getQuestionsInProgram(program.getProgramDefinition()))
+        .flatMap(Collection::stream)
+        .filter(question -> !newActiveQuestionIds.contains(question.getId()))
+        .collect(Collectors.toSet());
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
@@ -581,12 +612,19 @@ public final class VersionRepository {
    */
   private static ImmutableSet<String> getProgramQuestionNames(
       ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
-    return program.blockDefinitions().stream()
-        .map(BlockDefinition::programQuestionDefinitions)
-        .flatMap(ImmutableList::stream)
-        .map(ProgramQuestionDefinition::id)
+    return getQuestionsInProgram(program).stream()
+        .map(QuestionDefinition::getId)
         .filter(questionIdToNameLookup::containsKey)
         .map(questionIdToNameLookup::get)
         .collect(ImmutableSet.toImmutableSet());
+  }
+
+  private static ImmutableList<QuestionDefinition> getQuestionsInProgram(
+      ProgramDefinition program) {
+    return program.blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .collect(toImmutableList());
   }
 }
