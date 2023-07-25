@@ -168,15 +168,7 @@ public final class VersionRepository {
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
-          draft.refresh();
-          active.refresh();
-
-          var missingQuestions = findMissingQuestionsInPrograms();
-          if (!missingQuestions.isEmpty()) {
-            var questionNames =
-                missingQuestions.stream().map(QuestionDefinition::getQuestionNameKey).toString();
-            throw new BadRequestException(String.format("Questions not found: %s", questionNames));
-          }
+          validateProgramQuestionState(active);
           break;
         case DRY_RUN:
           break;
@@ -270,13 +262,7 @@ public final class VersionRepository {
       existingDraft.save();
       active.save();
       newDraft.save();
-
-      var missingQuestions = findMissingQuestionsInPrograms();
-      if (!missingQuestions.isEmpty()) {
-        var questionNames =
-            missingQuestions.stream().map(QuestionDefinition::getQuestionNameKey).toString();
-        throw new BadRequestException(String.format("Questions not found: %s", questionNames));
-      }
+      validateProgramQuestionState(active);
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -434,18 +420,20 @@ public final class VersionRepository {
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));
   }
 
-  /** Check all programs in the active version to see if any questions are not defined. */
-  private Set<QuestionDefinition> findMissingQuestionsInPrograms() {
-    Version newActive = getActiveVersion();
+  /** Validate all programs have associated questions. */
+  private void validateProgramQuestionState(Version activeVersion) {
     Set<Long> newActiveQuestionIds =
-        newActive.getQuestions().stream()
+      activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition().getId())
             .collect(Collectors.toSet());
-    return newActive.getPrograms().stream()
+    Set<Long> missingQuestions = activeVersion.getPrograms().stream()
         .map(program -> getQuestionsInProgram(program.getProgramDefinition()))
         .flatMap(Collection::stream)
-        .filter(question -> !newActiveQuestionIds.contains(question.getId()))
+        .filter(question -> !newActiveQuestionIds.contains(question))
         .collect(Collectors.toSet());
+    if (!missingQuestions.isEmpty()) {
+      throw new BadRequestException(String.format("Questions not found: %s", missingQuestions));
+    }
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
@@ -613,18 +601,17 @@ public final class VersionRepository {
   private static ImmutableSet<String> getProgramQuestionNames(
       ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
     return getQuestionsInProgram(program).stream()
-        .map(QuestionDefinition::getId)
         .filter(questionIdToNameLookup::containsKey)
         .map(questionIdToNameLookup::get)
         .collect(ImmutableSet.toImmutableSet());
   }
 
-  private static ImmutableList<QuestionDefinition> getQuestionsInProgram(
+  private static ImmutableList<Long> getQuestionsInProgram(
       ProgramDefinition program) {
     return program.blockDefinitions().stream()
         .map(BlockDefinition::programQuestionDefinitions)
         .flatMap(ImmutableList::stream)
-        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(ProgramQuestionDefinition::id)
         .collect(toImmutableList());
   }
 }
