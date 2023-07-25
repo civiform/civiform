@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import controllers.BadRequestException;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SerializableConflictException;
@@ -26,7 +25,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.RollbackException;
@@ -170,7 +168,7 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
-          validateProgramQuestionState(active);
+          validateProgramQuestionState();
           break;
         case DRY_RUN:
           break;
@@ -266,7 +264,7 @@ public final class VersionRepository {
       newDraft.save();
       active.refresh();
       newDraft.refresh();
-      validateProgramQuestionState(active);
+      validateProgramQuestionState();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -425,19 +423,32 @@ public final class VersionRepository {
   }
 
   /** Validate all programs have associated questions. */
-  private void validateProgramQuestionState(Version activeVersion) {
+  private void validateProgramQuestionState() {
+    Version activeVersion = getActiveVersion();
     Set<Long> newActiveQuestionIds =
         activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition().getId())
-            .collect(Collectors.toSet());
-    Set<Long> missingQuestions =
+            .collect(ImmutableSet.toImmutableSet());
+    Set<Long> missingQuestionIds =
         activeVersion.getPrograms().stream()
-            .map(program -> getQuestionsInProgram(program.getProgramDefinition()))
+            .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
-            .filter(question -> !newActiveQuestionIds.contains(question))
-            .collect(Collectors.toSet());
-    if (!missingQuestions.isEmpty()) {
-      throw new BadRequestException(String.format("Questions not found: %s", missingQuestions));
+            .filter(questionId -> !newActiveQuestionIds.contains(questionId))
+            .collect(ImmutableSet.toImmutableSet());
+    if (!missingQuestionIds.isEmpty()) {
+      Set<Long> programsMissingQuestions =
+          activeVersion.getPrograms().stream()
+              .filter(
+                  program ->
+                      program.getProgramDefinition().getQuestionIdsInProgram().stream()
+                          .anyMatch(id -> missingQuestionIds.contains(id)))
+              .map(program -> program.getProgramDefinition().id())
+              .collect(ImmutableSet.toImmutableSet());
+      throw new IllegalStateException(
+          String.format(
+              "Illegal state encountered when attempting to publish a new version. Question IDs"
+                  + " found in program definitions %s not found in new active version: %s",
+              programsMissingQuestions, missingQuestionIds));
     }
   }
 
@@ -605,17 +616,9 @@ public final class VersionRepository {
    */
   private static ImmutableSet<String> getProgramQuestionNames(
       ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
-    return getQuestionsInProgram(program).stream()
+    return program.getQuestionIdsInProgram().stream()
         .filter(questionIdToNameLookup::containsKey)
         .map(questionIdToNameLookup::get)
         .collect(ImmutableSet.toImmutableSet());
-  }
-
-  private static ImmutableList<Long> getQuestionsInProgram(ProgramDefinition program) {
-    return program.blockDefinitions().stream()
-        .map(BlockDefinition::programQuestionDefinitions)
-        .flatMap(ImmutableList::stream)
-        .map(ProgramQuestionDefinition::id)
-        .collect(toImmutableList());
   }
 }

@@ -9,6 +9,8 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Optional;
+
+import com.google.common.collect.ImmutableList;
 import models.DisplayMode;
 import models.Question;
 import org.junit.Test;
@@ -232,6 +234,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
     assertThat(program.hasQuestion(questionC)).isFalse();
+    assertThat(program.getQuestionIdsInProgram().equals(ImmutableList.of(123L, 321L));
   }
 
   @Test
