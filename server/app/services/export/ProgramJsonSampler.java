@@ -12,6 +12,7 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
+/** Contains methods related to sampling JSON data for programs. */
 public final class ProgramJsonSampler {
 
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
@@ -21,6 +22,10 @@ public final class ProgramJsonSampler {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
   }
 
+  /**
+   * Samples JSON for a {@link ProgramDefinition} with fake data, appropriate for previews of what
+   * the API response looks like.
+   */
   public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
     ImmutableList<QuestionDefinition> questionDefinitions =
         programDefinition.streamQuestionDefinitions().collect(toImmutableList());
