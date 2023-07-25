@@ -1,10 +1,14 @@
 package services.export;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
+import static services.export.JsonExporter.exportEntriesToJsonApplication;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.Optional;
 import javax.inject.Inject;
 import services.CfJsonDocumentContext;
+import services.Path;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -23,10 +27,13 @@ public class ProgramJsonSampler {
 
     CfJsonDocumentContext sampleJson = new CfJsonDocumentContext();
     for (QuestionDefinition questionDefinition : questionDefinitions) {
-      sampleJson.mergeFrom(
+      @SuppressWarnings("unchecked")
+      ImmutableMap<Path, Optional<?>> questionEntries =
           questionJsonSamplerFactory
               .create(questionDefinition.getQuestionType())
-              .getSampleJson(questionDefinition));
+              .getSampleJsonEntries(questionDefinition);
+
+      exportEntriesToJsonApplication(sampleJson, questionEntries);
     }
 
     return sampleJson;
