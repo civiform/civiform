@@ -12,7 +12,7 @@ import services.Path;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
-public class ProgramJsonSampler {
+public final class ProgramJsonSampler {
 
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
 
