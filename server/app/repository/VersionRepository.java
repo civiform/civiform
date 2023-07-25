@@ -436,7 +436,7 @@ public final class VersionRepository {
             .filter(questionId -> !newActiveQuestionIds.contains(questionId))
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
-      Set<Long> programsMissingQuestions =
+      Set<Long> programIdsMissingQuestions =
           activeVersion.getPrograms().stream()
               .filter(
                   program ->
@@ -448,7 +448,7 @@ public final class VersionRepository {
           String.format(
               "Illegal state encountered when attempting to publish a new version. Question IDs"
                   + " found in program definitions %s not found in new active version: %s",
-              programsMissingQuestions, missingQuestionIds));
+              programIdsMissingQuestions, missingQuestionIds));
     }
   }
 
