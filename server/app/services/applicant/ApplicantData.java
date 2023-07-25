@@ -156,7 +156,7 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   /**
    * Returns `true` if the answers in `other` match the answers in the current object. Ignores
-   * certain metadata (such as timestamps) when comparing answers.
+   * `updated_at` timestamps when comparing answers.
    */
   public boolean isDuplicateOf(ApplicantData other) {
     // Copy data and clear fields not required for comparison.
