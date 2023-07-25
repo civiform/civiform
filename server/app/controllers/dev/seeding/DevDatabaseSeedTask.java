@@ -42,10 +42,12 @@ import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -198,6 +200,19 @@ public final class DevDatabaseSeedTask {
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
+
+      ErrorAnd<ProgramDefinition, CiviFormError> appendStatusResult =
+          programService.appendStatus(
+              programId,
+              StatusDefinitions.Status.builder()
+                  .setStatusText("Pending Review")
+                  .setDefaultStatus(Optional.of(true))
+                  .setLocalizedStatusText(LocalizedStrings.empty())
+                  .setLocalizedEmailBodyText(Optional.empty())
+                  .build());
+      if (appendStatusResult.isError()) {
+        throw new Exception(appendStatusResult.getErrors().toString());
+      }
 
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
