@@ -603,6 +603,7 @@ public class CfJsonDocumentContext {
   public String asPrettyJsonString() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+    objectMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
     try {
       Object jsonObject = getDocumentContext().json();
       return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
