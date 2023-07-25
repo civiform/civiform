@@ -34,6 +34,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import services.CfJsonDocumentContext;
 import services.TranslationNotFoundException;
+import services.export.JsonExporter;
 import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
 import services.question.LocalizedQuestionOption;
@@ -54,17 +55,20 @@ public class ApiDocsView extends BaseHtmlView {
   private final BaseHtmlLayout unauthenticatedlayout;
   private final AdminLayout authenticatedlayout;
   private final ProgramJsonSampler programJsonSampler;
+  private final JsonExporter jsonExporter;
 
   @Inject
   public ApiDocsView(
       ProfileUtils profileUtils,
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
-      ProgramJsonSampler programJsonSampler) {
+      ProgramJsonSampler programJsonSampler,
+      JsonExporter jsonExporter) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
     this.programJsonSampler = programJsonSampler;
+    this.jsonExporter = jsonExporter;
   }
 
   public Content render(
@@ -141,8 +145,14 @@ public class ApiDocsView extends BaseHtmlView {
     DivTag apiResponseSampleDiv = div();
     CfJsonDocumentContext sampleJson = programJsonSampler.getSampleJson(programDefinition);
 
+    String sampleJsonString = sampleJson.asJsonString();
+    String fullJsonResponsePreview =
+        jsonExporter.getResponseJson(
+            sampleJsonString, /* paginationTokenPayload= */ Optional.empty());
+    String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
+
     apiResponseSampleDiv.with(
-        pre(code(asPrettyJsonString(sampleJson.asJsonString())))
+        pre(code(fullJsonResponsePreviewPretty))
             .withStyle(
                 "background-color: lightgray; max-width: 100ch; overflow-wrap: break-word;"
                     + " white-space: pre-wrap;")
