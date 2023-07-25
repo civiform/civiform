@@ -53,14 +53,11 @@ public final class ProgramBlockValidation {
    * <p>This should be checked both during rendering to make sure admins don't see ineligible
    * questions when creating blocks. Also it should be checked during the actual server-side block
    * creating to ensure that no one can maliciously mess up data by sending specially crafted
-   * request (or in case we mess up client-side checks).
+   * request (or in case we mess up client-side checks). It also ensures that a question tombstoned
+   * in another browser tab, doesn't get accidently added to a program.
    */
   public AddQuestionResult canAddQuestion(
       ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
-    System.out.println("question" + question.getName());
-    for (String s : version.getTombstonedQuestionNames()) {
-      System.out.println("SSSS" + s);
-    }
     if (version.getTombstonedQuestionNames().contains(question.getName())) {
       return AddQuestionResult.QUESTION_TOMBSTONED;
     }
