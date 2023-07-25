@@ -13,9 +13,9 @@ import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
+import services.question.QuestionAnswerer;
 import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class EmailQuestionTest extends ResetPostgres {

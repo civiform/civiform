@@ -16,11 +16,11 @@ import play.i18n.Messages;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.applicant.question.ApplicantQuestion;
+import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class RadioButtonQuestionRendererTest {

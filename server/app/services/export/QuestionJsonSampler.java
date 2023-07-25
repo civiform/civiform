@@ -26,6 +26,7 @@ import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.TextQuestion;
 import services.program.ProgramQuestionDefinition;
 import services.question.LocalizedQuestionOption;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
@@ -48,10 +49,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     ApplicantData applicantData = new ApplicantData();
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(programQuestionDefinition, applicantData, Optional.empty());
+    addSampleData(applicantData, applicantQuestion);
 
     Q question = getQuestion(applicantQuestion);
-    addSampleData(applicantData, question);
-
     // Suppress warning about unchecked assignment because the JSON presenter is parameterized on
     // the question type, which we know matches Q.
     @SuppressWarnings("unchecked")
@@ -65,7 +65,7 @@ public interface QuestionJsonSampler<Q extends Question> {
 
   Q getQuestion(ApplicantQuestion applicantQuestion);
 
-  void addSampleData(ApplicantData applicantData, Q question);
+  void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion);
 
   QuestionJsonPresenter getJsonPresenter();
 
@@ -175,15 +175,20 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, AddressQuestion question) {
-      applicantData.putString(question.getStreetPath(), "742 Evergreen Terrace");
-      applicantData.putString(question.getCityPath(), "Springfield");
-      applicantData.putString(question.getStatePath(), "OR");
-      applicantData.putString(question.getZipPath(), "97403");
-      applicantData.putString(question.getLatitudePath(), "44.0462");
-      applicantData.putString(question.getLongitudePath(), "-123.0236");
-      applicantData.putString(question.getWellKnownIdPath(), "23214");
-      applicantData.putString(question.getServiceAreaPath(), "springfield_county");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerAddressQuestion(
+          applicantData,
+          applicantQuestion.getContextualizedPath(),
+          /* street= */ "742 Evergreen Terrace",
+          /* line2= */ "",
+          /* city= */ "Springfield",
+          /* state= */ "OR",
+          /* zip= */ "97403",
+          /* corrected= */ "",
+          /* latitude= */ 44.0462,
+          /* longitude= */ -123.0236,
+          /* wellKnownId= */ 23214L,
+          /* serviceArea= */ "springfield_county");
     }
 
     @Override
@@ -207,8 +212,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, CurrencyQuestion question) {
-      applicantData.putCurrencyDollars(question.getCurrencyPath(), "123.45");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerCurrencyQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "123.45");
     }
 
     @Override
@@ -231,8 +237,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, DateQuestion question) {
-      applicantData.putDate(question.getDatePath(), "2023-01-02");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerDateQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "2023-01-02");
     }
 
     @Override
@@ -255,8 +262,11 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, EmailQuestion question) {
-      applicantData.putString(question.getEmailPath(), "homer.simpson@springfield.gov");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerEmailQuestion(
+          applicantData,
+          applicantQuestion.getContextualizedPath(),
+          "homer.simpson@springfield.gov");
     }
 
     @Override
@@ -278,7 +288,7 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, Question question) {
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
       // no-op
     }
 
@@ -302,8 +312,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, FileUploadQuestion question) {
-      applicantData.putString(question.getFileKeyPath(), "my-file-key");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerFileQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "my-file-key");
     }
 
     @Override
@@ -326,8 +337,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, IdQuestion question) {
-      applicantData.putLong(question.getIdPath(), 12345L);
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerIdQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "12345");
     }
 
     @Override
@@ -352,18 +364,25 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, MultiSelectQuestion question) {
-      ImmutableList.Builder<Long> localizedOptionsBuilder = ImmutableList.builder();
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      ImmutableList<LocalizedQuestionOption> questionOptions =
+          applicantQuestion.createMultiSelectQuestion().getOptions();
 
       // Add up to two options to the sample data.
-      if (question.getOptions().size() > 0) {
-        localizedOptionsBuilder.add(question.getOptions().get(0).id());
+      if (questionOptions.size() > 0) {
+        QuestionAnswerer.answerMultiSelectQuestion(
+            applicantData,
+            applicantQuestion.getContextualizedPath(),
+            /* index= */ 0,
+            questionOptions.get(0).id());
       }
-      if (question.getOptions().size() > 1) {
-        localizedOptionsBuilder.add(question.getOptions().get(1).id());
+      if (questionOptions.size() > 1) {
+        QuestionAnswerer.answerMultiSelectQuestion(
+            applicantData,
+            applicantQuestion.getContextualizedPath(),
+            /* index= */ 1,
+            questionOptions.get(1).id());
       }
-
-      applicantData.putArray(question.getSelectionPath(), localizedOptionsBuilder.build());
     }
 
     @Override
@@ -386,10 +405,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, NameQuestion question) {
-      applicantData.putString(question.getFirstNamePath(), "Homer");
-      applicantData.putString(question.getMiddleNamePath(), "Jay");
-      applicantData.putString(question.getLastNamePath(), "Simpson");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerNameQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "Homer", "Jay", "Simpson");
     }
 
     @Override
@@ -413,8 +431,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, NumberQuestion question) {
-      applicantData.putLong(question.getNumberPath(), 12321);
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerNumberQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), 12321);
     }
 
     @Override
@@ -437,9 +456,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, PhoneQuestion question) {
-      applicantData.putPhoneNumber(question.getPhoneNumberPath(), "(214)-367-3764");
-      applicantData.putString(question.getCountryCodePath(), "US");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerPhoneQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "US", "(214)-367-3764");
     }
 
     @Override
@@ -465,10 +484,14 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, SingleSelectQuestion question) {
-      if (question.getOptions().size() != 0) {
-        LocalizedQuestionOption firstOption = question.getOptions().get(0);
-        applicantData.putLong(question.getSelectionPath(), firstOption.id());
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      ImmutableList<LocalizedQuestionOption> questionOptions =
+          applicantQuestion.createSingleSelectQuestion().getOptions();
+
+      if (questionOptions.size() != 0) {
+        LocalizedQuestionOption firstOption = questionOptions.get(0);
+        QuestionAnswerer.answerSingleSelectQuestion(
+            applicantData, applicantQuestion.getContextualizedPath(), firstOption.id());
       }
     }
 
@@ -492,8 +515,9 @@ public interface QuestionJsonSampler<Q extends Question> {
     }
 
     @Override
-    public void addSampleData(ApplicantData applicantData, TextQuestion question) {
-      applicantData.putString(question.getTextPath(), "I love CiviForm!");
+    public void addSampleData(ApplicantData applicantData, ApplicantQuestion applicantQuestion) {
+      QuestionAnswerer.answerTextQuestion(
+          applicantData, applicantQuestion.getContextualizedPath(), "I love CiviForm!");
     }
 
     @Override

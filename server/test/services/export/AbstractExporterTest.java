@@ -30,10 +30,10 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 /**
  * Superclass for tests that exercise exporters. Helps with generating programs, questions, and

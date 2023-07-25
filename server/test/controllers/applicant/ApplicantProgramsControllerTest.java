@@ -31,9 +31,9 @@ import play.test.Helpers;
 import repository.VersionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
