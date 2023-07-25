@@ -428,14 +428,15 @@ public final class VersionRepository {
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
     Set<Long> newActiveQuestionIds =
-      activeVersion.getQuestions().stream()
+        activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition().getId())
             .collect(Collectors.toSet());
-    Set<Long> missingQuestions = activeVersion.getPrograms().stream()
-        .map(program -> getQuestionsInProgram(program.getProgramDefinition()))
-        .flatMap(Collection::stream)
-        .filter(question -> !newActiveQuestionIds.contains(question))
-        .collect(Collectors.toSet());
+    Set<Long> missingQuestions =
+        activeVersion.getPrograms().stream()
+            .map(program -> getQuestionsInProgram(program.getProgramDefinition()))
+            .flatMap(Collection::stream)
+            .filter(question -> !newActiveQuestionIds.contains(question))
+            .collect(Collectors.toSet());
     if (!missingQuestions.isEmpty()) {
       throw new BadRequestException(String.format("Questions not found: %s", missingQuestions));
     }
@@ -611,8 +612,7 @@ public final class VersionRepository {
         .collect(ImmutableSet.toImmutableSet());
   }
 
-  private static ImmutableList<Long> getQuestionsInProgram(
-      ProgramDefinition program) {
+  private static ImmutableList<Long> getQuestionsInProgram(ProgramDefinition program) {
     return program.blockDefinitions().stream()
         .map(BlockDefinition::programQuestionDefinitions)
         .flatMap(ImmutableList::stream)
