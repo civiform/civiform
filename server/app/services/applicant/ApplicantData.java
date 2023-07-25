@@ -173,6 +173,7 @@ public class ApplicantData extends CfJsonDocumentContext {
     // The `updated_at` timestamp for an answer should not be considered when
     // comparing answers.
     try {
+      // The ".." in the path scans the entire document.
       applicantData.getDocumentContext().set("$..updated_at", 0);
     } catch (PathNotFoundException unused) {
       // Metadata may be missing in unit tests. No harm, no foul.
