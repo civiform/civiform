@@ -45,6 +45,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
 
     String allJsonSamples =
         "{\n"
+            + "  \"applicant_id\" : 123,\n"
             + "  \"application\" : {\n"
             + "    \"name\" : {\n"
             + "      \"first_name\" : \"Homer\",\n"
@@ -99,7 +100,15 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             + "    \"sample_text_question\" : {\n"
             + "      \"text\" : \"I love CiviForm!\"\n"
             + "    }\n"
-            + "  }\n"
+            + "  },\n"
+            + "  \"application_id\" : 456,\n"
+            + "  \"create_time\" : \"2023/05/25 1:46:15 PM PDT\",\n"
+            + "  \"language\" : \"en-US\",\n"
+            + "  \"program_name\" : \"admin name\",\n"
+            + "  \"program_version_id\" : 789,\n"
+            + "  \"status\" : \"current-status\",\n"
+            + "  \"submit_time\" : \"2023/05/26 1:46:15 PM PDT\",\n"
+            + "  \"submitter_email\" : \"homer.simpson@springfield.gov\"\n"
             + "}";
 
     assertThat(json.asPrettyJsonString()).isEqualTo(allJsonSamples);

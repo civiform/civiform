@@ -1,14 +1,16 @@
 package services.export;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static services.export.JsonExporter.exportEntriesToJsonApplication;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.time.Instant;
+import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.CfJsonDocumentContext;
 import services.Path;
+import services.export.JsonExporter.JsonExportData;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -16,10 +18,13 @@ import services.question.types.QuestionDefinition;
 public final class ProgramJsonSampler {
 
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
+  private final JsonExporter jsonExporter;
 
   @Inject
-  ProgramJsonSampler(QuestionJsonSampler.Factory questionJsonSamplerFactory) {
+  ProgramJsonSampler(
+      QuestionJsonSampler.Factory questionJsonSamplerFactory, JsonExporter jsonExporter) {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
+    this.jsonExporter = jsonExporter;
   }
 
   /**
@@ -27,10 +32,21 @@ public final class ProgramJsonSampler {
    * the API response looks like.
    */
   public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
+    JsonExportData.Builder jsonExportData =
+        JsonExportData.builder()
+            .setAdminName("admin name")
+            .setApplicantId(123L)
+            .setApplicationId(456L)
+            .setProgramId(789L)
+            .setLanguageTag(Locale.US.toLanguageTag())
+            .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
+            .setSubmitterEmail("homer.simpson@springfield.gov")
+            .setSubmitTimeOpt(Instant.ofEpochSecond(1685133975)) // May 26, 2023 4:46 pm EDT
+            .setStatusOpt(Optional.of("current-status"));
+
     ImmutableList<QuestionDefinition> questionDefinitions =
         programDefinition.streamQuestionDefinitions().collect(toImmutableList());
 
-    CfJsonDocumentContext sampleJson = new CfJsonDocumentContext();
     for (QuestionDefinition questionDefinition : questionDefinitions) {
       @SuppressWarnings("unchecked")
       ImmutableMap<Path, Optional<?>> questionEntries =
@@ -38,9 +54,9 @@ public final class ProgramJsonSampler {
               .create(questionDefinition.getQuestionType())
               .getSampleJsonEntries(questionDefinition);
 
-      exportEntriesToJsonApplication(sampleJson, questionEntries);
+      jsonExportData.addApplicationEntries(questionEntries);
     }
 
-    return sampleJson;
+    return jsonExporter.buildJsonApplication(jsonExportData.build());
   }
 }

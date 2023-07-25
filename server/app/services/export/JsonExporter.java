@@ -109,13 +109,13 @@ public final class JsonExporter {
             .setSubmitterEmail(application.getSubmitterEmail().orElse("Applicant"))
             .setSubmitTimeOpt(application.getSubmitTime())
             .setStatusOpt(application.getLatestStatus())
-            .setApplicationEntries(entriesBuilder.build())
+            .addApplicationEntries(entriesBuilder.build())
             .build();
 
     return buildJsonApplication(jsonExportData);
   }
 
-  private CfJsonDocumentContext buildJsonApplication(JsonExportData jsonExportData) {
+  CfJsonDocumentContext buildJsonApplication(JsonExportData jsonExportData) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
     jsonApplication.putString(Path.create("program_name"), jsonExportData.adminName());
@@ -147,7 +147,7 @@ public final class JsonExporter {
     return jsonApplication;
   }
 
-  public static void exportEntriesToJsonApplication(
+  private static void exportEntriesToJsonApplication(
       CfJsonDocumentContext jsonApplication, ImmutableMap<Path, Optional<?>> entries) {
     for (Map.Entry<Path, Optional<?>> entry : entries.entrySet()) {
       Path path = entry.getKey().asApplicationPath();
@@ -246,8 +246,12 @@ public final class JsonExporter {
 
       public abstract Builder setStatusOpt(Optional<String> statusOpt);
 
-      public abstract Builder setApplicationEntries(
-          ImmutableMap<Path, Optional<?>> applicationEntries);
+      abstract ImmutableMap.Builder<Path, Optional<?>> applicationEntriesBuilder();
+
+      public Builder addApplicationEntries(ImmutableMap<Path, Optional<?>> applicationEntries) {
+        applicationEntriesBuilder().putAll(applicationEntries);
+        return this;
+      }
 
       public abstract JsonExportData build();
     }
