@@ -3,6 +3,7 @@ package services.export;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
@@ -478,6 +479,20 @@ public class JsonExporterTest extends AbstractExporterTest {
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_phone.phone_number");
+  }
+
+  @Test
+  public void getResponseJson_wrapsPayloadCorrectly_withoutPaginationToken() {
+    String payload = "{\"United States\":{\"New York State\":[\"New York City\", \"Albany\"]}}";
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String result = exporter.getResponseJson(payload, Optional.empty());
+
+    assertThat(result)
+        .isEqualTo(
+            "{\"payload\":{\"United States\":{\"New York State\":[\"New York City\","
+                + " \"Albany\"]}},\"nextPageToken\":null}");
   }
 
   private static class ResultAsserter {
