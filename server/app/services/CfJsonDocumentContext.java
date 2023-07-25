@@ -2,9 +2,6 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.jayway.jsonpath.DocumentContext;
@@ -598,18 +595,6 @@ public class CfJsonDocumentContext {
 
   public String asJsonString() {
     return jsonData.jsonString();
-  }
-
-  public String asPrettyJsonString() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objectMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-    try {
-      Object jsonObject = getDocumentContext().json();
-      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
-    } catch (JsonProcessingException e) {
-      return "Error parsing json";
-    }
   }
 
   @Override

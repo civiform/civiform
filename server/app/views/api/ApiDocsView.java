@@ -15,6 +15,7 @@ import static j2html.TagCreator.pre;
 import static j2html.TagCreator.select;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
+import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -141,7 +142,7 @@ public class ApiDocsView extends BaseHtmlView {
     CfJsonDocumentContext sampleJson = programJsonSampler.getSampleJson(programDefinition);
 
     apiResponseSampleDiv.with(
-        pre(code(sampleJson.asPrettyJsonString()))
+        pre(code(asPrettyJsonString(sampleJson.asJsonString())))
             .withStyle(
                 "background-color: lightgray; max-width: 100ch; overflow-wrap: break-word;"
                     + " white-space: pre-wrap;")

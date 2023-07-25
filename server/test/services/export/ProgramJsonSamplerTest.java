@@ -3,6 +3,7 @@ package services.export;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static controllers.dev.seeding.SampleQuestionDefinitions.ALL_SAMPLE_QUESTION_DEFINITIONS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -149,6 +150,6 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             + "  \"submitter_email\" : \"homer.simpson@springfield.gov\"\n"
             + "}";
 
-    assertThat(json.asPrettyJsonString()).isEqualTo(allJsonSamples);
+    assertThat(asPrettyJsonString(json.asJsonString())).isEqualTo(allJsonSamples);
   }
 }
