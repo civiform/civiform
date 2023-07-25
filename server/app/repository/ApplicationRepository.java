@@ -127,13 +127,15 @@ public final class ApplicationRepository {
             || app.getLifecycleStage().equals(LifecycleStage.OBSOLETE)) {
           continue;
         }
+        boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
         LOGGER.warn(
             "Multiple applications found at submit time for applicant {} to program {} {}:"
-                + " application {}",
+                + " application {}, duplicate = {}",
             applicant.id,
             program.id,
             program.getProgramDefinition().adminName(),
-            app.id);
+            app.id,
+            isDuplicate);
 
         app.setSubmitTimeToNow();
         app.setLifecycleStage(LifecycleStage.OBSOLETE);

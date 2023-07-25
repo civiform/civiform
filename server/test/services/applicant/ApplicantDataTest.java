@@ -79,4 +79,56 @@ public class ApplicantDataTest {
     ApplicantData applicantData = new ApplicantData();
     assertThat(applicantData.getDateOfBirth()).isEqualTo(Optional.empty());
   }
+
+  @Test
+  public void isDuplicate_returnsTrue() {
+    String userName = "First Last";
+    String dob = "2022-01-05";
+
+    ApplicantData data1 = new ApplicantData();
+    data1.setUserName(userName);
+    data1.setDateOfBirth(dob);
+
+    ApplicantData data2 = new ApplicantData();
+    data2.setUserName(userName);
+    data2.setDateOfBirth(dob);
+
+    assertThat(data1.isDuplicateOf(data2)).isTrue();
+    assertThat(data2.isDuplicateOf(data1)).isTrue();
+  }
+
+  @Test
+  public void isDuplicate_returnsFalse() {
+    String userName1 = "First Last";
+    String userName2 = "User Name";
+    String dob = "2022-01-05";
+
+    ApplicantData data1 = new ApplicantData();
+    data1.setUserName(userName1);
+    data1.setDateOfBirth(dob);
+
+    ApplicantData data2 = new ApplicantData();
+    data2.setUserName(userName2);
+    data2.setDateOfBirth(dob);
+
+    assertThat(data1.isDuplicateOf(data2)).isFalse();
+    assertThat(data2.isDuplicateOf(data1)).isFalse();
+  }
+
+  @Test
+  public void isDuplicateWithMetadata_returnsTrue() {
+    // The only difference is the timestamp in the `updated_at` field.
+    //
+    // Since this field is not settable by any API, we use the JSON representation to specify the
+    // applicant data.
+    ApplicantData data1 =
+        new ApplicantData(
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690288712068}}}");
+    ApplicantData data2 =
+        new ApplicantData(
+            "{\"applicant\":{\"name\":{\"first_name\":\"First\",\"last_name\":\"Last\",\"program_updated_in\":2,\"updated_at\":1690293297676}}}");
+
+    assertThat(data1.isDuplicateOf(data2)).isTrue();
+    assertThat(data2.isDuplicateOf(data1)).isTrue();
+  }
 }

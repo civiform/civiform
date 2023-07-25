@@ -694,6 +694,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
   }
 
+  /** Enables the API docs tab on CiviForm. */
+  public boolean getApiGeneratedDocsEnabled() {
+    return getBool("API_GENERATED_DOCS_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1085,19 +1090,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "DB_JDBC_STRING",
                               "The database URL.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_USERNAME",
                               "The username used to connect to the database.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN),
                           SettingDescription.create(
                               "DB_PASSWORD",
                               "The password used to connect to the database.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.HIDDEN))),
                   SettingsSection.create(
@@ -1434,7 +1439,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the phone number question type.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "API_GENERATED_DOCS_ENABLED",
+                      "Enables the API docs tab on CiviForm.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_READABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -1447,7 +1458,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " key](http://www.playframework.com/documentation/latest/ApplicationSecret)"
                           + " is used to sign Play's session cookie. This must be changed for"
                           + " production.",
-                      /* isRequired= */ true,
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1491,7 +1502,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also"
                           + " shown on the login page if CIVIFORM_VERSION is the empty string or"
                           + " set to 'latest'.",
-                      /* isRequired= */ true,
+                      /* isRequired= */ false,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(

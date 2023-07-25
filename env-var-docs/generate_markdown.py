@@ -161,6 +161,13 @@ def generate_markdown(
         if group is not None:
             desc = group.group_description
         if var is not None:
+            if var.mode == env_var_docs.parser.Mode.ADMIN_WRITEABLE:
+                out += "**Admin writeable**\n\n"
+            elif var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
+                out += "**Admin readable**\n\n"
+            else:
+                out += "**Server setting**\n\n"
+
             desc = var.description
             if var.required:
                 desc += " **Required**."
@@ -172,7 +179,7 @@ def generate_markdown(
             if var.values is not None:
                 out += "- Allowed values:\n"
                 for val in var.values:
-                    out += f"   - {val}\n"
+                    out += f"   - `{val}`\n"
             if var.regex is not None:
                 out += f"- Validation regular expression: `{var.regex}`\n"
             if var.regex_tests is not None:

@@ -17,10 +17,13 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.TEXT_QUESTION_DE
 import static controllers.dev.seeding.SampleQuestionDefinitions.dateEnumeratedQuestionDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
-import services.CfJsonDocumentContext;
+import services.Path;
 import services.question.types.QuestionType;
 
 public class QuestionJsonSamplerTest extends ResetPostgres {
@@ -34,264 +37,237 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
 
   @Test
   public void samplesAddressQuestion() {
-
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ADDRESS)
-            .getSampleJson(ADDRESS_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(ADDRESS_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_address_question\" : {\n"
-                + "      \"zip\" : \"97403\",\n"
-                + "      \"city\" : \"Springfield\",\n"
-                + "      \"street\" : \"742 Evergreen Terrace\",\n"
-                + "      \"latitude\" : \"44.0462\",\n"
-                + "      \"well_known_id\" : \"23214\",\n"
-                + "      \"service_area\" : \"springfield_county\",\n"
-                + "      \"state\" : \"OR\",\n"
-                + "      \"line2\" : null,\n"
-                + "      \"corrected\" : null,\n"
-                + "      \"longitude\" : \"-123.0236\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.<Path, Optional<String>>builder()
+                .put(Path.create("applicant.sample_address_question.zip"), Optional.of("97403"))
+                .put(
+                    Path.create("applicant.sample_address_question.city"),
+                    Optional.of("Springfield"))
+                .put(
+                    Path.create("applicant.sample_address_question.street"),
+                    Optional.of("742 Evergreen Terrace"))
+                .put(
+                    Path.create("applicant.sample_address_question.latitude"),
+                    Optional.of("44.0462"))
+                .put(
+                    Path.create("applicant.sample_address_question.well_known_id"),
+                    Optional.of("23214"))
+                .put(
+                    Path.create("applicant.sample_address_question.service_area"),
+                    Optional.of("springfield_county"))
+                .put(Path.create("applicant.sample_address_question.state"), Optional.of("OR"))
+                .put(Path.create("applicant.sample_address_question.line2"), Optional.empty())
+                .put(Path.create("applicant.sample_address_question.corrected"), Optional.empty())
+                .put(
+                    Path.create("applicant.sample_address_question.longitude"),
+                    Optional.of("-123.0236"))
+                .build());
   }
 
   @Test
   public void samplesCurrencyQuestion() {
-
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.CURRENCY)
-            .getSampleJson(CURRENCY_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(CURRENCY_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_currency_question\" : {\n"
-                + "      \"currency_dollars\" : 123.45\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_currency_question.currency_dollars"),
+                Optional.of(123.45)));
   }
 
   @Test
   public void samplesDateQuestion() {
-
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
-            .getSampleJson(DATE_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(DATE_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_date_question\" : {\n"
-                + "      \"date\" : \"2023-01-02\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_date_question.date"), Optional.of("2023-01-02")));
   }
 
   @Test
   public void samplesEmailQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.EMAIL)
-            .getSampleJson(EMAIL_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(EMAIL_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_email_question\" : {\n"
-                + "      \"email\" : \"homer.simpson@springfield.gov\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_email_question.email"),
+                Optional.of("homer.simpson@springfield.gov")));
   }
 
   @Test
   public void samplesFileUploadQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.FILEUPLOAD)
-            .getSampleJson(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(FILE_UPLOAD_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_file_upload_question\" : {\n"
-                + "      \"file_key\" :"
-                + " \"http://localhost:9000/admin/applicant-files/my-file-key\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_file_upload_question.file_key"),
+                Optional.of("http://localhost:9000/admin/applicant-files/my-file-key")));
   }
 
   @Test
   public void samplesIdQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ID)
-            .getSampleJson(ID_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(ID_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_id_question\" : {\n"
-                + "      \"id\" : \"12345\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(Path.create("applicant.sample_id_question.id"), Optional.of("12345")));
   }
 
   @Test
   public void samplesMultiSelectQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.CHECKBOX)
-            .getSampleJson(CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(CHECKBOX_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_checkbox_question\" : {\n"
-                + "      \"selections\" : [ \"toaster\", \"pepper grinder\" ]\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_checkbox_question.selections"),
+                Optional.of(Arrays.asList("toaster", "pepper grinder"))));
   }
 
   @Test
   public void samplesNameQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.NAME)
-            .getSampleJson(NAME_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(NAME_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"name\" : {\n"
-                + "      \"last_name\" : \"Simpson\",\n"
-                + "      \"middle_name\" : \"Jay\",\n"
-                + "      \"first_name\" : \"Homer\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.name.first_name"),
+                Optional.of("Homer"),
+                Path.create("applicant.name.middle_name"),
+                Optional.of("Jay"),
+                Path.create("applicant.name.last_name"),
+                Optional.of("Simpson")));
   }
 
   @Test
   public void samplesNumberQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.NUMBER)
-            .getSampleJson(NUMBER_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(NUMBER_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_number_question\" : {\n"
-                + "      \"number\" : 12321\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_number_question.number"), Optional.of(12321L)));
   }
 
   @Test
   public void samplesPhoneQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.PHONE)
-            .getSampleJson(PHONE_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(PHONE_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_phone_question\" : {\n"
-                + "      \"phone_number\" : \"+12143673764\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_phone_question.phone_number"),
+                Optional.of("+12143673764")));
   }
 
   @Test
   public void samplesSingleSelectQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.RADIO_BUTTON)
-            .getSampleJson(RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(RADIO_BUTTON_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_radio_button_question\" : {\n"
-                + "      \"selection\" : \"winter (will hide next block)\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_radio_button_question.selection"),
+                Optional.of("winter (will hide next block)")));
   }
 
   @Test
   public void samplesTextQuestion() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.TEXT)
-            .getSampleJson(TEXT_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(TEXT_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString())
-        .isEqualTo(
-            "{\n"
-                + "  \"application\" : {\n"
-                + "    \"sample_text_question\" : {\n"
-                + "      \"text\" : \"I love CiviForm!\"\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
+    assertThat(entries)
+        .containsExactlyInAnyOrderEntriesOf(
+            ImmutableMap.of(
+                Path.create("applicant.sample_text_question.text"),
+                Optional.of("I love CiviForm!")));
   }
 
   @Test
   public void staticQuestions_returnEmpty() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.STATIC)
-            .getSampleJson(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString()).isEqualTo("{ }");
+    assertThat(entries).isEmpty();
   }
 
   // TODO(#4975): update this test once enumerator questions are supported.
   @Test
   public void enumeratorQuestions_returnEmpty() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.ENUMERATOR)
-            .getSampleJson(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId());
+            .getSampleJsonEntries(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString()).isEqualTo("{ }");
+    assertThat(entries).isEmpty();
   }
 
   // TODO(#5238): update this test once enumerated questions are supported.
   @Test
   public void enumeratedQuestions_returnEmpty() {
-    CfJsonDocumentContext json =
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
         questionJsonSamplerFactory
             .create(QuestionType.DATE)
-            .getSampleJson(dateEnumeratedQuestionDefinition(1L).withPopulatedTestId());
+            .getSampleJsonEntries(dateEnumeratedQuestionDefinition(1L).withPopulatedTestId());
 
-    assertThat(json.asPrettyJsonString()).isEqualTo("{ }");
+    assertThat(entries).isEmpty();
   }
 }

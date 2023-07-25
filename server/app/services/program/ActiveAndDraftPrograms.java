@@ -98,10 +98,18 @@ public final class ActiveAndDraftPrograms {
   }
 
   public Optional<ProgramDefinition> getActiveProgramDefinition(String name) {
+    if (!versionedByName.containsKey(name)) {
+      return Optional.empty();
+    }
+
     return versionedByName.get(name).first();
   }
 
   public Optional<ProgramDefinition> getDraftProgramDefinition(String name) {
+    if (!versionedByName.containsKey(name)) {
+      return Optional.empty();
+    }
+
     return versionedByName.get(name).second();
   }
 

@@ -212,6 +212,9 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "applicant favorite color\n"
           + "Some Value \" containing ,,, special characters\n"
           + "Answered on : 1969-12-31\n"
+          + "applicant favorite season\n"
+          + "winter\n"
+          + "Answered on : 1969-12-31\n"
           + "applicant file\n"
           + "-- my-file-key UPLOADED (click to download) --\n"
           + "Answered on : 1969-12-31\n"
@@ -240,7 +243,5 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "Answered on : 1969-12-31\n"
           + "number of items applicant can juggle\n"
           + "123456\n"
-          + "Answered on : 1969-12-31\n"
-          + "radio\n"
-          + "winter\n";
+          + "Answered on : 1969-12-31\n";
 }

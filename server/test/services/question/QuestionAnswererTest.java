@@ -1,4 +1,4 @@
-package support;
+package services.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,7 +53,7 @@ public class QuestionAnswererTest {
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 0, 5L);
     QuestionAnswerer.answerMultiSelectQuestion(applicantData, path, 1, 6L);
 
-    assertThat(applicantData.readList(path.join(Scalar.SELECTIONS)))
+    assertThat(applicantData.readLongList(path.join(Scalar.SELECTIONS)))
         .contains(ImmutableList.of(5L, 6L));
   }
 

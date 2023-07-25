@@ -146,7 +146,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
       return Optional.empty();
     }
     String linkDestination =
-        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.adminName()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON);

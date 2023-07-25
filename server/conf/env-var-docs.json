@@ -275,20 +275,17 @@
           "DB_JDBC_STRING": {
             "mode": "HIDDEN",
             "description": "The database URL.",
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "DB_USERNAME": {
             "mode": "HIDDEN",
             "description": "The username used to connect to the database.",
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "DB_PASSWORD": {
             "mode": "HIDDEN",
             "description": "The password used to connect to the database.",
-            "type": "string",
-            "required": true
+            "type": "string"
           }
         }
       },
@@ -430,8 +427,7 @@
   "SECRET_KEY": {
     "mode": "HIDDEN",
     "description": "The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used to sign Play's session cookie. This must be changed for production.",
-    "type": "string",
-    "required": true
+    "type": "string"
   },
   "BASE_URL": {
     "mode": "ADMIN_READABLE",
@@ -470,8 +466,7 @@
   "CIVIFORM_IMAGE_TAG": {
     "mode": "ADMIN_READABLE",
     "description": "The tag of the docker image this server is running inside. Is added as a HTML meta tag with name 'civiform-build-tag'. If SHOW_CIVIFORM_IMAGE_TAG_ON_LANDING_PAGE is set to true, is also shown on the login page if CIVIFORM_VERSION is the empty string or set to 'latest'.",
-    "type": "string",
-    "required": true
+    "type": "string"
   },
   "CIVIFORM_VERSION": {
     "mode": "ADMIN_READABLE",
@@ -590,6 +585,11 @@
       "PHONE_QUESTION_TYPE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the phone number question type.",
+        "type": "bool"
+      },
+      "API_GENERATED_DOCS_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables the API docs tab on CiviForm.",
         "type": "bool"
       }
     }

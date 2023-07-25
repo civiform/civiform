@@ -2,7 +2,7 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
+import com.google.common.collect.ImmutableList;
 import models.Application;
 import models.Program;
 import org.junit.Test;
@@ -12,6 +12,13 @@ import services.IdentifierBasedPaginationSpec;
 import services.Path;
 
 public class JsonExporterTest extends AbstractExporterTest {
+
+  // TODO(#5257): Refactor testAllQuestionTypesWithoutEnumerators() and
+  // testQuestionTypesWithEnumerators()
+  // into behavior-specific tests. Remaining work is:
+  // - Test enumerator questions and other remaining question types.
+  // - Test repeated entities where some and none of the repeated questions are answered.
+  // - Test that only ACTIVE applications are included in the response
 
   @Test
   public void testAllQuestionTypesWithoutEnumerators() throws Exception {
@@ -29,61 +36,70 @@ public class JsonExporterTest extends AbstractExporterTest {
                 SubmittedApplicationFilter.EMPTY)
             .getLeft();
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
-    System.out.println(resultJsonString);
 
     resultAsserter.assertLengthOf(3);
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationOne, 2);
     resultAsserter.assertValueAtPath("$[2].status", STATUS_VALUE);
-    resultAsserter.assertValueAtPath(2, ".applicant_name.first_name", "Alice");
-    resultAsserter.assertNullValueAtPath(2, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtPath(2, ".applicant_name.last_name", "Appleton");
-    resultAsserter.assertValueAtPath(2, ".applicant_birth_date.date", "1980-01-01");
-    resultAsserter.assertValueAtPath(2, ".applicant_email_address.email", "one@example.com");
-    resultAsserter.assertValueAtPath(2, ".applicant_address.zip", "54321");
-    resultAsserter.assertValueAtPath(2, ".applicant_address.city", "city");
-    resultAsserter.assertValueAtPath(2, ".applicant_address.street", "street st");
-    resultAsserter.assertValueAtPath(2, ".applicant_address.state", "AB");
-    resultAsserter.assertValueAtPath(2, ".applicant_address.line2", "apt 100");
-    resultAsserter.assertValueAtPath(1, ".applicant_phone.phone_number", "+16157571010");
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_name.first_name", "Alice");
+    resultAsserter.assertNullValueAtApplicationPath(2, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_name.last_name", "Appleton");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_birth_date.date", "1980-01-01");
+    resultAsserter.assertValueAtApplicationPath(
+        2, ".applicant_email_address.email", "one@example.com");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.zip", "54321");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.city", "city");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.street", "street st");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.state", "AB");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_address.line2", "apt 100");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_phone.phone_number", "+16157571010");
+    resultAsserter.assertValueAtApplicationPath(
         2, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
-    resultAsserter.assertValueAtPath(2, ".applicant_monthly_income.currency_dollars", 1234.56);
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(
+        2, ".applicant_monthly_income.currency_dollars", 1234.56);
+    resultAsserter.assertValueAtApplicationPath(
         2, ".applicant_file.file_key", "http://localhost:9000/admin/applicant-files/my-file-key");
-    resultAsserter.assertValueAtPath(2, ".number_of_items_applicant_can_juggle.number", 123456);
-    resultAsserter.assertValueAtPath(2, ".kitchen_tools.selections[0]", "toaster");
-    resultAsserter.assertValueAtPath(2, ".kitchen_tools.selections[1]", "pepper grinder");
-    resultAsserter.assertValueAtPath(2, ".applicant_ice_cream.selection", "strawberry");
-    resultAsserter.assertValueAtPath(2, ".radio.selection", "winter");
+    resultAsserter.assertValueAtApplicationPath(
+        2, ".number_of_items_applicant_can_juggle.number", 123456);
+    resultAsserter.assertValueAtApplicationPath(2, ".kitchen_tools.selections[0]", "toaster");
+    resultAsserter.assertValueAtApplicationPath(
+        2, ".kitchen_tools.selections[1]", "pepper grinder");
+    resultAsserter.assertValueAtApplicationPath(2, ".applicant_ice_cream.selection", "strawberry");
+    resultAsserter.assertValueAtApplicationPath(
+        2, ".applicant_favorite_season.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationTwo, 1);
     resultAsserter.assertValueAtPath("$[1].status", STATUS_VALUE);
-    resultAsserter.assertValueAtPath(1, ".applicant_name.first_name", "Alice");
-    resultAsserter.assertNullValueAtPath(1, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtPath(1, ".applicant_name.last_name", "Appleton");
-    resultAsserter.assertValueAtPath(1, ".applicant_birth_date.date", "1980-01-01");
-    resultAsserter.assertValueAtPath(1, ".applicant_email_address.email", "one@example.com");
-    resultAsserter.assertValueAtPath(1, ".applicant_address.zip", "54321");
-    resultAsserter.assertValueAtPath(1, ".applicant_address.city", "city");
-    resultAsserter.assertValueAtPath(1, ".applicant_address.street", "street st");
-    resultAsserter.assertValueAtPath(1, ".applicant_address.state", "AB");
-    resultAsserter.assertValueAtPath(1, ".applicant_address.line2", "apt 100");
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_name.first_name", "Alice");
+    resultAsserter.assertNullValueAtApplicationPath(1, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_name.last_name", "Appleton");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_birth_date.date", "1980-01-01");
+    resultAsserter.assertValueAtApplicationPath(
+        1, ".applicant_email_address.email", "one@example.com");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.zip", "54321");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.city", "city");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.street", "street st");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.state", "AB");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_address.line2", "apt 100");
+    resultAsserter.assertValueAtApplicationPath(
         1, ".applicant_favorite_color.text", "Some Value \" containing ,,, special characters");
-    resultAsserter.assertValueAtPath(1, ".applicant_monthly_income.currency_dollars", 1234.56);
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(
+        1, ".applicant_monthly_income.currency_dollars", 1234.56);
+    resultAsserter.assertValueAtApplicationPath(
         1, ".applicant_file.file_key", "http://localhost:9000/admin/applicant-files/my-file-key");
-    resultAsserter.assertValueAtPath(1, ".number_of_items_applicant_can_juggle.number", 123456);
-    resultAsserter.assertValueAtPath(1, ".kitchen_tools.selections[0]", "toaster");
-    resultAsserter.assertValueAtPath(1, ".kitchen_tools.selections[1]", "pepper grinder");
-    resultAsserter.assertValueAtPath(1, ".applicant_ice_cream.selection", "strawberry");
-    resultAsserter.assertValueAtPath(1, ".radio.selection", "winter");
+    resultAsserter.assertValueAtApplicationPath(
+        1, ".number_of_items_applicant_can_juggle.number", 123456);
+    resultAsserter.assertValueAtApplicationPath(1, ".kitchen_tools.selections[0]", "toaster");
+    resultAsserter.assertValueAtApplicationPath(
+        1, ".kitchen_tools.selections[1]", "pepper grinder");
+    resultAsserter.assertValueAtApplicationPath(1, ".applicant_ice_cream.selection", "strawberry");
+    resultAsserter.assertValueAtApplicationPath(
+        1, ".applicant_favorite_season.selection", "winter");
 
     testApplicationTopLevelAnswers(fakeProgram, resultAsserter, applicationFour, 0);
-    resultAsserter.assertNullValueAtPath(0, ".status");
-    resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "Bob");
-    resultAsserter.assertNullValueAtPath(0, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Baker");
+    resultAsserter.assertNullValueAtPath("$[0].status");
+    resultAsserter.assertValueAtApplicationPath(0, ".applicant_name.first_name", "Bob");
+    resultAsserter.assertNullValueAtApplicationPath(0, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtApplicationPath(0, ".applicant_name.last_name", "Baker");
   }
 
   @Test
@@ -121,31 +137,33 @@ public class JsonExporterTest extends AbstractExporterTest {
             .getLeft();
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
     resultAsserter.assertLengthOf(3);
 
     testApplicationTopLevelAnswers(fakeProgramWithEnumerator, resultAsserter, applicationOne, 2);
     testApplicationTopLevelAnswers(fakeProgramWithEnumerator, resultAsserter, applicationTwo, 1);
     testApplicationTopLevelAnswers(fakeProgramWithEnumerator, resultAsserter, applicationThree, 0);
-    resultAsserter.assertValueAtPath(0, ".applicant_name.first_name", "John");
-    resultAsserter.assertNullValueAtPath(0, ".applicant_name.middle_name");
-    resultAsserter.assertValueAtPath(0, ".applicant_name.last_name", "Doe");
-    resultAsserter.assertValueAtPath(0, ".applicant_favorite_color.text", "brown");
-    resultAsserter.assertNullValueAtPath(0, ".applicant_monthly_income.currency_cents");
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(0, ".applicant_name.first_name", "John");
+    resultAsserter.assertNullValueAtApplicationPath(0, ".applicant_name.middle_name");
+    resultAsserter.assertValueAtApplicationPath(0, ".applicant_name.last_name", "Doe");
+    resultAsserter.assertValueAtApplicationPath(0, ".applicant_favorite_color.text", "brown");
+    resultAsserter.assertNullValueAtApplicationPath(
+        0, ".applicant_monthly_income.currency_dollars");
+    resultAsserter.assertValueAtApplicationPath(
         0, ".applicant_household_members[0].household_members_name.last_name", "Jameson");
-    resultAsserter.assertNullValueAtPath(
+    resultAsserter.assertNullValueAtApplicationPath(
         0, ".applicant_household_members[0].household_members_name.middle_name");
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(
         0, ".applicant_household_members[0].household_members_name.first_name", "James");
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(
         0,
         ".applicant_household_members[0].household_members_jobs[0].household_members_days_worked.number",
         111);
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(
         0,
         ".applicant_household_members[0].household_members_jobs[1].household_members_days_worked.number",
         222);
-    resultAsserter.assertValueAtPath(
+    resultAsserter.assertValueAtApplicationPath(
         0,
         ".applicant_household_members[0].household_members_jobs[2].household_members_days_worked.number",
         333);
@@ -163,6 +181,305 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].submitter_email", "Applicant");
   }
 
+  @Test
+  public void export_whenAddressQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller()
+        .answerAddressQuestion("12345 E South St", "Apt 8i", "CityVille Township", "OR", "54321")
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(".applicant_address.street", "12345 E South St");
+    resultAsserter.assertValueAtApplicationPath(".applicant_address.line2", "Apt 8i");
+    resultAsserter.assertValueAtApplicationPath(".applicant_address.city", "CityVille Township");
+    resultAsserter.assertValueAtApplicationPath(".applicant_address.state", "OR");
+    resultAsserter.assertValueAtApplicationPath(".applicant_address.zip", "54321");
+  }
+
+  @Test
+  public void export_whenAddressQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.street");
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.line2");
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.city");
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.state");
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_address.zip");
+  }
+
+  @Test
+  public void export_whenCheckboxQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller()
+        .answerCheckboxQuestion(
+            ImmutableList.of(
+                2L, // "pepper grinder"
+                3L // "garlic press"
+                ))
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(
+        ".kitchen_tools.selections", ImmutableList.of("pepper grinder", "garlic press"));
+  }
+
+  @Test
+  public void export_whenCheckboxQuestionIsNotAnswered_valueInResponseIsEmptyArray() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(".kitchen_tools.selections", ImmutableList.of());
+  }
+
+  @Test
+  public void export_whenCurrencyQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().answerCurrencyQuestion("5,444.33").submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(
+        ".applicant_monthly_income.currency_dollars", 5444.33);
+  }
+
+  @Test
+  public void export_whenCurrencyQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_monthly_income.currency_dollars");
+  }
+
+  @Test
+  public void export_whenDateQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().answerDateQuestion("2015-10-21").submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(".applicant_birth_date.date", "2015-10-21");
+  }
+
+  @Test
+  public void export_whenDateQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_birth_date.date");
+  }
+
+  @Test
+  public void export_whenEmailQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().answerEmailQuestion("chell@aperturescience.com").submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(
+        ".applicant_email_address.email", "chell@aperturescience.com");
+  }
+
+  @Test
+  public void export_whenEmailQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_email_address.email");
+  }
+
+  @Test
+  public void export_whenNumberQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().answerNumberQuestion(42).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(".number_of_items_applicant_can_juggle.number", 42);
+  }
+
+  @Test
+  public void export_whenNumberQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtApplicationPath(".number_of_items_applicant_can_juggle.number");
+  }
+
+  @Test
+  public void export_whenPhoneQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().answerPhoneQuestion("US", "(555) 867-5309").submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtApplicationPath(".applicant_phone.phone_number", "+15558675309");
+  }
+
+  @Test
+  public void export_whenPhoneQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    createFakeProgram();
+    new FakeApplicationFiller().submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtApplicationPath(".applicant_phone.phone_number");
+  }
+
   private static class ResultAsserter {
     public final CfJsonDocumentContext resultJson;
 
@@ -170,36 +487,68 @@ public class JsonExporterTest extends AbstractExporterTest {
       this.resultJson = new CfJsonDocumentContext(resultJsonString);
     }
 
-    void assertLengthOf(int num) {
+    private void assertLengthOf(int num) {
       assertThat((int) resultJson.getDocumentContext().read("$.length()")).isEqualTo(num);
     }
 
-    void assertValueAtPath(String path, String value) {
+    private void assertValueAtPath(String path, String value) {
       assertThat(resultJson.readString(Path.create(path)).get()).isEqualTo(value);
     }
 
-    void assertValueAtPath(int resultNumber, String innerPath, String value) {
+    private void assertValueAtPath(String path, Long value) {
+      assertThat(resultJson.readLong(Path.create(path)).get()).isEqualTo(value);
+    }
+
+    private void assertNullValueAtPath(String path) {
+      Path pathToTest = Path.create(path);
+      assertThat(resultJson.hasPath(pathToTest)).isTrue();
+      assertThat(resultJson.readString(pathToTest)).isEmpty();
+    }
+
+    private void assertValueAtApplicationPath(String innerPath, String value) {
+      assertValueAtApplicationPath(0, innerPath, value);
+    }
+
+    private void assertValueAtApplicationPath(int resultNumber, String innerPath, String value) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.readString(path).get()).isEqualTo(value);
     }
 
-    void assertValueAtPath(int resultNumber, String innerPath, int value) {
+    private void assertValueAtApplicationPath(String innerPath, int value) {
+      assertValueAtApplicationPath(0, innerPath, value);
+    }
+
+    private void assertValueAtApplicationPath(int resultNumber, String innerPath, int value) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.readLong(path).get()).isEqualTo(value);
     }
 
-    void assertValueAtPath(int resultNumber, String innerPath, double value) {
+    private void assertValueAtApplicationPath(String innerPath, double value) {
+      assertValueAtApplicationPath(0, innerPath, value);
+    }
+
+    private void assertValueAtApplicationPath(int resultNumber, String innerPath, double value) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.readDouble(path).get()).isEqualTo(value);
     }
 
-    void assertNullValueAtPath(int resultNumber, String innerPath) {
-      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
-      assertThat(resultJson.readString(path)).isEqualTo(Optional.empty());
+    private void assertValueAtApplicationPath(String innerPath, ImmutableList<String> list) {
+      assertValueAtApplicationPath(0, innerPath, list);
     }
 
-    void assertValueAtPath(String path, Long value) {
-      assertThat(resultJson.readLong(Path.create(path)).get()).isEqualTo(value);
+    private void assertValueAtApplicationPath(
+        int resultNumber, String innerPath, ImmutableList<String> list) {
+      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
+      assertThat(resultJson.readStringList(path)).hasValue(list);
+    }
+
+    private void assertNullValueAtApplicationPath(String innerPath) {
+      assertNullValueAtApplicationPath(0, innerPath);
+    }
+
+    private void assertNullValueAtApplicationPath(int resultNumber, String innerPath) {
+      Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
+      assertThat(resultJson.hasNullValueAtPath(path)).isTrue();
     }
   }
 }

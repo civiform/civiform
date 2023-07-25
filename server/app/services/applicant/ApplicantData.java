@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
@@ -151,5 +152,31 @@ public class ApplicantData extends CfJsonDocumentContext {
 
   public void setDateOfBirth(String dateOfBirth) {
     putDate(WellKnownPaths.APPLICANT_DOB, dateOfBirth);
+  }
+
+  /**
+   * Returns `true` if the answers in `other` match the answers in the current object. Ignores
+   * `updated_at` timestamps when comparing answers.
+   */
+  public boolean isDuplicateOf(ApplicantData other) {
+    // Copy data and clear fields not required for comparison.
+    ApplicantData thisApplicantData = new ApplicantData(this.preferredLocale, this.asJsonString());
+    clearFieldsNotRequiredForComparison(thisApplicantData);
+    ApplicantData otherApplicantData =
+        new ApplicantData(other.preferredLocale, other.asJsonString());
+    clearFieldsNotRequiredForComparison(otherApplicantData);
+
+    return thisApplicantData.asJsonString().equals(otherApplicantData.asJsonString());
+  }
+
+  private static void clearFieldsNotRequiredForComparison(ApplicantData applicantData) {
+    // The `updated_at` timestamp for an answer should not be considered when
+    // comparing answers.
+    try {
+      // The ".." in the path scans the entire document.
+      applicantData.getDocumentContext().set("$..updated_at", 0);
+    } catch (PathNotFoundException unused) {
+      // Metadata may be missing in unit tests. No harm, no foul.
+    }
   }
 }

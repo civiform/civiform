@@ -22,9 +22,9 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ValidationErrorMessage;
+import services.question.QuestionAnswerer;
 import services.question.types.IdQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class IdQuestionTest extends ResetPostgres {

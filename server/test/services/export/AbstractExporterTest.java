@@ -30,10 +30,10 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 /**
  * Superclass for tests that exercise exporters. Helps with generating programs, questions, and
@@ -506,5 +506,120 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
+  }
+
+  /** A "Builder" to fill a fake application one question at a time. */
+  class FakeApplicationFiller {
+    Account admin;
+    Applicant applicant;
+
+    public FakeApplicationFiller() {
+      admin = resourceCreator.insertAccount();
+      applicant = resourceCreator.insertApplicantWithAccount();
+    }
+
+    public FakeApplicationFiller answerAddressQuestion(
+        String street, String line2, String city, String state, String zip) {
+      Path answerPath =
+          testQuestionBank
+              .applicantAddress()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerAddressQuestion(
+          applicant.getApplicantData(), answerPath, street, line2, city, state, zip);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
+      Path answerPath =
+          testQuestionBank
+              .applicantKitchenTools()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      for (int i = 0; i < optionIds.size(); i++) {
+        QuestionAnswerer.answerMultiSelectQuestion(applicantData, answerPath, i, optionIds.get(i));
+      }
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerCurrencyQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantMonthlyIncome()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerCurrencyQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerDateQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantDate()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerDateQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerEmailQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantEmail()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerNumberQuestion(long answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantJugglingNumber()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
+      Path answerPath =
+          testQuestionBank
+              .applicantPhone()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerPhoneQuestion(
+          applicant.getApplicantData(), answerPath, countryCode, phoneNumber);
+      applicant.save();
+      return this;
+    }
+
+    public Application submit() {
+      Application application = new Application(applicant, fakeProgram, LifecycleStage.ACTIVE);
+      application.setApplicantData(applicant.getApplicantData());
+      application.save();
+
+      // CreateTime of an application is set through @onCreate to Instant.now(). To change
+      // the value, manually set createTime and save and refresh the application.
+      application.setCreateTimeForTest(FAKE_CREATE_TIME);
+      application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+      application.save();
+
+      return application;
+    }
   }
 }
