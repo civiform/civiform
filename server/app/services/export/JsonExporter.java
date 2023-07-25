@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -79,24 +80,55 @@ public final class JsonExporter {
       Application application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
+
+    String adminName = application.getProgram().getProgramDefinition().adminName();
+    long applicantId = application.getApplicant().id;
+    long applicationId = application.id;
+    String languageTag =
+        roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag();
+    Instant createTime = application.getCreateTime();
+    String submitterEmail = application.getSubmitterEmail().orElse("Applicant");
+    Instant submitTime = application.getSubmitTime();
+    Optional<String> status = application.getLatestStatus();
+    ImmutableList<AnswerData> answerDatas = roApplicantProgramService.getSummaryData();
+
+    return buildJsonApplication(
+        adminName,
+        applicantId,
+        applicationId,
+        languageTag,
+        createTime,
+        submitterEmail,
+        submitTime,
+        status,
+        answerDatas,
+        programDefinition);
+  }
+
+  private CfJsonDocumentContext buildJsonApplication(
+      String adminName,
+      long applicantId,
+      long applicationId,
+      String languageTag,
+      Instant createTime,
+      String submitterEmail,
+      Instant submitTimeOpt,
+      Optional<String> statusOpt,
+      ImmutableList<AnswerData> answerDatas,
+      ProgramDefinition programDefinition) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
+    jsonApplication.putString(Path.create("program_name"), adminName);
+    jsonApplication.putLong(Path.create("program_version_id"), programDefinition.id());
+    jsonApplication.putLong(Path.create("applicant_id"), applicantId);
+    jsonApplication.putLong(Path.create("application_id"), applicationId);
+    jsonApplication.putString(Path.create("language"), languageTag);
     jsonApplication.putString(
-        Path.create("program_name"), application.getProgram().getProgramDefinition().adminName());
-    jsonApplication.putLong(Path.create("program_version_id"), application.getProgram().id);
-    jsonApplication.putLong(Path.create("applicant_id"), application.getApplicant().id);
-    jsonApplication.putLong(Path.create("application_id"), application.id);
-    jsonApplication.putString(
-        Path.create("language"),
-        roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag());
-    jsonApplication.putString(
-        Path.create("create_time"),
-        dateConverter.renderDateTimeDataOnly(application.getCreateTime()));
-    jsonApplication.putString(
-        Path.create("submitter_email"), application.getSubmitterEmail().orElse("Applicant"));
+        Path.create("create_time"), dateConverter.renderDateTimeDataOnly(createTime));
+    jsonApplication.putString(Path.create("submitter_email"), submitterEmail);
 
     Path submitTimePath = Path.create("submit_time");
-    Optional.ofNullable(application.getSubmitTime())
+    Optional.ofNullable(submitTimeOpt)
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
@@ -104,31 +136,24 @@ public final class JsonExporter {
             () -> jsonApplication.putNull(submitTimePath));
 
     Path statusPath = Path.create("status");
-    application
-        .getLatestStatus()
-        .ifPresentOrElse(
-            status -> jsonApplication.putString(statusPath, status),
-            () -> jsonApplication.putNull(statusPath));
+    statusOpt.ifPresentOrElse(
+        status -> jsonApplication.putString(statusPath, status),
+        () -> jsonApplication.putNull(statusPath));
 
-    for (AnswerData answerData : roApplicantProgramService.getSummaryData()) {
-      exportToJsonApplication(jsonApplication, answerData);
+    for (AnswerData answerData : answerDatas) {
+      // We suppress the unchecked warning because create() returns a genericized
+      // QuestionJsonPresenter, but we ignore the generic's type so that we can get
+      // the json entries for any Question in one line.
+      @SuppressWarnings("unchecked")
+      ImmutableMap<Path, Optional<?>> entries =
+          presenterFactory
+              .create(answerData.applicantQuestion().getType())
+              .getJsonEntries(answerData.createQuestion());
+
+      exportEntriesToJsonApplication(jsonApplication, entries);
     }
 
     return jsonApplication;
-  }
-
-  private void exportToJsonApplication(
-      CfJsonDocumentContext jsonApplication, AnswerData answerData) {
-    // We suppress the unchecked warning because create() returns a genericized
-    // QuestionJsonPresenter, but we ignore the generic's type so that we can get
-    // the json entries for any Question in one line.
-    @SuppressWarnings("unchecked")
-    ImmutableMap<Path, Optional<?>> entries =
-        presenterFactory
-            .create(answerData.applicantQuestion().getType())
-            .getJsonEntries(answerData.createQuestion());
-
-    exportEntriesToJsonApplication(jsonApplication, entries);
   }
 
   public static void exportEntriesToJsonApplication(
