@@ -168,7 +168,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void testPublishWithDraftQuestionsAndActivePrograms() throws Exception {
+  public void testPublishWithQuestionsNotIncludedInPrograms() throws Exception {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
     Question secondQuestion = resourceCreator.insertQuestion("second-question");
@@ -199,6 +199,49 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
 
+    // Trying to publish program without calling updateProgramsThatReferenceQuestion
+    assertThatThrownBy(() -> versionRepository.publishNewSynchronizedVersion())
+        .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void testPublishWithDraftQuestionsAndActivePrograms() throws Exception {
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
+    Question secondQuestion = resourceCreator.insertQuestion("second-question");
+    secondQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    Program firstProgramActive =
+        ProgramBuilder.newActiveProgram("foo")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(firstQuestion)
+            .build();
+    Program secondProgramActive =
+        ProgramBuilder.newActiveProgram("bar")
+            .withBlock("Screen 1")
+            .withRequiredQuestion(secondQuestion)
+            .build();
+
+    Version draftForTombstoning = versionRepository.getDraftVersion();
+    draftForTombstoning.addQuestion(firstQuestion).save();
+    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
+    secondQuestionUpdated.addVersion(versionRepository.getDraftVersion()).save();
+    versionRepository.updateProgramsThatReferenceQuestion(secondQuestion.id);
+
+    assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
+        .containsExactlyInAnyOrder(firstProgramActive.id, secondProgramActive.id);
+    assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
+    // Second program is in draft, since a question within it was updated.
+    Program newSecondProgram = versionRepository.getDraftVersion().getPrograms().get(0);
+    assertThat(
+            versionRepository.getDraftVersion().getPrograms().stream()
+                .map(p -> p.getProgramDefinition().adminName()))
+        .containsExactlyInAnyOrder(secondProgramActive.getProgramDefinition().adminName());
+    assertThat(versionRepository.getDraftVersion().getQuestions().stream().map(q -> q.id))
+        .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
+
     Version oldDraft = versionRepository.getDraftVersion();
     Version oldActive = versionRepository.getActiveVersion();
 
@@ -214,7 +257,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersion().getQuestions()).isEmpty();
 
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
-        .containsExactlyInAnyOrder(secondProgramActive.id, firstProgramActive.id);
+        .containsExactlyInAnyOrder(newSecondProgram.id, firstProgramActive.id);
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestionUpdated.id);
     oldActive.refresh();
