@@ -159,6 +159,13 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public CompletionStage<ProgramDefinition> getDraftProgramDefinitionAsync(String programSlug) {
+    return programRepository
+        .getDraftProgramFromSlug(programSlug)
+        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+  }
+
+  @Override
   public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
         .map(program -> syncProgramAssociations(program).toCompletableFuture().join())

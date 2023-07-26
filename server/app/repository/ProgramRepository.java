@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
@@ -155,17 +156,29 @@ public final class ProgramRepository {
 
   /** Get the current active program with the provided slug. */
   public CompletableFuture<Program> getActiveProgramFromSlug(String slug) {
+    return getProgramFromSlug(slug, VersionRepository::getActiveVersion);
+  }
+
+  /**
+   * Get the current draft program with the provided slug. Throws an unchecked exception if there is
+   * no draft program available.
+   */
+  public CompletableFuture<Program> getDraftProgramFromSlug(String slug) {
+    return getProgramFromSlug(slug, VersionRepository::getDraftVersion);
+  }
+
+  private CompletableFuture<Program> getProgramFromSlug(
+      String slug, Function<VersionRepository, Version> versionFn) {
     return supplyAsync(
         () -> {
           for (Program program : database.find(Program.class).where().isNull("slug").findList()) {
             program.getSlug();
             program.save();
           }
-          ImmutableList<Program> activePrograms =
-              versionRepository.get().getActiveVersion().getPrograms();
+          ImmutableList<Program> programs = versionFn.apply(versionRepository.get()).getPrograms();
           List<Program> programsMatchingSlug =
               database.find(Program.class).where().eq("slug", slug).findList();
-          return activePrograms.stream()
+          return programs.stream()
               .filter(programsMatchingSlug::contains)
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
