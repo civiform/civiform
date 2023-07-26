@@ -425,11 +425,11 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
-    Set<Long> newActiveQuestionIds =
+    ImmutableSet<Long> newActiveQuestionIds =
         activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition().getId())
             .collect(ImmutableSet.toImmutableSet());
-    Set<Long> missingQuestionIds =
+    ImmutableSet<Long> missingQuestionIds =
         activeVersion.getPrograms().stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
