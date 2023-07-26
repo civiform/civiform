@@ -17,6 +17,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
+import services.applicant.question.EnumeratorQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NumberQuestion;
@@ -57,6 +58,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     private final CurrencyJsonPresenter currencyJsonPresenter;
     private final ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter;
     private final DateJsonPresenter dateJsonPresenter;
+    private final EnumeratorJsonPresenter enumeratorJsonPresenter;
     private final EmptyJsonPresenter emptyJsonPresenter;
     private final FileUploadJsonPresenter fileUploadJsonPresenter;
     private final NumberJsonPresenter numberJsonPresenter;
@@ -70,6 +72,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
         ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter,
         DateJsonPresenter dateJsonPresenter,
         PhoneJsonPresenter phoneJsonPresenter,
+        EnumeratorJsonPresenter enumeratorJsonPresenter,
         EmptyJsonPresenter emptyJsonPresenter,
         SingleSelectJsonPresenter singleSelectJsonPresenter,
         NumberJsonPresenter numberJsonPresenter,
@@ -77,6 +80,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
         MultiSelectJsonPresenter multiSelectJsonPresenter) {
       this.currencyJsonPresenter = checkNotNull(currencyJsonPresenter);
       this.contextualizedScalarsJsonPresenter = checkNotNull(contextualizedScalarsJsonPresenter);
+      this.enumeratorJsonPresenter = checkNotNull(enumeratorJsonPresenter);
       this.emptyJsonPresenter = checkNotNull(emptyJsonPresenter);
       this.dateJsonPresenter = checkNotNull(dateJsonPresenter);
       this.fileUploadJsonPresenter = checkNotNull(fileUploadJsonPresenter);
@@ -99,7 +103,8 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
           // identifier value for each repeated entity, which with the current export logic
           // conflicts with the answers stored for repeated entities. TODO(#4975)
         case ENUMERATOR:
-
+          System.out.println(questionType);
+          return enumeratorJsonPresenter;
           // Static content questions are not included in API responses because they
           // do not include an answer from the user.
         case STATIC:
@@ -198,6 +203,16 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
       Path path = question.getDatePath();
 
       return ImmutableMap.of(path, question.getDateValue().map(DateTimeFormatter.ISO_DATE::format));
+    }
+  }
+
+  class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion, String> {
+    @Override
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(EnumeratorQuestion question) {
+      Path path = question.getApplicantQuestion().getContextualizedPath();
+      System.out.println(path.toString());
+      return ImmutableMap.of(path, Optional.of("avaleske hi"));
+      // this is putting an array with "avaleske hi" inside at the path, cause the path ends in []
     }
   }
 
