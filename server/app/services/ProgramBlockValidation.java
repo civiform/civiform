@@ -53,8 +53,8 @@ public final class ProgramBlockValidation {
    * <p>This should be checked both during rendering to make sure admins don't see ineligible
    * questions when creating blocks. Also it should be checked during the actual server-side block
    * creating to ensure that no one can maliciously mess up data by sending specially crafted
-   * request (or in case we mess up client-side checks). It also ensures that a question tombstoned
-   * in another browser tab, doesn't get accidently added to a program.
+   * request (or in case we mess up client-side checks). It also ensures that a question is not tombstoned
+   * (marked for deletion) in the current draft.
    */
   public AddQuestionResult canAddQuestion(
       ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
