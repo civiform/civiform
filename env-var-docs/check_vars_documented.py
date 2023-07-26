@@ -15,6 +15,7 @@ import pprint
 import re
 import sys
 import typing
+from typing import Union
 
 
 def errorexit(msg):
@@ -157,7 +158,7 @@ def vars_from_application_conf(app_conf_path: str) -> dict[str, ServerVar]:
 
 def vars_from_docs(
     docs_file: typing.TextIO
-) -> tuple[dict[str, env_var_docs.parser.Variable] | None,
+) -> tuple[Union[dict[str, env_var_docs.parser.Variable], None],
            list[env_var_docs.parser.NodeParseError]]:
     """If docs_file has no parsing errors, returns the set of defined
     environment variables in an environment variable documentation file.
