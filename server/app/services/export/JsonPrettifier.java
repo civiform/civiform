@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/** Provides methods related to "prettifying" (formatting) JSON strings. */
 public final class JsonPrettifier {
   public static String asPrettyJsonString(String original) {
     ObjectMapper objectMapper = new ObjectMapper();
