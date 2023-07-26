@@ -447,8 +447,8 @@ public final class VersionRepository {
       throw new IllegalStateException(
           String.format(
               "Illegal state encountered when attempting to publish a new version. Question IDs"
-                  + " found in program definitions %s not found in new active version: %s",
-              programIdsMissingQuestions, missingQuestionIds));
+                  + " %s found in program definitions %s not found in new active version.",
+              missingQuestionIds, programIdsMissingQuestions));
     }
   }
 
