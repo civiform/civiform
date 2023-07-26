@@ -22,10 +22,10 @@ public abstract class RepeatedEntity {
    */
   public ImmutableList<RepeatedEntity> createNestedRepeatedEntities(
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
-      Optional<PredicateDefinition> visibiity,
+      Optional<PredicateDefinition> visibility,
       ApplicantData applicantData) {
     return RepeatedEntity.createRepeatedEntities(
-        Optional.of(this), enumeratorQuestionDefinition, visibiity, applicantData);
+        Optional.of(this), enumeratorQuestionDefinition, visibility, applicantData);
   }
 
   /**
@@ -34,17 +34,17 @@ public abstract class RepeatedEntity {
    */
   public static ImmutableList<RepeatedEntity> createRepeatedEntities(
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
-      Optional<PredicateDefinition> visibiity,
+      Optional<PredicateDefinition> visibility,
       ApplicantData applicantData) {
     return RepeatedEntity.createRepeatedEntities(
-        Optional.empty(), enumeratorQuestionDefinition, visibiity, applicantData);
+        Optional.empty(), enumeratorQuestionDefinition, visibility, applicantData);
   }
 
   /** Creates all the non-nested repeated entities associated with the enumerator question. */
   private static ImmutableList<RepeatedEntity> createRepeatedEntities(
       Optional<RepeatedEntity> parent,
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
-      Optional<PredicateDefinition> visibiity,
+      Optional<PredicateDefinition> visibility,
       ApplicantData applicantData) {
     Path contextualizedEnumeratorPath =
         parent
@@ -56,7 +56,7 @@ public abstract class RepeatedEntity {
     ImmutableList.Builder<RepeatedEntity> repeatedEntitiesBuilder = ImmutableList.builder();
     for (int i = 0; i < entityNames.size(); i++) {
       repeatedEntitiesBuilder.add(
-          create(enumeratorQuestionDefinition, visibiity, parent, entityNames.get(i), i));
+          create(enumeratorQuestionDefinition, visibility, parent, entityNames.get(i), i));
     }
     return repeatedEntitiesBuilder.build();
   }
@@ -64,14 +64,14 @@ public abstract class RepeatedEntity {
   /** Creates an instance of RepeatedEntity, using AutoValue. */
   private static RepeatedEntity create(
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
-      Optional<PredicateDefinition> visibiity,
+      Optional<PredicateDefinition> visibility,
       Optional<RepeatedEntity> parent,
       String entityName,
       int index) {
     assert enumeratorQuestionDefinition.isEnumerator();
-    Preconditions.checkNotNull(visibiity);
+    Preconditions.checkNotNull(visibility);
     return new AutoValue_RepeatedEntity(
-        enumeratorQuestionDefinition, visibiity, parent, entityName, index);
+        enumeratorQuestionDefinition, visibility, parent, entityName, index);
   }
 
   /** AutoValue Getters. */
