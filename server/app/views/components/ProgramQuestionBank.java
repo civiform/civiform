@@ -25,6 +25,8 @@ import org.apache.http.client.utils.URIBuilder;
 import play.mvc.Http;
 import play.mvc.Http.HttpVerbs;
 import services.ProgramBlockValidation;
+import services.ProgramBlockValidation.AddQuestionResult;
+import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
@@ -38,6 +40,7 @@ public final class ProgramQuestionBank {
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
 
   private final ProgramQuestionBankParams params;
+  private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   /**
    * Possible states of question bank upon rendering. Normally it starts hidden and triggered by
@@ -49,8 +52,11 @@ public final class ProgramQuestionBank {
     HIDDEN
   }
 
-  public ProgramQuestionBank(ProgramQuestionBankParams params) {
+  public ProgramQuestionBank(
+      ProgramQuestionBankParams params,
+      ProgramBlockValidationFactory programBlockValidationFactory) {
     this.params = checkNotNull(params);
+    this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
   public DivTag getContainer(Visibility questionBankVisibility, boolean phoneQuestionTypeEnabled) {
@@ -223,11 +229,12 @@ public final class ProgramQuestionBank {
    * </ul>
    */
   private Stream<QuestionDefinition> filterQuestions() {
+    ProgramBlockValidation programBlockValidation = programBlockValidationFactory.create();
     return params.questions().stream()
         .filter(
             q ->
-                ProgramBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
-                    == ProgramBlockValidation.AddQuestionResult.ELIGIBLE);
+                programBlockValidation.canAddQuestion(params.program(), params.blockDefinition(), q)
+                    == AddQuestionResult.ELIGIBLE);
   }
 
   /**
