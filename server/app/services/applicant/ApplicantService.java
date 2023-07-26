@@ -395,7 +395,7 @@ public final class ApplicantService {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenCompose(v -> submitterProfile.getAccount())
+          .thenComposeAsync(v -> submitterProfile.getAccount(), httpExecutionContext.current())
           .thenComposeAsync(
               account ->
                   submitApplication(
