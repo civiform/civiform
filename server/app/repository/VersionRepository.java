@@ -17,6 +17,7 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -87,11 +88,12 @@ public final class VersionRepository {
   }
 
   private Version publishNewSynchronizedVersion(PublishMode publishMode) {
+    // Regardless of whether changes are published or not, we still perform
+    // this operation inside of a transaction in order to ensure we have
+    // consistent reads.
+    Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      // Regardless of whether changes are published or not, we still perform
-      // this operation inside of a transaction in order to ensure we have
-      // consistent reads.
-      database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
       Version draft = getDraftVersion();
       Version active = getActiveVersion();
 
@@ -166,17 +168,17 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
+          validateProgramQuestionState();
           break;
         case DRY_RUN:
           break;
         default:
           throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
       }
-      database.commitTransaction();
-
+      transaction.commit();
       return draft;
     } finally {
-      database.endTransaction();
+      transaction.end();
     }
   }
 
@@ -260,6 +262,9 @@ public final class VersionRepository {
       existingDraft.save();
       active.save();
       newDraft.save();
+      active.refresh();
+      newDraft.refresh();
+      validateProgramQuestionState();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -415,6 +420,36 @@ public final class VersionRepository {
   public boolean isActiveProgram(Long programId) {
     return getActiveVersion().getPrograms().stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));
+  }
+
+  /** Validate all programs have associated questions. */
+  private void validateProgramQuestionState() {
+    Version activeVersion = getActiveVersion();
+    ImmutableSet<Long> newActiveQuestionIds =
+        activeVersion.getQuestions().stream()
+            .map(question -> question.getQuestionDefinition().getId())
+            .collect(ImmutableSet.toImmutableSet());
+    ImmutableSet<Long> missingQuestionIds =
+        activeVersion.getPrograms().stream()
+            .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
+            .flatMap(Collection::stream)
+            .filter(questionId -> !newActiveQuestionIds.contains(questionId))
+            .collect(ImmutableSet.toImmutableSet());
+    if (!missingQuestionIds.isEmpty()) {
+      ImmutableSet<Long> programIdsMissingQuestions =
+          activeVersion.getPrograms().stream()
+              .filter(
+                  program ->
+                      program.getProgramDefinition().getQuestionIdsInProgram().stream()
+                          .anyMatch(id -> missingQuestionIds.contains(id)))
+              .map(program -> program.getProgramDefinition().id())
+              .collect(ImmutableSet.toImmutableSet());
+      throw new IllegalStateException(
+          String.format(
+              "Illegal state encountered when attempting to publish a new version. Question IDs"
+                  + " %s found in program definitions %s not found in new active version.",
+              missingQuestionIds, programIdsMissingQuestions));
+    }
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
@@ -581,10 +616,7 @@ public final class VersionRepository {
    */
   private static ImmutableSet<String> getProgramQuestionNames(
       ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
-    return program.blockDefinitions().stream()
-        .map(BlockDefinition::programQuestionDefinitions)
-        .flatMap(ImmutableList::stream)
-        .map(ProgramQuestionDefinition::id)
+    return program.getQuestionIdsInProgram().stream()
         .filter(questionIdToNameLookup::containsKey)
         .map(questionIdToNameLookup::get)
         .collect(ImmutableSet.toImmutableSet());
