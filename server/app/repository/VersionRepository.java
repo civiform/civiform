@@ -94,7 +94,7 @@ public final class VersionRepository {
     Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      Version draft = getDraftVersion();
+      Version draft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramNames();
@@ -198,7 +198,7 @@ public final class VersionRepository {
     Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      Version existingDraft = getDraftVersion();
+      Version existingDraft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
       // Any drafts not being published right now will be moved to newDraft.
       Version newDraft = new Version(LifecycleStage.DRAFT);
@@ -288,7 +288,7 @@ public final class VersionRepository {
   }
 
   /** Get the current draft version. Creates it if one does not exist. */
-  public Version getDraftVersion() {
+  public Version getDraftVersionOrCreate() {
     Optional<Version> version =
         database
             .find(Version.class)
@@ -326,7 +326,7 @@ public final class VersionRepository {
       // We cannot have this transaction on the thread-local transaction stack when that
       // happens.
       transaction.end();
-      return getDraftVersion();
+      return getDraftVersionOrCreate();
     } finally {
       // This may come after a prior call to `transaction.end` in the event of a
       // precondition failure - this is okay, since it a double-call to `end` on
@@ -352,7 +352,7 @@ public final class VersionRepository {
     String questionName =
         database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
     Optional<Question> draftQuestion =
-        getDraftVersion().getQuestions().stream()
+        getDraftVersionOrCreate().getQuestions().stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
             .findFirst();
     if (draftQuestion.isPresent()) {
@@ -396,7 +396,7 @@ public final class VersionRepository {
   }
 
   public boolean isDraft(Question question) {
-    return getDraftVersion().getQuestions().stream()
+    return getDraftVersionOrCreate().getQuestions().stream()
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
@@ -407,7 +407,7 @@ public final class VersionRepository {
 
   /** Returns true if the program with the provided id is a member of the current draft version. */
   public boolean isDraftProgram(Long programId) {
-    return getDraftVersion().getPrograms().stream()
+    return getDraftVersionOrCreate().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
@@ -537,7 +537,7 @@ public final class VersionRepository {
    */
   public void updateProgramsThatReferenceQuestion(long oldQuestionId) {
     // Update all DRAFT program revisions that reference the question.
-    getDraftVersion().getPrograms().stream()
+    getDraftVersionOrCreate().getPrograms().stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .forEach(this::updateQuestionVersions);
 
@@ -547,7 +547,7 @@ public final class VersionRepository {
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .filter(
             program ->
-                getDraftVersion()
+                getDraftVersionOrCreate()
                     .getProgramByName(program.getProgramDefinition().adminName())
                     .isEmpty())
         .forEach(programRepository::createOrUpdateDraft);

@@ -27,7 +27,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
 
   public ReadOnlyCurrentQuestionServiceImpl(VersionRepository repository) {
     Version activeVersion = repository.getActiveVersion();
-    Version draftVersion = repository.getDraftVersion();
+    Version draftVersion = repository.getDraftVersionOrCreate();
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();

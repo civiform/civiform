@@ -11,7 +11,7 @@ import repository.VersionRepository;
  *
  * <p>Needed because - for every question in the question picker, we will need to check if the
  * question is tombstoned, resulting in n+1 DB queries. To avoid this, we create a factory object
- * injecting a VersionRepository and calling getDraftVersion() only once per request.
+ * injecting a VersionRepository and calling getDraftVersionOrCreate() only once per request.
  */
 public final class ProgramBlockValidationFactory {
 
@@ -23,7 +23,7 @@ public final class ProgramBlockValidationFactory {
   }
   /** Creating a ProgramBlockValidation object with version(DB object) as its member variable */
   public ProgramBlockValidation create() {
-    Version version = versionRepository.getDraftVersion();
+    Version version = versionRepository.getDraftVersionOrCreate();
     return new ProgramBlockValidation(version);
   }
 }

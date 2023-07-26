@@ -196,7 +196,7 @@ public final class AdminProgramController extends CiviFormController {
       // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
       Optional<Program> existingDraft =
           versionRepository
-              .getDraftVersion()
+              .getDraftVersionOrCreate()
               .getProgramByName(programService.getProgramDefinition(programId).adminName());
       final Long idToEdit;
       if (existingDraft.isPresent()) {

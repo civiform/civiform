@@ -23,7 +23,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   public void setProgramBlockValidation()
       throws services.question.exceptions.QuestionNotFoundException {
     versionRepository = instanceOf(repository.VersionRepository.class);
-    Version version = versionRepository.getDraftVersion();
+    Version version = versionRepository.getDraftVersionOrCreate();
     String tombstonedQuestionOneName = "tombstoneOne";
     questionForTombstone = resourceCreator.insertQuestion(tombstonedQuestionOneName);
     version.addQuestion(questionForTombstone);

@@ -42,7 +42,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         versionRepository.getActiveVersion(), tombstonedQuestionFromActiveVersion);
 
     versionRepository
-        .getDraftVersion()
+        .getDraftVersionOrCreate()
         .addQuestion(resourceCreator.insertQuestion("active-and-draft-question"))
         .addQuestion(resourceCreator.insertQuestion("draft-only-question"))
         .save();
@@ -75,7 +75,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         versionRepository.getActiveVersion(), tombstonedQuestionFromActiveVersion);
 
     versionRepository
-        .getDraftVersion()
+        .getDraftVersionOrCreate()
         .addQuestion(activeAndDraftQuestionUpdated)
         .addQuestion(draftOnlyQuestion)
         .save();
@@ -147,7 +147,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     versionRepository.getActiveVersion().addQuestion(activeVersionQuestion).save();
 
     Question draftVersionQuestion = resourceCreator.insertQuestion("draft-version-question");
-    versionRepository.getDraftVersion().addQuestion(draftVersionQuestion).save();
+    versionRepository.getDraftVersionOrCreate().addQuestion(draftVersionQuestion).save();
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
@@ -160,10 +160,10 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(question).save();
     versionRepository
-        .getDraftVersion()
+        .getDraftVersionOrCreate()
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
-    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
+    addTombstoneToVersion(versionRepository.getDraftVersionOrCreate(), question);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
@@ -172,8 +172,8 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   @Test
   public void getDeletionStatus_createdAndTombstonedInDraftVersion() throws Exception {
     Question question = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository.getDraftVersion().addQuestion(question).save();
-    addTombstoneToVersion(versionRepository.getDraftVersion(), question);
+    versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
+    addTombstoneToVersion(versionRepository.getDraftVersionOrCreate(), question);
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.PENDING_DELETION);
@@ -229,7 +229,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // Adding a draft edit of the question continues to be considered deletable.
     Question questionDraft = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository.getDraftVersion().addQuestion(questionDraft).save();
+    versionRepository.getDraftVersionOrCreate().addQuestion(questionDraft).save();
 
     assertThat(newActiveAndDraftQuestions().getDeletionStatus(TEST_QUESTION_NAME))
         .isEqualTo(DeletionStatus.DELETABLE);
@@ -244,7 +244,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
     versionRepository
-        .getDraftVersion()
+        .getDraftVersionOrCreate()
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
 
@@ -270,7 +270,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // Make an edit of the question in the draft version and leave it unreferenced.
     versionRepository
-        .getDraftVersion()
+        .getDraftVersionOrCreate()
         .addQuestion(resourceCreator.insertQuestion(TEST_QUESTION_NAME))
         .save();
     result = newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
@@ -318,7 +318,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
             .withBlock("Screen 1")
             .withRequiredQuestion(question)
             .build();
-    versionRepository.getDraftVersion().addQuestion(question).save();
+    versionRepository.getDraftVersionOrCreate().addQuestion(question).save();
 
     ActiveAndDraftQuestions.ReferencingPrograms result =
         newActiveAndDraftQuestions().getReferencingPrograms(TEST_QUESTION_NAME);
@@ -352,7 +352,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // No longer reference the question from the first program.
     Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
-    versionRepository.getDraftVersion().addQuestion(draftQuestion).save();
+    versionRepository.getDraftVersionOrCreate().addQuestion(draftQuestion).save();
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
     Program secondProgramDraft =
         ProgramBuilder.newDraftProgram("second-program")

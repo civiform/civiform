@@ -182,7 +182,7 @@ public final class ProgramServiceImpl implements ProgramService {
   private boolean isActiveOrDraftProgram(Program program) {
     return Streams.concat(
             versionRepository.getActiveVersion().getPrograms().stream(),
-            versionRepository.getDraftVersion().getPrograms().stream())
+            versionRepository.getDraftVersionOrCreate().getPrograms().stream())
         .anyMatch(p -> p.id.equals(program.id));
   }
 
@@ -236,7 +236,7 @@ public final class ProgramServiceImpl implements ProgramService {
             externalLink,
             displayMode,
             ImmutableList.of(emptyBlock),
-            versionRepository.getDraftVersion(),
+            versionRepository.getDraftVersionOrCreate(),
             programType,
             programAcls);
 

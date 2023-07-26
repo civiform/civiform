@@ -106,7 +106,7 @@ public final class DevDatabaseSeedTask {
         questionService.getExistingQuestions(sampleQuestionNames);
     if (existingSampleQuestions.size() < sampleQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
-      versionRepository.getDraftVersion();
+      versionRepository.getDraftVersionOrCreate();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();

@@ -182,7 +182,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify the draft is there.
     Optional<Question> draftQuestion =
-        versionRepository.getDraftVersion().getQuestionByName(nameQuestion.getName());
+        versionRepository.getDraftVersionOrCreate().getQuestionByName(nameQuestion.getName());
     assertThat(draftQuestion).isPresent();
     assertThat(draftQuestion.get().getQuestionDefinition().getQuestionText())
         .isEqualTo(toUpdate.getQuestionText());
@@ -191,7 +191,8 @@ public class QuestionServiceTest extends ResetPostgres {
     questionService.discardDraft(draftId);
 
     // Verify.
-    assertThat(versionRepository.getDraftVersion().getQuestionByName(nameQuestion.getName()))
+    assertThat(
+            versionRepository.getDraftVersionOrCreate().getQuestionByName(nameQuestion.getName()))
         .isNotPresent();
   }
 
@@ -221,7 +222,7 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify.
     Optional<Question> dependentDraft =
-        versionRepository.getDraftVersion().getQuestionByName(dependentQuestion.getName());
+        versionRepository.getDraftVersionOrCreate().getQuestionByName(dependentQuestion.getName());
     assertThat(dependentDraft).isPresent();
     assertThat(dependentDraft.get().getQuestionDefinition().getEnumeratorId().get())
         .isEqualTo(enumeratorActiveId);
@@ -231,10 +232,10 @@ public class QuestionServiceTest extends ResetPostgres {
   public void archiveQuestion_notReferencedSucceeds() throws Exception {
     Question addressQuestion = testQuestionBank.applicantAddress();
 
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
     questionService.archiveQuestion(addressQuestion.id);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
   }
 
@@ -248,11 +249,11 @@ public class QuestionServiceTest extends ResetPostgres {
         .withBlock()
         .build();
 
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
     assertThatThrownBy(() -> questionService.archiveQuestion(addressQuestion.id))
         .isInstanceOf(InvalidUpdateException.class);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
   }
 
@@ -261,36 +262,36 @@ public class QuestionServiceTest extends ResetPostgres {
     Question addressQuestion = testQuestionBank.applicantAddress();
     questionService.archiveQuestion(addressQuestion.id);
 
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
     assertThatThrownBy(() -> questionService.archiveQuestion(addressQuestion.id))
         .isInstanceOf(InvalidUpdateException.class);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
   }
 
   @Test
   public void archiveQuestion_invalidIdFails() {
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
     assertThatThrownBy(() -> questionService.archiveQuestion(Long.MAX_VALUE))
         .isInstanceOf(InvalidUpdateException.class);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
   }
 
   @Test
   public void archiveQuestion_createsDraftIfNoneExists() throws Exception {
     Question addressQuestion = testQuestionBank.applicantAddress();
 
-    assertThat(versionRepository.getDraftVersion().getQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
 
     questionService.archiveQuestion(addressQuestion.id);
 
-    assertThat(versionRepository.getDraftVersion().getQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
   }
 
@@ -299,10 +300,10 @@ public class QuestionServiceTest extends ResetPostgres {
     Question addressQuestion = testQuestionBank.applicantAddress();
     questionService.archiveQuestion(addressQuestion.id);
 
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
     questionService.restoreQuestion(addressQuestion.id);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames())
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
   }
 
@@ -310,17 +311,17 @@ public class QuestionServiceTest extends ResetPostgres {
   public void restoreQuestion_notArchivedFails() {
     Question addressQuestion = testQuestionBank.applicantAddress();
 
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
     assertThatThrownBy(() -> questionService.restoreQuestion(addressQuestion.id))
         .isInstanceOf(InvalidUpdateException.class);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
   }
 
   @Test
   public void restoreQuestion_invalidIdFails() {
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
     assertThatThrownBy(() -> questionService.restoreQuestion(Long.MAX_VALUE))
         .isInstanceOf(InvalidUpdateException.class);
-    assertThat(versionRepository.getDraftVersion().getTombstonedQuestionNames()).isEmpty();
+    assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames()).isEmpty();
   }
 }
