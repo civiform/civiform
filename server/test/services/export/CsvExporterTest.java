@@ -196,7 +196,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
-    createFakeProgramWithEnumerator();
+    createFakeProgramWithEnumeratorAndAnswerQuestions();
 
     CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
@@ -236,7 +236,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
-    createFakeProgramWithEnumerator();
+    createFakeProgramWithEnumeratorAndAnswerQuestions();
 
     // Generate default CSV
     CsvExporterService exporterService = instanceOf(CsvExporterService.class);
