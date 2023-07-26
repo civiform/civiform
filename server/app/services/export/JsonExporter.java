@@ -2,10 +2,15 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
+import controllers.api.ApiPaginationTokenPayload;
+import controllers.api.ApiPaginationTokenSerializer;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -34,17 +39,20 @@ public final class JsonExporter {
   private final ProgramService programService;
   private final DateConverter dateConverter;
   private final QuestionJsonPresenter.Factory presenterFactory;
+  private final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
 
   @Inject
   JsonExporter(
       ApplicantService applicantService,
       ProgramService programService,
       DateConverter dateConverter,
-      QuestionJsonPresenter.Factory presenterFactory) {
+      QuestionJsonPresenter.Factory presenterFactory,
+      ApiPaginationTokenSerializer apiPaginationTokenSerializer) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.dateConverter = dateConverter;
     this.presenterFactory = checkNotNull(presenterFactory);
+    this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
   }
 
   public Pair<String, PaginationResult<Application>> export(
@@ -145,6 +153,33 @@ public final class JsonExporter {
 
     exportEntriesToJsonApplication(jsonApplication, jsonExportData.applicationEntries());
     return jsonApplication;
+  }
+
+  public String getResponseJson(
+      String payload, Optional<ApiPaginationTokenPayload> paginationTokenPayload) {
+    var writer = new StringWriter();
+
+    try {
+      var jsonGenerator = new JsonFactory().createGenerator(writer);
+      jsonGenerator.writeStartObject();
+      jsonGenerator.writeFieldName("payload");
+      jsonGenerator.writeRawValue(payload);
+
+      jsonGenerator.writeFieldName("nextPageToken");
+      if (paginationTokenPayload.isPresent()) {
+        jsonGenerator.writeString(
+            apiPaginationTokenSerializer.serialize(paginationTokenPayload.get()));
+      } else {
+        jsonGenerator.writeNull();
+      }
+
+      jsonGenerator.writeEndObject();
+      jsonGenerator.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+    return writer.toString();
   }
 
   private static void exportEntriesToJsonApplication(

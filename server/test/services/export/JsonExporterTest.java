@@ -1,8 +1,10 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
@@ -478,6 +480,27 @@ public class JsonExporterTest extends AbstractExporterTest {
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_phone.phone_number");
+  }
+
+  @Test
+  public void getResponseJson_wrapsPayloadCorrectly() {
+    String payload = "{\"United States\":{\"New York State\":[\"New York City\", \"Albany\"]}}";
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String result =
+        exporter.getResponseJson(payload, /* paginationTokenPayload= */ Optional.empty());
+
+    assertThat(asPrettyJsonString(result))
+        .isEqualTo(
+            "{\n"
+                + "  \"nextPageToken\" : null,\n"
+                + "  \"payload\" : {\n"
+                + "    \"United States\" : {\n"
+                + "      \"New York State\" : [ \"New York City\", \"Albany\" ]\n"
+                + "    }\n"
+                + "  }\n"
+                + "}");
   }
 
   private static class ResultAsserter {
