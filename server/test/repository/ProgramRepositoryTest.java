@@ -33,9 +33,9 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
+import services.question.QuestionAnswerer;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
