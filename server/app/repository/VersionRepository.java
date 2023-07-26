@@ -436,7 +436,7 @@ public final class VersionRepository {
             .filter(questionId -> !newActiveQuestionIds.contains(questionId))
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
-      Set<Long> programIdsMissingQuestions =
+      ImmutableSet<Long> programIdsMissingQuestions =
           activeVersion.getPrograms().stream()
               .filter(
                   program ->
