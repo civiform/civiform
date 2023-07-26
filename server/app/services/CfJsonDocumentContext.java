@@ -25,6 +25,7 @@ import services.applicant.JsonPathProvider;
 import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
+import services.export.JsonPrettifier;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
 
@@ -595,6 +596,20 @@ public class CfJsonDocumentContext {
 
   public String asJsonString() {
     return jsonData.jsonString();
+  }
+
+  /**
+   * Pretty-print the JSON document, below the specified {@link Path}.
+   *
+   * <p>If the document is only a {@code null} value (for example, if the path points to a {@code
+   * null} leaf node), then this returns the String "null".
+   *
+   * @param path the path to the subtree that should be pretty-printed
+   * @return the pretty-printed document
+   */
+  public String asPrettyJsonString(Path path) {
+    Object subtreeAtPath = jsonData.read(path.toString());
+    return JsonPrettifier.asPrettyJsonString(subtreeAtPath);
   }
 
   @Override
