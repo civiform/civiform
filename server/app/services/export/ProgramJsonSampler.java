@@ -40,20 +40,22 @@ public final class ProgramJsonSampler {
   public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
     JsonExportData.Builder jsonExportData =
         JsonExportData.builder()
+            // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
+            .setStatus(
+                programDefinition.statusDefinitions().getStatuses().stream()
+                    .findFirst()
+                    .map(Status::statusText))
+            .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())
+            // Fields with arbitrary data.
             .setApplicantId(123L)
             .setApplicationId(456L)
             // Program ID changes on each browser test run, so set it to a constant
             // for those tests, otherwise to the actual program ID.
-            .setProgramId(deploymentType.isDev() ? 789L : programDefinition.id())
             .setLanguageTag(Locale.US.toLanguageTag())
-            .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
             .setSubmitterEmail("homer.simpson@springfield.gov")
-            .setSubmitTimeOpt(Instant.ofEpochSecond(1685133975)) // May 26, 2023 4:46 pm EDT
-            .setStatus(
-                programDefinition.statusDefinitions().getStatuses().stream()
-                    .findFirst()
-                    .map(Status::statusText));
+            .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
+            .setSubmitTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
 
     ImmutableList<QuestionDefinition> questionDefinitions =
         programDefinition.streamQuestionDefinitions().collect(toImmutableList());

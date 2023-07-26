@@ -107,7 +107,7 @@ public final class JsonExporter {
                 roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag())
             .setCreateTime(application.getCreateTime())
             .setSubmitterEmail(application.getSubmitterEmail().orElse("Applicant"))
-            .setSubmitTimeOpt(application.getSubmitTime())
+            .setSubmitTime(application.getSubmitTime())
             .setStatus(application.getLatestStatus())
             .addApplicationEntries(entriesBuilder.build())
             .build();
@@ -129,7 +129,7 @@ public final class JsonExporter {
     jsonApplication.putString(Path.create("submitter_email"), jsonExportData.submitterEmail());
 
     Path submitTimePath = Path.create("submit_time");
-    Optional.ofNullable(jsonExportData.submitTimeOpt())
+    Optional.ofNullable(jsonExportData.submitTime())
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
@@ -215,7 +215,7 @@ public final class JsonExporter {
 
     public abstract String submitterEmail();
 
-    public abstract Instant submitTimeOpt();
+    public abstract Instant submitTime();
 
     public abstract Optional<String> status();
 
@@ -242,7 +242,7 @@ public final class JsonExporter {
 
       public abstract Builder setSubmitterEmail(String submitterEmail);
 
-      public abstract Builder setSubmitTimeOpt(Instant submitTimeOpt);
+      public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
       public abstract Builder setStatus(Optional<String> status);
 
