@@ -615,6 +615,46 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void asPrettyJsonString_prettyPrintsDocumentAtPath() {
+    String testData =
+        "{ \"deeply\": { \"nested\": { \"value\": \"long text to stop formatter de-wrapping\" } }"
+            + " }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    String prettyJson = data.asPrettyJsonString(Path.create("$.deeply"));
+
+    assertThat(prettyJson)
+        .isEqualTo(
+            "{\n"
+                + "  \"nested\" : {\n"
+                + "    \"value\" : \"long text to stop formatter de-wrapping\"\n"
+                + "  }\n"
+                + "}");
+  }
+
+  @Test
+  public void asPrettyJsonString_prettyPrintsNullString() {
+    String testData = "{ \"deeply\": { \"nested\": { \"age\": \"null\" } } }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
+
+    // If the leaf node is the String "null", then pretty-print it as a JSON string.
+    assertThat(prettyJson).isEqualTo("\"null\"");
+  }
+
+  @Test
+  public void asPrettyJsonString_prettyPrintsNullValue() {
+    String testData = "{ \"deeply\": { \"nested\": { \"age\": null } } }";
+    CfJsonDocumentContext data = new CfJsonDocumentContext(testData);
+
+    String prettyJson = data.asPrettyJsonString(Path.create("$.deeply.nested.age"));
+
+    // If the leaf node is the value "null", then pretty-print it as the null value.
+    assertThat(prettyJson).isEqualTo("null");
+  }
+
+  @Test
   public void locked_makesCfJsonDocumentContextImmutable() {
     CfJsonDocumentContext data = new CfJsonDocumentContext();
     // Can mutate before CfJsonDocumentContext is locked.
