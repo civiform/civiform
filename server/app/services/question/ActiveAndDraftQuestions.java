@@ -42,7 +42,7 @@ public final class ActiveAndDraftQuestions {
   public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
     return new ActiveAndDraftQuestions(
         repository.getActiveVersion(),
-        repository.getDraftVersion(),
+        repository.getDraftVersionOrCreate(),
         repository.previewPublishNewSynchronizedVersion());
   }
 

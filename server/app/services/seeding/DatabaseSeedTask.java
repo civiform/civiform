@@ -116,7 +116,7 @@ public final class DatabaseSeedTask {
         questionService.getExistingQuestions(canonicalQuestionNames);
     if (existingCanonicalQuestions.size() < canonicalQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
-      versionRepository.getDraftVersion();
+      versionRepository.getDraftVersionOrCreate();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();

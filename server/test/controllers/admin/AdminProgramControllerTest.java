@@ -117,7 +117,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     long programId =
-        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
@@ -152,7 +157,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     long programId =
-        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
 
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
@@ -187,7 +197,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     long programId =
-        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
@@ -290,7 +305,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     long programId =
-        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
@@ -334,7 +354,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Program> newProgram = versionRepository.getDraftVersion().getProgramByName(adminName);
+    Optional<Program> newProgram =
+        versionRepository.getDraftVersionOrCreate().getProgramByName(adminName);
     assertThat(newProgram).isPresent();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
@@ -384,7 +405,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram(programName, "active description").build();
 
     Result result = controller.newVersionFrom(request, activeProgram.id);
-    Optional<Program> newDraft = versionRepository.getDraftVersion().getProgramByName(programName);
+    Optional<Program> newDraft =
+        versionRepository.getDraftVersionOrCreate().getProgramByName(programName);
 
     // A new draft is made and redirected to.
     assertThat(newDraft).isPresent();
@@ -574,7 +596,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     long programId =
-        versionRepository.getDraftVersion().getPrograms().get(0).getProgramDefinition().id();
+        versionRepository
+            .getDraftVersionOrCreate()
+            .getPrograms()
+            .get(0)
+            .getProgramDefinition()
+            .id();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(programId).url());
 
@@ -613,7 +640,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Program> newProgram =
-        versionRepository.getDraftVersion().getProgramByName("Existing One");
+        versionRepository.getDraftVersionOrCreate().getProgramByName("Existing One");
     assertThat(newProgram).isPresent();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());

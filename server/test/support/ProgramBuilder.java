@@ -83,7 +83,7 @@ public class ProgramBuilder {
             "https://usa.gov",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(EMPTY_FIRST_BLOCK),
-            versionRepository.getDraftVersion(),
+            versionRepository.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             new ProgramAcls());
     program.save();
@@ -95,7 +95,7 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
   public static ProgramBuilder newDraftProgram(ProgramDefinition programDefinition) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(programDefinition, versionRepository.getDraftVersion());
+    Program program = new Program(programDefinition, versionRepository.getDraftVersionOrCreate());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());

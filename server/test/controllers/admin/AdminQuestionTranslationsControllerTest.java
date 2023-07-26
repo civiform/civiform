@@ -46,7 +46,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     controller = instanceOf(AdminQuestionTranslationsController.class);
     // Create a new draft version.
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
-    draftVersion = versionRepository.getDraftVersion();
+    draftVersion = versionRepository.getDraftVersionOrCreate();
   }
 
   @Test

@@ -58,7 +58,7 @@ public final class QuestionRepository {
    * DRAFT if there isn't one.
    */
   public Question createOrUpdateDraft(QuestionDefinition definition) {
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
@@ -112,7 +112,7 @@ public final class QuestionRepository {
     // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
     // Investigate further.
     Stream.concat(
-            versionRepositoryProvider.get().getDraftVersion().getQuestions().stream(),
+            versionRepositoryProvider.get().getDraftVersionOrCreate().getQuestions().stream(),
             versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
         // Find questions that reference the old enumerator ID.
         .filter(
