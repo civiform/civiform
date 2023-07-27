@@ -1,11 +1,13 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
+import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -147,6 +149,49 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getActiveProgramFromSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
+  }
+
+  /* This test is meant to exercise the database trigger defined in server/conf/evolutions/default/56.sql */
+  @Test
+  public void insertingDuplicateDraftPrograms_raisesDatabaseException() throws Exception {
+    var versionRepo = instanceOf(VersionRepository.class);
+    var draftVersion = versionRepo.getDraftVersion();
+
+    Program program = resourceCreator.insertActiveProgram("test");
+    assertThat(program.id).isNotNull();
+
+    var draftOne =
+        new Program(
+            "test-program",
+            "desc",
+            "test-program",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion,
+            ProgramType.DEFAULT,
+            new ProgramAcls());
+    draftOne.save();
+
+    var draftTwo =
+        new Program(
+            "test-program",
+            "desc",
+            "test-program",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion,
+            ProgramType.DEFAULT,
+            new ProgramAcls());
+
+    var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
+    throwableAssert.hasMessageContaining("Program test-program already has a draft!");
+    throwableAssert.isExactlyInstanceOf(DataIntegrityException.class);
   }
 
   @Test
