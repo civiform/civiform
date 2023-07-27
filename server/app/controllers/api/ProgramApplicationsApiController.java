@@ -115,8 +115,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                 throw new RuntimeException(e);
               }
 
-              String applicationsJson =
-                  jsonExporter.export(programDefinition, paginationResult).getLeft();
+              String applicationsJson = jsonExporter.export(programDefinition, paginationResult);
 
               String responseJson =
                   jsonExporter.getResponseJson(

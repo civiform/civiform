@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
-import org.apache.commons.lang3.tuple.Pair;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
@@ -55,7 +54,7 @@ public final class JsonExporter {
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
   }
 
-  public Pair<String, PaginationResult<Application>> export(
+  public String export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
       SubmittedApplicationFilter filters) {
@@ -71,7 +70,7 @@ public final class JsonExporter {
     return export(programDefinition, paginationResult);
   }
 
-  public Pair<String, PaginationResult<Application>> export(
+  public String export(
       ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
     var applications = paginationResult.getPageContents();
 
@@ -82,7 +81,7 @@ public final class JsonExporter {
       jsonApplications.add("$", applicationJson.getDocumentContext().json());
     }
 
-    return Pair.of(jsonApplications.jsonString(), paginationResult);
+    return jsonApplications.jsonString();
   }
 
   private CfJsonDocumentContext buildJsonApplication(

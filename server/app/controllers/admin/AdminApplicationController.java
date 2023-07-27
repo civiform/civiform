@@ -148,9 +148,8 @@ public final class AdminApplicationController extends CiviFormController {
 
     String filename = String.format("%s-%s.json", program.adminName(), nowProvider.get());
     String json =
-        jsonExporter
-            .export(program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters)
-            .getLeft();
+        jsonExporter.export(
+            program, IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG, filters);
 
     return ok(json)
         .as(Http.MimeTypes.JSON)
