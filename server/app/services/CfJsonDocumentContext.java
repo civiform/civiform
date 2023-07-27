@@ -100,7 +100,7 @@ public class CfJsonDocumentContext {
    * @param path the {@link Path} to check
    * @return true if there is a null value at the given path; false otherwise.
    */
-  public boolean hasNullValueAtPath(Path path) throws PathNotFoundException {
+  public boolean hasNullValueAtPath(Path path) {
     return jsonData.read(path.toString()) == null;
   }
 
