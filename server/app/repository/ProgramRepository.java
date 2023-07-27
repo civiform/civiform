@@ -163,10 +163,8 @@ public final class ProgramRepository {
           }
           ImmutableList<Program> activePrograms =
               versionRepository.get().getActiveVersion().getPrograms();
-          List<Program> programsMatchingSlug =
-              database.find(Program.class).where().eq("slug", slug).findList();
           return activePrograms.stream()
-              .filter(programsMatchingSlug::contains)
+              .filter(activeProgram -> activeProgram.getSlug().equals(slug))
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
         },
@@ -177,11 +175,6 @@ public final class ProgramRepository {
   public CompletableFuture<Program> getDraftProgramFromSlug(String slug) {
     return supplyAsync(
         () -> {
-          for (Program program : database.find(Program.class).where().isNull("slug").findList()) {
-            program.getSlug();
-            program.save();
-          }
-
           Optional<Version> version = versionRepository.get().getDraftVersion();
 
           if (version.isEmpty()) {
@@ -189,10 +182,9 @@ public final class ProgramRepository {
           }
 
           ImmutableList<Program> draftPrograms = version.get().getPrograms();
-          List<Program> programsMatchingSlug =
-              database.find(Program.class).where().eq("slug", slug).findList();
+
           return draftPrograms.stream()
-              .filter(programsMatchingSlug::contains)
+              .filter(draftProgram -> draftProgram.getSlug().equals(slug))
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
         },

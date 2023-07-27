@@ -5,7 +5,6 @@ class ApiDocs {
   // clicking the select program slug.
   static attachSlugEventListener() {
     addEventListenerToElements('#select-slug', 'change', (event: Event) => {
-      console.log('test log')
       const programDropdown = event.currentTarget as HTMLSelectElement
       const programValue = programDropdown.value
       window.location.href = `/api/docs/v1/${programValue}/active`
