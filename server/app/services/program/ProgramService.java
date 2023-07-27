@@ -79,8 +79,9 @@ public interface ProgramService {
    * Get the definition of a given program asynchronously. Gets the active version for the slug.
    *
    * @param programSlug the slug of the program to retrieve
-   * @return the active {@link ProgramDefinition} for the given slug if it exists, or an exception
-   *     is thrown when the future completes and slug does not correspond to a real Program
+   * @return the active {@link ProgramDefinition} for the given slug if it exists, or a {@link
+   *     RuntimeException} is thrown when the future completes and slug does not correspond to a
+   *     real Program
    */
   CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug);
 
@@ -88,9 +89,9 @@ public interface ProgramService {
    * Get the definition of a given program asynchronously. Gets the draft version for the slug.
    *
    * @param programSlug the slug of the program to retrieve
-   * @return the draft {@link ProgramDefinition} for the given slug if it exists, or an exception is
-   *     thrown when the future completes and slug does not correspond to a Program with a draft
-   *     available.
+   * @return the draft {@link ProgramDefinition} for the given slug if it exists, or a {@link
+   *     RuntimeException} is thrown when the future completes and slug does not correspond to a
+   *     Program with a draft available.
    */
   CompletionStage<ProgramDefinition> getDraftProgramDefinitionAsync(String programSlug);
 

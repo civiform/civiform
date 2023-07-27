@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import models.Account;
@@ -156,29 +155,43 @@ public final class ProgramRepository {
 
   /** Get the current active program with the provided slug. */
   public CompletableFuture<Program> getActiveProgramFromSlug(String slug) {
-    return getProgramFromSlug(slug, VersionRepository::getActiveVersion);
-  }
-
-  /**
-   * Get the current draft program with the provided slug. Throws an unchecked exception if there is
-   * no draft program available.
-   */
-  public CompletableFuture<Program> getDraftProgramFromSlug(String slug) {
-    return getProgramFromSlug(slug, VersionRepository::getDraftVersion);
-  }
-
-  private CompletableFuture<Program> getProgramFromSlug(
-      String slug, Function<VersionRepository, Version> versionFn) {
     return supplyAsync(
         () -> {
           for (Program program : database.find(Program.class).where().isNull("slug").findList()) {
             program.getSlug();
             program.save();
           }
-          ImmutableList<Program> programs = versionFn.apply(versionRepository.get()).getPrograms();
+          ImmutableList<Program> activePrograms =
+              versionRepository.get().getActiveVersion().getPrograms();
           List<Program> programsMatchingSlug =
               database.find(Program.class).where().eq("slug", slug).findList();
-          return programs.stream()
+          return activePrograms.stream()
+              .filter(programsMatchingSlug::contains)
+              .findFirst()
+              .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
+        },
+        executionContext.current());
+  }
+
+  /** Get the current draft program with the provided slug. */
+  public CompletableFuture<Program> getDraftProgramFromSlug(String slug) {
+    return supplyAsync(
+        () -> {
+          for (Program program : database.find(Program.class).where().isNull("slug").findList()) {
+            program.getSlug();
+            program.save();
+          }
+
+          Optional<Version> version = versionRepository.get().getDraftVersion();
+
+          if (version.isEmpty()) {
+            throw new RuntimeException(new ProgramNotFoundException("No draft version available."));
+          }
+
+          ImmutableList<Program> draftPrograms = version.get().getPrograms();
+          List<Program> programsMatchingSlug =
+              database.find(Program.class).where().eq("slug", slug).findList();
+          return draftPrograms.stream()
               .filter(programsMatchingSlug::contains)
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
