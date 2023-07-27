@@ -166,10 +166,10 @@ public final class JsonExporter {
   }
 
   CfJsonDocumentContext buildMultiApplicationJson(
-      ImmutableList<ApplicationJsonExportData> applicationJsonExportData) {
+      ImmutableList<ApplicationJsonExportData> applicationJsonExportDatas) {
     CfJsonDocumentContext jsonApplications = new CfJsonDocumentContext(makeEmptyJsonArray());
 
-    for (ApplicationJsonExportData applicationJsonExportData : applicationJsonExportData) {
+    for (ApplicationJsonExportData applicationJsonExportData : applicationJsonExportDatas) {
       CfJsonDocumentContext applicationJson = buildSingleApplicationJson(applicationJsonExportData);
       jsonApplications.getDocumentContext().add("$", applicationJson.getDocumentContext().json());
     }
@@ -283,7 +283,7 @@ public final class JsonExporter {
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
-      return new AutoValue_JsonExporter_JsonExportData.Builder();
+      return new AutoValue_JsonExporter_ApplicationJsonExportData.Builder();
     }
 
     @AutoValue.Builder

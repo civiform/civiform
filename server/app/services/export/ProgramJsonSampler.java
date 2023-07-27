@@ -70,8 +70,6 @@ public final class ProgramJsonSampler {
       jsonExportData.addApplicationEntries(questionEntries);
     }
 
-    ImmutableList<ApplicationJsonExportData> applicationJsonExportData =
-        ImmutableList.of(jsonExportData.build());
-    return jsonExporter.buildMultiApplicationJson(applicationJsonExportData);
+    return jsonExporter.buildMultiApplicationJson(ImmutableList.of(jsonExportData.build()));
   }
 }
