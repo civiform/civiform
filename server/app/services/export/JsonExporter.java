@@ -74,17 +74,24 @@ public final class JsonExporter {
       ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
     var applications = paginationResult.getPageContents();
 
+    DocumentContext documentContext = buildMultiApplicationJson(applications, programDefinition);
+    return documentContext.jsonString();
+  }
+
+  private DocumentContext buildMultiApplicationJson(
+      ImmutableList<Application> applications, ProgramDefinition programDefinition) {
     DocumentContext jsonApplications = makeEmptyJsonArray();
 
     for (Application application : applications) {
-      CfJsonDocumentContext applicationJson = buildJsonApplication(application, programDefinition);
+      CfJsonDocumentContext applicationJson =
+          buildSingleApplicationJson(application, programDefinition);
       jsonApplications.add("$", applicationJson.getDocumentContext().json());
     }
 
-    return jsonApplications.jsonString();
+    return jsonApplications;
   }
 
-  private CfJsonDocumentContext buildJsonApplication(
+  private CfJsonDocumentContext buildSingleApplicationJson(
       Application application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
@@ -119,10 +126,10 @@ public final class JsonExporter {
             .addApplicationEntries(entriesBuilder.build())
             .build();
 
-    return buildJsonApplication(jsonExportData);
+    return buildSingleApplicationJson(jsonExportData);
   }
 
-  CfJsonDocumentContext buildJsonApplication(JsonExportData jsonExportData) {
+  private CfJsonDocumentContext buildSingleApplicationJson(JsonExportData jsonExportData) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
     jsonApplication.putString(Path.create("program_name"), jsonExportData.adminName());
@@ -152,6 +159,17 @@ public final class JsonExporter {
 
     exportEntriesToJsonApplication(jsonApplication, jsonExportData.applicationEntries());
     return jsonApplication;
+  }
+
+  CfJsonDocumentContext buildMultiApplicationJson(ImmutableList<JsonExportData> jsonExportDatas) {
+    CfJsonDocumentContext jsonApplications = new CfJsonDocumentContext(makeEmptyJsonArray());
+
+    for (JsonExportData jsonExportData : jsonExportDatas) {
+      CfJsonDocumentContext applicationJson = buildSingleApplicationJson(jsonExportData);
+      jsonApplications.getDocumentContext().add("$", applicationJson.getDocumentContext().json());
+    }
+
+    return jsonApplications;
   }
 
   public String getResponseJson(
