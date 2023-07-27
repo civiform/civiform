@@ -116,7 +116,7 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR",
+      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
       "-implicit:class",
       "-Werror",
       // The compile option below is a hack that preserves generated files. Normally,

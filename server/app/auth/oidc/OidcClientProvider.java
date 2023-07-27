@@ -222,7 +222,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
 
     try {
       client.init();
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       logger.error("Error while initilizing OIDC provider", e);
       throw e;
     }

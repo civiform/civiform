@@ -389,7 +389,7 @@ public class FieldWithLabel {
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
   }
 
-  private DivTag getNonNumberInputTag() throws RuntimeException {
+  private DivTag getNonNumberInputTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
     applyAttributesFromSet(inputFieldTag);
@@ -402,7 +402,7 @@ public class FieldWithLabel {
   }
 
   /** Public final tag getters * */
-  public DivTag getTextareaTag() throws RuntimeException {
+  public DivTag getTextareaTag() {
     if (isTagTypeTextarea()) {
       TextareaTag textareaFieldTag = TagCreator.textarea();
       applyAttributesFromSet(textareaFieldTag);
@@ -431,7 +431,7 @@ public class FieldWithLabel {
     return getNonNumberInputTag();
   }
 
-  public DivTag getNumberTag() throws RuntimeException {
+  public DivTag getNumberTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
     applyAttributesFromSet(inputFieldTag);
@@ -582,7 +582,7 @@ public class FieldWithLabel {
   }
 
   protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>>
-      LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) throws RuntimeException {
+      LabelTag checkboxApplyAttrsAndGenLabel(T fieldTag) {
     genRandIdIfEmpty();
     // Apply attributes
     applyAttrsGenFieldErrorsInfo(fieldTag);
