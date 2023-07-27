@@ -12,6 +12,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
+import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -27,6 +28,8 @@ import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
+
+import javax.swing.text.html.Option;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
@@ -50,21 +53,23 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void review_invalidApplicant_returnsUnauthorized() {
+  public void review_invalidApplicant_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.review(badApplicantId, activeProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void review_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void review_applicantAccessToDraftProgram_redirectsToHome() {
     Program draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     Result result = this.review(applicant.id, draftProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -101,21 +106,23 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void submit_invalid_returnsUnauthorized() {
+  public void submit_invalid_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.submit(badApplicantId, activeProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void submit_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void submit_applicantAccessToDraftProgram_redirectsToHome() {
     Program draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     Result result = this.submit(applicant.id, draftProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
