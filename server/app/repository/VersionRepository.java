@@ -345,6 +345,29 @@ public final class VersionRepository {
   }
 
   /**
+   * Returns the previous version to the one passed in. If there is only one version there isn't a
+   * previous version so the Optional result will be empty.
+   *
+   * <p>This can return draft, active, or obsolete versions. Versions flagged as deleted are
+   * excluded.
+   */
+  public Optional<Version> getPreviousVersion(Version version) {
+    Version previousVersion =
+        database
+            .find(Version.class)
+            .where()
+            .lt("id", version.id)
+            .not()
+            .eq("lifecycle_stage", LifecycleStage.DELETED)
+            .orderBy()
+            .desc("id")
+            .setMaxRows(1)
+            .findOne();
+
+    return Optional.ofNullable(previousVersion);
+  }
+
+  /**
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
    */

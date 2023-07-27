@@ -67,6 +67,12 @@ public final class ApplicantQuestionRendererFactory {
         return new TextQuestionRenderer(question);
       case PHONE:
         return new PhoneQuestionRenderer(question);
+      case NULL_QUESTION:
+        throw new RuntimeException(
+            String.format(
+                "Question type %s should not be rendered. Question ID: %s. Active program question"
+                    + " definition is possibly pointing to an old question ID",
+                question.getType(), question.getQuestionDefinition().getId()));
       default:
         throw new UnsupportedOperationException(
             "Unrecognized question type: " + question.getType());

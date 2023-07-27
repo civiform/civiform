@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionType;
 import support.TestQuestionBank;
 
 public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
@@ -90,8 +91,9 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
 
   @Test
   public void getQuestionDefinition_notFound() throws QuestionNotFoundException {
-    assertThatThrownBy(() -> service.getQuestionDefinition(9999L))
-        .isInstanceOf(QuestionNotFoundException.class);
+    var questionDefinition = service.getQuestionDefinition(9999L);
+
+    assertThat(questionDefinition.getQuestionType()).isEqualTo(QuestionType.NULL_QUESTION);
   }
 
   private static void addQuestionsToVersion(Version version, ImmutableList<Question> questions) {

@@ -143,6 +143,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case STATIC:
         // Do nothing.
         break;
+      case NULL_QUESTION:
+        // Do nothing.
     }
   }
 

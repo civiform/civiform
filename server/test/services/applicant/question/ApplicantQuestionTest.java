@@ -65,6 +65,12 @@ public class ApplicantQuestionTest {
   @Test
   @Parameters(source = QuestionType.class)
   public void errorsPresenterExtendedForAllTypes(QuestionType questionType) {
+    // Null question type is used to handle backend missing questions and
+    // does not get surfaced to applicants
+    if (questionType == QuestionType.NULL_QUESTION) {
+      return;
+    }
+
     QuestionDefinition definition =
         testQuestionBank.getSampleQuestionsForAllTypes().get(questionType).getQuestionDefinition();
     ApplicantQuestion applicantQuestion =

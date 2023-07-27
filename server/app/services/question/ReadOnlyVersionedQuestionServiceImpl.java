@@ -4,8 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import models.Question;
 import models.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -17,6 +20,8 @@ import services.question.types.QuestionDefinition;
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ReadOnlyVersionedQuestionServiceImpl.class);
 
   public ReadOnlyVersionedQuestionServiceImpl(Version version) {
     questionsById =
@@ -61,6 +66,8 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
     }
-    throw new QuestionNotFoundException(id);
+
+    LOGGER.error("Question not found for ID: {}", id);
+    return new NullQuestionDefinition(id);
   }
 }

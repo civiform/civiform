@@ -50,6 +50,12 @@ public final class CreateQuestionButton {
       if (!phoneQuestionTypeEnabled && QuestionType.PHONE.equals(type)) {
         continue;
       }
+
+      // Do not attempt to render a null question
+      if (type == QuestionType.NULL_QUESTION) {
+        continue;
+      }
+
       String typeString = type.toString().toLowerCase(Locale.ROOT);
       String link =
           controllers.admin.routes.AdminQuestionController.newOne(

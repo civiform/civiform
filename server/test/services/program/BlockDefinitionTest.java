@@ -193,4 +193,19 @@ public class BlockDefinitionTest {
             .build();
     return block;
   }
+
+  @Test
+  public void hasNullQuestion_isTrue() {
+    QuestionDefinition nullQuestion = testQuestionBank.nullQuestion().getQuestionDefinition();
+
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(9999L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .build();
+
+    assertThat(blockDefinition.hasNullQuestion()).isTrue();
+  }
 }
