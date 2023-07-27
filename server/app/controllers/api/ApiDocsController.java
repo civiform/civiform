@@ -52,7 +52,7 @@ public final class ApiDocsController {
     try {
       programDefinition =
           programService.getActiveProgramDefinitionAsync(programSlug).toCompletableFuture().join();
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return notFound(
           String.format(
               "No active programs found for %s. Please create and publish a program with this slug"

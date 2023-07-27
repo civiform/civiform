@@ -175,7 +175,9 @@ public final class DevDatabaseSeedTask {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestionId, true);
 
-    } catch (Exception e) {
+    } catch (
+        @SuppressWarnings("CatchingUnchecked")
+        Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -321,7 +323,9 @@ public final class DevDatabaseSeedTask {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 
-    } catch (Exception e) {
+    } catch (
+        @SuppressWarnings("CatchingUnchecked")
+        Exception e) {
       throw new RuntimeException(e);
     }
   }
