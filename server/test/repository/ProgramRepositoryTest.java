@@ -155,7 +155,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void insertingDuplicateDraftPrograms_raisesDatabaseException() throws Exception {
     var versionRepo = instanceOf(VersionRepository.class);
-    var draftVersion = versionRepo.getDraftVersion();
+    var draftVersion = versionRepo.getDraftVersionOrCreate();
 
     Program program = resourceCreator.insertActiveProgram("test");
     assertThat(program.id).isNotNull();
