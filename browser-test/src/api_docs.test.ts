@@ -25,6 +25,9 @@ describe('Viewing API docs', () => {
     await adminPrograms.publishAllDrafts()
     await page.click('text=API docs')
 
+    expect(await page.textContent('html')).toContain(
+      '"program_name" : "comprehensive-sample-program"',
+    )
     await validateScreenshot(page, 'comprehensive-program-active-version')
 
     await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
