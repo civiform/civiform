@@ -529,13 +529,13 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void getResponseJson_wrapsPayloadCorrectly() {
+  public void wrapPayloadJson_wrapsPayloadCorrectly() {
     String payload = "{\"United States\":{\"New York State\":[\"New York City\", \"Albany\"]}}";
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String result =
-        exporter.getResponseJson(payload, /* paginationTokenPayload= */ Optional.empty());
+        exporter.wrapPayloadJson(payload, /* paginationTokenPayload= */ Optional.empty());
 
     assertThat(asPrettyJsonString(result))
         .isEqualTo(

@@ -172,7 +172,11 @@ public final class JsonExporter {
     return jsonApplications;
   }
 
-  public String getResponseJson(
+  /**
+   * Wraps payload in another layer of JSON. Inserts a "payload" key that maps to the data in
+   * payload. Adds a nextPageToken key with the paginationTokenPayload.
+   */
+  public String wrapPayloadJson(
       String payload, Optional<ApiPaginationTokenPayload> paginationTokenPayload) {
     var writer = new StringWriter();
 

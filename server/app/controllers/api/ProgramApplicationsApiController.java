@@ -118,7 +118,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
               String applicationsJson = jsonExporter.export(programDefinition, paginationResult);
 
               String responseJson =
-                  jsonExporter.getResponseJson(
+                  jsonExporter.wrapPayloadJson(
                       applicationsJson,
                       getNextPageToken(
                           paginationResult, programSlug, pageSize, filters.submitTimeFilter()));

@@ -147,7 +147,7 @@ public class ApiDocsView extends BaseHtmlView {
 
     String sampleJsonString = sampleJson.asJsonString();
     String fullJsonResponsePreview =
-        jsonExporter.getResponseJson(
+        jsonExporter.wrapPayloadJson(
             sampleJsonString, /* paginationTokenPayload= */ Optional.empty());
     String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
 
