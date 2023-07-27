@@ -1079,7 +1079,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
   @Test
   public void getDraftProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
-    ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+    ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
     CompletionStage<ProgramDefinition> found =
         ps.getDraftProgramDefinitionAsync("non-existent-program");
