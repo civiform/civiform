@@ -170,6 +170,15 @@ public class TestQuestionBank {
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME, this::applicantHouseholdMemberName);
   }
 
+  // Repeated test
+  public Question applicantHouseholdMemberFavoriteShape() {
+    // Make sure the next call will have the question ready
+    applicantHouseholdMembers();
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
+        this::applicantHouseholdMemberFavoriteShape);
+  }
+
   // Number
   public Question applicantJugglingNumber() {
     return questionCache.computeIfAbsent(
@@ -382,6 +391,21 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Repeated text
+  private Question applicantHouseholdMemberFavoriteShape(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("household member favorite shape")
+                .setDescription("The applicant household member's favorite shape")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is $this's favorite shape?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setEnumeratorId(Optional.of(householdMembers.id))
+                .build());
+    return maybeSave(definition);
+  }
+
   // Number
   private Question applicantJugglingNumber(QuestionEnum ignore) {
     QuestionDefinition definition =
@@ -535,6 +559,7 @@ public class TestQuestionBank {
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,
     APPLICANT_MONTHLY_INCOME,
     APPLICANT_ICE_CREAM,
