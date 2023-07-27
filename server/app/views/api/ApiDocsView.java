@@ -100,8 +100,7 @@ public class ApiDocsView extends BaseHtmlView {
     SelectTag slugsDropdown =
         select()
             .withId("select-slug")
-            .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "mx-2")
-            .attr("onchange", "window.location.href = '/api/docs/v1/' + this.value + '/active'");
+            .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "mx-2");
     allProgramSlugs.forEach(
         (String slug) -> {
           OptionTag slugOption = option(slug).withValue(slug);
@@ -122,11 +121,7 @@ public class ApiDocsView extends BaseHtmlView {
             .with(
                 option("Draft")
                     .withValue("draft")
-                    .withCondSelected(request.uri().contains("/draft")))
-            .attr(
-                "onchange",
-                "window.location.href = '/api/docs/v1/' +"
-                    + " document.getElementById('select-slug').value + '/' + this.value");
+                    .withCondSelected(request.uri().contains("/draft")));
 
     DivTag divTag =
         div()
