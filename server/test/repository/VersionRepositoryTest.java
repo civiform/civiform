@@ -820,6 +820,20 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getDraftVersion_returnsEmptyIfDraftNotAvailable() {
+    assertThat(versionRepository.getDraftVersion()).isEmpty();
+  }
+
+  @Test
+  public void getDraftVersionOrCreate_createsDraftIfNotAvailable() {
+    assertThat(versionRepository.getDraftVersion()).isEmpty();
+
+    versionRepository.getDraftVersionOrCreate();
+
+    assertThat(versionRepository.getDraftVersion()).isPresent();
+  }
+
+  @Test
   public void getProgramQuestionNamesInVersion() {
     Question firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
