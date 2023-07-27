@@ -64,7 +64,7 @@ public final class QuestionService {
       return ErrorAnd.error(errors);
     }
     Question question = new Question(questionDefinition);
-    question.addVersion(versionRepositoryProvider.get().getDraftVersion());
+    question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
     questionRepository.insertQuestionSync(question);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
@@ -162,7 +162,7 @@ public final class QuestionService {
         .equals(DeletionStatus.PENDING_DELETION)) {
       throw new InvalidUpdateException("Question is not restorable.");
     }
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!draftVersion.removeTombstoneForQuestion(question.get())) {
       throw new InvalidUpdateException("Not tombstoned.");
     }
@@ -186,7 +186,7 @@ public final class QuestionService {
 
     Question draftQuestion =
         questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try {
       if (!draftVersion.addTombstoneForQuestion(draftQuestion)) {
         throw new InvalidUpdateException("Already tombstoned.");
@@ -224,7 +224,7 @@ public final class QuestionService {
         draftId,
         question.getQuestionDefinition().getName());
 
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!question.removeVersion(draftVersion)) {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }

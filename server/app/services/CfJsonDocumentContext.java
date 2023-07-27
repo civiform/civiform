@@ -2,9 +2,6 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.jayway.jsonpath.DocumentContext;
@@ -28,6 +25,7 @@ import services.applicant.JsonPathProvider;
 import services.applicant.exception.JsonPathTypeMismatchException;
 import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
+import services.export.JsonPrettifier;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
 
@@ -600,16 +598,18 @@ public class CfJsonDocumentContext {
     return jsonData.jsonString();
   }
 
-  public String asPrettyJsonString() {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-    objectMapper.enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
-    try {
-      Object jsonObject = getDocumentContext().json();
-      return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
-    } catch (JsonProcessingException e) {
-      return "Error parsing json";
-    }
+  /**
+   * Pretty-print the JSON document, below the specified {@link Path}.
+   *
+   * <p>If the document is only a {@code null} value (for example, if the path points to a {@code
+   * null} leaf node), then this returns the String "null".
+   *
+   * @param path the path to the subtree that should be pretty-printed
+   * @return the pretty-printed document
+   */
+  public String asPrettyJsonString(Path path) {
+    Object subtreeAtPath = jsonData.read(path.toString());
+    return JsonPrettifier.asPrettyJsonString(subtreeAtPath);
   }
 
   @Override

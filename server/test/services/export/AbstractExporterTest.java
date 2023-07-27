@@ -18,6 +18,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
@@ -31,6 +32,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -366,7 +368,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.
    */
-  protected void createFakeProgramWithEnumerator() {
+  protected void createFakeProgramWithEnumeratorAndAnswerQuestions() {
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();
     Question monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
@@ -508,14 +510,50 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     applicationThree.save();
   }
 
+  /** A Builder to build a fake program */
+  class FakeProgramBuilder {
+    ProgramBuilder fakeProgramBuilder;
+
+    FakeProgramBuilder() {
+      fakeProgramBuilder = ProgramBuilder.newActiveProgram().withName("Fake Program");
+    }
+
+    FakeProgramBuilder withAllQuestionTypes() {
+      fakeQuestions.forEach(
+          question -> fakeProgramBuilder.withBlock().withRequiredQuestion(question).build());
+      return this;
+    }
+
+    FakeProgramBuilder withQuestion(Question question) {
+      fakeProgramBuilder.withBlock().withRequiredQuestion(question).build();
+      return this;
+    }
+
+    FakeProgramBuilder withHouseholdMembersEnumeratorQuestion() {
+      fakeProgramBuilder
+          .withBlock()
+          .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+          .withRepeatedBlock()
+          .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+          .build();
+      return this;
+    }
+
+    Program build() {
+      return fakeProgramBuilder.build();
+    }
+  }
+
   /** A "Builder" to fill a fake application one question at a time. */
-  class FakeApplicationFiller {
+  static class FakeApplicationFiller {
     Account admin;
     Applicant applicant;
+    Program program;
 
-    public FakeApplicationFiller() {
-      admin = resourceCreator.insertAccount();
-      applicant = resourceCreator.insertApplicantWithAccount();
+    public FakeApplicationFiller(Program program) {
+      this.admin = resourceCreator.insertAccount();
+      this.applicant = resourceCreator.insertApplicantWithAccount();
+      this.program = program;
     }
 
     public FakeApplicationFiller answerAddressQuestion(
@@ -583,6 +621,25 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    public FakeApplicationFiller answerRepeatedTextQuestion(String entityName, String answer) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var repeatedEntity =
+          repeatedEntities.stream().filter(e -> e.entityName().equals(entityName)).findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberFavoriteShape()
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
     public FakeApplicationFiller answerNumberQuestion(long answer) {
       Path answerPath =
           testQuestionBank
@@ -608,8 +665,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    public FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> entityNames) {
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMembers()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(
+          applicant.getApplicantData(), answerPath, entityNames);
+      applicant.save();
+      return this;
+    }
+
     public Application submit() {
-      Application application = new Application(applicant, fakeProgram, LifecycleStage.ACTIVE);
+      Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
       application.setApplicantData(applicant.getApplicantData());
       application.save();
 

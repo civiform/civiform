@@ -33,7 +33,7 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository.getActiveVersion(), repository.getDraftVersion(), Optional.of(service));
+        repository.getActiveVersion(), repository.getDraftVersionOrCreate(), Optional.of(service));
   }
 
   /**
@@ -44,7 +44,7 @@ public final class ActiveAndDraftPrograms {
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
     return new ActiveAndDraftPrograms(
-        repository.getActiveVersion(), repository.getDraftVersion(), Optional.empty());
+        repository.getActiveVersion(), repository.getDraftVersionOrCreate(), Optional.empty());
   }
 
   private ActiveAndDraftPrograms(Version active, Version draft, Optional<ProgramService> service) {

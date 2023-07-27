@@ -1,8 +1,10 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
@@ -125,7 +127,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
   @Test
   public void testQuestionTypesWithEnumerators() throws Exception {
-    createFakeProgramWithEnumerator();
+    createFakeProgramWithEnumeratorAndAnswerQuestions();
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
@@ -184,8 +186,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller()
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantAddress()).build();
+    new FakeApplicationFiller(fakeProgram)
         .answerAddressQuestion("12345 E South St", "Apt 8i", "CityVille Township", "OR", "54321")
         .submit();
 
@@ -210,8 +213,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenAddressQuestionIsNotAnswered_valueInResponseIsNull() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantAddress()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -234,8 +238,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenCheckboxQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller()
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantKitchenTools()).build();
+    new FakeApplicationFiller(fakeProgram)
         .answerCheckboxQuestion(
             ImmutableList.of(
                 2L, // "pepper grinder"
@@ -261,8 +266,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenCheckboxQuestionIsNotAnswered_valueInResponseIsEmptyArray() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantKitchenTools()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -281,8 +287,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenCurrencyQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().answerCurrencyQuestion("5,444.33").submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantMonthlyIncome()).build();
+    new FakeApplicationFiller(fakeProgram).answerCurrencyQuestion("5,444.33").submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -302,8 +309,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenCurrencyQuestionIsNotAnswered_valueInResponseIsNull() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantMonthlyIncome()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -322,8 +330,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenDateQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().answerDateQuestion("2015-10-21").submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantDate()).build();
+    new FakeApplicationFiller(fakeProgram).answerDateQuestion("2015-10-21").submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -342,8 +351,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenDateQuestionIsNotAnswered_valueInResponseIsNull() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantDate()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -362,8 +372,11 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenEmailQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().answerEmailQuestion("chell@aperturescience.com").submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantEmail()).build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerEmailQuestion("chell@aperturescience.com")
+        .submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -383,8 +396,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenEmailQuestionIsNotAnswered_valueInResponseIsNull() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantEmail()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -403,8 +417,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenNumberQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().answerNumberQuestion(42).submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantJugglingNumber()).build();
+    new FakeApplicationFiller(fakeProgram).answerNumberQuestion(42).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -423,8 +438,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenNumberQuestionIsNotAnswered_valueInResponseIsNull() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantJugglingNumber()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -443,8 +459,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenPhoneQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().answerPhoneQuestion("US", "(555) 867-5309").submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantPhone()).build();
+    new FakeApplicationFiller(fakeProgram).answerPhoneQuestion("US", "(555) 867-5309").submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -463,8 +480,9 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenPhoneQuestionIsNotAnswered_valueInResponseIsNull() {
     createFakeQuestions();
-    createFakeProgram();
-    new FakeApplicationFiller().submit();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantPhone()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
@@ -478,6 +496,95 @@ public class JsonExporterTest extends AbstractExporterTest {
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_phone.phone_number");
+  }
+
+  @Test
+  public void
+      export_whenEnumeratorAndRepeatedQuestionsAreAnswered_repeatedEntitiesHaveAnswerInResponse() {
+    createFakeQuestions();
+    Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
+        .answerRepeatedTextQuestion("tswift", "hearts")
+        .answerRepeatedTextQuestion("carly rae", "stars")
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        "[ {\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : \"stars\"\n"
+            + "  }\n"
+            + "}, {\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : \"hearts\"\n"
+            + "  }\n"
+            + "} ]");
+  }
+
+  @Test
+  public void
+      export_whenEnumeratorQuestionIsAnsweredAndRepeatedQuestionIsNot_repeatedEntitiesHaveNullAnswers() {
+    createFakeQuestions();
+    Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter
+            .export(
+                fakeProgram.getProgramDefinition(),
+                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+                SubmittedApplicationFilter.EMPTY)
+            .getLeft();
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        "[ {\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  }\n"
+            + "}, {\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  }\n"
+            + "} ]");
+  }
+
+  @Test
+  public void getResponseJson_wrapsPayloadCorrectly() {
+    String payload = "{\"United States\":{\"New York State\":[\"New York City\", \"Albany\"]}}";
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String result =
+        exporter.getResponseJson(payload, /* paginationTokenPayload= */ Optional.empty());
+
+    assertThat(asPrettyJsonString(result))
+        .isEqualTo(
+            "{\n"
+                + "  \"nextPageToken\" : null,\n"
+                + "  \"payload\" : {\n"
+                + "    \"United States\" : {\n"
+                + "      \"New York State\" : [ \"New York City\", \"Albany\" ]\n"
+                + "    }\n"
+                + "  }\n"
+                + "}");
   }
 
   private static class ResultAsserter {
@@ -549,6 +656,11 @@ public class JsonExporterTest extends AbstractExporterTest {
     private void assertNullValueAtApplicationPath(int resultNumber, String innerPath) {
       Path path = Path.create("$[" + resultNumber + "].application" + innerPath);
       assertThat(resultJson.hasNullValueAtPath(path)).isTrue();
+    }
+
+    private void assertJsonAtApplicationPath(String innerPath, String prettyJson) {
+      Path path = Path.create("$[0].application" + innerPath);
+      assertThat(resultJson.asPrettyJsonString(path)).isEqualTo(prettyJson);
     }
   }
 }

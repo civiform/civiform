@@ -144,7 +144,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   @Test
   public void insertingDuplicateDraftQuestions_raisesDatabaseException() throws Exception {
     var versionRepo = instanceOf(VersionRepository.class);
-    var draftVersion = versionRepo.getDraftVersion();
+    var draftVersion = versionRepo.getDraftVersionOrCreate();
     Question activeQuestion = testQuestionBank.applicantName();
     assertThat(activeQuestion.id).isNotNull();
 
