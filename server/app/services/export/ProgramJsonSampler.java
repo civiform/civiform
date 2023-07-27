@@ -11,7 +11,7 @@ import javax.inject.Inject;
 import services.CfJsonDocumentContext;
 import services.DeploymentType;
 import services.Path;
-import services.export.JsonExporter.JsonExportData;
+import services.export.JsonExporter.ApplicationJsonExportData;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionDefinition;
@@ -38,8 +38,8 @@ public final class ProgramJsonSampler {
    * the API response looks like.
    */
   public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
-    JsonExportData.Builder jsonExportData =
-        JsonExportData.builder()
+    ApplicationJsonExportData.Builder jsonExportData =
+        ApplicationJsonExportData.builder()
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
             .setStatus(
@@ -70,7 +70,8 @@ public final class ProgramJsonSampler {
       jsonExportData.addApplicationEntries(questionEntries);
     }
 
-    ImmutableList<JsonExportData> jsonExportDatas = ImmutableList.of(jsonExportData.build());
-    return jsonExporter.buildMultiApplicationJson(jsonExportDatas);
+    ImmutableList<ApplicationJsonExportData> applicationJsonExportData =
+        ImmutableList.of(jsonExportData.build());
+    return jsonExporter.buildMultiApplicationJson(applicationJsonExportData);
   }
 }

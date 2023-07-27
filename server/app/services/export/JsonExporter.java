@@ -111,8 +111,8 @@ public final class JsonExporter {
       entriesBuilder.putAll(questionEntries);
     }
 
-    JsonExportData jsonExportData =
-        JsonExportData.builder()
+    ApplicationJsonExportData applicationJsonExportData =
+        ApplicationJsonExportData.builder()
             .setAdminName(application.getProgram().getProgramDefinition().adminName())
             .setApplicantId(application.getApplicant().id)
             .setApplicationId(application.id)
@@ -126,24 +126,28 @@ public final class JsonExporter {
             .addApplicationEntries(entriesBuilder.build())
             .build();
 
-    return buildSingleApplicationJson(jsonExportData);
+    return buildSingleApplicationJson(applicationJsonExportData);
   }
 
-  private CfJsonDocumentContext buildSingleApplicationJson(JsonExportData jsonExportData) {
+  private CfJsonDocumentContext buildSingleApplicationJson(
+      ApplicationJsonExportData applicationJsonExportData) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
-    jsonApplication.putString(Path.create("program_name"), jsonExportData.adminName());
-    jsonApplication.putLong(Path.create("program_version_id"), jsonExportData.programId());
-    jsonApplication.putLong(Path.create("applicant_id"), jsonExportData.applicantId());
-    jsonApplication.putLong(Path.create("application_id"), jsonExportData.applicationId());
-    jsonApplication.putString(Path.create("language"), jsonExportData.languageTag());
+    jsonApplication.putString(Path.create("program_name"), applicationJsonExportData.adminName());
+    jsonApplication.putLong(
+        Path.create("program_version_id"), applicationJsonExportData.programId());
+    jsonApplication.putLong(Path.create("applicant_id"), applicationJsonExportData.applicantId());
+    jsonApplication.putLong(
+        Path.create("application_id"), applicationJsonExportData.applicationId());
+    jsonApplication.putString(Path.create("language"), applicationJsonExportData.languageTag());
     jsonApplication.putString(
         Path.create("create_time"),
-        dateConverter.renderDateTimeDataOnly(jsonExportData.createTime()));
-    jsonApplication.putString(Path.create("submitter_email"), jsonExportData.submitterEmail());
+        dateConverter.renderDateTimeDataOnly(applicationJsonExportData.createTime()));
+    jsonApplication.putString(
+        Path.create("submitter_email"), applicationJsonExportData.submitterEmail());
 
     Path submitTimePath = Path.create("submit_time");
-    Optional.ofNullable(jsonExportData.submitTime())
+    Optional.ofNullable(applicationJsonExportData.submitTime())
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
@@ -151,21 +155,22 @@ public final class JsonExporter {
             () -> jsonApplication.putNull(submitTimePath));
 
     Path statusPath = Path.create("status");
-    jsonExportData
+    applicationJsonExportData
         .status()
         .ifPresentOrElse(
             status -> jsonApplication.putString(statusPath, status),
             () -> jsonApplication.putNull(statusPath));
 
-    exportEntriesToJsonApplication(jsonApplication, jsonExportData.applicationEntries());
+    exportEntriesToJsonApplication(jsonApplication, applicationJsonExportData.applicationEntries());
     return jsonApplication;
   }
 
-  CfJsonDocumentContext buildMultiApplicationJson(ImmutableList<JsonExportData> jsonExportDatas) {
+  CfJsonDocumentContext buildMultiApplicationJson(
+      ImmutableList<ApplicationJsonExportData> applicationJsonExportData) {
     CfJsonDocumentContext jsonApplications = new CfJsonDocumentContext(makeEmptyJsonArray());
 
-    for (JsonExportData jsonExportData : jsonExportDatas) {
-      CfJsonDocumentContext applicationJson = buildSingleApplicationJson(jsonExportData);
+    for (ApplicationJsonExportData applicationJsonExportData : applicationJsonExportData) {
+      CfJsonDocumentContext applicationJson = buildSingleApplicationJson(applicationJsonExportData);
       jsonApplications.getDocumentContext().add("$", applicationJson.getDocumentContext().json());
     }
 
@@ -256,7 +261,7 @@ public final class JsonExporter {
   }
 
   @AutoValue
-  public abstract static class JsonExportData {
+  public abstract static class ApplicationJsonExportData {
     public abstract String adminName();
 
     public abstract long applicantId();
@@ -309,7 +314,7 @@ public final class JsonExporter {
         return this;
       }
 
-      public abstract JsonExportData build();
+      public abstract ApplicationJsonExportData build();
     }
   }
 }
