@@ -310,6 +310,12 @@ public final class ApplicantQuestion {
         return createStaticContentQuestion();
       case PHONE:
         return createPhoneQuestion();
+      case NULL_QUESTION:
+        throw new IllegalStateException(
+            String.format(
+                "Question type %s should not be rendered. Question ID: %s. Active program question"
+                    + " definition is possibly pointing to an old question ID",
+                getType(), getQuestionDefinition().getId()));
       default:
         throw new RuntimeException("Unrecognized question type: " + getType());
     }

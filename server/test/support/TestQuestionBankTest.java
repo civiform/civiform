@@ -38,6 +38,11 @@ public class TestQuestionBankTest {
   @Test
   @Parameters(source = QuestionType.class)
   public void getSampleQuestionForAllTypes_hasASampleForEachType(QuestionType questionType) {
+    // A null question type is not allowed to be created and won't show in the list
+    if (questionType == QuestionType.NULL_QUESTION) {
+      return;
+    }
+
     assertThat(testQuestionBank.getSampleQuestionsForAllTypes().get(questionType)).isNotNull();
   }
 }

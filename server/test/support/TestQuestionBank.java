@@ -24,6 +24,7 @@ import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -160,6 +161,11 @@ public class TestQuestionBank {
   // Name
   public Question applicantName() {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
+  }
+
+  // Name
+  public Question nullQuestion() {
+    return questionCache.computeIfAbsent(QuestionEnum.NULL_QUESTION, this::nullQuestion);
   }
 
   // Repeated name
@@ -374,6 +380,11 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private Question nullQuestion(QuestionEnum ignore) {
+    QuestionDefinition definition = new NullQuestionDefinition(9999L);
+    return new Question(definition);
+  }
+
   // Repeated name
   private Question applicantHouseholdMemberName(QuestionEnum ignore) {
     Question householdMembers = applicantHouseholdMembers();
@@ -571,5 +582,6 @@ public class TestQuestionBank {
     APPLICANT_EMAIL,
     STATIC_CONTENT,
     APPLICANT_PHONE,
+    NULL_QUESTION
   }
 }
