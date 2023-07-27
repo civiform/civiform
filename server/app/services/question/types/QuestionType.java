@@ -36,7 +36,7 @@ public enum QuestionType {
   STATIC("Static Text", StaticContentQuestion.class),
   TEXT("Text Field", TextQuestion.class),
   PHONE("Phone Field", PhoneQuestion.class),
-  NULL_QUESTION("Null Field", NullQuestion.class);
+  NULL_QUESTION("Missing Question", NullQuestion.class);
 
   private final String label;
   private final Class<? extends Question> supportedQuestion;

@@ -208,4 +208,19 @@ public class BlockDefinitionTest {
 
     assertThat(blockDefinition.hasNullQuestion()).isTrue();
   }
+
+  @Test
+  public void hasNullQuestion_isFalse() {
+    QuestionDefinition nullQuestion = testQuestionBank.applicantName().getQuestionDefinition();
+
+    BlockDefinition blockDefinition =
+        BlockDefinition.builder()
+            .setId(9999L)
+            .setName("Block Name")
+            .setDescription("Block Description")
+            .addQuestion(ProgramQuestionDefinition.create(nullQuestion, Optional.empty()))
+            .build();
+
+    assertThat(blockDefinition.hasNullQuestion()).isFalse();
+  }
 }

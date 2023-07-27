@@ -311,7 +311,7 @@ public final class ApplicantQuestion {
       case PHONE:
         return createPhoneQuestion();
       case NULL_QUESTION:
-        throw new RuntimeException(
+        throw new IllegalStateException(
             String.format(
                 "Question type %s should not be rendered. Question ID: %s. Active program question"
                     + " definition is possibly pointing to an old question ID",

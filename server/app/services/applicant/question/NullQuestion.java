@@ -6,6 +6,13 @@ import com.google.common.collect.ImmutableSet;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 
+/**
+ * This represents a missing questions and acts as a placeholder. This question does not get
+ * surfaced to the user or stored in the database
+ *
+ * <p>In normal operation this shouldn't ever be reached, but an occasional gremlin has resulted in
+ * the rare instance of a program pointing at an old version of a question.
+ */
 public class NullQuestion extends Question {
   NullQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);

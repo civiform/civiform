@@ -15,20 +15,20 @@ import services.LocalizedStrings;
  * the rare instance of a program pointing at an old version of a question.
  */
 public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
-  private final long _id;
+  private final long id;
 
   public NullQuestionDefinitionConfig(long id) {
-    _id = id;
+    this.id = id;
   }
 
   @Override
   String name() {
-    return "null-name-" + _id;
+    return "null-name-" + id;
   }
 
   @Override
   String description() {
-    return "null-description-" + _id;
+    return "null-description-" + id;
   }
 
   /**
@@ -52,7 +52,7 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
   @Override
   OptionalLong id() {
-    return OptionalLong.of(_id);
+    return OptionalLong.of(id);
   }
 
   @Override

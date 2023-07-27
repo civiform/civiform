@@ -348,8 +348,7 @@ public final class VersionRepository {
    * Returns the previous version to the one passed in. If there is only one version there isn't a
    * previous version so the Optional result will be empty.
    *
-   * <p>This can return draft, active, or obsolete versions. Versions flagged as deleted are
-   * excluded.
+   * <p>This can return active or obsolete versions. Versions flagged as deleted are excluded.
    */
   public Optional<Version> getPreviousVersion(Version version) {
     Version previousVersion =
