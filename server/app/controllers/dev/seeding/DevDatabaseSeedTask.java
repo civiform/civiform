@@ -44,7 +44,13 @@ import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.applicant.question.Scalar;
+import services.program.CantAddQuestionToBlockException;
+import services.program.DuplicateStatusException;
+import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
@@ -55,6 +61,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -159,7 +166,7 @@ public final class DevDatabaseSeedTask {
               /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
+        throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
@@ -175,9 +182,11 @@ public final class DevDatabaseSeedTask {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestionId, true);
 
-    } catch (
-        @SuppressWarnings("CatchingUnchecked")
-        Exception e) {
+    } catch (ProgramNotFoundException
+        | ProgramBlockDefinitionNotFoundException
+        | QuestionNotFoundException
+        | CantAddQuestionToBlockException
+        | ProgramQuestionDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -198,7 +207,7 @@ public final class DevDatabaseSeedTask {
               /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
+        throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
@@ -213,7 +222,7 @@ public final class DevDatabaseSeedTask {
                   .setLocalizedEmailBodyText(Optional.empty())
                   .build());
       if (appendStatusResult.isError()) {
-        throw new Exception(appendStatusResult.getErrors().toString());
+        throw new RuntimeException(appendStatusResult.getErrors().toString());
       }
 
       long blockId = 1L;
@@ -323,9 +332,13 @@ public final class DevDatabaseSeedTask {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 
-    } catch (
-        @SuppressWarnings("CatchingUnchecked")
-        Exception e) {
+    } catch (ProgramNotFoundException
+        | ProgramBlockDefinitionNotFoundException
+        | IllegalPredicateOrderingException
+        | QuestionNotFoundException
+        | CantAddQuestionToBlockException
+        | ProgramQuestionDefinitionNotFoundException
+        | DuplicateStatusException e) {
       throw new RuntimeException(e);
     }
   }
