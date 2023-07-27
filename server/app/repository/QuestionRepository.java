@@ -58,19 +58,20 @@ public final class QuestionRepository {
    * DRAFT if there isn't one.
    */
   public Question createOrUpdateDraft(QuestionDefinition definition) {
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
+      Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
       Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
       try {
         if (existingDraft.isPresent()) {
           Question updatedDraft =
               new Question(
                   new QuestionDefinitionBuilder(definition).setId(existingDraft.get().id).build());
-          this.updateQuestionSync(updatedDraft);
+          database.update(updatedDraft);
           transaction.commit();
           return updatedDraft;
         }
+
         Question newDraftQuestion =
             new Question(new QuestionDefinitionBuilder(definition).setId(null).build());
         insertQuestionSync(newDraftQuestion);
