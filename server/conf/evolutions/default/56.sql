@@ -15,9 +15,9 @@ BEGIN
 
     IF existing_draft_count > 0 THEN
       RAISE EXCEPTION 'Program % already has a draft!', NEW.name USING ERRCODE = 'integrity_constraint_violation';;
-END IF;;
+    END IF;;
 
-RETURN NEW;;
+    RETURN NEW;;
 END;;
 $validate_draft_program_uniqueness$ LANGUAGE plpgsql;
 
