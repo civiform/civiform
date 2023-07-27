@@ -1043,6 +1043,54 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
+  public void getActiveProgramDefinitionAsync_getsActiveProgram() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveProgramDefinitionAsync(programDefinition.slug());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getActiveProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
+    ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getActiveProgramDefinitionAsync("non-existent-program");
+
+    assertThatThrownBy(() -> found.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for slug: non-existent-program");
+  }
+
+  @Test
+  public void getDraftProgramDefinitionAsync_getsDraftProgram() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getDraftProgramDefinitionAsync(programDefinition.slug());
+
+    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+  }
+
+  @Test
+  public void getDraftProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
+    ProgramBuilder.newActiveProgram("Test Program").buildDefinition();
+
+    CompletionStage<ProgramDefinition> found =
+        ps.getDraftProgramDefinitionAsync("non-existent-program");
+
+    assertThatThrownBy(() -> found.toCompletableFuture().join())
+        .isInstanceOf(CompletionException.class)
+        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for slug: non-existent-program");
+  }
+
+  @Test
   public void addBlockToProgram_noProgram_throwsProgramNotFoundException() {
     assertThatThrownBy(() -> ps.addBlockToProgram(1L))
         .isInstanceOf(ProgramNotFoundException.class)

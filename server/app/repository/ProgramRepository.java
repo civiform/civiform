@@ -185,7 +185,7 @@ public final class ProgramRepository {
           Optional<Version> version = versionRepository.get().getDraftVersion();
 
           if (version.isEmpty()) {
-            throw new RuntimeException(new ProgramNotFoundException("No draft version available."));
+            throw new RuntimeException(new ProgramNotFoundException(slug));
           }
 
           ImmutableList<Program> draftPrograms = version.get().getPrograms();
