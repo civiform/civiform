@@ -77,7 +77,7 @@ public final class ApiDocsController {
           getProgramDefFn.apply(programSlug).toCompletableFuture().join();
       return Optional.of(programDefinition);
 
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return Optional.empty();
     }
   }
