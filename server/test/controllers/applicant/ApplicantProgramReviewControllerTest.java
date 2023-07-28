@@ -6,13 +6,11 @@ import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.mvc.Http.Status.UNAUTHORIZED;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
-import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.Application;
@@ -28,8 +26,6 @@ import services.Path;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
-
-import javax.swing.text.html.Option;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
