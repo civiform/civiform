@@ -159,10 +159,10 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
-  public CompletionStage<ProgramDefinition> getDraftProgramDefinitionAsync(String programSlug) {
-    return programRepository
-        .getDraftProgramFromSlug(programSlug)
-        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+  public ProgramDefinition getDraftProgramDefinition(String programSlug)
+      throws ProgramNotFoundException {
+    Program draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
+    return syncProgramAssociations(draftProgram).toCompletableFuture().join();
   }
 
   @Override

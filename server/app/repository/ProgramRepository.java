@@ -172,23 +172,20 @@ public final class ProgramRepository {
   }
 
   /** Get the current draft program with the provided slug. */
-  public CompletableFuture<Program> getDraftProgramFromSlug(String slug) {
-    return supplyAsync(
-        () -> {
-          Optional<Version> version = versionRepository.get().getDraftVersion();
+  public Program getDraftProgramFromSlug(String slug) throws ProgramNotFoundException {
 
-          if (version.isEmpty()) {
-            throw new RuntimeException(new ProgramNotFoundException(slug));
-          }
+    Optional<Version> version = versionRepository.get().getDraftVersion();
 
-          ImmutableList<Program> draftPrograms = version.get().getPrograms();
+    if (version.isEmpty()) {
+      throw new ProgramNotFoundException(slug);
+    }
 
-          return draftPrograms.stream()
-              .filter(draftProgram -> draftProgram.getSlug().equals(slug))
-              .findFirst()
-              .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
-        },
-        executionContext.current());
+    ImmutableList<Program> draftPrograms = version.get().getPrograms();
+
+    return draftPrograms.stream()
+        .filter(draftProgram -> draftProgram.getSlug().equals(slug))
+        .findFirst()
+        .orElseThrow(() -> new ProgramNotFoundException(slug));
   }
 
   public ImmutableList<Account> getProgramAdministrators(String programName) {

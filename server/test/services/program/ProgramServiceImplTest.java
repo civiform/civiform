@@ -1067,26 +1067,21 @@ public class ProgramServiceImplTest extends ResetPostgres {
   }
 
   @Test
-  public void getDraftProgramDefinitionAsync_getsDraftProgram() {
+  public void getDraftProgramDefinitionAsync_getsDraftProgram() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    CompletionStage<ProgramDefinition> found =
-        ps.getDraftProgramDefinitionAsync(programDefinition.slug());
+    ProgramDefinition found = ps.getDraftProgramDefinition(programDefinition.slug());
 
-    assertThat(found.toCompletableFuture().join().id()).isEqualTo(programDefinition.id());
+    assertThat(found.id()).isEqualTo(programDefinition.id());
   }
 
   @Test
   public void getDraftProgramDefinitionAsync_cannotFindRequestedProgram_throwsException() {
     ProgramBuilder.newDraftProgram("Test Program").buildDefinition();
 
-    CompletionStage<ProgramDefinition> found =
-        ps.getDraftProgramDefinitionAsync("non-existent-program");
-
-    assertThatThrownBy(() -> found.toCompletableFuture().join())
-        .isInstanceOf(CompletionException.class)
-        .hasRootCauseInstanceOf(ProgramNotFoundException.class)
+    assertThatThrownBy(() -> ps.getDraftProgramDefinition("non-existent-program"))
+        .isInstanceOf(ProgramNotFoundException.class)
         .hasMessageContaining("Program not found for slug: non-existent-program");
   }
 

@@ -6,12 +6,11 @@ import static play.mvc.Results.redirect;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Function;
 import javax.inject.Inject;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.api.ApiDocsView;
@@ -67,17 +66,21 @@ public final class ApiDocsController {
   private Optional<ProgramDefinition> getProgramDefinition(
       String programSlug, boolean useActiveVersion) {
 
-    Function<String, CompletionStage<ProgramDefinition>> getProgramDefFn =
-        useActiveVersion
-            ? programService::getActiveProgramDefinitionAsync
-            : programService::getDraftProgramDefinitionAsync;
-
     try {
-      ProgramDefinition programDefinition =
-          getProgramDefFn.apply(programSlug).toCompletableFuture().join();
-      return Optional.of(programDefinition);
+      if (useActiveVersion) {
+        ProgramDefinition activeProgramDefinition =
+            programService
+                .getActiveProgramDefinitionAsync(programSlug)
+                .toCompletableFuture()
+                .join();
+        return Optional.of(activeProgramDefinition);
+      } else {
+        ProgramDefinition draftProgramDefinition =
+            programService.getDraftProgramDefinition(programSlug);
+        return Optional.of(draftProgramDefinition);
+      }
 
-    } catch (RuntimeException e) {
+    } catch (RuntimeException | ProgramNotFoundException e) {
       return Optional.empty();
     }
   }
