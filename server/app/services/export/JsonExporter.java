@@ -54,6 +54,10 @@ public final class JsonExporter {
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
   }
 
+  /**
+   * Returns a JSON list of applications to the given program, using the pagination behavior and
+   * filters supplied.
+   */
   public String export(
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
@@ -70,6 +74,10 @@ public final class JsonExporter {
     return export(programDefinition, paginationResult);
   }
 
+  /**
+   * Returns a JSON list of applications to the given program, using the applications contained in
+   * paginationResult.
+   */
   public String export(
       ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
     var applications = paginationResult.getPageContents();
