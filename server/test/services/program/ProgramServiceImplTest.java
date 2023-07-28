@@ -1063,7 +1063,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
     assertThatThrownBy(() -> found.toCompletableFuture().join())
         .isInstanceOf(CompletionException.class)
         .hasRootCauseInstanceOf(ProgramNotFoundException.class)
-        .hasMessageContaining("Program draft not found for slug: non-existent-program");
+        .hasMessageContaining("Program not found for slug: non-existent-program");
   }
 
   @Test
@@ -1082,7 +1082,7 @@ public class ProgramServiceImplTest extends ResetPostgres {
 
     assertThatThrownBy(() -> ps.getDraftProgramDefinition("non-existent-program"))
         .isInstanceOf(ProgramDraftNotFoundException.class)
-        .hasMessageContaining("Program not found for slug: non-existent-program");
+        .hasMessageContaining("Program draft not found for slug: non-existent-program");
   }
 
   @Test
