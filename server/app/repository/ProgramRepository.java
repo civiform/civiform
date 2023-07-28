@@ -34,6 +34,7 @@ import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
 import services.program.ProgramDefinition;
+import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -172,12 +173,12 @@ public final class ProgramRepository {
   }
 
   /** Get the current draft program with the provided slug. */
-  public Program getDraftProgramFromSlug(String slug) throws ProgramNotFoundException {
+  public Program getDraftProgramFromSlug(String slug) throws ProgramDraftNotFoundException {
 
     Optional<Version> version = versionRepository.get().getDraftVersion();
 
     if (version.isEmpty()) {
-      throw new ProgramNotFoundException(slug);
+      throw new ProgramDraftNotFoundException(slug);
     }
 
     ImmutableList<Program> draftPrograms = version.get().getPrograms();
@@ -185,7 +186,7 @@ public final class ProgramRepository {
     return draftPrograms.stream()
         .filter(draftProgram -> draftProgram.getSlug().equals(slug))
         .findFirst()
-        .orElseThrow(() -> new ProgramNotFoundException(slug));
+        .orElseThrow(() -> new ProgramDraftNotFoundException(slug));
   }
 
   public ImmutableList<Account> getProgramAdministrators(String programName) {

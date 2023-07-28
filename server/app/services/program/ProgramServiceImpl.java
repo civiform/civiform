@@ -160,7 +160,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ProgramDefinition getDraftProgramDefinition(String programSlug)
-      throws ProgramNotFoundException {
+      throws ProgramDraftNotFoundException {
     Program draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
   }

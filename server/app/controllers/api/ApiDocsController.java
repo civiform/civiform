@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
+import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.api.ApiDocsView;
@@ -80,7 +80,7 @@ public final class ApiDocsController {
         return Optional.of(draftProgramDefinition);
       }
 
-    } catch (RuntimeException | ProgramNotFoundException e) {
+    } catch (RuntimeException | ProgramDraftNotFoundException e) {
       return Optional.empty();
     }
   }
