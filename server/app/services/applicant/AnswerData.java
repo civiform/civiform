@@ -164,6 +164,7 @@ public abstract class AnswerData {
         return applicantQuestion().createSingleSelectQuestion();
       case FILEUPLOAD:
         return applicantQuestion().createFileUploadQuestion();
+      case NULL_QUESTION: // fallthrough intended
       default:
         throw new RuntimeException(
             String.format("Unknown QuestionType %s", questionDefinition().getQuestionType()));

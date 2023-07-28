@@ -166,6 +166,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       case CURRENCY: // fallthrough intended
       case FILEUPLOAD: // fallthrough intended
       case NAME: // fallthrough intended
+      case NULL_QUESTION: // fallthrough intended
       case NUMBER: // fallthrough intended
       case TEXT: // fallthrough intended
       case PHONE: // fallthrough intended

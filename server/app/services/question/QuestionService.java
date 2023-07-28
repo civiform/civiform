@@ -373,4 +373,27 @@ public final class QuestionService {
     }
     return errors.build();
   }
+
+  /**
+   * Returns all questions for the specified version. For example passing in version of id 2, would
+   * return questions for version of id 1. Will return a list for draft, active, or obsolete
+   * versions.
+   *
+   * <p>If there is no previous version an empty list is returned.
+   *
+   * @param version The version used to lookup the previous version
+   * @return Populated list of Question Definitions or an empty list
+   */
+  public ImmutableList<QuestionDefinition> getAllPreviousVersionQuestions(Version version) {
+    Optional<Version> optionalPreviousVersion =
+        versionRepositoryProvider.get().getPreviousVersion(version);
+
+    // This should only happen if we only have one version in the system
+    // such as in a fresh install
+    if (optionalPreviousVersion.isEmpty()) {
+      return ImmutableList.of();
+    }
+
+    return getReadOnlyVersionedQuestionService(optionalPreviousVersion.get()).getAllQuestions();
+  }
 }

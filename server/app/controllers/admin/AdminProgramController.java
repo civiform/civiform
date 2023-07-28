@@ -168,7 +168,7 @@ public final class AdminProgramController extends CiviFormController {
     try {
       versionRepository.publishNewSynchronizedVersion();
       return redirect(routes.AdminProgramController.index());
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return badRequest(e.toString());
     }
   }
@@ -208,7 +208,7 @@ public final class AdminProgramController extends CiviFormController {
       return redirect(controllers.admin.routes.AdminProgramBlocksController.index(idToEdit).url());
     } catch (ProgramNotFoundException e) {
       return notFound(e.toString());
-    } catch (Exception e) {
+    } catch (RuntimeException e) {
       return badRequest(e.toString());
     }
   }

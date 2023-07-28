@@ -158,7 +158,7 @@ public final class UserRepository {
     return tiGroup;
   }
 
-  public void deleteTrustedIntermediaryGroup(long id) throws NoSuchTrustedIntermediaryGroupError {
+  public void deleteTrustedIntermediaryGroup(long id) {
     Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
@@ -175,8 +175,7 @@ public final class UserRepository {
    * existing account, then create an account and associate it, so it will be ready when the TI
    * signs in for the first time.
    */
-  public void addTrustedIntermediaryToGroup(long id, String emailAddress)
-      throws NoSuchTrustedIntermediaryGroupError, NotEligibleToBecomeTiError {
+  public void addTrustedIntermediaryToGroup(long id, String emailAddress) {
     Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
@@ -199,8 +198,7 @@ public final class UserRepository {
     account.save();
   }
 
-  public void removeTrustedIntermediaryFromGroup(long id, long accountId)
-      throws NoSuchTrustedIntermediaryGroupError, NoSuchTrustedIntermediaryError {
+  public void removeTrustedIntermediaryFromGroup(long id, long accountId) {
     Optional<TrustedIntermediaryGroup> tiGroup = getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       throw new NoSuchTrustedIntermediaryGroupError();
@@ -236,8 +234,7 @@ public final class UserRepository {
    * @throws EmailAddressExistsException if the provided email address already exists.
    */
   public void createNewApplicantForTrustedIntermediaryGroup(
-      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroup tiGroup)
-      throws EmailAddressExistsException {
+      AddApplicantToTrustedIntermediaryGroupForm form, TrustedIntermediaryGroup tiGroup) {
     Account newAccount = new Account();
     if (!Strings.isNullOrEmpty(form.getEmailAddress())) {
       if (lookupAccountByEmail(form.getEmailAddress()).isPresent()) {
