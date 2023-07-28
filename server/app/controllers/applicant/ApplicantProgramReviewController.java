@@ -1,13 +1,10 @@
 package controllers.applicant;
 
-import static auth.DefaultToGuestRedirector.createGuestSessionAndRedirect;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
-import static views.components.Modal.RepeatOpenBehavior;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
 import auth.CiviFormProfile;
-import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
@@ -86,7 +83,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     // If the user isn't already logged in within their browser session, send them home.
     if (submittingProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(redirect(controllers.routes.HomeController.index().url()));
+      return CompletableFuture.completedFuture(redirectToHome());
     }
 
     boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
@@ -163,7 +160,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
-                  return redirect(controllers.routes.HomeController.index().url());
+                  return redirectToHome();
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
@@ -184,7 +181,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     // If the user isn't already logged in within their browser session, send them home.
     if (submittingProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(redirect(controllers.routes.HomeController.index().url()));
+      return CompletableFuture.completedFuture(redirectToHome());
     }
 
     if (submittingProfile.get().isCiviFormAdmin()) {
@@ -201,7 +198,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
-                  return redirect(controllers.routes.HomeController.index().url());
+                  return redirectToHome();
                 }
                 throw new RuntimeException(cause);
               }
@@ -306,5 +303,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private static Result redirectToHome() {
+    return redirect(controllers.routes.HomeController.index().url());
   }
 }
