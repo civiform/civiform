@@ -253,20 +253,27 @@ public final class CsvExporterService {
             .build());
     columnsBuilder.add(
         Column.builder()
-            .setHeader("Applicant language")
+            .setHeader("Applicant Language")
             .setColumnType(ColumnType.LANGUAGE)
             .build());
     columnsBuilder.add(
-        Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+        Column.builder().setHeader("Submit Time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder()
-            .setHeader("Submitted by")
-            .setColumnType(ColumnType.SUBMITTER_EMAIL)
+            .setHeader("Submitter Type")
+            .setColumnType(ColumnType.SUBMITTER_TYPE)
+            .build());
+    columnsBuilder.add(
+        Column.builder().setHeader("TI Email").setColumnType(ColumnType.TI_EMAIL).build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("TI Organization")
+            .setColumnType(ColumnType.TI_ORGANIZATION)
             .build());
     if (showEligibilityColumn) {
       columnsBuilder.add(
           Column.builder()
-              .setHeader("Eligibility status")
+              .setHeader("Eligibility Status")
               .setColumnType(ColumnType.ELIGIBILITY_STATUS)
               .build());
     }
@@ -366,8 +373,13 @@ public final class CsvExporterService {
         Column.builder().setHeader("Program").setColumnType(ColumnType.PROGRAM).build());
     columnsBuilder.add(
         Column.builder()
-            .setHeader("Submitter Email (Opaque)")
-            .setColumnType(ColumnType.SUBMITTER_EMAIL_OPAQUE)
+            .setHeader("Submitter Type")
+            .setColumnType(ColumnType.SUBMITTER_TYPE)
+            .build());
+    columnsBuilder.add(
+        Column.builder()
+            .setHeader("TI Email (Opaque)")
+            .setColumnType(ColumnType.TI_EMAIL_OPAQUE)
             .build());
     columnsBuilder.add(
         Column.builder()
@@ -375,9 +387,9 @@ public final class CsvExporterService {
             .setColumnType(ColumnType.TI_ORGANIZATION)
             .build());
     columnsBuilder.add(
-        Column.builder().setHeader("Create time").setColumnType(ColumnType.CREATE_TIME).build());
+        Column.builder().setHeader("Create Time").setColumnType(ColumnType.CREATE_TIME).build());
     columnsBuilder.add(
-        Column.builder().setHeader("Submit time").setColumnType(ColumnType.SUBMIT_TIME).build());
+        Column.builder().setHeader("Submit Time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
