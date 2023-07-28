@@ -131,6 +131,13 @@ public class ResourceCreator {
     return account;
   }
 
+  public TrustedIntermediaryGroup insertTiGroup(String groupName) {
+    TrustedIntermediaryGroup tiGroup =
+        new TrustedIntermediaryGroup(groupName, "A TI group for all your TI needs!");
+    tiGroup.save();
+    return tiGroup;
+  }
+
   public Applicant insertApplicantWithAccount() {
     return insertApplicantWithAccount(/* accountEmail= */ Optional.empty());
   }

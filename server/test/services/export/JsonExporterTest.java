@@ -174,7 +174,46 @@ public class JsonExporterTest extends AbstractExporterTest {
         "$[" + resultIndex + "].applicant_id", application.getApplicant().id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].application_id", application.id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].language", "en-US");
-    resultAsserter.assertValueAtPath("$[" + resultIndex + "].submitter_email", "Applicant");
+  }
+
+  @Test
+  public void export_tiTopLevelFieldsAreSetWhenSubmitterIsTi() {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram)
+        .byTrustedIntermediary("ti@trusted_intermediarys.org", "TIs Inc.")
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].submitter_type", "TRUSTED_INTERMEDIARY");
+    resultAsserter.assertValueAtPath("$[0].ti_email", "ti@trusted_intermediarys.org");
+    resultAsserter.assertValueAtPath("$[0].ti_organization", "TIs Inc.");
+  }
+
+  @Test
+  public void export_tiTopLevelFieldsAreNotSetWhenSubmitterIsApplicant() {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].submitter_type", "APPLICANT");
+    resultAsserter.assertNullValueAtPath("$[0].ti_email");
+    resultAsserter.assertNullValueAtPath("$[0].ti_organization");
   }
 
   @Test
