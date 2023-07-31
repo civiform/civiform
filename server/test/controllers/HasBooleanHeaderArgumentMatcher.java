@@ -15,7 +15,9 @@ public class HasBooleanHeaderArgumentMatcher implements ArgumentMatcher<Http.Req
 
   @Override
   public boolean matches(Http.Request argument) {
-    if (argument == null || !argument.hasHeader(headerName)) return false;
+    if (argument == null || !argument.hasHeader(headerName)) {
+      return false;
+    }
     return Boolean.parseBoolean(argument.header(headerName).get());
   }
 
