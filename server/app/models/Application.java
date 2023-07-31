@@ -73,6 +73,13 @@ public class Application extends BaseModel {
     return Optional.ofNullable(this.submitterEmail);
   }
 
+  /**
+   * Set the email address of the TI that submitted the application. TODO(#5325): Rename this field
+   * to reduce confusion.
+   *
+   * @param submitterEmail The email address of the TI that submitted the application.
+   * @return this Application
+   */
   public Application setSubmitterEmail(String submitterEmail) {
     this.submitterEmail = submitterEmail;
     return this;

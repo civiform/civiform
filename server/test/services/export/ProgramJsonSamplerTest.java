@@ -147,7 +147,9 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             + "  \"program_version_id\" : 789,\n"
             + "  \"status\" : \"Pending Review\",\n"
             + "  \"submit_time\" : \"2023/05/26 1:46:15 PM PDT\",\n"
-            + "  \"submitter_email\" : \"homer.simpson@springfield.gov\"\n"
+            + "  \"submitter_type\" : \"APPLICANT\",\n"
+            + "  \"ti_email\" : null,\n"
+            + "  \"ti_organization\" : null\n"
             + "} ]";
 
     assertThat(asPrettyJsonString(json.asJsonString())).isEqualTo(expectedJson);

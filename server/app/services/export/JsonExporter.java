@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import models.TrustedIntermediaryGroup;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
@@ -27,6 +28,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -39,6 +41,7 @@ public final class JsonExporter {
   private final DateConverter dateConverter;
   private final QuestionJsonPresenter.Factory presenterFactory;
   private final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
+  private static final String EMPTY_VALUE = "";
 
   @Inject
   JsonExporter(
@@ -128,7 +131,22 @@ public final class JsonExporter {
             .setLanguageTag(
                 roApplicantProgramService.getApplicantData().preferredLocale().toLanguageTag())
             .setCreateTime(application.getCreateTime())
-            .setSubmitterEmail(application.getSubmitterEmail().orElse("Applicant"))
+            // The field on the application is called `submitter_email`, but it's only ever used to
+            // store the TI's email, never the applicant's.
+            // TODO(#5325): Rename the `submitter_email` database field to `ti_email` and move the
+            // submitter_type logic upstream.
+            .setSubmitterType(
+                application.getSubmitterEmail().isPresent()
+                    ? SubmitterType.TRUSTED_INTERMEDIARY
+                    : SubmitterType.APPLICANT)
+            .setTiEmail(application.getSubmitterEmail().orElse(EMPTY_VALUE))
+            .setTiOrganization(
+                application
+                    .getApplicant()
+                    .getAccount()
+                    .getManagedByGroup()
+                    .map(TrustedIntermediaryGroup::getName)
+                    .orElse(EMPTY_VALUE))
             .setSubmitTime(application.getSubmitTime())
             .setStatus(application.getLatestStatus())
             .addApplicationEntries(entriesBuilder.build())
@@ -152,8 +170,10 @@ public final class JsonExporter {
         Path.create("create_time"),
         dateConverter.renderDateTimeDataOnly(applicationJsonExportData.createTime()));
     jsonApplication.putString(
-        Path.create("submitter_email"), applicationJsonExportData.submitterEmail());
-
+        Path.create("submitter_type"), applicationJsonExportData.submitterType().toString());
+    jsonApplication.putString(Path.create("ti_email"), applicationJsonExportData.tiEmail());
+    jsonApplication.putString(
+        Path.create("ti_organization"), applicationJsonExportData.tiOrganization());
     Path submitTimePath = Path.create("submit_time");
     Optional.ofNullable(applicationJsonExportData.submitTime())
         .ifPresentOrElse(
@@ -282,7 +302,11 @@ public final class JsonExporter {
 
     public abstract Instant createTime();
 
-    public abstract String submitterEmail();
+    public abstract SubmitterType submitterType();
+
+    public abstract String tiEmail();
+
+    public abstract String tiOrganization();
 
     public abstract Instant submitTime();
 
@@ -309,7 +333,11 @@ public final class JsonExporter {
 
       public abstract Builder setCreateTime(Instant createTime);
 
-      public abstract Builder setSubmitterEmail(String submitterEmail);
+      public abstract Builder setSubmitterType(SubmitterType submitterType);
+
+      public abstract Builder setTiEmail(String tiEmail);
+
+      public abstract Builder setTiOrganization(String tiOrganization);
 
       public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
