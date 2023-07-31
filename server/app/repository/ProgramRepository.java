@@ -157,10 +157,6 @@ public final class ProgramRepository {
   public CompletableFuture<Program> getActiveProgramFromSlug(String slug) {
     return supplyAsync(
         () -> {
-          for (Program program : database.find(Program.class).where().isNull("slug").findList()) {
-            program.getSlug();
-            program.save();
-          }
           ImmutableList<Program> activePrograms =
               versionRepository.get().getActiveVersion().getPrograms();
           List<Program> programsMatchingSlug =

@@ -123,25 +123,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getForSlug_withOldSchema() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}', 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Old Schema Entry'));")
-        .execute();
-
-    Program found = repo.getActiveProgramFromSlug("old-schema-entry").toCompletableFuture().join();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
-    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
-  }
-
-  @Test
   public void getForSlug_findsCorrectProgram() {
     Program program = resourceCreator.insertActiveProgram("Something With A Name");
 
