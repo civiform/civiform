@@ -4,8 +4,7 @@ import org.mockito.ArgumentMatcher;
 import play.mvc.Http;
 
 /**
- * ArgumentMatcher that matches an Http.Request containing a specified header
- * whose value is "true".
+ * ArgumentMatcher that matches an Http.Request containing a specified header whose value is "true".
  */
 public class HasBooleanHeaderArgumentMatcher implements ArgumentMatcher<Http.Request> {
   private final String headerName;
