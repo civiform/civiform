@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.program.ProgramDefinition;
+import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.api.ApiDocsView;
@@ -34,32 +35,53 @@ public final class ApiDocsController {
   public Result index(Http.Request request) {
     Optional<String> firstProgramSlug = programService.getAllProgramSlugs().stream().findFirst();
     return firstProgramSlug
-        .map(slug -> redirect(routes.ApiDocsController.docsForSlug(slug)))
+        .map(slug -> redirect(routes.ApiDocsController.activeDocsForSlug(slug)))
         .orElse(
             notFound(
-                "No active programs found. Please create and publish a program before accessing"
+                "No programs found. Please create and publish a program before accessing"
                     + " API docs."));
   }
 
-  public Result docsForSlug(Http.Request request, String programSlug) {
+  public Result activeDocsForSlug(Http.Request request, String selectedProgramSlug) {
+    return docsForSlug(request, selectedProgramSlug, /* useActiveVersion= */ true);
+  }
+
+  public Result draftDocsForSlug(Http.Request request, String selectedProgramSlug) {
+    return docsForSlug(request, selectedProgramSlug, /* useActiveVersion= */ false);
+  }
+
+  private Result docsForSlug(
+      Http.Request request, String selectedProgramSlug, boolean useActiveVersion) {
     if (!settingsManifest.getApiGeneratedDocsEnabled()) {
       return notFound("API Docs are not enabled.");
     }
 
     ImmutableSet<String> allProgramSlugs = programService.getAllProgramSlugs();
+    Optional<ProgramDefinition> programDefinition =
+        getProgramDefinition(selectedProgramSlug, useActiveVersion);
 
-    ProgramDefinition programDefinition;
+    return ok(docsView.render(request, selectedProgramSlug, programDefinition, allProgramSlugs));
+  }
+
+  private Optional<ProgramDefinition> getProgramDefinition(
+      String programSlug, boolean useActiveVersion) {
+
     try {
-      programDefinition =
-          programService.getActiveProgramDefinitionAsync(programSlug).toCompletableFuture().join();
-    } catch (RuntimeException e) {
-      return notFound(
-          String.format(
-              "No active programs found for %s. Please create and publish a program with this slug"
-                  + " to continue.",
-              programSlug));
-    }
+      if (useActiveVersion) {
+        ProgramDefinition activeProgramDefinition =
+            programService
+                .getActiveProgramDefinitionAsync(programSlug)
+                .toCompletableFuture()
+                .join();
+        return Optional.of(activeProgramDefinition);
+      } else {
+        ProgramDefinition draftProgramDefinition =
+            programService.getDraftProgramDefinition(programSlug);
+        return Optional.of(draftProgramDefinition);
+      }
 
-    return ok(docsView.render(request, programDefinition, allProgramSlugs));
+    } catch (RuntimeException | ProgramDraftNotFoundException e) {
+      return Optional.empty();
+    }
   }
 }

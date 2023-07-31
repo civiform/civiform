@@ -159,6 +159,13 @@ public final class ProgramServiceImpl implements ProgramService {
   }
 
   @Override
+  public ProgramDefinition getDraftProgramDefinition(String programSlug)
+      throws ProgramDraftNotFoundException {
+    Program draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
+    return syncProgramAssociations(draftProgram).toCompletableFuture().join();
+  }
+
+  @Override
   public ImmutableList<ProgramDefinition> getAllProgramDefinitionVersions(long programId) {
     return programRepository.getAllProgramVersions(programId).stream()
         .map(program -> syncProgramAssociations(program).toCompletableFuture().join())
