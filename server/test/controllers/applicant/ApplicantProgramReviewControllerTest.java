@@ -241,25 +241,28 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   public Result review(long applicantId, long programId) {
+    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramReviewController.review(applicantId, programId)))
+                        routes.ApplicantProgramReviewController.review(applicantId, programId))
+                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
     return subject.review(request, applicantId, programId).toCompletableFuture().join();
   }
 
   public Result submit(long applicantId, long programId) {
+    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramReviewController.submit(applicantId, programId)))
+                        routes.ApplicantProgramReviewController.submit(applicantId, programId))
+                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
     return subject.submit(request, applicantId, programId).toCompletableFuture().join();
   }
 
   private void answer(long programId) {
-
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.update(

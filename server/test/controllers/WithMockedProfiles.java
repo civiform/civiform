@@ -1,6 +1,7 @@
 package controllers;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 import static play.inject.Bindings.bind;
 
@@ -16,6 +17,7 @@ import models.TrustedIntermediaryGroup;
 import models.Version;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import play.Application;
 import play.inject.Injector;
@@ -31,6 +33,8 @@ public class WithMockedProfiles {
   private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+
+  protected static final String skipUserProfile = "skipUserProfile";
 
   private static Injector injector;
   private static ProfileFactory profileFactory;
@@ -132,7 +136,11 @@ public class WithMockedProfiles {
     return adminAccount;
   }
 
+  private ArgumentMatcher<Http.Request> skipUserProfile() {
+    return new HasBooleanHeaderArgumentMatcher(skipUserProfile);
+  }
+
   private void mockProfile(CiviFormProfile profile) {
-    when(MOCK_UTILS.currentUserProfile(any(Http.Request.class))).thenReturn(Optional.of(profile));
+    when(MOCK_UTILS.currentUserProfile(not(argThat(skipUserProfile())))).thenReturn(Optional.of(profile));
   }
 }
