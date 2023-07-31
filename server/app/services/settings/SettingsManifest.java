@@ -1006,7 +1006,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "APPLICANT_REGISTER_URI",
                               "URI to create a new account in the applicant identity provider.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.ADMIN_READABLE),
                           SettingDescription.create(

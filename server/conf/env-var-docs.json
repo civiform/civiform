@@ -49,8 +49,7 @@
           "APPLICANT_REGISTER_URI": {
             "mode": "ADMIN_READABLE",
             "description": "URI to create a new account in the applicant identity provider.",
-            "type": "string",
-            "required": true
+            "type": "string"
           },
           "APPLICANT_PORTAL_NAME": {
             "mode": "ADMIN_WRITEABLE",
