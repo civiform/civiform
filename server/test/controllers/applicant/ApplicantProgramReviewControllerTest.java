@@ -6,7 +6,6 @@ import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.mvc.Http.Status.UNAUTHORIZED;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
@@ -34,9 +33,10 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   private ApplicantProgramBlocksController blockController;
   private Program activeProgram;
   public Applicant applicant;
+  public Applicant applicantWithoutProfile;
 
   @Before
-  public void setUpWithFreshApplicant() {
+  public void setUpWithFreshApplicants() {
     resetDatabase();
 
     subject = instanceOf(ApplicantProgramReviewController.class);
@@ -47,24 +47,34 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     applicant = createApplicantWithMockedProfile();
+    applicantWithoutProfile = createApplicant();
   }
 
   @Test
-  public void review_invalidApplicant_returnsUnauthorized() {
+  public void review_invalidApplicant_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.review(badApplicantId, activeProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void review_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void review_applicantWithoutProfile_redirectsToHome() {
+    Result result = this.review(applicantWithoutProfile.id, activeProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void review_applicantAccessToDraftProgram_redirectsToHome() {
     Program draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     Result result = this.review(applicant.id, draftProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -101,21 +111,30 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void submit_invalid_returnsUnauthorized() {
+  public void submit_invalid_redirectsToHome() {
     long badApplicantId = applicant.id + 1000;
     Result result = this.submit(badApplicantId, activeProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void submit_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void submit_applicantWithoutProfile_redirectsToHome() {
+    Result result = this.submit(applicantWithoutProfile.id, activeProgram.id);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void submit_applicantAccessToDraftProgram_redirectsToHome() {
     Program draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
             .build();
     Result result = this.submit(applicant.id, draftProgram.id);
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -222,25 +241,28 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   }
 
   public Result review(long applicantId, long programId) {
+    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramReviewController.review(applicantId, programId)))
+                        routes.ApplicantProgramReviewController.review(applicantId, programId))
+                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
     return subject.review(request, applicantId, programId).toCompletableFuture().join();
   }
 
   public Result submit(long applicantId, long programId) {
+    Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramReviewController.submit(applicantId, programId)))
+                        routes.ApplicantProgramReviewController.submit(applicantId, programId))
+                    .header(skipUserProfile, shouldSkipUserProfile.toString()))
             .build();
     return subject.submit(request, applicantId, programId).toCompletableFuture().join();
   }
 
   private void answer(long programId) {
-
     Request request =
         requestBuilderWithSettings(
                 routes.ApplicantProgramBlocksController.update(
