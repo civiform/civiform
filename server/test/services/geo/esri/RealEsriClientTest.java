@@ -33,7 +33,7 @@ public class RealEsriClientTest {
     JsonNode resp = maybeResp.get();
     ArrayNode candidates = (ArrayNode) resp.get("candidates");
     assertThat(resp.get("spatialReference").get("wkid").asInt()).isEqualTo(4326);
-    assertThat(candidates).hasSize(5);
+    assertThat(candidates).hasSize(6);
   }
 
   @Test

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.BiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -125,6 +126,7 @@ public abstract class EsriClient {
                         .setLatitude(location.get("y").asDouble())
                         .setWellKnownId(wkid)
                         .build();
+
                 Address candidateAddress =
                     Address.builder()
                         .setStreet(attributes.get("Address").asText())
@@ -133,11 +135,7 @@ public abstract class EsriClient {
                                 ? address.getLine2()
                                 : attributes.get("SubAddr").asText())
                         .setCity(attributes.get("City").asText())
-                        .setState(
-                            attributes.get("RegionAbbr") == null
-                                    || attributes.get("RegionAbbr").isEmpty()
-                                ? address.getState()
-                                : attributes.get("RegionAbbr").asText())
+                        .setState(getStateAbbreviationFromAttributes(attributes, address))
                         .setZip(attributes.get("Postal").asText())
                         .build();
                 // Suggestion must be a fully formed address.
@@ -177,6 +175,35 @@ public abstract class EsriClient {
               }
               return addressCandidates;
             });
+  }
+
+  /**
+   * Get the state abbreviation from the attributes json node. on Public ESRI this is under the
+   * RegionAbbr field, but some custom implementations may have it under the Region field.
+   */
+  private String getStateAbbreviationFromAttributes(JsonNode attributes, Address address) {
+    BiFunction<JsonNode, String, String> getValue =
+        (jsonNode, keyName) ->
+            (jsonNode.get(keyName) == null || jsonNode.get(keyName).isNull())
+                ? ""
+                : jsonNode.get(keyName).asText();
+
+    // Start with getting the value from the RegionAbbr, this is the
+    // default used by ESRI for state abbreviations
+    String result = getValue.apply(attributes, "RegionAbbr");
+
+    // Assume if it's not two characters it is either empty or the
+    // full state name and pull from the Region value which
+    if (result.length() != 2) {
+      result = getValue.apply(attributes, "Region");
+    }
+
+    // If still not two characters default to originally selected state
+    if (result.length() != 2) {
+      result = address.getState();
+    }
+
+    return result;
   }
 
   /**

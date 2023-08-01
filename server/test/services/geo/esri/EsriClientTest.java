@@ -117,6 +117,36 @@ public class EsriClientTest {
   }
 
   @Test
+  public void getAddressSuggestions_stateFromRegion() throws Exception {
+    helper = new EsriTestHelper(TestType.STANDARD);
+    Address address =
+        Address.builder()
+            .setStreet("380 New York St")
+            .setLine2("")
+            .setCity("Redlands")
+            .setState("CA")
+            .setZip("92373")
+            .build();
+
+    CompletionStage<AddressSuggestionGroup> group =
+        helper.getClient().getAddressSuggestions(address);
+    ImmutableList<AddressSuggestion> suggestions =
+        group.toCompletableFuture().join().getAddressSuggestions();
+    // First item is guaranteed to be here since the response is taken from the JSON file.
+    // This also tests that we are rejecting the responses that do not include a number
+    // in the street address or any street address at all.
+    Optional<AddressSuggestion> addressSuggestion =
+        suggestions.stream()
+            .filter(x -> x.getAddress().getStreet().equals("Address In Area State from Region"))
+            .findFirst();
+
+    assertThat(addressSuggestion.isPresent()).isTrue();
+    String street = addressSuggestion.get().getAddress().getStreet();
+    assertThat(street).isEqualTo("Address In Area State from Region");
+    assertThat(addressSuggestion.get().getAddress().getState()).isEqualTo("CA");
+  }
+
+  @Test
   public void getAddressSuggestionsIncludesOriginalAddress() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD);
     Address address =

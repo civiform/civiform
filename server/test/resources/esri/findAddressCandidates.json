@@ -35,6 +35,22 @@
       }
     },
     {
+      "address": "Address In Area State from Region, Redlands, California, 92373",
+      "location": {
+        "x": -100,
+        "y": 100
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "",
+        "Address": "Address In Area State from Region",
+        "City": "Redlands",
+        "Region": "CA",
+        "RegionAbbr": "",
+        "Postal": "92373"
+      }
+    },
+    {
       "address": "Address With No Service Area Features, Redlands, California, 92373",
       "location": {
         "x": -101,
