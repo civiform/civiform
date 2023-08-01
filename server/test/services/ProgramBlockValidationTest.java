@@ -10,6 +10,7 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.program.ProgramDefinition;
+import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
@@ -18,19 +19,24 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   private ProgramBlockValidation programBlockValidation;
   private VersionRepository versionRepository;
   private Question questionForTombstone;
+  private QuestionService questionService;
+  private Question questionForActiveDraftState;
 
   @Before
   public void setProgramBlockValidation()
       throws services.question.exceptions.QuestionNotFoundException {
     versionRepository = instanceOf(repository.VersionRepository.class);
+    questionService = instanceOf(services.question.QuestionService.class);
     Version version = versionRepository.getDraftVersionOrCreate();
     String tombstonedQuestionOneName = "tombstoneOne";
     questionForTombstone = resourceCreator.insertQuestion(tombstonedQuestionOneName);
     version.addQuestion(questionForTombstone);
     version.addTombstoneForQuestion(questionForTombstone);
     version.save();
+    String questionTwoName = "questionNotInActiveOrDraftState";
+    questionForActiveDraftState = resourceCreator.insertQuestion(questionTwoName);
     ProgramBlockValidationFactory programBlockValidationFactory =
-        new ProgramBlockValidationFactory(versionRepository);
+        new ProgramBlockValidationFactory(versionRepository, questionService);
     programBlockValidation = programBlockValidationFactory.create();
   }
 
@@ -47,6 +53,23 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 program.getLastBlockDefinition(),
                 questionForTombstone.getQuestionDefinition()))
         .isEqualTo(services.ProgramBlockValidation.AddQuestionResult.QUESTION_TOMBSTONED);
+  }
+
+  @Test
+  public void canAddQuestions_cantAddQuestionNotInActiveDraftState() throws Exception {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestionDefinition(questionForActiveDraftState.getQuestionDefinition())
+            .buildDefinition();
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForActiveDraftState.getQuestionDefinition()))
+        .isEqualTo(
+            services.ProgramBlockValidation.AddQuestionResult
+                .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE);
   }
 
   @Test
