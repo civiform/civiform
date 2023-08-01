@@ -2,29 +2,52 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.hash.Hashing;
+import com.typesafe.config.ConfigFactory;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 import models.Question;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.junit.Before;
 import org.junit.Test;
 import repository.TimeFilter;
+import services.DateConverter;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicantService;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.PhoneQuestion;
+import services.program.ProgramService;
+import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
 public class CsvExporterTest extends AbstractExporterTest {
 
   private static final CSVFormat DEFAULT_FORMAT = CSVFormat.DEFAULT.builder().setHeader().build();
+  private static final String SECRET_SALT = "super secret";
+  private static final String EMPTY_VALUE = "";
+  CsvExporterService exporterService;
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
+  }
+
+  @Before
+  public void setUp() {
+    exporterService =
+        new CsvExporterService(
+            instanceOf(ProgramService.class),
+            instanceOf(QuestionService.class),
+            instanceOf(ApplicantService.class),
+            ConfigFactory.parseMap(ImmutableMap.of("play.http.secret.key", SECRET_SALT)),
+            instanceOf(DateConverter.class));
   }
 
   @Test
@@ -33,7 +56,6 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeProgram();
     createFakeApplications();
 
-    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
@@ -43,9 +65,11 @@ public class CsvExporterTest extends AbstractExporterTest {
         .containsExactly(
             "Applicant ID",
             "Application ID",
-            "Applicant language",
-            "Submit time",
-            "Submitted by",
+            "Applicant Language",
+            "Submit Time",
+            "Submitter Type",
+            "TI Email",
+            "TI Organization",
             "Status",
             "applicant email address (email)",
             "applicant monthly income (currency)",
@@ -94,6 +118,7 @@ public class CsvExporterTest extends AbstractExporterTest {
     assertThat(records.get(1).get(lastNameHeader)).isEqualTo("Appleton");
     assertThat(records.get(0).get("Status")).isEqualTo("");
     assertThat(records.get(1).get("Status")).isEqualTo(STATUS_VALUE);
+    assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
     // Check list for multiselect in default locale
     Question checkboxQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
@@ -118,7 +143,6 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeQuestions();
     createFakeProgramWithEligibilityPredicate();
 
-    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithEligibility.id), DEFAULT_FORMAT);
@@ -129,10 +153,12 @@ public class CsvExporterTest extends AbstractExporterTest {
         .containsExactly(
             "Applicant ID",
             "Application ID",
-            "Applicant language",
-            "Submit time",
-            "Submitted by",
-            "Eligibility status",
+            "Applicant Language",
+            "Submit Time",
+            "Submitter Type",
+            "TI Email",
+            "TI Organization",
+            "Eligibility Status",
             "Status",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -148,9 +174,9 @@ public class CsvExporterTest extends AbstractExporterTest {
     assertThat(records.get(0).get(firstNameHeader)).isEqualTo("John");
     assertThat(records.get(1).get(firstNameHeader)).isEqualTo("John");
     assertThat(records.get(2).get(firstNameHeader)).isEqualTo("Jane");
-    assertThat(records.get(0).get("Eligibility status")).isEqualTo("Meets eligibility");
-    assertThat(records.get(1).get("Eligibility status")).isEqualTo("Meets eligibility");
-    assertThat(records.get(2).get("Eligibility status")).isEqualTo("Doesn't meet eligibility");
+    assertThat(records.get(0).get("Eligibility Status")).isEqualTo("Meets eligibility");
+    assertThat(records.get(1).get("Eligibility Status")).isEqualTo("Meets eligibility");
+    assertThat(records.get(2).get("Eligibility Status")).isEqualTo("Doesn't meet eligibility");
   }
 
   @Test
@@ -160,13 +186,12 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeProgram();
     createFakeApplications();
 
-    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
     CSVRecord firstApplicationRecord = parser.getRecords().get(0);
 
-    assertThat(firstApplicationRecord.get("Create time")).isEqualTo("2022/04/09 3:07:02 AM PDT");
-    assertThat(firstApplicationRecord.get("Submit time")).isEqualTo("2022/12/09 2:30:30 AM PST");
+    assertThat(firstApplicationRecord.get("Create Time")).isEqualTo("2022/04/09 3:07:02 AM PDT");
+    assertThat(firstApplicationRecord.get("Submit Time")).isEqualTo("2022/12/09 2:30:30 AM PST");
   }
 
   @Test
@@ -185,9 +210,11 @@ public class CsvExporterTest extends AbstractExporterTest {
         .containsExactly(
             "Applicant ID",
             "Application ID",
-            "Applicant language",
-            "Submit time",
-            "Submitted by",
+            "Applicant Language",
+            "Submit Time",
+            "Submitter Type",
+            "TI Email",
+            "TI Organization",
             "Status");
   }
 
@@ -198,7 +225,6 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeApplications();
     createFakeProgramWithEnumeratorAndAnswerQuestions();
 
-    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
 
@@ -206,10 +232,11 @@ public class CsvExporterTest extends AbstractExporterTest {
         .containsExactly(
             "Opaque ID",
             "Program",
-            "Submitter Email (Opaque)",
+            "Submitter Type",
+            "TI Email (Opaque)",
             "TI Organization",
-            "Create time",
-            "Submit time",
+            "Create Time",
+            "Submit Time",
             "Status");
   }
 
@@ -223,10 +250,11 @@ public class CsvExporterTest extends AbstractExporterTest {
         .containsExactly(
             "Opaque ID",
             "Program",
-            "Submitter Email (Opaque)",
+            "Submitter Type",
+            "TI Email (Opaque)",
             "TI Organization",
-            "Create time",
-            "Submit time",
+            "Create Time",
+            "Submit Time",
             "Status");
     assertThat(parser.getRecords()).hasSize(0);
   }
@@ -239,7 +267,6 @@ public class CsvExporterTest extends AbstractExporterTest {
     createFakeProgramWithEnumeratorAndAnswerQuestions();
 
     // Generate default CSV
-    CsvExporterService exporterService = instanceOf(CsvExporterService.class);
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramCsv(fakeProgramWithEnumerator.id), DEFAULT_FORMAT);
@@ -248,9 +275,11 @@ public class CsvExporterTest extends AbstractExporterTest {
         .containsExactly(
             "Applicant ID",
             "Application ID",
-            "Applicant language",
-            "Submit time",
-            "Submitted by",
+            "Applicant Language",
+            "Submit Time",
+            "Submitter Type",
+            "TI Email",
+            "TI Organization",
             "Status",
             "applicant name (first_name)",
             "applicant name (middle_name)",
@@ -311,5 +340,73 @@ public class CsvExporterTest extends AbstractExporterTest {
                     "applicant household members[1] - household members jobs[0] - household"
                         + " members days worked (number)"))
         .isEqualTo("100");
+  }
+
+  @Test
+  public void getProgramCsv_whenSubmitterIsTi_TiFieldsAreSet() throws Exception {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram)
+        .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
+        .submit();
+
+    CSVParser parser =
+        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    assertThat(records.get(0).get("Submitter Type")).isEqualTo("TRUSTED_INTERMEDIARY");
+    assertThat(records.get(0).get("TI Email")).isEqualTo("ti@trusted_intermediaries.org");
+    assertThat(records.get(0).get("TI Organization")).isEqualTo("TIs Inc.");
+  }
+
+  @Test
+  public void getProgramCsv_whenSubmitterIsApplicant_TiFieldsAreNotSet() throws Exception {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    CSVParser parser =
+        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
+    assertThat(records.get(0).get("TI Email")).isEqualTo(EMPTY_VALUE);
+    assertThat(records.get(0).get("TI Organization")).isEqualTo(EMPTY_VALUE);
+  }
+
+  @Test
+  public void getDemographicsCsv_whenSubmitterIsTi_TiFieldsAreSet() throws Exception {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram)
+        .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
+        .submit();
+
+    CSVParser parser =
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    var expectedHashedEmail =
+        Hashing.sha256()
+            .newHasher()
+            .putString(SECRET_SALT, StandardCharsets.UTF_8)
+            .putString("ti@trusted_intermediaries.org", StandardCharsets.UTF_8)
+            .hash()
+            .toString();
+
+    assertThat(records.get(0).get("Submitter Type")).isEqualTo("TRUSTED_INTERMEDIARY");
+    assertThat(records.get(0).get("TI Email (Opaque)")).isEqualTo(expectedHashedEmail);
+    assertThat(records.get(0).get("TI Organization")).isEqualTo("TIs Inc.");
+  }
+
+  @Test
+  public void getDemographicsCsv_whenSubmitterIsApplicant_TiFieldsAreNotSet() throws Exception {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    CSVParser parser =
+        CSVParser.parse(exporterService.getDemographicsCsv(TimeFilter.EMPTY), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+
+    assertThat(records.get(0).get("Submitter Type")).isEqualTo("APPLICANT");
+    assertThat(records.get(0).get("TI Email (Opaque)")).isEqualTo(EMPTY_VALUE);
+    assertThat(records.get(0).get("TI Organization")).isEqualTo(EMPTY_VALUE);
   }
 }
