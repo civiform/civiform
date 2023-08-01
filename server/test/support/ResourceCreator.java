@@ -75,6 +75,37 @@ public class ResourceCreator {
     return question;
   }
 
+  public Question insertEnum(String name) {
+    QuestionDefinition enumDefinition =
+        new services.question.types.EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription("The applicant's household members")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build(),
+            LocalizedStrings.empty());
+    Question enumQuestion = new Question(enumDefinition);
+    enumQuestion.save();
+    return enumQuestion;
+  }
+
+  public Question insertEnumQuestion(String enumName, Question question) {
+    QuestionDefinition enumDefinition =
+        new services.question.types.EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(enumName)
+                .setDescription("The applicant's household member's jobs")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What are the $this's jobs?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "Where does $this work?"))
+                .setEnumeratorId(Optional.of(question.id))
+                .build(),
+            LocalizedStrings.empty());
+    Question enumQuestion = new Question(enumDefinition);
+    enumQuestion.save();
+    return enumQuestion;
+  }
+
   public Question insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =

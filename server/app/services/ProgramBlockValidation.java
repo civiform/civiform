@@ -7,6 +7,7 @@ import models.Version;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.question.ActiveAndDraftQuestions;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -14,9 +15,12 @@ import services.question.types.QuestionDefinition;
 public final class ProgramBlockValidation {
 
   private final Version version;
+  private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
-  public ProgramBlockValidation(Version version) {
+  public ProgramBlockValidation(
+      models.Version version, ActiveAndDraftQuestions activeAndDraftQuestions) {
     this.version = checkNotNull(version);
+    this.activeAndDraftQuestions = checkNotNull(activeAndDraftQuestions);
   }
   /**
    * Result of checking whether a question can be added to a specific block. Only ELIGIBLE means
@@ -44,7 +48,8 @@ public final class ProgramBlockValidation {
     // provided question is not; or the provided question is a child of an enumerator question while
     // the block is a regular block.
     ENUMERATOR_MISMATCH,
-    QUESTION_TOMBSTONED
+    QUESTION_TOMBSTONED,
+    QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE
   }
 
   /**
@@ -72,6 +77,11 @@ public final class ProgramBlockValidation {
     }
     if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))) {
       return AddQuestionResult.ENUMERATOR_MISMATCH;
+    }
+    if (!activeAndDraftQuestions.getActiveQuestions().contains(question)
+        && !activeAndDraftQuestions.getDraftQuestions().contains(question)) {
+      return services.ProgramBlockValidation.AddQuestionResult
+          .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE;
     }
     return AddQuestionResult.ELIGIBLE;
   }
