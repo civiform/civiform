@@ -151,6 +151,9 @@ public interface QuestionJsonSampler<Q extends Question> {
         case DATE:
           return dateJsonSampler;
 
+        case NULL_QUESTION:
+          return emptyJsonSampler;
+
         default:
           throw new RuntimeException(String.format("Unrecognized questionType %s", questionType));
       }

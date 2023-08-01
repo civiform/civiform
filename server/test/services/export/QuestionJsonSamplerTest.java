@@ -270,4 +270,15 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
 
     assertThat(entries).isEmpty();
   }
+
+  @Test
+  public void nullQuestions_returnEmpty() {
+    @SuppressWarnings("unchecked")
+    ImmutableMap<Path, Optional<?>> entries =
+      questionJsonSamplerFactory
+        .create(QuestionType.NULL_QUESTION)
+        .getSampleJsonEntries(ENUMERATOR_QUESTION_DEFINITION.withPopulatedTestId());
+
+    assertThat(entries).isEmpty();
+  }
 }
