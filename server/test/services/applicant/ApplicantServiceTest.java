@@ -3411,7 +3411,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     Block block = createProgramAndBlockWithAddress("Legit Address");
     AddressSuggestionGroup addressSuggestionGroup =
         subject.getAddressSuggestionGroup(block).toCompletableFuture().join();
-    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(4);
+    assertThat(addressSuggestionGroup.getAddressSuggestions().size()).isEqualTo(5);
   }
 
   @Test
