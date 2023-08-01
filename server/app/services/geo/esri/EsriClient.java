@@ -193,7 +193,7 @@ public abstract class EsriClient {
     String result = getValue.apply(attributes, "RegionAbbr");
 
     // Assume if it's not two characters it is either empty or the
-    // full state name and pull from the Region value which
+    // full state name and pull from the Region value
     if (result.length() != 2) {
       result = getValue.apply(attributes, "Region");
     }
