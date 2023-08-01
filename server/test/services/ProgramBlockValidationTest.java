@@ -20,21 +20,30 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private Question questionForTombstone;
   private QuestionService questionService;
-  private Question questionForActiveDraftState;
+  private Question questionForEligible;
+  private Version version;
+  private Question householdMemberQuestion;
+  private Question householdMemberNameQuestion;
 
   @Before
   public void setProgramBlockValidation()
       throws services.question.exceptions.QuestionNotFoundException {
     versionRepository = instanceOf(repository.VersionRepository.class);
     questionService = instanceOf(services.question.QuestionService.class);
-    Version version = versionRepository.getDraftVersionOrCreate();
+    version = versionRepository.getDraftVersionOrCreate();
     String tombstonedQuestionOneName = "tombstoneOne";
     questionForTombstone = resourceCreator.insertQuestion(tombstonedQuestionOneName);
     version.addQuestion(questionForTombstone);
     version.addTombstoneForQuestion(questionForTombstone);
     version.save();
-    String questionTwoName = "questionNotInActiveOrDraftState";
-    questionForActiveDraftState = resourceCreator.insertQuestion(questionTwoName);
+    questionForEligible = resourceCreator.insertQuestion("eligible question");
+    version.addQuestion(questionForEligible);
+    householdMemberQuestion = resourceCreator.insertEnum("householdMemberQuestion");
+    householdMemberNameQuestion =
+        resourceCreator.insertEnumQuestion("householdMemberWageQuestion", householdMemberQuestion);
+    version.addQuestion(householdMemberQuestion);
+    version.addQuestion(householdMemberNameQuestion);
+    version.save();
     ProgramBlockValidationFactory programBlockValidationFactory =
         new ProgramBlockValidationFactory(versionRepository, questionService);
     programBlockValidation = programBlockValidationFactory.create();
@@ -57,16 +66,19 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestions_cantAddQuestionNotInActiveDraftState() throws Exception {
+    QuestionDefinition householdMemberQuestion =
+        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition householdMemberNameQuestion =
+        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            .withRequiredQuestionDefinition(questionForActiveDraftState.getQuestionDefinition())
+            .withRequiredQuestionDefinition(householdMemberQuestion)
+            .withRepeatedBlock()
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program,
-                program.getLastBlockDefinition(),
-                questionForActiveDraftState.getQuestionDefinition()))
+                program, program.getLastBlockDefinition(), householdMemberNameQuestion))
         .isEqualTo(
             services.ProgramBlockValidation.AddQuestionResult
                 .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE);
@@ -74,7 +86,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestion_eligible() throws Exception {
-    QuestionDefinition question = testQuestionBank.applicantName().getQuestionDefinition();
+    QuestionDefinition question = questionForEligible.getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1").withBlock().buildDefinition();
     assertThat(
@@ -158,19 +170,17 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void canAddQuestion_canAddEmuratorQuestionToEnumeratorBlock() throws Exception {
-    QuestionDefinition householdMemberQuestion =
-        testQuestionBank.applicantHouseholdMembers().getQuestionDefinition();
-    QuestionDefinition householdMemberNameQuestion =
-        testQuestionBank.applicantHouseholdMemberName().getQuestionDefinition();
     ProgramDefinition program =
         ProgramBuilder.newDraftProgram("program1")
             .withBlock()
-            .withRequiredQuestionDefinition(householdMemberQuestion)
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
             .withRepeatedBlock()
             .buildDefinition();
     assertThat(
             programBlockValidation.canAddQuestion(
-                program, program.getLastBlockDefinition(), householdMemberNameQuestion))
+                program,
+                program.getLastBlockDefinition(),
+                householdMemberNameQuestion.getQuestionDefinition()))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 }
