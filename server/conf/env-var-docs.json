@@ -581,11 +581,6 @@
         "description": "If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page.",
         "type": "bool"
       },
-      "PHONE_QUESTION_TYPE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the phone number question type.",
-        "type": "bool"
-      },
       "API_GENERATED_DOCS_ENABLED": {
         "mode": "ADMIN_READABLE",
         "description": "Enables the API docs tab on CiviForm.",

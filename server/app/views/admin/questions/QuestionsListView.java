@@ -36,7 +36,6 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -62,19 +61,15 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils,
-      SettingsManifest settingsManifest) {
+      ViewUtils viewUtils) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
-    ;
   }
 
   /** Renders a page with a list view of all questions. */
@@ -95,9 +90,7 @@ public final class QuestionsListView extends BaseHtmlView {
                         div().withClass("flex-grow"),
                         CreateQuestionButton.renderCreateQuestionButton(
                             controllers.admin.routes.AdminQuestionController.index().url(),
-                            /* isPrimaryButton= */ true,
-                            /* phoneQuestionTypeEnabled= */ settingsManifest
-                                .getPhoneQuestionTypeEnabled(request))),
+                            /* isPrimaryButton= */ true)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,

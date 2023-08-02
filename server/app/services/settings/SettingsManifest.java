@@ -689,11 +689,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
   }
 
-  /** Enables the phone number question type. */
-  public boolean getPhoneQuestionTypeEnabled(RequestHeader request) {
-    return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
-  }
-
   /** Enables the API docs tab on CiviForm. */
   public boolean getApiGeneratedDocsEnabled() {
     return getBool("API_GENERATED_DOCS_ENABLED");
@@ -1434,12 +1429,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
-                  SettingDescription.create(
-                      "PHONE_QUESTION_TYPE_ENABLED",
-                      "Enables the phone number question type.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "API_GENERATED_DOCS_ENABLED",
                       "Enables the API docs tab on CiviForm.",

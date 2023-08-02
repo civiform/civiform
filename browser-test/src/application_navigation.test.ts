@@ -25,7 +25,6 @@ describe('Applicant navigation flow', () => {
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
-      await enableFeatureFlag(page, 'phone_question_type_enabled')
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({questionName: 'nav-date-q'})

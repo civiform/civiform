@@ -15,7 +15,6 @@ describe('phone question for applicant flow', () => {
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
-      await enableFeatureFlag(page, 'phone_question_type_enabled')
       // As admin, create program with a free form text question.
       await loginAsAdmin(page)
 
@@ -200,7 +199,6 @@ describe('phone question for applicant flow', () => {
 
     beforeAll(async () => {
       const {page, adminQuestions, adminPrograms} = ctx
-      await enableFeatureFlag(page, 'phone_question_type_enabled')
       await loginAsAdmin(page)
 
       await adminQuestions.addPhoneQuestion({
