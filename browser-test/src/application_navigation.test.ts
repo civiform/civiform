@@ -312,7 +312,7 @@ describe('Applicant navigation flow', () => {
       await page.evaluate(() => {
         const buttonEl = document.createElement('button')
         buttonEl.id = 'test-form-submit'
-        buttonEl.type = 'SUBMIT'
+        buttonEl.type = 'submit'
         const formEl = document.querySelector('.cf-debounced-form')!
         formEl.appendChild(buttonEl)
       })
