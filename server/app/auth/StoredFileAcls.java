@@ -25,8 +25,7 @@ public final class StoredFileAcls {
   }
 
   @JsonCreator
-  public StoredFileAcls(
-      @Nullable @JsonProperty("programReadAcls") Set<String> programReadAcls) {
+  public StoredFileAcls(@Nullable @JsonProperty("programReadAcls") Set<String> programReadAcls) {
     // If the file was created before the migration to using StoredFileAcls,
     // programReadAcls will be null on initial load. In this case we initialize
     // the internal state of the ACLs to an empty collection so the migration
