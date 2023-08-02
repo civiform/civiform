@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import models.Account;
 import services.program.ProgramDefinition;
@@ -17,7 +18,7 @@ import services.program.ProgramDefinition;
 public final class StoredFileAcls {
 
   @JsonProperty("programReadAcls")
-  private HashSet<String> programReadAcls;
+  private Set<String> programReadAcls;
 
   public StoredFileAcls() {
     this.programReadAcls = new HashSet<>();
@@ -25,7 +26,7 @@ public final class StoredFileAcls {
 
   @JsonCreator
   public StoredFileAcls(
-      @Nullable @JsonProperty("programReadAcls") HashSet<String> programReadAcls) {
+      @Nullable @JsonProperty("programReadAcls") Set<String> programReadAcls) {
     // If the file was created before the migration to using StoredFileAcls,
     // programReadAcls will be null on initial load. In this case we initialize
     // the internal state of the ACLs to an empty collection so the migration

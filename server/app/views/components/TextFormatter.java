@@ -178,11 +178,11 @@ public final class TextFormatter {
   private static DivTag buildAccordion(String title, String accordionContent) {
     Accordion accordion = new Accordion().setTitle(title);
     ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
-    contentTags.stream().forEach(accordion::addContent);
+    contentTags.forEach(accordion::addContent);
     return accordion.getContainer();
   }
 
-  private static UlTag buildList(ArrayList<String> items) {
+  private static UlTag buildList(List<String> items) {
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     items.forEach(item -> listTag.with(li().withText(item)));
     return listTag;
