@@ -4,7 +4,6 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
-  enableFeatureFlag,
 } from './support'
 
 describe('phone question for applicant flow', () => {
