@@ -461,10 +461,10 @@ public final class VersionRepository {
     for (Long questionId : questionList) {
       if (!uniqueActiveQuestions.add(questionId)) {
         throw new IllegalStateException(
-          String.format(
-            "Illegal state encountered when attempting to publish a new version. Question IDs"
-              + " %s found more than once in the new active version.",
-            questionId));
+            String.format(
+                "Illegal state encountered when attempting to publish a new version. Question IDs"
+                    + " %s found more than once in the new active version.",
+                questionId));
       }
     }
   }
