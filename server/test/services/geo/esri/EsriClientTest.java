@@ -196,7 +196,7 @@ public class EsriClientTest {
             + "  \"Postal\": \"11111-expected\""
             + "}}";
 
-    runMapAddressAttributesJson(
+    runMapAddressAttributesJsonAndAssertResults(
         json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
   }
 
@@ -213,8 +213,25 @@ public class EsriClientTest {
             + "  \"Postal\": \"11111-expected\""
             + "}}";
 
-    runMapAddressAttributesJson(
+    runMapAddressAttributesJsonAndAssertResults(
         json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_bothRegionFieldsAreLongStrings()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": \"line2-expected\","
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": \"Washington\","
+            + "  \"RegionAbbr\": \"Washington\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJsonAndAssertResults(
+        json, "street-expected", "line2-expected", "city-expected", "CA", "11111-expected");
   }
 
   @Test
@@ -230,11 +247,11 @@ public class EsriClientTest {
             + "  \"Postal\": \"11111-expected\""
             + "}}";
 
-    runMapAddressAttributesJson(
+    runMapAddressAttributesJsonAndAssertResults(
         json, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
   }
 
-  private void runMapAddressAttributesJson(
+  private void runMapAddressAttributesJsonAndAssertResults(
       String json,
       String streetExpected,
       String line2Expected,

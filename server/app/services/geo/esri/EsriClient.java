@@ -165,7 +165,7 @@ public abstract class EsriClient {
             });
   }
 
-  /** Maps the json values within the node to an address */
+  /** Maps the JSON values within the node to an address */
   @VisibleForTesting
   static Address mapAddressAttributesJson(JsonNode candidateJson, Address address) {
     JsonNode attributes = candidateJson.get("attributes");
@@ -182,7 +182,7 @@ public abstract class EsriClient {
   }
 
   /**
-   * Get the state abbreviation from the attributes json node. on Public ESRI this is under the
+   * Get the state abbreviation from the attributes JSON node. On Public ESRI this is under the
    * RegionAbbr field, but some custom implementations may have it under the Region field.
    */
   private static String getStateAbbreviationFromAttributes(JsonNode attributes, Address address) {
@@ -205,11 +205,11 @@ public abstract class EsriClient {
   }
 
   /**
-   * Helper method to safely get the text value in a child json node or use the user specified
+   * Helper method to safely get the text value in a child JSON node or use the user specified
    * default value
    *
    * @param parentJsonNode Parent node in which we search for children
-   * @param keyName The name of the specific json node to find
+   * @param keyName The name of the specific JSON node to find
    * @param getDefaultValue Takes a lambda what can be used to get a default value as a fallback if
    *     the node is missing
    * @return The text value of the node or default
@@ -224,10 +224,10 @@ public abstract class EsriClient {
   }
 
   /**
-   * Helper method to safely get the text value in a child json node
+   * Helper method to safely get the text value in a child JSON node
    *
    * @param parentJsonNode Parent node in which we search for children
-   * @param keyName The name of the specific json node to find
+   * @param keyName The name of the specific JSON node to find
    * @return The text value of the node or an empty string
    */
   private static String getNodeTextValueOrEmpty(JsonNode parentJsonNode, String keyName) {
