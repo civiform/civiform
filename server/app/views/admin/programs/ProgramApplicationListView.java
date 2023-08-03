@@ -12,6 +12,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.a;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -61,6 +62,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String SEARCH_PARAM = "search";
   private static final String APPLICATION_STATUS_PARAM = "applicationStatus";
   private static final String IGNORE_FILTERS_PARAM = "ignoreFilters";
+  private static final String CLEAR_REDIRECT = "./applications";
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
@@ -251,7 +253,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
-                        .withType("submit")));
+                        .withType("submit"),
+                  a()
+                    .withHref(CLEAR_REDIRECT)
+                    .with(
+                      button("Clear")
+                        .withClass(ButtonStyles.SOLID_BLUE))));
   }
 
   private Modal renderDownloadApplicationsModal(
