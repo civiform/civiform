@@ -253,6 +253,9 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program submission page.
       expect(await page.innerText('h1')).toContain('Application confirmation')
+      expect(
+        await page.locator('.cf-application-id + div').textContent(),
+      ).toContain('Lorem ipsum')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-guest')
 
@@ -296,6 +299,9 @@ describe('Applicant navigation flow', () => {
 
       // Verify we are on program submission page.
       expect(await page.innerText('h1')).toContain('Application confirmation')
+      expect(
+        await page.locator('.cf-application-id + div').textContent(),
+      ).toContain('Lorem ipsum')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-logged-in')
     })
@@ -311,7 +317,7 @@ describe('Applicant navigation flow', () => {
       await page.evaluate(() => {
         const buttonEl = document.createElement('button')
         buttonEl.id = 'test-form-submit'
-        buttonEl.type = 'SUBMIT'
+        buttonEl.type = 'submit'
         const formEl = document.querySelector('.cf-debounced-form')!
         formEl.appendChild(buttonEl)
       })

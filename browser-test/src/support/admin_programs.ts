@@ -108,6 +108,7 @@ export class AdminPrograms {
     adminDescription = 'admin description',
     isCommonIntake = false,
     selectedTI = 'none',
+    confirmationMessage = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\r\n\r\nAenean non magna augue. https://example.org/some/path. Suspendisse hendrerit orci sit amet luctus congue. ',
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
@@ -119,6 +120,10 @@ export class AdminPrograms {
     await this.page.fill('#program-display-name-input', programName)
     await this.page.fill('#program-display-description-textarea', description)
     await this.page.fill('#program-external-link-input', externalLink)
+    await this.page.fill(
+      '#program-confirmation-message-textarea',
+      confirmationMessage,
+    )
 
     await this.page.check(`label:has-text("${visibility}")`)
     if (visibility == ProgramVisibility.SELECT_TI) {
