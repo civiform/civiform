@@ -165,6 +165,7 @@ public abstract class EsriClient {
             });
   }
 
+  /** Maps the json values within the node to an address */
   @VisibleForTesting
   static Address mapAddressAttributesJson(JsonNode candidateJson, Address address) {
     JsonNode attributes = candidateJson.get("attributes");
