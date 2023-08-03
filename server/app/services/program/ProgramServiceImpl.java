@@ -99,6 +99,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ImmutableSet<String> getAllProgramSlugs() {
     return getAllProgramNames().stream()
         .map(MainModule.SLUGIFIER::slugify)
+        .sorted()
         .collect(ImmutableSet.toImmutableSet());
   }
 
