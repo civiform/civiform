@@ -25,7 +25,6 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.ViewUtils;
-import views.style.BaseStyles;
 
 /**
  * The TextFormatter class introduces options for converting plain-text strings into richer HTML
@@ -113,7 +112,8 @@ public final class TextFormatter {
       var urlTag =
           a().withText(url.getOriginalUrl())
               .withHref(url.getFullUrl())
-              .withClasses(BaseStyles.TEXT_SEATTLE_BLUE);
+              .withClasses(
+                  "text-blue-900", "font-bold", "opacity-75", "underline", "hover:opacity-100");
 
       if (urlOpenAction == UrlOpenAction.NewTab) {
         urlTag
