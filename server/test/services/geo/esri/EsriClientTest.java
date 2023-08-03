@@ -2,6 +2,9 @@ package services.geo.esri;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.Optional;
@@ -20,7 +23,9 @@ public class EsriClientTest {
 
   @After
   public void tearDown() throws IOException {
-    helper.stopServer();
+    if (helper != null) {
+      helper.stopServer();
+    }
   }
 
   @Test
@@ -117,36 +122,6 @@ public class EsriClientTest {
   }
 
   @Test
-  public void getAddressSuggestions_stateFromRegion() throws Exception {
-    helper = new EsriTestHelper(TestType.STANDARD);
-    Address address =
-        Address.builder()
-            .setStreet("380 New York St")
-            .setLine2("")
-            .setCity("Redlands")
-            .setState("CA")
-            .setZip("92373")
-            .build();
-
-    CompletionStage<AddressSuggestionGroup> group =
-        helper.getClient().getAddressSuggestions(address);
-    ImmutableList<AddressSuggestion> suggestions =
-        group.toCompletableFuture().join().getAddressSuggestions();
-    // First item is guaranteed to be here since the response is taken from the JSON file.
-    // This also tests that we are rejecting the responses that do not include a number
-    // in the street address or any street address at all.
-    Optional<AddressSuggestion> addressSuggestion =
-        suggestions.stream()
-            .filter(x -> x.getAddress().getStreet().equals("Address In Area State from Region"))
-            .findFirst();
-
-    assertThat(addressSuggestion.isPresent()).isTrue();
-    String street = addressSuggestion.get().getAddress().getStreet();
-    assertThat(street).isEqualTo("Address In Area State from Region");
-    assertThat(addressSuggestion.get().getAddress().getState()).isEqualTo("CA");
-  }
-
-  @Test
   public void getAddressSuggestionsIncludesOriginalAddress() throws Exception {
     helper = new EsriTestHelper(TestType.STANDARD);
     Address address =
@@ -206,5 +181,84 @@ public class EsriClientTest {
     assertThat(suggestions).isEmpty();
     assertThat(group.getWellKnownId()).isEqualTo(0);
     assertThat(group.getOriginalAddress()).isEqualTo(address);
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useRegionAbbrField()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": \"line2-expected\","
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": null,"
+            + "  \"RegionAbbr\": \"WA\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJson(
+        json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useRegionField()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": \"line2-expected\","
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": \"WA\","
+            + "  \"RegionAbbr\": \"Washington\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJson(
+        json, "street-expected", "line2-expected", "city-expected", "WA", "11111-expected");
+  }
+
+  @Test
+  public void verifyMappingAddressFromJsonAttributes_useLine2AsEnteredIfNull()
+      throws JsonProcessingException {
+    String json =
+        "{\"attributes\": {"
+            + "  \"SubAddr\": null,"
+            + "  \"Address\": \"street-expected\","
+            + "  \"City\": \"city-expected\","
+            + "  \"Region\": \"WA\","
+            + "  \"RegionAbbr\": \"Washington\","
+            + "  \"Postal\": \"11111-expected\""
+            + "}}";
+
+    runMapAddressAttributesJson(
+        json, "street-expected", "line2-user", "city-expected", "WA", "11111-expected");
+  }
+
+  private void runMapAddressAttributesJson(
+      String json,
+      String streetExpected,
+      String line2Expected,
+      String cityExpected,
+      String stateExpected,
+      String zipExpected)
+      throws JsonProcessingException {
+    Address userEnteredAddress =
+        Address.builder()
+            .setStreet("street-user")
+            .setLine2("line2-user")
+            .setCity("city-user")
+            .setState("CA")
+            .setZip("11111-user")
+            .build();
+
+    JsonNode jsonNode = new ObjectMapper().readTree(json);
+
+    Address result = EsriClient.mapAddressAttributesJson(jsonNode, userEnteredAddress);
+
+    assertThat(result.getStreet()).isEqualTo(streetExpected);
+    assertThat(result.getLine2()).isEqualTo(line2Expected);
+    assertThat(result.getCity()).isEqualTo(cityExpected);
+    assertThat(result.getState()).isEqualTo(stateExpected);
+    assertThat(result.getZip()).isEqualTo(zipExpected);
   }
 }
