@@ -426,9 +426,9 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
-    ImmutableList<Long> newActiveQuestionIds =
+    ImmutableList<QuestionDefinition> newActiveQuestionIds =
         activeVersion.getQuestions().stream()
-            .map(question -> question.getQuestionDefinition().getId())
+            .map(question -> question.getQuestionDefinition())
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestionIds);
@@ -436,7 +436,12 @@ public final class VersionRepository {
         activeVersion.getPrograms().stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
-            .filter(questionId -> !newActiveQuestionIds.contains(questionId))
+            .filter(
+                questionId ->
+                    !newActiveQuestionIds.stream()
+                        .map(questionDefinition -> questionDefinition.getId())
+                        .collect(ImmutableSet.toImmutableSet())
+                        .contains(questionId))
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
       ImmutableSet<Long> programIdsMissingQuestions =
@@ -455,16 +460,16 @@ public final class VersionRepository {
     }
   }
 
-  /** Validate there are no duplicate questions. */
-  private void validateNoDuplicateQuestions(ImmutableList<Long> questionList) {
-    Set<Long> uniqueActiveQuestions = new HashSet<>();
-    for (Long questionId : questionList) {
-      if (!uniqueActiveQuestions.add(questionId)) {
+  /** Validate there are no duplicate question names. */
+  private void validateNoDuplicateQuestions(ImmutableList<QuestionDefinition> questionList) {
+    Set<String> uniqueActiveQuestionNames = new HashSet<>();
+    for (QuestionDefinition question : questionList) {
+      if (!uniqueActiveQuestionNames.add(question.getName())) {
         throw new IllegalStateException(
             String.format(
-                "Illegal state encountered when attempting to publish a new version. Question IDs"
+                "Illegal state encountered when attempting to publish a new version. Question"
                     + " %s found more than once in the new active version.",
-                questionId));
+                question.getName()));
       }
     }
   }
