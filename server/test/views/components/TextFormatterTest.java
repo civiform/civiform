@@ -21,12 +21,14 @@ public class TextFormatterTest {
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
     assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
+        .isEqualTo(
+            "<a href=\"http://google.com/\" class=\"text-blue-900 font-bold opacity-75 underline"
+                + " hover:opacity-100\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
     assertThat(content.get(3).render())
         .isEqualTo(
-            "<a href=\"http://internet.website/\""
-                + " class=\"text-seattle-blue\">http://internet.website</a>");
+            "<a href=\"http://internet.website/\" class=\"text-blue-900 font-bold opacity-75"
+                + " underline hover:opacity-100\">http://internet.website</a>");
   }
 
   @Test
@@ -41,13 +43,13 @@ public class TextFormatterTest {
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
     assertIsExternalUrlWithIcon(
         content.get(1).render(),
-        "<a href=\"http://google.com/\" class=\"text-seattle-blue\""
-            + " target=\"_blank\">google.com<svg");
+        "<a href=\"http://google.com/\" class=\"text-blue-900 font-bold opacity-75 underline"
+            + " hover:opacity-100\" target=\"_blank\">google.com<svg");
     assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
     assertIsExternalUrlWithIcon(
         content.get(3).render(),
-        "<a href=\"http://internet.website/\" class=\"text-seattle-blue\""
-            + " target=\"_blank\">http://internet.website<svg");
+        "<a href=\"http://internet.website/\" class=\"text-blue-900 font-bold opacity-75 underline"
+            + " hover:opacity-100\" target=\"_blank\">http://internet.website<svg");
   }
 
   @Test
@@ -89,12 +91,14 @@ public class TextFormatterTest {
     assertThat(content).hasSize(4);
     assertThat(content.get(0).render()).isEqualTo(new Text("hello ").render());
     assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
+        .isEqualTo(
+            "<a href=\"http://google.com/\" class=\"text-blue-900 font-bold opacity-75 underline"
+                + " hover:opacity-100\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(" ").render());
     assertThat(content.get(3).render())
         .isEqualTo(
-            "<a href=\"https://secure.website/\""
-                + " class=\"text-seattle-blue\">https://secure.website</a>");
+            "<a href=\"https://secure.website/\" class=\"text-blue-900 font-bold opacity-75"
+                + " underline hover:opacity-100\">https://secure.website</a>");
   }
 
   @Test
@@ -108,15 +112,19 @@ public class TextFormatterTest {
     assertThat(content).hasSize(7);
     assertThat(content.get(0).render()).isEqualTo(new Text("Hello ").render());
     assertThat(content.get(1).render())
-        .isEqualTo("<a href=\"http://google.com/\" class=\"text-seattle-blue\">google.com</a>");
+        .isEqualTo(
+            "<a href=\"http://google.com/\" class=\"text-blue-900 font-bold opacity-75 underline"
+                + " hover:opacity-100\">google.com</a>");
     assertThat(content.get(2).render()).isEqualTo(new Text(", crawl (").render());
     assertThat(content.get(3).render())
         .isEqualTo(
-            "<a href=\"http://seattle.gov/\" class=\"text-seattle-blue\">http://seattle.gov/</a>");
+            "<a href=\"http://seattle.gov/\" class=\"text-blue-900 font-bold opacity-75 underline"
+                + " hover:opacity-100\">http://seattle.gov/</a>");
     assertThat(content.get(4).render()).isEqualTo(new Text("); and ").render());
     assertThat(content.get(5).render())
         .isEqualTo(
-            "<a href=\"http://mysite.com/\" class=\"text-seattle-blue\">http://mysite.com</a>");
+            "<a href=\"http://mysite.com/\" class=\"text-blue-900 font-bold opacity-75 underline"
+                + " hover:opacity-100\">http://mysite.com</a>");
     assertThat(content.get(6).render()).isEqualTo(new Text("...!").render());
   }
 
@@ -205,8 +213,8 @@ public class TextFormatterTest {
     // ...and a link.
     assertThat(contentStrings[2])
         .contains(
-            "<a href=\"http://epicurious.com/\" class=\"text-seattle-blue\""
-                + " target=\"_blank\">epicurious.com<svg")
+            "<a href=\"http://epicurious.com/\" class=\"text-blue-900 font-bold opacity-75"
+                + " underline hover:opacity-100\" target=\"_blank\">epicurious.com<svg")
         .contains("</svg></a>");
   }
 
