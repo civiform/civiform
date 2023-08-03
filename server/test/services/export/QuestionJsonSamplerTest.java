@@ -46,28 +46,15 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.<Path, Optional<String>>builder()
-                .put(Path.create("applicant.sample_address_question.zip"), Optional.of("97403"))
-                .put(
-                    Path.create("applicant.sample_address_question.city"),
-                    Optional.of("Springfield"))
                 .put(
                     Path.create("applicant.sample_address_question.street"),
                     Optional.of("742 Evergreen Terrace"))
                 .put(
-                    Path.create("applicant.sample_address_question.latitude"),
-                    Optional.of("44.0462"))
-                .put(
-                    Path.create("applicant.sample_address_question.well_known_id"),
-                    Optional.of("23214"))
-                .put(
-                    Path.create("applicant.sample_address_question.service_area"),
-                    Optional.of("springfield_county"))
-                .put(Path.create("applicant.sample_address_question.state"), Optional.of("OR"))
+                    Path.create("applicant.sample_address_question.city"),
+                    Optional.of("Springfield"))
                 .put(Path.create("applicant.sample_address_question.line2"), Optional.empty())
-                .put(Path.create("applicant.sample_address_question.corrected"), Optional.empty())
-                .put(
-                    Path.create("applicant.sample_address_question.longitude"),
-                    Optional.of("-123.0236"))
+                .put(Path.create("applicant.sample_address_question.state"), Optional.of("OR"))
+                .put(Path.create("applicant.sample_address_question.zip"), Optional.of("97403"))
                 .build());
   }
 

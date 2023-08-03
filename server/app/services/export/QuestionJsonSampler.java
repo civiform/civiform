@@ -179,12 +179,7 @@ public interface QuestionJsonSampler<Q extends Question> {
           /* line2= */ "",
           /* city= */ "Springfield",
           /* state= */ "OR",
-          /* zip= */ "97403",
-          /* corrected= */ "",
-          /* latitude= */ 44.0462,
-          /* longitude= */ -123.0236,
-          /* wellKnownId= */ 23214L,
-          /* serviceArea= */ "springfield_county");
+          /* zip= */ "97403");
     }
 
     @Override

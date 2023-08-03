@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.question.AddressQuestion;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
 import services.applicant.question.FileUploadQuestion;
@@ -53,7 +54,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
   ImmutableMap<Path, Optional<T>> getJsonEntries(Q question);
 
   final class Factory {
-
+    private final AddressJsonPresenter addressJsonPresenter;
     private final CurrencyJsonPresenter currencyJsonPresenter;
     private final ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter;
     private final DateJsonPresenter dateJsonPresenter;
@@ -66,6 +67,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
 
     @Inject
     Factory(
+        AddressJsonPresenter addressJsonPresenter,
         CurrencyJsonPresenter currencyJsonPresenter,
         ContextualizedScalarsJsonPresenter contextualizedScalarsJsonPresenter,
         DateJsonPresenter dateJsonPresenter,
@@ -75,6 +77,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
         NumberJsonPresenter numberJsonPresenter,
         FileUploadJsonPresenter fileUploadJsonPresenter,
         MultiSelectJsonPresenter multiSelectJsonPresenter) {
+      this.addressJsonPresenter = checkNotNull(addressJsonPresenter);
       this.currencyJsonPresenter = checkNotNull(currencyJsonPresenter);
       this.contextualizedScalarsJsonPresenter = checkNotNull(contextualizedScalarsJsonPresenter);
       this.emptyJsonPresenter = checkNotNull(emptyJsonPresenter);
@@ -89,6 +92,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     public QuestionJsonPresenter create(QuestionType questionType) {
       switch (questionType) {
         case ADDRESS:
+          return addressJsonPresenter;
         case EMAIL:
         case ID:
         case NAME:
@@ -167,6 +171,19 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
               .collect(ImmutableList.toImmutableList());
 
       return ImmutableMap.of(path, Optional.of(selectedOptions));
+    }
+  }
+
+  class AddressJsonPresenter implements QuestionJsonPresenter<AddressQuestion, String> {
+    @Override
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(AddressQuestion question) {
+      return ImmutableMap.<Path, Optional<String>>builder()
+          .put(question.getStreetPath(), question.getStreetValue())
+          .put(question.getLine2Path(), question.getLine2Value())
+          .put(question.getCityPath(), question.getCityValue())
+          .put(question.getStatePath(), question.getStateValue())
+          .put(question.getZipPath(), question.getZipValue())
+          .build();
     }
   }
 
