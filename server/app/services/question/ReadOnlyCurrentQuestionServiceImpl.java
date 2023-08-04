@@ -8,9 +8,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import models.Question;
 import models.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -24,10 +27,12 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
   private final ImmutableMap<Long, QuestionDefinition> questionsById;
   private final ImmutableSet<QuestionDefinition> upToDateQuestions;
   private final ActiveAndDraftQuestions activeAndDraftQuestions;
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(ReadOnlyCurrentQuestionServiceImpl.class);
 
   public ReadOnlyCurrentQuestionServiceImpl(VersionRepository repository) {
     Version activeVersion = repository.getActiveVersion();
-    Version draftVersion = repository.getDraftVersion();
+    Version draftVersion = repository.getDraftVersionOrCreate();
     ImmutableMap.Builder<Long, QuestionDefinition> questionIdMap = ImmutableMap.builder();
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
@@ -94,6 +99,8 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
     }
-    throw new QuestionNotFoundException(id);
+
+    LOGGER.error("Question not found for ID: {}", id);
+    return new NullQuestionDefinition(id);
   }
 }

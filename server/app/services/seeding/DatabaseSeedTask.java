@@ -46,43 +46,47 @@ public final class DatabaseSeedTask {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseSeedTask.class);
   private static final int MAX_RETRIES = 10;
-  private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =
-      ImmutableList.of(
-          new QuestionDefinitionBuilder()
-              .setQuestionType(QuestionType.NAME)
-              .setName("Name")
-              .setDescription("The applicant's name")
-              .setQuestionText(
-                  LocalizedStrings.of(
-                      ImmutableMap.of(
-                          Lang.forCode("am").toLocale(),
-                          "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
-                          Lang.forCode("ko").toLocale(),
-                          "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
-                          Lang.forCode("so").toLocale(),
-                          "Magaca (magaca koowaad iyo kan dambe okay)",
-                          Lang.forCode("lo").toLocale(),
-                          "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
-                          Lang.forCode("tl").toLocale(),
-                          "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
-                          Lang.forCode("vi").toLocale(),
-                          "Tên (tên và họ viết tắt đều được)",
-                          Lang.forCode("en-US").toLocale(),
-                          "Please enter your first and last name",
-                          Lang.forCode("es-US").toLocale(),
-                          "Nombre (nombre y la inicial del apellido está bien)",
-                          Lang.forCode("zh-TW").toLocale(),
-                          "姓名（名字和姓氏第一個字母便可）")))
-              .unsafeBuild(),
-          new QuestionDefinitionBuilder()
-              .setQuestionType(QuestionType.DATE)
-              .setName("Applicant Date of Birth")
-              .setDescription("Applicant's date of birth")
-              .setQuestionText(
-                  LocalizedStrings.of(
+
+  public static final QuestionDefinition CANONICAL_NAME_QUESTION =
+      new QuestionDefinitionBuilder()
+          .setQuestionType(QuestionType.NAME)
+          .setName("Name")
+          .setDescription("The applicant's name")
+          .setQuestionText(
+              LocalizedStrings.of(
+                  ImmutableMap.of(
+                      Lang.forCode("am").toLocale(),
+                      "ስም (የመጀመሪያ ስም እና የመጨረሻ ስም አህጽሮት ይሆናል)",
+                      Lang.forCode("ko").toLocale(),
+                      "성함 (이름 및 성의 경우 이니셜도 괜찮음)",
+                      Lang.forCode("so").toLocale(),
+                      "Magaca (magaca koowaad iyo kan dambe okay)",
+                      Lang.forCode("lo").toLocale(),
+                      "ຊື່ (ນາມສະກຸນ ແລະ ຕົວອັກສອນທຳອິດຂອງນາມສະກຸນແມ່ນຖືກຕ້ອງ)",
+                      Lang.forCode("tl").toLocale(),
+                      "Pangalan (unang pangalan at ang unang titik ng apilyedo ay okay)",
+                      Lang.forCode("vi").toLocale(),
+                      "Tên (tên và họ viết tắt đều được)",
                       Lang.forCode("en-US").toLocale(),
-                      "Please enter your date of birth in the format mm/dd/yyyy"))
-              .unsafeBuild());
+                      "Please enter your first and last name",
+                      Lang.forCode("es-US").toLocale(),
+                      "Nombre (nombre y la inicial del apellido está bien)",
+                      Lang.forCode("zh-TW").toLocale(),
+                      "姓名（名字和姓氏第一個字母便可）")))
+          .unsafeBuild();
+  public static final QuestionDefinition CANONICAL_DOB_QUESTION =
+      new QuestionDefinitionBuilder()
+          .setQuestionType(QuestionType.DATE)
+          .setName("Applicant Date of Birth")
+          .setDescription("Applicant's date of birth")
+          .setQuestionText(
+              LocalizedStrings.of(
+                  Lang.forCode("en-US").toLocale(),
+                  "Please enter your date of birth in the format mm/dd/yyyy"))
+          .unsafeBuild();
+
+  private static final ImmutableList<QuestionDefinition> CANONICAL_QUESTIONS =
+      ImmutableList.of(CANONICAL_NAME_QUESTION, CANONICAL_DOB_QUESTION);
 
   private final QuestionService questionService;
   private final VersionRepository versionRepository;
@@ -112,14 +116,14 @@ public final class DatabaseSeedTask {
         questionService.getExistingQuestions(canonicalQuestionNames);
     if (existingCanonicalQuestions.size() < canonicalQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
-      versionRepository.getDraftVersion();
+      versionRepository.getDraftVersionOrCreate();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
       if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
         LOGGER.info(
-            "Canonical question \"%s\" exists at server start", questionDefinition.getName());
+            "Canonical question \"{}\" exists at server start", questionDefinition.getName());
         questionDefinitions.add(existingCanonicalQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(
@@ -146,7 +150,7 @@ public final class DatabaseSeedTask {
               questionDefinition.getName(), errorMessages));
       return Optional.empty();
     } else {
-      LOGGER.info("Created canonical question \"%s\"", questionDefinition.getName());
+      LOGGER.info("Created canonical question \"{}\"", questionDefinition.getName());
       return Optional.of(result.getResult());
     }
   }
@@ -159,7 +163,7 @@ public final class DatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: %s", e);
+      LOGGER.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);

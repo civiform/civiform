@@ -1,11 +1,13 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
+import io.ebean.DataIntegrityException;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,9 +35,9 @@ import services.application.ApplicationEventDetails.StatusEvent;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
+import services.question.QuestionAnswerer;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class ProgramRepositoryTest extends ResetPostgres {
@@ -121,25 +123,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void getForSlug_withOldSchema() {
-    DB.sqlUpdate(
-            "insert into programs (name, description, block_definitions, legacy_localized_name,"
-                + " legacy_localized_description, program_type) values ('Old Schema Entry',"
-                + " 'Description', '[]', '{\"en_us\": \"a\"}', '{\"en_us\": \"b\"}', 'default');")
-        .execute();
-    DB.sqlUpdate(
-            "insert into versions_programs (versions_id, programs_id) values ("
-                + "(select id from versions where lifecycle_stage = 'active'),"
-                + "(select id from programs where name = 'Old Schema Entry'));")
-        .execute();
-
-    Program found = repo.getActiveProgramFromSlug("old-schema-entry").toCompletableFuture().join();
-
-    assertThat(found.getProgramDefinition().adminName()).isEqualTo("Old Schema Entry");
-    assertThat(found.getProgramDefinition().adminDescription()).isEqualTo("Description");
-  }
-
-  @Test
   public void getForSlug_findsCorrectProgram() {
     Program program = resourceCreator.insertActiveProgram("Something With A Name");
 
@@ -147,6 +130,49 @@ public class ProgramRepositoryTest extends ResetPostgres {
         repo.getActiveProgramFromSlug("something-with-a-name").toCompletableFuture().join();
 
     assertThat(found).isEqualTo(program);
+  }
+
+  /* This test is meant to exercise the database trigger defined in server/conf/evolutions/default/56.sql */
+  @Test
+  public void insertingDuplicateDraftPrograms_raisesDatabaseException() throws Exception {
+    var versionRepo = instanceOf(VersionRepository.class);
+    var draftVersion = versionRepo.getDraftVersionOrCreate();
+
+    Program program = resourceCreator.insertActiveProgram("test");
+    assertThat(program.id).isNotNull();
+
+    var draftOne =
+        new Program(
+            "test-program",
+            "desc",
+            "test-program",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion,
+            ProgramType.DEFAULT,
+            new ProgramAcls());
+    draftOne.save();
+
+    var draftTwo =
+        new Program(
+            "test-program",
+            "desc",
+            "test-program",
+            "description",
+            "",
+            "",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            draftVersion,
+            ProgramType.DEFAULT,
+            new ProgramAcls());
+
+    var throwableAssert = assertThatThrownBy(() -> draftTwo.save());
+    throwableAssert.hasMessageContaining("Program test-program already has a draft!");
+    throwableAssert.isExactlyInstanceOf(DataIntegrityException.class);
   }
 
   @Test
@@ -161,7 +187,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
             "",
             DisplayMode.PUBLIC.getValue(),
             ImmutableList.of(),
-            versionRepo.getDraftVersion(),
+            versionRepo.getDraftVersionOrCreate(),
             ProgramType.DEFAULT,
             new ProgramAcls());
     Program withId = repo.insertProgramSync(program);
@@ -268,6 +294,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"Bob  Doe", ImmutableSet.of()});
   }
 
+  // TODO(#5324): Some of these tests are passing incorrectly, due to the setup incorrectly setting
+  // the `submitter_email` field. See also #5325.
   @Test
   @Parameters(method = "getSearchByNameOrEmailData")
   public void getApplicationsForAllProgramVersions_searchByNameOrEmail(
@@ -310,6 +338,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     QuestionAnswerer.answerNameQuestion(
         applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
     application.setApplicantData(applicantData);
+    // TODO(#5324): This is incorrect. The `submitter_email` field is only ever set with the TI's
+    // email, never the Applicant's. Tests that rely on this field are passing incorrectly. See also
+    // #5325.
     application.setSubmitterEmail(applicant.getAccount().getEmailAddress());
     application.save();
     return application;

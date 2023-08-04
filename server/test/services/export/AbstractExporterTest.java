@@ -18,6 +18,7 @@ import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.applications.ProgramAdminApplicationService;
@@ -30,10 +31,11 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 /**
  * Superclass for tests that exercise exporters. Helps with generating programs, questions, and
@@ -141,6 +143,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case STATIC:
         // Do nothing.
         break;
+      case NULL_QUESTION:
+        // Do nothing.
     }
   }
 
@@ -250,6 +254,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
             .getContextualizedPath(Optional.empty(), ApplicantData.APPLICANT_PATH);
     // Applicant five have file uploaded for the optional file upload question
     applicantFive = resourceCreator.insertApplicantWithAccount();
+    applicantFive.getApplicantData().setUserName("Example Five");
     QuestionAnswerer.answerNameQuestion(
         applicantFive.getApplicantData(),
         ApplicantData.APPLICANT_PATH.join(
@@ -365,7 +370,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.
    */
-  protected void createFakeProgramWithEnumerator() {
+  protected void createFakeProgramWithEnumeratorAndAnswerQuestions() {
     Question nameQuestion = testQuestionBank.applicantName();
     Question colorQuestion = testQuestionBank.applicantFavoriteColor();
     Question monthlyIncomeQuestion = testQuestionBank.applicantMonthlyIncome();
@@ -505,5 +510,198 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
+  }
+
+  /** A Builder to build a fake program */
+  class FakeProgramBuilder {
+    ProgramBuilder fakeProgramBuilder;
+
+    FakeProgramBuilder() {
+      fakeProgramBuilder = ProgramBuilder.newActiveProgram().withName("Fake Program");
+    }
+
+    FakeProgramBuilder withAllQuestionTypes() {
+      fakeQuestions.forEach(
+          question -> fakeProgramBuilder.withBlock().withRequiredQuestion(question).build());
+      return this;
+    }
+
+    FakeProgramBuilder withQuestion(Question question) {
+      fakeProgramBuilder.withBlock().withRequiredQuestion(question).build();
+      return this;
+    }
+
+    FakeProgramBuilder withHouseholdMembersEnumeratorQuestion() {
+      fakeProgramBuilder
+          .withBlock()
+          .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+          .withRepeatedBlock()
+          .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+          .build();
+      return this;
+    }
+
+    Program build() {
+      return fakeProgramBuilder.build();
+    }
+  }
+
+  /** A "Builder" to fill a fake application one question at a time. */
+  static class FakeApplicationFiller {
+    Account admin;
+    Applicant applicant;
+    Program program;
+    Optional<Account> trustedIntermediary = Optional.empty();
+
+    public FakeApplicationFiller(Program program) {
+      this.program = program;
+      this.applicant = resourceCreator.insertApplicantWithAccount();
+      this.admin = resourceCreator.insertAccount();
+    }
+
+    public FakeApplicationFiller byTrustedIntermediary(String tiEmail, String tiOrganization) {
+      var tiGroup = resourceCreator.insertTiGroup(tiOrganization);
+      this.trustedIntermediary = Optional.of(resourceCreator.insertAccountWithEmail(tiEmail));
+      this.applicant.getAccount().setManagedByGroup(tiGroup).save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerAddressQuestion(
+        String street, String line2, String city, String state, String zip) {
+      Path answerPath =
+          testQuestionBank
+              .applicantAddress()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerAddressQuestion(
+          applicant.getApplicantData(), answerPath, street, line2, city, state, zip);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerCheckboxQuestion(ImmutableList<Long> optionIds) {
+      Path answerPath =
+          testQuestionBank
+              .applicantKitchenTools()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      for (int i = 0; i < optionIds.size(); i++) {
+        QuestionAnswerer.answerMultiSelectQuestion(applicantData, answerPath, i, optionIds.get(i));
+      }
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerCurrencyQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantMonthlyIncome()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerCurrencyQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerDateQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantDate()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerDateQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerEmailQuestion(String answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantEmail()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEmailQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerRepeatedTextQuestion(String entityName, String answer) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var repeatedEntity =
+          repeatedEntities.stream().filter(e -> e.entityName().equals(entityName)).findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberFavoriteShape()
+              .getQuestionDefinition()
+              .getContextualizedPath(repeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerTextQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerNumberQuestion(long answer) {
+      Path answerPath =
+          testQuestionBank
+              .applicantJugglingNumber()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerPhoneQuestion(String countryCode, String phoneNumber) {
+      Path answerPath =
+          testQuestionBank
+              .applicantPhone()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerPhoneQuestion(
+          applicant.getApplicantData(), answerPath, countryCode, phoneNumber);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> entityNames) {
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMembers()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(
+          applicant.getApplicantData(), answerPath, entityNames);
+      applicant.save();
+      return this;
+    }
+
+    public Application submit() {
+      Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+      application.setApplicantData(applicant.getApplicantData());
+      trustedIntermediary.ifPresent(
+          account -> application.setSubmitterEmail(account.getEmailAddress()));
+      application.save();
+
+      // CreateTime of an application is set through @onCreate to Instant.now(). To change
+      // the value, manually set createTime and save and refresh the application.
+      application.setCreateTimeForTest(FAKE_CREATE_TIME);
+      application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+      application.save();
+
+      return application;
+    }
   }
 }

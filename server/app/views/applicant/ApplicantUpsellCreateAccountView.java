@@ -22,6 +22,7 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import views.components.ButtonStyles;
 import views.components.Modal;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ReferenceClasses;
 
@@ -84,7 +85,11 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
                     .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"),
-                div(customConfirmationMessage.getOrDefault(locale)).withClasses("mb-4")),
+                div()
+                    .with(
+                        TextFormatter.formatText(
+                            customConfirmationMessage.getOrDefault(locale), true))
+                    .withClasses("mb-4")),
             shouldUpsell,
             messages,
             authProviderName,
@@ -93,6 +98,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
         request,
         personalInfo,
         messages,
-        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content));
+        createHtmlBundle(request, layout, title, bannerMessage, loginPromptModal, content),
+        applicantId);
   }
 }

@@ -42,10 +42,18 @@ import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.LocalizedStrings;
 import services.applicant.question.Scalar;
+import services.program.CantAddQuestionToBlockException;
+import services.program.DuplicateStatusException;
+import services.program.IllegalPredicateOrderingException;
+import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.program.StatusDefinitions;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -53,6 +61,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 /**
@@ -104,7 +113,7 @@ public final class DevDatabaseSeedTask {
         questionService.getExistingQuestions(sampleQuestionNames);
     if (existingSampleQuestions.size() < sampleQuestionNames.size()) {
       // Ensure a draft version exists to avoid transaction collisions with getDraftVersion.
-      versionRepository.getDraftVersion();
+      versionRepository.getDraftVersionOrCreate();
     }
 
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
@@ -157,7 +166,7 @@ public final class DevDatabaseSeedTask {
               /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
+        throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
@@ -173,7 +182,11 @@ public final class DevDatabaseSeedTask {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, nameQuestionId, true);
 
-    } catch (Exception e) {
+    } catch (ProgramNotFoundException
+        | ProgramBlockDefinitionNotFoundException
+        | QuestionNotFoundException
+        | CantAddQuestionToBlockException
+        | ProgramQuestionDefinitionNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -194,10 +207,23 @@ public final class DevDatabaseSeedTask {
               /* isIntakeFormFeatureEnabled= */ false,
               ImmutableList.copyOf(new ArrayList<>()));
       if (programDefinitionResult.isError()) {
-        throw new Exception(programDefinitionResult.getErrors().toString());
+        throw new RuntimeException(programDefinitionResult.getErrors().toString());
       }
       ProgramDefinition programDefinition = programDefinitionResult.getResult();
       long programId = programDefinition.id();
+
+      ErrorAnd<ProgramDefinition, CiviFormError> appendStatusResult =
+          programService.appendStatus(
+              programId,
+              StatusDefinitions.Status.builder()
+                  .setStatusText("Pending Review")
+                  .setDefaultStatus(Optional.of(true))
+                  .setLocalizedStatusText(LocalizedStrings.empty())
+                  .setLocalizedEmailBodyText(Optional.empty())
+                  .build());
+      if (appendStatusResult.isError()) {
+        throw new RuntimeException(appendStatusResult.getErrors().toString());
+      }
 
       long blockId = 1L;
       BlockForm blockForm = new BlockForm();
@@ -306,7 +332,13 @@ public final class DevDatabaseSeedTask {
       programService.setProgramQuestionDefinitionOptionality(
           programId, blockId, fileQuestionId, true);
 
-    } catch (Exception e) {
+    } catch (ProgramNotFoundException
+        | ProgramBlockDefinitionNotFoundException
+        | IllegalPredicateOrderingException
+        | QuestionNotFoundException
+        | CantAddQuestionToBlockException
+        | ProgramQuestionDefinitionNotFoundException
+        | DuplicateStatusException e) {
       throw new RuntimeException(e);
     }
   }
@@ -319,7 +351,7 @@ public final class DevDatabaseSeedTask {
       fn.run();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      LOGGER.warn("Database seed transaction failed: %s", e);
+      LOGGER.warn("Database seed transaction failed: {}", e);
 
       if (tryCount > MAX_RETRIES) {
         throw new RuntimeException(e);

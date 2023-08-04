@@ -10,15 +10,16 @@ services:
       POSTGRES_PASSWORD: example
 
   civiform:
+    platform: linux/amd64
     image: civiform:prod
     restart: always
-    container_name: play
+    container_name: civiform_prod
     links:
       - 'db:database'
     ports:
-      - 9000:9000
+      - 8888:9000
     environment:
+      - SECRET_KEY=notarealsecret
       - IDCS_CLIENT_ID=client
-      - IDCS_SECRET=SECRET_KEY
-      - SECRET_KEY
+      - IDCS_SECRET=notarealsecret
       - ADMIN_SETTINGS_PANEL_ENABLED=true

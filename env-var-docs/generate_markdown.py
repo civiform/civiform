@@ -20,6 +20,7 @@ import github
 import os
 import sys
 import typing
+from typing import Union
 
 
 def error_exit(msg):
@@ -139,7 +140,7 @@ def main():
 
 def generate_markdown(
     docs_file: typing.TextIO
-) -> tuple[str | None, list[env_var_docs.parser.NodeParseError]]:
+) -> tuple[Union[str, None], list[env_var_docs.parser.NodeParseError]]:
     out = ""
 
     def append_node_to_out(node: env_var_docs.parser.Node):
@@ -160,6 +161,13 @@ def generate_markdown(
         if group is not None:
             desc = group.group_description
         if var is not None:
+            if var.mode == env_var_docs.parser.Mode.ADMIN_WRITEABLE:
+                out += "**Admin writeable**\n\n"
+            elif var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
+                out += "**Admin readable**\n\n"
+            else:
+                out += "**Server setting**\n\n"
+
             desc = var.description
             if var.required:
                 desc += " **Required**."
@@ -171,7 +179,7 @@ def generate_markdown(
             if var.values is not None:
                 out += "- Allowed values:\n"
                 for val in var.values:
-                    out += f"   - {val}\n"
+                    out += f"   - `{val}`\n"
             if var.regex is not None:
                 out += f"- Validation regular expression: `{var.regex}`\n"
             if var.regex_tests is not None:

@@ -128,7 +128,7 @@ public final class ProgramIndexView extends BaseHtmlView {
             bundle));
 
     return layout.renderWithNav(
-        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true);
+        request, personalInfo, messages, bundle, /*includeAdminLogin=*/ true, applicantId);
   }
 
   private DivTag topContent(

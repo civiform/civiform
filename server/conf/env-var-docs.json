@@ -10,12 +10,14 @@
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The short display name of the civic entity, will use 'TestCity' if not set.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "WHITELABEL_CIVIC_ENTITY_FULL_NAME": {
         "mode": "ADMIN_WRITEABLE",
         "description": "The full display name of the civic entity, will use 'City of TestCity' if not set.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "FAVICON_URL": {
         "mode": "ADMIN_READABLE",
@@ -41,7 +43,8 @@
               "login-gov",
               "auth0",
               "disabled"
-            ]
+            ],
+            "required": true
           },
           "APPLICANT_REGISTER_URI": {
             "mode": "ADMIN_READABLE",
@@ -51,7 +54,8 @@
           "APPLICANT_PORTAL_NAME": {
             "mode": "ADMIN_WRITEABLE",
             "description": "The name of the portal that applicants log into, used in sentences like 'Log into your APPLICANT_PORTAL_NAME account.'",
-            "type": "string"
+            "type": "string",
+            "required": true
           },
           "Oracle Identity Cloud Service": {
             "group_description": "Configuration options for the [idcs](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#oracle-idcs) provider.",
@@ -373,7 +377,8 @@
       "SUPPORT_EMAIL_ADDRESS": {
         "mode": "ADMIN_WRITEABLE",
         "description": "This email address is listed in the footer for applicants to contact support.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "IT_EMAIL_ADDRESS": {
         "mode": "ADMIN_WRITEABLE",
@@ -432,7 +437,8 @@
       {"val": "http://my-civiform.org", "should_match": true},
       {"val": "https://my-civiform.org", "should_match": true},
       {"val": "my-civiform.org", "should_match": false}
-    ]
+    ],
+    "required": true
   },
   "STAGING_HOSTNAME": {
     "mode": "HIDDEN",
@@ -453,7 +459,8 @@
   "CIVIFORM_TIME_ZONE_ID": {
     "mode": "ADMIN_READABLE",
     "description": "A Java [time zone ID](https://docs.oracle.com/javase/8/docs/api/java/time/ZoneId.html) indicating the time zone for this CiviForm deployment. All times in the system will be calculated in this zone. Default value is 'America/Los_Angeles'",
-    "type": "string"
+    "type": "string",
+    "required": true
   },
   "CIVIFORM_IMAGE_TAG": {
     "mode": "ADMIN_READABLE",
@@ -574,9 +581,9 @@
         "description": "If this is a staging deployment and this variable is set to true, the 'DEMO MODE. LOGIN AS:' buttons are not shown on the login page.",
         "type": "bool"
       },
-      "PHONE_QUESTION_TYPE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables the phone number question type.",
+      "API_GENERATED_DOCS_ENABLED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Enables the API docs tab on CiviForm.",
         "type": "bool"
       }
     }

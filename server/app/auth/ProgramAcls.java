@@ -4,19 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.Nullable;
 import models.Account;
 
 public final class ProgramAcls {
   @JsonProperty("tiProgramViewAcls")
-  private HashSet<Long> tiProgramViewAcls;
+  private Set<Long> tiProgramViewAcls;
 
   public ProgramAcls() {
     this.tiProgramViewAcls = new HashSet<>();
   }
 
   @JsonCreator
-  public ProgramAcls(@Nullable @JsonProperty("tiProgramViewAcls") HashSet<Long> tiProgramViewAcls) {
+  public ProgramAcls(@Nullable @JsonProperty("tiProgramViewAcls") Set<Long> tiProgramViewAcls) {
     if (tiProgramViewAcls == null) {
       this.tiProgramViewAcls = new HashSet<>();
     } else {

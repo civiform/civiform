@@ -1,5 +1,6 @@
 package services.program;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
 import static com.google.common.collect.ImmutableSet.toImmutableSet;
 
 import auth.ProgramAcls;
@@ -564,6 +565,15 @@ public abstract class ProgramDefinition {
       }
     }
     return getAvailablePredicateQuestionDefinitions(previousBlockId);
+  }
+
+  /** Returns a list of the question IDs in a program. */
+  public ImmutableList<Long> getQuestionIdsInProgram() {
+    return blockDefinitions().stream()
+        .map(BlockDefinition::programQuestionDefinitions)
+        .flatMap(ImmutableList::stream)
+        .map(ProgramQuestionDefinition::id)
+        .collect(toImmutableList());
   }
 
   /**

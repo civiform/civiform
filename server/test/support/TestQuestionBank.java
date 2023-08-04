@@ -24,6 +24,7 @@ import services.question.types.IdQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.NumberQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -81,15 +82,15 @@ public class TestQuestionBank {
         .put(QuestionType.DATE, applicantDate())
         .put(QuestionType.DROPDOWN, applicantIceCream())
         .put(QuestionType.EMAIL, applicantEmail())
+        .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
         .put(QuestionType.FILEUPLOAD, applicantFile())
         .put(QuestionType.ID, applicantId())
         .put(QuestionType.NAME, applicantName())
         .put(QuestionType.NUMBER, applicantJugglingNumber())
-        .put(QuestionType.RADIO_BUTTON, applicantSeason())
-        .put(QuestionType.ENUMERATOR, applicantHouseholdMembers())
-        .put(QuestionType.TEXT, applicantFavoriteColor())
-        .put(QuestionType.STATIC, staticContent())
         .put(QuestionType.PHONE, applicantPhone())
+        .put(QuestionType.RADIO_BUTTON, applicantSeason())
+        .put(QuestionType.STATIC, staticContent())
+        .put(QuestionType.TEXT, applicantFavoriteColor())
         .build();
   }
 
@@ -162,12 +163,26 @@ public class TestQuestionBank {
     return questionCache.computeIfAbsent(QuestionEnum.APPLICANT_NAME, this::applicantName);
   }
 
+  // Name
+  public Question nullQuestion() {
+    return questionCache.computeIfAbsent(QuestionEnum.NULL_QUESTION, this::nullQuestion);
+  }
+
   // Repeated name
   public Question applicantHouseholdMemberName() {
     // Make sure the next call will have the question ready
     applicantHouseholdMembers();
     return questionCache.computeIfAbsent(
         QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_NAME, this::applicantHouseholdMemberName);
+  }
+
+  // Repeated test
+  public Question applicantHouseholdMemberFavoriteShape() {
+    // Make sure the next call will have the question ready
+    applicantHouseholdMembers();
+    return questionCache.computeIfAbsent(
+        QuestionEnum.APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
+        this::applicantHouseholdMemberFavoriteShape);
   }
 
   // Number
@@ -365,6 +380,11 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  private Question nullQuestion(QuestionEnum ignore) {
+    QuestionDefinition definition = new NullQuestionDefinition(9999L);
+    return new Question(definition);
+  }
+
   // Repeated name
   private Question applicantHouseholdMemberName(QuestionEnum ignore) {
     Question householdMembers = applicantHouseholdMembers();
@@ -379,6 +399,21 @@ public class TestQuestionBank {
                 .setEnumeratorId(Optional.of(householdMembers.id))
                 .build());
 
+    return maybeSave(definition);
+  }
+
+  // Repeated text
+  private Question applicantHouseholdMemberFavoriteShape(QuestionEnum ignore) {
+    Question householdMembers = applicantHouseholdMembers();
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("household member favorite shape")
+                .setDescription("The applicant household member's favorite shape")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is $this's favorite shape?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setEnumeratorId(Optional.of(householdMembers.id))
+                .build());
     return maybeSave(definition);
   }
 
@@ -446,7 +481,7 @@ public class TestQuestionBank {
   private Question applicantSeason(QuestionEnum ignore) {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()
-            .setName("radio")
+            .setName("applicant favorite season")
             .setDescription("Favorite season in the year")
             .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite season?"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
@@ -535,6 +570,7 @@ public class TestQuestionBank {
     APPLICANT_HOUSEHOLD_MEMBERS,
     APPLICANT_HOUSEHOLD_MEMBER_DAYS_WORKED,
     APPLICANT_HOUSEHOLD_MEMBER_NAME,
+    APPLICANT_HOUSEHOLD_MEMBER_FAVORITE_SHAPE,
     APPLICANT_HOUSEHOLD_MEMBER_JOBS,
     APPLICANT_MONTHLY_INCOME,
     APPLICANT_ICE_CREAM,
@@ -546,5 +582,6 @@ public class TestQuestionBank {
     APPLICANT_EMAIL,
     STATIC_CONTENT,
     APPLICANT_PHONE,
+    NULL_QUESTION
   }
 }

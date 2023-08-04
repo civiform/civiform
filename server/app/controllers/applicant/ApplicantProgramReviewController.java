@@ -2,7 +2,6 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
-import static views.components.Modal.RepeatOpenBehavior;
 import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN_PROMPT;
 
 import auth.CiviFormProfile;
@@ -80,8 +79,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
   }
 
   public CompletionStage<Result> review(Request request, long applicantId, long programId) {
-    CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request).orElseThrow();
-    boolean isTrustedIntermediary = submittingProfile.isTrustedIntermediary();
+    Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
+
+    // If the user isn't already logged in within their browser session, send them home.
+    if (submittingProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    boolean isTrustedIntermediary = submittingProfile.get().isTrustedIntermediary();
     Optional<ToastMessage> flashBanner =
         request.flash().get("banner").map(m -> ToastMessage.alert(m));
     Optional<ToastMessage> flashSuccessBanner =
@@ -160,7 +165,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
-                  return unauthorized();
+                  return redirectToHome();
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
@@ -177,7 +182,14 @@ public class ApplicantProgramReviewController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> submit(Request request, long applicantId, long programId) {
-    if (profileUtils.currentUserProfile(request).orElseThrow().isCiviFormAdmin()) {
+    Optional<CiviFormProfile> submittingProfile = profileUtils.currentUserProfile(request);
+
+    // If the user isn't already logged in within their browser session, send them home.
+    if (submittingProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    if (submittingProfile.get().isCiviFormAdmin()) {
       return CompletableFuture.completedFuture(
           redirect(controllers.admin.routes.AdminProgramPreviewController.back(programId).url()));
     }
@@ -191,7 +203,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
-                  return unauthorized();
+                  return redirectToHome();
                 }
                 throw new RuntimeException(cause);
               }
@@ -296,5 +308,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private static Result redirectToHome() {
+    return redirect(controllers.routes.HomeController.index().url());
   }
 }

@@ -40,6 +40,7 @@ describe('Managing API keys', () => {
     await adminApiKeys.expectKeyCallCount('test-api-key', 2)
 
     await adminApiKeys.retireApiKey('test-api-key')
+    await validateScreenshot(page, 'api-key-index-page-no-active-keys')
     await adminApiKeys.expectApiKeyIsRetired('Test API key')
   })
 })

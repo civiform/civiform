@@ -21,6 +21,7 @@ import services.program.predicate.LeafAddressServiceAreaExpressionNode;
 import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.QuestionAnswerer;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -28,7 +29,6 @@ import services.question.types.QuestionDefinitionConfig;
 import services.question.types.ScalarType;
 import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
-import support.QuestionAnswerer;
 import support.TestQuestionBank;
 
 public class BlockTest {
@@ -512,7 +512,7 @@ public class BlockTest {
                 .anyMatch(
                     q ->
                         q
-                            .errorsPresenter()
+                            .getQuestion()
                             .getValidationErrors()
                             .get(q.getContextualizedPath())
                             .stream()

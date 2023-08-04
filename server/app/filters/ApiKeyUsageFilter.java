@@ -78,7 +78,7 @@ public class ApiKeyUsageFilter extends EssentialFilter {
                           }
                         }
                       } catch (RuntimeException e) {
-                        LOGGER.error("Error updating ApiKey usage: %s", e.toString());
+                        LOGGER.error("Error updating ApiKey usage: {}", e.toString());
                       }
 
                       return result;

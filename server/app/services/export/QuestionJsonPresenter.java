@@ -10,8 +10,8 @@ import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import javax.inject.Inject;
 import services.LocalizedStrings;
 import services.Path;
@@ -30,14 +30,27 @@ import services.settings.SettingsManifest;
 
 /**
  * A {@link QuestionJsonPresenter} for a Question {@link Q} provides a strategy for showing the
- * question's answers in JSON form.
+ * question's answers (of type {@link T}) in JSON form.
  *
  * <p>Some {@link QuestionType}s share the same {@link QuestionJsonPresenter}.
  */
-public interface QuestionJsonPresenter<Q extends Question> {
+public interface QuestionJsonPresenter<Q extends Question, T> {
 
-  /** The entries that should be present in a JSON export of answers, for this question. */
-  ImmutableMap<Path, ?> getJsonEntries(Q question);
+  /**
+   * The entries that should be present in a JSON export of answers, for this question.
+   *
+   * <p>The Optional is present when the question has been answered or there is a specific value
+   * that should be set at the specified {@link Path}, and empty when the value at the path should
+   * be `null`.
+   *
+   * <p>The returned map is only empty when a question should not be included in the response at
+   * all, such as with static questions. Enumerator questions are not currently included but should
+   * be (TODO(#4975)).
+   *
+   * @param question the Question to build a JSON response for.
+   * @return a map of paths to Optional answer values.
+   */
+  ImmutableMap<Path, Optional<T>> getJsonEntries(Q question);
 
   final class Factory {
 
@@ -84,7 +97,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
 
           // Answers to enumerator questions are not included. This is because enumerators store an
           // identifier value for each repeated entity, which with the current export logic
-          // conflicts with the answers stored for repeated entities.
+          // conflicts with the answers stored for repeated entities. TODO(#4975)
         case ENUMERATOR:
 
           // Static content questions are not included in API responses because they
@@ -114,7 +127,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
+  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion, String> {
 
     private final String baseUrl;
 
@@ -124,7 +137,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
 
     @Override
-    public ImmutableMap<Path, String> getJsonEntries(FileUploadQuestion question) {
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(FileUploadQuestion question) {
       return ImmutableMap.of(
           question.getApplicantQuestion().getContextualizedPath().join(Scalar.FILE_KEY),
           question
@@ -136,102 +149,78 @@ public interface QuestionJsonPresenter<Q extends Question> {
                       baseUrl
                           + controllers.routes.FileController.acledAdminShow(
                                   URLEncoder.encode(fileKey, StandardCharsets.UTF_8))
-                              .url())
-              .orElse(""));
+                              .url()));
     }
   }
 
-  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
+  class MultiSelectJsonPresenter
+      implements QuestionJsonPresenter<MultiSelectQuestion, ImmutableList<String>> {
 
     @Override
-    public ImmutableMap<Path, ImmutableList<String>> getJsonEntries(MultiSelectQuestion question) {
+    public ImmutableMap<Path, Optional<ImmutableList<String>>> getJsonEntries(
+        MultiSelectQuestion question) {
       Path path = question.getSelectionPath();
 
-      if (question.getSelectedOptionsValue().isPresent()) {
-        ImmutableList<String> selectedOptions =
-            question.getSelectedOptionsValue().get().stream()
-                .map(LocalizedQuestionOption::optionText)
-                .collect(ImmutableList.toImmutableList());
+      ImmutableList<String> selectedOptions =
+          question.getSelectedOptionsValue().orElse(ImmutableList.of()).stream()
+              .map(LocalizedQuestionOption::optionText)
+              .collect(ImmutableList.toImmutableList());
 
-        return ImmutableMap.of(path, selectedOptions);
-      }
-
-      return ImmutableMap.of();
+      return ImmutableMap.of(path, Optional.of(selectedOptions));
     }
   }
 
-  class ContextualizedScalarsJsonPresenter implements QuestionJsonPresenter<Question> {
+  class ContextualizedScalarsJsonPresenter implements QuestionJsonPresenter<Question, String> {
     @Override
-    public ImmutableMap<Path, String> getJsonEntries(Question question) {
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(Question question) {
       return question.getApplicantQuestion().getContextualizedScalars().keySet().stream()
           .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
           .collect(
               toImmutableMap(
                   path -> path,
-                  path ->
-                      question
-                          .getApplicantQuestion()
-                          .getApplicantData()
-                          .readAsString(path)
-                          .orElse("")));
+                  path -> question.getApplicantQuestion().getApplicantData().readAsString(path)));
     }
   }
 
-  class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
+  class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion, Double> {
     @Override
-    public ImmutableMap<Path, Double> getJsonEntries(CurrencyQuestion question) {
+    public ImmutableMap<Path, Optional<Double>> getJsonEntries(CurrencyQuestion question) {
       Path path = question.getCurrencyPath().replacingLastSegment("currency_dollars");
 
-      if (question.getCurrencyValue().isPresent()) {
-        Long centsTotal = Long.valueOf(question.getCurrencyValue().get().getCents());
-
-        return ImmutableMap.of(path, centsTotal.doubleValue() / 100.0);
-      } else {
-        return ImmutableMap.of();
-      }
+      return ImmutableMap.of(
+          path, question.getCurrencyValue().map(v -> v.getCents().doubleValue() / 100.0));
     }
   }
 
-  class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
+  class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion, String> {
     @Override
-    public ImmutableMap<Path, String> getJsonEntries(DateQuestion question) {
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(DateQuestion question) {
       Path path = question.getDatePath();
 
-      if (question.getDateValue().isPresent()) {
-        LocalDate date = question.getDateValue().get();
-        return ImmutableMap.of(path, DateTimeFormatter.ISO_DATE.format(date));
-      } else {
-        return ImmutableMap.of();
-      }
+      return ImmutableMap.of(path, question.getDateValue().map(DateTimeFormatter.ISO_DATE::format));
     }
   }
 
-  class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
+  class EmptyJsonPresenter implements QuestionJsonPresenter<Question, String> {
     @Override
-    public ImmutableMap<Path, ?> getJsonEntries(Question question) {
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(Question question) {
       return ImmutableMap.of();
     }
   }
 
-  class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
+  class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion, Long> {
     @Override
-    public ImmutableMap<Path, Long> getJsonEntries(NumberQuestion question) {
+    public ImmutableMap<Path, Optional<Long>> getJsonEntries(NumberQuestion question) {
       Path path = question.getNumberPath();
-
-      if (question.getNumberValue().isPresent()) {
-        return ImmutableMap.of(path, question.getNumberValue().get());
-      } else {
-        return ImmutableMap.of();
-      }
+      return ImmutableMap.of(path, question.getNumberValue());
     }
   }
 
-  class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion> {
-
+  class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion, String> {
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
     @Override
-    public ImmutableMap<Path, String> getJsonEntries(PhoneQuestion question) {
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(PhoneQuestion question) {
       Path path = question.getPhoneNumberPath();
 
       if (question.getPhoneNumberValue().isPresent()
@@ -239,9 +228,9 @@ public interface QuestionJsonPresenter<Q extends Question> {
         String formattedPhone =
             getFormattedPhoneNumber(
                 question.getPhoneNumberValue().get(), question.getCountryCodeValue().get());
-        return ImmutableMap.of(path, formattedPhone);
+        return ImmutableMap.of(path, Optional.of(formattedPhone));
       } else {
-        return ImmutableMap.of();
+        return ImmutableMap.of(path, Optional.empty());
       }
     }
 
@@ -261,17 +250,16 @@ public interface QuestionJsonPresenter<Q extends Question> {
     }
   }
 
-  class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
+  class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion, String> {
     @Override
-    public ImmutableMap<Path, String> getJsonEntries(SingleSelectQuestion question) {
+    public ImmutableMap<Path, Optional<String>> getJsonEntries(SingleSelectQuestion question) {
       return ImmutableMap.of(
           question.getApplicantQuestion().getContextualizedPath().join(Scalar.SELECTION),
           question
               .getApplicantQuestion()
               .createSingleSelectQuestion()
               .getSelectedOptionValue(LocalizedStrings.DEFAULT_LOCALE)
-              .map(LocalizedQuestionOption::optionText)
-              .orElse(""));
+              .map(LocalizedQuestionOption::optionText));
     }
   }
 }

@@ -14,12 +14,16 @@ import static j2html.TagCreator.th;
 import static j2html.TagCreator.tr;
 
 import auth.ApiKeyGrants;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.TableTag;
+import java.time.Instant;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import models.ApiKey;
@@ -27,7 +31,6 @@ import modules.MainModule;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DateConverter;
-import services.PaginationResult;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -36,6 +39,8 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.Icons;
+import views.components.LinkElement;
+import views.style.AdminStyles;
 import views.style.ReferenceClasses;
 
 /** Renders a page that lists the system's {@link models.ApiKey}s. */
@@ -49,9 +54,20 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     this.dateConverter = checkNotNull(dateConverter);
   }
 
+  /**
+   * Render the list of API keys.
+   *
+   * @param request The request
+   * @param selectedStatus The currently selected ApiKey status. Should be one of: Active, Retired,
+   *     Expired.
+   * @param apiKeys The list of ApiKeys with the selected status.
+   * @param allProgramNames All program names.
+   * @return Page content
+   */
   public Content render(
       Http.Request request,
-      PaginationResult<ApiKey> apiKeyPaginationResult,
+      String selectedStatus,
+      ImmutableList<ApiKey> apiKeys,
       ImmutableSet<String> allProgramNames) {
     String title = "API Keys";
     ButtonTag newKeyButton =
@@ -68,12 +84,44 @@ public final class ApiKeyIndexView extends BaseHtmlView {
 
     DivTag contentDiv = div().withClasses("px-20").with(headerDiv);
 
-    for (ApiKey apiKey : apiKeyPaginationResult.getPageContents()) {
-      contentDiv.with(renderApiKey(request, apiKey, buildProgramSlugToName(allProgramNames)));
+    contentDiv.with(
+        renderFilterLink(
+            "Active",
+            selectedStatus,
+            controllers.admin.routes.AdminApiKeysController.index().url()),
+        renderFilterLink(
+            "Retired",
+            selectedStatus,
+            controllers.admin.routes.AdminApiKeysController.indexRetired().url()),
+        renderFilterLink(
+            "Expired",
+            selectedStatus,
+            controllers.admin.routes.AdminApiKeysController.indexExpired().url()));
+
+    DivTag apiKeysDiv = div();
+    if (apiKeys.isEmpty()) {
+      apiKeysDiv.with(
+          p(String.format("No %s API keys found.", selectedStatus.toLowerCase(Locale.ROOT)))
+              .withClasses("p-4"));
+    } else {
+      var programSlugToName = buildProgramSlugToName(allProgramNames);
+      apiKeys.stream()
+          .forEach((apiKey) -> apiKeysDiv.with(renderApiKey(request, apiKey, programSlugToName)));
     }
+    contentDiv.with(apiKeysDiv);
 
     HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(contentDiv);
     return layout.renderCentered(htmlBundle);
+  }
+
+  private ATag renderFilterLink(String status, String selectedStatus, String redirectLocation) {
+    String styles =
+        selectedStatus.equals(status) ? AdminStyles.LINK_SELECTED : AdminStyles.LINK_NOT_SELECTED;
+    return new LinkElement()
+        .setText(status)
+        .setHref(redirectLocation)
+        .setStyles(styles)
+        .asAnchorText();
   }
 
   private DivTag renderApiKey(
@@ -160,14 +208,19 @@ public final class ApiKeyIndexView extends BaseHtmlView {
     DivTag bottomDiv =
         div(grantsTable, linksDiv).withClasses("flex", "place-content-between", "mt-4");
 
+    String apiKeyStatus = " active";
+    if (apiKey.isRetired()) {
+      apiKeyStatus = " retired";
+    } else if (apiKey.expiredAfter(Instant.now())) {
+      apiKeyStatus = " expired";
+    }
     DivTag content =
         div()
             .withClasses("border", "border-gray-300", "bg-white", "rounded", "p-4")
             .with(
                 h2().with(
                         text(apiKey.getName()),
-                        span(apiKey.isRetired() ? " retired" : " active")
-                            .withClasses("text-gray-700", "text-sm"))
+                        span(apiKeyStatus).withClasses("text-gray-700", "text-sm"))
                     .withClasses("mb-2", ReferenceClasses.ADMIN_API_KEY_INDEX_ENTRY_NAME),
                 topRowDiv,
                 bottomDiv);

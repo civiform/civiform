@@ -33,6 +33,10 @@ public final class DeploymentType {
     this.isStaging = isStaging;
   }
 
+  public boolean isDev() {
+    return isDev;
+  }
+
   public boolean isStaging() {
     return isStaging;
   }

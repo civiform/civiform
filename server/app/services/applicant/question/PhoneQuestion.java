@@ -7,8 +7,6 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -23,7 +21,6 @@ public final class PhoneQuestion extends Question {
 
   private Optional<String> phoneNumberValue;
   private Optional<String> countryCodeValue;
-  private static final Logger logger = LoggerFactory.getLogger(PhoneQuestion.class);
 
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
@@ -114,7 +111,10 @@ public final class PhoneQuestion extends Question {
   public Path getCountryCodePath() {
     return applicantQuestion.getContextualizedPath().join(Scalar.COUNTRY_CODE);
   }
-
+  /**
+   * Returns formatted phone number or defaults to "-" if formatting fails. An example of formatted
+   * number is :+1 206-648-2489
+   */
   @Override
   public String getAnswerString() {
     try {
@@ -123,12 +123,7 @@ public final class PhoneQuestion extends Question {
               getPhoneNumberValue().orElse(""), getCountryCodeValue().orElse(""));
       return PHONE_NUMBER_UTIL.format(phoneNumber, PhoneNumberUtil.PhoneNumberFormat.INTERNATIONAL);
     } catch (NumberParseException e) {
-      logger.error(
-          "Unable to retrieve or parse phone number "
-              + getPhoneNumberValue().orElse("")
-              + "for country_code "
-              + getCountryCodeValue().orElse(""));
+      return "-";
     }
-    return "-";
   }
 }

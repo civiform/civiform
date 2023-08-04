@@ -32,7 +32,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors,
       ImmutableList<String> ariaDescribedByIds,
       boolean isOptional) {
-    PhoneQuestion phoneQuestion = question.createPhoneQuestion();
+    PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
     Messages messages = params.messages();
 
@@ -69,7 +69,7 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 validationErrors.getOrDefault(
                     phoneQuestion.getPhoneNumberPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(question.getQuestionTextForScreenReader())
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
             .addReferenceClass(ReferenceClasses.PHONE_NUMBER)
             .setId(ReferenceClasses.PHONE_NUMBER);
 

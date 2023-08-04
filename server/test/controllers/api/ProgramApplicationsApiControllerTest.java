@@ -40,7 +40,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
   public void setUp() {
     // This inherited method creates a program and three applications to it.
     // The applications have submission/creation times of 2022-01-15, 2022-02-15, and 2022-03-15.
-    createFakeProgramWithEnumerator();
+    createFakeProgramWithEnumeratorAndAnswerQuestions();
     januaryApplication = applicationOne;
     februaryApplication = applicationTwo;
     marchApplication = applicationThree;

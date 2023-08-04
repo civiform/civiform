@@ -689,9 +689,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
   }
 
-  /** Enables the phone number question type. */
-  public boolean getPhoneQuestionTypeEnabled(RequestHeader request) {
-    return getBool("PHONE_QUESTION_TYPE_ENABLED", request);
+  /** Enables the API docs tab on CiviForm. */
+  public boolean getApiGeneratedDocsEnabled() {
+    return getBool("API_GENERATED_DOCS_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -711,14 +711,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME",
                       "The short display name of the civic entity, will use 'TestCity' if not set.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "WHITELABEL_CIVIC_ENTITY_FULL_NAME",
                       "The full display name of the civic entity, will use 'City of TestCity' if"
                           + " not set.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -988,7 +988,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "CIVIFORM_APPLICANT_IDP",
                               "What identity provider to use for applicants.",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.ENUM,
                               SettingMode.ADMIN_READABLE,
                               ImmutableList.of(
@@ -1008,7 +1008,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "APPLICANT_PORTAL_NAME",
                               "The name of the portal that applicants log into, used in sentences"
                                   + " like 'Log into your APPLICANT_PORTAL_NAME account.'",
-                              /* isRequired= */ false,
+                              /* isRequired= */ true,
                               SettingType.STRING,
                               SettingMode.ADMIN_WRITEABLE))),
                   SettingsSection.create(
@@ -1219,7 +1219,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SUPPORT_EMAIL_ADDRESS",
                       "This email address is listed in the footer for applicants to contact"
                           + " support.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
@@ -1430,11 +1430,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "PHONE_QUESTION_TYPE_ENABLED",
-                      "Enables the phone number question type.",
+                      "API_GENERATED_DOCS_ENABLED",
+                      "Enables the API docs tab on CiviForm.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_READABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -1454,7 +1454,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "BASE_URL",
                       "The URL of the CiviForm deployment.  Must start with 'https://' or"
                           + " 'http://'.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE,
                       Pattern.compile("^(http://|https://).+")),
@@ -1481,7 +1481,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " indicating the time zone for this CiviForm deployment. All times in"
                           + " the system will be calculated in this zone. Default value is"
                           + " 'America/Los_Angeles'",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(

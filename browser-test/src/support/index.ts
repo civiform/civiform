@@ -461,6 +461,11 @@ export const seedQuestions = async (page: Page) => {
   await page.click('#sample-questions')
 }
 
+export const seedPrograms = async (page: Page) => {
+  await page.goto(BASE_URL + '/dev/seed')
+  await page.click('#sample-programs')
+}
+
 export const disableFeatureFlag = async (page: Page, flag: string) => {
   await page.goto(BASE_URL + `/dev/feature/${flag}/disable`)
 }

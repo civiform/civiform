@@ -28,21 +28,21 @@ import views.style.ReferenceClasses;
  */
 abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRenderer {
 
-  protected final ApplicantQuestion question;
+  protected final ApplicantQuestion applicantQuestion;
   // HTML id tags for various elements within this question.
   private final String questionId;
   private final String descriptionId;
   private final String errorId;
 
-  ApplicantQuestionRendererImpl(ApplicantQuestion question) {
-    this.question = checkNotNull(question);
+  ApplicantQuestionRendererImpl(ApplicantQuestion applicantQuestion) {
+    this.applicantQuestion = checkNotNull(applicantQuestion);
     this.questionId = RandomStringUtils.randomAlphabetic(8);
     this.descriptionId = String.format("%s-description", questionId);
     this.errorId = String.format("%s-error", questionId);
   }
 
   private String getRequiredClass() {
-    return question.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
+    return applicantQuestion.isOptional() ? "" : ReferenceClasses.REQUIRED_QUESTION;
   }
 
   /** Renders the question tag. */
@@ -70,7 +70,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
                         TextFormatter.createLinksAndEscapeText(
-                            question.getQuestionHelpText(),
+                            applicantQuestion.getQuestionHelpText(),
                             TextFormatter.UrlOpenAction.NewTab,
                             /*addRequiredIndicator= */ false)))
             .withClasses("mb-4");
@@ -81,7 +81,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors = ImmutableMap.of();
         break;
       case DISPLAY_ERRORS:
-        validationErrors = question.errorsPresenter().getValidationErrors();
+        validationErrors = applicantQuestion.getQuestion().getValidationErrors();
         break;
       default:
         throw new IllegalArgumentException(
@@ -89,7 +89,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableSet<ValidationErrorMessage> questionErrors =
-        validationErrors.getOrDefault(question.getContextualizedPath(), ImmutableSet.of());
+        validationErrors.getOrDefault(applicantQuestion.getContextualizedPath(), ImmutableSet.of());
     if (!questionErrors.isEmpty()) {
       // Question error text
       questionSecondaryTextDiv.with(
@@ -101,9 +101,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
 
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.createLinksAndEscapeText(
-            question.getQuestionText(),
+            applicantQuestion.getQuestionText(),
             TextFormatter.UrlOpenAction.NewTab,
-            /*addRequiredIndicator= */ !question.isOptional());
+            /*addRequiredIndicator= */ !applicantQuestion.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 
@@ -114,7 +114,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
             ariaDescribedByIds,
             questionTextDoms,
             questionSecondaryTextDiv,
-            question.isOptional());
+            applicantQuestion.isOptional());
 
     return div()
         .withId(questionId)

@@ -1,17 +1,27 @@
 package services;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Optional;
+import models.Version;
 import services.program.BlockDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
+import services.question.ActiveAndDraftQuestions;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /** Helper class for performing validation related to creating or modifying program blocks. */
 public final class ProgramBlockValidation {
 
-  private ProgramBlockValidation() {}
+  private final Version version;
+  private final ActiveAndDraftQuestions activeAndDraftQuestions;
 
+  public ProgramBlockValidation(
+      models.Version version, ActiveAndDraftQuestions activeAndDraftQuestions) {
+    this.version = checkNotNull(version);
+    this.activeAndDraftQuestions = checkNotNull(activeAndDraftQuestions);
+  }
   /**
    * Result of checking whether a question can be added to a specific block. Only ELIGIBLE means
    * that question can be added. All other states indicate that question is not eligible for the
@@ -37,7 +47,9 @@ public final class ProgramBlockValidation {
     // block and can contain only questions that themselves are children of the enumerator and
     // provided question is not; or the provided question is a child of an enumerator question while
     // the block is a regular block.
-    ENUMERATOR_MISMATCH
+    ENUMERATOR_MISMATCH,
+    QUESTION_TOMBSTONED,
+    QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE
   }
 
   /**
@@ -46,28 +58,35 @@ public final class ProgramBlockValidation {
    * <p>This should be checked both during rendering to make sure admins don't see ineligible
    * questions when creating blocks. Also it should be checked during the actual server-side block
    * creating to ensure that no one can maliciously mess up data by sending specially crafted
-   * request (or in case we mess up client-side checks).
+   * request (or in case we mess up client-side checks). It also ensures that a question is not
+   * tombstoned (marked for deletion) in the current draft.
    */
-  public static AddQuestionResult canAddQuestion(
+  public AddQuestionResult canAddQuestion(
       ProgramDefinition program, BlockDefinition block, QuestionDefinition question) {
+    if (version.getTombstonedQuestionNames().contains(question.getName())) {
+      return AddQuestionResult.QUESTION_TOMBSTONED;
+    }
     if (program.hasQuestion(question)) {
       return AddQuestionResult.DUPLICATE;
     }
     if (block.isEnumerator() || block.isFileUpload()) {
       return AddQuestionResult.BLOCK_IS_SINGLE_QUESTION;
     }
-    if (block.getQuestionCount() > 0 && ProgramBlockValidation.isSingleBlockQuestion(question)) {
+    if (block.getQuestionCount() > 0 && isSingleBlockQuestion(question)) {
       return AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK;
     }
-    if (!question
-        .getEnumeratorId()
-        .equals(ProgramBlockValidation.getEnumeratorQuestionId(program, block))) {
+    if (!question.getEnumeratorId().equals(getEnumeratorQuestionId(program, block))) {
       return AddQuestionResult.ENUMERATOR_MISMATCH;
+    }
+    if (!activeAndDraftQuestions.getActiveQuestions().contains(question)
+        && !activeAndDraftQuestions.getDraftQuestions().contains(question)) {
+      return services.ProgramBlockValidation.AddQuestionResult
+          .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE;
     }
     return AddQuestionResult.ELIGIBLE;
   }
 
-  private static boolean isSingleBlockQuestion(QuestionDefinition question) {
+  private boolean isSingleBlockQuestion(QuestionDefinition question) {
     switch (question.getQuestionType()) {
       case ENUMERATOR:
       case FILEUPLOAD:
@@ -81,8 +100,7 @@ public final class ProgramBlockValidation {
    * Follow the {@link BlockDefinition#enumeratorId()} reference to the enumerator block definition,
    * and return the id of its {@link EnumeratorQuestionDefinition}.
    */
-  private static Optional<Long> getEnumeratorQuestionId(
-      ProgramDefinition program, BlockDefinition block) {
+  private Optional<Long> getEnumeratorQuestionId(ProgramDefinition program, BlockDefinition block) {
     if (block.enumeratorId().isEmpty()) {
       return Optional.empty();
     }

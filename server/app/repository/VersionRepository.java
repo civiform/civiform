@@ -17,6 +17,7 @@ import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -87,12 +88,13 @@ public final class VersionRepository {
   }
 
   private Version publishNewSynchronizedVersion(PublishMode publishMode) {
+    // Regardless of whether changes are published or not, we still perform
+    // this operation inside of a transaction in order to ensure we have
+    // consistent reads.
+    Transaction transaction =
+        database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      // Regardless of whether changes are published or not, we still perform
-      // this operation inside of a transaction in order to ensure we have
-      // consistent reads.
-      database.beginTransaction();
-      Version draft = getDraftVersion();
+      Version draft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramNames();
@@ -166,17 +168,17 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
+          validateProgramQuestionState();
           break;
         case DRY_RUN:
           break;
         default:
           throw new RuntimeException(String.format("unrecognized publishMode: %s", publishMode));
       }
-      database.commitTransaction();
-
+      transaction.commit();
       return draft;
     } finally {
-      database.endTransaction();
+      transaction.end();
     }
   }
 
@@ -196,7 +198,7 @@ public final class VersionRepository {
     Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      Version existingDraft = getDraftVersion();
+      Version existingDraft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
       // Any drafts not being published right now will be moved to newDraft.
       Version newDraft = new Version(LifecycleStage.DRAFT);
@@ -260,6 +262,9 @@ public final class VersionRepository {
       existingDraft.save();
       active.save();
       newDraft.save();
+      active.refresh();
+      newDraft.refresh();
+      validateProgramQuestionState();
       transaction.commit();
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
@@ -282,17 +287,23 @@ public final class VersionRepository {
     }
   }
 
+  /** Get the current draft version. Empty optional if not available. */
+  public Optional<Version> getDraftVersion() {
+    return database
+        .find(Version.class)
+        .where()
+        .eq("lifecycle_stage", LifecycleStage.DRAFT)
+        .findOneOrEmpty();
+  }
+
   /** Get the current draft version. Creates it if one does not exist. */
-  public Version getDraftVersion() {
-    Optional<Version> version =
-        database
-            .find(Version.class)
-            .where()
-            .eq("lifecycle_stage", LifecycleStage.DRAFT)
-            .findOneOrEmpty();
+  public Version getDraftVersionOrCreate() {
+    Optional<Version> version = getDraftVersion();
+
     if (version.isPresent()) {
       return version.get();
     }
+
     // Suspends any existing thread-local transaction if one exists.
     // This method is often called by two portions of the same outer transaction, microseconds
     // apart.  It's extremely important that there only ever be one draft version, so we need the
@@ -321,7 +332,7 @@ public final class VersionRepository {
       // We cannot have this transaction on the thread-local transaction stack when that
       // happens.
       transaction.end();
-      return getDraftVersion();
+      return getDraftVersionOrCreate();
     } finally {
       // This may come after a prior call to `transaction.end` in the event of a
       // precondition failure - this is okay, since it a double-call to `end` on
@@ -340,6 +351,28 @@ public final class VersionRepository {
   }
 
   /**
+   * Returns the previous version to the one passed in. If there is only one version there isn't a
+   * previous version so the Optional result will be empty.
+   *
+   * <p>This can return active or obsolete versions. Versions flagged as deleted are excluded.
+   */
+  public Optional<Version> getPreviousVersion(Version version) {
+    Version previousVersion =
+        database
+            .find(Version.class)
+            .where()
+            .lt("id", version.id)
+            .not()
+            .eq("lifecycle_stage", LifecycleStage.DELETED)
+            .orderBy()
+            .desc("id")
+            .setMaxRows(1)
+            .findOne();
+
+    return Optional.ofNullable(previousVersion);
+  }
+
+  /**
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
    */
@@ -347,7 +380,7 @@ public final class VersionRepository {
     String questionName =
         database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
     Optional<Question> draftQuestion =
-        getDraftVersion().getQuestions().stream()
+        getDraftVersionOrCreate().getQuestions().stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
             .findFirst();
     if (draftQuestion.isPresent()) {
@@ -391,7 +424,7 @@ public final class VersionRepository {
   }
 
   public boolean isDraft(Question question) {
-    return getDraftVersion().getQuestions().stream()
+    return getDraftVersionOrCreate().getQuestions().stream()
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
@@ -402,7 +435,7 @@ public final class VersionRepository {
 
   /** Returns true if the program with the provided id is a member of the current draft version. */
   public boolean isDraftProgram(Long programId) {
-    return getDraftVersion().getPrograms().stream()
+    return getDraftVersionOrCreate().getPrograms().stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
@@ -415,6 +448,36 @@ public final class VersionRepository {
   public boolean isActiveProgram(Long programId) {
     return getActiveVersion().getPrograms().stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));
+  }
+
+  /** Validate all programs have associated questions. */
+  private void validateProgramQuestionState() {
+    Version activeVersion = getActiveVersion();
+    ImmutableSet<Long> newActiveQuestionIds =
+        activeVersion.getQuestions().stream()
+            .map(question -> question.getQuestionDefinition().getId())
+            .collect(ImmutableSet.toImmutableSet());
+    ImmutableSet<Long> missingQuestionIds =
+        activeVersion.getPrograms().stream()
+            .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
+            .flatMap(Collection::stream)
+            .filter(questionId -> !newActiveQuestionIds.contains(questionId))
+            .collect(ImmutableSet.toImmutableSet());
+    if (!missingQuestionIds.isEmpty()) {
+      ImmutableSet<Long> programIdsMissingQuestions =
+          activeVersion.getPrograms().stream()
+              .filter(
+                  program ->
+                      program.getProgramDefinition().getQuestionIdsInProgram().stream()
+                          .anyMatch(id -> missingQuestionIds.contains(id)))
+              .map(program -> program.getProgramDefinition().id())
+              .collect(ImmutableSet.toImmutableSet());
+      throw new IllegalStateException(
+          String.format(
+              "Illegal state encountered when attempting to publish a new version. Question IDs"
+                  + " %s found in program definitions %s not found in new active version.",
+              missingQuestionIds, programIdsMissingQuestions));
+    }
   }
 
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
@@ -502,7 +565,7 @@ public final class VersionRepository {
    */
   public void updateProgramsThatReferenceQuestion(long oldQuestionId) {
     // Update all DRAFT program revisions that reference the question.
-    getDraftVersion().getPrograms().stream()
+    getDraftVersionOrCreate().getPrograms().stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .forEach(this::updateQuestionVersions);
 
@@ -512,7 +575,7 @@ public final class VersionRepository {
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .filter(
             program ->
-                getDraftVersion()
+                getDraftVersionOrCreate()
                     .getProgramByName(program.getProgramDefinition().adminName())
                     .isEmpty())
         .forEach(programRepository::createOrUpdateDraft);
@@ -581,10 +644,7 @@ public final class VersionRepository {
    */
   private static ImmutableSet<String> getProgramQuestionNames(
       ProgramDefinition program, ImmutableMap<Long, String> questionIdToNameLookup) {
-    return program.blockDefinitions().stream()
-        .map(BlockDefinition::programQuestionDefinitions)
-        .flatMap(ImmutableList::stream)
-        .map(ProgramQuestionDefinition::id)
+    return program.getQuestionIdsInProgram().stream()
         .filter(questionIdToNameLookup::containsKey)
         .map(questionIdToNameLookup::get)
         .collect(ImmutableSet.toImmutableSet());

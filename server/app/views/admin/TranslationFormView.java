@@ -36,24 +36,24 @@ public abstract class TranslationFormView extends BaseHtmlView {
   }
 
   /** Render a list of languages, with the currently selected language underlined. */
-  protected final DivTag renderLanguageLinks(long entityId, Locale currentlySelected) {
+  protected final DivTag renderLanguageLinks(String entityName, Locale currentlySelected) {
     return div()
         .withClasses("m-2")
         .with(
             each(
                 translationLocales.translatableLocales(),
                 locale -> {
-                  String linkDestination = languageLinkDestination(entityId, locale);
+                  String linkDestination = languageLinkDestination(entityName, locale);
                   return renderLanguageLink(
                       linkDestination, locale, locale.equals(currentlySelected));
                 }));
   }
 
   /**
-   * Given the ID of the entity to translate and a locale for translation, returns a link
+   * Given the name of the entity to translate and a locale for translation, returns a link
    * destination URL for the edit form to translate the entity in the given locale.
    */
-  protected abstract String languageLinkDestination(long entityId, Locale locale);
+  protected abstract String languageLinkDestination(String entityName, Locale locale);
 
   /**
    * Renders a single locale as the English version of the language (ex: es-US would read

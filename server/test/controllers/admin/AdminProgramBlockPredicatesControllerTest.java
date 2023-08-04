@@ -30,7 +30,7 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   public void setup() {
     controller = instanceOf(AdminProgramBlockPredicatesController.class);
     programWithThreeBlocks =
-        ProgramBuilder.newDraftProgram()
+        ProgramBuilder.newDraftProgram("first program")
             .withBlock("Screen 1")
             .withRequiredQuestion(testQuestionBank.applicantName())
             .withBlock("Screen 2")

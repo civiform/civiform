@@ -14,9 +14,9 @@ import org.junit.runner.RunWith;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionAnswerer;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class NameQuestionTest {

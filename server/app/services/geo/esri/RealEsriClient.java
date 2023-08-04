@@ -48,7 +48,7 @@ public final class RealEsriClient extends EsriClient implements WSBodyReadables,
   private static final String ESRI_CONTENT_TYPE = "application/json";
   // Specify output fields to return in the geocoding response with the outFields parameter
   private static final String ESRI_FIND_ADDRESS_CANDIDATES_OUT_FIELDS =
-      "Address, SubAddr, City, RegionAbbr, Postal";
+      "Address, SubAddr, City, Region, RegionAbbr, Postal";
   // The service supports responses in JSON or PJSON format. You can specify the response format
   // using the f parameter. This is a required parameter
   private static final String ESRI_RESPONSE_FORMAT = "json";

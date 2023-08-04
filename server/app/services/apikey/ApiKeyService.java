@@ -6,6 +6,7 @@ import auth.ApiKeyGrants;
 import auth.ApiKeyGrants.Permission;
 import auth.CiviFormProfile;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
@@ -96,12 +97,27 @@ public final class ApiKeyService {
   }
 
   /**
-   * Lists {@link ApiKey}s in order of creation time descending.
-   *
-   * @param paginationSpec specification for paginating the results.
+   * Lists all active, i.e. unexpired and unretired, {@link ApiKey}s in order of creation time
+   * descending.
    */
-  public PaginationResult<ApiKey> listApiKeys(PageNumberBasedPaginationSpec paginationSpec) {
-    return repository.listApiKeys(paginationSpec);
+  public ImmutableList<ApiKey> listActiveApiKeys() {
+    PaginationResult<ApiKey> apiKeys =
+        repository.listActiveApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+    return apiKeys.getPageContents();
+  }
+
+  /** Lists all retired {@link ApiKey}s in order of creation time descending. */
+  public ImmutableList<ApiKey> listRetiredApiKeys() {
+    PaginationResult<ApiKey> apiKeys =
+        repository.listRetiredApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+    return apiKeys.getPageContents();
+  }
+
+  /** Lists all expired {@link ApiKey}s in order of creation time descending. */
+  public ImmutableList<ApiKey> listExpiredApiKeys() {
+    PaginationResult<ApiKey> apiKeys =
+        repository.listExpiredApiKeys(PageNumberBasedPaginationSpec.MAX_PAGE_SIZE_SPEC);
+    return apiKeys.getPageContents();
   }
 
   /** Finds an API key by its key ID (not the database ID) directly from the database. */

@@ -66,7 +66,8 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
       int page,
       SearchParameters searchParameters,
       Http.Request request,
-      Messages messages) {
+      Messages messages,
+      Long currentTisApplicantId) {
     HtmlBundle bundle =
         layout
             .getBundle(request)
@@ -96,7 +97,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
     } else if (flash.get("success").isPresent()) {
       bundle.addToastMessages(ToastMessage.success(flash.get("success").get()).setDuration(-1));
     }
-    return layout.renderWithNav(request, personalInfo, messages, bundle);
+    return layout.renderWithNav(request, personalInfo, messages, bundle, currentTisApplicantId);
   }
 
   private FormTag renderSearchForm(Http.Request request, SearchParameters searchParameters) {

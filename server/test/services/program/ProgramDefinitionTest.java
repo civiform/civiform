@@ -232,6 +232,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
     assertThat(program.hasQuestion(questionA)).isTrue();
     assertThat(program.hasQuestion(questionB)).isTrue();
     assertThat(program.hasQuestion(questionC)).isFalse();
+    assertThat(program.getQuestionIdsInProgram())
+        .containsOnly(questionA.getId(), questionB.getId());
   }
 
   @Test

@@ -64,7 +64,7 @@ public final class QuestionService {
       return ErrorAnd.error(errors);
     }
     Question question = new Question(questionDefinition);
-    question.addVersion(versionRepositoryProvider.get().getDraftVersion());
+    question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
     questionRepository.insertQuestionSync(question);
     return ErrorAnd.of(question.getQuestionDefinition());
   }
@@ -162,7 +162,7 @@ public final class QuestionService {
         .equals(DeletionStatus.PENDING_DELETION)) {
       throw new InvalidUpdateException("Question is not restorable.");
     }
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!draftVersion.removeTombstoneForQuestion(question.get())) {
       throw new InvalidUpdateException("Not tombstoned.");
     }
@@ -186,7 +186,7 @@ public final class QuestionService {
 
     Question draftQuestion =
         questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try {
       if (!draftVersion.addTombstoneForQuestion(draftQuestion)) {
         throw new InvalidUpdateException("Already tombstoned.");
@@ -224,7 +224,7 @@ public final class QuestionService {
         draftId,
         question.getQuestionDefinition().getName());
 
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersion();
+    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!question.removeVersion(draftVersion)) {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
@@ -372,5 +372,28 @@ public final class QuestionService {
                   questionDefinition.getQuestionType(), toUpdate.getQuestionType())));
     }
     return errors.build();
+  }
+
+  /**
+   * Returns all questions for the specified version. For example passing in version of id 2, would
+   * return questions for version of id 1. Will return a list for draft, active, or obsolete
+   * versions.
+   *
+   * <p>If there is no previous version an empty list is returned.
+   *
+   * @param version The version used to lookup the previous version
+   * @return Populated list of Question Definitions or an empty list
+   */
+  public ImmutableList<QuestionDefinition> getAllPreviousVersionQuestions(Version version) {
+    Optional<Version> optionalPreviousVersion =
+        versionRepositoryProvider.get().getPreviousVersion(version);
+
+    // This should only happen if we only have one version in the system
+    // such as in a fresh install
+    if (optionalPreviousVersion.isEmpty()) {
+      return ImmutableList.of();
+    }
+
+    return getReadOnlyVersionedQuestionService(optionalPreviousVersion.get()).getAllQuestions();
   }
 }

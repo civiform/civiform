@@ -24,8 +24,8 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 public class UpsellControllerTest extends WithMockedProfiles {
 

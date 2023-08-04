@@ -31,10 +31,10 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
+import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.ScalarType;
 import support.ProgramBuilder;
-import support.QuestionAnswerer;
 
 @RunWith(JUnitParamsRunner.class)
 public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
@@ -57,7 +57,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     addressQuestion = testQuestionBank.applicantAddress().getQuestionDefinition();
     staticQuestion = testQuestionBank.staticContent().getQuestionDefinition();
     programDefinition =
-        ProgramBuilder.newDraftProgram("My Program")
+        ProgramBuilder.newDraftProgram("My Program setup")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
             .withBlock("Block one")
             .withRequiredQuestionDefinition(nameQuestion)
@@ -73,7 +73,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
         new ReadOnlyApplicantProgramServiceImpl(
             jsonPathPredicateGeneratorFactory, applicantData, programDefinition, FAKE_BASE_URL);
 
-    assertThat(subject.getProgramTitle()).isEqualTo("My Program");
+    assertThat(subject.getProgramTitle()).isEqualTo("My Program setup");
   }
 
   @Test

@@ -409,7 +409,7 @@ public final class ProgramIndexView extends BaseHtmlView {
       return Optional.empty();
     }
     String linkDestination =
-        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.id()).url();
+        routes.AdminProgramTranslationsController.redirectToFirstLocale(program.adminName()).url();
     ButtonTag button =
         makeSvgTextButton("Manage translations", Icons.LANGUAGE)
             .withId("program-translations-link-" + program.id())

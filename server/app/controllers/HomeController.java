@@ -1,9 +1,9 @@
 package controllers;
 
+import static auth.DefaultToGuestRedirector.createGuestSessionAndRedirect;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfile;
-import auth.GuestClient;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
@@ -49,8 +49,7 @@ public class HomeController extends Controller {
 
     // If the user isn't already logged in within their browser session, consider them a guest.
     if (maybeProfile.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url()));
+      return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
     }
 
     // Otherwise, get the profile and go to the appropriate landing page.
