@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
-import auth.ProfileUtils;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import java.util.Optional;
@@ -17,13 +16,12 @@ import models.DisplayMode;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
-
+import views.errors.NotFound;
 /**
  * Controller for handling methods for deep links. Applicants will be asked to sign-in before they
  * can access the page.
@@ -34,20 +32,22 @@ public final class DeepLinkController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
+  private final NotFound notFoundPage;
 
   @Inject
   public DeepLinkController(
-      HttpExecutionContext httpContext,
-      ApplicantService applicantService,
-      ProfileUtils profileUtils,
-      ProgramService programService,
-      VersionRepository versionRepository,
-      LanguageUtils languageUtils) {
+    play.libs.concurrent.HttpExecutionContext httpContext,
+    services.applicant.ApplicantService applicantService,
+    auth.ProfileUtils profileUtils,
+    services.program.ProgramService programService,
+    repository.VersionRepository versionRepository,
+    controllers.LanguageUtils languageUtils, NotFound notFoundPage) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
+    this.notFoundPage = checkNotNull(notFoundPage);
   }
 
   public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
@@ -85,7 +85,7 @@ public final class DeepLinkController extends CiviFormController {
                           .get()
                           .displayMode()
                           .equals(DisplayMode.DISABLED)){
-                          return CompletableFuture.completedFuture(notFound());
+                          return CompletableFuture.completedFuture(notFoundPage.render(request,"Program disabled. Please contact Admin."));
                         }
                         // Check to see if the applicant already has an application
                         // for this program, redirect to program version associated
