@@ -7,7 +7,6 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
@@ -86,7 +85,12 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Locale locale,
       String formAction,
       ImmutableList<DomContent> formFieldContent) {
-    String redirectUrl = controllers.admin.routes.AdminQuestionController.index().url();
+    String redirectUrl = "";
+    if (formAction.contains("program")) {
+      redirectUrl = controllers.admin.routes.AdminProgramController.index().url();
+    } else {
+      redirectUrl = controllers.admin.routes.AdminQuestionController.index().url();
+    }
     FormTag form =
         form()
             .withMethod("POST")
@@ -100,7 +104,6 @@ public abstract class TranslationFormView extends BaseHtmlView {
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button")
                     .withClasses(ButtonStyles.SOLID_BLUE),
-                span(),
                 div(a().withHref(redirectUrl)
                         .with(button("Back").withClasses(ButtonStyles.SOLID_BLUE)))
                     .withClasses("mt-4"));
