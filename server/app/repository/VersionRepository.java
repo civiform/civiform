@@ -426,19 +426,19 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
-    ImmutableList<QuestionDefinition> newActiveQuestionIds =
+    ImmutableList<QuestionDefinition> newActiveQuestions =
         activeVersion.getQuestions().stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
-    validateNoDuplicateQuestions(newActiveQuestionIds);
+    validateNoDuplicateQuestions(newActiveQuestions);
     ImmutableSet<Long> missingQuestionIds =
         activeVersion.getPrograms().stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
             .filter(
                 questionId ->
-                    !newActiveQuestionIds.stream()
+                    !newActiveQuestions.stream()
                         .map(questionDefinition -> questionDefinition.getId())
                         .collect(ImmutableSet.toImmutableSet())
                         .contains(questionId))
