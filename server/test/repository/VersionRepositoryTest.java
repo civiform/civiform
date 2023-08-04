@@ -834,8 +834,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThat(versionRepository.getDraftVersion()).isPresent();
   }
-  
-  
+
   @Test
   public void validateNoDuplicateQuestions_duplicatesThrowException() {
     QuestionDefinition firstQuestion =
