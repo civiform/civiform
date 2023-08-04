@@ -10,6 +10,7 @@ import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.IdQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
+import services.applicant.question.NullQuestion;
 import services.applicant.question.NumberQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Question;
@@ -34,7 +35,8 @@ public enum QuestionType {
   RADIO_BUTTON("Radio Button", SingleSelectQuestion.class),
   STATIC("Static Text", StaticContentQuestion.class),
   TEXT("Text Field", TextQuestion.class),
-  PHONE("Phone Field", PhoneQuestion.class);
+  PHONE("Phone Field", PhoneQuestion.class),
+  NULL_QUESTION("Missing Question", NullQuestion.class);
 
   private final String label;
   private final Class<? extends Question> supportedQuestion;

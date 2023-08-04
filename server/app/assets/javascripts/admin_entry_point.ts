@@ -14,6 +14,7 @@ import * as adminPrograms from './admin_programs'
 import * as adminProgramStatusesView from './admin_program_statuses_view'
 import * as adminSettingsView from './admin_settings_view'
 import * as adminValidation from './admin_validation'
+import * as apiDocs from './api_docs'
 import * as devIcons from './dev_icons'
 import * as modal from './modal'
 import * as questionBank from './questionBank'
@@ -43,6 +44,7 @@ window.addEventListener('load', () => {
   adminProgramStatusesView.init()
   adminSettingsView.init()
   adminValidation.init()
+  apiDocs.init()
   devIcons.init()
   modal.init()
   questionBank.init()

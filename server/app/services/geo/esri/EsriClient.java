@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -118,30 +119,15 @@ public abstract class EsriClient {
               ImmutableList.Builder<AddressSuggestion> suggestionBuilder = ImmutableList.builder();
               for (JsonNode candidateJson : json.get("candidates")) {
                 JsonNode location = candidateJson.get("location");
-                JsonNode attributes = candidateJson.get("attributes");
                 AddressLocation addressLocation =
                     AddressLocation.builder()
                         .setLongitude(location.get("x").asDouble())
                         .setLatitude(location.get("y").asDouble())
                         .setWellKnownId(wkid)
                         .build();
-                Address candidateAddress =
-                    Address.builder()
-                        .setStreet(attributes.get("Address").asText())
-                        .setLine2(
-                            attributes.get("SubAddr") == null || attributes.get("SubAddr").isEmpty()
-                                ? address.getLine2()
-                                : attributes.get("SubAddr").asText())
-                        .setCity(attributes.get("City").asText())
-                        .setState(
-                            attributes.get("RegionAbbr") == null
-                                    || attributes.get("RegionAbbr").isEmpty()
-                                ? address.getState()
-                                : attributes.get("RegionAbbr").asText())
-                        .setZip(attributes.get("Postal").asText())
-                        .build();
-                // Suggestion must be a fully formed address.
-                // Sometimes the esri service returns only a partially formed address.
+
+                Address candidateAddress = mapAddressAttributesJson(candidateJson, address);
+
                 if (candidateAddress.getStreet().isEmpty()
                     || candidateAddress.getCity().isEmpty()
                     || candidateAddress.getState().isEmpty()
@@ -177,6 +163,75 @@ public abstract class EsriClient {
               }
               return addressCandidates;
             });
+  }
+
+  /** Maps the JSON values within the node to an address */
+  @VisibleForTesting
+  static Address mapAddressAttributesJson(JsonNode candidateJson, Address address) {
+    JsonNode attributes = candidateJson.get("attributes");
+
+    return Address.builder()
+        .setStreet(getNodeTextValueOrEmpty(attributes, "Address"))
+        // If there is no value in SubAddr return the value the user entered. It may not be
+        // returned by the ESRI instance and we don't want to lose the value.
+        .setLine2(getNodeTextValueOrDefault(attributes, "SubAddr", address::getLine2))
+        .setCity(getNodeTextValueOrEmpty(attributes, "City"))
+        .setState(getStateAbbreviationFromAttributes(attributes, address))
+        .setZip(getNodeTextValueOrEmpty(attributes, "Postal"))
+        .build();
+  }
+
+  /**
+   * Get the state abbreviation from the attributes JSON node. On Public ESRI this is under the
+   * RegionAbbr field, but some custom implementations may have it under the Region field.
+   */
+  private static String getStateAbbreviationFromAttributes(JsonNode attributes, Address address) {
+    // Start with getting the value from the RegionAbbr, this is the
+    // default used by ESRI for state abbreviations
+    String result = getNodeTextValueOrEmpty(attributes, "RegionAbbr");
+
+    // Assume if it's not two characters it is either empty or the
+    // full state name and pull from the Region value
+    if (result.length() != 2) {
+      result = getNodeTextValueOrEmpty(attributes, "Region");
+    }
+
+    // If still not two characters default to originally selected state
+    if (result.length() != 2) {
+      result = address.getState();
+    }
+
+    return result;
+  }
+
+  /**
+   * Helper method to safely get the text value in a child JSON node or use the user specified
+   * default value
+   *
+   * @param parentJsonNode Parent node in which we search for children
+   * @param keyName The name of the specific JSON node to find
+   * @param getDefaultValue Takes a lambda what can be used to get a default value as a fallback if
+   *     the node is missing
+   * @return The text value of the node or default
+   */
+  private static String getNodeTextValueOrDefault(
+      JsonNode parentJsonNode, String keyName, Supplier<String> getDefaultValue) {
+    JsonNode childJsonNode = parentJsonNode.get(keyName);
+
+    return (childJsonNode == null || childJsonNode.isNull())
+        ? getDefaultValue.get()
+        : childJsonNode.asText();
+  }
+
+  /**
+   * Helper method to safely get the text value in a child JSON node
+   *
+   * @param parentJsonNode Parent node in which we search for children
+   * @param keyName The name of the specific JSON node to find
+   * @return The text value of the node or an empty string
+   */
+  private static String getNodeTextValueOrEmpty(JsonNode parentJsonNode, String keyName) {
+    return getNodeTextValueOrDefault(parentJsonNode, keyName, () -> "");
   }
 
   /**

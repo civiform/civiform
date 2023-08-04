@@ -99,6 +99,7 @@ public final class ProgramServiceImpl implements ProgramService {
   public ImmutableSet<String> getAllProgramSlugs() {
     return getAllProgramNames().stream()
         .map(MainModule.SLUGIFIER::slugify)
+        .sorted()
         .collect(ImmutableSet.toImmutableSet());
   }
 
@@ -156,6 +157,13 @@ public final class ProgramServiceImpl implements ProgramService {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
         .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+  }
+
+  @Override
+  public ProgramDefinition getDraftProgramDefinition(String programSlug)
+      throws ProgramDraftNotFoundException {
+    Program draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
+    return syncProgramAssociations(draftProgram).toCompletableFuture().join();
   }
 
   @Override

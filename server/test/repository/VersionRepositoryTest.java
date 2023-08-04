@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import models.LifecycleStage;
 import models.Program;
@@ -821,6 +822,21 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getDraftVersion_returnsEmptyIfDraftNotAvailable() {
+    assertThat(versionRepository.getDraftVersion()).isEmpty();
+  }
+
+  @Test
+  public void getDraftVersionOrCreate_createsDraftIfNotAvailable() {
+    assertThat(versionRepository.getDraftVersion()).isEmpty();
+
+    versionRepository.getDraftVersionOrCreate();
+
+    assertThat(versionRepository.getDraftVersion()).isPresent();
+  }
+  
+  
+  @Test
   public void validateNoDuplicateQuestions_duplicatesThrowException() {
     QuestionDefinition firstQuestion =
         resourceCreator.insertQuestion("first-question").getQuestionDefinition();
@@ -888,5 +904,22 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactlyInAnyOrder(
             secondQuestionUpdated.getQuestionDefinition().getName(),
             thirdQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
+  public void previousVersion_isFound() {
+    // Create first version
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version1).save();
+    version1.save();
+    versionRepository.publishNewSynchronizedVersion();
+    version1.refresh();
+
+    // Test finding previous version
+    Version activeVersion = versionRepository.getActiveVersion();
+    Optional<Version> previousVersion = versionRepository.getPreviousVersion(activeVersion);
+
+    assertThat(previousVersion.isPresent()).isTrue();
   }
 }

@@ -6,6 +6,8 @@ import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.iff;
+import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
 import static j2html.TagCreator.p;
@@ -38,6 +40,7 @@ import services.program.ProgramDefinition.Direction;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.StaticContentQuestionDefinition;
 import services.settings.SettingsManifest;
@@ -107,7 +110,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       Optional<ToastMessage> message,
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<QuestionDefinition> allPreviousVersionQuestions) {
     return render(
         request,
         program,
@@ -116,7 +120,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
         blockDefinition,
         blockDefinition.programQuestionDefinitions(),
         message,
-        questions);
+        questions,
+        allPreviousVersionQuestions);
   }
 
   public Content render(
@@ -127,7 +132,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockDefinition blockDefinition,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       Optional<ToastMessage> message,
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<QuestionDefinition> allPreviousVersionQuestions) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
 
     String title =
@@ -145,6 +151,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
         controllers.admin.routes.AdminProgramBlocksController.destroy(programId, blockId).url();
     Modal blockDeleteScreenModal =
         renderBlockDeleteModal(csrfTag, blockDeleteAction, blockDefinition);
+
+    boolean malformedQuestionDefinition =
+        programDefinition.getNonRepeatedBlockDefinitions().stream()
+            .anyMatch(BlockDefinition::hasNullQuestion);
 
     HtmlBundle htmlBundle =
         layout
@@ -164,7 +174,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                 div()
                                     .withClasses("flex")
                                     .with(renderEditButton(request, programDefinition))
-                                    .with(renderPreviewButton(programDefinition))),
+                                    .with(renderPreviewButton(programDefinition)))
+                            .with(
+                                iff(
+                                    malformedQuestionDefinition,
+                                    div(
+                                        p("If you see this file a bug with the CiviForm"
+                                              + " development team. Some questions are not"
+                                              + " pointing at the latest version. Edit the program"
+                                              + " and try republishing. ")
+                                            .withClasses("text-center", "text-red-500")))),
                         div()
                             .withClasses("flex", "flex-grow", "-mx-2")
                             .with(renderBlockOrderPanel(request, programDefinition, blockId))
@@ -175,6 +194,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                                     blockForm,
                                     blockQuestions,
                                     questions,
+                                    allPreviousVersionQuestions,
                                     blockDefinition.isEnumerator(),
                                     csrfTag,
                                     blockDescriptionEditModal.getButton(),
@@ -191,8 +211,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   programDefinition,
                   blockDefinition,
                   csrfTag,
-                  ProgramQuestionBank.shouldShowQuestionBank(request),
-                  settingsManifest.getPhoneQuestionTypeEnabled(request)))
+                  ProgramQuestionBank.shouldShowQuestionBank(request)))
           .addMainContent(addFormEndpoints(csrfTag, programDefinition.id(), blockId))
           .addModals(blockDescriptionEditModal, blockDeleteScreenModal);
     }
@@ -309,7 +328,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .with(
               a().withClasses("flex-grow", "overflow-hidden")
                   .withHref(switchBlockLink)
-                  .with(p(blockName), p(questionCountText).withClasses("text-sm")));
+                  .with(
+                      p(blockName)
+                          .withClass(iff(blockDefinition.hasNullQuestion(), "text-red-500")),
+                      p(questionCountText).withClasses("text-sm")));
       if (viewAllowsEditingProgram()) {
         DivTag moveButtons =
             renderBlockMoveButtons(
@@ -387,6 +409,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockForm blockForm,
       ImmutableList<ProgramQuestionDefinition> blockQuestions,
       ImmutableList<QuestionDefinition> allQuestions,
+      ImmutableList<QuestionDefinition> allPreviousVersionQuestions,
       boolean blockDefinitionIsEnumerator,
       InputTag csrfTag,
       ButtonTag blockDescriptionModalButton,
@@ -435,18 +458,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
     IntStream.range(0, blockQuestions.size())
         .forEach(
             index -> {
-              var question = blockQuestions.get(index);
+              ProgramQuestionDefinition question = blockQuestions.get(index);
+              QuestionDefinition questionDefinition =
+                  findQuestionDefinition(question, allPreviousVersionQuestions);
+
               programQuestions.with(
                   renderQuestion(
                       csrfTag,
                       program,
                       blockDefinition,
-                      question.getQuestionDefinition(),
+                      questionDefinition,
                       canDelete,
                       question.optional(),
                       question.addressCorrectionEnabled(),
                       index,
                       blockQuestions.size(),
+                      question.getQuestionDefinition() instanceof NullQuestionDefinition,
                       request));
             });
 
@@ -476,6 +503,28 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
       return div.with(programQuestions);
     }
+  }
+
+  /**
+   * Returns the QuestionDefinition to display. If we find a NullQuestionDefinition we will attempt
+   * to find it in the list of previous version questions.
+   *
+   * <p>If we still don't find the details we'll return the NullQuestionDefinition. The screen will
+   * render a box indicating there's an error, but won't have details to show
+   */
+  private QuestionDefinition findQuestionDefinition(
+      ProgramQuestionDefinition question,
+      ImmutableList<QuestionDefinition> allPreviousVersionQuestions) {
+    QuestionDefinition questionDefinition = question.getQuestionDefinition();
+
+    if (!(questionDefinition instanceof NullQuestionDefinition)) {
+      return questionDefinition;
+    }
+
+    var foundMissingQuestionDefinition =
+        allPreviousVersionQuestions.stream().filter(x -> x.getId() == question.id()).findFirst();
+
+    return foundMissingQuestionDefinition.orElse(questionDefinition);
   }
 
   private DivTag renderBlockPanelButtons(
@@ -617,14 +666,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean addressCorrectionEnabled,
       int questionIndex,
       int questionsCount,
+      boolean malformedQuestionDefinition,
       Request request) {
     DivTag ret =
         div()
             .withClasses(
                 ReferenceClasses.PROGRAM_QUESTION,
                 "my-2",
-                "border",
-                "border-gray-200",
+                iffElse(malformedQuestionDefinition, "border-2", "border"),
+                iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
                 "px-4",
                 "py-2",
                 "flex",
@@ -639,10 +689,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
         questionDefinition.getQuestionHelpText().isEmpty()
             ? ""
             : questionDefinition.getQuestionHelpText().getDefault();
+
     DivTag content =
         div()
             .withClass("flex-grow")
             .with(
+                iff(
+                    malformedQuestionDefinition,
+                    p("This is not pointing at the latest version")
+                        .withClasses("text-red-500", "font-bold")),
+                iff(
+                    malformedQuestionDefinition,
+                    p("Edit the program and try republishing").withClass("text-red-500")),
                 p(questionDefinition.getQuestionText().getDefault()),
                 p(questionHelpText).withClasses("mt-1", "text-sm"),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
@@ -996,8 +1054,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       InputTag csrfTag,
-      ProgramQuestionBank.Visibility questionBankVisibility,
-      boolean phoneQuestionTypeEnabled) {
+      ProgramQuestionBank.Visibility questionBankVisibility) {
     String addQuestionAction =
         controllers.admin.routes.AdminProgramBlockQuestionsController.create(
                 program.id(), blockDefinition.id())
@@ -1019,7 +1076,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .setQuestionCreateRedirectUrl(redirectUrl)
                 .build(),
             programBlockValidationFactory);
-    return qb.getContainer(questionBankVisibility, phoneQuestionTypeEnabled);
+    return qb.getContainer(questionBankVisibility);
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */

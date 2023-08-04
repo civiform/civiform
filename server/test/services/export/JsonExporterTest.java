@@ -31,12 +31,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertLengthOf(3);
@@ -113,12 +111,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].create_time", "2022/04/09 3:07:02 AM PDT");
@@ -131,12 +127,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgramWithEnumerator.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgramWithEnumerator.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
 
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
@@ -180,7 +174,46 @@ public class JsonExporterTest extends AbstractExporterTest {
         "$[" + resultIndex + "].applicant_id", application.getApplicant().id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].application_id", application.id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].language", "en-US");
-    resultAsserter.assertValueAtPath("$[" + resultIndex + "].submitter_email", "Applicant");
+  }
+
+  @Test
+  public void export_whenSubmitterIsTi_tiTopLevelFieldsAreSet() {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram)
+        .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].submitter_type", "TRUSTED_INTERMEDIARY");
+    resultAsserter.assertValueAtPath("$[0].ti_email", "ti@trusted_intermediaries.org");
+    resultAsserter.assertValueAtPath("$[0].ti_organization", "TIs Inc.");
+  }
+
+  @Test
+  public void export_whenSubmitterIsApplicant_tiTopLevelFieldsAreNotSet() {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].submitter_type", "APPLICANT");
+    resultAsserter.assertNullValueAtPath("$[0].ti_email");
+    resultAsserter.assertNullValueAtPath("$[0].ti_organization");
   }
 
   @Test
@@ -195,12 +228,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(".applicant_address.street", "12345 E South St");
@@ -220,12 +251,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_address.street");
@@ -251,12 +280,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(
@@ -273,12 +300,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(".kitchen_tools.selections", ImmutableList.of());
@@ -294,12 +319,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(
@@ -316,12 +339,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_monthly_income.currency_dollars");
@@ -337,12 +358,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(".applicant_birth_date.date", "2015-10-21");
@@ -358,12 +377,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_birth_date.date");
@@ -381,12 +398,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(
@@ -403,12 +418,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_email_address.email");
@@ -424,12 +437,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(".number_of_items_applicant_can_juggle.number", 42);
@@ -445,12 +456,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".number_of_items_applicant_can_juggle.number");
@@ -466,12 +475,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtApplicationPath(".applicant_phone.phone_number", "+15558675309");
@@ -487,12 +494,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertNullValueAtApplicationPath(".applicant_phone.phone_number");
@@ -512,12 +517,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -545,12 +548,10 @@ public class JsonExporterTest extends AbstractExporterTest {
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String resultJsonString =
-        exporter
-            .export(
-                fakeProgram.getProgramDefinition(),
-                IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
-                SubmittedApplicationFilter.EMPTY)
-            .getLeft();
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertJsonAtApplicationPath(
@@ -567,13 +568,13 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void getResponseJson_wrapsPayloadCorrectly() {
+  public void wrapPayloadJson_wrapsPayloadCorrectly() {
     String payload = "{\"United States\":{\"New York State\":[\"New York City\", \"Albany\"]}}";
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
     String result =
-        exporter.getResponseJson(payload, /* paginationTokenPayload= */ Optional.empty());
+        exporter.wrapPayloadJson(payload, /* paginationTokenPayload= */ Optional.empty());
 
     assertThat(asPrettyJsonString(result))
         .isEqualTo(

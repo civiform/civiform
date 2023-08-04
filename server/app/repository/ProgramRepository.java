@@ -34,6 +34,7 @@ import services.PaginationResult;
 import services.Path;
 import services.WellKnownPaths;
 import services.program.ProgramDefinition;
+import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -157,20 +158,31 @@ public final class ProgramRepository {
   public CompletableFuture<Program> getActiveProgramFromSlug(String slug) {
     return supplyAsync(
         () -> {
-          for (Program program : database.find(Program.class).where().isNull("slug").findList()) {
-            program.getSlug();
-            program.save();
-          }
           ImmutableList<Program> activePrograms =
               versionRepository.get().getActiveVersion().getPrograms();
-          List<Program> programsMatchingSlug =
-              database.find(Program.class).where().eq("slug", slug).findList();
           return activePrograms.stream()
-              .filter(programsMatchingSlug::contains)
+              .filter(activeProgram -> activeProgram.getSlug().equals(slug))
               .findFirst()
               .orElseThrow(() -> new RuntimeException(new ProgramNotFoundException(slug)));
         },
         executionContext.current());
+  }
+
+  /** Get the current draft program with the provided slug. */
+  public Program getDraftProgramFromSlug(String slug) throws ProgramDraftNotFoundException {
+
+    Optional<Version> version = versionRepository.get().getDraftVersion();
+
+    if (version.isEmpty()) {
+      throw new ProgramDraftNotFoundException(slug);
+    }
+
+    ImmutableList<Program> draftPrograms = version.get().getPrograms();
+
+    return draftPrograms.stream()
+        .filter(draftProgram -> draftProgram.getSlug().equals(slug))
+        .findFirst()
+        .orElseThrow(() -> new ProgramDraftNotFoundException(slug));
   }
 
   public ImmutableList<Account> getProgramAdministrators(String programName) {

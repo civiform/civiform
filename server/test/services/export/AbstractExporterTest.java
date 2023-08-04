@@ -143,6 +143,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case STATIC:
         // Do nothing.
         break;
+      case NULL_QUESTION:
+        // Do nothing.
     }
   }
 
@@ -549,11 +551,19 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Account admin;
     Applicant applicant;
     Program program;
+    Optional<Account> trustedIntermediary = Optional.empty();
 
     public FakeApplicationFiller(Program program) {
-      this.admin = resourceCreator.insertAccount();
-      this.applicant = resourceCreator.insertApplicantWithAccount();
       this.program = program;
+      this.applicant = resourceCreator.insertApplicantWithAccount();
+      this.admin = resourceCreator.insertAccount();
+    }
+
+    public FakeApplicationFiller byTrustedIntermediary(String tiEmail, String tiOrganization) {
+      var tiGroup = resourceCreator.insertTiGroup(tiOrganization);
+      this.trustedIntermediary = Optional.of(resourceCreator.insertAccountWithEmail(tiEmail));
+      this.applicant.getAccount().setManagedByGroup(tiGroup).save();
+      return this;
     }
 
     public FakeApplicationFiller answerAddressQuestion(
@@ -681,6 +691,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     public Application submit() {
       Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
       application.setApplicantData(applicant.getApplicantData());
+      trustedIntermediary.ifPresent(
+          account -> application.setSubmitterEmail(account.getEmailAddress()));
       application.save();
 
       // CreateTime of an application is set through @onCreate to Instant.now(). To change

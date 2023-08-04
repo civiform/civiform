@@ -29,6 +29,11 @@ public class QuestionConfigTest {
   @Test
   @Parameters(source = QuestionType.class)
   public void resultForAllQuestions(QuestionType questionType) throws Exception {
+    // A null question type is not allowed to be created and won't show in the list
+    if (questionType == QuestionType.NULL_QUESTION) {
+      return;
+    }
+
     QuestionForm questionForm = QuestionFormBuilder.create(questionType);
     Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(questionForm, messages);
     switch (questionType) {

@@ -11,7 +11,8 @@ import javax.inject.Inject;
 import services.CfJsonDocumentContext;
 import services.DeploymentType;
 import services.Path;
-import services.export.JsonExporter.JsonExportData;
+import services.export.JsonExporter.ApplicationJsonExportData;
+import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions.Status;
 import services.question.types.QuestionDefinition;
@@ -22,6 +23,7 @@ public final class ProgramJsonSampler {
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
   private final JsonExporter jsonExporter;
   private final DeploymentType deploymentType;
+  private static final String EMPTY_VALUE = "";
 
   @Inject
   ProgramJsonSampler(
@@ -38,8 +40,8 @@ public final class ProgramJsonSampler {
    * the API response looks like.
    */
   public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
-    JsonExportData.Builder jsonExportData =
-        JsonExportData.builder()
+    ApplicationJsonExportData.Builder jsonExportData =
+        ApplicationJsonExportData.builder()
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
             .setStatus(
@@ -53,7 +55,9 @@ public final class ProgramJsonSampler {
             // Program ID changes on each browser test run, so set it to a constant
             // for those tests, otherwise to the actual program ID.
             .setLanguageTag(Locale.US.toLanguageTag())
-            .setSubmitterEmail("homer.simpson@springfield.gov")
+            .setSubmitterType(SubmitterType.APPLICANT)
+            .setTiEmail(EMPTY_VALUE)
+            .setTiOrganization(EMPTY_VALUE)
             .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
             .setSubmitTime(Instant.ofEpochSecond(1685133975)); // May 26, 2023 4:46 pm EDT
 
@@ -70,6 +74,6 @@ public final class ProgramJsonSampler {
       jsonExportData.addApplicationEntries(questionEntries);
     }
 
-    return jsonExporter.buildJsonApplication(jsonExportData.build());
+    return jsonExporter.buildMultiApplicationJson(ImmutableList.of(jsonExportData.build()));
   }
 }

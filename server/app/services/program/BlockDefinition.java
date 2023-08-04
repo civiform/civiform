@@ -225,6 +225,18 @@ public abstract class BlockDefinition {
     return programQuestionDefinitions().size();
   }
 
+  /**
+   * Returns true if any of the question definitions in this block are QuestionType.NULL_QUESTION
+   */
+  @JsonIgnore
+  @Memoized
+  public boolean hasNullQuestion() {
+    return programQuestionDefinitions().stream()
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .map(QuestionDefinition::getQuestionType)
+        .anyMatch(questionType -> questionType.equals(QuestionType.NULL_QUESTION));
+  }
+
   @AutoValue.Builder
   public abstract static class Builder {
 

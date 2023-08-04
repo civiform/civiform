@@ -25,7 +25,6 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.ViewUtils;
-import views.style.BaseStyles;
 
 /**
  * The TextFormatter class introduces options for converting plain-text strings into richer HTML
@@ -113,7 +112,8 @@ public final class TextFormatter {
       var urlTag =
           a().withText(url.getOriginalUrl())
               .withHref(url.getFullUrl())
-              .withClasses(BaseStyles.TEXT_SEATTLE_BLUE);
+              .withClasses(
+                  "text-blue-900", "font-bold", "opacity-75", "underline", "hover:opacity-100");
 
       if (urlOpenAction == UrlOpenAction.NewTab) {
         urlTag
@@ -178,11 +178,11 @@ public final class TextFormatter {
   private static DivTag buildAccordion(String title, String accordionContent) {
     Accordion accordion = new Accordion().setTitle(title);
     ImmutableList<DomContent> contentTags = TextFormatter.formatText(accordionContent, true);
-    contentTags.stream().forEach(accordion::addContent);
+    contentTags.forEach(accordion::addContent);
     return accordion.getContainer();
   }
 
-  private static UlTag buildList(ArrayList<String> items) {
+  private static UlTag buildList(List<String> items) {
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
     items.forEach(item -> listTag.with(li().withText(item)));
     return listTag;

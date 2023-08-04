@@ -6,6 +6,7 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import forms.BlockForm;
 import java.util.Optional;
@@ -249,7 +250,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
     return ok(
         editView.render(
-            request, program, block, message, roQuestionService.getUpToDateQuestions()));
+            request,
+            program,
+            block,
+            message,
+            roQuestionService.getUpToDateQuestions(),
+            ImmutableList.of()));
   }
 
   private Result renderReadOnlyViewWithMessage(
@@ -257,9 +263,13 @@ public final class AdminProgramBlocksController extends CiviFormController {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    var allQuestions = roQuestionService.getUpToDateQuestions();
+    var allPreviousVersionQuestions =
+        questionService.getAllPreviousVersionQuestions(versionRepository.getActiveVersion());
+
     return ok(
         readOnlyView.render(
-            request, program, block, Optional.empty(), roQuestionService.getUpToDateQuestions()));
+            request, program, block, Optional.empty(), allQuestions, allPreviousVersionQuestions));
   }
 
   private Result renderEditViewWithMessage(
@@ -282,7 +292,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               blockDefinition,
               blockDefinition.programQuestionDefinitions(),
               message,
-              roQuestionService.getUpToDateQuestions()));
+              roQuestionService.getUpToDateQuestions(),
+              ImmutableList.of()));
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(e.toString());
     }

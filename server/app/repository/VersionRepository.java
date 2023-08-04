@@ -288,17 +288,23 @@ public final class VersionRepository {
     }
   }
 
+  /** Get the current draft version. Empty optional if not available. */
+  public Optional<Version> getDraftVersion() {
+    return database
+        .find(Version.class)
+        .where()
+        .eq("lifecycle_stage", LifecycleStage.DRAFT)
+        .findOneOrEmpty();
+  }
+
   /** Get the current draft version. Creates it if one does not exist. */
   public Version getDraftVersionOrCreate() {
-    Optional<Version> version =
-        database
-            .find(Version.class)
-            .where()
-            .eq("lifecycle_stage", LifecycleStage.DRAFT)
-            .findOneOrEmpty();
+    Optional<Version> version = getDraftVersion();
+
     if (version.isPresent()) {
       return version.get();
     }
+
     // Suspends any existing thread-local transaction if one exists.
     // This method is often called by two portions of the same outer transaction, microseconds
     // apart.  It's extremely important that there only ever be one draft version, so we need the
@@ -343,6 +349,28 @@ public final class VersionRepository {
         .where()
         .eq("lifecycle_stage", LifecycleStage.ACTIVE)
         .findOne();
+  }
+
+  /**
+   * Returns the previous version to the one passed in. If there is only one version there isn't a
+   * previous version so the Optional result will be empty.
+   *
+   * <p>This can return active or obsolete versions. Versions flagged as deleted are excluded.
+   */
+  public Optional<Version> getPreviousVersion(Version version) {
+    Version previousVersion =
+        database
+            .find(Version.class)
+            .where()
+            .lt("id", version.id)
+            .not()
+            .eq("lifecycle_stage", LifecycleStage.DELETED)
+            .orderBy()
+            .desc("id")
+            .setMaxRows(1)
+            .findOne();
+
+    return Optional.ofNullable(previousVersion);
   }
 
   /**

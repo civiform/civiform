@@ -73,7 +73,8 @@ public class ApiDocsView extends BaseHtmlView {
 
   public Content render(
       Http.Request request,
-      ProgramDefinition programDefinition,
+      String selectedProgramSlug,
+      Optional<ProgramDefinition> programDefinition,
       ImmutableSet<String> allProgramSlugs) {
 
     BaseHtmlLayout layout =
@@ -83,31 +84,45 @@ public class ApiDocsView extends BaseHtmlView {
         layout
             .getBundle(request)
             .setTitle("API Docs")
-            .addMainContent(contentDiv(programDefinition, allProgramSlugs, request))
+            .addMainContent(
+                contentDiv(selectedProgramSlug, programDefinition, allProgramSlugs, request))
             .addMainStyles("overflow-hidden");
 
     return layout.render(bundle);
   }
 
   private DivTag contentDiv(
-      ProgramDefinition programDefinition,
+      String selectedProgramSlug,
+      Optional<ProgramDefinition> programDefinition,
       ImmutableSet<String> allProgramSlugs,
       Http.Request request) {
 
     SelectTag slugsDropdown =
         select()
             .withId("select-slug")
-            .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "ml-2")
-            .attr("onchange", "window.location.href = '/api/docs/v1/' + this.value");
-
+            .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "mx-2");
     allProgramSlugs.forEach(
         (String slug) -> {
           OptionTag slugOption = option(slug).withValue(slug);
-          if (programDefinition.slug().equals(slug)) {
+          if (selectedProgramSlug.equals(slug)) {
             slugOption.isSelected();
           }
           slugsDropdown.with(slugOption);
         });
+
+    SelectTag versionsDropdown =
+        select()
+            .withId("select-version")
+            .withClasses("border", "border-gray-300", "rounded-lg", "p-2", "mx-2")
+            .with(
+                option("Active")
+                    .withValue("active")
+                    .withCondSelected(request.uri().contains("/active")))
+            .with(
+                option("Draft")
+                    .withValue("draft")
+                    .withCondSelected(request.uri().contains("/draft")));
+
     DivTag divTag =
         div()
             .withClasses("flex", "flex-col", "flex-grow")
@@ -120,24 +135,30 @@ public class ApiDocsView extends BaseHtmlView {
                 div()
                     .withClasses("flex", "flex-row", "items-center", "mx-6")
                     .with(text("Select a program:   "))
-                    .with(slugsDropdown));
+                    .with(slugsDropdown)
+                    .with(text("Select version:   "))
+                    .with(versionsDropdown));
 
     DivTag fullProgramDiv = div();
-    fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
-    DivTag leftSide = div().withClasses("w-full", "flex-grow");
-    leftSide.with(h1("Questions").withClasses("pl-4"));
-    leftSide.with(programDocsDiv(programDefinition));
+    if (programDefinition.isEmpty()) {
+      fullProgramDiv.with(h1("Program and version not found").withClasses("mx-5", "my-10"));
+    } else {
+      fullProgramDiv.withClasses("flex", "flex-row", "gap-4", "m-4");
 
-    DivTag rightSide = div().withClasses("w-full flex-grow");
-    rightSide.with(h1("API Response Preview").withClasses("pl-4"));
-    rightSide.with(apiResponseSampleDiv(programDefinition));
+      DivTag leftSide = div().withClasses("w-full", "flex-grow");
+      leftSide.with(h1("Questions").withClasses("pl-4"));
+      leftSide.with(programDocsDiv(programDefinition.get()));
 
-    fullProgramDiv.with(leftSide);
-    fullProgramDiv.with(rightSide);
+      DivTag rightSide = div().withClasses("w-full flex-grow");
+      rightSide.with(h1("API Response Preview").withClasses("pl-4"));
+      rightSide.with(apiResponseSampleDiv(programDefinition.get()));
+
+      fullProgramDiv.with(leftSide);
+      fullProgramDiv.with(rightSide);
+    }
 
     divTag.with(fullProgramDiv);
-
     return divTag;
   }
 
@@ -147,7 +168,7 @@ public class ApiDocsView extends BaseHtmlView {
 
     String sampleJsonString = sampleJson.asJsonString();
     String fullJsonResponsePreview =
-        jsonExporter.getResponseJson(
+        jsonExporter.wrapPayloadJson(
             sampleJsonString, /* paginationTokenPayload= */ Optional.empty());
     String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
 
