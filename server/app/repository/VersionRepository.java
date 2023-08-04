@@ -461,7 +461,8 @@ public final class VersionRepository {
   }
 
   /** Validate there are no duplicate question names. */
-  private void validateNoDuplicateQuestions(ImmutableList<QuestionDefinition> questionList) {
+  @VisibleForTesting
+  void validateNoDuplicateQuestions(ImmutableList<QuestionDefinition> questionList) {
     Set<String> uniqueActiveQuestionNames = new HashSet<>();
     for (QuestionDefinition question : questionList) {
       if (!uniqueActiveQuestionNames.add(question.getName())) {
