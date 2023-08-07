@@ -184,7 +184,8 @@ public final class JsonExporter {
                     submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
     jsonApplication.putString(
-        Path.create("lifecycle_stage"), applicationJsonExportData.lifecycleStage().toString());
+        Path.create("submission_status"),
+        applicationJsonExportData.lifecycleStage().getSubmissionStatus().orElse(""));
 
     Path statusPath = Path.create("status");
     applicationJsonExportData

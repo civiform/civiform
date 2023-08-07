@@ -175,7 +175,8 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].application_id", application.id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].language", "en-US");
     resultAsserter.assertValueAtPath(
-        "$[" + resultIndex + "].lifecycle_stage", application.getLifecycleStage().toString());
+        "$[" + resultIndex + "].submission_status",
+        application.getLifecycleStage().getSubmissionStatus().orElse(""));
   }
 
   @Test
