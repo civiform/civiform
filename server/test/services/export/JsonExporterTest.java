@@ -177,10 +177,10 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void export_tiTopLevelFieldsAreSetWhenSubmitterIsTi() {
+  public void export_whenSubmitterIsTi_tiTopLevelFieldsAreSet() {
     var fakeProgram = new FakeProgramBuilder().build();
     new FakeApplicationFiller(fakeProgram)
-        .byTrustedIntermediary("ti@trusted_intermediarys.org", "TIs Inc.")
+        .byTrustedIntermediary("ti@trusted_intermediaries.org", "TIs Inc.")
         .submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
@@ -193,12 +193,12 @@ public class JsonExporterTest extends AbstractExporterTest {
     ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
 
     resultAsserter.assertValueAtPath("$[0].submitter_type", "TRUSTED_INTERMEDIARY");
-    resultAsserter.assertValueAtPath("$[0].ti_email", "ti@trusted_intermediarys.org");
+    resultAsserter.assertValueAtPath("$[0].ti_email", "ti@trusted_intermediaries.org");
     resultAsserter.assertValueAtPath("$[0].ti_organization", "TIs Inc.");
   }
 
   @Test
-  public void export_tiTopLevelFieldsAreNotSetWhenSubmitterIsApplicant() {
+  public void export_whenSubmitterIsApplicant_tiTopLevelFieldsAreNotSet() {
     var fakeProgram = new FakeProgramBuilder().build();
     new FakeApplicationFiller(fakeProgram).submit();
 
