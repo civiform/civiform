@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import akka.stream.Materializer;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
@@ -17,13 +18,13 @@ import services.settings.SettingsService;
  */
 public final class SettingsFilter extends EssentialFilter {
 
-  private final SettingsService settingsService;
+  private final Provider<SettingsService> settingsService;
   private final Materializer materializer;
   private final SettingsManifest settingsManifest;
 
   @Inject
   public SettingsFilter(
-      SettingsService settingsService,
+      Provider<SettingsService> settingsService,
       Materializer materializer,
       SettingsManifest settingsManifest) {
     this.settingsService = checkNotNull(settingsService);
@@ -41,6 +42,7 @@ public final class SettingsFilter extends EssentialFilter {
         (Http.RequestHeader request) ->
             Accumulator.flatten(
                 settingsService
+                    .get()
                     .applySettingsToRequest(request)
                     .thenApply(modifiedRequest -> next.apply(modifiedRequest)),
                 materializer));
