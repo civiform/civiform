@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+
+import models.LifecycleStage;
 import services.CfJsonDocumentContext;
 import services.DeploymentType;
 import services.Path;
@@ -56,6 +58,7 @@ public final class ProgramJsonSampler {
             // for those tests, otherwise to the actual program ID.
             .setLanguageTag(Locale.US.toLanguageTag())
             .setSubmitterType(SubmitterType.APPLICANT)
+            .setLifecycleStage(LifecycleStage.ACTIVE)
             .setTiEmail(EMPTY_VALUE)
             .setTiOrganization(EMPTY_VALUE)
             .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT
