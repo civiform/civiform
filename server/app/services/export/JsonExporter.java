@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import models.LifecycleStage;
 import models.TrustedIntermediaryGroup;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
@@ -149,6 +150,7 @@ public final class JsonExporter {
                     .orElse(EMPTY_VALUE))
             .setSubmitTime(application.getSubmitTime())
             .setStatus(application.getLatestStatus())
+            .setLifecycleStage(application.getLifecycleStage())
             .addApplicationEntries(entriesBuilder.build())
             .build();
 
@@ -181,6 +183,8 @@ public final class JsonExporter {
                 jsonApplication.putString(
                     submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
+    jsonApplication.putString(
+        Path.create("lifecycle_stage"), applicationJsonExportData.lifecycleStage().toString());
 
     Path statusPath = Path.create("status");
     applicationJsonExportData
@@ -312,6 +316,8 @@ public final class JsonExporter {
 
     public abstract Optional<String> status();
 
+    public abstract LifecycleStage lifecycleStage();
+
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
@@ -342,6 +348,8 @@ public final class JsonExporter {
       public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
       public abstract Builder setStatus(Optional<String> status);
+
+      public abstract Builder setLifecycleStage(LifecycleStage lifecycleStage);
 
       abstract ImmutableMap.Builder<Path, Optional<?>> applicationEntriesBuilder();
 
