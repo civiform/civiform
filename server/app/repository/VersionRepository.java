@@ -18,6 +18,7 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -453,15 +454,22 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
-    ImmutableSet<Long> newActiveQuestionIds =
+    ImmutableList<QuestionDefinition> newActiveQuestions =
         activeVersion.getQuestions().stream()
-            .map(question -> question.getQuestionDefinition().getId())
-            .collect(ImmutableSet.toImmutableSet());
+            .map(question -> question.getQuestionDefinition())
+            .collect(ImmutableList.toImmutableList());
+    // Check there aren't any duplicate questions in the new active version
+    validateNoDuplicateQuestions(newActiveQuestions);
     ImmutableSet<Long> missingQuestionIds =
         activeVersion.getPrograms().stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
-            .filter(questionId -> !newActiveQuestionIds.contains(questionId))
+            .filter(
+                questionId ->
+                    !newActiveQuestions.stream()
+                        .map(questionDefinition -> questionDefinition.getId())
+                        .collect(ImmutableSet.toImmutableSet())
+                        .contains(questionId))
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
       ImmutableSet<Long> programIdsMissingQuestions =
@@ -477,6 +485,21 @@ public final class VersionRepository {
               "Illegal state encountered when attempting to publish a new version. Question IDs"
                   + " %s found in program definitions %s not found in new active version.",
               missingQuestionIds, programIdsMissingQuestions));
+    }
+  }
+
+  /** Validate there are no duplicate question names. */
+  @VisibleForTesting
+  void validateNoDuplicateQuestions(ImmutableList<QuestionDefinition> questionList) {
+    Set<String> uniqueActiveQuestionNames = new HashSet<>();
+    for (QuestionDefinition question : questionList) {
+      if (!uniqueActiveQuestionNames.add(question.getName())) {
+        throw new IllegalStateException(
+            String.format(
+                "Illegal state encountered when attempting to publish a new version. Question"
+                    + " %s found more than once in the new active version.",
+                question.getName()));
+      }
     }
   }
 
