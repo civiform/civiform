@@ -22,17 +22,6 @@ public enum LifecycleStage {
     this.stage = stage;
   }
 
-  public Optional<String> getSubmissionStatus() {
-    switch (this) {
-      case ACTIVE:
-        return Optional.of("CURRENT");
-      case OBSOLETE:
-        return Optional.of("OBSOLETE");
-      default:
-        return Optional.empty();
-    }
-  }
-
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {
     return this.stage;

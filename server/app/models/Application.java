@@ -117,6 +117,24 @@ public class Application extends BaseModel {
     return this.lifecycleStage;
   }
 
+  /**
+   * Returns a string representing the submission status of an application. The returned string is
+   * independent of any configured program-specific status values. Used for API exports.
+   */
+  public String getSubmissionStatus() {
+    switch (this.getLifecycleStage()) {
+      case DRAFT:
+        return "NOT_SUBMITTED";
+      case ACTIVE:
+        return "CURRENT";
+      case OBSOLETE:
+        return "OBSOLETE";
+      case DELETED:
+        return "DELETED";
+    }
+    return "UNKNOWN";
+  }
+
   public Instant getSubmitTime() {
     return this.submitTime;
   }
