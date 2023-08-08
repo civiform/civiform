@@ -120,9 +120,9 @@ public class ApplicationTest extends ResetPostgres {
   @Test
   public void submissionStatusHasExpectedValue() {
     Program program =
-      ProgramBuilder.newActiveProgram("test program", "description")
-        .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
-        .build();
+        ProgramBuilder.newActiveProgram("test program", "description")
+            .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+            .build();
 
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());
