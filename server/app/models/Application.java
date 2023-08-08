@@ -131,8 +131,9 @@ public class Application extends BaseModel {
         return "OBSOLETE";
       case DELETED:
         return "DELETED";
+      default:
+        return "UNKNOWN";
     }
-    return "UNKNOWN";
   }
 
   public Instant getSubmitTime() {
