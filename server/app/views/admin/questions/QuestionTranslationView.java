@@ -73,7 +73,9 @@ public final class QuestionTranslationView extends TranslationFormView {
       inputFieldsBuilder.add(questionTypeSpecificContent.get());
     }
 
-    FormTag form = renderTranslationForm(request, locale, formAction, inputFieldsBuilder.build());
+    FormTag form =
+        renderTranslationForm(
+            request, locale, formAction, inputFieldsBuilder.build(), /* isProgramEdit= */ false);
 
     String title = String.format("Manage Question Translations: %s", question.getName());
 

@@ -84,30 +84,33 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Http.Request request,
       Locale locale,
       String formAction,
-      ImmutableList<DomContent> formFieldContent) {
-    String redirectUrl = 
-      formAction.contains("program")) 
-        ? controllers.admin.routes.AdminProgramController.index().url() 
-        : controllers.admin.routes.AdminQuestionController.index().url();
+      ImmutableList<DomContent> formFieldContent,
+      boolean isProgramEdit) {
+    String redirectUrl =
+        isProgramEdit
+            ? controllers.admin.routes.AdminProgramController.index().url()
+            : controllers.admin.routes.AdminQuestionController.index().url();
     FormTag form =
         form()
             .withMethod("POST")
             .with(makeCsrfTokenInputTag(request))
             .withAction(formAction)
             .with(formFieldContent)
-            .with(
+            .with(div().withClasses("flex","flex-row","gap-x-2")
+              .with(
+                a().withHref(redirectUrl)
+                  .with(
+                    button("Back")
+                      .withId("back-to-list-button")
+                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)),
                 submitButton(
                         String.format(
                             "Save %s updates",
                             locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
                     .withId("update-localizations-button")
-                    .withClasses(ButtonStyles.SOLID_BLUE),
-                div(a().withHref(redirectUrl)
-                        .with(
-                            button("Back")
-                                .withId("back-to-edit")
-                                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)))
-                    .withClasses("mt-4"));
+                    .withClasses(ButtonStyles.SOLID_BLUE)
+               )
+            );
     return form;
   }
 
