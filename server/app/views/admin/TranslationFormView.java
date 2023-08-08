@@ -85,12 +85,10 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Locale locale,
       String formAction,
       ImmutableList<DomContent> formFieldContent) {
-    String redirectUrl = "";
-    if (formAction.contains("program")) {
-      redirectUrl = controllers.admin.routes.AdminProgramController.index().url();
-    } else {
-      redirectUrl = controllers.admin.routes.AdminQuestionController.index().url();
-    }
+    String redirectUrl = 
+      formAction.contains("program")) 
+        ? controllers.admin.routes.AdminProgramController.index().url() 
+        : controllers.admin.routes.AdminQuestionController.index().url();
     FormTag form =
         form()
             .withMethod("POST")
