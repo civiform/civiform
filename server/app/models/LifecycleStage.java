@@ -2,7 +2,6 @@ package models;
 
 import io.ebean.annotation.DbEnumType;
 import io.ebean.annotation.DbEnumValue;
-import java.util.Optional;
 
 /**
  * Represents a stage in a model's lifecycle.
