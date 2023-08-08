@@ -13,15 +13,18 @@ import env_var_docs.errors_formatter
 from jinja2 import Environment, PackageLoader, select_autoescape
 from env_var_docs.parser import Variable, Mode, Node, Group, NodeParseError, visit
 from io import StringIO
+# Needed for <3.10
 from typing import Union
+# Needed for <3.9
+from typing import Dict, List, Tuple
 
 
 @dataclasses.dataclass
 class ParsedGroup:
     group_name: str
     group_description: str
-    sub_groups: list['ParsedGroup'] = dataclasses.field(default_factory=list)
-    variables: dict[str, Variable] = dataclasses.field(default_factory=dict)
+    sub_groups: List['ParsedGroup'] = dataclasses.field(default_factory=list)
+    variables: Dict[str, Variable] = dataclasses.field(default_factory=dict)
 
 
 @dataclasses.dataclass
@@ -184,10 +187,10 @@ class GetterMethodSpec:
 
 def generate_manifest(
         docs_file: typing.TextIO
-) -> tuple[Union[str, None], list[NodeParseError]]:
+) -> Tuple[Union[str, None], List[NodeParseError]]:
     root_group = ParsedGroup("Miscellaneous", "Miscellaneous")
-    docs: dict[str, Union[ParsedGroup, Variable]] = {"file": root_group}
-    getter_method_specs: list[GetterMethodSpec] = []
+    docs: Dict[str, Union[ParsedGroup, Variable]] = {"file": root_group}
+    getter_method_specs: List[GetterMethodSpec] = []
 
     def visitor(node: Node):
         nonlocal docs
