@@ -105,7 +105,10 @@ public abstract class TranslationFormView extends BaseHtmlView {
                     .withId("update-localizations-button")
                     .withClasses(ButtonStyles.SOLID_BLUE),
                 div(a().withHref(redirectUrl)
-                        .with(button("Back").withClasses(ButtonStyles.SOLID_BLUE)))
+                        .with(
+                            button("Back")
+                                .withId("back-to-edit")
+                                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)))
                     .withClasses("mt-4"));
     return form;
   }
