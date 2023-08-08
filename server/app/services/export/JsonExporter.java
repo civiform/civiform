@@ -149,7 +149,7 @@ public final class JsonExporter {
                     .orElse(EMPTY_VALUE))
             .setSubmitTime(application.getSubmitTime())
             .setStatus(application.getLatestStatus())
-            .setSubmissionStatus(application.getSubmissionStatus())
+            .setSubmissionStatus(application.getLifecycleStage().getDescription())
             .addApplicationEntries(entriesBuilder.build())
             .build();
 

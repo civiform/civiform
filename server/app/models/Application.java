@@ -1,7 +1,6 @@
 package models;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import io.ebean.annotation.DbJson;
 import io.ebean.annotation.WhenCreated;
 import java.time.Instant;
@@ -52,17 +51,6 @@ public class Application extends BaseModel {
   private String submitterEmail;
   private String latestStatus;
   private boolean isAdmin;
-
-  private static ImmutableMap<LifecycleStage, String> submissionStatus =
-      ImmutableMap.of(
-          LifecycleStage.DRAFT,
-          "NOT_SUBMITTED",
-          LifecycleStage.ACTIVE,
-          "CURRENT",
-          LifecycleStage.OBSOLETE,
-          "OBSOLETE",
-          LifecycleStage.DELETED,
-          "DELETED");
 
   public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
@@ -127,14 +115,6 @@ public class Application extends BaseModel {
 
   public LifecycleStage getLifecycleStage() {
     return this.lifecycleStage;
-  }
-
-  /**
-   * Returns a string representing the submission status of an application. The returned string is
-   * independent of any configured program-specific status values. Used for API exports.
-   */
-  public String getSubmissionStatus() {
-    return submissionStatus.getOrDefault(this.getLifecycleStage(), "UNKNOWN");
   }
 
   public Instant getSubmitTime() {
