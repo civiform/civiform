@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.admin.routes;
 import j2html.TagCreator;
-import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -258,21 +257,17 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private FormTag renderClearFiltersForm(long programID) {
     return form()
-      .withMethod("GET")
-      .withAction(
-        routes.AdminApplicationController.index(
-            programID,
-            /* search = */ Optional.empty(),
-            /* page= */ Optional.empty(),
-            /* fromDate= */ Optional.empty(),
-            /* untilDate= */ Optional.empty(),
-            /* applicationStatus= */ Optional.empty(),
-            /* selectedApplicationUri= */ Optional.empty())
-          .url())
-      .with(
-        TagCreator.button("Clear")
-          .withClass(ButtonStyles.SOLID_BLUE)
-          .withType("submit"));
+        .withAction(
+            routes.AdminApplicationController.index(
+                    programID,
+                    /* search = */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty(),
+                    /* selectedApplicationUri= */ Optional.empty())
+                .url())
+        .with(TagCreator.button("Clear").withClass(ButtonStyles.SOLID_BLUE).withType("submit"));
   }
 
   private Modal renderDownloadApplicationsModal(
