@@ -12,6 +12,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.a;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -117,7 +118,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     allPossibleProgramApplicationStatuses,
                     downloadModal.getButton(),
                     filterParams),
-                renderClearFiltersForm(program.id()),
                 each(
                     paginatedApplications.getPageContents(),
                     application ->
@@ -166,6 +166,15 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
       RenderFilterParams filterParams) {
+    String redirectUrl = routes.AdminApplicationController.index(
+        program.id(),
+        /* search = */ Optional.empty(),
+        /* page= */ Optional.empty(),
+        /* fromDate= */ Optional.empty(),
+        /* untilDate= */ Optional.empty(),
+        /* applicationStatus= */ Optional.empty(),
+        /* selectedApplicationUri= */ Optional.empty())
+      .url();
     return form()
         .withClasses("mt-6")
         .withMethod("GET")
@@ -252,22 +261,9 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
-                        .withType("submit")));
-  }
-
-  private FormTag renderClearFiltersForm(long programID) {
-    return form()
-        .withAction(
-            routes.AdminApplicationController.index(
-                    programID,
-                    /* search = */ Optional.empty(),
-                    /* page= */ Optional.empty(),
-                    /* fromDate= */ Optional.empty(),
-                    /* untilDate= */ Optional.empty(),
-                    /* applicationStatus= */ Optional.empty(),
-                    /* selectedApplicationUri= */ Optional.empty())
-                .url())
-        .with(TagCreator.button("Clear").withClass(ButtonStyles.SOLID_BLUE).withType("submit"));
+                        .withType("submit"),
+                    a().withHref(redirectUrl)
+                      .with(button("Clear").withClass(ButtonStyles.SOLID_BLUE))));
   }
 
   private Modal renderDownloadApplicationsModal(
