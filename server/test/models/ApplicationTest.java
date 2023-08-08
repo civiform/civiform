@@ -116,4 +116,29 @@ public class ApplicationTest extends ResetPostgres {
     Application application = resourceCreator.insertActiveApplication(applicant, program);
     assertThat(application.getIsAdmin()).isTrue();
   }
+
+  @Test
+  public void submissionStatusHasExpectedValue() {
+    Program program =
+      ProgramBuilder.newActiveProgram("test program", "description")
+        .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
+        .build();
+
+    Applicant applicant = resourceCreator.insertApplicantWithAccount();
+    applicant.getAccount().addAdministeredProgram(program.getProgramDefinition());
+
+    Application application = resourceCreator.insertActiveApplication(applicant, program);
+
+    application.setLifecycleStage(LifecycleStage.DRAFT);
+    assertThat(application.getSubmissionStatus()).isEqualTo("NOT_SUBMITTED");
+
+    application.setLifecycleStage(LifecycleStage.ACTIVE);
+    assertThat(application.getSubmissionStatus()).isEqualTo("CURRENT");
+
+    application.setLifecycleStage(LifecycleStage.OBSOLETE);
+    assertThat(application.getSubmissionStatus()).isEqualTo("OBSOLETE");
+
+    application.setLifecycleStage(LifecycleStage.DELETED);
+    assertThat(application.getSubmissionStatus()).isEqualTo("DELETED");
+  }
 }
