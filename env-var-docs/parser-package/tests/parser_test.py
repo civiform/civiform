@@ -1,6 +1,8 @@
 from env_var_docs.parser import Mode, Group, Variable, RegexTest, ParseError, NodeParseError, Node, visit, _path, _ensure_no_extra_fields, _parse_field, _try_parse_group, _try_parse_variable
 import unittest
 import io
+# Needed for Python <3.9
+from typing import Dict, List
 
 
 def donothing(_: Node):
@@ -663,10 +665,10 @@ class TestParseField(unittest.TestCase):
             _parse_field(
                 parent_path="root",
                 key="key",
-                json_type=list,
+                json_type=List,
                 required=False,
                 obj={"key": []},
-                return_type=list[str])
+                return_type=List[str])
         self.assertIn(
             "'extract_fn' must be provided if 'return_type' is provided",
             str(e.exception))
@@ -676,7 +678,7 @@ class TestParseField(unittest.TestCase):
             _parse_field(
                 parent_path="root",
                 key="key",
-                json_type=list,
+                json_type=List,
                 required=False,
                 obj={"key": []},
                 extract_fn=lambda o: [])
@@ -689,7 +691,7 @@ class TestParseField(unittest.TestCase):
             _parse_field(
                 parent_path="root",
                 key="key",
-                json_type=list,
+                json_type=List,
                 required=True,
                 obj={"keyz": []},
                 default=["Default"])
@@ -792,7 +794,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=dict,
+            json_type=Dict,
             required=False,
             obj={"key": "true"})
         self.assertEqual(
@@ -803,7 +805,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=dict,
+            json_type=Dict,
             required=False,
             obj={"key": {
                 "subkey": "hello there"
@@ -815,7 +817,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=list,
+            json_type=List,
             required=False,
             obj={"key": "true"})
         self.assertEqual(gotErrors, [ParseError("root.key", "must be a list")])
@@ -825,7 +827,7 @@ class TestParseField(unittest.TestCase):
         got, gotErrors = _parse_field(
             parent_path="root",
             key="key",
-            json_type=list,
+            json_type=List,
             required=False,
             obj={"key": [1, 2, 3]})
         self.assertEqual(gotErrors, [])

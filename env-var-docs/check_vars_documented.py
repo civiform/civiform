@@ -15,7 +15,10 @@ import pprint
 import re
 import sys
 import typing
+# Needed for <3.10
 from typing import Union
+# Needed for <3.9
+from typing import Dict, Tuple, List
 
 
 def errorexit(msg):
@@ -63,7 +66,7 @@ def make_config() -> Config:
 
 def main():
     config = make_config()
-    server_vars: dict[str, ServerVar] = vars_from_application_conf(
+    server_vars: Dict[str, ServerVar] = vars_from_application_conf(
         config.app_conf_path)
     with open(config.docs_path) as f:
         documented_vars, parse_errors = vars_from_docs(f)
@@ -102,7 +105,7 @@ def main():
         errorexit(msg)
 
 
-def vars_from_application_conf(app_conf_path: str) -> dict[str, ServerVar]:
+def vars_from_application_conf(app_conf_path: str) -> Dict[str, ServerVar]:
     """Parses an application.conf file and returns the set of referenced environment variables.
 
     If the application.conf file includes other conf files, those files will
@@ -158,8 +161,8 @@ def vars_from_application_conf(app_conf_path: str) -> dict[str, ServerVar]:
 
 def vars_from_docs(
     docs_file: typing.TextIO
-) -> tuple[Union[dict[str, env_var_docs.parser.Variable], None],
-           list[env_var_docs.parser.NodeParseError]]:
+) -> Tuple[Union[Dict[str, env_var_docs.parser.Variable], None],
+           List[env_var_docs.parser.NodeParseError]]:
     """If docs_file has no parsing errors, returns the set of defined
     environment variables in an environment variable documentation file.
     Otherwise returns the parsing errors.
