@@ -775,6 +775,14 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
+  async clearProgramApplications(){
+    await Promise.all([
+      this.page.waitForNavigation(),
+      await this.page.click('button:has-text("Clear")'),
+    ])
+    await waitForPageJsLoad(this.page)
+  }
+
   selectApplicationBlock(blockName: string) {
     return `.cf-admin-application-block-card:has-text("${blockName}")`
   }
