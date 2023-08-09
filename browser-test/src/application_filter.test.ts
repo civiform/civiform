@@ -1,7 +1,6 @@
 import {
   createTestContext,
   dropTables,
-  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -138,7 +137,9 @@ describe('normal application flow', () => {
     // Checks that all applicants are displayed
     await adminPrograms.clearProgramApplications()
     const unfilteredCsvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(unfilteredCsvContent).toContain('sarah,,smith,op2,05/10/2021,1000.00')
+    expect(unfilteredCsvContent).toContain(
+      'sarah,,smith,op2,05/10/2021,1000.00',
+    )
     expect(unfilteredCsvContent).toContain('Gus,,Guest,op2,01/01/1990,2000.00')
 
     await validateScreenshot(page, 'applications-page')
