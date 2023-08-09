@@ -38,7 +38,7 @@ Resources:
 
 ## General
 
-- [ ] Create an Oncall issue for the next rotation, and assign to the next oncall.
+- [ ] Create an Oncall issue for the next rotation, and assign to the next oncall
 - [ ] Check Security lists daily
 - [ ] Check #ci Slack channel daily to monitor failed pushes
 - [ ] Check [Dependency updates](https://github.com/civiform/civiform/pulls/app%2Frenovate) once
