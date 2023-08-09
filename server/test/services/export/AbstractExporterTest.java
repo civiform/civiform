@@ -703,5 +703,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
       return application;
     }
+
+    public Application obsolete() {
+      Application application = new Application(applicant, program, LifecycleStage.OBSOLETE);
+      application.setApplicantData(applicant.getApplicantData());
+      trustedIntermediary.ifPresent(
+          account -> application.setSubmitterEmail(account.getEmailAddress()));
+      application.save();
+
+      // CreateTime of an application is set through @onCreate to Instant.now(). To change
+      // the value, manually set createTime and save and refresh the application.
+      application.setCreateTimeForTest(FAKE_CREATE_TIME);
+      application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
+      application.save();
+
+      return application;
+    }
   }
 }

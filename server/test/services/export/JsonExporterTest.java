@@ -174,9 +174,6 @@ public class JsonExporterTest extends AbstractExporterTest {
         "$[" + resultIndex + "].applicant_id", application.getApplicant().id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].application_id", application.id);
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].language", "en-US");
-    resultAsserter.assertValueAtPath(
-        "$[" + resultIndex + "].submission_status",
-        application.getLifecycleStage().getDescription());
   }
 
   @Test
@@ -568,6 +565,40 @@ public class JsonExporterTest extends AbstractExporterTest {
             + "    \"text\" : null\n"
             + "  }\n"
             + "} ]");
+  }
+
+  @Test
+  public void export_whenApplicationIsActive_revisionStateIsCurrent() {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].revision_state", "CURRENT");
+  }
+
+  @Test
+  public void export_whenApplicationIsObsolete_revisionStateIsObsolete() {
+    var fakeProgram = new FakeProgramBuilder().build();
+    new FakeApplicationFiller(fakeProgram).obsolete();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("$[0].revision_state", "OBSOLETE");
   }
 
   @Test
