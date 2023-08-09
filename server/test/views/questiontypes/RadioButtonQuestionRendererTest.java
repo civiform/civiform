@@ -120,5 +120,4 @@ public class RadioButtonQuestionRendererTest {
 
     assertThat(result.render()).doesNotContain("autofocus");
   }
-
 }
