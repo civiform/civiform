@@ -12,7 +12,6 @@ import services.CfJsonDocumentContext;
 import services.DeploymentType;
 import services.Path;
 import services.export.JsonExporter.ApplicationJsonExportData;
-import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
 import services.program.StatusDefinitions.Status;
@@ -57,7 +56,6 @@ public final class ProgramJsonSampler {
             // for those tests, otherwise to the actual program ID.
             .setLanguageTag(Locale.US.toLanguageTag())
             .setSubmitterType(SubmitterType.APPLICANT)
-            .setRevisionState(RevisionState.CURRENT)
             .setTiEmail(EMPTY_VALUE)
             .setTiOrganization(EMPTY_VALUE)
             .setCreateTime(Instant.ofEpochSecond(1685047575)) // May 25, 2023 4:46 pm EDT

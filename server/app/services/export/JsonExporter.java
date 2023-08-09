@@ -16,9 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
-import models.LifecycleStage;
 import models.TrustedIntermediaryGroup;
-import org.apache.commons.lang3.NotImplementedException;
 import play.libs.F;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
@@ -30,7 +28,6 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.JsonPathProvider;
 import services.applicant.ReadOnlyApplicantProgramService;
-import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -105,18 +102,6 @@ public final class JsonExporter {
     return jsonApplications;
   }
 
-  private static RevisionState toRevisionState(LifecycleStage lifecycleStage) {
-    switch (lifecycleStage) {
-      case ACTIVE:
-        return RevisionState.CURRENT;
-      case OBSOLETE:
-        return RevisionState.OBSOLETE;
-      default:
-        throw new NotImplementedException(
-            "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
-    }
-  }
-
   private CfJsonDocumentContext buildSingleApplicationJson(
       Application application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roApplicantProgramService =
@@ -164,7 +149,6 @@ public final class JsonExporter {
                     .orElse(EMPTY_VALUE))
             .setSubmitTime(application.getSubmitTime())
             .setStatus(application.getLatestStatus())
-            .setRevisionState(toRevisionState(application.getLifecycleStage()))
             .addApplicationEntries(entriesBuilder.build())
             .build();
 
@@ -197,8 +181,6 @@ public final class JsonExporter {
                 jsonApplication.putString(
                     submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
-    jsonApplication.putString(
-        Path.create("revision_state"), applicationJsonExportData.revisionState().toString());
 
     Path statusPath = Path.create("status");
     applicationJsonExportData
@@ -330,8 +312,6 @@ public final class JsonExporter {
 
     public abstract Optional<String> status();
 
-    public abstract RevisionState revisionState();
-
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
@@ -362,8 +342,6 @@ public final class JsonExporter {
       public abstract Builder setSubmitTime(Instant submitTimeOpt);
 
       public abstract Builder setStatus(Optional<String> status);
-
-      public abstract Builder setRevisionState(RevisionState revisionState);
 
       abstract ImmutableMap.Builder<Path, Optional<?>> applicationEntriesBuilder();
 
