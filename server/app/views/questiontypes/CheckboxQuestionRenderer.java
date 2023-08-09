@@ -7,6 +7,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
@@ -91,7 +92,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .condAttr(
                         errorDisplayMode.equals(
                             ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR),
-                        "autofocus",
+                        Attr.AUTOFOCUS,
                         "")
                     .condAttr(!isOptional, "aria-required", "true")
                     .withClasses(

@@ -576,7 +576,7 @@ public class FieldWithLabel {
     fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
-    fieldTag.condAttr(focusOnError, "autofocus", "");
+    fieldTag.condAttr(focusOnError, Attr.AUTOFOCUS, "");
     fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
     if (ariaRequired) {
       fieldTag.attr("aria-required", "true");
