@@ -26,5 +26,6 @@ window.addEventListener('load', () => {
   azureDelete.init()
   azureUpload.init()
   phoneNumber.init()
+  // API docs are publicly visible, so we need the supporting scripts here.
   apiDocs.init()
 })
