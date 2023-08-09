@@ -270,7 +270,9 @@ public final class UserRepository {
       return Optional.of(
           CiviFormError.of(
               String.format(
-                  "%s does not have an admin account and cannot be added as a Program Admin.",
+                  "Cannot add %s as a Program Admin because they do not have an admin account."
+                      + " Have the user log in as admin on the home page, then they can be added"
+                      + " as a Program Admin.",
                   accountEmail)));
     } else {
       maybeAccount.ifPresent(
