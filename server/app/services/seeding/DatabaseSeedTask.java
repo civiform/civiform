@@ -122,8 +122,6 @@ public final class DatabaseSeedTask {
     ImmutableList.Builder<QuestionDefinition> questionDefinitions = ImmutableList.builder();
     for (QuestionDefinition questionDefinition : CANONICAL_QUESTIONS) {
       if (existingCanonicalQuestions.containsKey(questionDefinition.getName())) {
-        LOGGER.info(
-            "Canonical question \"{}\" exists at server start", questionDefinition.getName());
         questionDefinitions.add(existingCanonicalQuestions.get(questionDefinition.getName()));
       } else {
         inSerializableTransaction(

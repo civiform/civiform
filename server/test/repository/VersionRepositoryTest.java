@@ -31,6 +31,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateValue;
+import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
 public class VersionRepositoryTest extends ResetPostgres {
@@ -832,6 +833,22 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.getDraftVersionOrCreate();
 
     assertThat(versionRepository.getDraftVersion()).isPresent();
+  }
+
+  @Test
+  public void validateNoDuplicateQuestions_duplicatesThrowException() {
+    QuestionDefinition firstQuestion =
+        resourceCreator.insertQuestion("first-question").getQuestionDefinition();
+    QuestionDefinition secondQuestion =
+        resourceCreator.insertQuestion("second-question").getQuestionDefinition();
+    QuestionDefinition secondQuestion2 =
+        resourceCreator.insertQuestion("second-question").getQuestionDefinition();
+
+    assertThatThrownBy(
+            () ->
+                versionRepository.validateNoDuplicateQuestions(
+                    ImmutableList.of(firstQuestion, secondQuestion2, secondQuestion)))
+        .isInstanceOf(IllegalStateException.class);
   }
 
   @Test

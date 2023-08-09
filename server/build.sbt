@@ -34,11 +34,11 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.100",
-      "software.amazon.awssdk" % "ses" % "2.20.100",
+      "software.amazon.awssdk" % "s3" % "2.20.122",
+      "software.amazon.awssdk" % "ses" % "2.20.122",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.9.1",
+      "com.azure" % "azure-identity" % "1.9.2",
       "com.azure" % "azure-storage-blob" % "12.22.3",
 
       // Database and database testing libraries
@@ -83,7 +83,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.2",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.21.0",
+      "com.google.errorprone" % "error_prone_core" % "2.21.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
