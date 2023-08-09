@@ -82,7 +82,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .condAttr(hasErrors, "aria-invalid", "true")
             .condAttr(
                 errorDisplayMode.equals(
-                        ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR),
+                    ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR),
                 "autofocus",
                 "")
             .condAttr(!isOptional, "aria-required", "true")

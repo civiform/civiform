@@ -92,10 +92,10 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .condAttr(
                         params
-                                .errorDisplayMode()
-                                .equals(
-                                    ApplicantQuestionRendererParams.ErrorDisplayMode
-                                        .DISPLAY_SINGLE_ERROR),
+                            .errorDisplayMode()
+                            .equals(
+                                ApplicantQuestionRendererParams.ErrorDisplayMode
+                                    .DISPLAY_SINGLE_ERROR),
                         "autofocus",
                         "")
                     .withClasses(
