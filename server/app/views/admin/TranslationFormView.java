@@ -100,11 +100,10 @@ public abstract class TranslationFormView extends BaseHtmlView {
                 div()
                     .withClasses("flex", "flex-row", "gap-x-2")
                     .with(
-                        a().withHref(redirectUrl)
-                            .with(
-                                button("Back")
-                                    .withId("back-to-list-button")
-                                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)),
+                        a("Back")
+                            .withHref(redirectUrl)
+                            .withId("back-to-list-button")
+                            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                         submitButton(
                                 String.format(
                                     "Save %s updates",
