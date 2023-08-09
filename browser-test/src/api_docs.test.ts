@@ -45,24 +45,33 @@ describe('Viewing API docs', () => {
     await loginAsAdmin(page)
 
     await adminPrograms.publishAllDrafts()
-    const apiDocsUrl = BASE_URL + await page.getByText('API docs').getAttribute('href')
+    const apiDocsUrl =
+      BASE_URL + (await page.getByText('API docs').getAttribute('href'))!
 
     // Log out and clear cookies before accessing API docs.
     await logout(page)
     await browserContext.clearCookies()
     const freshPage = await browserContext.newPage()
-    await freshPage.goto(apiDocsUrl!)
+    await freshPage.goto(apiDocsUrl)
 
     expect(await freshPage.textContent('html')).toContain(
       '"program_name" : "comprehensive-sample-program"',
     )
-    await validateScreenshot(freshPage, 'comprehensive-program-active-version-logged-out')
+    await validateScreenshot(
+      freshPage,
+      'comprehensive-program-active-version-logged-out',
+    )
 
-    await freshPage.selectOption('#select-slug', {value: 'minimal-sample-program'})
+    await freshPage.selectOption('#select-slug', {
+      value: 'minimal-sample-program',
+    })
     expect(await freshPage.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
-    await validateScreenshot(freshPage, 'minimal-program-active-version-logged-out')
+    await validateScreenshot(
+      freshPage,
+      'minimal-program-active-version-logged-out',
+    )
   })
 
   it('Views draft API docs when available', async () => {
