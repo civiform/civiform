@@ -73,6 +73,13 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
     if (!validationErrors.isEmpty()) {
       firstNameField.forceAriaInvalid();
       lastNameField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        firstNameField.focusOnError();
+        middleNameField.focusOnError();
+        lastNameField.focusOnError();
+      }
     }
 
     DivTag nameQuestionFormContent =

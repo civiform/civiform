@@ -69,6 +69,7 @@ public class FieldWithLabel {
   private Messages messages;
   private ImmutableSet<ValidationError> fieldErrors = ImmutableSet.of();
   private boolean showFieldErrors = true;
+  private boolean focusOnError = false;
   private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
@@ -365,6 +366,10 @@ public class FieldWithLabel {
     return this;
   }
 
+  public void focusOnError() {
+    this.focusOnError = true;
+  }
+
   /** Attribute getters * */
   public String getFieldType() {
     return this.fieldType;
@@ -571,6 +576,7 @@ public class FieldWithLabel {
     fieldTag.condAttr(!ariaIds.isEmpty(), "aria-describedby", StringUtils.join(ariaIds, " "));
     fieldTag.condAttr(
         shouldForceAriaInvalid || fieldErrorsInfo.hasFieldErrors, "aria-invalid", "true");
+    fieldTag.condAttr(focusOnError, "autofocus", "");
     fieldTag.attr("maxlength", MAX_INPUT_TEXT_LENGTH);
     if (ariaRequired) {
       fieldTag.attr("aria-required", "true");

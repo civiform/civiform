@@ -90,6 +90,14 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
+                    .condAttr(
+                        params
+                                .errorDisplayMode()
+                                .equals(
+                                    ApplicantQuestionRendererParams.ErrorDisplayMode
+                                        .DISPLAY_SINGLE_ERROR),
+                        "autofocus",
+                        "")
                     .withClasses(
                         ButtonStyles.SOLID_BLUE_WITH_ICON,
                         "normal-case",
@@ -161,6 +169,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
     }
     if (hasErrors) {
       entityNameInputField.forceAriaInvalid();
+      entityNameInputField.focusOnError();
     }
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);

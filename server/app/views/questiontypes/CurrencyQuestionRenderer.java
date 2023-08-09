@@ -43,9 +43,16 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 validationErrors.getOrDefault(
                     currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
+
     if (!validationErrors.isEmpty()) {
       currencyField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        currencyField.focusOnError();
+      }
     }
+
     if (currencyQuestion.getCurrencyValue().isPresent()) {
       currencyField.setValue(currencyQuestion.getCurrencyValue().get().prettyPrint());
     } else {

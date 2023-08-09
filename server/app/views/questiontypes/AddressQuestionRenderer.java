@@ -115,6 +115,14 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
       cityField.forceAriaInvalid();
       stateField.forceAriaInvalid();
       zipField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        streetAddressField.focusOnError();
+        cityField.focusOnError();
+        stateField.focusOnError();
+        zipField.focusOnError();
+      }
     }
 
     if (!isOptional) {

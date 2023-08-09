@@ -225,6 +225,10 @@ public final class Block {
         || !applicantData.getFailedUpdates().isEmpty();
   }
 
+  public boolean hasSingleError() {
+    return getQuestions().stream().filter(ApplicantQuestion::hasErrors).count() == 1;
+  }
+
   /**
    * Checks whether the block is answered - that is, {@link ApplicantData} has values at all the
    * paths for all questions in this block and there are no errors. Note: this cannot be memoized,
