@@ -13,6 +13,7 @@ import * as fileUpload from './file_upload'
 import * as azureDelete from './azure_delete'
 import * as azureUpload from './azure_upload'
 import * as phoneNumber from './phone'
+import * as apiDocs from './api_docs'
 
 window.addEventListener('load', () => {
   main.init()
@@ -25,4 +26,5 @@ window.addEventListener('load', () => {
   azureDelete.init()
   azureUpload.init()
   phoneNumber.init()
+  apiDocs.init()
 })
