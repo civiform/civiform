@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
@@ -15,9 +14,7 @@ import org.junit.Test;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import services.LocalizedStrings;
-import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
 import services.question.QuestionAnswerer;
 import services.question.QuestionOption;
@@ -112,10 +109,16 @@ public class RadioButtonQuestionRendererTest {
             .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_SINGLE_ERROR)
             .build();
 
-    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> questionErrors =
-        ImmutableMap.of(question.getContextualizedPath(), ImmutableSet.of());
-    DivTag result = renderer.renderInputTags(params, questionErrors, false);
+    DivTag result = renderer.render(params);
 
     assertThat(result.render()).contains("autofocus");
   }
+
+  @Test
+  public void renderWithoutErrors_doesNotAutofocus() {
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
+
 }

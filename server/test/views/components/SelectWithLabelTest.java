@@ -49,13 +49,6 @@ public class SelectWithLabelTest {
   }
 
   @Test
-  public void whenFocusOnError_autofocusIsPresent() {
-    SelectWithLabel selectWithLabel = new SelectWithLabel();
-    selectWithLabel.focusOnError();
-    assertThat(selectWithLabel.getSelectTag().render()).contains("autofocus");
-  }
-
-  @Test
   public void createSelect_withOptGroups() {
     SelectWithLabel selectWithLabel =
         new SelectWithLabel()
