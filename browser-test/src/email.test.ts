@@ -60,6 +60,7 @@ describe('Email question for applicant flow', () => {
       expect(await page.innerText(emailId)).toContain(
         'This question is required.',
       )
+      expect(await page.innerHTML(emailId)).toContain('autofocus')
     })
   })
 

@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import j2html.TagCreator;
+import j2html.attributes.Attr;
 import j2html.tags.EmptyTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
@@ -90,6 +91,14 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
                     .condAttr(hasErrors, "aria-invalid", "true")
+                    .condAttr(
+                        params
+                            .errorDisplayMode()
+                            .equals(
+                                ApplicantQuestionRendererParams.ErrorDisplayMode
+                                    .DISPLAY_SINGLE_ERROR),
+                        Attr.AUTOFOCUS,
+                        "")
                     .withClasses(
                         ButtonStyles.SOLID_BLUE_WITH_ICON,
                         "normal-case",
@@ -161,6 +170,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
     }
     if (hasErrors) {
       entityNameInputField.forceAriaInvalid();
+      entityNameInputField.focusOnError();
     }
     String confirmationMessage =
         messages.at(MessageKey.ENUMERATOR_DIALOG_CONFIRM_DELETE.getKeyName(), localizedEntityType);

@@ -43,6 +43,11 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
     if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        textField.focusOnError();
+      }
     }
 
     return textField.getInputTag();
