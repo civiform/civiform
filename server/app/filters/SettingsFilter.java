@@ -39,12 +39,14 @@ public final class SettingsFilter extends EssentialFilter {
     }
 
     return EssentialAction.of(
-        (Http.RequestHeader request) ->
-            Accumulator.flatten(
-                settingsService
-                    .get()
-                    .applySettingsToRequest(request)
-                    .thenApply(modifiedRequest -> next.apply(modifiedRequest)),
-                materializer));
+        (Http.RequestHeader request) -> {
+          if (request.path().startsWith("/assets")) {
+            return next.apply(request);
+          }
+
+          return Accumulator.flatten(
+              settingsService.get().applySettingsToRequest(request).thenApply(next::apply),
+              materializer);
+        });
   }
 }

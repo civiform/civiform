@@ -238,4 +238,21 @@ public class FieldWithLabelTest {
     fieldWithLabel.setValue("");
     assertThat(fieldWithLabel.getTextareaTag().render()).isEqualTo(fieldHtml);
   }
+
+  @Test
+  public void whenFocusOnError_autofocusIsPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    fieldWithLabel.focusOnError();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).contains("autofocus");
+  }
+
+  @Test
+  public void whenNotFocusOnError_autofocusIsNotPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).doesNotContain("autofocus");
+  }
 }

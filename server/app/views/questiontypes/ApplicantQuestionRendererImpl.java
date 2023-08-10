@@ -81,6 +81,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors = ImmutableMap.of();
         break;
       case DISPLAY_ERRORS:
+      case DISPLAY_SINGLE_ERROR:
         validationErrors = applicantQuestion.getQuestion().getValidationErrors();
         break;
       default:

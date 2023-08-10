@@ -115,6 +115,18 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
       cityField.forceAriaInvalid();
       stateField.forceAriaInvalid();
       zipField.forceAriaInvalid();
+      /* Currently, only the streetAddress field will ever receive focus given that
+      we have no way of determining the exact field with an error. However, autofocus
+      will be on each field when we eventually find a way to do that.
+      */
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        streetAddressField.focusOnError();
+        cityField.focusOnError();
+        stateField.focusOnError();
+        zipField.focusOnError();
+      }
     }
 
     if (!isOptional) {
