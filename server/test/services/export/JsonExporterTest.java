@@ -587,7 +587,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenApplicationIsObsolete_revisionStateIsObsolete() {
     var fakeProgram = new FakeProgramBuilder().build();
-    new FakeApplicationFiller(fakeProgram).obsolete();
+    new FakeApplicationFiller(fakeProgram).submit().markObsolete();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
 
