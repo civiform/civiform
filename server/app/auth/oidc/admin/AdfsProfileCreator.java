@@ -27,8 +27,8 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       OidcClient client,
       ProfileFactory profileFactory,
       Config appConfig,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, client, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> accountRepositoryProvider) {
+    super(configuration, client, profileFactory, accountRepositoryProvider);
     this.adminGroupName = appConfig.getString("adfs.admin_group");
     this.ad_groups_attribute_name = appConfig.getString("adfs.ad_groups_attribute_name");
   }

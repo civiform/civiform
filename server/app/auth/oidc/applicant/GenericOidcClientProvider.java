@@ -65,7 +65,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
         config,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        accountRepositoryProvider,
         emailAttr,
         localeAttr.orElse(null),
         nameAttrsBuilder.build());

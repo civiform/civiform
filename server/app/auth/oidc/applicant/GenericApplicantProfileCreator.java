@@ -17,7 +17,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider,
+      Provider<UserRepository> accountRepositoryProvider,
       String emailAttributeName,
       String localeAttributeName,
       ImmutableList<String> nameAttributeNames) {
@@ -25,7 +25,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
         configuration,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        accountRepositoryProvider,
         emailAttributeName,
         localeAttributeName,
         nameAttributeNames);
