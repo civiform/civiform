@@ -336,4 +336,63 @@ describe('Program admin review of submitted applications', () => {
       )
     }
   })
+
+  it('program application filters cleared', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    const noApplyFilters = false
+    const applyFilters = true
+
+    // Create a simple one question program application.
+    await loginAsAdmin(page)
+
+    await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
+    const programName = 'program'
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['fruit-text-q'],
+      programName,
+    )
+
+    await logout(page)
+
+    // Submit applications from different users.
+    const answers = ['apple', 'banana', 'cherry', 'durian']
+    for (const answer of answers) {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerTextQuestion(answer)
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      await logout(page)
+    }
+
+    // Expect applications to be presented in reverse chronological order to program admin.
+    await loginAsProgramAdmin(page)
+
+    await adminPrograms.viewApplications(programName)
+    const csvContent = await adminPrograms.getCsv(noApplyFilters)
+    expect(csvContent).toContain('APPLICANT,,,,apple')
+    expect(csvContent).toContain('APPLICANT,,,,banana')
+    expect(csvContent).toContain('APPLICANT,,,,cherry')
+    expect(csvContent).toContain('APPLICANT,,,,durian')
+
+    // Finds a partial text match on applicant name, case insensitive.
+    await adminPrograms.filterProgramApplications({searchFragment: 'mango'})
+    const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
+    expect(filteredCsvContent).not.toContain('APPLICANT,,,,apple')
+    expect(filteredCsvContent).not.toContain('APPLICANT,,,,banana')
+    expect(filteredCsvContent).not.toContain('APPLICANT,,,,cherry')
+    expect(filteredCsvContent).not.toContain('APPLICANT,,,,durian')
+    // Ensures that choosing not to apply filters continues to return all
+    // results.
+    await adminPrograms.clearFilterProgramApplications()
+    const unfilteredCsvContent = await adminPrograms.getCsv(noApplyFilters)
+    expect(unfilteredCsvContent).toContain('APPLICANT,,,,apple')
+    expect(unfilteredCsvContent).toContain('APPLICANT,,,,banana')
+    expect(unfilteredCsvContent).toContain('APPLICANT,,,,cherry')
+    expect(unfilteredCsvContent).toContain('APPLICANT,,,,durian')
+
+    await validateScreenshot(page, 'applications-list')
+    await logout(page)
+  })
 })

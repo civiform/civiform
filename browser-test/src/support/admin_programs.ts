@@ -775,10 +775,10 @@ export class AdminPrograms {
     await waitForPageJsLoad(this.page)
   }
 
-  async clearProgramApplications() {
+  async clearFilterProgramApplications() {
     await Promise.all([
       this.page.waitForNavigation(),
-      await this.page.click('button:has-text("Clear")'),
+      await this.page.click('a:has-text("Clear")'),
     ])
     await waitForPageJsLoad(this.page)
   }

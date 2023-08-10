@@ -263,8 +263,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit"),
-                    a().withHref(redirectUrl)
-                        .with(button("Clear").withClass(ButtonStyles.SOLID_BLUE))));
+                    a("Clear").withHref(redirectUrl)
+                        .withClass(ButtonStyles.SOLID_BLUE)));
   }
 
   private Modal renderDownloadApplicationsModal(
