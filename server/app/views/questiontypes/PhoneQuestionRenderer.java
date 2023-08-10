@@ -76,6 +76,12 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
     if (!validationErrors.isEmpty()) {
       countryCodeField.forceAriaInvalid();
       phoneField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        countryCodeField.focusOnError();
+        phoneField.focusOnError();
+      }
     }
 
     return div()

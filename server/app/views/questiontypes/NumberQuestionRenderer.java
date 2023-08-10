@@ -45,9 +45,16 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
+
     if (!validationErrors.isEmpty()) {
       numberField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        numberField.focusOnError();
+      }
     }
+
     if (numberQuestion.getNumberValue().isPresent()) {
       // Note: If the provided input was invalid, there's no use rendering
       // the value on roundtrip since inputs with type="number" won't allow

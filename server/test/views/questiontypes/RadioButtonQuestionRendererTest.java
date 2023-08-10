@@ -46,19 +46,19 @@ public class RadioButtonQuestionRendererTest {
 
   private final Messages messages =
       stubMessagesApi().preferred(ImmutableSet.of(Lang.defaultLang()));
-  private final ApplicantQuestionRendererParams params =
-      ApplicantQuestionRendererParams.builder()
-          .setMessages(messages)
-          .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
-          .build();
-
   private ApplicantData applicantData;
   private ApplicantQuestion question;
   private RadioButtonQuestionRenderer renderer;
+  private ApplicantQuestionRendererParams params;
 
   @Before
   public void setup() {
     applicantData = new ApplicantData();
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+            .build();
     question = new ApplicantQuestion(QUESTION, applicantData, Optional.empty());
     renderer = new RadioButtonQuestionRenderer(question);
   }
@@ -99,5 +99,25 @@ public class RadioButtonQuestionRendererTest {
 
     assertThat(result.render().matches(".*fieldset aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
+  }
+
+  @Test
+  public void renderWithErrors_andSingleErrorMode_hasAutofocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_SINGLE_ERROR)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains("autofocus");
+  }
+
+  @Test
+  public void renderWithoutErrors_doesNotAutofocus() {
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
   }
 }

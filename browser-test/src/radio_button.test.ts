@@ -103,6 +103,7 @@ describe('Radio button question for applicant flow', () => {
       expect(await page.innerText(radioButtonId)).toContain(
         'This question is required.',
       )
+      expect(await page.innerHTML(radioButtonId)).toContain('autofocus')
     })
   })
 

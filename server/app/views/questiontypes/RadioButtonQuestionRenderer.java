@@ -7,6 +7,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
@@ -53,7 +54,8 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
                                 option,
                                 singleOptionQuestion.optionIsSelected(option),
                                 hasErrors,
-                                isOptional)));
+                                isOptional,
+                                params.errorDisplayMode())));
 
     return radioQuestionFormContent;
   }
@@ -63,7 +65,8 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       LocalizedQuestionOption option,
       boolean checked,
       boolean hasErrors,
-      boolean isOptional) {
+      boolean isOptional,
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
     LabelTag labelTag =
@@ -78,6 +81,11 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
             .condAttr(hasErrors, "aria-invalid", "true")
+            .condAttr(
+                errorDisplayMode.equals(
+                    ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR),
+                Attr.AUTOFOCUS,
+                "")
             .condAttr(!isOptional, "aria-required", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 

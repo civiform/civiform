@@ -513,7 +513,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
-                          ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
+                          thisBlockUpdated.hasSingleError()
+                              ? ApplicantQuestionRendererParams.ErrorDisplayMode
+                                  .DISPLAY_SINGLE_ERROR
+                              : ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)

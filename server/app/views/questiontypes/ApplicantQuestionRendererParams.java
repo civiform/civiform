@@ -20,7 +20,8 @@ public abstract class ApplicantQuestionRendererParams {
      * Validation errors are displayed. Typically used when displaying a question in response to the
      * applicant attempting a submit.
      */
-    DISPLAY_ERRORS
+    DISPLAY_ERRORS,
+    DISPLAY_SINGLE_ERROR,
   }
 
   public static Builder builder() {
