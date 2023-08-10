@@ -52,7 +52,12 @@ public final class ProgramTranslationView extends TranslationFormView {
                 program.adminName(), locale.toLanguageTag())
             .url();
     FormTag form =
-        renderTranslationForm(request, locale, formAction, formFields(program, translationForm));
+        renderTranslationForm(
+            request,
+            locale,
+            formAction,
+            formFields(program, translationForm),
+            /* isProgramEdit= */ true);
 
     String title =
         String.format("Manage program translations: %s", program.localizedName().getDefault());

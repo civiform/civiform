@@ -145,6 +145,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
             + "  \"language\" : \"en-US\",\n"
             + "  \"program_name\" : \"test-program-admin-name\",\n"
             + "  \"program_version_id\" : 789,\n"
+            + "  \"revision_state\" : \"CURRENT\",\n"
             + "  \"status\" : \"Pending Review\",\n"
             + "  \"submit_time\" : \"2023/05/26 1:46:15 PM PDT\",\n"
             + "  \"submitter_type\" : \"APPLICANT\",\n"

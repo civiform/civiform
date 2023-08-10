@@ -126,8 +126,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
         return ok(
             translationView.renderErrors(request, localeToUpdate, definitionWithUpdates, message));
       }
+      return ok(translationView.render(request, localeToUpdate, definitionWithUpdates));
 
-      return redirect(routes.AdminQuestionController.index().url());
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     } catch (InvalidUpdateException e) {

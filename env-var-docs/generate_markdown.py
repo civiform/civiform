@@ -20,7 +20,10 @@ import github
 import os
 import sys
 import typing
+# Needed for <3.10
 from typing import Union
+# Needed for <3.9
+from typing import List, Tuple
 
 
 def error_exit(msg):
@@ -94,7 +97,7 @@ def main():
     path = f"{config.repo_path}/{config.version}.md"
     try:
         file = repo.get_contents(path)
-        if isinstance(file, list):
+        if isinstance(file, List):
             error_exit(f"{path} returns multiple files in the repo, aborting")
 
         if file.decoded_content.decode() == markdown:
@@ -140,7 +143,7 @@ def main():
 
 def generate_markdown(
     docs_file: typing.TextIO
-) -> tuple[Union[str, None], list[env_var_docs.parser.NodeParseError]]:
+) -> Tuple[Union[str, None], List[env_var_docs.parser.NodeParseError]]:
     out = ""
 
     def append_node_to_out(node: env_var_docs.parser.Node):
@@ -196,21 +199,30 @@ def generate_markdown(
     return out, []
 
 
-def new_summary(current_summary: str, docs_paths: list[str]) -> str:
+# These are added to support Python <3.9
+def removesuffix(text, suffix):
+    return text[:-len(suffix)] if text.endswith(suffix) else text
+
+
+def removeprefix(text, prefix):
+    return text[len(prefix):] if text.startswith(prefix) else text
+
+
+def new_summary(current_summary: str, docs_paths: List[str]) -> str:
     """In SUMMARY.md we have a '[CiviForm server environment variables]' list
     item that has sublist items for each versioned environment variable
     documentation markdown files. This function updates the sublist items to
     match docs_file_paths.
     """
 
-    def format_docs_links(indent_level: int, docs_paths: list[str]) -> str:
+    def format_docs_links(indent_level: int, docs_paths: List[str]) -> str:
         docs_paths.sort()
         out = ""
         for p in docs_paths:
             indent = " " * indent_level
-            name = os.path.basename(p).removesuffix(".md")
-            link = p.removeprefix(
-                "docs/"
+            name = removesuffix(os.path.basename(p), ".md")
+            link = removeprefix(
+                p, "docs/"
             )  # gitbook root is in docs/ directory of civiform/docs repo.
             out += f"{indent}  * [{name}]({link})\n"
         return out

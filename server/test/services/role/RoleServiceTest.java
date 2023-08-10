@@ -73,8 +73,9 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%s does not have an admin account and cannot be added as a Program"
-                            + " Admin. ",
+                        "Cannot add %s as a Program Admin because they do not have an admin"
+                            + " account. Have the user log in as admin on the home page, then they"
+                            + " can be added as a Program Admin. ",
                         emailLowerCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
@@ -123,8 +124,9 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%s does not have an admin account and cannot be added as a Program"
-                            + " Admin. ",
+                        "Cannot add %s as a Program Admin because they do not have an admin"
+                            + " account. Have the user log in as admin on the home page, then they"
+                            + " can be added as a Program Admin. ",
                         email))));
   }
 
@@ -145,9 +147,12 @@ public class RoleServiceTest extends ResetPostgres {
             Optional.of(
                 CiviFormError.of(
                     String.format(
-                        "%1$s does not have an admin account and cannot be added as a Program"
-                            + " Admin. %2$s does not have an admin account and cannot be added as"
-                            + " a Program Admin. ",
+                        "Cannot add %1$s as a Program Admin because they do not have an admin"
+                            + " account. Have the user log in as admin on the home page, then they"
+                            + " can be added as a Program Admin. Cannot add %2$s as a Program"
+                            + " Admin because they do not have an admin account. Have the user log"
+                            + " in as admin on the home page, then they can be added as a Program"
+                            + " Admin. ",
                         email1, email2))));
   }
 
