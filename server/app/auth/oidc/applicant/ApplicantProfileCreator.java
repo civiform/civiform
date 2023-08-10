@@ -39,11 +39,11 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider,
+      Provider<UserRepository> userRepositoryProvider,
       String emailAttributeName,
       @Nullable String localeAttributeName,
       ImmutableList<String> nameAttributeNames) {
-    super(configuration, client, profileFactory, applicantRepositoryProvider);
+    super(configuration, client, profileFactory, userRepositoryProvider);
     this.emailAttributeName = Preconditions.checkNotNull(emailAttributeName);
     this.localeAttributeName = Optional.ofNullable(localeAttributeName);
     this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);

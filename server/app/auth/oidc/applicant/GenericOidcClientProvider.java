@@ -37,8 +37,8 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   public GenericOidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> userRepositoryProvider) {
+    super(configuration, profileFactory, userRepositoryProvider);
   }
 
   @Override
@@ -65,7 +65,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
         config,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        userRepositoryProvider,
         emailAttr,
         localeAttr.orElse(null),
         nameAttrsBuilder.build());

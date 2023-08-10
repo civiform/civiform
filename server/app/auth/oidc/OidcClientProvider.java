@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
- * This class provides the base applicant OIDC implementation. It's abstract because AD and other
+ * This class provides the base user OIDC implementation. It's abstract because AD and other
  * providers need slightly different implementations and profile creators, and use different config
  * values.
  */
@@ -31,16 +31,16 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final Provider<UserRepository> userRepositoryProvider;
   protected final String baseUrl;
 
   public OidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> userRepositoryProvider) {
     this.civiformConfig = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
+    this.userRepositoryProvider = checkNotNull(userRepositoryProvider);
 
     this.baseUrl =
         getBaseConfigurationValue("base_url")

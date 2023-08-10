@@ -26,8 +26,8 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   public LoginGovClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> userRepositoryProvider) {
+    super(configuration, profileFactory, userRepositoryProvider);
   }
 
   @Override
@@ -44,7 +44,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
         config,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        userRepositoryProvider,
         "email",
         /*localeAttributeName*/ null,
         nameAttrs);

@@ -27,8 +27,8 @@ public final class IdcsClientProvider extends OidcClientProvider {
   public IdcsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> userRepositoryProvider) {
+    super(configuration, profileFactory, userRepositoryProvider);
   }
 
   @Override
@@ -43,8 +43,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new IdcsApplicantProfileCreator(
-        config, client, profileFactory, applicantRepositoryProvider);
+    return new IdcsApplicantProfileCreator(config, client, profileFactory, userRepositoryProvider);
   }
 
   @Override
