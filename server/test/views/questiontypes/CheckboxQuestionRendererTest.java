@@ -121,9 +121,60 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
   }
 
   @Test
-  public void renderWithSelection_hasNoAutofocus() {
+  public void renderWithSelection_hasAutofocus() {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 1L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsMatch_hasAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("question name"))
+            .setQuestionType(Optional.of("CHECKBOX"))
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains("autofocus");
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsNameMismatch_hasNoAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("wrong name"))
+            .setQuestionType(Optional.of("CHECKBOX"))
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsTypeMismatch_hasNoAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("question name"))
+            .setQuestionType(Optional.of("NAME"))
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
 
     DivTag result = renderer.render(params);
 

@@ -120,4 +120,54 @@ public class RadioButtonQuestionRendererTest {
 
     assertThat(result.render()).doesNotContain("autofocus");
   }
+
+  public void applicantSelectedQuestionParamsMatch_hasAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("favorite ice cream"))
+            .setQuestionType(Optional.of("RADIO_BUTTON"))
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains("autofocus");
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsNameMismatch_hasNoAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("wrong name"))
+            .setQuestionType(Optional.of("RADIO_BUTTON"))
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsTypeMismatch_hasNoAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("favorite ice cream"))
+            .setQuestionType(Optional.of("CHECKBOX"))
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
 }

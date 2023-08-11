@@ -106,4 +106,62 @@ public class IdQuestionRendererTest extends ResetPostgres {
                         + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
+
+  @Test
+  public void maybeFocusOnInputNameAndTypeMatch_autofocusIsPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("question name"))
+            .setQuestionType(Optional.of("ID"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains("autofocus");
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMismatch_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("wrong name"))
+            .setQuestionType(Optional.of("ID"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
+
+  @Test
+  public void maybeFocusOnInputTypeMismatch_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("question name"))
+            .setQuestionType(Optional.of("TEXT"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
+
+  @Test
+  public void maybeFocusOnInputNameAndTypeAreBlank_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
 }

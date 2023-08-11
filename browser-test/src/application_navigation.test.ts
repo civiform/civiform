@@ -182,6 +182,10 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         'address question text',
       )
+      // Should focus on question the applicant clicked on
+      expect(await page.innerHTML('.cf-address-street-1')).toContain(
+        'autofocus',
+      )
       await applicantQuestions.answerAddressQuestion(
         '1234 St',
         'Unit B',

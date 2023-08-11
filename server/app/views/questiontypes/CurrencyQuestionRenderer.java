@@ -42,7 +42,8 @@ public class CurrencyQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(
                     currencyQuestion.getCurrencyPath(), ImmutableSet.of()))
-            .setAriaDescribedByIds(ariaDescribedByIds);
+            .setAriaDescribedByIds(ariaDescribedByIds)
+            .maybeFocusOnInput(params, applicantQuestion);
 
     if (!validationErrors.isEmpty()) {
       currencyField.forceAriaInvalid();

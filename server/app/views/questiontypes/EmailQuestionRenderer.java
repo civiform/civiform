@@ -42,7 +42,8 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(emailQuestion.getEmailPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
+            .maybeFocusOnInput(params, applicantQuestion);
 
     if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();

@@ -140,6 +140,8 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         ApplicantQuestionRendererParams.builder()
             .setMessages(params.messages())
             .setErrorDisplayMode(params.errorDisplayMode())
+            .setQuestionName(params.questionName())
+            .setQuestionType(params.questionType())
             .build();
 
     return form.withId(BLOCK_FORM_ID)
@@ -150,7 +152,9 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .with(
             each(
                 params.block().getQuestions(),
-                question -> renderQuestion(question, rendererParams)))
+                question ->
+                    renderQuestion(
+                        question, rendererParams))) // ROCKY - here is where we call renderQuestion
         .with(renderBottomNavButtons(params));
   }
 

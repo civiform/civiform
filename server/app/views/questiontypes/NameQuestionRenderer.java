@@ -45,7 +45,8 @@ public class NameQuestionRenderer extends ApplicantCompositeQuestionRenderer {
             .setFieldErrors(
                 messages,
                 validationErrors.getOrDefault(nameQuestion.getFirstNamePath(), ImmutableSet.of()))
-            .addReferenceClass(ReferenceClasses.NAME_FIRST);
+            .addReferenceClass(ReferenceClasses.NAME_FIRST)
+            .maybeFocusOnInput(params, applicantQuestion);
 
     FieldWithLabel middleNameField =
         FieldWithLabel.input()

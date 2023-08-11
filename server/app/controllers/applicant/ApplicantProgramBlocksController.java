@@ -132,8 +132,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> edit(
-      Request request, long applicantId, long programId, String blockId) {
-    return editOrReview(request, applicantId, programId, blockId, false);
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      Optional<String> questionName,
+      Optional<String> questionType) {
+    return editOrReview(
+        request, applicantId, programId, blockId, false, questionName, questionType);
   }
 
   /**
@@ -148,7 +154,14 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure
   public CompletionStage<Result> review(
       Request request, long applicantId, long programId, String blockId) {
-    return editOrReview(request, applicantId, programId, blockId, true);
+    return editOrReview(
+        request,
+        applicantId,
+        programId,
+        blockId,
+        true,
+        /* questionName= */ Optional.empty(),
+        /* questionType= */ Optional.empty());
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -292,7 +305,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
   @Secure
   private CompletionStage<Result> editOrReview(
-      Request request, long applicantId, long programId, String blockId, boolean inReview) {
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      boolean inReview,
+      Optional<String> questionName,
+      Optional<String> questionType) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -323,7 +342,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 roApplicantProgramService,
                                 block.get(),
                                 personalInfo,
-                                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+                                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                                questionName,
+                                questionType)
                             .setBannerMessage(flashSuccessBanner)
                             .build()));
               } else {
@@ -604,7 +625,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         () ->
             redirect(
                     routes.ApplicantProgramBlocksController.edit(
-                        applicantId, programId, nextBlockIdMaybe.get()))
+                        applicantId,
+                        programId,
+                        nextBlockIdMaybe.get(),
+                        /* questionName= */ Optional.empty(),
+                        /* questionType= */ Optional.empty()))
                 .flashing(flashingMap));
   }
 
@@ -694,7 +719,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Block block,
       ApplicantPersonalInfo personalInfo,
-      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      Optional<String> questionName,
+      Optional<String> questionType) {
     return ApplicationBaseView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
@@ -709,7 +736,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setPreferredLanguageSupported(roApplicantProgramService.preferredLanguageSupported())
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
-        .setErrorDisplayMode(errorDisplayMode);
+        .setErrorDisplayMode(errorDisplayMode)
+        .setQuestionName(questionName)
+        .setQuestionType(questionType);
   }
 
   private ApplicationBaseView.Params buildApplicationBaseViewParams(
@@ -731,7 +760,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             roApplicantProgramService,
             block,
             personalInfo,
-            errorDisplayMode)
+            errorDisplayMode,
+            /* questionName= */ Optional.empty(),
+            /* questionType= */ Optional.empty())
         .build();
   }
 

@@ -55,7 +55,8 @@ public class PhoneQuestionRenderer extends ApplicantSingleQuestionRenderer {
                     validationErrors.getOrDefault(
                         phoneQuestion.getCountryCodePath(), ImmutableSet.of()))
                 .addReferenceClass(ReferenceClasses.PHONE_COUNTRY_CODE)
-                .setId(ReferenceClasses.PHONE_COUNTRY_CODE);
+                .setId(ReferenceClasses.PHONE_COUNTRY_CODE)
+                .maybeFocusOnInput(params, applicantQuestion);
 
     FieldWithLabel phoneField =
         FieldWithLabel.input()

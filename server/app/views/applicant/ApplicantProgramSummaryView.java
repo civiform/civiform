@@ -25,6 +25,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -228,10 +229,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
     } else {
+      QuestionDefinition questionDefinition = data.questionDefinition();
+      Optional<String> questionName = Optional.of(questionDefinition.getName());
+      Optional<String> questionType = Optional.of(questionDefinition.getQuestionType().toString());
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId())
+                      applicantId,
+                      data.programId(),
+                      data.blockId(),
+                      questionName,
+                      questionType) // ROCKY - set answer link here, so could pass in params
+                  // data.questionDefinition().getName() and
+                  // data.questionDefinition().getQuestionType().getLabel()
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);

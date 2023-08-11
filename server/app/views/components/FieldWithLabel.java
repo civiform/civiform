@@ -28,7 +28,9 @@ import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
+import services.applicant.question.ApplicantQuestion;
 import views.ViewUtils;
+import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
@@ -75,6 +77,7 @@ public class FieldWithLabel {
   private boolean disabled = false;
   private boolean required = false;
   private boolean ariaRequired = false;
+  private boolean focusOnInput = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
@@ -370,6 +373,24 @@ public class FieldWithLabel {
     this.focusOnError = true;
   }
 
+  /**
+   * Determines whether or not a user arrived on the edit page by clicking on a specific question.
+   * If they clicked on a specific question, we set the autofocus to the input for that question.
+   */
+  public FieldWithLabel maybeFocusOnInput(
+      ApplicantQuestionRendererParams params, ApplicantQuestion applicantQuestion) {
+    if (params.questionName().isPresent() && params.questionType().isPresent()) {
+      boolean questionNameMatch =
+          params.questionName().get().equals(applicantQuestion.getQuestionDefinition().getName());
+      boolean questionTypeMatch =
+          params.questionType().get().equals(applicantQuestion.getType().toString());
+      if (questionNameMatch && questionTypeMatch) {
+        this.focusOnInput = true;
+      }
+    }
+    return this;
+  }
+
   /** Attribute getters * */
   public String getFieldType() {
     return this.fieldType;
@@ -555,7 +576,8 @@ public class FieldWithLabel {
         .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId)
+        .condAttr(focusOnInput, Attr.AUTOFOCUS, "");
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>>
