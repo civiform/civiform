@@ -152,9 +152,7 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
         .with(
             each(
                 params.block().getQuestions(),
-                question ->
-                    renderQuestion(
-                        question, rendererParams))) // ROCKY - here is where we call renderQuestion
+                question -> renderQuestion(question, rendererParams)))
         .with(renderBottomNavButtons(params));
   }
 

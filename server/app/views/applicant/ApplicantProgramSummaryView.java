@@ -239,9 +239,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
                       data.programId(),
                       data.blockId(),
                       questionName,
-                      questionType) // ROCKY - set answer link here, so could pass in params
-                  // data.questionDefinition().getName() and
-                  // data.questionDefinition().getQuestionType().getLabel()
+                      questionType)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);

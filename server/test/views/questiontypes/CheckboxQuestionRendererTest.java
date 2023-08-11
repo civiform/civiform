@@ -121,7 +121,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
   }
 
   @Test
-  public void renderWithSelection_hasAutofocus() {
+  public void renderWithSelection_hasNoAutofocus() {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 1L);
 
@@ -131,7 +131,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
   }
 
   @Test
-  public void applicantSelectedQuestionParamsMatch_hasAutoFocus() {
+  public void applicantSelectedQuestionNameAndTypeMatch_hasAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)

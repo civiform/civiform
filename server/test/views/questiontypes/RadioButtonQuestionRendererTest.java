@@ -121,7 +121,8 @@ public class RadioButtonQuestionRendererTest {
     assertThat(result.render()).doesNotContain("autofocus");
   }
 
-  public void applicantSelectedQuestionParamsMatch_hasAutoFocus() {
+  @Test
+  public void applicantSelectedQuestionNameAndTypeMatch_hasAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
@@ -138,7 +139,7 @@ public class RadioButtonQuestionRendererTest {
   }
 
   @Test
-  public void applicantSelectedQuestionParamsNameMismatch_hasNoAutoFocus() {
+  public void applicantSelectedQuestionNameMismatch_hasNoAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
@@ -155,7 +156,7 @@ public class RadioButtonQuestionRendererTest {
   }
 
   @Test
-  public void applicantSelectedQuestionParamsTypeMismatch_hasNoAutoFocus() {
+  public void applicantSelectedQuestionTypeMismatch_hasNoAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
