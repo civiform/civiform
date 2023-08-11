@@ -235,11 +235,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.edit(
-                      applicantId,
-                      data.programId(),
-                      data.blockId(),
-                      questionName,
-                      questionType)
+                      applicantId, data.programId(), data.blockId(), questionName, questionType)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);

@@ -139,8 +139,6 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
             .setQuestionName(Optional.of("question name"))
             .setQuestionType(Optional.of("CHECKBOX"))
             .build();
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, question.getContextualizedPath(), 0, 0L);
 
     DivTag result = renderer.render(params);
 
@@ -156,8 +154,6 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
             .setQuestionName(Optional.of("wrong name"))
             .setQuestionType(Optional.of("CHECKBOX"))
             .build();
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, question.getContextualizedPath(), 0, 0L);
 
     DivTag result = renderer.render(params);
 
@@ -173,8 +169,6 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
             .setQuestionName(Optional.of("question name"))
             .setQuestionType(Optional.of("NAME"))
             .build();
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, question.getContextualizedPath(), 0, 0L);
 
     DivTag result = renderer.render(params);
 
