@@ -68,6 +68,29 @@ describe('Validate program visibility is correct for applicants and TIs', () => 
     )
     await validateScreenshot(page, 'program-visibility-public')
   })
+  it('disabled program cannot be seen by applicants', async () => {
+    const {page, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Disabled program'
+    const programDescription = 'Description'
+    await adminPrograms.addProgram(
+      programName,
+      programDescription,
+      'https://usa.gov',
+      ProgramVisibility.DISABLED,
+    )
+    await adminPrograms.publishAllDrafts()
+
+    // Login as applicant
+    await logout(page)
+
+    // Verify applicants can now see the program
+    const applicantQuestions = new ApplicantQuestions(page)
+    await applicantQuestions.expectProgramHidden(programName)
+    await validateScreenshot(page, 'program-visibility-disabled')
+  })
 
   it('create a program visible only to TIs, verify TIs can see it and other applicants cannot', async () => {
     const {page, tiDashboard, adminPrograms} = ctx
