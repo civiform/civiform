@@ -12,7 +12,7 @@ public class AuthIdentityProviderNameTest {
 
   @Test
   public void fromConfig_returnsDisabledWhenEmpty() {
-    assertThat(AuthIdentityProviderName.fromConfig(ConfigFactory.empty()))
+    assertThat(AuthIdentityProviderName.applicantIdentityProviderfromConfig(ConfigFactory.empty()))
         .isEqualTo(AuthIdentityProviderName.IDCS_APPLICANT);
   }
 
@@ -23,7 +23,7 @@ public class AuthIdentityProviderNameTest {
             ImmutableMap.of(
                 AuthIdentityProviderName.AUTH_APPLICANT_CONFIG_PATH,
                 AuthIdentityProviderName.GENERIC_OIDC_APPLICANT.getValue()));
-    assertThat(AuthIdentityProviderName.fromConfig(config))
+    assertThat(AuthIdentityProviderName.applicantIdentityProviderfromConfig(config))
         .isEqualTo(AuthIdentityProviderName.GENERIC_OIDC_APPLICANT);
   }
 
@@ -32,7 +32,7 @@ public class AuthIdentityProviderNameTest {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(AuthIdentityProviderName.AUTH_APPLICANT_CONFIG_PATH, "bla-bla-bla"));
-    assertThatThrownBy(() -> AuthIdentityProviderName.fromConfig(config))
+    assertThatThrownBy(() -> AuthIdentityProviderName.applicantIdentityProviderfromConfig(config))
         .isInstanceOf(IllegalArgumentException.class);
   }
 }
