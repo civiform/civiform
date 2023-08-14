@@ -256,4 +256,22 @@ public class FieldWithLabelTest {
 
     assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
   }
+
+
+  @Test
+  public void whenFocusOnInput_autofocusIsPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    fieldWithLabel.focusOnInput();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void whenNotFocusOnInput_autofocusIsNotPresent() {
+    FieldWithLabel fieldWithLabel = FieldWithLabel.input();
+    String rendered = fieldWithLabel.getInputTag().render();
+
+    assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
+  }
 }
