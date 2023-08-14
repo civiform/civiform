@@ -38,27 +38,27 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     SelectWithLabel select =
-            new SelectWithLabel()
-                .addReferenceClass("cf-dropdown-question")
-                .setFieldName(singleSelectQuestion.getSelectionPath().toString())
-                .setAriaRequired(!isOptional)
-                .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
-                .setOptions(
-                    singleSelectQuestion.getOptions().stream()
-                        .sorted(Comparator.comparing(LocalizedQuestionOption::order))
-                        .map(
-                            option ->
-                                SelectWithLabel.OptionValue.builder()
-                                    .setLabel(option.optionText())
-                                    .setValue(String.valueOf(option.id()))
-                                    .build())
-                        .collect(ImmutableList.toImmutableList()))
-                .setAriaDescribedByIds(ariaDescribedByIds);
+        new SelectWithLabel()
+            .addReferenceClass("cf-dropdown-question")
+            .setFieldName(singleSelectQuestion.getSelectionPath().toString())
+            .setAriaRequired(!isOptional)
+            .setPlaceholderText(messages.at(MessageKey.DROPDOWN_PLACEHOLDER.getKeyName()))
+            .setOptions(
+                singleSelectQuestion.getOptions().stream()
+                    .sorted(Comparator.comparing(LocalizedQuestionOption::order))
+                    .map(
+                        option ->
+                            SelectWithLabel.OptionValue.builder()
+                                .setLabel(option.optionText())
+                                .setValue(String.valueOf(option.id()))
+                                .build())
+                    .collect(ImmutableList.toImmutableList()))
+            .setAriaDescribedByIds(ariaDescribedByIds);
 
     if (applicantSelectedQuestion(params.questionName())) {
       select.focusOnInput();
     }
-    
+
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
       if (params

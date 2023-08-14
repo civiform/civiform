@@ -128,8 +128,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
    * Determines whether or not a user arrived on the edit page by clicking on a specific question.
    * If they clicked on a specific question, we set the autofocus to the input for that question.
    */
-  public boolean applicantSelectedQuestion(
-      Optional<String> questionName) {
+  public boolean applicantSelectedQuestion(Optional<String> questionName) {
     if (questionName.isPresent()) {
       return questionName.get().equals(applicantQuestion.getQuestionDefinition().getName());
     }

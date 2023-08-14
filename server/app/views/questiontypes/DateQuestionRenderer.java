@@ -46,7 +46,7 @@ public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
     if (applicantSelectedQuestion(params.questionName())) {
       dateField.focusOnInput();
     }
-    
+
     if (!validationErrors.isEmpty()) {
       dateField.forceAriaInvalid();
       if (params

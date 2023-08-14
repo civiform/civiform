@@ -137,8 +137,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       Optional<String> questionName) {
-    return editOrReview(
-        request, applicantId, programId, blockId, false, questionName);
+    return editOrReview(request, applicantId, programId, blockId, false, questionName);
   }
 
   /**
@@ -614,8 +613,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           applicantId,
                           programId,
                           nextBlockIdMaybe.get(),
-                          /* questionName= */ Optional.empty()
-                          ))
+                          /* questionName= */ Optional.empty()))
                   .flashing(flashingMap));
     }
 
@@ -626,8 +624,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantId,
                         programId,
                         nextBlockIdMaybe.get(),
-                        /* questionName= */ Optional.empty()
-                        ))
+                        /* questionName= */ Optional.empty()))
                 .flashing(flashingMap));
   }
 
@@ -757,8 +754,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             block,
             personalInfo,
             errorDisplayMode,
-            /* questionName= */ Optional.empty()
-            )
+            /* questionName= */ Optional.empty())
         .build();
   }
 

@@ -47,7 +47,7 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
     if (applicantSelectedQuestion(params.questionName())) {
       emailField.focusOnInput();
     }
-    
+
     if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();
       if (params

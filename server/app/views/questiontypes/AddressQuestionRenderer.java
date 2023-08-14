@@ -58,7 +58,7 @@ public class AddressQuestionRenderer extends ApplicantCompositeQuestionRenderer 
                 validationErrors.getOrDefault(addressQuestion.getStreetPath(), ImmutableSet.of()))
             .addReferenceClass(ReferenceClasses.ADDRESS_STREET_1);
     if (applicantSelectedQuestion(params.questionName())) {
-        streetAddressField.focusOnInput();
+      streetAddressField.focusOnInput();
     }
 
     FieldWithLabel addressOptionalField =

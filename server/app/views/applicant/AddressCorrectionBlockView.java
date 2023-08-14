@@ -149,10 +149,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                 "bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"), "mb-2")
             .setHref(
                 routes.ApplicantProgramBlocksController.review(
-                        applicantId,
-                        programId,
-                        blockId,
-                        /* questionName= */ Optional.empty())
+                        applicantId, programId, blockId, /* questionName= */ Optional.empty())
                     .url())
             .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
             .setIcon(Icons.EDIT, LinkElement.IconPosition.START)

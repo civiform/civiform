@@ -44,7 +44,7 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
     if (applicantSelectedQuestion(params.questionName())) {
       idField.focusOnInput();
     }
-    
+
     if (!validationErrors.isEmpty()) {
       idField.forceAriaInvalid();
       if (params

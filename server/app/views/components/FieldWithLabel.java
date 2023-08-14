@@ -28,9 +28,7 @@ import org.apache.commons.lang3.StringUtils;
 import play.data.validation.ValidationError;
 import play.i18n.Messages;
 import services.applicant.ValidationErrorMessage;
-import services.applicant.question.ApplicantQuestion;
 import views.ViewUtils;
-import views.questiontypes.ApplicantQuestionRendererParams;
 import views.style.BaseStyles;
 import views.style.StyleUtils;
 
