@@ -43,6 +43,11 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
     if (!validationErrors.isEmpty()) {
       idField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        idField.focusOnError();
+      }
     }
 
     return idField.getInputTag();

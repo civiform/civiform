@@ -56,6 +56,11 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setAriaDescribedByIds(ariaDescribedByIds);
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        select.focusOnError();
+      }
     }
     select.setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 

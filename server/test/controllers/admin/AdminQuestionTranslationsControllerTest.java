@@ -115,7 +115,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getName(),
             "es-US");
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
 
     QuestionDefinition updatedQuestion =
         questionRepository
@@ -149,7 +149,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
             question.getQuestionDefinition().getName(),
             "es-US");
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
 
     QuestionDefinition updatedQuestion =
         questionRepository

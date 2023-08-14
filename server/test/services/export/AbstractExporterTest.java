@@ -552,6 +552,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     Applicant applicant;
     Program program;
     Optional<Account> trustedIntermediary = Optional.empty();
+    Application application;
 
     public FakeApplicationFiller(Program program) {
       this.program = program;
@@ -688,8 +689,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public Application submit() {
-      Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
+    public FakeApplicationFiller submit() {
+      application = new Application(applicant, program, LifecycleStage.ACTIVE);
       application.setApplicantData(applicant.getApplicantData());
       trustedIntermediary.ifPresent(
           account -> application.setSubmitterEmail(account.getEmailAddress()));
@@ -701,7 +702,18 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       application.setSubmitTimeForTest(FAKE_SUBMIT_TIME);
       application.save();
 
-      return application;
+      return this;
+    }
+
+    public FakeApplicationFiller markObsolete() {
+      if (application == null) {
+        throw new IllegalStateException(
+            "Cannot mark an application as obsolete unless it has been submitted.");
+      }
+      application.setLifecycleStage(LifecycleStage.OBSOLETE);
+      application.save();
+
+      return this;
     }
   }
 }

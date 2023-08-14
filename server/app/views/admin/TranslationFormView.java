@@ -1,6 +1,7 @@
 package views.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.fieldset;
@@ -83,7 +84,12 @@ public abstract class TranslationFormView extends BaseHtmlView {
       Http.Request request,
       Locale locale,
       String formAction,
-      ImmutableList<DomContent> formFieldContent) {
+      ImmutableList<DomContent> formFieldContent,
+      boolean isProgramEdit) {
+    String redirectUrl =
+        isProgramEdit
+            ? controllers.admin.routes.AdminProgramController.index().url()
+            : controllers.admin.routes.AdminQuestionController.index().url();
     FormTag form =
         form()
             .withMethod("POST")
@@ -91,12 +97,19 @@ public abstract class TranslationFormView extends BaseHtmlView {
             .withAction(formAction)
             .with(formFieldContent)
             .with(
-                submitButton(
-                        String.format(
-                            "Save %s updates",
-                            locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
-                    .withId("update-localizations-button")
-                    .withClasses(ButtonStyles.SOLID_BLUE));
+                div()
+                    .withClasses("flex", "flex-row", "gap-x-2")
+                    .with(
+                        a("Back")
+                            .withHref(redirectUrl)
+                            .withId("back-to-list-button")
+                            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
+                        submitButton(
+                                String.format(
+                                    "Save %s updates",
+                                    locale.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)))
+                            .withId("update-localizations-button")
+                            .withClasses(ButtonStyles.SOLID_BLUE)));
     return form;
   }
 

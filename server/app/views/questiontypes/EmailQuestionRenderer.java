@@ -46,6 +46,11 @@ public class EmailQuestionRenderer extends ApplicantSingleQuestionRenderer {
 
     if (!validationErrors.isEmpty()) {
       emailField.forceAriaInvalid();
+      if (params
+          .errorDisplayMode()
+          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
+        emailField.focusOnError();
+      }
     }
 
     return emailField.getEmailTag();

@@ -103,4 +103,30 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
                         + " [A-Za-z]{8}-description\".*"))
         .isTrue();
   }
+
+  @Test
+  public void renderWithNoSelections_andSingleErrorMode_hasAutofocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)
+            .build();
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 0L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains("autofocus");
+  }
+
+  @Test
+  public void renderWithSelection_hasNoAutofocus() {
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, question.getContextualizedPath(), 0, 1L);
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain("autofocus");
+  }
 }
