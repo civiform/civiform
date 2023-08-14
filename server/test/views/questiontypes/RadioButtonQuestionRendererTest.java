@@ -123,13 +123,12 @@ public class RadioButtonQuestionRendererTest {
   }
 
   @Test
-  public void applicantSelectedQuestionNameAndTypeMatch_hasAutoFocus() {
+  public void applicantSelectedQuestionNameMatch_hasAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setQuestionName(Optional.of("favorite ice cream"))
-            .setQuestionType(Optional.of("RADIO_BUTTON"))
             .build();
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 0L);
@@ -146,24 +145,6 @@ public class RadioButtonQuestionRendererTest {
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setQuestionName(Optional.of("wrong name"))
-            .setQuestionType(Optional.of("RADIO_BUTTON"))
-            .build();
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, question.getContextualizedPath(), 0, 0L);
-
-    DivTag result = renderer.render(params);
-
-    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
-  }
-
-  @Test
-  public void applicantSelectedQuestionTypeMismatch_hasNoAutoFocus() {
-    params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("favorite ice cream"))
-            .setQuestionType(Optional.of("CHECKBOX"))
             .build();
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 0L);

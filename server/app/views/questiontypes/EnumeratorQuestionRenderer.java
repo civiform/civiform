@@ -91,7 +91,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     // need to specify type "button" to avoid default onClick browser behavior
                     .withType("button")
                     .condAttr(
-                        applicantSelectedQuestion(params.questionName(), params.questionType()),
+                        applicantSelectedQuestion(params.questionName()),
                         Attr.AUTOFOCUS,
                         "")
                     .condAttr(hasErrors, "aria-invalid", "true")

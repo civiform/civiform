@@ -156,8 +156,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                                   applicantId,
                                   programId,
                                   block.getId(),
-                                  /* questionName= */ Optional.empty(),
-                                  /* questionType= */ Optional.empty()))));
+                                  /* questionName= */ Optional.empty()))));
             },
             httpContext.current())
         .thenComposeAsync(

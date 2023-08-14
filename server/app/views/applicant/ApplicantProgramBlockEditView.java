@@ -141,7 +141,6 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
             .setMessages(params.messages())
             .setErrorDisplayMode(params.errorDisplayMode())
             .setQuestionName(params.questionName())
-            .setQuestionType(params.questionType())
             .build();
 
     return form.withId(BLOCK_FORM_ID)

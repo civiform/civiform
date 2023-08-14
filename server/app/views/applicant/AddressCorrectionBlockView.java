@@ -152,8 +152,7 @@ public final class AddressCorrectionBlockView extends ApplicationBaseView {
                         applicantId,
                         programId,
                         blockId,
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty())
+                        /* questionName= */ Optional.empty())
                     .url())
             .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
             .setIcon(Icons.EDIT, LinkElement.IconPosition.START)

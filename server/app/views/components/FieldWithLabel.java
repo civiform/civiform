@@ -379,14 +379,8 @@ public class FieldWithLabel {
    */
   public FieldWithLabel maybeFocusOnInput(
       ApplicantQuestionRendererParams params, ApplicantQuestion applicantQuestion) {
-    if (params.questionName().isPresent() && params.questionType().isPresent()) {
-      boolean questionNameMatch =
-          params.questionName().get().equals(applicantQuestion.getQuestionDefinition().getName());
-      boolean questionTypeMatch =
-          params.questionType().get().equals(applicantQuestion.getType().toString());
-      if (questionNameMatch && questionTypeMatch) {
-        this.focusOnInput = true;
-      }
+    if (params.questionName().isPresent() && params.questionName().get().equals(applicantQuestion.getQuestionDefinition().getName())) {
+      this.focusOnInput = true;
     }
     return this;
   }

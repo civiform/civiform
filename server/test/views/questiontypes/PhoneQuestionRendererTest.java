@@ -52,13 +52,12 @@ public class PhoneQuestionRendererTest {
   }
 
   @Test
-  public void applicantSelectedQuestionNameAndTypeMatch_hasAutoFocus() {
+  public void applicantSelectedQuestionNameMatch_hasAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setQuestionName(Optional.of("question name"))
-            .setQuestionType(Optional.of("PHONE"))
             .build();
 
     DivTag result = renderer.render(params);
@@ -73,7 +72,6 @@ public class PhoneQuestionRendererTest {
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setQuestionName(Optional.of("wrong name"))
-            .setQuestionType(Optional.of("PHONE"))
             .build();
 
     DivTag result = renderer.render(params);
@@ -82,22 +80,7 @@ public class PhoneQuestionRendererTest {
   }
 
   @Test
-  public void applicantSelectedQuestionTypeMismatch_hasNoAutoFocus() {
-    params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("question name"))
-            .setQuestionType(Optional.of("TEXT"))
-            .build();
-
-    DivTag result = renderer.render(params);
-
-    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
-  }
-
-  @Test
-  public void maybeFocusOnInputNameAndTypeAreBlank_autofocusIsNotPresent() {
+  public void maybeFocusOnInputNameIsBlank_autofocusIsNotPresent() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)

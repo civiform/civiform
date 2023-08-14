@@ -278,8 +278,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
                     currentApplicant.id,
                     program.id,
                     "1",
-                    /* questionName= */ Optional.empty(),
-                    /* questionType= */ Optional.empty())
+                    /* questionName= */ Optional.empty())
                 .url());
   }
 
@@ -312,8 +311,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
                     currentApplicant.id,
                     program.id,
                     "2",
-                    /* questionName= */ Optional.empty(),
-                    /* questionType= */ Optional.empty())
+                    /* questionName= */ Optional.empty())
                 .url());
   }
 

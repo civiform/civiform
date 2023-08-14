@@ -36,8 +36,6 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Optional<String> questionName();
 
-  public abstract Optional<String> questionType();
-
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setMessages(Messages messages);
@@ -48,8 +46,6 @@ public abstract class ApplicantQuestionRendererParams {
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
 
     public abstract Builder setQuestionName(Optional<String> questionName);
-
-    public abstract Builder setQuestionType(Optional<String> questionType);
 
     public abstract ApplicantQuestionRendererParams build();
   }

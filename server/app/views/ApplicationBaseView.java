@@ -91,8 +91,6 @@ public class ApplicationBaseView extends BaseHtmlView {
 
     public abstract Optional<String> questionName();
 
-    public abstract Optional<String> questionType();
-
     @AutoValue.Builder
     public abstract static class Builder {
       public abstract Builder setRequest(Http.Request request);
@@ -127,8 +125,6 @@ public class ApplicationBaseView extends BaseHtmlView {
       public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 
       public abstract Builder setQuestionName(Optional<String> questionName);
-
-      public abstract Builder setQuestionType(Optional<String> questionType);
 
       public abstract Params build();
     }

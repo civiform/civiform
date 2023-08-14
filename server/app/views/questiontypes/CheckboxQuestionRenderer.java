@@ -64,8 +64,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                                 hasErrors,
                                 isOptional,
                                 params.errorDisplayMode(),
-                                params.questionName(),
-                                params.questionType())));
+                                params.questionName())));
 
     return checkboxQuestionFormContent;
   }
@@ -77,8 +76,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean hasErrors,
       boolean isOptional,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
-      Optional<String> questionName,
-      Optional<String> questionType) {
+      Optional<String> questionName) {
     String id = "checkbox-" + applicantQuestion.getContextualizedPath() + "-" + option.id();
     LabelTag labelTag =
         label()
@@ -94,7 +92,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
                     .condAttr(
-                        applicantSelectedQuestion(questionName, questionType), Attr.AUTOFOCUS, "")
+                        applicantSelectedQuestion(questionName), Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .condAttr(
                         errorDisplayMode.equals(

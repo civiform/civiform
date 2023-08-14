@@ -129,12 +129,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
    * If they clicked on a specific question, we set the autofocus to the input for that question.
    */
   public boolean applicantSelectedQuestion(
-      Optional<String> questionName, Optional<String> questionType) {
-    if (questionName.isPresent() && questionType.isPresent()) {
-      boolean questionNameMatch =
-          questionName.get().equals(applicantQuestion.getQuestionDefinition().getName());
-      boolean questionTypeMatch = questionType.get().equals(applicantQuestion.getType().toString());
-      return questionNameMatch && questionTypeMatch;
+      Optional<String> questionName) {
+    if (questionName.isPresent()) {
+      return questionName.get().equals(applicantQuestion.getQuestionDefinition().getName());
     }
     return false;
   }

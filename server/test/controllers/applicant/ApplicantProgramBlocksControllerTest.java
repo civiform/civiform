@@ -61,8 +61,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     badApplicantId,
                     program.id,
                     "1",
-                    /* questionName= */ Optional.empty(),
-                    /* questionType= */ Optional.empty()))
+                    /* questionName= */ Optional.empty()))
             .build();
 
     Result result =
@@ -72,8 +71,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 badApplicantId,
                 program.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -95,8 +93,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id,
                         program.id,
                         "1",
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty())))
+                        /* questionName= */ Optional.empty())))
             .build();
     Result result =
         subject
@@ -105,8 +102,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -130,8 +126,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id,
                         program.id,
                         "1",
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty())))
+                        /* questionName= */ Optional.empty())))
             .build();
     Result result =
         subject
@@ -140,8 +135,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -159,8 +153,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id,
                         program.id,
                         "1",
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty())))
+                        /* questionName= */ Optional.empty())))
             .build();
     Result result =
         subject
@@ -169,8 +162,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -186,8 +178,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id,
                         program.id + 1000,
                         "1",
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty())))
+                        /* questionName= */ Optional.empty())))
             .build();
 
     Result result =
@@ -197,8 +188,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id + 1000,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -214,8 +204,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id,
                         program.id,
                         "1",
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty())))
+                        /* questionName= */ Optional.empty())))
             .build();
 
     Result result =
@@ -225,8 +214,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -241,8 +229,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     applicant.id,
                     program.id,
                     "9999",
-                    /* questionName= */ Optional.empty(),
-                    /* questionType= */ Optional.empty()))
+                    /* questionName= */ Optional.empty()))
             .build();
 
     Result result =
@@ -252,8 +239,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id,
                 "9999",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -269,8 +255,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             applicant.id,
                             program.id,
                             "1",
-                            /* questionName= */ Optional.empty(),
-                            /* questionType= */ Optional.empty()))
+                            /* questionName= */ Optional.empty())))
                     .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
@@ -281,8 +266,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -326,8 +310,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -357,8 +340,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -382,8 +364,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -430,8 +411,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -461,8 +441,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -486,8 +465,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -631,8 +609,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id,
                 /* blockId = */ "2",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -766,8 +743,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -797,8 +773,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 draftProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -822,8 +797,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 obsoleteProgram.id,
                 "1",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .toCompletableFuture()
             .join();
 
@@ -944,8 +918,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                 applicant.id,
                 program.id,
                 /* blockId = */ "2",
-                /* questionName= */ Optional.empty(),
-                /* questionType= */ Optional.empty())
+                /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }

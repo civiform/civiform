@@ -136,10 +136,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      Optional<String> questionName,
-      Optional<String> questionType) {
+      Optional<String> questionName) {
     return editOrReview(
-        request, applicantId, programId, blockId, false, questionName, questionType);
+        request, applicantId, programId, blockId, false, questionName);
   }
 
   /**
@@ -157,9 +156,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long applicantId,
       long programId,
       String blockId,
-      Optional<String> questionName,
-      Optional<String> questionType) {
-    return editOrReview(request, applicantId, programId, blockId, true, questionName, questionType);
+      Optional<String> questionName) {
+    return editOrReview(request, applicantId, programId, blockId, true, questionName);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -308,8 +306,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       boolean inReview,
-      Optional<String> questionName,
-      Optional<String> questionType) {
+      Optional<String> questionName) {
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
@@ -341,8 +338,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                 block.get(),
                                 personalInfo,
                                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
-                                questionName,
-                                questionType)
+                                questionName)
                             .setBannerMessage(flashSuccessBanner)
                             .build()));
               } else {
@@ -618,8 +614,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           applicantId,
                           programId,
                           nextBlockIdMaybe.get(),
-                          /* questionName= */ Optional.empty(),
-                          /* questionType= */ Optional.empty()))
+                          /* questionName= */ Optional.empty()
+                          ))
                   .flashing(flashingMap));
     }
 
@@ -630,8 +626,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         applicantId,
                         programId,
                         nextBlockIdMaybe.get(),
-                        /* questionName= */ Optional.empty(),
-                        /* questionType= */ Optional.empty()))
+                        /* questionName= */ Optional.empty()
+                        ))
                 .flashing(flashingMap));
   }
 
@@ -722,8 +718,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Block block,
       ApplicantPersonalInfo personalInfo,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
-      Optional<String> questionName,
-      Optional<String> questionType) {
+      Optional<String> questionName) {
     return ApplicationBaseView.Params.builder()
         .setRequest(request)
         .setMessages(messagesApi.preferred(request))
@@ -739,8 +734,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
         .setErrorDisplayMode(errorDisplayMode)
-        .setQuestionName(questionName)
-        .setQuestionType(questionType);
+        .setQuestionName(questionName);
   }
 
   private ApplicationBaseView.Params buildApplicationBaseViewParams(
@@ -763,8 +757,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             block,
             personalInfo,
             errorDisplayMode,
-            /* questionName= */ Optional.empty(),
-            /* questionType= */ Optional.empty())
+            /* questionName= */ Optional.empty()
+            )
         .build();
   }
 

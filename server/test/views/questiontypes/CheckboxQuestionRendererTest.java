@@ -132,13 +132,12 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
   }
 
   @Test
-  public void applicantSelectedQuestionNameAndTypeMatch_hasAutoFocus() {
+  public void applicantSelectedQuestionNameMatch_hasAutoFocus() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setQuestionName(Optional.of("question name"))
-            .setQuestionType(Optional.of("CHECKBOX"))
             .build();
 
     DivTag result = renderer.render(params);
@@ -153,22 +152,6 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setQuestionName(Optional.of("wrong name"))
-            .setQuestionType(Optional.of("CHECKBOX"))
-            .build();
-
-    DivTag result = renderer.render(params);
-
-    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
-  }
-
-  @Test
-  public void applicantSelectedQuestionParamsTypeMismatch_hasNoAutoFocus() {
-    params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("question name"))
-            .setQuestionType(Optional.of("NAME"))
             .build();
 
     DivTag result = renderer.render(params);

@@ -57,8 +57,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
                                 hasErrors,
                                 isOptional,
                                 params.errorDisplayMode(),
-                                params.questionName(),
-                                params.questionType())));
+                                params.questionName())));
 
     return radioQuestionFormContent;
   }
@@ -70,8 +69,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       boolean hasErrors,
       boolean isOptional,
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
-      Optional<String> questionName,
-      Optional<String> questionType) {
+      Optional<String> questionName) {
     String id = RandomStringUtils.randomAlphabetic(8);
     LabelTag labelTag =
         label()
@@ -84,7 +82,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
-            .condAttr(applicantSelectedQuestion(questionName, questionType), Attr.AUTOFOCUS, "")
+            .condAttr(applicantSelectedQuestion(questionName), Attr.AUTOFOCUS, "")
             .condAttr(hasErrors, "aria-invalid", "true")
             .condAttr(
                 errorDisplayMode.equals(

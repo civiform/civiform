@@ -223,12 +223,11 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
     QuestionDefinition questionDefinition = data.questionDefinition();
     Optional<String> questionName = Optional.of(questionDefinition.getName());
-    Optional<String> questionType = Optional.of(questionDefinition.getQuestionType().toString());
     if (data.isAnswered()) {
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId(), questionName, questionType)
+                      applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
@@ -236,7 +235,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId(), questionName, questionType)
+                      applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);
