@@ -46,6 +46,10 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .addReferenceClass(getReferenceClass());
 
+    if (applicantSelectedQuestion(params.questionName())) {
+      numberField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       numberField.forceAriaInvalid();
       if (params

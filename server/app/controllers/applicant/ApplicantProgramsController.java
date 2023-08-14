@@ -153,7 +153,10 @@ public final class ApplicantProgramsController extends CiviFormController {
                       Optional.of(
                           found(
                               routes.ApplicantProgramBlocksController.edit(
-                                  applicantId, programId, block.getId()))));
+                                  applicantId,
+                                  programId,
+                                  block.getId(),
+                                  /* questionName= */ Optional.empty()))));
             },
             httpContext.current())
         .thenComposeAsync(

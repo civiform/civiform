@@ -75,6 +75,7 @@ public class FieldWithLabel {
   private boolean disabled = false;
   private boolean required = false;
   private boolean ariaRequired = false;
+  private boolean focusOnInput = false;
   protected ImmutableList.Builder<String> referenceClassesBuilder = ImmutableList.builder();
   protected ImmutableList.Builder<String> styleClassesBuilder = ImmutableList.builder();
   private ImmutableList.Builder<String> ariaDescribedByBuilder = ImmutableList.builder();
@@ -370,6 +371,10 @@ public class FieldWithLabel {
     this.focusOnError = true;
   }
 
+  public void focusOnInput() {
+    this.focusOnInput = true;
+  }
+
   /** Attribute getters * */
   public String getFieldType() {
     return this.fieldType;
@@ -555,7 +560,8 @@ public class FieldWithLabel {
         .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)
-        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId);
+        .condAttr(!Strings.isNullOrEmpty(this.formId), Attr.FORM, formId)
+        .condAttr(focusOnInput, Attr.AUTOFOCUS, "");
   }
 
   protected <T extends Tag<T> & IName<T> & IDisabled<T>>
