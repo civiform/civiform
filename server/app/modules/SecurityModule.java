@@ -120,20 +120,37 @@ public class SecurityModule extends AbstractModule {
         new PlayCookieSessionStore(new ShiroAesDataEncrypter(aesKey));
     bind(SessionStore.class).toInstance(sessionStore);
 
-    bindAdminIdpProvider();
+    bindAdminIdpProvider(configuration);
     bindApplicantIdpProvider(configuration);
   }
 
-  private void bindAdminIdpProvider() {
-    // Currently the only supported admin auth provider. As we add other admin auth providers,
-    // this can be converted into a switch statement.
-    bind(IndirectClient.class)
-        .annotatedWith(AdminAuthClient.class)
-        .toProvider(AdfsClientProvider.class);
+  private void bindAdminIdpProvider(com.typesafe.config.Config config) {
+    AuthIdentityProviderName idpName =
+      AuthIdentityProviderName.adminIdentityProviderfromConfig(config);
+    try {
+      switch (idpName) {
+        case ADFS_ADMIN:
+          bind(IndirectClient.class)
+              .annotatedWith(AdminAuthClient.class)
+              .toProvider(AdfsClientProvider.class);
+          break;
+        case GENERIC_OIDC_ADMIN:
+          bind(IndirectClient.class)
+              .annotatedWith(AdminAuthClient.class)
+              .toProvider(auth.oidc.admin.GenericOidcClientProvider.class);
+          break;
+        default:
+          logger.info("No provider specified for for admins");
+      }
+    } catch (RuntimeException e) {
+      logger.error("Error getting admin auth provider");
+      throw e;
+    }
   }
 
   private void bindApplicantIdpProvider(com.typesafe.config.Config config) {
-    AuthIdentityProviderName idpName = AuthIdentityProviderName.fromConfig(config);
+    AuthIdentityProviderName idpName =
+      AuthIdentityProviderName.applicantIdentityProviderfromConfig(config);
 
     try {
       switch (idpName) {
