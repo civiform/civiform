@@ -257,7 +257,6 @@ public class FieldWithLabelTest {
     assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
   }
 
-
   @Test
   public void whenFocusOnInput_autofocusIsPresent() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.input();
