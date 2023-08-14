@@ -3,6 +3,7 @@ package views.questiontypes;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -108,7 +109,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("autofocus");
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -123,7 +124,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -138,7 +139,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -151,6 +152,6 @@ public class TextQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

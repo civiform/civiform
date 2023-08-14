@@ -92,7 +92,7 @@ public final class EnumeratorQuestionRenderer extends ApplicantCompositeQuestion
                     .withType("button")
                     .condAttr(
                         applicantSelectedQuestion(params.questionName(), params.questionType()),
-                        "autofocus",
+                        Attr.AUTOFOCUS,
                         "")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .condAttr(

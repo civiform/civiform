@@ -5,6 +5,7 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -111,14 +112,14 @@ public class RadioButtonQuestionRendererTest {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("autofocus");
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
   }
 
   @Test
   public void renderWithoutErrors_doesNotAutofocus() {
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -135,7 +136,7 @@ public class RadioButtonQuestionRendererTest {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("autofocus");
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -152,7 +153,7 @@ public class RadioButtonQuestionRendererTest {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -169,6 +170,6 @@ public class RadioButtonQuestionRendererTest {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

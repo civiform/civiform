@@ -84,7 +84,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
-            .condAttr(applicantSelectedQuestion(questionName, questionType), "autofocus", "")
+            .condAttr(applicantSelectedQuestion(questionName, questionType), Attr.AUTOFOCUS, "")
             .condAttr(hasErrors, "aria-invalid", "true")
             .condAttr(
                 errorDisplayMode.equals(

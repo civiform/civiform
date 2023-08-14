@@ -94,7 +94,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
                     .condAttr(
-                        applicantSelectedQuestion(questionName, questionType), "autofocus", "")
+                        applicantSelectedQuestion(questionName, questionType), Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .condAttr(
                         errorDisplayMode.equals(

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 import org.junit.Test;
@@ -245,7 +246,7 @@ public class FieldWithLabelTest {
     fieldWithLabel.focusOnError();
     String rendered = fieldWithLabel.getInputTag().render();
 
-    assertThat(rendered).contains("autofocus");
+    assertThat(rendered).contains(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -253,6 +254,6 @@ public class FieldWithLabelTest {
     FieldWithLabel fieldWithLabel = FieldWithLabel.input();
     String rendered = fieldWithLabel.getInputTag().render();
 
-    assertThat(rendered).doesNotContain("autofocus");
+    assertThat(rendered).doesNotContain(Attr.AUTOFOCUS);
   }
 }
