@@ -182,7 +182,7 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         'address question text',
       )
-      // Should focus on question the applicant clicked on
+      // Should focus on the question the applicant clicked on when answer for the first time
       expect(await page.innerHTML('.cf-address-street-1')).toContain(
         'autofocus',
       )
@@ -196,6 +196,18 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.clickReview()
       await validateScreenshot(page, 'third-question-answered')
+
+      await page.click(
+        '.cf-applicant-summary-row:has(div:has-text("address question text")) a:has-text("Edit")',
+      )
+      await waitForPageJsLoad(page)
+      expect(await page.innerText('.cf-applicant-question-text')).toContain(
+        'address question text',
+      )
+      // Should focus on question the applicant clicked on when editing previous answer
+      expect(await page.innerHTML('.cf-address-street-1')).toContain(
+        'autofocus',
+      )
     })
 
     it('verify program review page', async () => {

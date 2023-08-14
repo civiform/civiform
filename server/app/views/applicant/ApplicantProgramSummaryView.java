@@ -220,18 +220,19 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     LinkElement editElement =
         new LinkElement()
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
+    
+    QuestionDefinition questionDefinition = data.questionDefinition();
+    Optional<String> questionName = Optional.of(questionDefinition.getName());
+    Optional<String> questionType = Optional.of(questionDefinition.getQuestionType().toString());
     if (data.isAnswered()) {
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId())
+                      applicantId, data.programId(), data.blockId(), questionName, questionType)
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
     } else {
-      QuestionDefinition questionDefinition = data.questionDefinition();
-      Optional<String> questionName = Optional.of(questionDefinition.getName());
-      Optional<String> questionType = Optional.of(questionDefinition.getQuestionType().toString());
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.edit(
