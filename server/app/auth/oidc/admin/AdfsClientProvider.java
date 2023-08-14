@@ -78,7 +78,7 @@ public class AdfsClientProvider implements Provider<OidcClient> {
     // combined with the name to create the url.
     client.setCallbackUrl(baseUrl + "/callback");
 
-    // This is specific to the implemention using pac4j. pac4j has concept
+    // This is specific to the implementation using pac4j. pac4j has concept
     // of a profile for different identity profiles we have different creators.
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
