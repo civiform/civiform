@@ -153,15 +153,13 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    */
   @Secure
   public CompletionStage<Result> review(
-      Request request, long applicantId, long programId, String blockId, Optional<String> questionName,
+      Request request,
+      long applicantId,
+      long programId,
+      String blockId,
+      Optional<String> questionName,
       Optional<String> questionType) {
-    return editOrReview(
-        request,
-        applicantId,
-        programId,
-        blockId,
-        true,
-        questionName, questionType);
+    return editOrReview(request, applicantId, programId, blockId, true, questionName, questionType);
   }
 
   /** Handles the applicant's selection from the address correction options. */
@@ -617,7 +615,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           () ->
               redirect(
                       routes.ApplicantProgramBlocksController.review(
-                          applicantId, programId, nextBlockIdMaybe.get(), /* questionName= */ Optional.empty(),
+                          applicantId,
+                          programId,
+                          nextBlockIdMaybe.get(),
+                          /* questionName= */ Optional.empty(),
                           /* questionType= */ Optional.empty()))
                   .flashing(flashingMap));
     }

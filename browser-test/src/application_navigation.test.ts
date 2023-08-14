@@ -182,7 +182,7 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         'address question text',
       )
-      // Should focus on the question the applicant clicked on when answer for the first time
+      // Should focus on the question the applicant clicked on when answering for the first time
       expect(await page.innerHTML('.cf-address-street-1')).toContain(
         'autofocus',
       )
@@ -204,7 +204,7 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('.cf-applicant-question-text')).toContain(
         'address question text',
       )
-      // Should focus on question the applicant clicked on when editing previous answer
+      // Should focus on the question the applicant clicked on when editing previous answer
       expect(await page.innerHTML('.cf-address-street-1')).toContain(
         'autofocus',
       )

@@ -220,7 +220,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     LinkElement editElement =
         new LinkElement()
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
-    
+
     QuestionDefinition questionDefinition = data.questionDefinition();
     Optional<String> questionName = Optional.of(questionDefinition.getName());
     Optional<String> questionType = Optional.of(questionDefinition.getQuestionType().toString());
