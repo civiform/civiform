@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -165,6 +166,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
       RenderFilterParams filterParams) {
+    String redirectUrl =
+        routes.AdminApplicationController.index(
+                program.id(),
+                /* search = */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* untilDate= */ Optional.empty(),
+                /* applicationStatus= */ Optional.empty(),
+                /* selectedApplicationUri= */ Optional.empty())
+            .url();
     return form()
         .withClasses("mt-6")
         .withMethod("GET")
@@ -251,7 +262,8 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     downloadButton,
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
-                        .withType("submit")));
+                        .withType("submit"),
+                    a("Clear").withHref(redirectUrl).withClass(ButtonStyles.SOLID_BLUE)));
   }
 
   private Modal renderDownloadApplicationsModal(

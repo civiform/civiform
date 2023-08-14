@@ -336,4 +336,67 @@ describe('Program admin review of submitted applications', () => {
       )
     }
   })
+
+  it('program application filters cleared', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    const noApplyFilters = false
+    const applyFilters = true
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program'
+    await adminQuestions.addNameQuestion({questionName: 'Name'})
+    await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
+
+    await logout(page)
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName)
+
+    // Applicant fills out first application block.
+    await applicantQuestions.answerNameQuestion('sarah', 'smith')
+    await applicantQuestions.clickNext()
+
+    // Applicant submits answers from review page.
+    await applicantQuestions.submitFromReviewPage()
+
+    await logout(page)
+    await loginAsProgramAdmin(page)
+
+    await adminPrograms.viewApplications(programName)
+    const csvContent = await adminPrograms.getCsv(noApplyFilters)
+    expect(csvContent).toContain('sarah,,smith')
+
+    await logout(page)
+
+    // Apply to the program again, this time a different user
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.answerNameQuestion('Gus', 'Guest')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.returnToProgramsFromSubmissionPage()
+
+    // View applications as program admin
+    await loginAsProgramAdmin(page)
+    await adminPrograms.viewApplications(programName)
+    const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
+    expect(postEditCsvContent).toContain('sarah,,smith')
+    expect(postEditCsvContent).toContain('Gus,,Guest')
+
+    // Finds a partial text match on applicant name, case insensitive.
+    await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
+    const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
+    expect(filteredCsvContent).toContain('sarah,,smith')
+    expect(filteredCsvContent).not.toContain('Gus,,Guest')
+    await validateScreenshot(page, 'applications-filtered')
+
+    // Clear filters
+    await adminPrograms.clearFilterProgramApplications()
+    const unfilteredCsvContent = await adminPrograms.getCsv(applyFilters)
+    expect(unfilteredCsvContent).toContain('sarah,,smith')
+    expect(unfilteredCsvContent).toContain('Gus,,Guest')
+    await validateScreenshot(page, 'applications-unfiltered')
+
+    await logout(page)
+  })
 })
