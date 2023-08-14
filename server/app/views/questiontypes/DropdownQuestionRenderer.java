@@ -38,7 +38,6 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
     SingleSelectQuestion singleSelectQuestion = applicantQuestion.createSingleSelectQuestion();
 
     SelectWithLabel select =
-        (SelectWithLabel)
             new SelectWithLabel()
                 .addReferenceClass("cf-dropdown-question")
                 .setFieldName(singleSelectQuestion.getSelectionPath().toString())
@@ -54,8 +53,12 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
                                     .setValue(String.valueOf(option.id()))
                                     .build())
                         .collect(ImmutableList.toImmutableList()))
-                .setAriaDescribedByIds(ariaDescribedByIds)
-                .maybeFocusOnInput(params, applicantQuestion);
+                .setAriaDescribedByIds(ariaDescribedByIds);
+
+    if (applicantSelectedQuestion(params.questionName())) {
+      select.focusOnInput();
+    }
+    
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
       if (params

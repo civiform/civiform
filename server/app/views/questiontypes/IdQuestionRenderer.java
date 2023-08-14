@@ -39,9 +39,12 @@ public class IdQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(idQuestion.getIdPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader())
-            .maybeFocusOnInput(params, applicantQuestion);
+            .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
+    if (applicantSelectedQuestion(params.questionName())) {
+      idField.focusOnInput();
+    }
+    
     if (!validationErrors.isEmpty()) {
       idField.forceAriaInvalid();
       if (params

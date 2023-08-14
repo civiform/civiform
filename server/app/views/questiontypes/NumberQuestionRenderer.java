@@ -44,8 +44,11 @@ public class NumberQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 params.messages(),
                 validationErrors.getOrDefault(numberQuestion.getNumberPath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds)
-            .addReferenceClass(getReferenceClass())
-            .maybeFocusOnInput(params, applicantQuestion);
+            .addReferenceClass(getReferenceClass());
+
+    if (applicantSelectedQuestion(params.questionName())) {
+      numberField.focusOnInput();
+    }
 
     if (!validationErrors.isEmpty()) {
       numberField.forceAriaInvalid();

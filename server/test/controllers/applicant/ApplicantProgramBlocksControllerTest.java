@@ -255,7 +255,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                             applicant.id,
                             program.id,
                             "1",
-                            /* questionName= */ Optional.empty())))
+                            /* questionName= */ Optional.empty()))
                     .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 

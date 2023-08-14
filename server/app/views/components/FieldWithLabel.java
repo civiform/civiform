@@ -373,16 +373,8 @@ public class FieldWithLabel {
     this.focusOnError = true;
   }
 
-  /**
-   * Determines whether or not a user arrived on the edit page by clicking on a specific question.
-   * If they clicked on a specific question, we set the autofocus to the input for that question.
-   */
-  public FieldWithLabel maybeFocusOnInput(
-      ApplicantQuestionRendererParams params, ApplicantQuestion applicantQuestion) {
-    if (params.questionName().isPresent() && params.questionName().get().equals(applicantQuestion.getQuestionDefinition().getName())) {
-      this.focusOnInput = true;
-    }
-    return this;
+  public void focusOnInput() {
+    this.focusOnInput = true;
   }
 
   /** Attribute getters * */
