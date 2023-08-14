@@ -20,7 +20,6 @@ import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
 import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
 /**
@@ -49,8 +48,7 @@ public final class DeepLinkController extends CiviFormController {
     this.languageUtils = checkNotNull(languageUtils);
   }
 
-  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug)
-      throws ProgramNotFoundException {
+  public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
     Optional<CiviFormProfile> profile = profileUtils.currentUserProfile(request);
 
     if (profile.isEmpty()) {
