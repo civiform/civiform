@@ -106,8 +106,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               Optional<ToastMessage> notEligibleBanner = Optional.empty();
               try {
-                if(programService.getProgramDefinition(programId).displayMode().equals(models.DisplayMode.DISABLED))
-                {
+                if (programService
+                    .getProgramDefinition(programId)
+                    .displayMode()
+                    .equals(models.DisplayMode.DISABLED)) {
                   return notFound("This program is disabled");
                 }
                 if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {

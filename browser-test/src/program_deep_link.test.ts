@@ -150,9 +150,9 @@ describe('navigating to a deep link', () => {
       'Save time when applying for benefits',
     )
   })
-  it('Users cannot access deep link for disabled Programs', async () => {
+  it('Users cannot access deep link for disabled programs', async () => {
     await resetContext(ctx)
-    const {page,adminPrograms} = ctx
+    const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
 
     const programName = 'disabled deeplink'
@@ -169,16 +169,14 @@ describe('navigating to a deep link', () => {
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram(programName)
     await adminPrograms.publishAllDrafts()
-    await validateScreenshot(
-      page,
-      'program-visibity-shown-as-disabled',
-    )
+    await validateScreenshot(page, 'program-visibity-shown-as-disabled')
 
     await logout(page)
-
-    await gotoEndpoint(page, '/programs/disabled-deeplink')
-    await console.log(await page.innerText('h1'))
-    //expect(await page.innerText('h1'))
-  
+    ctx.browserErrorWatcher.ignoreErrorsFromUrl(
+      /applicants\/\d+\/programs\/\d+\/review/,
+    )
+    const response = await gotoEndpoint(page, '/programs/disabled-deeplink')
+    expect(response!.status()).toBe(404)
+    await validateScreenshot(page, 'program-is-disabled')
   })
 })

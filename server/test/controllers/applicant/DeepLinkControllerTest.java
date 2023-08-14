@@ -144,7 +144,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
-            languageUtils, notFoundPage);
+            languageUtils);
     Result result =
         controller
             .programBySlug(
@@ -174,7 +174,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
-            languageUtils, notFoundPage);
+            languageUtils);
     Result result =
         controller
             .programBySlug(
