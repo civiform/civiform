@@ -25,6 +25,7 @@ import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -219,11 +220,14 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
     LinkElement editElement =
         new LinkElement()
             .setStyles("bottom-0", "right-0", "text-blue-600", StyleUtils.hover("text-blue-700"));
+
+    QuestionDefinition questionDefinition = data.questionDefinition();
+    Optional<String> questionName = Optional.of(questionDefinition.getName());
     if (data.isAnswered()) {
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.review(
-                      applicantId, data.programId(), data.blockId())
+                      applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_EDIT.getKeyName()))
           .setIcon(Icons.EDIT, LinkElement.IconPosition.START);
@@ -231,7 +235,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
       editElement
           .setHref(
               routes.ApplicantProgramBlocksController.edit(
-                      applicantId, data.programId(), data.blockId())
+                      applicantId, data.programId(), data.blockId(), questionName)
                   .url())
           .setText(messages.at(MessageKey.LINK_ANSWER.getKeyName()))
           .setIcon(Icons.ARROW_FORWARD, LinkElement.IconPosition.END);

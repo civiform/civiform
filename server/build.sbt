@@ -34,8 +34,8 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.122",
-      "software.amazon.awssdk" % "ses" % "2.20.122",
+      "software.amazon.awssdk" % "s3" % "2.20.126",
+      "software.amazon.awssdk" % "ses" % "2.20.126",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.9.2",
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "32.1.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.1.2-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -92,7 +92,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.15",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.18",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.5",

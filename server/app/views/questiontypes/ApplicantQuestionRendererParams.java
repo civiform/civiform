@@ -34,6 +34,8 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract ErrorDisplayMode errorDisplayMode();
 
+  public abstract Optional<String> questionName();
+
   @AutoValue.Builder
   public abstract static class Builder {
     public abstract Builder setMessages(Messages messages);
@@ -42,6 +44,8 @@ public abstract class ApplicantQuestionRendererParams {
         StorageUploadRequest signedFileUploadRequest);
 
     public abstract Builder setErrorDisplayMode(ErrorDisplayMode errorDisplayMode);
+
+    public abstract Builder setQuestionName(Optional<String> questionName);
 
     public abstract ApplicantQuestionRendererParams build();
   }

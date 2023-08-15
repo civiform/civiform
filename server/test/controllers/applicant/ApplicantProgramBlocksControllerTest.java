@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import models.Account;
 import models.Applicant;
@@ -56,11 +57,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     long badApplicantId = applicant.id + 1000;
     Request request =
         requestBuilderWithSettings(
-                routes.ApplicantProgramBlocksController.edit(badApplicantId, program.id, "1"))
+                routes.ApplicantProgramBlocksController.edit(
+                    badApplicantId, program.id, "1", /* questionName= */ Optional.empty()))
             .build();
 
     Result result =
-        subject.edit(request, badApplicantId, program.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, badApplicantId, program.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -76,10 +81,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -97,10 +106,14 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -112,10 +125,19 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
     Result result =
-        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(
+                request,
+                applicant.id,
+                obsoleteProgram.id,
+                "1",
+                /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -126,11 +148,18 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
         addCSRFToken(
                 requestBuilderWithSettings(
                     routes.ApplicantProgramBlocksController.edit(
-                        applicant.id, program.id + 1000, "1")))
+                        applicant.id,
+                        program.id + 1000,
+                        "1",
+                        /* questionName= */ Optional.empty())))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id + 1000, "1").toCompletableFuture().join();
+        subject
+            .edit(
+                request, applicant.id, program.id + 1000, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -140,11 +169,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                    routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1")))
+                    routes.ApplicantProgramBlocksController.edit(
+                        applicant.id, program.id, "1", /* questionName= */ Optional.empty())))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -153,11 +186,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void edit_toABlockThatDoesNotExist_returns404() {
     Request request =
         requestBuilderWithSettings(
-                routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "9999"))
+                routes.ApplicantProgramBlocksController.edit(
+                    applicant.id, program.id, "9999", /* questionName= */ Optional.empty()))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, "9999").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, program.id, "9999", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -167,12 +204,16 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     Request request =
         addCSRFToken(
                 requestBuilderWithSettings(
-                        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, "1"))
+                        routes.ApplicantProgramBlocksController.edit(
+                            applicant.id, program.id, "1", /* questionName= */ Optional.empty()))
                     .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi()))
             .build();
 
     Result result =
-        subject.edit(request, applicant.id, program.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, program.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Guardar y continuar");
@@ -208,7 +249,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, 0, true)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -230,7 +274,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, 0, true)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -246,7 +293,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, 0, true)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(
+                request,
+                applicant.id,
+                obsoleteProgram.id,
+                "1",
+                /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -285,7 +340,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -307,7 +365,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -323,7 +384,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(
+                request,
+                applicant.id,
+                obsoleteProgram.id,
+                "1",
+                /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -461,7 +530,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
+        routes.ApplicantProgramBlocksController.edit(
+                applicant.id, program.id, /* blockId = */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
@@ -589,7 +659,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
@@ -611,7 +684,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, draftProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(request, applicant.id, draftProgram.id, "1", /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -627,7 +703,15 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                         applicant.id, program.id, /*blockId=*/ "1", /*inReview=*/ false)))
             .build();
     Result result =
-        subject.edit(request, applicant.id, obsoleteProgram.id, "1").toCompletableFuture().join();
+        subject
+            .edit(
+                request,
+                applicant.id,
+                obsoleteProgram.id,
+                "1",
+                /* questionName= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
 
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -742,7 +826,8 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     String nextBlockEditRoute =
-        routes.ApplicantProgramBlocksController.edit(applicant.id, program.id, /* blockId = */ "2")
+        routes.ApplicantProgramBlocksController.edit(
+                applicant.id, program.id, /* blockId = */ "2", /* questionName= */ Optional.empty())
             .url();
     assertThat(result.redirectLocation()).hasValue(nextBlockEditRoute);
   }
