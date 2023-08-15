@@ -258,11 +258,13 @@ public final class ProgramRepository {
       if (search.matches("^\\d+$")) {
         query = query.eq("id", Integer.parseInt(search));
       } else {
+        Optional<Long> applicantId = getApplicantIdByEmail(search);
         String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
         String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
         query =
             query
                 .or()
+                .eq("applicant_id", applicantId.isPresent() ? applicantId.get() : null)
                 .ieq("submitter_email", search)
                 .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
@@ -338,5 +340,15 @@ public final class ProgramRepository {
     result.append("')");
 
     return result.toString();
+  }
+
+  private Optional<Long> getApplicantIdByEmail(String email) {
+    List<Account> accounts =
+        database.find(Account.class).where().ieq("email_address", email).findList();
+    if (accounts.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(accounts.get(0).ownedApplicantIds().get(0));
+    }
   }
 }
