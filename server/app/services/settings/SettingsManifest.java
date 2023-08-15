@@ -372,6 +372,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("ADMIN_OIDC_RESPONSE_TYPE");
   }
 
+  /** OIDC client should provide CSRF protection. */
+  public boolean getAdminOidcUseCsrf() {
+    return getBool("ADMIN_OIDC_USE_CSRF");
+  }
+
+  /** Name of attribute that provides the groups associated with an account. */
+  public Optional<String> getAdminOidcIdGroupsAttributeName() {
+    return getString("ADMIN_OIDC_ID_GROUPS_ATTRIBUTE_NAME");
+  }
+
+  /** Name of group that indicates an account is a global admin. */
+  public Optional<String> getAdminOidcAdminGroupName() {
+    return getString("ADMIN_OIDC_ADMIN_GROUP_NAME");
+  }
+
   /**
    * Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID
    * Connect spec provides.
@@ -1165,6 +1180,25 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       "Informs the auth server of the mechanism to be used for"
                                           + " returning response params from the auth endpoint,"
                                           + " based on the OpenID Connect spec.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_USE_CSRF",
+                                      "OIDC client should provide CSRF protection.",
+                                      /* isRequired= */ false,
+                                      SettingType.BOOLEAN,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_ID_GROUPS_ATTRIBUTE_NAME",
+                                      "Name of attribute that provides the groups associated with"
+                                          + " an account.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_ADMIN_GROUP_NAME",
+                                      "Name of group that indicates an account is a global admin.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),

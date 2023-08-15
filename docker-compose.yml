@@ -80,6 +80,7 @@ services:
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP=generic-oidc
+      - CIVIFORM_ADMIN_IDP=generic-oidc
       # Hard coded in test-support/test_oidc_provider.js
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
@@ -88,6 +89,12 @@ services:
       - APPLICANT_REGISTER_URI
       - ADFS_CLIENT_ID
       - ADFS_SECRET
+      - ADMIN_OIDC_CLIENT_ID
+      - ADMIN_OIDC_CLIENT_SECRET
+      - ADMIN_OIDC_DISCOVERY_URI
+      - ADMIN_OIDC_RESPONSE_MODE
+      - ADMIN_OIDC_RESPONSE_TYPE
+      - ADMIN_OIDC_ADDITIONAL_SCOPES
       - APPLICANT_OIDC_POST_LOGOUT_REDIRECT_PARAM
       - APPLICANT_OIDC_LOGOUT_CLIENT_PARAM=client_id
       - APPLICANT_OIDC_OVERRIDE_LOGOUT_URL

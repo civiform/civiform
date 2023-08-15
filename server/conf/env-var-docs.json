@@ -296,6 +296,21 @@
                 "description": "Informs the auth server of the mechanism to be used for returning response params from the auth endpoint, based on the OpenID Connect spec.",
                 "type": "string"
               },
+              "ADMIN_OIDC_USE_CSRF": {
+                "mode": "HIDDEN",
+                "description": "OIDC client should provide CSRF protection.",
+                "type": "bool"
+              },
+              "ADMIN_OIDC_ID_GROUPS_ATTRIBUTE_NAME": {
+                "mode": "HIDDEN",
+                "description": "Name of attribute that provides the groups associated with an account.",
+                "type": "string"
+              },
+              "ADMIN_OIDC_ADMIN_GROUP_NAME": {
+                "mode": "HIDDEN",
+                "description": "Name of group that indicates an account is a global admin.",
+                "type": "string"
+              },
               "ADMIN_OIDC_ADDITIONAL_SCOPES": {
                 "mode": "HIDDEN",
                 "description": "Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID Connect spec provides.",
