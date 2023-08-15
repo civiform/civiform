@@ -110,7 +110,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                     .getProgramDefinition(programId)
                     .displayMode()
                     .equals(models.DisplayMode.DISABLED)) {
-                  return notFound("This program is disabled");
+                  return notFound(messages.at(MessageKey.PROGRAM_DISABLED.getKeyName()));
                 }
                 if (shouldShowNotEligibleBanner(roApplicantProgramService, programId)) {
                   notEligibleBanner =

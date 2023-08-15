@@ -14,10 +14,13 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
 import models.DisplayMode;
+import play.i18n.Messages;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.MessageKey;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
@@ -34,6 +37,7 @@ public final class DeepLinkController extends CiviFormController {
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
+  private final MessagesApi messagesApi;
 
   @Inject
   public DeepLinkController(
@@ -42,12 +46,14 @@ public final class DeepLinkController extends CiviFormController {
       ProfileUtils profileUtils,
       ProgramService programService,
       VersionRepository versionRepository,
-      LanguageUtils languageUtils) {
+      LanguageUtils languageUtils,
+      MessagesApi messagesApi) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.languageUtils = checkNotNull(languageUtils);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   public CompletionStage<Result> programBySlug(Http.Request request, String programSlug) {
@@ -77,6 +83,7 @@ public final class DeepLinkController extends CiviFormController {
                             request.session().adding(REDIRECT_TO_SESSION_KEY, request.uri())));
               }
 
+              Messages messages = messagesApi.preferred(request);
               return getProgramVersionForApplicant(applicantId, programSlug, request)
                   .thenComposeAsync(
                       (Optional<ProgramDefinition> programForExistingApplication) -> {
@@ -86,7 +93,7 @@ public final class DeepLinkController extends CiviFormController {
                                 .displayMode()
                                 .equals(DisplayMode.DISABLED)) {
                           return CompletableFuture.completedFuture(
-                              notFound("This page is no longer available."));
+                              notFound(messages.at(MessageKey.PROGRAM_DISABLED.getKeyName())));
                         }
                         // Check to see if the applicant already has an application
                         // for this program, redirect to program version associated
