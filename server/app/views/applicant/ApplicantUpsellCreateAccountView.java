@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.section;
+import static j2html.TagCreator.a;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
 import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
@@ -10,6 +11,7 @@ import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.routes;
 import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;
@@ -49,6 +51,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       String programTitle,
       LocalizedStrings customConfirmationMessage,
       ApplicantPersonalInfo personalInfo,
+      Long programId,
       Long applicantId,
       Long applicationId,
       Messages messages,
@@ -78,13 +81,20 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                     applicantId));
 
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
+    String redirectUrl =
+      routes.UpsellController.download(programId, applicationId)
+        .url();
     var content =
         createMainContent(
             title,
             section(
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))
-                    .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4"),
+                    .withClasses(ReferenceClasses.BT_APPLICATION_ID, "mb-4")
+                  .with(
+                    a("Download")
+                      .withHref(redirectUrl)
+                      .withClass(ButtonStyles.SOLID_BLUE)),
                 div()
                     .with(
                         TextFormatter.formatText(

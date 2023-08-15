@@ -793,6 +793,28 @@ public final class ApplicantService {
   }
 
   /**
+   * Retrieves the application with the given ID and validates that it is associated with the given
+   * program.
+   */
+  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
+    Optional<Application> maybeApplication =
+      applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+    if (maybeApplication.isEmpty()) {
+      return Optional.empty();
+    }
+    Application application = maybeApplication.get();
+    if (program.adminName().isEmpty()
+      || !application
+      .getProgram()
+      .getProgramDefinition()
+      .adminName()
+      .equals(program.adminName())) {
+      return Optional.empty();
+    }
+    return Optional.of(application);
+  }
+
+  /**
    * Return a filtered set of applications, including applications from previous versions, with
    * program, applicant, and account associations eager loaded. Results are ordered by application
    * ID in ascending order.

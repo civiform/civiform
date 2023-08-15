@@ -2,16 +2,22 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
+
+import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
+import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -22,6 +28,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -38,6 +45,7 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
+  private final PdfExporter pdfExporter;
 
   @Inject
   public UpsellController(
@@ -48,6 +56,7 @@ public final class UpsellController extends CiviFormController {
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
+      PdfExporter pdfExporter,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
@@ -56,6 +65,7 @@ public final class UpsellController extends CiviFormController {
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
+    this.pdfExporter = checkNotNull(pdfExporter);
   }
 
   @Secure
@@ -145,6 +155,7 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getProgramTitle(),
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
+                      programId,
                       applicantId,
                       applicationId,
                       messagesApi.preferred(request),
@@ -164,5 +175,29 @@ public final class UpsellController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  /** Download a PDF file of the application to the program. */
+  public Result download(Http.Request request, long programId, long applicationId)
+    throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+
+    Optional<Application> applicationMaybe =
+      applicantService.getApplication(applicationId, program);
+    if (applicationMaybe.isEmpty()) {
+      return notFound(String.format("Application %d does not exist.", applicationId));
+    }
+    Application application = applicationMaybe.get();
+
+    PdfExporter.InMemoryPdf pdf;
+    try {
+      pdf = pdfExporter.export(application);
+    } catch (DocumentException | IOException e) {
+      throw new RuntimeException(e);
+    }
+    return ok(pdf.getByteArray())
+      .as("application/pdf")
+      .withHeader(
+        "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 }
