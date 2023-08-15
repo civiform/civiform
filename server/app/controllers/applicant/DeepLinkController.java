@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 
 import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import controllers.CiviFormController;
 import controllers.LanguageUtils;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import models.DisplayMode;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ApplicantService.ApplicationPrograms;
@@ -35,12 +37,12 @@ public final class DeepLinkController extends CiviFormController {
 
   @Inject
   public DeepLinkController(
-      play.libs.concurrent.HttpExecutionContext httpContext,
-      services.applicant.ApplicantService applicantService,
-      auth.ProfileUtils profileUtils,
-      services.program.ProgramService programService,
-      repository.VersionRepository versionRepository,
-      controllers.LanguageUtils languageUtils) {
+      HttpExecutionContext httpContext,
+      ApplicantService applicantService,
+      ProfileUtils profileUtils,
+      ProgramService programService,
+      VersionRepository versionRepository,
+      LanguageUtils languageUtils) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
