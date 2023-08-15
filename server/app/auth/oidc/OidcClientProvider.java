@@ -137,7 +137,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
 
   /*
    * Helper function for combining the default and additional scopes,
-   * and return them in the space-seperated string required bu OIDC.
+   * and return them in the space-separated string required by OIDC.
    */
   @VisibleForTesting
   public final String getScopesAttribute() {
