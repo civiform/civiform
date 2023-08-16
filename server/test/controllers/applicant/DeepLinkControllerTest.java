@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
+import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
 import repository.UserRepository;
@@ -144,7 +145,8 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
-            languageUtils);
+            languageUtils,
+            instanceOf(MessagesApi.class));
     Result result =
         controller
             .programBySlug(
@@ -174,7 +176,8 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramService.class),
             instanceOf(VersionRepository.class),
-            languageUtils);
+            languageUtils,
+            instanceOf(MessagesApi.class));
     Result result =
         controller
             .programBySlug(
