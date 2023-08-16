@@ -1,10 +1,8 @@
 package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Optional;
 import models.Application;
 import models.Program;
 import org.junit.Test;
@@ -787,27 +785,6 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertValueAtPath("$[0].revision_state", "OBSOLETE");
   }
 
-  @Test
-  public void wrapPayloadJson_wrapsPayloadCorrectly() {
-    String payload = "{\"United States\":{\"New York State\":[\"New York City\", \"Albany\"]}}";
-
-    JsonExporter exporter = instanceOf(JsonExporter.class);
-
-    String result =
-        exporter.wrapPayloadJson(payload, /* paginationTokenPayload= */ Optional.empty());
-
-    assertThat(asPrettyJsonString(result))
-        .isEqualTo(
-            "{\n"
-                + "  \"nextPageToken\" : null,\n"
-                + "  \"payload\" : {\n"
-                + "    \"United States\" : {\n"
-                + "      \"New York State\" : [ \"New York City\", \"Albany\" ]\n"
-                + "    }\n"
-                + "  }\n"
-                + "}");
-  }
-
   private static class ResultAsserter {
     public final CfJsonDocumentContext resultJson;
 
@@ -829,8 +806,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
     private void assertNullValueAtPath(String path) {
       Path pathToTest = Path.create(path);
-      assertThat(resultJson.hasPath(pathToTest)).isTrue();
-      assertThat(resultJson.readString(pathToTest)).isEmpty();
+      assertThat(resultJson.hasNullValueAtPath(pathToTest)).isTrue();
     }
 
     private void assertValueAtApplicationPath(String innerPath, String value) {
