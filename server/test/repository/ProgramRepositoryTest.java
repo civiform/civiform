@@ -283,6 +283,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
         new Object[] {"bobs_ti@example.com", ImmutableSet.of("bob@example.com")},
 
+        // Searching by partial applicant email returns all applications that match
+        new Object[] {"bob@", ImmutableSet.of("bob@example.com")},
+
         // Case insensitive search.
         new Object[] {"bOb dOe", ImmutableSet.of("bob@example.com")},
         new Object[] {"CHRIS@example.com", ImmutableSet.of("chris@exAMPLE.com")},
@@ -291,8 +294,10 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"    Bob Doe    ", ImmutableSet.of("bob@example.com")},
 
         // Degenerate cases.
-        // Email must be an exact match.
+        // Email isn't found.
         new Object[] {"fake@example.com", ImmutableSet.of()},
+        // TI email must be an exact match
+        new Object[] {"bobs_ti", ImmutableSet.of()},
         // Only match a single space between first and last name.
         new Object[] {"Bob  Doe", ImmutableSet.of()});
   }

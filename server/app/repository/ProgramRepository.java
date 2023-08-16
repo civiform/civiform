@@ -343,12 +343,12 @@ public final class ProgramRepository {
   }
 
   private Optional<Long> getApplicantIdByEmail(String email) {
-    List<Account> accounts =
-        database.find(Account.class).where().ieq("email_address", email).findList();
-    if (accounts.isEmpty()) {
-      return Optional.empty();
+    Optional<Account> account =
+        database.find(Account.class).where().raw("email_address ILIKE ?", "%"+email+"%").findOneOrEmpty();
+    if (account.isPresent()) {
+      return Optional.of(account.get().ownedApplicantIds().get(0));
     } else {
-      return Optional.of(accounts.get(0).ownedApplicantIds().get(0));
+      return Optional.empty();
     }
   }
 }
