@@ -344,7 +344,11 @@ public final class ProgramRepository {
 
   private Optional<Long> getApplicantIdByEmail(String email) {
     Optional<Account> account =
-        database.find(Account.class).where().raw("email_address ILIKE ?", "%"+email+"%").findOneOrEmpty();
+        database
+            .find(Account.class)
+            .where()
+            .raw("email_address ILIKE ?", "%" + email + "%")
+            .findOneOrEmpty();
     if (account.isPresent()) {
       return Optional.of(account.get().ownedApplicantIds().get(0));
     } else {
