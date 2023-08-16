@@ -57,7 +57,6 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
       Account account,
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
-      Long applicationId,
       Long programId,
       boolean isTrustedIntermediary,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
@@ -104,11 +103,9 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         isTrustedIntermediary
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
             : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
-    String redirectUrl = routes.UpsellController.download(programId, applicationId).url();
     var content =
         createMainContent(
             title,
-            redirectUrl,
             eligibleProgramsSection(request, eligiblePrograms, messages, isTrustedIntermediary)
                 .withClasses("mb-4"),
             shouldUpsell,

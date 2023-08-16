@@ -243,9 +243,8 @@ describe('normal application flow', () => {
     await applicantQuestions.answerNameQuestion('sarah', 'smith')
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
-    await applicantQuestions.downloadFromReviewPage()
-
-    // Test PDF content?
+    await validateScreenshot(page, 'application-confirmation')
+    await applicantQuestions.downloadFromConfirmationPage()
 
     await logout(page)
     await loginAsProgramAdmin(page)

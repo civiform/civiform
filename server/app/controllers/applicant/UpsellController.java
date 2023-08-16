@@ -133,7 +133,6 @@ public final class UpsellController extends CiviFormController {
                         account.join(),
                         applicantPersonalInfo.join(),
                         applicantId,
-                        applicationId,
                         programId,
                         profileUtils
                             .currentUserProfile(request)

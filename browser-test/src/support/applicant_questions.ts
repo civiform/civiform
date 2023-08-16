@@ -372,9 +372,7 @@ export class ApplicantQuestions {
 
   async returnToProgramsFromSubmissionPage() {
     // Assert that we're on the submission page.
-    expect(await this.page.innerText('h1')).toContain(
-      'Application confirmation',
-    )
+    await this.expectConfirmationPage()
     await this.clickApplyToAnotherProgramButton()
 
     // If we are a guest, we will get a prompt to log in before going back to the
@@ -392,6 +390,12 @@ export class ApplicantQuestions {
   async expectReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
       'Program application summary',
+    )
+  }
+
+  async expectConfirmationPage() {
+    expect(await this.page.innerText('h1')).toContain(
+      'Application confirmation',
     )
   }
 
@@ -498,9 +502,9 @@ export class ApplicantQuestions {
     await this.clickSubmit()
   }
 
-  async downloadFromReviewPage() {
+  async downloadFromConfirmationPage() {
     // Assert that we're on the review page.
-    await this.expectReviewPage()
+    await this.expectConfirmationPage()
 
     // Click on download button.
     await this.clickDownload()
