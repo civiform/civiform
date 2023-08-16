@@ -122,10 +122,10 @@ public final class JsonExporter {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 
-    ImmutableList<AnswerData> answerDatas = roApplicantProgramService.getSummaryData();
+    ImmutableList<AnswerData> answerDataList = roApplicantProgramService.getSummaryData();
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
 
-    for (AnswerData answerData : answerDatas) {
+    for (AnswerData answerData : answerDataList) {
       // We suppress the unchecked warning because create() returns a genericized
       // QuestionJsonPresenter, but we ignore the generic's type so that we can get
       // the json entries for any Question in one line.
@@ -212,10 +212,10 @@ public final class JsonExporter {
   }
 
   CfJsonDocumentContext buildMultiApplicationJson(
-      ImmutableList<ApplicationJsonExportData> applicationJsonExportDatas) {
+      ImmutableList<ApplicationJsonExportData> applicationJsonExportDataList) {
     CfJsonDocumentContext jsonApplications = new CfJsonDocumentContext(makeEmptyJsonArray());
 
-    for (ApplicationJsonExportData applicationJsonExportData : applicationJsonExportDatas) {
+    for (ApplicationJsonExportData applicationJsonExportData : applicationJsonExportDataList) {
       CfJsonDocumentContext applicationJson = buildSingleApplicationJson(applicationJsonExportData);
       jsonApplications.getDocumentContext().add("$", applicationJson.getDocumentContext().json());
     }
@@ -260,7 +260,13 @@ public final class JsonExporter {
       Path path = entry.getKey().asApplicationPath();
 
       var maybeJsonValue = entry.getValue();
-      if (maybeJsonValue.isEmpty()) {
+      if (maybeJsonValue.isEmpty() && path.isArrayElement()) {
+        // If we have an array path with an empty Optional, then put an empty array at the path.
+        // Unanswered lists, such as enumerator or multi-select questions, are represented as empty
+        // arrays in the JSON export.
+        jsonApplication.putArray(path.withoutArrayReference(), ImmutableList.of());
+      } else if (maybeJsonValue.isEmpty()) {
+        // For non-array paths with no value, put `null` at the path
         jsonApplication.putNull(path);
       } else if (maybeJsonValue.get() instanceof String) {
         jsonApplication.putString(path, (String) maybeJsonValue.get());
@@ -272,8 +278,6 @@ public final class JsonExporter {
         @SuppressWarnings("unchecked")
         ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();
         jsonApplication.putArray(path, list);
-      } else if (instanceOfEmptyImmutableList(maybeJsonValue.get())) {
-        jsonApplication.putArray(path, ImmutableList.of());
       }
     }
   }
@@ -287,15 +291,6 @@ public final class JsonExporter {
 
     ImmutableList<?> list = (ImmutableList<?>) value;
     return !list.isEmpty() && list.get(0) instanceof String;
-  }
-
-  // Returns true if value is an empty ImmutableList<>.
-  private static boolean instanceOfEmptyImmutableList(Object value) {
-    if (!(value instanceof ImmutableList<?>)) {
-      return false;
-    }
-
-    return ((ImmutableList<?>) value).isEmpty();
   }
 
   private DocumentContext makeEmptyJsonArray() {

@@ -515,6 +515,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   /** A Builder to build a fake program */
   class FakeProgramBuilder {
     ProgramBuilder fakeProgramBuilder;
+    boolean addEnumeratorQuestion = false;
+    boolean addNestedEnumeratorQuestion = false;
 
     FakeProgramBuilder() {
       fakeProgramBuilder = ProgramBuilder.newActiveProgram().withName("Fake Program");
@@ -532,16 +534,36 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     }
 
     FakeProgramBuilder withHouseholdMembersEnumeratorQuestion() {
-      fakeProgramBuilder
-          .withBlock()
-          .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
-          .withRepeatedBlock()
-          .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
-          .build();
+      addEnumeratorQuestion = true;
+      return this;
+    }
+
+    FakeProgramBuilder withHouseholdMembersJobsNestedEnumeratorQuestion() {
+      addNestedEnumeratorQuestion = true;
       return this;
     }
 
     Program build() {
+      if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
+        fakeProgramBuilder
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+            .withAnotherRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberJobs())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberDaysWorked())
+            .build();
+      } else if (addEnumeratorQuestion) {
+        fakeProgramBuilder
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.applicantHouseholdMemberFavoriteShape())
+            .build();
+      }
+
       return fakeProgramBuilder.build();
     }
   }
@@ -651,6 +673,39 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    public FakeApplicationFiller answerNestedRepeatedNumberQuestion(
+        String parentEntityName, String entityName, long answer) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var nestedRepeatedEntities =
+          repeatedEntities.stream()
+              .filter(e -> e.entityName().equals(parentEntityName))
+              .findFirst()
+              .get()
+              .createNestedRepeatedEntities(
+                  (EnumeratorQuestionDefinition)
+                      testQuestionBank.applicantHouseholdMemberJobs().getQuestionDefinition(),
+                  /* visibility= */ Optional.empty(),
+                  applicant.getApplicantData());
+
+      var nestedRepeatedEntity =
+          nestedRepeatedEntities.stream()
+              .filter(e -> e.entityName().equals(entityName))
+              .findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberDaysWorked()
+              .getQuestionDefinition()
+              .getContextualizedPath(nestedRepeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerNumberQuestion(applicant.getApplicantData(), answerPath, answer);
+      applicant.save();
+      return this;
+    }
+
     public FakeApplicationFiller answerNumberQuestion(long answer) {
       Path answerPath =
           testQuestionBank
@@ -676,7 +731,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    public FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> entityNames) {
+    public FakeApplicationFiller answerEnumeratorQuestion(ImmutableList<String> householdMembers) {
       Path answerPath =
           testQuestionBank
               .applicantHouseholdMembers()
@@ -684,7 +739,29 @@ public abstract class AbstractExporterTest extends ResetPostgres {
               .getContextualizedPath(
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerEnumeratorQuestion(
-          applicant.getApplicantData(), answerPath, entityNames);
+          applicant.getApplicantData(), answerPath, householdMembers);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerNestedEnumeratorQuestion(
+        String parentEntityName, ImmutableList<String> jobNames) {
+      var repeatedEntities =
+          RepeatedEntity.createRepeatedEntities(
+              (EnumeratorQuestionDefinition)
+                  testQuestionBank.applicantHouseholdMembers().getQuestionDefinition(),
+              /* visibility= */ Optional.empty(),
+              applicant.getApplicantData());
+      var parentRepeatedEntity =
+          repeatedEntities.stream()
+              .filter(e -> e.entityName().equals(parentEntityName))
+              .findFirst();
+      Path answerPath =
+          testQuestionBank
+              .applicantHouseholdMemberJobs()
+              .getQuestionDefinition()
+              .getContextualizedPath(parentRepeatedEntity, ApplicantData.APPLICANT_PATH);
+      QuestionAnswerer.answerEnumeratorQuestion(applicant.getApplicantData(), answerPath, jobNames);
       applicant.save();
       return this;
     }

@@ -504,8 +504,26 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenEnumeratorQuestionIsNotAnswered_valueInResponseIsEmptyArray() {
+    createFakeQuestions();
+    Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    new FakeApplicationFiller(fakeProgram).answerEnumeratorQuestion(ImmutableList.of()).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(".applicant_household_members", "[ ]");
+  }
+
+  @Test
   public void
-      export_whenEnumeratorAndRepeatedQuestionsAreAnswered_repeatedEntitiesHaveAnswerInResponse() {
+      export_whenEnumeratorAndRepeatedQuestionsAreAnswered_repeatedQuestionsHaveAnswerInResponse() {
     createFakeQuestions();
     Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram)
@@ -526,10 +544,12 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
         "[ {\n"
+            + "  \"entity_name\" : \"carly rae\",\n"
             + "  \"household_member_favorite_shape\" : {\n"
             + "    \"text\" : \"stars\"\n"
             + "  }\n"
             + "}, {\n"
+            + "  \"entity_name\" : \"tswift\",\n"
             + "  \"household_member_favorite_shape\" : {\n"
             + "    \"text\" : \"hearts\"\n"
             + "  }\n"
@@ -538,7 +558,7 @@ public class JsonExporterTest extends AbstractExporterTest {
 
   @Test
   public void
-      export_whenEnumeratorQuestionIsAnsweredAndRepeatedQuestionIsNot_repeatedEntitiesHaveNullAnswers() {
+      export_whenEnumeratorQuestionIsAnsweredAndRepeatedQuestionIsNot_repeatedQuestionsHaveNullAnswers() {
     createFakeQuestions();
     Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram)
@@ -557,13 +577,179 @@ public class JsonExporterTest extends AbstractExporterTest {
     resultAsserter.assertJsonAtApplicationPath(
         ".applicant_household_members",
         "[ {\n"
+            + "  \"entity_name\" : \"carly rae\",\n"
             + "  \"household_member_favorite_shape\" : {\n"
             + "    \"text\" : null\n"
             + "  }\n"
             + "}, {\n"
+            + "  \"entity_name\" : \"tswift\",\n"
             + "  \"household_member_favorite_shape\" : {\n"
             + "    \"text\" : null\n"
             + "  }\n"
+            + "} ]");
+  }
+
+  @Test
+  public void export_whenNestedEnumeratorQuestionsAreNotAnswered_valueInResponseIsEmptyArray() {
+    createFakeQuestions();
+    Program fakeProgram =
+        new FakeProgramBuilder()
+            .withHouseholdMembersEnumeratorQuestion()
+            .withHouseholdMembersJobsNestedEnumeratorQuestion()
+            .build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        "[ {\n"
+            + "  \"entity_name\" : \"carly rae\",\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  },\n"
+            + "  \"household_members_jobs\" : [ ]\n"
+            + "}, {\n"
+            + "  \"entity_name\" : \"tswift\",\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  },\n"
+            + "  \"household_members_jobs\" : [ ]\n"
+            + "} ]");
+  }
+
+  @Test
+  public void
+      export_whenNestedEnumeratorQuestionsAreAnsweredAndRepeatedQuestionsAreNot_theyAllHaveEntityNames() {
+    createFakeQuestions();
+    Program fakeProgram =
+        new FakeProgramBuilder()
+            .withHouseholdMembersEnumeratorQuestion()
+            .withHouseholdMembersJobsNestedEnumeratorQuestion()
+            .build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
+        .answerNestedEnumeratorQuestion("carly rae", ImmutableList.of("singer", "songwriter"))
+        .answerNestedEnumeratorQuestion("tswift", ImmutableList.of("performer", "composer"))
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        "[ {\n"
+            + "  \"entity_name\" : \"carly rae\",\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  },\n"
+            + "  \"household_members_jobs\" : [ {\n"
+            + "    \"entity_name\" : \"singer\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : null\n"
+            + "    }\n"
+            + "  }, {\n"
+            + "    \"entity_name\" : \"songwriter\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : null\n"
+            + "    }\n"
+            + "  } ]\n"
+            + "}, {\n"
+            + "  \"entity_name\" : \"tswift\",\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  },\n"
+            + "  \"household_members_jobs\" : [ {\n"
+            + "    \"entity_name\" : \"performer\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : null\n"
+            + "    }\n"
+            + "  }, {\n"
+            + "    \"entity_name\" : \"composer\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : null\n"
+            + "    }\n"
+            + "  } ]\n"
+            + "} ]");
+  }
+
+  @Test
+  public void
+      export_whenNestedEnumeratorAndRepeatedQuestionsAreAnswered_theyHaveAnswersInResponse() {
+    createFakeQuestions();
+    Program fakeProgram =
+        new FakeProgramBuilder()
+            .withHouseholdMembersEnumeratorQuestion()
+            .withHouseholdMembersJobsNestedEnumeratorQuestion()
+            .build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
+        .answerNestedEnumeratorQuestion("carly rae", ImmutableList.of("singer", "songwriter"))
+        .answerNestedRepeatedNumberQuestion("carly rae", "singer", 34)
+        .answerNestedRepeatedNumberQuestion("carly rae", "songwriter", 35)
+        .answerNestedEnumeratorQuestion("tswift", ImmutableList.of("performer", "composer"))
+        .answerNestedRepeatedNumberQuestion("tswift", "performer", 13)
+        .answerNestedRepeatedNumberQuestion("tswift", "composer", 14)
+        .submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_household_members",
+        "[ {\n"
+            + "  \"entity_name\" : \"carly rae\",\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  },\n"
+            + "  \"household_members_jobs\" : [ {\n"
+            + "    \"entity_name\" : \"singer\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : 34\n"
+            + "    }\n"
+            + "  }, {\n"
+            + "    \"entity_name\" : \"songwriter\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : 35\n"
+            + "    }\n"
+            + "  } ]\n"
+            + "}, {\n"
+            + "  \"entity_name\" : \"tswift\",\n"
+            + "  \"household_member_favorite_shape\" : {\n"
+            + "    \"text\" : null\n"
+            + "  },\n"
+            + "  \"household_members_jobs\" : [ {\n"
+            + "    \"entity_name\" : \"performer\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : 13\n"
+            + "    }\n"
+            + "  }, {\n"
+            + "    \"entity_name\" : \"composer\",\n"
+            + "    \"household_members_days_worked\" : {\n"
+            + "      \"number\" : 14\n"
+            + "    }\n"
+            + "  } ]\n"
             + "} ]");
   }
 
