@@ -327,6 +327,11 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickDownload() {
+    await this.page.click('text="Download"')
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
     await waitForPageJsLoad(this.page)
@@ -491,6 +496,14 @@ export class ApplicantQuestions {
 
     // Click on submit button.
     await this.clickSubmit()
+  }
+
+  async downloadFromReviewPage() {
+    // Assert that we're on the review page.
+    await this.expectReviewPage()
+
+    // Click on download button.
+    await this.clickDownload()
   }
 
   async validateHeader(lang: string) {

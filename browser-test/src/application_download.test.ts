@@ -227,4 +227,27 @@ describe('normal application flow', () => {
       )
     }
   })
+
+  it('download finished application', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    const programName = 'Test program'
+    await adminQuestions.addNameQuestion({questionName: 'Name'})
+    await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
+
+    await logout(page)
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.answerNameQuestion('sarah', 'smith')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+    await applicantQuestions.downloadFromReviewPage()
+
+    // Test PDF content?
+
+    await logout(page)
+    await loginAsProgramAdmin(page)
+  })
 })

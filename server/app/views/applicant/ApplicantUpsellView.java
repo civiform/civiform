@@ -1,5 +1,6 @@
 package views.applicant;
 
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
@@ -19,6 +20,7 @@ import services.MessageKey;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
+import views.components.Icons;
 import views.components.Modal;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
@@ -38,6 +40,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
 
   protected static DivTag createMainContent(
       String title,
+      String redirectUrl,
       SectionTag confirmationSection,
       Boolean shouldUpsell,
       Messages messages,
@@ -46,7 +49,12 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
     return div()
         .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
         .with(
-            h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
+            div()
+                .withClasses("flex")
+                .with(
+                    h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
+                    div().withClass("flex-grow"),
+                    a().withHref(redirectUrl).with(makeSvgTextButton("Download", Icons.DOWNLOAD))),
             confirmationSection,
             createAccountManagementSection(
                 shouldUpsell, messages, authProviderName, actionButtons));

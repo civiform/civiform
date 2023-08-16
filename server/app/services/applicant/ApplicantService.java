@@ -798,17 +798,17 @@ public final class ApplicantService {
    */
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
     Optional<Application> maybeApplication =
-      applicationRepository.getApplication(applicationId).toCompletableFuture().join();
+        applicationRepository.getApplication(applicationId).toCompletableFuture().join();
     if (maybeApplication.isEmpty()) {
       return Optional.empty();
     }
     Application application = maybeApplication.get();
     if (program.adminName().isEmpty()
-      || !application
-      .getProgram()
-      .getProgramDefinition()
-      .adminName()
-      .equals(program.adminName())) {
+        || !application
+            .getProgram()
+            .getProgramDefinition()
+            .adminName()
+            .equals(program.adminName())) {
       return Optional.empty();
     }
     return Optional.of(application);

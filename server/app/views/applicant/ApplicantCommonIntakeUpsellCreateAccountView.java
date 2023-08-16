@@ -14,6 +14,7 @@ import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
@@ -56,6 +57,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
       Account account,
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
+      Long applicationId,
       Long programId,
       boolean isTrustedIntermediary,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
@@ -102,9 +104,11 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
         isTrustedIntermediary
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
             : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
+    String redirectUrl = routes.UpsellController.download(programId, applicationId).url();
     var content =
         createMainContent(
             title,
+            redirectUrl,
             eligibleProgramsSection(request, eligiblePrograms, messages, isTrustedIntermediary)
                 .withClasses("mb-4"),
             shouldUpsell,

@@ -2,15 +2,12 @@ package controllers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
-
 import java.io.IOException;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -136,6 +133,7 @@ public final class UpsellController extends CiviFormController {
                         account.join(),
                         applicantPersonalInfo.join(),
                         applicantId,
+                        applicationId,
                         programId,
                         profileUtils
                             .currentUserProfile(request)
@@ -179,11 +177,11 @@ public final class UpsellController extends CiviFormController {
 
   /** Download a PDF file of the application to the program. */
   public Result download(Http.Request request, long programId, long applicationId)
-    throws ProgramNotFoundException {
+      throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
 
     Optional<Application> applicationMaybe =
-      applicantService.getApplication(applicationId, program);
+        applicantService.getApplication(applicationId, program);
     if (applicationMaybe.isEmpty()) {
       return notFound(String.format("Application %d does not exist.", applicationId));
     }
@@ -196,8 +194,8 @@ public final class UpsellController extends CiviFormController {
       throw new RuntimeException(e);
     }
     return ok(pdf.getByteArray())
-      .as("application/pdf")
-      .withHeader(
-        "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+        .as("application/pdf")
+        .withHeader(
+            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 }
