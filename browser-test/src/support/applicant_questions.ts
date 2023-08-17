@@ -256,15 +256,12 @@ export class ApplicantQuestions {
     wantInProgressPrograms: string[]
     wantSubmittedPrograms: string[]
   }) {
-    const gotNotStartedProgramNames = await this.programNamesForSection(
-      'Not started',
-    )
-    const gotInProgressProgramNames = await this.programNamesForSection(
-      'In progress',
-    )
-    const gotSubmittedProgramNames = await this.programNamesForSection(
-      'Submitted',
-    )
+    const gotNotStartedProgramNames =
+      await this.programNamesForSection('Not started')
+    const gotInProgressProgramNames =
+      await this.programNamesForSection('In progress')
+    const gotSubmittedProgramNames =
+      await this.programNamesForSection('Submitted')
 
     // Sort results before comparing since we don't care about order.
     gotNotStartedProgramNames.sort()
@@ -280,9 +277,8 @@ export class ApplicantQuestions {
   }
 
   async expectCommonIntakeForm(commonIntakeFormName: string) {
-    const commonIntakeFormSectionNames = await this.programNamesForSection(
-      'Find services',
-    )
+    const commonIntakeFormSectionNames =
+      await this.programNamesForSection('Find services')
     expect(commonIntakeFormSectionNames).toEqual([commonIntakeFormName])
   }
 
