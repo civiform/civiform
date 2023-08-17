@@ -11,6 +11,7 @@ import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
+import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.applicant.question.ApplicantQuestion;
@@ -62,7 +63,8 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                                 multiOptionQuestion.optionIsSelected(option),
                                 hasErrors,
                                 isOptional,
-                                params.errorDisplayMode())));
+                                params.errorDisplayMode(),
+                                params.questionName())));
 
     return checkboxQuestionFormContent;
   }
@@ -73,7 +75,8 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
       boolean isSelected,
       boolean hasErrors,
       boolean isOptional,
-      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      Optional<String> questionName) {
     String id = "checkbox-" + applicantQuestion.getContextualizedPath() + "-" + option.id();
     LabelTag labelTag =
         label()
@@ -88,6 +91,7 @@ public class CheckboxQuestionRenderer extends ApplicantCompositeQuestionRenderer
                     .withName(selectionPath)
                     .withValue(String.valueOf(option.id()))
                     .withCondChecked(isSelected)
+                    .condAttr(applicantSelectedQuestion(questionName), Attr.AUTOFOCUS, "")
                     .condAttr(hasErrors, "aria-invalid", "true")
                     .condAttr(
                         errorDisplayMode.equals(

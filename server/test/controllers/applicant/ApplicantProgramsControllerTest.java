@@ -14,6 +14,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.Account;
@@ -273,7 +274,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "1")
+            routes.ApplicantProgramBlocksController.edit(
+                    currentApplicant.id, program.id, "1", /* questionName= */ Optional.empty())
                 .url());
   }
 
@@ -302,7 +304,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "2")
+            routes.ApplicantProgramBlocksController.edit(
+                    currentApplicant.id, program.id, "2", /* questionName= */ Optional.empty())
                 .url());
   }
 

@@ -41,6 +41,10 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
+    if (applicantSelectedQuestion(params.questionName())) {
+      textField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();
       if (params

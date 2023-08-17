@@ -54,6 +54,11 @@ public class DropdownQuestionRenderer extends ApplicantSingleQuestionRenderer {
                                 .build())
                     .collect(ImmutableList.toImmutableList()))
             .setAriaDescribedByIds(ariaDescribedByIds);
+
+    if (applicantSelectedQuestion(params.questionName())) {
+      select.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       select.forceAriaInvalid();
       if (params

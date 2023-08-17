@@ -34,12 +34,12 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.125",
-      "software.amazon.awssdk" % "ses" % "2.20.125",
+      "software.amazon.awssdk" % "s3" % "2.20.128",
+      "software.amazon.awssdk" % "ses" % "2.20.128",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.9.2",
-      "com.azure" % "azure-storage-blob" % "12.22.3",
+      "com.azure" % "azure-identity" % "1.10.0",
+      "com.azure" % "azure-storage-blob" % "12.23.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
@@ -79,8 +79,8 @@ lazy val root = (project in file("."))
       "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.2",
-      "com.google.auto.value" % "auto-value" % "1.10.2",
+      "com.google.auto.value" % "auto-value-annotations" % "1.10.3",
+      "com.google.auto.value" % "auto-value" % "1.10.3",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.21.1",

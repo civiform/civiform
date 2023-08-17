@@ -43,6 +43,10 @@ public class DateQuestionRenderer extends ApplicantSingleQuestionRenderer {
                 validationErrors.getOrDefault(dateQuestion.getDatePath(), ImmutableSet.of()))
             .setAriaDescribedByIds(ariaDescribedByIds);
 
+    if (applicantSelectedQuestion(params.questionName())) {
+      dateField.focusOnInput();
+    }
+
     if (!validationErrors.isEmpty()) {
       dateField.forceAriaInvalid();
       if (params
