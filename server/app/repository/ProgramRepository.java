@@ -14,7 +14,6 @@ import io.ebean.Query;
 import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -238,6 +237,7 @@ public final class ProgramRepository {
         database
             .find(Application.class)
             .fetch("program")
+            .fetch("applicant")
             .orderBy("id desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
@@ -259,13 +259,12 @@ public final class ProgramRepository {
       if (search.matches("^\\d+$")) {
         query = query.eq("id", Integer.parseInt(search));
       } else {
-        List<Long> applicantIds = getApplicantIdsByEmail(search);
         String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
         String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
         query =
             query
                 .or()
-                .in("applicant_id", applicantIds)
+                .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
                 .raw("submitter_email ILIKE ?", "%" + search + "%")
                 .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
@@ -341,19 +340,5 @@ public final class ProgramRepository {
     result.append("')");
 
     return result.toString();
-  }
-
-  private List<Long> getApplicantIdsByEmail(String email) {
-    List<Account> accounts =
-        database
-            .find(Account.class)
-            .where()
-            .raw("email_address ILIKE ?", "%" + email + "%")
-            .findList();
-    List<Long> applicantIds = new ArrayList<>();
-    if (!accounts.isEmpty()) {
-      accounts.forEach((account) -> applicantIds.addAll(account.ownedApplicantIds()));
-    }
-    return applicantIds;
   }
 }
