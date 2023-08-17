@@ -237,6 +237,7 @@ public final class ProgramRepository {
         database
             .find(Application.class)
             .fetch("program")
+            .fetch("applicant")
             .orderBy("id desc")
             .where()
             .in("program_id", allProgramVersionsQuery(programId))
@@ -263,7 +264,8 @@ public final class ProgramRepository {
         query =
             query
                 .or()
-                .ieq("submitter_email", search)
+                .raw("applicant.account.emailAddress ILIKE ?", "%" + search + "%")
+                .raw("submitter_email ILIKE ?", "%" + search + "%")
                 .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
