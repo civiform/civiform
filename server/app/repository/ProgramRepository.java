@@ -14,6 +14,7 @@ import io.ebean.Query;
 import io.ebean.SqlRow;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -258,14 +259,14 @@ public final class ProgramRepository {
       if (search.matches("^\\d+$")) {
         query = query.eq("id", Integer.parseInt(search));
       } else {
-        Optional<Long> applicantId = getApplicantIdByEmail(search);
+        List<Long> applicantIds = getApplicantIdsByEmail(search);
         String firstNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_FIRST_NAME);
         String lastNamePath = getApplicationObjectPath(WellKnownPaths.APPLICANT_LAST_NAME);
         query =
             query
                 .or()
-                .eq("applicant_id", applicantId.isPresent() ? applicantId.get() : null)
-                .ieq("submitter_email", search)
+                .in("applicant_id", applicantIds)
+                .raw("submitter_email ILIKE ?", "%" + search + "%")
                 .raw(firstNamePath + " || ' ' || " + lastNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ' ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
                 .raw(lastNamePath + " || ', ' || " + firstNamePath + " ILIKE ?", "%" + search + "%")
@@ -342,17 +343,18 @@ public final class ProgramRepository {
     return result.toString();
   }
 
-  private Optional<Long> getApplicantIdByEmail(String email) {
-    Optional<Account> account =
+  private List<Long> getApplicantIdsByEmail(String email) {
+    List<Account> accounts =
         database
             .find(Account.class)
             .where()
             .raw("email_address ILIKE ?", "%" + email + "%")
-            .findOneOrEmpty();
-    if (account.isPresent()) {
-      return Optional.of(account.get().ownedApplicantIds().get(0));
-    } else {
-      return Optional.empty();
+            .findList();
+    List<Long> applicantIds = new ArrayList<>();
+    if (!accounts.isEmpty()) {
+      accounts.forEach((account) -> applicantIds.addAll(account.ownedApplicantIds()));
     }
+    return applicantIds;
+
   }
 }
