@@ -284,7 +284,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"bobs_ti@example.com", ImmutableSet.of("bob@example.com")},
 
         // Searching by partial email returns the application
-        new Object[] {"example", ImmutableSet.of("bob@example.com", "jane@example.com", "chris@exAMPLE.com")},
+        new Object[] {
+          "example", ImmutableSet.of("bob@example.com", "jane@example.com", "chris@exAMPLE.com")
+        },
         new Object[] {"bobs_ti", ImmutableSet.of("bob@example.com")},
 
         // Case insensitive search.

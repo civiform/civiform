@@ -355,6 +355,5 @@ public final class ProgramRepository {
       accounts.forEach((account) -> applicantIds.addAll(account.ownedApplicantIds()));
     }
     return applicantIds;
-
   }
 }
