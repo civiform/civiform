@@ -282,6 +282,7 @@ error.notFoundDescriptionLink=homepage
 error.internalServerTitle=An error occurred
 error.internalServerDescription=Please contact technical support for assistance at %s and include this error ID {0}.
 error.programDisabled=This program is disabled
+
 #-------------------------------------------------------------#
 # EMAILS - boilerplate text contained in emails sent to users #
 #-------------------------------------------------------------#
