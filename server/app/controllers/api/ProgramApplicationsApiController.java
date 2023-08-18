@@ -44,6 +44,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   @Inject
   public ProgramApplicationsApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
+      ApiPayloadWrapper apiPayloadWrapper,
       DateConverter dateConverter,
       ProfileUtils profileUtils,
       JsonExporter jsonExporter,
@@ -51,7 +52,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
       ProgramService programService,
       VersionRepository versionRepository,
       Config config) {
-    super(apiPaginationTokenSerializer, profileUtils, versionRepository);
+    super(apiPaginationTokenSerializer, apiPayloadWrapper, profileUtils, versionRepository);
     this.dateConverter = checkNotNull(dateConverter);
     this.httpContext = checkNotNull(httpContext);
     this.jsonExporter = checkNotNull(jsonExporter);
@@ -115,10 +116,11 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                 throw new RuntimeException(e);
               }
 
-              String applicationsJson = jsonExporter.export(programDefinition, paginationResult);
+              String applicationsJson =
+                  jsonExporter.exportPage(programDefinition, paginationResult);
 
               String responseJson =
-                  jsonExporter.wrapPayloadJson(
+                  apiPayloadWrapper.wrapPayload(
                       applicationsJson,
                       getNextPageToken(
                           paginationResult, programSlug, pageSize, filters.submitTimeFilter()));
