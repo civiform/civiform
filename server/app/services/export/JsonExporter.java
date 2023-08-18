@@ -133,7 +133,7 @@ public final class JsonExporter {
       ImmutableMap<Path, Optional<?>> questionEntries =
           presenterFactory
               .create(answerData.applicantQuestion().getType())
-              .getJsonEntries(answerData.createQuestion());
+              .getAllJsonEntries(answerData.createQuestion());
       entriesBuilder.putAll(questionEntries);
     }
 
@@ -216,13 +216,7 @@ public final class JsonExporter {
       Path path = entry.getKey().asApplicationPath();
 
       var maybeJsonValue = entry.getValue();
-      if (maybeJsonValue.isEmpty() && path.isArrayElement()) {
-        // If we have an array path with an empty Optional, then put an empty array at the path.
-        // Unanswered lists, such as enumerator or multi-select questions, are represented as empty
-        // arrays in the JSON export.
-        jsonApplication.putArray(path.withoutArrayReference(), ImmutableList.of());
-      } else if (maybeJsonValue.isEmpty()) {
-        // For non-array paths with no value, put `null` at the path
+      if (maybeJsonValue.isEmpty()) {
         jsonApplication.putNull(path);
       } else if (maybeJsonValue.get() instanceof String) {
         jsonApplication.putString(path, (String) maybeJsonValue.get());
@@ -234,6 +228,8 @@ public final class JsonExporter {
         @SuppressWarnings("unchecked")
         ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();
         jsonApplication.putArray(path, list);
+      } else if (instanceOfEmptyImmutableList(maybeJsonValue.get())) {
+        jsonApplication.putArray(path, ImmutableList.of());
       }
     }
   }
@@ -247,6 +243,15 @@ public final class JsonExporter {
 
     ImmutableList<?> list = (ImmutableList<?>) value;
     return !list.isEmpty() && list.get(0) instanceof String;
+  }
+
+  // Returns true if value is an empty ImmutableList<>.
+  private static boolean instanceOfEmptyImmutableList(Object value) {
+    if (!(value instanceof ImmutableList<?>)) {
+      return false;
+    }
+
+    return ((ImmutableList<?>) value).isEmpty();
   }
 
   private DocumentContext makeEmptyJsonArray() {
