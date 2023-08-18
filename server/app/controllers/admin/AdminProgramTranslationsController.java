@@ -17,7 +17,6 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
-import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.program.OutOfDateStatusesException;
 import services.program.ProgramDefinition;
@@ -146,11 +145,8 @@ public class AdminProgramTranslationsController extends CiviFormController {
           translationView.render(
               request, localeToUpdate, program, translationForm, Optional.of(errorMessage)));
     }
-    return redirect(routes.AdminProgramController.index().url())
-        .flashing(
-            "success",
-            String.format(
-                "Program translations updated for %s",
-                localeToUpdate.getDisplayLanguage(LocalizedStrings.DEFAULT_LOCALE)));
+    return ok(
+        translationView.render(
+            request, localeToUpdate, program, translationForm, Optional.empty()));
   }
 }
