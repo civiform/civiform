@@ -4,7 +4,6 @@
 
 import subprocess
 
-# Select test files we specifically want to test in Azurite
 def get_test_files():
     test_files = ['src/file.test.ts'] # file upload tests
     test_files.sort()
