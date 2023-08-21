@@ -147,6 +147,6 @@ public class AdminProgramTranslationsController extends CiviFormController {
     }
     return ok(
         translationView.render(
-            request, localeToUpdate, program, translationForm, Optional.empty()));
+            request, localeToUpdate, program, translationForm, /*message=*/ Optional.empty()));
   }
 }
