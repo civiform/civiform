@@ -76,6 +76,9 @@ jobs:
       - name: show bin/validate_java_classes_marked_final diff
         run: git add .; git diff --exit-code HEAD
 
+      - name: Run validate_filters_inject_providers
+        run: bin/validate_filters_inject_providers
+
   formatter-dockerfile:
     runs-on: ubuntu-latest
     steps:
