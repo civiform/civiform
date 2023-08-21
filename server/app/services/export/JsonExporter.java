@@ -2,18 +2,14 @@ package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jayway.jsonpath.DocumentContext;
-import controllers.api.ApiPaginationTokenPayload;
-import controllers.api.ApiPaginationTokenSerializer;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Application;
 import models.LifecycleStage;
@@ -43,7 +39,6 @@ public final class JsonExporter {
   private final ProgramService programService;
   private final DateConverter dateConverter;
   private final QuestionJsonPresenter.Factory presenterFactory;
-  private final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
   private static final String EMPTY_VALUE = "";
 
   @Inject
@@ -51,18 +46,21 @@ public final class JsonExporter {
       ApplicantService applicantService,
       ProgramService programService,
       DateConverter dateConverter,
-      QuestionJsonPresenter.Factory presenterFactory,
-      ApiPaginationTokenSerializer apiPaginationTokenSerializer) {
+      QuestionJsonPresenter.Factory presenterFactory) {
     this.applicantService = checkNotNull(applicantService);
     this.programService = checkNotNull(programService);
     this.dateConverter = dateConverter;
     this.presenterFactory = checkNotNull(presenterFactory);
-    this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
   }
 
   /**
    * Returns a JSON list of applications to the given program, using the pagination behavior and
    * filters supplied.
+   *
+   * @param programDefinition the program definition of the exported application
+   * @param paginationSpec the pagination behavior
+   * @param filters the filters to apply
+   * @return a JSON string representing a list of applications
    */
   public String export(
       ProgramDefinition programDefinition,
@@ -76,56 +74,58 @@ public final class JsonExporter {
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }
-
-    return export(programDefinition, paginationResult);
+    return exportPage(programDefinition, paginationResult);
   }
 
   /**
-   * Returns a JSON list of applications to the given program, using the applications contained in
-   * paginationResult.
+   * Returns a JSON list of applications to the given program, using the page of applications
+   * supplied.
+   *
+   * @param programDefinition the program definition of the exported applications
+   * @param paginationResult the page of applications to export
+   * @return a JSON string representing a list of applications
    */
-  public String export(
+  public String exportPage(
       ProgramDefinition programDefinition, PaginationResult<Application> paginationResult) {
-    var applications = paginationResult.getPageContents();
+    ImmutableList<Application> applications = paginationResult.getPageContents();
 
-    DocumentContext documentContext = buildMultiApplicationJson(applications, programDefinition);
-    return documentContext.jsonString();
+    DocumentContext jsonData =
+        applications.stream()
+            .map(a -> buildApplicationExportData(a, programDefinition))
+            .collect(
+                Collectors.collectingAndThen(
+                    ImmutableList.toImmutableList(),
+                    this::convertApplicationExportDataToJsonArray));
+
+    return jsonData.jsonString();
   }
 
-  private DocumentContext buildMultiApplicationJson(
-      ImmutableList<Application> applications, ProgramDefinition programDefinition) {
-    DocumentContext jsonApplications = makeEmptyJsonArray();
-
-    for (Application application : applications) {
-      CfJsonDocumentContext applicationJson =
-          buildSingleApplicationJson(application, programDefinition);
-      jsonApplications.add("$", applicationJson.getDocumentContext().json());
-    }
-
-    return jsonApplications;
+  /**
+   * Converts a list of {@link ApplicationExportData} to a JSON array.
+   *
+   * @param applicationExportDataList the list of applications to export as JSON
+   * @return the exported applications, as a JSON array
+   */
+  public DocumentContext convertApplicationExportDataToJsonArray(
+      ImmutableList<ApplicationExportData> applicationExportDataList) {
+    DocumentContext applications = makeEmptyJsonArray();
+    applicationExportDataList.forEach(
+        applicationExportData -> {
+          applications.add(
+              "$", convertExportDataToJson(applicationExportData).getDocumentContext().json());
+        });
+    return applications;
   }
 
-  private static RevisionState toRevisionState(LifecycleStage lifecycleStage) {
-    switch (lifecycleStage) {
-      case ACTIVE:
-        return RevisionState.CURRENT;
-      case OBSOLETE:
-        return RevisionState.OBSOLETE;
-      default:
-        throw new NotImplementedException(
-            "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
-    }
-  }
-
-  private CfJsonDocumentContext buildSingleApplicationJson(
+  private ApplicationExportData buildApplicationExportData(
       Application application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roApplicantProgramService =
         applicantService.getReadOnlyApplicantProgramService(application, programDefinition);
 
-    ImmutableList<AnswerData> answerDatas = roApplicantProgramService.getSummaryData();
+    ImmutableList<AnswerData> answerDataList = roApplicantProgramService.getSummaryData();
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
 
-    for (AnswerData answerData : answerDatas) {
+    for (AnswerData answerData : answerDataList) {
       // We suppress the unchecked warning because create() returns a genericized
       // QuestionJsonPresenter, but we ignore the generic's type so that we can get
       // the json entries for any Question in one line.
@@ -137,8 +137,8 @@ public final class JsonExporter {
       entriesBuilder.putAll(questionEntries);
     }
 
-    ApplicationJsonExportData applicationJsonExportData =
-        ApplicationJsonExportData.builder()
+    ApplicationExportData applicationExportData =
+        ApplicationExportData.builder()
             .setAdminName(application.getProgram().getProgramDefinition().adminName())
             .setApplicantId(application.getApplicant().id)
             .setApplicationId(application.id)
@@ -168,99 +168,61 @@ public final class JsonExporter {
             .addApplicationEntries(entriesBuilder.build())
             .build();
 
-    return buildSingleApplicationJson(applicationJsonExportData);
+    return applicationExportData;
   }
 
-  private CfJsonDocumentContext buildSingleApplicationJson(
-      ApplicationJsonExportData applicationJsonExportData) {
+  private CfJsonDocumentContext convertExportDataToJson(
+      ApplicationExportData applicationExportData) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(makeEmptyJsonObject());
 
-    jsonApplication.putString(Path.create("program_name"), applicationJsonExportData.adminName());
-    jsonApplication.putLong(
-        Path.create("program_version_id"), applicationJsonExportData.programId());
-    jsonApplication.putLong(Path.create("applicant_id"), applicationJsonExportData.applicantId());
-    jsonApplication.putLong(
-        Path.create("application_id"), applicationJsonExportData.applicationId());
-    jsonApplication.putString(Path.create("language"), applicationJsonExportData.languageTag());
+    jsonApplication.putString(Path.create("program_name"), applicationExportData.adminName());
+    jsonApplication.putLong(Path.create("program_version_id"), applicationExportData.programId());
+    jsonApplication.putLong(Path.create("applicant_id"), applicationExportData.applicantId());
+    jsonApplication.putLong(Path.create("application_id"), applicationExportData.applicationId());
+    jsonApplication.putString(Path.create("language"), applicationExportData.languageTag());
     jsonApplication.putString(
         Path.create("create_time"),
-        dateConverter.renderDateTimeDataOnly(applicationJsonExportData.createTime()));
+        dateConverter.renderDateTimeDataOnly(applicationExportData.createTime()));
     jsonApplication.putString(
-        Path.create("submitter_type"), applicationJsonExportData.submitterType().toString());
-    jsonApplication.putString(Path.create("ti_email"), applicationJsonExportData.tiEmail());
+        Path.create("submitter_type"), applicationExportData.submitterType().toString());
+    jsonApplication.putString(Path.create("ti_email"), applicationExportData.tiEmail());
     jsonApplication.putString(
-        Path.create("ti_organization"), applicationJsonExportData.tiOrganization());
+        Path.create("ti_organization"), applicationExportData.tiOrganization());
     Path submitTimePath = Path.create("submit_time");
-    Optional.ofNullable(applicationJsonExportData.submitTime())
+    Optional.ofNullable(applicationExportData.submitTime())
         .ifPresentOrElse(
             submitTime ->
                 jsonApplication.putString(
                     submitTimePath, dateConverter.renderDateTimeDataOnly(submitTime)),
             () -> jsonApplication.putNull(submitTimePath));
     jsonApplication.putString(
-        Path.create("revision_state"), applicationJsonExportData.revisionState().toString());
+        Path.create("revision_state"), applicationExportData.revisionState().toString());
 
     Path statusPath = Path.create("status");
-    applicationJsonExportData
+    applicationExportData
         .status()
         .ifPresentOrElse(
             status -> jsonApplication.putString(statusPath, status),
             () -> jsonApplication.putNull(statusPath));
 
-    exportEntriesToJsonApplication(jsonApplication, applicationJsonExportData.applicationEntries());
+    exportApplicationEntriesToJsonApplication(
+        jsonApplication, applicationExportData.applicationEntries());
     return jsonApplication;
   }
 
-  CfJsonDocumentContext buildMultiApplicationJson(
-      ImmutableList<ApplicationJsonExportData> applicationJsonExportDatas) {
-    CfJsonDocumentContext jsonApplications = new CfJsonDocumentContext(makeEmptyJsonArray());
-
-    for (ApplicationJsonExportData applicationJsonExportData : applicationJsonExportDatas) {
-      CfJsonDocumentContext applicationJson = buildSingleApplicationJson(applicationJsonExportData);
-      jsonApplications.getDocumentContext().add("$", applicationJson.getDocumentContext().json());
-    }
-
-    return jsonApplications;
-  }
-
-  /**
-   * Wraps payload in another layer of JSON. Inserts a "payload" key that maps to the data in
-   * payload. Adds a nextPageToken key with the paginationTokenPayload.
-   */
-  public String wrapPayloadJson(
-      String payload, Optional<ApiPaginationTokenPayload> paginationTokenPayload) {
-    var writer = new StringWriter();
-
-    try {
-      var jsonGenerator = new JsonFactory().createGenerator(writer);
-      jsonGenerator.writeStartObject();
-      jsonGenerator.writeFieldName("payload");
-      jsonGenerator.writeRawValue(payload);
-
-      jsonGenerator.writeFieldName("nextPageToken");
-      if (paginationTokenPayload.isPresent()) {
-        jsonGenerator.writeString(
-            apiPaginationTokenSerializer.serialize(paginationTokenPayload.get()));
-      } else {
-        jsonGenerator.writeNull();
-      }
-
-      jsonGenerator.writeEndObject();
-      jsonGenerator.close();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-
-    return writer.toString();
-  }
-
-  private static void exportEntriesToJsonApplication(
+  private static void exportApplicationEntriesToJsonApplication(
       CfJsonDocumentContext jsonApplication, ImmutableMap<Path, Optional<?>> entries) {
     for (Map.Entry<Path, Optional<?>> entry : entries.entrySet()) {
       Path path = entry.getKey().asApplicationPath();
 
       var maybeJsonValue = entry.getValue();
-      if (maybeJsonValue.isEmpty()) {
+      if (maybeJsonValue.isEmpty() && path.isArrayElement()) {
+        // If we have an array path with an empty Optional, then put an empty array at the path.
+        // Unanswered lists, such as enumerator or multi-select questions, are represented as empty
+        // arrays in the JSON export.
+        jsonApplication.putArray(path.withoutArrayReference(), ImmutableList.of());
+      } else if (maybeJsonValue.isEmpty()) {
+        // For non-array paths with no value, put `null` at the path
         jsonApplication.putNull(path);
       } else if (maybeJsonValue.get() instanceof String) {
         jsonApplication.putString(path, (String) maybeJsonValue.get());
@@ -272,8 +234,6 @@ public final class JsonExporter {
         @SuppressWarnings("unchecked")
         ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();
         jsonApplication.putArray(path, list);
-      } else if (instanceOfEmptyImmutableList(maybeJsonValue.get())) {
-        jsonApplication.putArray(path, ImmutableList.of());
       }
     }
   }
@@ -289,15 +249,6 @@ public final class JsonExporter {
     return !list.isEmpty() && list.get(0) instanceof String;
   }
 
-  // Returns true if value is an empty ImmutableList<>.
-  private static boolean instanceOfEmptyImmutableList(Object value) {
-    if (!(value instanceof ImmutableList<?>)) {
-      return false;
-    }
-
-    return ((ImmutableList<?>) value).isEmpty();
-  }
-
   private DocumentContext makeEmptyJsonArray() {
     return JsonPathProvider.getJsonPath().parse("[]");
   }
@@ -306,8 +257,20 @@ public final class JsonExporter {
     return JsonPathProvider.getJsonPath().parse("{}");
   }
 
+  private static RevisionState toRevisionState(LifecycleStage lifecycleStage) {
+    switch (lifecycleStage) {
+      case ACTIVE:
+        return RevisionState.CURRENT;
+      case OBSOLETE:
+        return RevisionState.OBSOLETE;
+      default:
+        throw new NotImplementedException(
+            "Revision state not supported for LifeCycleStage." + lifecycleStage.name());
+    }
+  }
+
   @AutoValue
-  public abstract static class ApplicationJsonExportData {
+  public abstract static class ApplicationExportData {
     public abstract String adminName();
 
     public abstract long applicantId();
@@ -335,7 +298,7 @@ public final class JsonExporter {
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
-      return new AutoValue_JsonExporter_ApplicationJsonExportData.Builder();
+      return new AutoValue_JsonExporter_ApplicationExportData.Builder();
     }
 
     @AutoValue.Builder
@@ -372,7 +335,7 @@ public final class JsonExporter {
         return this;
       }
 
-      public abstract ApplicationJsonExportData build();
+      public abstract ApplicationExportData build();
     }
   }
 }

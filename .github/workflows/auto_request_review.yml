@@ -18,5 +18,5 @@ jobs:
           # teams to specify the list of reviewers. Because of that we need to
           # specify specific permissions within the personal access token
           # See: https://github.com/marketplace/actions/auto-request-review#optional-github-personal-access-token
-          token: ${{ secrets.CIVIFORM_GITHUB_PR_AUTOMATION_PAT }}
+          token: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}
           config: .github/reviewers.yml # Config file location

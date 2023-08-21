@@ -259,7 +259,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     assertThat(
             paginationResult.getPageContents().stream()
-                .map(a -> a.getSubmitterEmail().orElse(""))
+                .map(a -> a.getApplicant().getAccount().getEmailAddress())
                 .collect(ImmutableSet.toImmutableSet()))
         .containsExactly("bob@example.com");
     assertThat(paginationResult.getNumPages()).isEqualTo(1);
@@ -277,8 +277,17 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"Doe", ImmutableSet.of("bob@example.com", "jane@example.com")},
         new Object[] {"Bob", ImmutableSet.of("bob@example.com")},
         new Object[] {"Person", ImmutableSet.of("chris@exAMPLE.com")},
-        new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
         new Object[] {"Other Person", ImmutableSet.of()},
+
+        // Searching by applicant email or TI email returns the application
+        new Object[] {"bob@example.com", ImmutableSet.of("bob@example.com")},
+        new Object[] {"bobs_ti@example.com", ImmutableSet.of("bob@example.com")},
+
+        // Searching by partial email returns the application
+        new Object[] {
+          "example", ImmutableSet.of("bob@example.com", "jane@example.com", "chris@exAMPLE.com")
+        },
+        new Object[] {"bobs_ti", ImmutableSet.of("bob@example.com")},
 
         // Case insensitive search.
         new Object[] {"bOb dOe", ImmutableSet.of("bob@example.com")},
@@ -288,14 +297,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
         new Object[] {"    Bob Doe    ", ImmutableSet.of("bob@example.com")},
 
         // Degenerate cases.
-        // Email must be an exact match.
-        new Object[] {"example.com", ImmutableSet.of()},
+        // Email isn't found.
+        new Object[] {"fake@example.com", ImmutableSet.of()},
         // Only match a single space between first and last name.
         new Object[] {"Bob  Doe", ImmutableSet.of()});
   }
 
-  // TODO(#5324): Some of these tests are passing incorrectly, due to the setup incorrectly setting
-  // the `submitter_email` field. See also #5325.
   @Test
   @Parameters(method = "getSearchByNameOrEmailData")
   public void getApplicationsForAllProgramVersions_searchByNameOrEmail(
@@ -303,7 +310,9 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Program program = resourceCreator.insertActiveProgram("test program");
 
     Applicant bob = resourceCreator.insertApplicantWithAccount(Optional.of("bob@example.com"));
-    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe");
+    makeApplicationWithName(bob, program, "Bob", "MiddleName", "Doe")
+        .setSubmitterEmail("bobs_ti@example.com")
+        .save();
     Applicant jane = resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe");
     // Note: The mixed casing on the email is intentional for tests of case insensitivity.
@@ -325,7 +334,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
     assertThat(
             paginationResult.getPageContents().stream()
-                .map(a -> a.getSubmitterEmail().orElse(""))
+                .map(a -> a.getApplicant().getAccount().getEmailAddress())
                 .collect(ImmutableSet.toImmutableSet()))
         .isEqualTo(wantEmails);
     assertThat(paginationResult.getNumPages()).isEqualTo(wantEmails.isEmpty() ? 0 : 1);
@@ -338,10 +347,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
     QuestionAnswerer.answerNameQuestion(
         applicantData, WellKnownPaths.APPLICANT_NAME, firstName, middleName, lastName);
     application.setApplicantData(applicantData);
-    // TODO(#5324): This is incorrect. The `submitter_email` field is only ever set with the TI's
-    // email, never the Applicant's. Tests that rely on this field are passing incorrectly. See also
-    // #5325.
-    application.setSubmitterEmail(applicant.getAccount().getEmailAddress());
     application.save();
     return application;
   }
