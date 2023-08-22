@@ -4,14 +4,14 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.api.ApiPayloadWrapper;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import services.CfJsonDocumentContext;
 import services.DeploymentType;
 import services.Path;
-import services.export.JsonExporter.ApplicationJsonExportData;
+import services.export.JsonExporter.ApplicationExportData;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
@@ -22,6 +22,7 @@ import services.question.types.QuestionDefinition;
 public final class ProgramJsonSampler {
 
   private final QuestionJsonSampler.Factory questionJsonSamplerFactory;
+  private final ApiPayloadWrapper apiPayloadWrapper;
   private final JsonExporter jsonExporter;
   private final DeploymentType deploymentType;
   private static final String EMPTY_VALUE = "";
@@ -29,9 +30,11 @@ public final class ProgramJsonSampler {
   @Inject
   ProgramJsonSampler(
       QuestionJsonSampler.Factory questionJsonSamplerFactory,
+      ApiPayloadWrapper apiPayloadWrapper,
       JsonExporter jsonExporter,
       DeploymentType deploymentType) {
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
+    this.apiPayloadWrapper = apiPayloadWrapper;
     this.jsonExporter = jsonExporter;
     this.deploymentType = deploymentType;
   }
@@ -40,9 +43,9 @@ public final class ProgramJsonSampler {
    * Samples JSON for a {@link ProgramDefinition} with fake data, appropriate for previews of what
    * the API response looks like.
    */
-  public CfJsonDocumentContext getSampleJson(ProgramDefinition programDefinition) {
-    ApplicationJsonExportData.Builder jsonExportData =
-        ApplicationJsonExportData.builder()
+  public String getSampleJson(ProgramDefinition programDefinition) {
+    ApplicationExportData.Builder jsonExportData =
+        ApplicationExportData.builder()
             // Customizable program-specific API fields
             .setAdminName(programDefinition.adminName())
             .setStatus(
@@ -76,6 +79,10 @@ public final class ProgramJsonSampler {
       jsonExportData.addApplicationEntries(questionEntries);
     }
 
-    return jsonExporter.buildMultiApplicationJson(ImmutableList.of(jsonExportData.build()));
+    return apiPayloadWrapper.wrapPayload(
+        jsonExporter
+            .convertApplicationExportDataToJsonArray(ImmutableList.of(jsonExportData.build()))
+            .jsonString(),
+        /* paginationTokenPayload= */ Optional.empty());
   }
 }

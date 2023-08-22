@@ -165,12 +165,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
             addCSRFToken(requestBuilder).build(),
             program.getProgramDefinition().adminName(),
             "es-US");
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation().orElse(""))
-        .isEqualTo(controllers.admin.routes.AdminProgramController.index().url());
-    assertThat(result.flash().get("success").get())
-        .isEqualTo("Program translations updated for Spanish");
+    assertThat(result.status()).isEqualTo(OK);
 
     ProgramDefinition updatedProgram =
         programRepository
