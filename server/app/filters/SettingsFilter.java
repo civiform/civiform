@@ -20,13 +20,13 @@ public final class SettingsFilter extends EssentialFilter {
 
   private final Provider<SettingsService> settingsService;
   private final Materializer materializer;
-  private final SettingsManifest settingsManifest;
+  private final Provider<SettingsManifest> settingsManifest;
 
   @Inject
   public SettingsFilter(
       Provider<SettingsService> settingsService,
       Materializer materializer,
-      SettingsManifest settingsManifest) {
+      Provider<SettingsManifest> settingsManifest) {
     this.settingsService = checkNotNull(settingsService);
     this.materializer = checkNotNull(materializer);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -34,7 +34,7 @@ public final class SettingsFilter extends EssentialFilter {
 
   @Override
   public EssentialAction apply(EssentialAction next) {
-    if (!settingsManifest.getAdminSettingsPanelEnabled()) {
+    if (!settingsManifest.get().getAdminSettingsPanelEnabled()) {
       return EssentialAction.of(next::apply);
     }
 
