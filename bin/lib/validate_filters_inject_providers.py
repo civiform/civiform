@@ -5,7 +5,7 @@ import sys
 
 CLASS_NAME_MATCHER = re.compile(r'(?:[A-Z][a-z]*)+')
 SERVICE_AND_REPOSITORY_IMPORT_MATCHER = re.compile(
-    r'^import (?:services|repository)(?:\.\w+)+;$', re.MULTILINE)
+    r'^import (?:services|repository)(?:\.\w+)*\.(\w+);$', re.MULTILINE)
 
 
 def get_class_name(param_declaration):
@@ -27,21 +27,13 @@ def get_injected_class_names(file_name, class_contents):
     ]
 
 
-def get_service_and_repository_class_names(class_contents):
-    return [
-        import_statement.split(".")[-1].replace(";", "")
-        for import_statement in SERVICE_AND_REPOSITORY_IMPORT_MATCHER.findall(
-            class_contents)
-    ]
-
-
 def main(file_names):
     violations = []
 
     for file_name in file_names:
         with open(file_name, 'r') as f:
             class_contents = f.read()
-            service_and_repository_class_names = get_service_and_repository_class_names(
+            service_and_repository_class_names = SERVICE_AND_REPOSITORY_IMPORT_MATCHER.findall(
                 class_contents)
             injected_class_names = get_injected_class_names(
                 file_name, class_contents)
