@@ -36,8 +36,9 @@ describe('with program statuses', () => {
     await loginAsProgramAdmin(page)
     await adminPrograms.viewApplications(programName)
     await adminPrograms.viewApplicationForApplicant(testUserDisplayName())
-    const modal =
-      await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
+    const modal = await adminPrograms.setStatusOptionAndAwaitModal(
+      approvedStatusName,
+    )
     await adminPrograms.confirmStatusUpdateModal(modal)
     await logout(page)
   })
