@@ -193,8 +193,11 @@ public class TextFormatterTest {
     assertThat(contentStrings[1]).startsWith("<div class=\"cf-accordion");
     assertThat(contentStrings[1]).contains("Ingredients");
 
-    // ...and that accordion contains a div.
+    // ...and that accordion contains a div and an accessible button.
     assertThat(contentStrings[1]).contains("<div>You will need:</div>");
+    assertThat(contentStrings[1])
+        .containsPattern(
+            "<button.*cf-accordion-header.*aria-controls=\"cf-accordion-content\" aria-expanded=");
 
     // ...and a list.
     assertThat(contentStrings[1])

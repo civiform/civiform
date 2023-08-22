@@ -1,8 +1,10 @@
 package views.components;
 
+import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +42,6 @@ public final class Accordion {
                 "border",
                 "border-gray-300");
 
-    DivTag titleContainer = div().withClasses(ReferenceClasses.ACCORDION_HEADER, "relative");
     DivTag titleDiv = div(this.title).withClasses("text-xl", "font-light");
 
     SvgTag accordionSvg =
@@ -50,6 +51,7 @@ public final class Accordion {
             .attr("stroke-width", "2")
             .attr("stroke-linecap", "round")
             .attr("stroke-linejoin", "round");
+
     DivTag accordionButton =
         div(accordionSvg)
             .withClasses(
@@ -60,13 +62,35 @@ public final class Accordion {
                 "top-1",
                 "right-2",
                 "transform");
-    titleContainer.with(titleDiv, accordionButton);
+
+    ButtonTag titleButton =
+        button()
+            .with(titleDiv, accordionButton)
+            .withType("button")
+            .withClasses(
+                ReferenceClasses.ACCORDION_HEADER,
+                "flex",
+                "justify-between",
+                "relative",
+                "w-full",
+                // Negating all the inherited button styles from styles.css
+                "bg-white",
+                "text-black",
+                "px-0",
+                "py-0",
+                "border-0",
+                "hover:bg-gray-100")
+            .attr("aria-controls", ReferenceClasses.ACCORDION_CONTENT)
+            .attr("aria-expanded", true)
+            .attr("name", ReferenceClasses.ACCORDION_HEADER);
 
     DivTag contentContainer =
         div()
             .with(this.content)
-            .withClasses(ReferenceClasses.ACCORDION_CONTENT, "h-0", "overflow-hidden");
-    accordion.with(titleContainer, contentContainer);
+            .withId(ReferenceClasses.ACCORDION_CONTENT)
+            .withClasses(ReferenceClasses.ACCORDION_CONTENT, "h-auto", "mt-2", "mb-1");
+
+    accordion.with(titleButton, contentContainer);
 
     return accordion;
   }

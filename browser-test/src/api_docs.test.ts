@@ -29,12 +29,15 @@ describe('Viewing API docs', () => {
     expect(await page.textContent('html')).toContain(
       '"program_name" : "comprehensive-sample-program"',
     )
+
+    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'comprehensive-program-active-version')
 
     await page.selectOption('#select-slug', {value: 'minimal-sample-program'})
     expect(await page.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
+    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'minimal-program-active-version')
   })
 
@@ -57,6 +60,7 @@ describe('Viewing API docs', () => {
     expect(await freshPage.textContent('html')).toContain(
       '"program_name" : "comprehensive-sample-program"',
     )
+    await freshPage.waitForTimeout(300) // ms
     await validateScreenshot(
       freshPage,
       'comprehensive-program-active-version-logged-out',
@@ -68,6 +72,7 @@ describe('Viewing API docs', () => {
     expect(await freshPage.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
+    await freshPage.waitForTimeout(300) // ms
     await validateScreenshot(
       freshPage,
       'minimal-program-active-version-logged-out',
@@ -86,6 +91,7 @@ describe('Viewing API docs', () => {
     expect(await page.textContent('html')).toContain(
       '"program_name" : "minimal-sample-program"',
     )
+    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'draft-available')
   })
 
@@ -102,6 +108,7 @@ describe('Viewing API docs', () => {
     expect(await page.textContent('html')).toContain(
       'Program and version not found',
     )
+    await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'draft-not-available')
   })
 
@@ -121,16 +128,6 @@ describe('Viewing API docs', () => {
     // Wait for the accordion to open, so we don't screenshot during the opening,
     // causing inconsistent screenshots.
     await page.waitForTimeout(300) // ms
-
-    // Wait for the specific text to become visible in the accordion.
-    const textToFind =
-      'The API Response Preview is a sample of what the API response might look like'
-    await page.waitForFunction((text) => {
-      const element = document.querySelector('.cf-accordion-visible')
-      return (
-        element && element.textContent && element.textContent.includes(text)
-      )
-    }, textToFind)
 
     await validateScreenshot(page, 'api-docs-page-accordion-open')
   })
