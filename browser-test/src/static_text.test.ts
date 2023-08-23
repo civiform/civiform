@@ -29,28 +29,6 @@ describe('Static text question for applicant flow', () => {
     )
   })
 
-  it('expands accordion when accordion header clicked', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-
-    const headerButton = page.locator('.cf-accordion-header')
-    await headerButton.click()
-
-    // Wait for the accordion to open, so we don't screenshot during the opening,
-    // causing inconsistent screenshots.
-    await page.waitForTimeout(300) // ms
-    await validateScreenshot(page, 'static-text-accordion-open')
-    expect(await headerButton.getAttribute('aria-expanded')).toBe('true')
-  })
-
-  it('validate screenshot when accordion closed', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-
-    await page.waitForTimeout(300) // ms
-    await validateScreenshot(page, 'static-text-accordion-closed')
-  })
-
   it('displays static text', async () => {
     const {applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
@@ -58,19 +36,37 @@ describe('Static text question for applicant flow', () => {
     await applicantQuestions.seeStaticQuestion(staticText)
   })
 
-  it('displays the accordion', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-
-    expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-      'cf-accordion',
-    )
-  })
-
   it('has no accessiblity violations', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
     await validateAccessibility(page)
+  })
+
+  describe('accordion', () => {
+    it('exists and is closed by default', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await page.waitForTimeout(300) // ms
+      await validateScreenshot(page, 'static-text-accordion-closed')
+      expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
+        'cf-accordion',
+      )
+    })
+
+    it('expands when accordion header clicked', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      const headerButton = page.locator('.cf-accordion-header')
+      await headerButton.click()
+
+      // Wait for the accordion to open, so we don't screenshot during the opening,
+      // causing inconsistent screenshots.
+      await page.waitForTimeout(300) // ms
+      await validateScreenshot(page, 'static-text-accordion-open')
+      expect(await headerButton.getAttribute('aria-expanded')).toBe('true')
+    })
   })
 })
