@@ -640,11 +640,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
   }
 
-  /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
-  public boolean getAdminSettingsPanelEnabled() {
-    return getBool("ADMIN_SETTINGS_PANEL_ENABLED");
-  }
-
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
   public boolean getCfOptionalQuestions(RequestHeader request) {
     return getBool("CF_OPTIONAL_QUESTIONS", request);
@@ -1379,13 +1374,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "ADMIN_SETTINGS_PANEL_ENABLED",
-                      "If enabled, adds a page in the CiviForm Admin UI for accessing application"
-                          + " settings.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "CF_OPTIONAL_QUESTIONS",
                       "If enabled, allows questions to be optional in programs. Is enabled by"

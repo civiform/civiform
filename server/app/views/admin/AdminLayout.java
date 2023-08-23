@@ -183,8 +183,7 @@ public final class AdminLayout extends BaseHtmlLayout {
 
     return adminHeader.with(
         headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
-        getSettingsManifest().getAdminSettingsPanelEnabled()
-                && primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
+        primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
             ? a(Icons.svg(Icons.COG)
                     .withClasses("h-6", "w-6", "opacity-75", StyleUtils.hover("opacity-100")))
                 .withHref(settingsLink)
