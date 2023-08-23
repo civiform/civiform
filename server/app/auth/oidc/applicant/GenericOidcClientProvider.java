@@ -109,4 +109,10 @@ public class GenericOidcClientProvider extends OidcClientProvider {
     }
     return ImmutableList.copyOf(extraScopesMaybe.get().split(" "));
   }
+
+  @Override
+  protected boolean getUseCsrf() {
+    // In the future, we may wish to make this configurable, since this is a generic provider.
+    return false;
+  }
 }

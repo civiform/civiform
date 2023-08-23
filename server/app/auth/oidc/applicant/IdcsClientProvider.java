@@ -90,4 +90,9 @@ public final class IdcsClientProvider extends OidcClientProvider {
   protected ImmutableList<String> getExtraScopes() {
     return ImmutableList.of();
   }
+
+  @Override
+  protected boolean getUseCsrf() {
+    return false;
+  }
 }

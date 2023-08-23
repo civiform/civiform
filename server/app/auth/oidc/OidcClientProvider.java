@@ -98,6 +98,11 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected abstract ImmutableList<String> getExtraScopes();
 
   /*
+   * Whether the `state` CSRF parameter should be set in the request.
+   */
+  protected abstract boolean getUseCsrf();
+
+  /*
    * Helper function for retriving values from the application.conf,
    * prepended with "<attributePrefix>."
    */
@@ -194,7 +199,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     config.setResponseType(responseType);
 
     config.setUseNonce(true);
-    config.setWithState(false);
+    config.setWithState(getUseCsrf());
 
     config.setScope(scope);
     return config;
