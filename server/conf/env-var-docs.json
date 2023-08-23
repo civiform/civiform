@@ -61,12 +61,12 @@
             "group_description": "Configuration options for the [idcs](https://github.com/civiform/civiform/wiki/Authentication-Providers#oracle-idcs) provider.",
             "members": {
               "IDCS_CLIENT_ID": {
-                "mode": "HIDDEN",
+                "mode": "SECRET",
                 "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers, specifically communicating with IDCS. A Civiform instance is always the client.",
                 "type": "string"
               },
               "IDCS_SECRET": {
-                "mode": "HIDDEN",
+                "mode": "SECRET",
                 "description": "A secret known only to the client (Civiform) and authorization server, specifically for IDCS OIDC systems. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
                 "type": "string"
               },
@@ -141,7 +141,7 @@
                 "type": "string"
               },
               "APPLICANT_OIDC_CLIENT_SECRET": {
-                "mode": "HIDDEN",
+                "mode": "SECRET",
                 "description": "A secret known only to the client (Civiform) and authorization server. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
                 "type": "string"
               },
@@ -232,7 +232,7 @@
             "type": "string"
           },
           "ADFS_SECRET": {
-            "mode": "HIDDEN",
+            "mode": "SECRET",
             "description": "A secret known only to the client (Civiform) and authorization server. This secret essentially acts as the client’s “password” for accessing data from the auth server.",
             "type": "string"
           },
@@ -277,12 +277,12 @@
             "type": "string"
           },
           "DB_USERNAME": {
-            "mode": "HIDDEN",
+            "mode": "SECRET",
             "description": "The username used to connect to the database.",
             "type": "string"
           },
           "DB_PASSWORD": {
-            "mode": "HIDDEN",
+            "mode": "SECRET",
             "description": "The password used to connect to the database.",
             "type": "string"
           }
@@ -424,7 +424,7 @@
     }
   },
   "SECRET_KEY": {
-    "mode": "HIDDEN",
+    "mode": "SECRET",
     "description": "The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used to sign Play's session cookie. This must be changed for production.",
     "type": "string"
   },
@@ -497,7 +497,7 @@
     "group_description": "Configuration options for the [CiviForm API](https://docs.civiform.us/it-manual/api).",
     "members": {
       "CIVIFORM_API_SECRET_SALT": {
-        "mode": "HIDDEN",
+        "mode": "SECRET",
         "description": "A cryptographic [secret salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for salting API keys before storing their hash values in the database. This value should be kept strictly secret. If one suspects the secret has been leaked or otherwise comprised it should be changed and all active API keys should be retired and reissued. Default value is 'changeme'.",
         "type": "string"
       },
