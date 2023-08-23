@@ -30,7 +30,7 @@
     "group_description": "Configures connections to external services the CiviForm server relies on.",
     "members": {
       "Applicant Identity Provider": {
-        "group_description": "Configuration options for the [applicant identity provider](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#applicant-authentication).",
+        "group_description": "Configuration options for the [applicant identity provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#applicant-authentication).",
         "members": {
           "CIVIFORM_APPLICANT_IDP": {
             "mode": "ADMIN_READABLE",
@@ -58,7 +58,7 @@
             "required": true
           },
           "Oracle Identity Cloud Service": {
-            "group_description": "Configuration options for the [idcs](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#oracle-idcs) provider.",
+            "group_description": "Configuration options for the [idcs](https://github.com/civiform/civiform/wiki/Authentication-Providers#oracle-idcs) provider.",
             "members": {
               "IDCS_CLIENT_ID": {
                 "mode": "HIDDEN",
@@ -78,7 +78,7 @@
             }
           },
           "Login Radius": {
-            "group_description": "Configuration options for the [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml) provider",
+            "group_description": "Configuration options for the [login-radius](https://github.com/civiform/civiform/wiki/Authentication-Providers#loginradius-saml) provider",
             "members": {
               "LOGIN_RADIUS_API_KEY": {
                 "mode": "HIDDEN",
@@ -113,11 +113,11 @@
             }
           },
           "OpenID Connect": {
-            "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
+            "group_description": "Configuration options for the [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc) provider.",
             "members": {
               "APPLICANT_OIDC_PROVIDER_LOGOUT": {
                 "mode": "HIDDEN",
-                "description": "Enables [central logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).",
+                "description": "Enables [central logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).",
                 "type": "bool"
               },
               "APPLICANT_OIDC_OVERRIDE_LOGOUT_URL": {
@@ -193,7 +193,7 @@
             }
           },
           "Login.gov": {
-            "group_description": "Configuration options for the [login-gov](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#login.gov-oidc) provider",
+            "group_description": "Configuration options for the [login-gov](https://github.com/civiform/civiform/wiki/Authentication-Providers#logingov-oidc) provider",
             "members": {
               "LOGIN_GOV_CLIENT_ID": {
                 "mode": "HIDDEN",
@@ -224,7 +224,7 @@
         }
       },
       "Administrator Identity Provider": {
-        "group_description": "Configuration options for the [administrator identity provider](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#admin-authentication).",
+        "group_description": "Configuration options for the [administrator identity provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#admin-authentication).",
         "members": {
           "ADFS_CLIENT_ID": {
             "mode": "HIDDEN",

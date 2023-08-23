@@ -143,7 +143,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * Enables [central
-   * logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).
+   * logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).
    */
   public boolean getApplicantOidcProviderLogout() {
     return getBool("APPLICANT_OIDC_PROVIDER_LOGOUT");
@@ -737,12 +737,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingsSection.create(
                       "Applicant Identity Provider",
                       "Configuration options for the [applicant identity"
-                          + " provider](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#applicant-authentication).",
+                          + " provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#applicant-authentication).",
                       ImmutableList.of(
                           SettingsSection.create(
                               "Oracle Identity Cloud Service",
                               "Configuration options for the"
-                                  + " [idcs](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#oracle-idcs)"
+                                  + " [idcs](https://github.com/civiform/civiform/wiki/Authentication-Providers#oracle-idcs)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -775,7 +775,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "Login Radius",
                               "Configuration options for the"
-                                  + " [login-radius](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#loginradius-saml)"
+                                  + " [login-radius](https://github.com/civiform/civiform/wiki/Authentication-Providers#loginradius-saml)"
                                   + " provider",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -822,14 +822,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "OpenID Connect",
                               "Configuration options for the"
-                                  + " [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc)"
+                                  + " [generic-oidc](https://github.com/civiform/civiform/wiki/Authentication-Providers#generic-oidc-oidc)"
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_PROVIDER_LOGOUT",
                                       "Enables [central"
-                                          + " logout](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#logout).",
+                                          + " logout](https://github.com/civiform/civiform/wiki/Authentication-Providers#logout-2).",
                                       /* isRequired= */ false,
                                       SettingType.BOOLEAN,
                                       SettingMode.HIDDEN),
@@ -943,7 +943,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingsSection.create(
                               "Login.gov",
                               "Configuration options for the"
-                                  + " [login-gov](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#login.gov-oidc)"
+                                  + " [login-gov](https://github.com/civiform/civiform/wiki/Authentication-Providers#logingov-oidc)"
                                   + " provider",
                               ImmutableList.of(),
                               ImmutableList.of(
@@ -1014,7 +1014,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingsSection.create(
                       "Administrator Identity Provider",
                       "Configuration options for the [administrator identity"
-                          + " provider](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#admin-authentication).",
+                          + " provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#admin-authentication).",
                       ImmutableList.of(),
                       ImmutableList.of(
                           SettingDescription.create(
