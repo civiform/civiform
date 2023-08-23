@@ -1217,7 +1217,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               /* isRequired= */ true,
                               SettingType.ENUM,
                               SettingMode.ADMIN_READABLE,
-                              ImmutableList.of("adfs", "generic-oidc")))),
+                              ImmutableList.of("adfs", "generic-oidc-admin")))),
                   SettingsSection.create(
                       "Database",
                       "Configures the connection to the PostgreSQL database.",

@@ -230,7 +230,7 @@
             "mode": "ADMIN_READABLE",
             "description": "What identity provider to use for admins.",
             "type": "string",
-            "values": ["adfs", "generic-oidc"],
+            "values": ["adfs", "generic-oidc-admin"],
             "required": true
           },
           "Active Directory Federation Services": {

@@ -24,26 +24,35 @@ public enum AuthIdentityProviderName {
     this.authIdentityProviderNameString = authIdentityProviderNameString;
   }
 
+  private static AuthIdentityProviderName getByName(String authIdentityProviderNameString) {
+    for (AuthIdentityProviderName provider : AuthIdentityProviderName.values()) {
+      if (provider.getValue().equals(authIdentityProviderNameString)) {
+        return provider;
+      }
+    }
+    throw new IllegalArgumentException(
+        "No AuthIdentityProviderName found for '" + authIdentityProviderNameString + "'");
+  }
+
   public static AuthIdentityProviderName applicantIdentityProviderfromConfig(Config config) {
     if (!config.hasPath(AUTH_APPLICANT_CONFIG_PATH)) {
       // return IDCS if no config is specified.
       return AuthIdentityProviderName.IDCS_APPLICANT;
     }
     String providerName = config.getString(AUTH_APPLICANT_CONFIG_PATH);
-    for (var provider : AuthIdentityProviderName.values()) {
-      if (provider.getValue().equals(providerName)) {
-        return provider;
-      }
+    try {
+      return getByName(providerName);
+    } catch (IllegalArgumentException e) {
+      String supportedOptions =
+          Arrays.stream(AuthIdentityProviderName.values())
+              .map(AuthIdentityProviderName::getValue)
+              .collect(Collectors.joining(", "));
+      throw new IllegalArgumentException(
+          "Unsupported civiform_applicant_idp value: "
+              + providerName
+              + ". Supported values are "
+              + supportedOptions);
     }
-    String supportedOptions =
-        Arrays.stream(AuthIdentityProviderName.values())
-            .map(AuthIdentityProviderName::getValue)
-            .collect(Collectors.joining(", "));
-    throw new IllegalArgumentException(
-        "Unsupported civiform_applicant_idp value: "
-            + providerName
-            + ". Supported values are "
-            + supportedOptions);
   }
 
   public static AuthIdentityProviderName adminIdentityProviderfromConfig(Config config) {
@@ -52,20 +61,19 @@ public enum AuthIdentityProviderName {
       return AuthIdentityProviderName.ADFS_ADMIN;
     }
     String providerName = config.getString(AUTH_ADMIN_CONFIG_PATH);
-    for (var provider : AuthIdentityProviderName.values()) {
-      if (provider.getValue().equals(providerName)) {
-        return provider;
-      }
+    try {
+      return getByName(providerName);
+    } catch (IllegalArgumentException e) {
+      String supportedOptions =
+          Arrays.stream(AuthIdentityProviderName.values())
+              .map(AuthIdentityProviderName::getValue)
+              .collect(Collectors.joining(", "));
+      throw new IllegalArgumentException(
+          "Unsupported civiform_admin_idp value: "
+              + providerName
+              + ". Supported values are "
+              + supportedOptions);
     }
-    String supportedOptions =
-        Arrays.stream(AuthIdentityProviderName.values())
-            .map(AuthIdentityProviderName::getValue)
-            .collect(Collectors.joining(", "));
-    throw new IllegalArgumentException(
-        "Unsupported civiform_admin_idp value: "
-            + providerName
-            + ". Supported values are "
-            + supportedOptions);
   }
 
   /** Returns the string value associated with the enum. */
