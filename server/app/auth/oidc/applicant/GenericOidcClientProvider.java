@@ -15,7 +15,7 @@ import repository.UserRepository;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc";
+  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc.";
   private static final ImmutableList<String> DEFAULT_SCOPES =
       ImmutableList.of("openid", "profile", "email");
 

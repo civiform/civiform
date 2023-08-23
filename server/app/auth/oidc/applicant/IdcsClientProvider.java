@@ -15,7 +15,7 @@ import repository.UserRepository;
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "idcs";
+  private static final String ATTRIBUTE_PREFIX = "idcs.";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";
   private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
   private static final String DISCOVERY_URI_CONFIG_NAME = "discovery_uri";
