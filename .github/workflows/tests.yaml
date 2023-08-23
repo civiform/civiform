@@ -122,8 +122,6 @@ jobs:
   run_browser_tests_azure:
     strategy:
       fail-fast: false
-      matrix:
-        batch_number: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     runs-on: ubuntu-latest
     steps:
       - name: check out ${{ env.GITHUB_REF }}
@@ -161,7 +159,7 @@ jobs:
       - name: Bring up test env with Azurite
         run: bin/run-browser-test-env --azure --ci
       - name: Run browser tests with Azurite
-        run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
+        run: bin/run-browser-tests-azure
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v3
         with:

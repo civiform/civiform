@@ -1,0 +1,14 @@
+#! /usr/bin/env python3
+
+# DOC: Run a subset of browser tests that we want to specifically test in Azure in CI mode.
+
+import subprocess
+
+
+def get_test_files():
+    test_files = ['src/file.test.ts']  # file upload tests
+    return test_files
+
+
+shell_command = ["./bin/run-browser-tests-ci"] + get_test_files()
+subprocess.run(shell_command, check=True)
