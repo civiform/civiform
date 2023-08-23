@@ -29,7 +29,7 @@ describe('Static text question for applicant flow', () => {
     )
   })
 
-  it('validate screenshot when accordion open', async () => {
+  it('expands accordion when accordion header clicked', async () => {
     const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
@@ -40,6 +40,7 @@ describe('Static text question for applicant flow', () => {
     // causing inconsistent screenshots.
     await page.waitForTimeout(300) // ms
     await validateScreenshot(page, 'static-text-accordion-open')
+    expect(await headerButton.getAttribute('aria-expanded')).toBe('true')
   })
 
   it('validate screenshot when accordion closed', async () => {
@@ -64,15 +65,6 @@ describe('Static text question for applicant flow', () => {
     expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
       'cf-accordion',
     )
-  })
-
-  it('expands accordion when accordion header clicked', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-    const headerButton = page.locator('.cf-accordion-header')
-    await headerButton.click()
-
-    expect(await headerButton.getAttribute('aria-expanded')).toBe('true')
   })
 
   it('has no accessiblity violations', async () => {

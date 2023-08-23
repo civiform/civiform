@@ -42,7 +42,7 @@ public final class Accordion {
                 "border",
                 "border-gray-300");
 
-    DivTag titleDiv = div(this.title).withClasses("text-xl", "font-light");
+    DivTag titleDiv = div(this.title).withClasses("text-xl", "font-light", "pl-2");
 
     SvgTag accordionSvg =
         Icons.svg(Icons.ACCORDION_BUTTON)
