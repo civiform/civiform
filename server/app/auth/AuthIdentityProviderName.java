@@ -62,7 +62,7 @@ public enum AuthIdentityProviderName {
             .map(AuthIdentityProviderName::getValue)
             .collect(Collectors.joining(", "));
     throw new IllegalArgumentException(
-        "Unsupported civiform_applicant_idp value: "
+        "Unsupported civiform_admin_idp value: "
             + providerName
             + ". Supported values are "
             + supportedOptions);

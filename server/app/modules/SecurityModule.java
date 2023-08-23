@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import javax.annotation.Nullable;
+import modules.ConfigurationException;
 import org.pac4j.core.authorization.authorizer.Authorizer;
 import org.pac4j.core.authorization.authorizer.RequireAllRolesAuthorizer;
 import org.pac4j.core.authorization.authorizer.RequireAnyRoleAuthorizer;
@@ -140,7 +141,7 @@ public class SecurityModule extends AbstractModule {
               .toProvider(auth.oidc.admin.GenericOidcClientProvider.class);
           break;
         default:
-          logger.info("No provider specified for for admins");
+          throw new ConfigurationException("Unable to create admin identity provider: " + idpName);
       }
     } catch (RuntimeException e) {
       logger.error("Error getting admin auth provider");
