@@ -71,10 +71,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
       Optional<String> questionName) {
     String id = RandomStringUtils.randomAlphabetic(8);
-    LabelTag labelTag =
-        label()
-            .withFor(id)
-            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+
     InputTag inputTag =
         input()
             .withId(id)
@@ -92,6 +89,13 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .condAttr(!isOptional, "aria-required", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
+    LabelTag labelTag =
+        label()
+            .withFor(id)
+            .withClasses("inline-block", "w-full", "h-full")
+            .with(inputTag)
+            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+
     return div()
         .withClasses(
             "my-2",
@@ -100,7 +104,6 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
             checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
-        .with(inputTag)
         .with(labelTag);
   }
 }
