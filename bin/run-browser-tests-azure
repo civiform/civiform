@@ -7,7 +7,6 @@ import subprocess
 
 def get_test_files():
     test_files = ['src/file.test.ts']  # file upload tests
-    test_files.sort()
     return test_files
 
 
