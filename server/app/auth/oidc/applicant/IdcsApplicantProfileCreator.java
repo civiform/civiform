@@ -40,12 +40,12 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> userRepositoryProvider) {
     super(
         configuration,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        userRepositoryProvider,
         EMAIL_ATTRIBUTE_NAME,
         LOCALE_ATTRIBUTE_NAME,
         ImmutableList.of(NAME_ATTRIBUTE_NAME));

@@ -24,8 +24,8 @@ public class Auth0ClientProvider extends GenericOidcClientProvider {
   public Auth0ClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> accountRepositoryProvider) {
+    super(configuration, profileFactory, accountRepositoryProvider);
   }
 
   @Override
