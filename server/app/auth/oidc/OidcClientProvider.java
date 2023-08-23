@@ -100,7 +100,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected abstract ImmutableList<String> getExtraScopes();
 
   /*
-   * Whether the `state` CSRF parameter should be set in the request.
+   * Whether the `state` CSRF parameter should be set in the requests.
    */
   protected abstract boolean getUseCsrf();
 
