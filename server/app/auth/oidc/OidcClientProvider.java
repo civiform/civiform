@@ -48,7 +48,9 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   }
 
   /*
-   * The prefix used in the application.conf for retriving oidc options.
+   * The prefix used in the application.conf for retrieving oidc options.
+   *
+   * If a '.' is intended to be included in the attribute name, it must be included at the end of the prefix.
    */
   protected abstract String attributePrefix();
 
@@ -103,27 +105,26 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected abstract boolean getUseCsrf();
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf,
+   * prepended with <attributePrefix>
    */
   protected final Optional<String> getConfigurationValue(String suffix) {
-    String name = attributePrefix() + "." + suffix;
+    String name = attributePrefix() + suffix;
     return getBaseConfigurationValue(name);
   }
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf,
+   * prepended with <attributePrefix>
    */
   protected final String getConfigurationValueOrThrow(String suffix) {
-    String name = attributePrefix() + "." + suffix;
+    String name = attributePrefix() + suffix;
     return getBaseConfigurationValue(name)
         .orElseThrow(() -> new RuntimeException(name + " must be set"));
   }
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf.
    */
   protected final Optional<String> getBaseConfigurationValue(String name) {
     if (civiformConfig.hasPath(name)) {

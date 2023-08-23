@@ -33,7 +33,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   @Override
   @VisibleForTesting
   public String attributePrefix() {
-    return "login_gov";
+    return "login_gov.";
   }
 
   @Override
