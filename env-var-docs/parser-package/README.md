@@ -50,7 +50,8 @@ Variables have the following fields:
 - `mode`: Determines where the variable is set and displayed. `HIDDEN` vars are
   set in the environment and not visible to admins, `ADMIN_READABLE` vars are set
   in the environment and displayed to the admin in the Settings UI, `ADMIN_WRITEABLE`
-  vars are set by CiviForm admins in the CiviForm UI.
+  vars are set by CiviForm admins in the CiviForm UI, `SECRET` vars are set in the
+  environment by the cloud provider's secrets manager and not displayed to the admin.
 - `required`: If the environment variable is required to be set in the
   [config.sh file](https://github.com/civiform/civiform-deploy/blob/957a90fc27b5816de464231d92dc5886dac26b93/civiform_config.example.sh). Attempting to deploy while missing variables marked "required" will throw an error.
   If the `required` field is not set, the environment variable is not required.
