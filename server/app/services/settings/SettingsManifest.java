@@ -816,7 +816,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " instance is always the client.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
-                                      SettingMode.HIDDEN),
+                                      SettingMode.SECRET),
                                   SettingDescription.create(
                                       "IDCS_SECRET",
                                       "A secret known only to the client (Civiform) and"
@@ -826,7 +826,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
-                                      SettingMode.HIDDEN),
+                                      SettingMode.SECRET),
                                   SettingDescription.create(
                                       "IDCS_DISCOVERY_URI",
                                       "A URL that returns a JSON listing of OIDC (OpenID Connect)"
@@ -941,7 +941,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " the auth server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
-                                      SettingMode.HIDDEN),
+                                      SettingMode.SECRET),
                                   SettingDescription.create(
                                       "APPLICANT_OIDC_DISCOVERY_URI",
                                       "A URL that returns a JSON listing of OIDC (OpenID Connect)"
@@ -1102,7 +1102,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                           + " the auth server.",
                                       /* isRequired= */ false,
                                       SettingType.STRING,
-                                      SettingMode.HIDDEN),
+                                      SettingMode.SECRET),
                                   SettingDescription.create(
                                       "ADFS_DISCOVERY_URI",
                                       "A URL that returns a JSON listing of OIDC (OpenID Connect)"
@@ -1243,13 +1243,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               "The username used to connect to the database.",
                               /* isRequired= */ false,
                               SettingType.STRING,
-                              SettingMode.HIDDEN),
+                              SettingMode.SECRET),
                           SettingDescription.create(
                               "DB_PASSWORD",
                               "The password used to connect to the database.",
                               /* isRequired= */ false,
                               SettingType.STRING,
-                              SettingMode.HIDDEN))),
+                              SettingMode.SECRET))),
                   SettingsSection.create(
                       "Application File Upload Storage",
                       "Configuration options for the application file upload storage provider",
@@ -1463,7 +1463,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " value is 'changeme'.",
                       /* isRequired= */ false,
                       SettingType.STRING,
-                      SettingMode.HIDDEN),
+                      SettingMode.SECRET),
                   SettingDescription.create(
                       "CIVIFORM_API_KEYS_BAN_GLOBAL_SUBNET",
                       "When true prevents the CiviForm admin from issuing API keys that allow"
@@ -1592,7 +1592,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " production.",
                       /* isRequired= */ false,
                       SettingType.STRING,
-                      SettingMode.HIDDEN),
+                      SettingMode.SECRET),
                   SettingDescription.create(
                       "BASE_URL",
                       "The URL of the CiviForm deployment.  Must start with 'https://' or"

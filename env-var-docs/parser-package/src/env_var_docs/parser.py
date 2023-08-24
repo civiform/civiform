@@ -17,7 +17,7 @@ from typing import Dict, List, Tuple
 
 UnparsedJSON = Dict[str, typing.Any]
 
-Mode = Enum('Mode', ['HIDDEN', 'ADMIN_READABLE', 'ADMIN_WRITEABLE'])
+Mode = Enum('Mode', ['HIDDEN', 'ADMIN_READABLE', 'ADMIN_WRITEABLE', 'SECRET'])
 
 
 @dataclasses.dataclass
