@@ -282,6 +282,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("LOGIN_GOV_ACR_VALUE");
   }
 
+  /** What identity provider to use for admins. */
+  public Optional<String> getCiviformAdminIdp() {
+    return getString("CIVIFORM_ADMIN_IDP");
+  }
+
   /**
    * An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from
    * authorization servers, specifically communicating with ADFS. A Civiform instance is always the
@@ -326,6 +331,68 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** The attribute name for looking up the groups associated with a particular user. */
   public Optional<String> getAdGroupsAttributeName() {
     return getString("AD_GROUPS_ATTRIBUTE_NAME");
+  }
+
+  /**
+   * An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from
+   * authorization servers. A Civiform instance is always the client.
+   */
+  public Optional<String> getAdminOidcClientId() {
+    return getString("ADMIN_OIDC_CLIENT_ID");
+  }
+
+  /**
+   * A secret known only to the client (Civiform) and authorization server. This secret essentially
+   * acts as the client’s “password” for accessing data from the auth server.
+   */
+  public Optional<String> getAdminOidcClientSecret() {
+    return getString("ADMIN_OIDC_CLIENT_SECRET");
+  }
+
+  /**
+   * A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with a given auth
+   * provider.
+   */
+  public Optional<String> getAdminOidcDiscoveryUri() {
+    return getString("ADMIN_OIDC_DISCOVERY_URI");
+  }
+
+  /**
+   * Informs the auth server of the desired auth processing flow, based on the OpenID Connect spec.
+   */
+  public Optional<String> getAdminOidcResponseMode() {
+    return getString("ADMIN_OIDC_RESPONSE_MODE");
+  }
+
+  /**
+   * Informs the auth server of the mechanism to be used for returning response params from the auth
+   * endpoint, based on the OpenID Connect spec.
+   */
+  public Optional<String> getAdminOidcResponseType() {
+    return getString("ADMIN_OIDC_RESPONSE_TYPE");
+  }
+
+  /** OIDC client should provide CSRF protection. */
+  public boolean getAdminOidcUseCsrf() {
+    return getBool("ADMIN_OIDC_USE_CSRF");
+  }
+
+  /** Name of attribute that provides the groups associated with an account. */
+  public Optional<String> getAdminOidcIdGroupsAttributeName() {
+    return getString("ADMIN_OIDC_ID_GROUPS_ATTRIBUTE_NAME");
+  }
+
+  /** Name of group that indicates an account is a global admin. */
+  public Optional<String> getAdminOidcAdminGroupName() {
+    return getString("ADMIN_OIDC_ADMIN_GROUP_NAME");
+  }
+
+  /**
+   * Scopes the client (CiviForm) is requesting in addition to the standard scopes the OpenID
+   * Connect spec provides.
+   */
+  public Optional<String> getAdminOidcAdditionalScopes() {
+    return getString("ADMIN_OIDC_ADDITIONAL_SCOPES");
   }
 
   /**
@@ -638,11 +705,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables the feature that allows address correction for address questions. */
   public boolean getEsriAddressCorrectionEnabled(RequestHeader request) {
     return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
-  }
-
-  /** If enabled, adds a page in the CiviForm Admin UI for accessing application settings. */
-  public boolean getAdminSettingsPanelEnabled() {
-    return getBool("ADMIN_SETTINGS_PANEL_ENABLED");
   }
 
   /** If enabled, allows questions to be optional in programs. Is enabled by default. */
@@ -1015,54 +1077,142 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Administrator Identity Provider",
                       "Configuration options for the [administrator identity"
                           + " provider](https://github.com/civiform/civiform/wiki/Authentication-Providers#admin-authentication).",
-                      ImmutableList.of(),
+                      ImmutableList.of(
+                          SettingsSection.create(
+                              "Active Directory Federation Services",
+                              "Configuration options for the"
+                                  + " [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc)"
+                                  + " provider.",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "ADFS_CLIENT_ID",
+                                      "An opaque public identifier for apps that use OIDC (OpenID"
+                                          + " Connect) to request data from authorization servers,"
+                                          + " specifically communicating with ADFS. A Civiform"
+                                          + " instance is always the client.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADFS_SECRET",
+                                      "A secret known only to the client (Civiform) and"
+                                          + " authorization server. This secret essentially acts"
+                                          + " as the client’s “password” for accessing data from"
+                                          + " the auth server.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.SECRET),
+                                  SettingDescription.create(
+                                      "ADFS_DISCOVERY_URI",
+                                      "A URL that returns a JSON listing of OIDC (OpenID Connect)"
+                                          + " data associated with the IDCS auth provider.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADFS_GLOBAL_ADMIN_GROUP",
+                                      "The name of the admin group in Active Directory, typically"
+                                          + " used to tell if a user is a global admin.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADFS_ADDITIONAL_SCOPES",
+                                      "Scopes the client (CiviForm) is requesting in addition to"
+                                          + " the standard scopes the OpenID Connect spec"
+                                          + " provides. Scopes should be separated by a space.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "AD_GROUPS_ATTRIBUTE_NAME",
+                                      "The attribute name for looking up the groups associated"
+                                          + " with a particular user.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN))),
+                          SettingsSection.create(
+                              "OpenID Connect",
+                              "Configuration options for the"
+                                  + " [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc)"
+                                  + " provider.",
+                              ImmutableList.of(),
+                              ImmutableList.of(
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_CLIENT_ID",
+                                      "An opaque public identifier for apps that use OIDC (OpenID"
+                                          + " Connect) to request data from authorization servers."
+                                          + " A Civiform instance is always the client.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_CLIENT_SECRET",
+                                      "A secret known only to the client (Civiform) and"
+                                          + " authorization server. This secret essentially acts"
+                                          + " as the client’s “password” for accessing data from"
+                                          + " the auth server.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_DISCOVERY_URI",
+                                      "A URL that returns a JSON listing of OIDC (OpenID Connect)"
+                                          + " data associated with a given auth provider.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_RESPONSE_MODE",
+                                      "Informs the auth server of the desired auth processing"
+                                          + " flow, based on the OpenID Connect spec.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_RESPONSE_TYPE",
+                                      "Informs the auth server of the mechanism to be used for"
+                                          + " returning response params from the auth endpoint,"
+                                          + " based on the OpenID Connect spec.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_USE_CSRF",
+                                      "OIDC client should provide CSRF protection.",
+                                      /* isRequired= */ false,
+                                      SettingType.BOOLEAN,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_ID_GROUPS_ATTRIBUTE_NAME",
+                                      "Name of attribute that provides the groups associated with"
+                                          + " an account.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_ADMIN_GROUP_NAME",
+                                      "Name of group that indicates an account is a global admin.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_ADDITIONAL_SCOPES",
+                                      "Scopes the client (CiviForm) is requesting in addition to"
+                                          + " the standard scopes the OpenID Connect spec"
+                                          + " provides.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN)))),
                       ImmutableList.of(
                           SettingDescription.create(
-                              "ADFS_CLIENT_ID",
-                              "An opaque public identifier for apps that use OIDC (OpenID Connect)"
-                                  + " to request data from authorization servers, specifically"
-                                  + " communicating with ADFS. A Civiform instance is always the"
-                                  + " client.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.HIDDEN),
-                          SettingDescription.create(
-                              "ADFS_SECRET",
-                              "A secret known only to the client (Civiform) and authorization"
-                                  + " server. This secret essentially acts as the client’s"
-                                  + " “password” for accessing data from the auth server.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.SECRET),
-                          SettingDescription.create(
-                              "ADFS_DISCOVERY_URI",
-                              "A URL that returns a JSON listing of OIDC (OpenID Connect) data"
-                                  + " associated with the IDCS auth provider.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.HIDDEN),
-                          SettingDescription.create(
-                              "ADFS_GLOBAL_ADMIN_GROUP",
-                              "The name of the admin group in Active Directory, typically used to"
-                                  + " tell if a user is a global admin.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.HIDDEN),
-                          SettingDescription.create(
-                              "ADFS_ADDITIONAL_SCOPES",
-                              "Scopes the client (CiviForm) is requesting in addition to the"
-                                  + " standard scopes the OpenID Connect spec provides. Scopes"
-                                  + " should be separated by a space.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.HIDDEN),
-                          SettingDescription.create(
-                              "AD_GROUPS_ATTRIBUTE_NAME",
-                              "The attribute name for looking up the groups associated with a"
-                                  + " particular user.",
-                              /* isRequired= */ false,
-                              SettingType.STRING,
-                              SettingMode.HIDDEN))),
+                              "CIVIFORM_ADMIN_IDP",
+                              "What identity provider to use for admins.",
+                              /* isRequired= */ true,
+                              SettingType.ENUM,
+                              SettingMode.ADMIN_READABLE,
+                              ImmutableList.of("adfs", "generic-oidc-admin")))),
                   SettingsSection.create(
                       "Database",
                       "Configures the connection to the PostgreSQL database.",
@@ -1379,13 +1529,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
-                  SettingDescription.create(
-                      "ADMIN_SETTINGS_PANEL_ENABLED",
-                      "If enabled, adds a page in the CiviForm Admin UI for accessing application"
-                          + " settings.",
-                      /* isRequired= */ false,
-                      SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
                       "CF_OPTIONAL_QUESTIONS",
                       "If enabled, allows questions to be optional in programs. Is enabled by"
