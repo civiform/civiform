@@ -271,6 +271,11 @@
           "OpenID Connect": {
             "group_description": "Configuration options for the [generic-oidc](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#generic-oidc-oidc) provider.",
             "members": {
+              "ADMIN_OIDC_PROVIDER_NAME": {
+                "mode": "HIDDEN",
+                "description": "The name of the OIDC (OpenID Connect) auth provider (server), such as 'Auth0' or 'Okta'.",
+                "type": "string"
+              },
               "ADMIN_OIDC_CLIENT_ID": {
                 "mode": "HIDDEN",
                 "description": "An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from authorization servers. A Civiform instance is always the client.",

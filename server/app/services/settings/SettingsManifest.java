@@ -333,6 +333,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("AD_GROUPS_ATTRIBUTE_NAME");
   }
 
+  /** The name of the OIDC (OpenID Connect) auth provider (server), such as 'Auth0' or 'Okta'. */
+  public Optional<String> getAdminOidcProviderName() {
+    return getString("ADMIN_OIDC_PROVIDER_NAME");
+  }
+
   /**
    * An opaque public identifier for apps that use OIDC (OpenID Connect) to request data from
    * authorization servers. A Civiform instance is always the client.
@@ -1139,6 +1144,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   + " provider.",
                               ImmutableList.of(),
                               ImmutableList.of(
+                                  SettingDescription.create(
+                                      "ADMIN_OIDC_PROVIDER_NAME",
+                                      "The name of the OIDC (OpenID Connect) auth provider"
+                                          + " (server), such as 'Auth0' or 'Okta'.",
+                                      /* isRequired= */ false,
+                                      SettingType.STRING,
+                                      SettingMode.HIDDEN),
                                   SettingDescription.create(
                                       "ADMIN_OIDC_CLIENT_ID",
                                       "An opaque public identifier for apps that use OIDC (OpenID"
