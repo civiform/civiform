@@ -80,7 +80,7 @@ services:
       - LOGIN_RADIUS_KEYSTORE_PASS
       - LOGIN_RADIUS_KEYSTORE_NAME
       - CIVIFORM_APPLICANT_IDP=generic-oidc
-      - CIVIFORM_ADMIN_IDP=adfs
+      - CIVIFORM_ADMIN_IDP=typo
       # Hard coded in test-support/test_oidc_provider.js
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
