@@ -7,7 +7,7 @@
     "probe": "jest --testTimeout=180000 --forceExit --maxConcurrency=1 --runInBand"
   },
   "devDependencies": {
-    "@types/jest": "29.5.3",
+    "@types/jest": "29.5.4",
     "@types/jest-image-snapshot": "6.1.0",
     "@types/node": "18.17.5",
     "@typescript-eslint/eslint-plugin": "5.62.0",
