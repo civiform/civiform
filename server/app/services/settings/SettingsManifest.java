@@ -1221,7 +1221,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingDescription.create(
                               "CIVIFORM_ADMIN_IDP",
                               "What identity provider to use for admins.",
-                              /* isRequired= */ true,
+                              /* isRequired= */ false,
                               SettingType.ENUM,
                               SettingMode.ADMIN_READABLE,
                               ImmutableList.of("adfs", "generic-oidc-admin")))),

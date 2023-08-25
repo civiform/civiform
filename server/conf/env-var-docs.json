@@ -231,7 +231,7 @@
             "description": "What identity provider to use for admins.",
             "type": "string",
             "values": ["adfs", "generic-oidc-admin"],
-            "required": true
+            "required": false
           },
           "Active Directory Federation Services": {
             "group_description": "Configuration options for the [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc) provider.",
