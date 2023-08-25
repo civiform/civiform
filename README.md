@@ -24,13 +24,13 @@ Key features:
 ## Contributing
 
 To get started please first read our
-[Contributing](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide#getting-up-to-speed) wiki page.
+[Contributing](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#getting-up-to-speed) wiki page.
 
 And more specifically:
 
-- [Technical contribution guide](https://docs.civiform.us/contributor-guide/developer-guide)
+- [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide)
 - [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
 
 If you're interested in just digging around and interacting with the code, see
-[Getting started](https://docs.civiform.us/contributor-guide/developer-guide/getting-started) for guidance on
+[Getting started](https://github.com/civiform/civiform/wiki/Getting-started) for guidance on
 setting up your environment and running a local development server.
