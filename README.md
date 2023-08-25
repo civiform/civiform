@@ -23,13 +23,7 @@ Key features:
 
 ## Contributing
 
-To get started please first read our
-[Contributing](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#getting-up-to-speed) wiki page.
-
-And more specifically:
-
-- [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide)
-- [UX contribution guide](https://docs.civiform.us/contributor-guide/ui-ux-guide)
+To get started please first read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide).
 
 If you're interested in just digging around and interacting with the code, see
 [Getting started](https://github.com/civiform/civiform/wiki/Getting-started) for guidance on
