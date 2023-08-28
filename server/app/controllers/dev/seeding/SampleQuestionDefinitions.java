@@ -88,7 +88,8 @@ public final class SampleQuestionDefinitions {
           QuestionOption.create(3L, 3L, "vanilla", LocalizedStrings.withDefaultValue("Vanilla")),
           QuestionOption.create(4L, 4L, "coffee", LocalizedStrings.withDefaultValue("Coffee")));
 
-  static final MultiOptionQuestionDefinition DROPDOWN_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final MultiOptionQuestionDefinition DROPDOWN_QUESTION_DEFINITION =
       new MultiOptionQuestionDefinition(
           DROPDOWN_QUESTION_CONFIG, DROPDOWN_QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
 
@@ -221,7 +222,8 @@ public final class SampleQuestionDefinitions {
               .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
               .build());
 
-  static final DateQuestionDefinition DATE_PREDICATE_QUESTION_DEFINITION =
+  @VisibleForTesting
+  public static final DateQuestionDefinition DATE_PREDICATE_QUESTION_DEFINITION =
       new DateQuestionDefinition(
           QuestionDefinitionConfig.builder()
               .setName("Sample Predicate Date Question")

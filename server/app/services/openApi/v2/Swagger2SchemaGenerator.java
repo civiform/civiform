@@ -1,0 +1,270 @@
+package services.openApi.v2;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Locale;
+import services.applicant.question.Scalar;
+import services.openApi.OpenApiGenerationException;
+import services.openApi.OpenApiSchemaGenerator;
+import services.openApi.OpenApiSchemaSettings;
+import services.openApi.OpenApiVersion;
+import services.openApi.v2.serializers.Swagger2YamlMapper;
+import services.program.BlockDefinition;
+import services.program.ProgramDefinition;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.QuestionDefinition;
+import services.question.types.ScalarType;
+
+public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
+  private final OpenApiSchemaSettings openApiSchemaSettings;
+
+  public Swagger2SchemaGenerator(OpenApiSchemaSettings openApiSchemaSettings) {
+    this.openApiSchemaSettings = checkNotNull(openApiSchemaSettings);
+  }
+
+  @Override
+  public String createSchema(ProgramDefinition programDefinition) {
+    try {
+      Swagger swaggerRoot =
+          Swagger.builder()
+              .setBasePath("/api/v1/programs/" + programDefinition.slug())
+              .setHost(getHostName())
+              .setInfo(
+                  Info.builder(programDefinition.adminName(), Long.toString(programDefinition.id()))
+                      .setDescription(programDefinition.adminDescription())
+                      .setContact(
+                          Contact.builder()
+                              .setName("CiviForm Technical Support")
+                              .setEmail(openApiSchemaSettings.getItEmailAddress())
+                              .build())
+                      .build())
+              .setSchemes(getSchemes())
+              .addSecurityRequirement(SecurityRequirement.builder(SecurityType.BASIC).build())
+              .addSecurityDefinition(SecurityDefinition.basicBuilder().build())
+              .setPaths(
+                  Paths.builder()
+                      .addPathItem(
+                          PathItem.builder("/applications")
+                              .addOperation(
+                                  Operation.builder(OperationType.GET)
+                                      .setOperationId("get_applications")
+                                      .setDescription("Get Applications")
+                                      .setSummary("Export applications")
+                                      .addProduces(MimeType.Json)
+                                      .addTag("programs")
+                                      .addResponse(
+                                          Response.builder(HttpStatusCode.OK, "For valid requests.")
+                                              .setSchema("#/definitions/result")
+                                              .addHeader(
+                                                  Header.builder(DefinitionType.STRING, "x-next")
+                                                      .setDescription(
+                                                          "A link to the next page of responses")
+                                                      .build())
+                                              .build())
+                                      .addResponse(
+                                          Response.builder(
+                                                  HttpStatusCode.BadRequest,
+                                                  "Returned if any request parameters fail"
+                                                      + " validation.")
+                                              .build())
+                                      .addResponse(
+                                          Response.builder(
+                                                  HttpStatusCode.Unauthorized,
+                                                  "Returned if the API key is invalid or does not"
+                                                      + " have access to the program.")
+                                              .build())
+                                      .addParameter(
+                                          Parameter.builder(
+                                                  "fromDate", In.QUERY, DefinitionType.STRING)
+                                              .setFormat(Format.DATE)
+                                              .setDescription(
+                                                  "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
+                                                      + " Limits results to applications submitted"
+                                                      + " on or after the provided date.")
+                                              .build())
+                                      .addParameter(
+                                          Parameter.builder(
+                                                  "toDate", In.QUERY, DefinitionType.STRING)
+                                              .setFormat(Format.DATE)
+                                              .setDescription(
+                                                  "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
+                                                      + " Limits results to applications submitted"
+                                                      + " before the provided date.")
+                                              .build())
+                                      .addParameter(
+                                          Parameter.builder(
+                                                  "pageSize", In.QUERY, DefinitionType.INTEGER)
+                                              .setDescription(
+                                                  "A positive integer. Limits the number of"
+                                                      + " results per page. If pageSize is larger"
+                                                      + " than CiviForm's maximum page size then"
+                                                      + " the maximum will be used. The default"
+                                                      + " maximum is 1,000 and is configurable.")
+                                              .build())
+                                      .addParameter(
+                                          Parameter.builder(
+                                                  "nextPageToken", In.QUERY, DefinitionType.STRING)
+                                              .setDescription(
+                                                  "An opaque, alphanumeric identifier for a"
+                                                      + " specific page of results. When included"
+                                                      + " CiviForm will return a page of results"
+                                                      + " corresponding to the token.")
+                                              .build())
+                                      .build())
+                              .build())
+                      .build())
+              .addDefinition(
+                  Definition.builder(
+                          "result",
+                          DefinitionType.OBJECT,
+                          ImmutableList.of(
+                              Definition.builder(
+                                      "payload",
+                                      DefinitionType.ARRAY,
+                                      ImmutableList.of(
+                                          Definition.builder("applicant_id", DefinitionType.INTEGER)
+                                              .setFormat(Format.INT32)
+                                              .build(),
+                                          Definition.builder(
+                                                  "application",
+                                                  DefinitionType.OBJECT,
+                                                  buildApplicationDefinitions(programDefinition))
+                                              .build(),
+                                          Definition.builder(
+                                                  "application_id", DefinitionType.INTEGER)
+                                              .setFormat(Format.INT32)
+                                              .build(),
+                                          Definition.builder("create_time", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder("language", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder("program_name", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder(
+                                                  "program_version_id", DefinitionType.INTEGER)
+                                              .setFormat(Format.INT32)
+                                              .build(),
+                                          Definition.builder("status", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder("submit_time", DefinitionType.STRING)
+                                              .build(),
+                                          Definition.builder(
+                                                  "submitter_email", DefinitionType.STRING)
+                                              .build()))
+                                  .build(),
+                              Definition.builder("nextPageToken", DefinitionType.STRING).build()))
+                      .build())
+              .build();
+
+      ObjectMapper mapper = Swagger2YamlMapper.getMapper();
+      return mapper.writeValueAsString(swaggerRoot);
+    } catch (RuntimeException
+        | InvalidQuestionTypeException
+        | UnsupportedQuestionTypeException
+        | JsonProcessingException ex) {
+      throw new OpenApiGenerationException(
+          OpenApiVersion.SWAGGER_V2, "Unable to generate OpenAPI schema.", ex);
+    }
+  }
+
+  private ImmutableList<Scheme> getSchemes() {
+    if (openApiSchemaSettings.getAllowHttpScheme()) {
+      return ImmutableList.of(Scheme.HTTP, Scheme.HTTPS);
+    }
+
+    return ImmutableList.of(Scheme.HTTPS);
+  }
+
+  private ImmutableList<Definition> buildApplicationDefinitions(ProgramDefinition programDefinition)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    ArrayList<Definition> definitionList = new ArrayList<>();
+
+    for (QuestionDefinition questionDefinition :
+        getQuestionDefinitionsSortedByNameKey(programDefinition)) {
+      Definition.Builder containerDefinition =
+          Definition.builder(questionDefinition.getQuestionNameKey(), DefinitionType.OBJECT);
+
+      for (Scalar scalar : getScalarsSortedByName(questionDefinition)) {
+        String fieldName = scalar.name().toLowerCase(Locale.ROOT);
+        DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
+        Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
+
+        containerDefinition.addDefinition(
+            Definition.builder(fieldName, definitionType).setFormat(swaggerFormat).build());
+      }
+
+      definitionList.add(containerDefinition.build());
+    }
+
+    return definitionList.stream().collect(ImmutableList.toImmutableList());
+  }
+
+  private ImmutableList<QuestionDefinition> getQuestionDefinitionsSortedByNameKey(
+      ProgramDefinition programDefinition) {
+    ArrayList<QuestionDefinition> list = new ArrayList<>();
+
+    for (BlockDefinition blockDefinition : programDefinition.blockDefinitions()) {
+      for (int i = 0; i < blockDefinition.getQuestionCount(); i++) {
+        list.add(blockDefinition.getQuestionDefinition(i));
+      }
+    }
+
+    return list.stream()
+        .sorted(Comparator.comparing(QuestionDefinition::getQuestionNameKey))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private ImmutableList<Scalar> getScalarsSortedByName(QuestionDefinition questionDefinition)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    return Scalar.getScalars(questionDefinition.getQuestionType()).stream()
+        .sorted(Comparator.comparing(Enum::name))
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  private String getHostName() {
+    return openApiSchemaSettings.getBaseUrl().replace("https://", "").replace("http://", "");
+  }
+
+  private DefinitionType getDefinitionTypeFromSwaggerType(ScalarType scalarType) {
+    switch (scalarType) {
+      case LONG:
+        return DefinitionType.INTEGER;
+      case DOUBLE:
+        return DefinitionType.NUMBER;
+      case LIST_OF_STRINGS:
+        return DefinitionType.ARRAY;
+      case CURRENCY_CENTS:
+      case DATE:
+      case STRING:
+      case PHONE_NUMBER:
+      case SERVICE_AREA:
+      default:
+        return DefinitionType.STRING;
+    }
+  }
+
+  private Format getSwaggerFormat(ScalarType scalarType) {
+    switch (scalarType) {
+      case DATE:
+        return Format.DATE;
+      case LONG:
+        return Format.INT64;
+      case CURRENCY_CENTS:
+      case DOUBLE:
+        return Format.DOUBLE;
+      case LIST_OF_STRINGS:
+        return Format.ARRAY;
+      case STRING:
+      case PHONE_NUMBER:
+      case SERVICE_AREA:
+      default:
+        return Format.STRING;
+    }
+  }
+}
