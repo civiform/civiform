@@ -104,6 +104,9 @@ public final class TrustedIntermediaryService {
     if (!currentDob.isBefore(dateConverter.getCurrentDateForZoneId())) {
       return Optional.of("Date of Birth should be in the past");
     }
+    if (currentDob.isBefore(dateConverter.getCurrentDateForZoneId().minusYears(150))) {
+      return Optional.of("Date of Birth should be less than 150 years ago");
+    }
     return Optional.empty();
   }
 
