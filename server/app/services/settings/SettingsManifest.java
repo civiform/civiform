@@ -757,8 +757,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the API docs tab on CiviForm. */
-  public boolean getApiGeneratedDocsEnabled() {
-    return getBool("API_GENERATED_DOCS_ENABLED");
+  public boolean getApiGeneratedDocsEnabled(RequestHeader request) {
+    return getBool("API_GENERATED_DOCS_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1589,7 +1589,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the API docs tab on CiviForm.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_READABLE))),
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",

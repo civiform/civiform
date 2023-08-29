@@ -644,7 +644,7 @@
         "type": "bool"
       },
       "API_GENERATED_DOCS_ENABLED": {
-        "mode": "ADMIN_READABLE",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables the API docs tab on CiviForm.",
         "type": "bool"
       }

@@ -52,7 +52,7 @@ public final class ApiDocsController {
 
   private Result docsForSlug(
       Http.Request request, String selectedProgramSlug, boolean useActiveVersion) {
-    if (!settingsManifest.getApiGeneratedDocsEnabled()) {
+    if (!settingsManifest.getApiGeneratedDocsEnabled(request)) {
       return notFound("API Docs are not enabled.");
     }
 
