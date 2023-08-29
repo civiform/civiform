@@ -40,6 +40,24 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
+  it('expect client cannot be added with invalid date of birth', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'abc@abc.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '1870-07-11',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardNotContainClient(client)
+    await validateScreenshot(page, 'dashboard-add-client-invalid-dob')
+  })
+
   it('expect Dashboard Contain New Client', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
