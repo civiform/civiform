@@ -115,6 +115,30 @@ public class ApplicantData extends CfJsonDocumentContext {
     }
   }
 
+  public Optional<String> getEmail() {
+    return readString(WellKnownPaths.APPLICANT_EMAIL);
+  }
+
+  public void setEmail(String emailAddress) {
+    putString(WellKnownPaths.APPLICANT_EMAIL, emailAddress);
+  }
+
+  public Optional<String> getPhoneNumber() {
+    return readString(WellKnownPaths.APPLICANT_PHONE_NUMBER);
+  }
+
+  public void setPhoneNumber(String phoneNumber) {
+    putString(WellKnownPaths.APPLICANT_PHONE_NUMBER, phoneNumber);
+  }
+
+  public Optional<String> getCountryCode() {
+    return readString(WellKnownPaths.APPLICANT_COUNTRY_CODE);
+  }
+
+  public void setCountryCode(String countryCode) {
+    putString(WellKnownPaths.APPLICANT_COUNTRY_CODE, countryCode);
+  }
+
   @Override
   public String asJsonString() {
     if (!getFailedUpdates().isEmpty()) {
