@@ -107,7 +107,6 @@ describe('Trusted intermediaries', () => {
     )
 
     await validateScreenshot(page, 'dashboard-add-clients-no-email')
-    await validateAcc
   })
 
   it('expect client cannot be added with invalid email address', async () => {
