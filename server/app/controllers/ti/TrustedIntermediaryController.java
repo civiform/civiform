@@ -166,13 +166,15 @@ public final class TrustedIntermediaryController {
             trustedIntermediaryGroup.get());
     if (!form.hasErrors()) {
       return redirect(
-          routes.TrustedIntermediaryController.dashboard(
-              /* nameQuery= */ Optional.empty(),
-              /* dateQuery= */ Optional.empty(),
-              /* page= */ Optional.of(1)))
-        .flashing("success", String.format("Successfully added new client: %s %s",
-          form.value().get().getFirstName(),
-          form.value().get().getLastName()));
+              routes.TrustedIntermediaryController.dashboard(
+                  /* nameQuery= */ Optional.empty(),
+                  /* dateQuery= */ Optional.empty(),
+                  /* page= */ Optional.of(1)))
+          .flashing(
+              "success",
+              String.format(
+                  "Successfully added new client: %s %s",
+                  form.value().get().getFirstName(), form.value().get().getLastName()));
     }
     return redirectToDashboardWithError(getValidationErros(form.errors()), form);
   }
