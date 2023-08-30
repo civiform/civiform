@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -25,6 +26,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applications.PdfExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -42,7 +44,7 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
-  private final PdfExporter pdfExporter;
+  private final PdfExporterService pdfExporterService;
 
   @Inject
   public UpsellController(
@@ -53,7 +55,7 @@ public final class UpsellController extends CiviFormController {
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
-      PdfExporter pdfExporter,
+      PdfExporterService pdfExporterService,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
@@ -62,7 +64,7 @@ public final class UpsellController extends CiviFormController {
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
-    this.pdfExporter = checkNotNull(pdfExporter);
+    this.pdfExporterService = checkNotNull(pdfExporterService);
   }
 
   @Secure
@@ -175,26 +177,26 @@ public final class UpsellController extends CiviFormController {
   }
 
   /** Download a PDF file of the application to the program. */
-  public Result download(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-
-    Optional<Application> applicationMaybe =
-        applicantService.getApplication(applicationId, program);
-    if (applicationMaybe.isEmpty()) {
-      return notFound(String.format("Application %d does not exist.", applicationId));
-    }
-    Application application = applicationMaybe.get();
-
-    PdfExporter.InMemoryPdf pdf;
-    try {
-      pdf = pdfExporter.export(application);
-    } catch (DocumentException | IOException e) {
-      throw new RuntimeException(e);
-    }
-    return ok(pdf.getByteArray())
+  public Result download(Http.Request request, long programId, long applicationId, long applicantId) throws ProgramNotFoundException {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+      CiviFormProfile profile = profileMaybe.orElseThrow(() -> new NoSuchElementException("User authorized as applicant but no profile found"));
+      if (!profile.isTrustedIntermediary()) {
+        try {
+          super.checkApplicantAuthorization(request, applicantId).join();
+        } catch (CompletionException | SecurityException e) {
+          return unauthorized("401 - Invalid credentials");
+        }
+      } else {
+        Account currentAccount = profile.getAccount().join();
+        if (currentAccount.getManagedByGroup().isEmpty()) {
+          return unauthorized("401 - Invalid credentials");
+        }
+      }
+      PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
+      return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
-            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+          "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 }

@@ -1,6 +1,7 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.section;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
@@ -25,6 +26,7 @@ import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
+import views.components.Icons;
 import views.style.ReferenceClasses;
 
 /** Renders a confirmation page after application submission. */
@@ -56,7 +58,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
     boolean shouldUpsell = shouldUpsell(account);
-
+    String redirectUrl = routes.UpsellController.download(programId, applicationId, applicantId).url();
     Modal loginPromptModal =
         createLoginPromptModal(
                 messages,
@@ -68,23 +70,25 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
+                a().withHref(redirectUrl).with(makeSvgTextButton("Download", Icons.DOWNLOAD)
+                  .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)),
                 button(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                     .withId(loginPromptModal.getTriggerButtonId())
                     .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                 createLoginButton("sign-in", messages, redirectTo),
                 createNewAccountButton("sign-up", messages))
             : ImmutableList.of(
+                a().withHref(redirectUrl).with(makeSvgTextButton("Download", Icons.DOWNLOAD)
+                  .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)),
                 createApplyToProgramsButton(
                     "another-program",
                     messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
                     applicantId));
 
     String title = messages.at(MessageKey.TITLE_APPLICATION_CONFIRMATION.getKeyName());
-    String redirectUrl = routes.UpsellController.download(programId, applicationId).url();
     var content =
         createMainContent(
             title,
-            redirectUrl,
             section(
                 div(messages.at(
                         MessageKey.CONTENT_CONFIRMED.getKeyName(), programTitle, applicationId))

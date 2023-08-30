@@ -54,28 +54,6 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
           shouldUpsell, messages, authProviderName, actionButtons));
   }
 
-  protected static DivTag createMainContent(
-      String title,
-      String redirectUrl,
-      SectionTag confirmationSection,
-      Boolean shouldUpsell,
-      Messages messages,
-      String authProviderName,
-      ImmutableList<DomContent> actionButtons) {
-    return div()
-        .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
-        .with(
-            div()
-                .withClasses("flex")
-                .with(
-                    h1(title).withClasses("text-3xl", "text-black", "font-bold", "mb-4"),
-                    div().withClass("flex-grow"),
-                    a().withHref(redirectUrl).with(makeSvgTextButton("Download", Icons.DOWNLOAD))),
-            confirmationSection,
-            createAccountManagementSection(
-                shouldUpsell, messages, authProviderName, actionButtons));
-  }
-
   protected static HtmlBundle createHtmlBundle(
       Http.Request request,
       ApplicantLayout layout,

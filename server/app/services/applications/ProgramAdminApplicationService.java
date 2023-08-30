@@ -34,10 +34,9 @@ import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
-public final class ProgramAdminApplicationService {
+public final class ProgramAdminApplicationService extends ApplicationService {
 
   private final ApplicantService applicantService;
-  private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
   private final UserRepository userRepository;
   private final SimpleEmail emailClient;
@@ -57,8 +56,8 @@ public final class ProgramAdminApplicationService {
       SimpleEmail emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi) {
+    super(applicationRepository, configuration, deploymentType);
     this.applicantService = checkNotNull(applicantService);
-    this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
@@ -73,28 +72,6 @@ public final class ProgramAdminApplicationService {
         configuration.getString("staging_applicant_notification_mailing_list");
     this.stagingTiNotificationMailingList =
         configuration.getString("staging_ti_notification_mailing_list");
-  }
-
-  /**
-   * Retrieves the application with the given ID and validates that it is associated with the given
-   * program.
-   */
-  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    Optional<Application> maybeApplication =
-        applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-    if (maybeApplication.isEmpty()) {
-      return Optional.empty();
-    }
-    Application application = maybeApplication.get();
-    if (program.adminName().isEmpty()
-        || !application
-            .getProgram()
-            .getProgramDefinition()
-            .adminName()
-            .equals(program.adminName())) {
-      return Optional.empty();
-    }
-    return Optional.of(application);
   }
 
   /**

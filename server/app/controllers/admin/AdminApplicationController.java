@@ -12,10 +12,8 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
-import com.itextpdf.text.DocumentException;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -46,6 +44,7 @@ import services.applicant.Block;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.application.ApplicationEventDetails;
 import services.applications.AccountHasNoEmailException;
+import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.applications.StatusEmailNotFoundException;
 import services.export.CsvExporterService;
@@ -68,6 +67,7 @@ public final class AdminApplicationController extends CiviFormController {
   private static final String REDIRECT_URI_KEY = "redirectUri";
 
   private final ApplicantService applicantService;
+  private final PdfExporterService pdfExporterService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationListView applicationListView;
   private final ProgramApplicationView applicationView;
@@ -75,7 +75,6 @@ public final class AdminApplicationController extends CiviFormController {
   private final CsvExporterService exporterService;
   private final FormFactory formFactory;
   private final JsonExporter jsonExporter;
-  private final PdfExporter pdfExporter;
   private final Provider<LocalDateTime> nowProvider;
   private final MessagesApi messagesApi;
   private final DateConverter dateConverter;
@@ -87,7 +86,7 @@ public final class AdminApplicationController extends CiviFormController {
       CsvExporterService csvExporterService,
       FormFactory formFactory,
       JsonExporter jsonExporter,
-      PdfExporter pdfExporter,
+      PdfExporterService pdfExporterService,
       ProgramApplicationListView applicationListView,
       ProgramApplicationView applicationView,
       ProgramAdminApplicationService programAdminApplicationService,
@@ -106,7 +105,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.exporterService = checkNotNull(csvExporterService);
     this.formFactory = checkNotNull(formFactory);
     this.jsonExporter = checkNotNull(jsonExporter);
-    this.pdfExporter = checkNotNull(pdfExporter);
+    this.pdfExporterService = checkNotNull(pdfExporterService);
     this.messagesApi = checkNotNull(messagesApi);
     this.dateConverter = checkNotNull(dateConverter);
   }
@@ -256,32 +255,18 @@ public final class AdminApplicationController extends CiviFormController {
 
   /** Download a PDF file of the application to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result download(Http.Request request, long programId, long applicationId)
-      throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
-    try {
-      checkProgramAdminAuthorization(request, program.adminName()).join();
-    } catch (CompletionException | NoSuchElementException e) {
-      return unauthorized();
-    }
-
-    Optional<Application> applicationMaybe =
-        programAdminApplicationService.getApplication(applicationId, program);
-    if (applicationMaybe.isEmpty()) {
-      return notFound(String.format("Application %d does not exist.", applicationId));
-    }
-    Application application = applicationMaybe.get();
-
-    PdfExporter.InMemoryPdf pdf;
-    try {
-      pdf = pdfExporter.export(application);
-    } catch (DocumentException | IOException e) {
-      throw new RuntimeException(e);
-    }
-    return ok(pdf.getByteArray())
+  public Result download(Http.Request request, long programId, long applicationId) throws ProgramNotFoundException {
+      ProgramDefinition program = programService.getProgramDefinition(programId);
+      try {
+        checkProgramAdminAuthorization(request, program.adminName()).join();
+      } catch (CompletionException | NoSuchElementException e) {
+        return unauthorized();
+      }
+      PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
+      return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
-            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+          "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 
   /** Return a HTML page displaying the summary of the specified application. */
