@@ -14,7 +14,6 @@ import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import controllers.applicant.routes;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;

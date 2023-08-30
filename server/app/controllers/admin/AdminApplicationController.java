@@ -255,18 +255,19 @@ public final class AdminApplicationController extends CiviFormController {
 
   /** Download a PDF file of the application to the program. */
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
-  public Result download(Http.Request request, long programId, long applicationId) throws ProgramNotFoundException {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      try {
-        checkProgramAdminAuthorization(request, program.adminName()).join();
-      } catch (CompletionException | NoSuchElementException e) {
-        return unauthorized();
-      }
-      PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
-      return ok(pdf.getByteArray())
+  public Result download(Http.Request request, long programId, long applicationId)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    try {
+      checkProgramAdminAuthorization(request, program.adminName()).join();
+    } catch (CompletionException | NoSuchElementException e) {
+      return unauthorized();
+    }
+    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
+    return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
-          "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 
   /** Return a HTML page displaying the summary of the specified application. */

@@ -5,9 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.itextpdf.text.DocumentException;
 import controllers.CiviFormController;
-import java.io.IOException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -15,7 +13,6 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
-import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -177,26 +174,29 @@ public final class UpsellController extends CiviFormController {
   }
 
   /** Download a PDF file of the application to the program. */
-  public Result download(Http.Request request, long programId, long applicationId, long applicantId) throws ProgramNotFoundException {
-      ProgramDefinition program = programService.getProgramDefinition(programId);
-      Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-      CiviFormProfile profile = profileMaybe.orElseThrow(() -> new NoSuchElementException("User authorized as applicant but no profile found"));
-      if (!profile.isTrustedIntermediary()) {
-        try {
-          super.checkApplicantAuthorization(request, applicantId).join();
-        } catch (CompletionException | SecurityException e) {
-          return unauthorized("401 - Invalid credentials");
-        }
-      } else {
-        Account currentAccount = profile.getAccount().join();
-        if (currentAccount.getManagedByGroup().isEmpty()) {
-          return unauthorized("401 - Invalid credentials");
-        }
+  public Result download(Http.Request request, long programId, long applicationId, long applicantId)
+      throws ProgramNotFoundException {
+    ProgramDefinition program = programService.getProgramDefinition(programId);
+    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
+    CiviFormProfile profile =
+        profileMaybe.orElseThrow(
+            () -> new NoSuchElementException("User authorized as applicant but no profile found"));
+    if (!profile.isTrustedIntermediary()) {
+      try {
+        super.checkApplicantAuthorization(request, applicantId).join();
+      } catch (CompletionException | SecurityException e) {
+        return unauthorized("401 - Invalid credentials");
       }
-      PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
-      return ok(pdf.getByteArray())
+    } else {
+      Account currentAccount = profile.getAccount().join();
+      if (currentAccount.getManagedByGroup().isEmpty()) {
+        return unauthorized("401 - Invalid credentials");
+      }
+    }
+    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
+    return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
-          "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
   }
 }
