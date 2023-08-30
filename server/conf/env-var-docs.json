@@ -355,6 +355,41 @@
           }
         }
       },
+      "Thread pools": {
+        "group_description": "Configures the Play framework [thread pools](https://www.playframework.com/documentation/2.8.x/ThreadPools).",
+        "members": {
+          "AKKA_DEFAULT_EXECUTOR": {
+            "mode": "HIDDEN",
+            "description": "Determines which kind of ExecutorService to use for the default dispatcher. The default is 'fork-join-executor'",
+            "type": "string"
+          },
+          "FORK_JOIN_PARALLELISM_MIN": {
+            "mode": "HIDDEN",
+            "description": "Min number of threads to cap factor-based parallelism number to for the 'fork-join-executor'",
+            "type": "int"
+          },
+          "FORK_JOIN_PARALLELISM_MAX": {
+            "mode": "HIDDEN",
+            "description": "Max number of threads to cap factor-based parallelism number to for the 'fork-join-executor'",
+            "type": "int"
+          },
+          "FORK_JOIN_PARALLELISM_FACTOR": {
+            "mode": "HIDDEN",
+            "description": "The parallelism factor is used to determine thread pool size for the 'fork-join-executor' using the following formula: ceil(available processors * factor). Resulting size is then bounded by the parallelism-min and parallelism-max values.",
+            "type": "int"
+          },
+          "THREAD_POOL_EXECUTOR_FIXED_POOL_SIZE": {
+            "mode": "HIDDEN",
+            "description": "The size of the thread pool for the 'thread-pool-executor' type. If not defined, this will use the [default](https://github.com/akka/akka/blob/main/akka-actor/src/main/resources/reference.conf#L492) core and max pool sizes.",
+            "type": "int"
+          },
+          "AKKA_THROUGHPUT": {
+            "mode": "HIDDEN",
+            "description": "The number of messages that are processed in a batch before the thread is returned to the pool. Set to 1 for as fair as possible.",
+            "type": "int"
+          }
+        }
+      },
       "AWS_REGION": {
         "mode": "HIDDEN",
         "description": "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to 'aws', it is also the region where the AWS s3 service exists.",

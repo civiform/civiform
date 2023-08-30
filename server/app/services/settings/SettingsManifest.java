@@ -430,6 +430,55 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Determines which kind of ExecutorService to use for the default dispatcher. The default is
+   * 'fork-join-executor'
+   */
+  public Optional<String> getAkkaDefaultExecutor() {
+    return getString("AKKA_DEFAULT_EXECUTOR");
+  }
+
+  /**
+   * Min number of threads to cap factor-based parallelism number to for the 'fork-join-executor'
+   */
+  public Optional<Integer> getForkJoinParallelismMin() {
+    return getInt("FORK_JOIN_PARALLELISM_MIN");
+  }
+
+  /**
+   * Max number of threads to cap factor-based parallelism number to for the 'fork-join-executor'
+   */
+  public Optional<Integer> getForkJoinParallelismMax() {
+    return getInt("FORK_JOIN_PARALLELISM_MAX");
+  }
+
+  /**
+   * The parallelism factor is used to determine thread pool size for the 'fork-join-executor' using
+   * the following formula: ceil(available processors * factor). Resulting size is then bounded by
+   * the parallelism-min and parallelism-max values.
+   */
+  public Optional<Integer> getForkJoinParallelismFactor() {
+    return getInt("FORK_JOIN_PARALLELISM_FACTOR");
+  }
+
+  /**
+   * The size of the thread pool for the 'thread-pool-executor' type. If not defined, this will use
+   * the
+   * [default](https://github.com/akka/akka/blob/main/akka-actor/src/main/resources/reference.conf#L492)
+   * core and max pool sizes.
+   */
+  public Optional<Integer> getThreadPoolExecutorFixedPoolSize() {
+    return getInt("THREAD_POOL_EXECUTOR_FIXED_POOL_SIZE");
+  }
+
+  /**
+   * The number of messages that are processed in a batch before the thread is returned to the pool.
+   * Set to 1 for as fair as possible.
+   */
+  public Optional<Integer> getAkkaThroughput() {
+    return getInt("AKKA_THROUGHPUT");
+  }
+
+  /**
    * Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to 'aws', it is also
    * the region where the AWS s3 service exists.
    */
@@ -1262,6 +1311,59 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               /* isRequired= */ false,
                               SettingType.STRING,
                               SettingMode.SECRET))),
+                  SettingsSection.create(
+                      "Thread pools",
+                      "Configures the Play framework [thread"
+                          + " pools](https://www.playframework.com/documentation/2.8.x/ThreadPools).",
+                      ImmutableList.of(),
+                      ImmutableList.of(
+                          SettingDescription.create(
+                              "AKKA_DEFAULT_EXECUTOR",
+                              "Determines which kind of ExecutorService to use for the default"
+                                  + " dispatcher. The default is 'fork-join-executor'",
+                              /* isRequired= */ false,
+                              SettingType.STRING,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "FORK_JOIN_PARALLELISM_MIN",
+                              "Min number of threads to cap factor-based parallelism number to for"
+                                  + " the 'fork-join-executor'",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "FORK_JOIN_PARALLELISM_MAX",
+                              "Max number of threads to cap factor-based parallelism number to for"
+                                  + " the 'fork-join-executor'",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "FORK_JOIN_PARALLELISM_FACTOR",
+                              "The parallelism factor is used to determine thread pool size for"
+                                  + " the 'fork-join-executor' using the following formula:"
+                                  + " ceil(available processors * factor). Resulting size is then"
+                                  + " bounded by the parallelism-min and parallelism-max values.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "THREAD_POOL_EXECUTOR_FIXED_POOL_SIZE",
+                              "The size of the thread pool for the 'thread-pool-executor' type. If"
+                                  + " not defined, this will use the"
+                                  + " [default](https://github.com/akka/akka/blob/main/akka-actor/src/main/resources/reference.conf#L492)"
+                                  + " core and max pool sizes.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.HIDDEN),
+                          SettingDescription.create(
+                              "AKKA_THROUGHPUT",
+                              "The number of messages that are processed in a batch before the"
+                                  + " thread is returned to the pool. Set to 1 for as fair as"
+                                  + " possible.",
+                              /* isRequired= */ false,
+                              SettingType.INT,
+                              SettingMode.HIDDEN))),
                   SettingsSection.create(
                       "Application File Upload Storage",
                       "Configuration options for the application file upload storage provider",
