@@ -9,6 +9,7 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
+import static j2html.TagCreator.label;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -370,6 +371,10 @@ public final class QuestionEditView extends BaseHtmlView {
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
+    ImmutableList<QuestionType> ACTIONABLE_QUESTION_TYPES = ImmutableList.of(QuestionType.EMAIL, QuestionType.NAME);
+    if(ACTIONABLE_QUESTION_TYPES.contains(questionForm.getQuestionType())){
+        questionSettingsContentBuilder.add(buildActionableQuestion(true));
+    }
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -378,6 +383,33 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private DomContent buildActionableQuestion(Boolean checked) {
+    return fieldset()
+        .with(
+            legend("Actionable question")
+                .with(ViewUtils.requiredQuestionIndicator())
+                .withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(
+                    span("Setting this question as Actionable allows CiviForm to take additional actions based on the answer to this question. Learn more about how this works in the "),
+                    new LinkElement()
+                        .setHref(
+                            "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#actionable-questions")
+                        .setText("documentation")
+                        .opensInNewTab()
+                        .asAnchorText(),
+                    span(".")),
+            FieldWithLabel.checkbox()
+                .setAriaRequired(true)
+                .setFieldName("questionActionable")
+                .setLabelText("Actionable")
+                .setChecked(checked)
+                // Checkboxes either return their value when checked, or don't have a value when not checked
+                .setValue("true")
+                .getCheckboxTag()
+        );
   }
 
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
