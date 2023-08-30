@@ -69,6 +69,12 @@ public class Applicant extends BaseModel {
     } else if (this.applicantData == null) {
       this.applicantData = new ApplicantData();
     }
+    if(this.applicantData.getEmail().isEmpty() && this.account != null) {
+      String emailAddress = this.account.getEmailAddress();
+      if (emailAddress != null) {
+        this.applicantData.setEmail(emailAddress);
+      }
+    }
     return applicantData;
   }
 
