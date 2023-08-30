@@ -169,7 +169,10 @@ public final class TrustedIntermediaryController {
           routes.TrustedIntermediaryController.dashboard(
               /* nameQuery= */ Optional.empty(),
               /* dateQuery= */ Optional.empty(),
-              /* page= */ Optional.empty()));
+              /* page= */ Optional.of(1)))
+        .flashing("success", String.format("Successfully added new client: %s %s",
+          form.value().get().getFirstName(),
+          form.value().get().getLastName()));
     }
     return redirectToDashboardWithError(getValidationErros(form.errors()), form);
   }

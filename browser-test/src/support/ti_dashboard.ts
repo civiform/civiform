@@ -68,6 +68,13 @@ export class TIDashboard {
     await waitForPageJsLoad(this.page)
   }
 
+  async expectSuccessToast(successToastMessage: string) {
+    const toastContainer = await this.page.innerHTML('#toast-container')
+
+    expect(toastContainer).toContain('bg-emerald-200')
+    expect(toastContainer).toContain(successToastMessage)
+  }
+
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain(
       'your client may not qualify',
