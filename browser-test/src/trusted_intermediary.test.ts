@@ -102,6 +102,9 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client2)
     await tiDashboard.expectDashboardContainClient(client2)
+    await tiDashboard.expectSuccessToast(
+      `Successfully added new client: ${client2.firstName} ${client2.lastName}`,
+    )
 
     await validateScreenshot(page, 'dashboard-add-clients-no-email')
   })
