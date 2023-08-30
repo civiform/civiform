@@ -819,32 +819,30 @@ public final class ApplicantService {
             .getApplicationsForApplicant(
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
-    CompletableFuture<ImmutableList<ProgramDefinition>> activeProgramDefinitionsFuture =
-        userRepository
-            .lookupApplicant(applicantId)
-            .thenApplyAsync(
-                applicant ->
-                    versionRepository.getActiveVersion().getPrograms().stream()
-                        .map(Program::getProgramDefinition)
-                        .filter(
-                            pdef ->
-                                pdef.displayMode().equals(DisplayMode.PUBLIC)
-                                    || (requesterProfile.isTrustedIntermediary()
-                                        && pdef.displayMode().equals(DisplayMode.TI_ONLY))
-                                    || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
-                                        && pdef.acls().hasProgramViewPermission(requesterProfile)))
-                        .collect(ImmutableList.toImmutableList()))
-            .toCompletableFuture();
+    ImmutableList<ProgramDefinition> activeProgramDefinitions =
+            versionRepository.getActiveVersion().getPrograms().stream()
+                .map(Program::getProgramDefinition)
+                .filter(
+                    pdef ->
+                        pdef.displayMode().equals(DisplayMode.PUBLIC)
+                            || (requesterProfile.isTrustedIntermediary()
+                                && pdef.displayMode().equals(DisplayMode.TI_ONLY))
+                            || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
+                                && pdef.acls().hasProgramViewPermission(requesterProfile)))
+                .collect(ImmutableList.toImmutableList());
 
-    return CompletableFuture.allOf(applicationsFuture, activeProgramDefinitionsFuture)
+    return applicationsFuture
         .thenComposeAsync(
             v -> {
               ImmutableSet<Application> applications = applicationsFuture.join();
+              if (applications.isEmpty()) {
+                return CompletableFuture.completedFuture(activeProgramDefinitions);
+              }
               List<ProgramDefinition> programDefinitionsList =
                   applications.stream()
                       .map(application -> application.getProgram().getProgramDefinition())
                       .collect(Collectors.toList());
-              programDefinitionsList.addAll(activeProgramDefinitionsFuture.join());
+              programDefinitionsList.addAll(activeProgramDefinitions);
               return programService.syncQuestionsToProgramDefinitions(
                   programDefinitionsList.stream().collect(ImmutableList.toImmutableList()));
             })
@@ -853,7 +851,7 @@ public final class ApplicantService {
               ImmutableSet<Application> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                  activeProgramDefinitionsFuture.join(), applications, allPrograms);
+                activeProgramDefinitions, applications, allPrograms);
             },
             httpExecutionContext.current());
   }
