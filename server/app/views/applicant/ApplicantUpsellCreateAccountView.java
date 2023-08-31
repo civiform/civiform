@@ -1,7 +1,6 @@
 package views.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.section;
 import static views.applicant.AuthenticateUpsellCreator.createLoginButton;
@@ -13,10 +12,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.applicant.routes;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import java.util.Locale;
 import java.util.Optional;
-
-import j2html.tags.specialized.ATag;
 import models.Account;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -69,11 +67,13 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
-    ATag downloadButton = new ATag().withHref(redirectUrl)
-      .with(
-        makeSvgTextButton("Download", Icons.DOWNLOAD)
-          .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
-      .withClass("flex");
+    ATag downloadButton =
+        new ATag()
+            .withHref(redirectUrl)
+            .with(
+                makeSvgTextButton("Download", Icons.DOWNLOAD)
+                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+            .withClass("flex");
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
