@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.google.auto.value.AutoValue;
 import com.google.auto.value.extension.memoized.Memoized;
+import com.google.common.base.Ascii;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -11,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import services.applicant.question.Scalar;
+import services.export.enums.ApiPathSegment;
 
 /**
  * Represents a path into the applicant JSON data. Stored as the path to data without the JsonPath
@@ -100,24 +102,47 @@ public abstract class Path {
   }
 
   /**
-   * Append a path to the path.
+   * Append a {@link String} path to the {@link Path}.
    *
    * <p>If joining a {@link Scalar}, please use {@link Path#join(Scalar)} instead.
+   *
+   * @param path the path in String form to join with this path
+   * @return this path joined with the provided path
    */
   public Path join(String path) {
     Path other = Path.create(path);
-    return Path.create(
-        ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
+    return join(other);
   }
 
   /**
-   * Append a {@link Scalar} to the path
+   * Append a {@link Scalar} to the {@link Path}.
    *
-   * <p>This is just a helper method so we don't have to use {@link Scalar#toString()} when we want
-   * to append to a path.
+   * @param scalar the Scalar to join with this path
+   * @return this path joined with the provided Scalar
    */
   public Path join(Scalar scalar) {
     Path other = Path.create(scalar.name());
+    return join(other);
+  }
+
+  /**
+   * Append a {@link ApiPathSegment} to the {@link Path}.
+   *
+   * @param apiPathSegment the ApiPathSegment to join with this path
+   * @return this path joined with the provided ApiPathSegment
+   */
+  public Path join(ApiPathSegment apiPathSegment) {
+    Path other = Path.create(apiPathSegment.name());
+    return join(other);
+  }
+
+  /**
+   * Append a {@link Path} to the {@link Path}.
+   *
+   * @param other the path to join with this path
+   * @return this path joined with the provided path
+   */
+  public Path join(Path other) {
     return Path.create(
         ImmutableList.<String>builder().addAll(segments()).addAll(other.segments()).build());
   }
@@ -152,6 +177,34 @@ public abstract class Path {
   }
 
   /**
+   * Returns a {@link Path} with repeated entities nested in an object under an `entities` property,
+   * for use by the JSON API.
+   *
+   * <p>The path `one.two[3].four` is transformed to `one.two.entities[3].four`.
+   *
+   * @return the transformed {@link Path}
+   */
+  public Path asNestedEntitiesPath() {
+    if (isEmpty()) {
+      return this;
+    }
+
+    if (!isArrayElement()
+        || (isArrayElement()
+            && keyNameWithoutArrayIndex()
+                .equals(Ascii.toLowerCase(ApiPathSegment.ENTITIES.name())))) {
+      return parentPath().asNestedEntitiesPath().join(keyName());
+    }
+
+    return parentPath()
+        .asNestedEntitiesPath()
+        .join(keyNameWithoutArrayIndex())
+        .join(ApiPathSegment.ENTITIES)
+        .asArrayElement()
+        .atIndex(arrayIndex());
+  }
+
+  /**
    * Checks whether this path is referring to an array element, e.g. {@code applicant.children[3]}.
    */
   public boolean isArrayElement() {
@@ -170,10 +223,20 @@ public abstract class Path {
    * Returns a path with a trailing array element reference stripped away. For example, {@code
    * applicant.children[2]} would return a path to {@code applicant.children}.
    *
-   * <p>For paths to non repeated entity collections, {@code IllegalStateException} is thrown.
+   * <p>For paths to non-repeated entity collections, {@code IllegalStateException} is thrown.
    */
   public Path withoutArrayReference() {
     return parentPath().join(keyNameWithoutArrayIndex());
+  }
+
+  /**
+   * A version of {@link #withoutArrayReference()} that doesn't throw an exception if there is not
+   * an array reference.
+   *
+   * @return a path with the trailing array element reference stripped away.
+   */
+  public Path safeWithoutArrayReference() {
+    return parentPath().join(stripArraySuffix(keyName()));
   }
 
   /**
