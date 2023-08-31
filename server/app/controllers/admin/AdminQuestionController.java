@@ -171,7 +171,9 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     try {
-      service.setExportState(result.getResult(), questionForm.getQuestionExportStateTag());
+      QuestionDefinition qd = result.getResult();
+      service.setExportState(qd, questionForm.getQuestionExportStateTag());
+      service.setActionable(qd, questionForm.getActionable());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }
@@ -308,8 +310,9 @@ public final class AdminQuestionController extends CiviFormController {
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
     }
     try {
-      service.setExportState(
-          errorAndUpdatedQuestionDefinition.getResult(), questionForm.getQuestionExportStateTag());
+      QuestionDefinition qd = errorAndUpdatedQuestionDefinition.getResult();
+      service.setExportState(qd, questionForm.getQuestionExportStateTag());
+      service.setActionable(qd, questionForm.getActionable());
     } catch (InvalidUpdateException | QuestionNotFoundException e) {
       return badRequest(e.toString());
     }

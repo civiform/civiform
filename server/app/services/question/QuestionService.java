@@ -290,6 +290,22 @@ public final class QuestionService {
     question.save();
   }
 
+  public void setActionable(QuestionDefinition questionDefinition, boolean actionable)
+      throws QuestionNotFoundException, InvalidUpdateException {
+    Optional<Question> questionMaybe =
+      questionRepository.lookupQuestion(questionDefinition.getId()).toCompletableFuture().join();
+    if (questionMaybe.isEmpty()) {
+      throw new QuestionNotFoundException(questionDefinition.getId());
+    }
+    Question question = questionMaybe.get();
+    if(actionable){
+      question.addTag(QuestionTag.ACTIONABLE);
+    } else {
+      question.removeTag(QuestionTag.ACTIONABLE);
+    }
+    question.save();
+  }
+
   /**
    * Check for conflicts with other questions. This is to be only used with new questions because
    * questions being updated will likely conflict with themselves, and new versions of previous
