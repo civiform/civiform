@@ -1,6 +1,8 @@
 package forms;
 
+import java.util.Optional;
 import play.data.FormFactory;
+import play.data.Form;
 import play.mvc.Http.Request;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -37,13 +39,15 @@ public final class QuestionFormBuilder {
       case DROPDOWN:
         return formFactory.form(DropdownQuestionForm.class).bindFromRequest(request).get();
       case EMAIL:
-        return formFactory.form(EmailQuestionForm.class).bindFromRequest(request).get();
+        Form<EmailQuestionForm> emailForm = formFactory.form(EmailQuestionForm.class).bindFromRequest(request);
+        return emailForm.get().setActionableFromRawFormData(emailForm.rawData());
       case FILEUPLOAD:
         return formFactory.form(FileUploadQuestionForm.class).bindFromRequest(request).get();
       case ID:
         return formFactory.form(IdQuestionForm.class).bindFromRequest(request).get();
       case NAME:
-        return formFactory.form(NameQuestionForm.class).bindFromRequest(request).get();
+        Form<NameQuestionForm> nameForm = formFactory.form(NameQuestionForm.class).bindFromRequest(request);
+        return nameForm.get().setActionableFromRawFormData(nameForm.rawData());
       case NUMBER:
         return formFactory.form(NumberQuestionForm.class).bindFromRequest(request).get();
       case RADIO_BUTTON:
@@ -55,7 +59,8 @@ public final class QuestionFormBuilder {
       case TEXT:
         return formFactory.form(TextQuestionForm.class).bindFromRequest(request).get();
       case PHONE:
-        return formFactory.form(PhoneQuestionForm.class).bindFromRequest(request).get();
+        Form<PhoneQuestionForm> phoneForm = formFactory.form(PhoneQuestionForm.class).bindFromRequest(request);
+        return phoneForm.get().setActionableFromRawFormData(phoneForm.rawData());
       default:
         throw new InvalidQuestionTypeException(questionType.toString());
     }
