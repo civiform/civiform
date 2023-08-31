@@ -26,7 +26,7 @@ public abstract class QuestionForm {
   private String questionText;
   private String questionHelpText;
   private Optional<String> questionExportState;
-  private Boolean questionActionable;
+  private boolean questionActionable;
   private QuestionDefinition qd;
   private String redirectUrl;
 
@@ -44,7 +44,6 @@ public abstract class QuestionForm {
   protected QuestionForm(QuestionDefinition qd) {
     this.qd = qd;
     questionExportState = Optional.empty();
-    questionActionable = false;
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
@@ -61,6 +60,10 @@ public abstract class QuestionForm {
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
+
+    Question q = new Question(qd);
+    q.refresh();
+    questionActionable = q.getQuestionTags().contains(QuestionTag.ACTIONABLE);
   }
 
   public final String getQuestionName() {
