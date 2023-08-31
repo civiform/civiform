@@ -15,6 +15,8 @@ import controllers.applicant.routes;
 import j2html.tags.DomContent;
 import java.util.Locale;
 import java.util.Optional;
+
+import j2html.tags.specialized.ATag;
 import models.Account;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -67,24 +69,22 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
-
+    ATag downloadButton = new ATag().withHref(redirectUrl)
+      .with(
+        makeSvgTextButton("Download", Icons.DOWNLOAD)
+          .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+      .withClass("flex");
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
-                a().withHref(redirectUrl)
-                    .with(
-                        makeSvgTextButton("Download", Icons.DOWNLOAD)
-                            .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)),
+                downloadButton,
                 button(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                     .withId(loginPromptModal.getTriggerButtonId())
                     .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                 createLoginButton("sign-in", messages, redirectTo),
                 createNewAccountButton("sign-up", messages))
             : ImmutableList.of(
-                a().withHref(redirectUrl)
-                    .with(
-                        makeSvgTextButton("Download", Icons.DOWNLOAD)
-                            .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)),
+                downloadButton,
                 createApplyToProgramsButton(
                     "another-program",
                     messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),
