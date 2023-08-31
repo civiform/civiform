@@ -14,7 +14,10 @@ public enum QuestionTag {
   // This question should be hashed in the demographic export csv.
   DEMOGRAPHIC_PII,
   // This question should not be exported in the demographic export csv.
-  NON_DEMOGRAPHIC;
+  NON_DEMOGRAPHIC,
+  // Question is marked as an actionable question where we save the answer
+  // for use in other parts of the application
+  ACTIONABLE;
 
   @DbEnumValue(storage = DbEnumType.VARCHAR)
   public String getValue() {
