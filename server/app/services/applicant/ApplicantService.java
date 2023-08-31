@@ -820,16 +820,16 @@ public final class ApplicantService {
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
-            versionRepository.getActiveVersion().getPrograms().stream()
-                .map(Program::getProgramDefinition)
-                .filter(
-                    pdef ->
-                        pdef.displayMode().equals(DisplayMode.PUBLIC)
-                            || (requesterProfile.isTrustedIntermediary()
-                                && pdef.displayMode().equals(DisplayMode.TI_ONLY))
-                            || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
-                                && pdef.acls().hasProgramViewPermission(requesterProfile)))
-                .collect(ImmutableList.toImmutableList());
+        versionRepository.getActiveVersion().getPrograms().stream()
+            .map(Program::getProgramDefinition)
+            .filter(
+                pdef ->
+                    pdef.displayMode().equals(DisplayMode.PUBLIC)
+                        || (requesterProfile.isTrustedIntermediary()
+                            && pdef.displayMode().equals(DisplayMode.TI_ONLY))
+                        || (pdef.displayMode().equals(DisplayMode.SELECT_TI)
+                            && pdef.acls().hasProgramViewPermission(requesterProfile)))
+            .collect(ImmutableList.toImmutableList());
 
     return applicationsFuture
         .thenComposeAsync(
@@ -851,7 +851,7 @@ public final class ApplicantService {
               ImmutableSet<Application> applications = applicationsFuture.join();
               logDuplicateDrafts(applications);
               return relevantProgramsForApplicantInternal(
-                activeProgramDefinitions, applications, allPrograms);
+                  activeProgramDefinitions, applications, allPrograms);
             },
             httpExecutionContext.current());
   }
