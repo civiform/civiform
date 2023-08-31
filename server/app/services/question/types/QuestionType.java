@@ -18,6 +18,7 @@ import services.applicant.question.SingleSelectQuestion;
 import services.applicant.question.StaticContentQuestion;
 import services.applicant.question.TextQuestion;
 import services.question.exceptions.InvalidQuestionTypeException;
+import com.google.common.collect.ImmutableList;
 
 /** Defines types of questions supported. */
 public enum QuestionType {
@@ -45,6 +46,11 @@ public enum QuestionType {
     this.label = label;
     this.supportedQuestion = supportedQuestion;
   }
+
+  public static ImmutableList<QuestionType> ACTIONABLE_TYPES = ImmutableList.of(
+    QuestionType.EMAIL, 
+    QuestionType.NAME, 
+    QuestionType.PHONE);
 
   /**
    * Returns true if this question type supports multiple options (that is, the applicant must
