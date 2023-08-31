@@ -1,7 +1,6 @@
 package services.export;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,27 +24,26 @@ import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Question;
 import services.applicant.question.Scalar;
 import services.applicant.question.SingleSelectQuestion;
+import services.export.enums.ApiPathSegment;
+import services.export.enums.QuestionTypeExternal;
 import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
 /**
  * A {@link QuestionJsonPresenter} for a Question {@link Q} provides a strategy for showing the
- * question's answers (of type {@link T}) in JSON form.
+ * question's answers in JSON form.
  *
  * <p>Some {@link QuestionType}s share the same {@link QuestionJsonPresenter}.
  */
-public interface QuestionJsonPresenter<Q extends Question, T> {
+public interface QuestionJsonPresenter<Q extends Question> {
 
   /**
-   * The entries that should be present in a JSON export of answers, for this question.
+   * The answer entries that should be present in a JSON export of answers, for this question.
    *
    * <p>The returned map's keys are the {@link Path} where the value should be set, and values are
-   * what should be set at the path. The Optional is empty if the question was unanswered, and
-   * present if the question was answered or another specific value should be set at the path.
-   *
-   * <p>If the "unanswered" representation of the question is an empty list, the path should include
-   * an array element (e.g. `[]`).
+   * what should be set at the path. The Optional is empty if the value at the path should be
+   * `null`, and present if a value should be set at the path.
    *
    * <p>The returned map is only empty when a question should not be included in the response at
    * all, such as with static questions.
@@ -53,7 +51,44 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
    * @param question the Question to build a JSON response for.
    * @return a map of paths to Optional answer values.
    */
-  ImmutableMap<Path, Optional<T>> getJsonEntries(Q question);
+  ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Q question);
+
+  /**
+   * The metadata entries that should be present in a JSON export of answers, for this question.
+   *
+   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question)}.
+   *
+   * @param question the Question to build a JSON response for.
+   * @return a map of paths to Optional metadata values.
+   */
+  default ImmutableMap<Path, Optional<?>> getMetadataJsonEntries(Q question) {
+    return ImmutableMap.of(
+        question
+            .getApplicantQuestion()
+            .getContextualizedPath()
+            .safeWithoutArrayReference()
+            .join(ApiPathSegment.QUESTION_TYPE)
+            .asNestedEntitiesPath(),
+        Optional.of(
+            QuestionTypeExternal.fromQuestionType(question.getApplicantQuestion().getType())
+                .name()));
+  }
+
+  /**
+   * The metadata and answer entries that should be present in a JSON export of answers, for this
+   * question.
+   *
+   * <p>The returned map follows the same semantics as {@link #getAnswerJsonEntries(Question)}.
+   *
+   * @param question the Question to build a JSON response for.
+   * @return a map of paths to Optional metadata and answer values.
+   */
+  default ImmutableMap<Path, Optional<?>> getAllJsonEntries(Q question) {
+    return ImmutableMap.<Path, Optional<?>>builder()
+        .putAll(getMetadataJsonEntries(question))
+        .putAll(getAnswerJsonEntries(question))
+        .build();
+  }
 
   final class Factory {
 
@@ -130,7 +165,7 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     }
   }
 
-  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion, String> {
+  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
 
     private final String baseUrl;
 
@@ -140,9 +175,9 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     }
 
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(FileUploadQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(FileUploadQuestion question) {
       return ImmutableMap.of(
-          question.getFileKeyPath(),
+          question.getFileKeyPath().asNestedEntitiesPath(),
           question
               .getApplicantQuestion()
               .createFileUploadQuestion()
@@ -156,72 +191,80 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     }
   }
 
-  class MultiSelectJsonPresenter
-      implements QuestionJsonPresenter<MultiSelectQuestion, ImmutableList<String>> {
+  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
 
     @Override
-    public ImmutableMap<Path, Optional<ImmutableList<String>>> getJsonEntries(
-        MultiSelectQuestion question) {
-      Path path = question.getSelectionPath();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MultiSelectQuestion question) {
+      Path path = question.getSelectionPath().asNestedEntitiesPath();
 
       ImmutableList<String> selectedOptions =
           question.getSelectedOptionsValue().orElse(ImmutableList.of()).stream()
               .map(LocalizedQuestionOption::optionText)
               .collect(ImmutableList.toImmutableList());
 
-      if (selectedOptions.isEmpty()) {
-        return ImmutableMap.of(path.asArrayElement(), Optional.empty());
-      }
-
       return ImmutableMap.of(path, Optional.of(selectedOptions));
     }
   }
 
-  class ContextualizedScalarsJsonPresenter implements QuestionJsonPresenter<Question, String> {
+  class ContextualizedScalarsJsonPresenter implements QuestionJsonPresenter<Question> {
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(Question question) {
-      return question.getApplicantQuestion().getContextualizedScalars().keySet().stream()
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Question question) {
+      ImmutableMap.Builder<Path, Optional<?>> jsonEntries = new ImmutableMap.Builder<>();
+
+      question.getApplicantQuestion().getContextualizedScalars().keySet().stream()
           .filter(path -> !Scalar.getMetadataScalarKeys().contains(path.keyName()))
-          .collect(
-              toImmutableMap(
-                  path -> path,
-                  path -> question.getApplicantQuestion().getApplicantData().readAsString(path)));
+          .forEachOrdered(
+              path -> {
+                jsonEntries.put(
+                    path.asNestedEntitiesPath(),
+                    question.getApplicantQuestion().getApplicantData().readAsString(path));
+              });
+      return jsonEntries.build();
     }
   }
 
-  class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion, Double> {
+  class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
+
     @Override
-    public ImmutableMap<Path, Optional<Double>> getJsonEntries(CurrencyQuestion question) {
-      Path path = question.getCurrencyPath().replacingLastSegment("currency_dollars");
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(CurrencyQuestion question) {
+      Path questionPath =
+          question.getApplicantQuestion().getContextualizedPath().asNestedEntitiesPath();
 
       return ImmutableMap.of(
-          path, question.getCurrencyValue().map(v -> v.getCents().doubleValue() / 100.0));
+          questionPath.join(ApiPathSegment.CURRENCY_DOLLARS),
+          question.getCurrencyValue().map(v -> v.getCents().doubleValue() / 100.0));
     }
   }
 
-  class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion, String> {
+  class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(DateQuestion question) {
-      Path path = question.getDatePath();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(DateQuestion question) {
+      Path path = question.getDatePath().asNestedEntitiesPath();
 
       return ImmutableMap.of(path, question.getDateValue().map(DateTimeFormatter.ISO_DATE::format));
     }
   }
 
-  class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion, String> {
+  class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(EnumeratorQuestion question) {
-      Path repeatedEntityPath = question.getApplicantQuestion().getContextualizedPath();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EnumeratorQuestion question) {
+      Path path =
+          question
+              .getApplicantQuestion()
+              .getContextualizedPath()
+              .withoutArrayReference()
+              .asNestedEntitiesPath();
+      ImmutableMap.Builder<Path, Optional<?>> jsonEntries = ImmutableMap.builder();
+
       if (!question.isAnswered()) {
-        return ImmutableMap.of(repeatedEntityPath, Optional.empty());
+        jsonEntries.put(path.join(ApiPathSegment.ENTITIES), Optional.of(ImmutableList.of()));
+        return jsonEntries.build();
       }
 
       ImmutableList<String> entityNames = question.getEntityNames();
-      ImmutableMap.Builder<Path, Optional<String>> jsonEntries = ImmutableMap.builder();
-
       for (int i = 0; i < entityNames.size(); i++) {
         jsonEntries.put(
-            repeatedEntityPath.atIndex(i).join(Scalar.ENTITY_NAME),
+            path.join(ApiPathSegment.ENTITIES).asArrayElement().atIndex(i).join(Scalar.ENTITY_NAME),
             Optional.of(entityNames.get(i)));
       }
 
@@ -229,27 +272,27 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     }
   }
 
-  class EmptyJsonPresenter implements QuestionJsonPresenter<Question, String> {
+  class EmptyJsonPresenter implements QuestionJsonPresenter<Question> {
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(Question question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(Question question) {
       return ImmutableMap.of();
     }
   }
 
-  class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion, Long> {
+  class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<Long>> getJsonEntries(NumberQuestion question) {
-      Path path = question.getNumberPath();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(NumberQuestion question) {
+      Path path = question.getNumberPath().asNestedEntitiesPath();
       return ImmutableMap.of(path, question.getNumberValue());
     }
   }
 
-  class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion, String> {
+  class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion> {
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(PhoneQuestion question) {
-      Path path = question.getPhoneNumberPath();
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(PhoneQuestion question) {
+      Path path = question.getPhoneNumberPath().asNestedEntitiesPath();
 
       if (question.getPhoneNumberValue().isPresent()
           && question.getCountryCodeValue().isPresent()) {
@@ -278,11 +321,11 @@ public interface QuestionJsonPresenter<Q extends Question, T> {
     }
   }
 
-  class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion, String> {
+  class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
     @Override
-    public ImmutableMap<Path, Optional<String>> getJsonEntries(SingleSelectQuestion question) {
+    public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(SingleSelectQuestion question) {
       return ImmutableMap.of(
-          question.getSelectionPath(),
+          question.getSelectionPath().asNestedEntitiesPath(),
           question
               .getApplicantQuestion()
               .createSingleSelectQuestion()
