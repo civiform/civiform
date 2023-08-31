@@ -25,7 +25,7 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
   public DivTag render(ApplicantQuestionRendererParams params) {
     DivTag questionTextDiv =
         div()
-            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, "mb-2", "font-bold","text-xl")
+            .withClasses(ReferenceClasses.APPLICANT_QUESTION_TEXT, "mb-2", "font-bold", "text-xl")
             .with(TextFormatter.formatText(question.getQuestionText(), false));
     return div()
         .withId(question.getContextualizedPath().toString())
