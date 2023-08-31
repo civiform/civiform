@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import models.Question;
 import models.QuestionTag;
@@ -25,6 +26,7 @@ public abstract class QuestionForm {
   private String questionText;
   private String questionHelpText;
   private Optional<String> questionExportState;
+  private Boolean questionActionable;
   private QuestionDefinition qd;
   private String redirectUrl;
 
@@ -35,12 +37,14 @@ public abstract class QuestionForm {
     questionText = "";
     questionHelpText = "";
     questionExportState = Optional.of("");
+    questionActionable = false;
     redirectUrl = "";
   }
 
   protected QuestionForm(QuestionDefinition qd) {
     this.qd = qd;
     questionExportState = Optional.empty();
+    questionActionable = false;
     questionName = qd.getName();
     questionDescription = qd.getDescription();
     enumeratorId = qd.getEnumeratorId();
@@ -136,6 +140,26 @@ public abstract class QuestionForm {
             .setQuestionText(questionTextMap)
             .setQuestionHelpText(questionHelpTextMap);
     return builder;
+  }
+
+  public final void setActionable(Boolean actionable){
+    this.questionActionable = actionable;
+  }
+
+  public final QuestionForm setActionableFromRawFormData(Map<String, String> rawData){
+    Optional<String> maybeActionable = Optional.ofNullable(rawData.get("questionActionable"));
+    if(maybeActionable.map(String::isBlank).orElse(true)){
+      setActionable(false);
+    } else if (maybeActionable.get().equals("true")){
+      setActionable(true);
+    } else {
+      throw new RuntimeException("Invalid questionActionable value");
+    }
+    return this;
+  }
+
+  public final Boolean getActionable() {
+    return this.questionActionable;
   }
 
   public final void setQuestionExportState(String questionExportState) {
