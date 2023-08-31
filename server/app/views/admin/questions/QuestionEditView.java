@@ -23,6 +23,7 @@ import j2html.tags.specialized.FormTag;
 import java.util.Locale;
 import java.util.Optional;
 import models.QuestionTag;
+import models.Question;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -371,9 +372,9 @@ public final class QuestionEditView extends BaseHtmlView {
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
-    ImmutableList<QuestionType> ACTIONABLE_QUESTION_TYPES = ImmutableList.of(QuestionType.EMAIL, QuestionType.NAME);
-    if(ACTIONABLE_QUESTION_TYPES.contains(questionForm.getQuestionType())){
-        questionSettingsContentBuilder.add(buildActionableQuestion(true));
+
+    if(QuestionType.ACTIONABLE_TYPES.contains(questionForm.getQuestionType())){
+        questionSettingsContentBuilder.add(buildActionableQuestion(questionForm.getActionable()));
     }
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
