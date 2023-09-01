@@ -4,12 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.typesafe.config.Config;
 import java.util.Optional;
+import javax.inject.Inject;
 import models.Application;
 import repository.ApplicationRepository;
 import services.DeploymentType;
 import services.program.ProgramDefinition;
-
-import javax.inject.Inject;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ApplicationService
 
