@@ -9,6 +9,8 @@ import repository.ApplicationRepository;
 import services.DeploymentType;
 import services.program.ProgramDefinition;
 
+import javax.inject.Inject;
+
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ApplicationService
 
 /** The service responsible for mediating access to the Application resource. */
@@ -16,6 +18,7 @@ public class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
 
+  @Inject
   ApplicationService(
       ApplicationRepository applicationRepository,
       Config configuration,
