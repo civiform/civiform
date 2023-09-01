@@ -10,8 +10,10 @@ import repository.ApplicationRepository;
 import services.DeploymentType;
 import services.program.ProgramDefinition;
 
-/** The service responsible for mediating a program admin's access to the Application resource. */
-public class ApplicationService {
+import javax.persistence.MappedSuperclass;
+
+/** The service responsible for mediating access to the Application resource. */
+public abstract class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
 
