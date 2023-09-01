@@ -2,7 +2,6 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.util.Optional;
 import models.Application;
@@ -10,14 +9,13 @@ import repository.ApplicationRepository;
 import services.DeploymentType;
 import services.program.ProgramDefinition;
 
-import javax.persistence.MappedSuperclass;
+// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ApplicationService
 
 /** The service responsible for mediating access to the Application resource. */
-public abstract class ApplicationService {
+public class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
 
-  @Inject
   ApplicationService(
       ApplicationRepository applicationRepository,
       Config configuration,
