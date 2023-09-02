@@ -34,12 +34,12 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.134",
-      "software.amazon.awssdk" % "ses" % "2.20.134",
+      "software.amazon.awssdk" % "s3" % "2.20.139",
+      "software.amazon.awssdk" % "ses" % "2.20.139",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.10.0",
-      "com.azure" % "azure-storage-blob" % "12.23.0",
+      "com.azure" % "azure-storage-blob" % "12.23.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
@@ -92,7 +92,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.18",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.20",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.5",
