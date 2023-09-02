@@ -8,8 +8,11 @@ import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -468,17 +471,41 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return ImmutableMap.of(
             currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
-        return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTIONS),
+        // allOptions contains the list of all the options shown in the application
+        ImmutableList<LocalizedQuestionOption> allOptions =
+            question.createMultiSelectQuestion().getOptions();
+        // creating a list of all the options picked by the applicant
+        List<String> selectedOptions =
             question
                 .createMultiSelectQuestion()
                 .getSelectedOptionsValue(locale)
                 .map(
-                    selectedOptions ->
-                        selectedOptions.stream()
+                    selectedOption ->
+                        selectedOption.stream()
                             .map(LocalizedQuestionOption::optionText)
-                            .collect(Collectors.joining(", ", "[", "]")))
-                .orElse(""));
+                            .collect(Collectors.toList()))
+                .orElse(Collections.singletonList(""));
+        Map<Path, String> multiSelectMap = new HashMap<>(allOptions.size());
+        // A counter is needed as the Path returned will be same and a counter servers to
+        // distinguish the key values in the map
+        int counter = 1;
+        // we iterate through all options (adding a column for each) and everytime we find a value
+        // which is present in the selectedOption List, we use the selected Option text else we
+        // leave it blank
+        for (LocalizedQuestionOption currentOption : allOptions) {
+          multiSelectMap.put(
+              question
+                  .getContextualizedPath()
+                  .join(Scalar.SELECTIONS)
+                  .join(String.valueOf(counter++)),
+              selectedOptions.contains(currentOption.optionText())
+                  ? currentOption.optionText()
+                  : "");
+        }
+        // converting it to an immutable map and returning it
+        ImmutableMap<Path, String> immutableMap =
+            ImmutableMap.<Path, String>builder().putAll(multiSelectMap).build();
+        return immutableMap;
       case FILEUPLOAD:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),
