@@ -22,6 +22,9 @@ validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
 validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
 content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
+content.requiredFieldsAnnotationFirstHalf=Note: Fields marked with a
+content.requiredFieldsAnnotationSecondHalf=are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
 toast.errorMessageOutline=Error: {0}
 
