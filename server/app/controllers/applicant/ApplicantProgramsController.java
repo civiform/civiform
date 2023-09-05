@@ -145,6 +145,8 @@ public final class ApplicantProgramsController extends CiviFormController {
             ex -> {
               if (ex instanceof CompletionException) {
                 if (ex.getCause() instanceof SecurityException) {
+                  // If the applicant id in the URL does not correspond to the current user, start
+                  // from scratch. This could happen if a user bookmarks a URL.
                   return redirectToHome();
                 }
               }
@@ -197,6 +199,8 @@ public final class ApplicantProgramsController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
+                  // If the applicant id in the URL does not correspond to the current user, start
+                  // from scratch. This could happen if a user bookmarks a URL.
                   return redirectToHome();
                 }
                 if (cause instanceof ProgramNotFoundException) {
