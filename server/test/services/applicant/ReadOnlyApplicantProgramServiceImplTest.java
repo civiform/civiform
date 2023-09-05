@@ -1079,20 +1079,20 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
     resultMap.put(
         ApplicantData.APPLICANT_PATH
             .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-            .join(String.valueOf(1))
-            .join(Scalar.SELECTIONS),
+            .join(Scalar.SELECTIONS)
+            .join(String.valueOf(1)),
         "toaster");
     resultMap.put(
         ApplicantData.APPLICANT_PATH
             .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-            .join(String.valueOf(2))
-            .join(Scalar.SELECTIONS),
+            .join(Scalar.SELECTIONS)
+            .join(String.valueOf(2)),
         "pepper grinder");
     resultMap.put(
         ApplicantData.APPLICANT_PATH
             .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-            .join(String.valueOf(3))
-            .join(Scalar.SELECTIONS),
+            .join(Scalar.SELECTIONS)
+            .join(String.valueOf(3)),
         "");
     ImmutableMap<Path, String> immutableMap =
         ImmutableMap.<Path, String>builder().putAll(resultMap).build();
