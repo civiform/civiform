@@ -22,6 +22,9 @@ validation.isRequired=ຕ້ອງຕອບຄຳຖາມນີ້.
 validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຖືກຕ້ອງ.
 validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບຟອມ. ກະລຸນາແກ້ໄຂກ່ອນສືບຕໍ່.
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
+content.requiredFieldsAnnotationFirstHalf=Note: Fields marked with a
+content.requiredFieldsAnnotationSecondHalf=are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=Error: {0}
 
