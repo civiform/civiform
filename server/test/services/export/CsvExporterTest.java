@@ -126,9 +126,18 @@ public class CsvExporterTest extends AbstractExporterTest {
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
     MultiSelectQuestion multiSelectApplicantQuestion =
         getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
-    String multiSelectHeader =
-        CsvExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
-    assertThat(records.get(1).get(multiSelectHeader)).isEqualTo("[toaster, pepper grinder]");
+    String multiSelectHeader_1 =
+        CsvExporterService.pathToHeader(
+            multiSelectApplicantQuestion.getSelectionPath().join(String.valueOf(1)));
+    assertThat(records.get(1).get(multiSelectHeader_1)).isEqualTo("toaster");
+    String multiSelectHeader_2 =
+        CsvExporterService.pathToHeader(
+            multiSelectApplicantQuestion.getSelectionPath().join(String.valueOf(2)));
+    assertThat(records.get(1).get(multiSelectHeader_2)).isEqualTo("pepper grinder");
+    String multiSelectHeader_3 =
+        CsvExporterService.pathToHeader(
+            multiSelectApplicantQuestion.getSelectionPath().join(String.valueOf(3)));
+    assertThat(records.get(1).get(multiSelectHeader_3)).isEqualTo("");
     // Check link for uploaded file
     Question fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
