@@ -7,7 +7,6 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
 import static support.CfTestHelpers.requestBuilderWithSettings;
@@ -30,7 +29,6 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.VersionRepository;
-import scala.App;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.QuestionAnswerer;
@@ -63,7 +61,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void index_applicantWithoutProfile_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request, applicantWithoutProfile.id).toCompletableFuture().join();
+    Result result =
+        controller.index(request, applicantWithoutProfile.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -218,21 +217,47 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_differentApplicant_returnsUnauthorizedResult() {
+  public void view_applicantWithoutProfile_redirectsToHome() {
+    Program program = resourceCreator().insertActiveProgram("program");
+
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+        controller
+            .view(request, applicantWithoutProfile.id, program.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void edit_differentApplicant_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_applicantWithoutProfile_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.edit(request, applicantWithoutProfile.id, 1L).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_applicantAccessToDraftProgram_redirectsToHome() {
     Program draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.edit(request, currentApplicant.id, draftProgram.id).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
