@@ -22,6 +22,9 @@ validation.isRequired=Esta pregunta es obligatoria.
 validation.invalidInput=Ingresa una entrada válida.
 validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
 content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
+content.requiredFieldsAnnotationFirstHalf=Note: Fields marked with a
+content.requiredFieldsAnnotationSecondHalf=are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
 
