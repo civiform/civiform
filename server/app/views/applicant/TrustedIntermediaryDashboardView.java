@@ -51,6 +51,7 @@ import views.style.StyleUtils;
 public class TrustedIntermediaryDashboardView extends BaseHtmlView {
   private final ApplicantLayout layout;
   private final DateConverter dateConverter;
+  public static final String OPTIONAL_INDICATOR = " (optional)";
 
   @Inject
   public TrustedIntermediaryDashboardView(ApplicantLayout layout, DateConverter dateConverter) {
@@ -77,6 +78,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 h2(tiGroup.getDescription()).withClasses("ml-2"),
                 hr(),
                 renderHeader("Add Client"),
+                BaseHtmlView.requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
                 renderHeader("Clients"),
@@ -191,7 +193,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.input()
             .setId("middle-name-input")
             .setFieldName("middleName")
-            .setLabelText("Middle Name")
+            .setLabelText("Middle Name" + OPTIONAL_INDICATOR)
             .setValue(request.flash().get("providedMiddleName").orElse(""));
     FieldWithLabel lastNameField =
         FieldWithLabel.input()
@@ -213,7 +215,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
         FieldWithLabel.email()
             .setId("email-input")
             .setFieldName("emailAddress")
-            .setLabelText("Email Address")
+            .setLabelText("Email Address" + OPTIONAL_INDICATOR)
             .setToolTipIcon(Icons.INFO)
             .setToolTipText(
                 "Add an email address for your client to receive status updates about their"

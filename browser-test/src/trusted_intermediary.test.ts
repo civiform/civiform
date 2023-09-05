@@ -137,6 +137,18 @@ describe('Trusted intermediaries', () => {
     await loginAsTrustedIntermediary(page)
     await validateScreenshot(page, 'ti')
   })
+
+  it('dashboard contains required indicator note and optional marker', async () => {
+    const {page} = ctx
+    await loginAsTrustedIntermediary(page)
+    expect(await page.locator('label').nth(0).innerText()).toContain(
+      'Email Address (optional)',
+    )
+    expect(await page.locator('p').nth(1).innerText()).toContain(
+      'Fields marked with a * are required.',
+    )
+  })
+
   it('Applicant sees the program review page fully translated', async () => {
     const {
       page,
