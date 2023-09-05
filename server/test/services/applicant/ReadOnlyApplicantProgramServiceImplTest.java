@@ -6,7 +6,9 @@ import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -1073,13 +1075,28 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                     .join(Scalar.SELECTION),
                 "winter"));
     assertThat(result.get(4).questionIndex()).isEqualTo(4);
-    assertThat(result.get(4).scalarAnswersInDefaultLocale())
-        .containsExactly(
-            new AbstractMap.SimpleEntry<>(
-                ApplicantData.APPLICANT_PATH
-                    .join(multiSelectQuestionDefinition.getQuestionPathSegment())
-                    .join(Scalar.SELECTIONS),
-                "[toaster, pepper grinder]"));
+    Map<Path, String> resultMap = new HashMap<>();
+    resultMap.put(
+        ApplicantData.APPLICANT_PATH
+            .join(multiSelectQuestionDefinition.getQuestionPathSegment())
+            .join(String.valueOf(1))
+            .join(Scalar.SELECTIONS),
+        "toaster");
+    resultMap.put(
+        ApplicantData.APPLICANT_PATH
+            .join(multiSelectQuestionDefinition.getQuestionPathSegment())
+            .join(String.valueOf(2))
+            .join(Scalar.SELECTIONS),
+        "pepper grinder");
+    resultMap.put(
+        ApplicantData.APPLICANT_PATH
+            .join(multiSelectQuestionDefinition.getQuestionPathSegment())
+            .join(String.valueOf(3))
+            .join(Scalar.SELECTIONS),
+        "");
+    ImmutableMap<Path, String> immutableMap =
+        ImmutableMap.<Path, String>builder().putAll(resultMap).build();
+    assertThat(result.get(4).scalarAnswersInDefaultLocale()).isEqualTo(immutableMap);
 
     // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);
