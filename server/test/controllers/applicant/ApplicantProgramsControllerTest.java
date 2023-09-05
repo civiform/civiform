@@ -30,6 +30,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import play.test.Helpers;
 import repository.VersionRepository;
+import scala.App;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.question.QuestionAnswerer;
@@ -39,6 +40,7 @@ import support.ProgramBuilder;
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
+  private Applicant applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
 
@@ -47,13 +49,23 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resetDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
+    applicantWithoutProfile = createApplicant();
   }
 
   @Test
-  public void index_differentApplicant_returnsUnauthorizedResult() {
+  public void index_differentApplicant_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.index(request, currentApplicant.id + 1).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void index_applicantWithoutProfile_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result = controller.index(request, applicantWithoutProfile.id).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
