@@ -22,6 +22,9 @@ validation.isRequired=Ang tanong na ito ay kinakailangan.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago magpatuloy.
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
+content.requiredFieldsAnnotationFirstHalf=Note: Fields marked with a
+content.requiredFieldsAnnotationSecondHalf=are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
 
