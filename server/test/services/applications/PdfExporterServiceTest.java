@@ -1,9 +1,15 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.export.PdfExporterTest.APPLICATION_ONE_STRING;
 
+import com.google.common.base.Splitter;
 import com.itextpdf.text.DocumentException;
 import java.io.IOException;
+import java.util.List;
+
+import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import org.junit.Before;
 import org.junit.Test;
 import services.export.AbstractExporterTest;
@@ -19,11 +25,46 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
-  public void generatePdf() throws IOException, DocumentException {
-    PdfExporter exporter = instanceOf(PdfExporter.class);
+  public void generatePdf() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
-    assertThat(exporter.export(applicationOne).getByteArray())
-        .isEqualTo(service.generatePdf(applicationOne).getByteArray());
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+      String.format("%s (%d)", applicantName, applicationOne.id);
+    PdfExporter.InMemoryPdf result = service.generatePdf(applicationOne);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    int pages = pdfReader.getNumberOfPages();
+    for (int pageNum = 1; pageNum < pages; pageNum++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+      // Assertions to check if the URL is embedded for the FileUpload
+      PdfDictionary pdfDictionary = pdfReader.getPageN(pageNum);
+      PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+      PdfObject current = annots.getPdfObject(0);
+      PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
+      assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+      PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
+      assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
+      PdfString link = AnnotationAction.getAsString(PdfName.URI);
+      assertThat(link.toString())
+        .isEqualTo(
+          "http://localhost:9000/admin/programs/"
+            + applicationOne.getProgram().id
+            + "/files/my-file-key");
+    }
+
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationOne.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
+    for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
+      assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
+    }
   }
 }
