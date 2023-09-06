@@ -186,7 +186,7 @@ public final class UpsellController extends CiviFormController {
       try {
         super.checkApplicantAuthorization(request, applicantId).join();
       } catch (CompletionException | SecurityException e) {
-        return unauthorized("401 - Invalid credentials");
+        return unauthorized("Invalid credentials");
       }
     } else {
       Account currentAccount = profile.getAccount().join();
