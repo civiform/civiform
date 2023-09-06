@@ -812,7 +812,7 @@ public final class ApplicantService {
       return Optional.empty();
     }
     return Optional.of(application);
-  } // !
+  }
 
   /**
    * Return a filtered set of applications, including applications from previous versions, with
