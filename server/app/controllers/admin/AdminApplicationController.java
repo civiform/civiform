@@ -263,7 +263,13 @@ public final class AdminApplicationController extends CiviFormController {
     } catch (CompletionException | NoSuchElementException e) {
       return unauthorized();
     }
-    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
+    Optional<Application> applicationMaybe =
+        programAdminApplicationService.getApplication(applicationId, program);
+    if (applicationMaybe.isEmpty()) {
+      return badRequest(String.format("Application %d does not exist.", applicationId));
+    }
+    Application application = applicationMaybe.get();
+    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(

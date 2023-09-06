@@ -2,12 +2,10 @@ package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.typesafe.config.Config;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
 import repository.ApplicationRepository;
-import services.DeploymentType;
 import services.program.ProgramDefinition;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ApplicationService
@@ -18,14 +16,8 @@ public class ApplicationService {
   private final ApplicationRepository applicationRepository;
 
   @Inject
-  ApplicationService(
-      ApplicationRepository applicationRepository,
-      Config configuration,
-      DeploymentType deploymentType) {
+  ApplicationService(ApplicationRepository applicationRepository) {
     this.applicationRepository = checkNotNull(applicationRepository);
-
-    checkNotNull(configuration);
-    checkNotNull(deploymentType);
   }
 
   /**

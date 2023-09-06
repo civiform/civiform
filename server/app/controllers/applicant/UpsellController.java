@@ -13,6 +13,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
+import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -23,6 +24,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applications.ApplicationService;
 import services.applications.PdfExporterService;
 import services.export.PdfExporter;
 import services.program.ProgramDefinition;
@@ -37,6 +39,7 @@ public final class UpsellController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
+  private final ApplicationService applicationService;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
@@ -47,6 +50,7 @@ public final class UpsellController extends CiviFormController {
   public UpsellController(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
+      ApplicationService applicationService,
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
@@ -57,6 +61,7 @@ public final class UpsellController extends CiviFormController {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
+    this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
@@ -175,7 +180,8 @@ public final class UpsellController extends CiviFormController {
 
   /** Download a PDF file of the application to the program. */
   @Secure
-  public CompletionStage<Result> download(Http.Request request, long programId, long applicationId, long applicantId)
+  public CompletionStage<Result> download(
+      Http.Request request, long programId, long applicationId, long applicantId)
       throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
@@ -186,18 +192,27 @@ public final class UpsellController extends CiviFormController {
       try {
         super.checkApplicantAuthorization(request, applicantId).join();
       } catch (CompletionException | SecurityException e) {
-        return unauthorized("Invalid credentials");
+        return CompletableFuture.completedFuture(unauthorized("Invalid credentials"));
       }
     } else {
       Account currentAccount = profile.getAccount().join();
       if (currentAccount.getManagedByGroup().isEmpty()) {
-        return unauthorized("401 - Invalid credentials");
+        return CompletableFuture.completedFuture(unauthorized("Invalid credentials"));
       }
     }
-    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationId, program);
-    return ok(pdf.getByteArray())
-        .as("application/pdf")
-        .withHeader(
-            "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+    Optional<Application> applicationMaybe =
+        applicationService.getApplication(applicationId, program);
+    if (applicationMaybe.isEmpty()) {
+      return CompletableFuture.completedFuture(
+          badRequest(String.format("Application %d does not exist.", applicationId)));
+    }
+    Application application = applicationMaybe.get();
+    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
+    return CompletableFuture.completedFuture(
+        ok(pdf.getByteArray())
+            .as("application/pdf")
+            .withHeader(
+                "Content-Disposition",
+                String.format("attachment; filename=\"%s\"", pdf.getFileName())));
   }
 }

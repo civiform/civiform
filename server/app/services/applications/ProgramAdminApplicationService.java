@@ -56,7 +56,7 @@ public final class ProgramAdminApplicationService extends ApplicationService {
       SimpleEmail emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi) {
-    super(applicationRepository, configuration, deploymentType);
+    super(applicationRepository);
     this.applicantService = checkNotNull(applicantService);
     this.userRepository = checkNotNull(userRepository);
     this.eventRepository = checkNotNull(eventRepository);
