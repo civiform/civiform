@@ -4,12 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static services.export.PdfExporterTest.APPLICATION_ONE_STRING;
 
 import com.google.common.base.Splitter;
-import com.itextpdf.text.DocumentException;
-import java.io.IOException;
-import java.util.List;
-
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import java.io.IOException;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import services.export.AbstractExporterTest;
@@ -30,7 +28,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
 
     String applicantName = "name-unavailable";
     String applicantNameWithApplicationId =
-      String.format("%s (%d)", applicantName, applicationOne.id);
+        String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result = service.generatePdf(applicationOne);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
@@ -48,10 +46,10 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
       assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
       PdfString link = AnnotationAction.getAsString(PdfName.URI);
       assertThat(link.toString())
-        .isEqualTo(
-          "http://localhost:9000/admin/programs/"
-            + applicationOne.getProgram().id
-            + "/files/my-file-key");
+          .isEqualTo(
+              "http://localhost:9000/admin/programs/"
+                  + applicationOne.getProgram().id
+                  + "/files/my-file-key");
     }
 
     pdfReader.close();
