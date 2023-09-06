@@ -1,55 +1,29 @@
 package auth;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-
-import com.google.common.base.Preconditions;
-import models.Account;
-import models.Applicant;
-import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.UserProfile;
 import repository.DatabaseExecutionContext;
 
 /**
- * This class is specifically intended to be serialized, encrypted, and stored in the Play session
- * cookie. It cannot contain anything that's not serializable - this includes database connections,
- * thread pools, etc.
+ * This interface is specifically intended for instances that will be serialized, encrypted, and
+ * stored in the Play session cookie. Instances cannot contain anything that's not serializable -
+ * this includes database connections, thread pools, etc.
  *
- * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
+ * <p>Instances are wrapped by CiviFormProfile, which is what we should use server-side.
  */
-public class CiviFormProfileData extends CommonProfile {
+public interface CiviFormProfileData extends UserProfile {
 
-  public CiviFormProfileData() {
-    super();
-  }
-
-  public CiviFormProfileData(Long accountId) {
-    this();
-    this.setId(accountId.toString());
-  }
+  // XXX
+  //  public CiviFormProfileData(Long accountId) {
+  //    this();
+  //    this.setId(accountId.toString());
+  //  }
 
   /**
-   * This method needs to be called outside the constructor since constructors should not do
-   * database accesses (or other work). It should be called before the object is used - the object
-   * has not been persisted / correctly created until it is called.
+   * This method is called directly after construction. It can perform any required work that should
+   * not be performed in constructors.
+   *
+   * <p>It should be called before the object is used; the object has not been persisted / correctly
+   * created until it is called.
    */
-  public void init(DatabaseExecutionContext dbContext) {
-    if (this.getId() != null && !this.getId().isEmpty()) {
-      return;
-    }
-    // We use this async only to make sure we run in the db execution context - this method cannot
-    // be
-    // asynchronous because the security code that executes it is entirely synchronous.
-    supplyAsync(
-            () -> {
-              Account acc = new Account();
-              acc.save();
-              Applicant newA = new Applicant();
-              newA.setAccount(acc);
-              newA.save();
-
-              setId(Preconditions.checkNotNull(acc.id).toString());
-              return null;
-            },
-            dbContext)
-        .join();
-  }
+  void init(DatabaseExecutionContext dbContext);
 }
