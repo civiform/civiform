@@ -1,5 +1,6 @@
 package auth.oidc;
 
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.pac4j.core.exception.TechnicalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Custom Logout Request that allows for divergence from the [oidc
@@ -25,6 +28,7 @@ import org.pac4j.core.exception.TechnicalException;
  * <p>Allows adding extra custom query parameters to the URL.
  */
 public final class CustomOidcLogoutRequest extends LogoutRequest {
+  private static Logger logger = LoggerFactory.getLogger(CustomOidcLogoutRequest.class);
   /** The optional post-logout redirection query param. */
   private final String postLogoutRedirectParam;
 
@@ -40,6 +44,7 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
    */
   public CustomOidcLogoutRequest(
       final URI uri,
+      final JWT idTokenHint,
       final String postLogoutRedirectParam,
       final URI postLogoutRedirectURI,
       final Optional<String> clientId,
@@ -47,12 +52,14 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
 
     super(
         uri,
-        /* idTokenHint = */ null,
+        /* idTokenHint = */ idTokenHint,
         /* logoutHint = */ null,
         /* clientID = */ clientId.map(ClientID::new).orElse(null),
         postLogoutRedirectURI,
         state,
         /* uiLocales = */ null);
+
+    logger.info("XXX idTokenHint = {}", idTokenHint.serialize());
 
     this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
@@ -77,6 +84,8 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
   @Override
   public URI toURI() {
     URI uri = super.toURI();
+    logger.info("XXX in toURI(), idToken = {}", this.getIDTokenHint().serialize());
+    logger.info("XXX before, URI = {}", uri);
     // default behavior of LogoutRequest.toURI() removes fragment from the URI.
     // For some usecases (e.g. IDCS on Seattle) they use logout URI that contains
     // fragment and read it client-side. Here we add fragment back if it was

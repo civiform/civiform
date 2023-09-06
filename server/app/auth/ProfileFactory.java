@@ -3,6 +3,7 @@ package auth;
 import auth.oidc.OidcCiviFormProfileData;
 import auth.saml.SamlCiviFormProfileData;
 import com.google.common.base.Preconditions;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -62,6 +63,7 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewAdmin(Optional<String> maybeAuthorityId) {
+    System.out.println("XXX createNewAdmin(maybeAuthorityId) top");
     CiviFormProfileData profileData = create(new Role[] {Role.ROLE_CIVIFORM_ADMIN});
 
     wrapProfileData(profileData)
@@ -92,16 +94,25 @@ public final class ProfileFactory {
   }
 
   private CiviFormProfileData createCiviFormProfileDataForAdmin() {
+    System.out.println("XXX createCiviFormProfileDataForAdmin");
     if (isAdminIdpOidc()) {
+      System.out.println("XXX OIDC");
       return new OidcCiviFormProfileData();
     } else {
+      System.out.println("XXX SAML");
       return new SamlCiviFormProfileData();
     }
   }
 
+  private boolean isApplicant(Role[] roleList) {
+    return Arrays.stream(roleList).anyMatch(r -> r == Role.ROLE_APPLICANT);
+  }
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */
   private CiviFormProfileData create(Role[] roleList) {
-    CiviFormProfileData p = createCiviFormProfileDataForAdmin();
+    CiviFormProfileData p =
+        isApplicant(roleList)
+            ? createCiviFormProfileDataForApplicant(Optional.empty())
+            : createCiviFormProfileDataForAdmin();
     p.init(dbContext);
     for (Role role : roleList) {
       p.addRole(role.toString());
@@ -109,20 +120,25 @@ public final class ProfileFactory {
     return p;
   }
 
-  private CiviFormProfileData createCiviFormProfileDataForApplicant(Long accountId) {
-    if (isApplicantIdpOidc()) {
-      return new OidcCiviFormProfileData(accountId);
+  private CiviFormProfileData createCiviFormProfileDataForApplicant(Optional<Long> accountId) {
+    if (accountId.isEmpty() && isApplicantIdpOidc()) {
+      return new OidcCiviFormProfileData();
+    } else if (accountId.isEmpty() && !isApplicantIdpOidc()) {
+      return new SamlCiviFormProfileData();
+    } else if (accountId.isPresent() && isApplicantIdpOidc()) {
+      return new OidcCiviFormProfileData(accountId.get());
     } else {
-      return new SamlCiviFormProfileData(accountId);
+      return new SamlCiviFormProfileData(accountId.get());
     }
   }
 
   public CiviFormProfile wrap(Account account) {
-    return wrapProfileData(createCiviFormProfileDataForApplicant(account.id));
+    return wrapProfileData(createCiviFormProfileDataForApplicant(Optional.of(account.id)));
   }
 
   public CiviFormProfile wrap(Applicant applicant) {
-    return wrapProfileData(createCiviFormProfileDataForApplicant(applicant.getAccount().id));
+    return wrapProfileData(
+        createCiviFormProfileDataForApplicant(Optional.of(applicant.getAccount().id)));
   }
 
   public CiviFormProfileData createNewProgramAdmin() {

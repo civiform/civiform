@@ -12,6 +12,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -21,6 +23,8 @@ import services.applicant.ApplicantData;
 
 /** Controller for handling methods for the landing pages. */
 public class HomeController extends Controller {
+
+  private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
@@ -49,11 +53,13 @@ public class HomeController extends Controller {
 
     // If the user isn't already logged in within their browser session, consider them a guest.
     if (maybeProfile.isEmpty()) {
+      logger.info("XXX No current profile, creating guest session");
       return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
     }
 
     // Otherwise, get the profile and go to the appropriate landing page.
     CiviFormProfile profile = maybeProfile.get();
+    logger.info("XXX profile data = " + profile.getProfileData().toString());
 
     if (profile.isCiviFormAdmin()) {
       return CompletableFuture.completedFuture(
