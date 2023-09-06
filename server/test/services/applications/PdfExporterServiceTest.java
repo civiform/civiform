@@ -23,6 +23,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
-    assertThat(exporter.export(applicationOne)).isEqualTo(service.generatePdf(applicationOne));
+    assertThat(exporter.export(applicationOne).getByteArray())
+        .isEqualTo(service.generatePdf(applicationOne).getByteArray());
   }
 }
