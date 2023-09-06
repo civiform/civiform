@@ -174,6 +174,7 @@ public final class UpsellController extends CiviFormController {
   }
 
   /** Download a PDF file of the application to the program. */
+  @Secure
   public Result download(Http.Request request, long programId, long applicationId, long applicantId)
       throws ProgramNotFoundException {
     ProgramDefinition program = programService.getProgramDefinition(programId);
