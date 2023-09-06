@@ -53,7 +53,7 @@ public class CiviFormProfileMergerTest {
     oidcProfile = new OidcProfile();
     oidcProfile.addAttribute(EMAIL_ATTR, EMAIL1);
 
-    civiFormProfileData = new CiviFormProfileData();
+    civiFormProfileData = new FakeCiviFormProfileData();
     civiFormProfileData.setId(ACCOUNT_ID.toString());
     civiFormProfileData.addAttribute(EMAIL_ATTR, EMAIL2);
 

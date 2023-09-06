@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
+import auth.FakeCiviFormProfileData;
 import auth.ProfileFactory;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import com.google.common.collect.ImmutableList;
@@ -148,7 +149,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     when(trustedIntermediary.getApplicant())
         .thenReturn(CompletableFuture.completedFuture(new Applicant()));
 
-    CiviFormProfileData fakeProfileData = new CiviFormProfileData(123L);
+    CiviFormProfileData fakeProfileData = new FakeCiviFormProfileData(123L);
     when(trustedIntermediary.getProfileData()).thenReturn(fakeProfileData);
 
     // Execute.

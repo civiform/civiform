@@ -1,5 +1,7 @@
 package auth;
 
+import auth.oidc.OidcCiviFormProfileData;
+import auth.saml.SamlCiviFormProfileData;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
@@ -89,9 +91,17 @@ public final class ProfileFactory {
     return apiKey.orElseThrow(() -> new AccountNonexistentException("API key does not exist"));
   }
 
+  private CiviFormProfileData createCiviFormProfileDataForAdmin() {
+    if (isAdminIdpOidc()) {
+      return new OidcCiviFormProfileData();
+    } else {
+      return new SamlCiviFormProfileData();
+    }
+  }
+
   /* One admin can have multiple roles; they can be both a program admin and a civiform admin. */
   private CiviFormProfileData create(Role[] roleList) {
-    CiviFormProfileData p = new CiviFormProfileData();
+    CiviFormProfileData p = createCiviFormProfileDataForAdmin();
     p.init(dbContext);
     for (Role role : roleList) {
       p.addRole(role.toString());
@@ -99,16 +109,32 @@ public final class ProfileFactory {
     return p;
   }
 
+  private CiviFormProfileData createCiviFormProfileDataForApplicant(Long accountId) {
+    if (isApplicantIdpOidc()) {
+      return new OidcCiviFormProfileData(accountId);
+    } else {
+      return new SamlCiviFormProfileData(accountId);
+    }
+  }
+
   public CiviFormProfile wrap(Account account) {
-    return wrapProfileData(new CiviFormProfileData(account.id));
+    return wrapProfileData(createCiviFormProfileDataForApplicant(account.id));
   }
 
   public CiviFormProfile wrap(Applicant applicant) {
-    return wrapProfileData(new CiviFormProfileData(applicant.getAccount().id));
+    return wrapProfileData(createCiviFormProfileDataForApplicant(applicant.getAccount().id));
   }
 
   public CiviFormProfileData createNewProgramAdmin() {
     return create(new Role[] {Role.ROLE_PROGRAM_ADMIN});
+  }
+
+  private boolean isAdminIdpOidc() {
+    return true;
+  }
+
+  private boolean isApplicantIdpOidc() {
+    return true;
   }
 
   /**

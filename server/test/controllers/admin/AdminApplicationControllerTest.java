@@ -11,6 +11,7 @@ import static play.test.Helpers.contentAsString;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
+import auth.FakeCiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -582,7 +583,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         new ProfileTester(
             instanceOf(DatabaseExecutionContext.class),
             instanceOf(HttpExecutionContext.class),
-            instanceOf(CiviFormProfileData.class),
+            instanceOf(FakeCiviFormProfileData.class),
             instanceOf(SettingsManifest.class),
             adminAccount);
     ProfileUtils profileUtilsNoOpTester =

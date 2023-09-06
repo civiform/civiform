@@ -3,7 +3,7 @@ package auth.oidc.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.test.Helpers.fakeRequest;
 
-import auth.CiviFormProfileData;
+import auth.FakeCiviFormProfileData;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -116,7 +116,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     String afterLogoutUri = "https://civiform.dev";
     var logoutAction =
         client.getLogoutAction(
-            webContext, mockSessionStore, new CiviFormProfileData(), afterLogoutUri);
+            webContext, mockSessionStore, new FakeCiviFormProfileData(), afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)
