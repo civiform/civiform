@@ -24,7 +24,9 @@ public interface CiviFormProfileData extends UserProfile, Serializable {
    */
   void init(DatabaseExecutionContext dbContext);
 
-  // These methods are not specified in the org.pac4j.core.profile.UserProfile interface, but
+  // These methods are required by calling code. They are not specified in the
+  // org.pac4j.core.profile.UserProfile interface, but they are provided by the CommonProfile
+  // subclass.
   String getEmail();
 
   String getDisplayName();
