@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.pac4j.core.exception.TechnicalException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Custom Logout Request that allows for divergence from the [oidc
@@ -28,7 +26,6 @@ import org.slf4j.LoggerFactory;
  * <p>Allows adding extra custom query parameters to the URL.
  */
 public final class CustomOidcLogoutRequest extends LogoutRequest {
-  private static Logger logger = LoggerFactory.getLogger(CustomOidcLogoutRequest.class);
   /** The optional post-logout redirection query param. */
   private final String postLogoutRedirectParam;
 
