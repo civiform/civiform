@@ -12,8 +12,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
@@ -23,9 +21,6 @@ import services.applicant.ApplicantData;
 
 /** Controller for handling methods for the landing pages. */
 public class HomeController extends Controller {
-
-  private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
-
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
   private final HttpExecutionContext httpExecutionContext;
