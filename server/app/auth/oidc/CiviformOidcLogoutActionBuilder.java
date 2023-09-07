@@ -83,13 +83,8 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   public Optional<RedirectionAction> getLogoutAction(
       WebContext context, SessionStore sessionStore, UserProfile currentProfile, String targetUrl) {
     String logoutUrl = configuration.findLogoutUrl();
-    logger.info("XXX getLogoutAction(): logoutUrl = " + logoutUrl);
     if (CommonHelper.isNotBlank(logoutUrl) && currentProfile instanceof OidcProfile) {
       JWT idToken = ((OidcProfile) currentProfile).getIdToken();
-      if (idToken == null) {
-        logger.info("XXX in getLogoutAction(), idToken is null!");
-      }
-      logger.info("XXX in getLogoutAction(), idToken = {}", idToken.serialize());
       try {
         URI endSessionEndpoint = new URI(logoutUrl);
 

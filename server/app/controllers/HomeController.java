@@ -53,13 +53,11 @@ public class HomeController extends Controller {
 
     // If the user isn't already logged in within their browser session, consider them a guest.
     if (maybeProfile.isEmpty()) {
-      logger.info("XXX No current profile, creating guest session");
       return CompletableFuture.completedFuture(createGuestSessionAndRedirect(request));
     }
 
     // Otherwise, get the profile and go to the appropriate landing page.
     CiviFormProfile profile = maybeProfile.get();
-    logger.info("XXX profile data = " + profile.getProfileData().toString());
 
     if (profile.isCiviFormAdmin()) {
       return CompletableFuture.completedFuture(

@@ -25,7 +25,6 @@ import services.settings.SettingsManifest;
  * existing and new accounts. New accounts are persisted in database.
  */
 public final class ProfileFactory {
-
   public static final String FAKE_ADMIN_AUTHORITY_ID = "fake-admin";
   private final DatabaseExecutionContext dbContext;
   private final HttpExecutionContext httpContext;
@@ -63,7 +62,6 @@ public final class ProfileFactory {
   }
 
   public CiviFormProfileData createNewAdmin(Optional<String> maybeAuthorityId) {
-    System.out.println("XXX createNewAdmin(maybeAuthorityId) top");
     CiviFormProfileData profileData = create(new Role[] {Role.ROLE_CIVIFORM_ADMIN});
 
     wrapProfileData(profileData)
@@ -94,12 +92,9 @@ public final class ProfileFactory {
   }
 
   private CiviFormProfileData createCiviFormProfileDataForAdmin() {
-    System.out.println("XXX createCiviFormProfileDataForAdmin");
     if (isAdminIdpOidc()) {
-      System.out.println("XXX OIDC");
       return new OidcCiviFormProfileData();
     } else {
-      System.out.println("XXX SAML");
       return new SamlCiviFormProfileData();
     }
   }

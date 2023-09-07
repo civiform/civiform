@@ -59,8 +59,6 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
         state,
         /* uiLocales = */ null);
 
-    logger.info("XXX idTokenHint = {}", idTokenHint.serialize());
-
     this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;
   }
@@ -84,8 +82,6 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
   @Override
   public URI toURI() {
     URI uri = super.toURI();
-    logger.info("XXX in toURI(), idToken = {}", this.getIDTokenHint().serialize());
-    logger.info("XXX before, URI = {}", uri);
     // default behavior of LogoutRequest.toURI() removes fragment from the URI.
     // For some usecases (e.g. IDCS on Seattle) they use logout URI that contains
     // fragment and read it client-side. Here we add fragment back if it was
