@@ -19,8 +19,6 @@ import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 import org.pac4j.oidc.profile.OidcProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Custom OidcLogoutActionBuilder for CiviFormProfileData (since it extends CommonProfile, not
@@ -37,8 +35,6 @@ import org.slf4j.LoggerFactory;
  * <p>Always adds the client_id to the logout request.
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
-  private static final Logger logger =
-      LoggerFactory.getLogger(CiviformOidcLogoutActionBuilder.class);
 
   private String postLogoutRedirectParam;
   private final String clientId;
