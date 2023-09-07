@@ -152,6 +152,7 @@ public final class ViewUtils {
                     "text-sm",
                     "font-normal",
                     "whitespace-normal",
+                    "max-w-fit",
                     classes.orElse("")));
   }
 

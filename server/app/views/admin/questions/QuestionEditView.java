@@ -523,10 +523,10 @@ public final class QuestionEditView extends BaseHtmlView {
         .setFieldName(QUESTION_NAME_FIELD)
         .setLabelText("Administrative identifier. This value can't be changed later")
         .setToolTipText(
-            "This will be used to identify questions in the API and CSV export.  " +
-              "It will be formatted so that white spaces are replaced with underscores, "
-                + "uppercase letters are converted to lowercase and hyphens are stripped.  For example, "
-                + "\"My Question Name\" will appear as \"my_question_name\" in the API export.")
+            "This will be used to identify questions in the API and CSV export.  It will be"
+                + " formatted so that white spaces are replaced with underscores, uppercase"
+                + " letters are converted to lowercase and hyphens are stripped.  For example,"
+                + " \"My Question Name\" will appear as \"my_question_name\" in the API export.")
         .setToolTipIcon(Icons.INFO)
         .setRequired(true)
         .setValue(adminName)
