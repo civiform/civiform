@@ -9,7 +9,7 @@ import org.pac4j.core.profile.UserProfile;
 import repository.DatabaseExecutionContext;
 
 /** Class to handle account creation, if required, for a `UserProfile`. */
-public class AccountCreator {
+public final class AccountCreator {
   private UserProfile profile;
 
   public AccountCreator(UserProfile profile) {
