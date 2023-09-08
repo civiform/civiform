@@ -415,6 +415,54 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_whenDropdownQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantIceCream()).build();
+    new FakeApplicationFiller(fakeProgram).answerDropdownQuestion(2L /* strawberry */).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_ice_cream",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
+            + "  \"selection\" : \"strawberry\"\n"
+            + "}");
+  }
+
+  @Test
+  public void export_whenDropdownQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantIceCream()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_ice_cream",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
+            + "  \"selection\" : null\n"
+            + "}");
+  }
+
+  @Test
   public void export_whenEmailQuestionIsAnswered_valueIsInResponse() {
     createFakeQuestions();
     var fakeProgram =
@@ -557,6 +605,54 @@ public class JsonExporterTest extends AbstractExporterTest {
         "{\n" // comment to prevent fmt wrapping
             + "  \"phone_number\" : null,\n"
             + "  \"question_type\" : \"PHONE\"\n"
+            + "}");
+  }
+
+  @Test
+  public void export_whenRadioButtonQuestionIsAnswered_valueIsInResponse() {
+    createFakeQuestions();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantSeason()).build();
+    new FakeApplicationFiller(fakeProgram).answerRadioButtonQuestion(3L /* summer */).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_season",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
+            + "  \"selection\" : \"summer\"\n"
+            + "}");
+  }
+
+  @Test
+  public void export_whenRadioButtonQuestionIsNotAnswered_valueInResponseIsNull() {
+    createFakeQuestions();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantSeason()).build();
+    new FakeApplicationFiller(fakeProgram).submit();
+
+    JsonExporter exporter = instanceOf(JsonExporter.class);
+
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            IdentifierBasedPaginationSpec.MAX_PAGE_SIZE_SPEC_LONG,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertJsonAtApplicationPath(
+        ".applicant_favorite_season",
+        "{\n" // comment to prevent fmt wrapping
+            + "  \"question_type\" : \"SINGLE_SELECT\",\n"
+            + "  \"selection\" : null\n"
             + "}");
   }
 
