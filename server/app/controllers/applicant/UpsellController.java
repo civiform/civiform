@@ -183,7 +183,8 @@ public final class UpsellController extends CiviFormController {
   public CompletionStage<Result> download(
       Http.Request request, long programId, long applicationId, long applicantId)
       throws ProgramNotFoundException {
-    ProgramDefinition program = programService.getProgramDefinition(programId);
+    CompletableFuture<ProgramDefinition> program =
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     CiviFormProfile profile =
         profileMaybe.orElseThrow(
@@ -201,7 +202,7 @@ public final class UpsellController extends CiviFormController {
       }
     }
     Optional<Application> applicationMaybe =
-        applicationService.getApplication(applicationId, program);
+        applicationService.getApplication(applicationId, program.join());
     if (applicationMaybe.isEmpty()) {
       return CompletableFuture.completedFuture(
           badRequest(String.format("Application %d does not exist.", applicationId)));

@@ -8,8 +8,6 @@ import models.Application;
 import repository.ApplicationRepository;
 import services.program.ProgramDefinition;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ApplicationService
-
 /** The service responsible for mediating access to the Application resource. */
 public class ApplicationService {
 

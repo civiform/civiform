@@ -16,7 +16,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ApplicationEventRepository;
-import repository.ApplicationRepository;
 import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
@@ -34,9 +33,11 @@ import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
 /** The service responsible for mediating a program admin's access to the Application resource. */
-public final class ProgramAdminApplicationService extends ApplicationService {
+public final class ProgramAdminApplicationService {
 
   private final ApplicantService applicantService;
+
+  private final ApplicationService applicationService;
   private final ApplicationEventRepository eventRepository;
   private final UserRepository userRepository;
   private final SimpleEmail emailClient;
@@ -49,15 +50,15 @@ public final class ProgramAdminApplicationService extends ApplicationService {
   @Inject
   ProgramAdminApplicationService(
       ApplicantService applicantService,
-      ApplicationRepository applicationRepository,
+      ApplicationService applicationService,
       ApplicationEventRepository eventRepository,
       UserRepository userRepository,
       Config configuration,
       SimpleEmail emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi) {
-    super(applicationRepository);
     this.applicantService = checkNotNull(applicantService);
+    this.applicationService = checkNotNull(applicationService);
     this.userRepository = checkNotNull(userRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
@@ -215,5 +216,9 @@ public final class ProgramAdminApplicationService extends ApplicationService {
         .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
         .findFirst()
         .map(app -> app.getDetails().noteEvent().get().note());
+  }
+
+  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
+    return applicationService.getApplication(applicationId, program);
   }
 }
