@@ -32,7 +32,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
-
+  private static final String ID_TOKEN = "test_id_token";
   private static OidcProfile profile;
 
   private CiviformOidcProfileCreator oidcProfileAdapter;
@@ -59,6 +59,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     profile.addAttribute("user_locale", "fr");
     profile.addAttribute("iss", ISSUER);
     profile.setId(SUBJECT);
+    profile.setIdTokenString(ID_TOKEN);
   }
 
   @Test
@@ -136,6 +137,9 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.FRENCH);
+
+    assertThat(profileData).isInstanceOf(OidcCiviFormProfileData.class);
+    assertThat(((OidcProfile) profileData).getIdTokenString()).isEqualTo(ID_TOKEN);
   }
 
   @Test
