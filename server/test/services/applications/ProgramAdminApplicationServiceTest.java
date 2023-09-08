@@ -182,7 +182,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(UserRepository.class),
             instanceOf(Config.class),
@@ -242,7 +242,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(UserRepository.class),
             instanceOf(Config.class),
@@ -294,7 +294,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(UserRepository.class),
             instanceOf(Config.class),
@@ -354,7 +354,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(UserRepository.class),
             instanceOf(Config.class),
@@ -491,7 +491,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
+            instanceOf(ApplicationService.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(UserRepository.class),
             instanceOf(Config.class),
