@@ -5,6 +5,10 @@ import auth.CiviFormProfileData;
 import org.pac4j.saml.profile.SAML2Profile;
 import repository.DatabaseExecutionContext;
 
+/**
+ * SAML-specific implementation of the CiviFormProfileData interface. For deployments that use SAML,
+ * instances of this class will be saved in the session store.
+ */
 public class SamlCiviFormProfileData extends SAML2Profile implements CiviFormProfileData {
   public SamlCiviFormProfileData() {
     super();
