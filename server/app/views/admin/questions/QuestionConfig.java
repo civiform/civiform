@@ -180,6 +180,15 @@ public final class QuestionConfig {
             .showFieldErrors(false)
             .getInputTag()
             .withClasses("flex", "ml-2", "gap-x-3", ReferenceClasses.MULTI_OPTION_INPUT);
+    DivTag optionAdminName =
+        FieldWithLabel.input()
+            .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
+            .setLabelText("Admin Name")
+            .setRequired(true)
+            .setValue(existingOption.map(LocalizedQuestionOption::adminName))
+            .getInputTag()
+            // TODO(#4862): Update the form to allow setting option admin names
+            .withClasses("hidden");
     DivTag optionIndexInput =
         isForNewOption
             ? div()
@@ -217,7 +226,13 @@ public final class QuestionConfig {
             "flex-row",
             "mb-4",
             "items-center")
-        .with(optionInput, optionIndexInput, moveUpButton, moveDownButton, removeOptionButton);
+        .with(
+            optionInput,
+            optionIndexInput,
+            optionAdminName,
+            moveUpButton,
+            moveDownButton,
+            removeOptionButton);
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
@@ -235,14 +250,15 @@ public final class QuestionConfig {
                   LocalizedQuestionOption.create(
                       multiOptionQuestionForm.getOptionIds().get(i),
                       optionIndex,
-                      // TODO(#4862): Use the admin name from the form here
-                      multiOptionQuestionForm.getOptions().get(i),
+                      multiOptionQuestionForm.getOptionAdminNames().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ false));
       optionIndex++;
     }
+
+    //
     for (String newOption : multiOptionQuestionForm.getNewOptions()) {
       optionsBuilder.add(
           multiOptionQuestionField(
@@ -250,7 +266,8 @@ public final class QuestionConfig {
                   LocalizedQuestionOption.create(
                       -1,
                       optionIndex,
-                      // TODO(#4862): Use the admin name from the form here
+                      // TODO(#4862): Use the admin name from the form here, once the UI allows
+                      // setting the admin name
                       newOption,
                       newOption,
                       LocalizedStrings.DEFAULT_LOCALE)),

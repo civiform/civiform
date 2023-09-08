@@ -1,12 +1,10 @@
 package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import controllers.CiviFormController;
 import forms.EnumeratorQuestionForm;
 import forms.MultiOptionQuestionForm;
@@ -341,30 +339,32 @@ public final class AdminQuestionController extends CiviFormController {
    * text, instead of overwriting all localizations.
    */
   private void updateDefaultLocalizations(
-      QuestionDefinition existing, QuestionDefinitionBuilder updated, QuestionForm questionForm) {
+      QuestionDefinition currentQuestionDefinition,
+      QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
+      QuestionForm questionForm) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
-    updated.setQuestionText(
-        existing
+    updatedQuestionDefinitionBuilder.setQuestionText(
+        currentQuestionDefinition
             .getQuestionText()
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
 
     // Question help text is optional. If the admin submits an empty string, delete
     // all translations of it.
     if (questionForm.getQuestionHelpText().isBlank()) {
-      updated.setQuestionHelpText(LocalizedStrings.empty());
+      updatedQuestionDefinitionBuilder.setQuestionHelpText(LocalizedStrings.empty());
     } else {
-      updated.setQuestionHelpText(
-          existing
+      updatedQuestionDefinitionBuilder.setQuestionHelpText(
+          currentQuestionDefinition
               .getQuestionHelpText()
               .updateTranslation(
                   LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
     }
 
-    if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+    if (currentQuestionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       updateDefaultLocalizationForEntityType(
-          updated,
-          (EnumeratorQuestionDefinition) existing,
+          updatedQuestionDefinitionBuilder,
+          (EnumeratorQuestionDefinition) currentQuestionDefinition,
           ((EnumeratorQuestionForm) questionForm).getEntityType());
     }
 
@@ -377,7 +377,9 @@ public final class AdminQuestionController extends CiviFormController {
         throw new RuntimeException(e);
       }
       updateDefaultLocalizationForOptions(
-          updated, (MultiOptionQuestionDefinition) existing, definition.getOptions());
+          updatedQuestionDefinitionBuilder,
+          (MultiOptionQuestionDefinition) currentQuestionDefinition,
+          definition.getOptions());
     }
   }
 
@@ -394,33 +396,49 @@ public final class AdminQuestionController extends CiviFormController {
 
   /** Update the default locale text only for a multi-option question's option text. */
   private void updateDefaultLocalizationForOptions(
-      QuestionDefinitionBuilder updated,
-      MultiOptionQuestionDefinition existing,
-      ImmutableList<QuestionOption> updatedOptions) {
+      QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
+      MultiOptionQuestionDefinition currentQuestionDefinition,
+      ImmutableList<QuestionOption> updatedQuestionOptions) {
 
-    ImmutableMap<String, QuestionOption> existingTranslations =
-        existing.getOptions().stream()
-            .collect(toImmutableMap(o -> o.optionText().getDefault(), o -> o));
-    // If there are existing translations for an unchanged default locale string, keep those
-    // translations. If we do not have existing translations for a given string, create
-    // a new, empty set of translations.
-    ImmutableList.Builder<QuestionOption> updatedOptionsBuilder = ImmutableList.builder();
-    for (QuestionOption updatedOption : updatedOptions) {
-      if (existingTranslations.containsKey(updatedOption.optionText().getDefault())
-          && existingTranslations.get(updatedOption.optionText().getDefault()).id()
-              == updatedOption.id()) {
-        QuestionOption existingOption =
-            existingTranslations.get(updatedOption.optionText().getDefault());
-        updatedOptionsBuilder.add(
-            existingOption.toBuilder()
-                .setId(updatedOption.id())
-                .setDisplayOrder(updatedOption.displayOrder())
+    var existingOptions = currentQuestionDefinition.getOptions();
+    ImmutableList.Builder<QuestionOption> newOptionsListBuilder = ImmutableList.builder();
+
+    for (QuestionOption updatedQuestionOption : updatedQuestionOptions) {
+      var updatedQuestionOptionText = updatedQuestionOption.optionText();
+
+      var maybeExistingOptionWithSameId =
+          existingOptions.stream()
+              .filter(existingOption -> existingOption.id() == updatedQuestionOption.id())
+              .findFirst();
+      if (maybeExistingOptionWithSameId.isPresent()
+          && maybeExistingOptionWithSameId
+              .get()
+              .optionText()
+              .getDefault()
+              .equals(updatedQuestionOptionText.getDefault())) {
+        // If there's an existing option with the same ID and same default locale text, then use it
+        // and only update the displayOrder, preserving the adminName and translations.
+        newOptionsListBuilder.add(
+            maybeExistingOptionWithSameId.get().toBuilder()
+                .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .build());
+      } else if (maybeExistingOptionWithSameId.isPresent()) {
+        // If there's an existing option with the same ID but different text, then use it
+        // and update the displayOrder and default locale text, preserving the adminName but
+        // clearing any existing translations.
+        newOptionsListBuilder.add(
+            maybeExistingOptionWithSameId.get().toBuilder()
+                .setDisplayOrder(updatedQuestionOption.displayOrder())
+                .setOptionText(updatedQuestionOptionText)
                 .build());
       } else {
-        updatedOptionsBuilder.add(updatedOption);
+        // If there wasn't an option with the same ID, treat it as a new
+        // option with a new adminName, displayOrder, and text.
+        newOptionsListBuilder.add(updatedQuestionOption);
       }
     }
-    updated.setQuestionOptions(updatedOptionsBuilder.build());
+
+    updatedQuestionDefinitionBuilder.setQuestionOptions(newOptionsListBuilder.build());
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

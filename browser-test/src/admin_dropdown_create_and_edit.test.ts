@@ -49,17 +49,18 @@ describe('create dropdown question with options', () => {
       '#question-settings div.flex-row:nth-of-type(3) input',
       'strawberry',
     )
+    await page.pause()
 
     // Assert there are three options present
     let questionSettingsDiv = await page.innerHTML('#question-settings')
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(3)
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6) // 2 inputs each for 3 options
 
     // Remove first option - use :visible to not select the hidden template
     await page.click('button:has-text("Delete"):visible')
 
     // Assert there are only two options now
     questionSettingsDiv = await page.innerHTML('#question-settings')
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(2)
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4) // 2 inputs each for 2 options
 
     // Verify question preview text has changed based on user input.
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -76,6 +77,7 @@ describe('create dropdown question with options', () => {
     // Edit the question
     await adminQuestions.gotoQuestionEditPage(questionName)
     questionSettingsDiv = await page.innerHTML('#question-settings')
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4)
+    // 3 inputs each for 2 options (option, optionAdminName, and optionId)
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6)
   })
 })
