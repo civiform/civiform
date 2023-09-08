@@ -219,6 +219,6 @@ public final class ProgramAdminApplicationService {
   }
 
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    return applicationService.getApplication(applicationId, program);
+    return applicationService.getApplication(applicationId, program).toCompletableFuture().join();
   }
 }

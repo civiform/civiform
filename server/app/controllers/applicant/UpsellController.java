@@ -201,13 +201,14 @@ public final class UpsellController extends CiviFormController {
         return CompletableFuture.completedFuture(unauthorized("Invalid credentials"));
       }
     }
-    Optional<Application> applicationMaybe =
-        applicationService.getApplication(applicationId, program.join());
-    if (applicationMaybe.isEmpty()) {
+    CompletableFuture<Optional<Application>> applicationMaybe =
+        applicationService.getApplication(applicationId, program.join()).toCompletableFuture();
+    Optional<Application> maybeApplication = applicationMaybe.join();
+    if (maybeApplication.isEmpty()) {
       return CompletableFuture.completedFuture(
           badRequest(String.format("Application %d does not exist.", applicationId)));
     }
-    Application application = applicationMaybe.get();
+    Application application = maybeApplication.get();
     PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
     return CompletableFuture.completedFuture(
         ok(pdf.getByteArray())
