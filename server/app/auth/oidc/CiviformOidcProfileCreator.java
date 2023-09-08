@@ -137,6 +137,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     civiformProfile.setAuthorityId(authorityId).join();
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+    ((OidcProfile) civiformProfile.getProfileData())
+        .setIdTokenString(oidcProfile.getIdTokenString());
 
     return civiformProfile.getProfileData();
   }
