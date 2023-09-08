@@ -26,7 +26,7 @@ content.requiredFieldsAnnotationFirstHalf=Note: Fields marked with a
 content.requiredFieldsAnnotationSecondHalf=are required.
 content.optional=(optional)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
-toast.errorMessageOutline=Error: {0}
+toast.errorMessageOutline=Khalad: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
