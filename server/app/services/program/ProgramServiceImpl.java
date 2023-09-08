@@ -12,9 +12,11 @@ import com.google.common.collect.Streams;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import forms.BlockForm;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -1013,16 +1015,36 @@ public final class ProgramServiceImpl implements ProgramService {
      * we did not need to sync the programs because the contents of their
      * questions was not needed in the index view.
      */
+
+    // Create a map of the questionService for each program and version to minimize database calls.
+    Map<Long, ReadOnlyQuestionService> versionToQuestionService = new HashMap<>();
+    Map<Long, ReadOnlyQuestionService> programToQuestionService = new HashMap<>();
+
+    for (ProgramDefinition programDef : programDefinitions) {
+      Program p = programDef.toProgram();
+      p.refresh();
+      // We only need to get the question data if the program has eligibility conditions.
+      if (programDef.hasEligibilityEnabled()) {
+        Version v = p.getVersions().stream().findAny().orElseThrow();
+        ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
+        if (questionServiceForVersion == null) {
+          questionServiceForVersion = questionService.getReadOnlyVersionedQuestionService(v);
+          versionToQuestionService.put(v.id, questionServiceForVersion);
+        }
+        programToQuestionService.put(programDef.id(), questionServiceForVersion);
+      }
+    }
+
     return CompletableFuture.completedFuture(
         programDefinitions.stream()
             .map(
                 programDef -> {
-                  Program p = programDef.toProgram();
-                  p.refresh();
-                  Version v = p.getVersions().stream().findAny().orElseThrow();
+                  if (!programDef.hasEligibilityEnabled()) {
+                    return programDef;
+                  }
                   try {
                     return syncProgramDefinitionQuestions(
-                        programDef, questionService.getReadOnlyVersionedQuestionService(v));
+                        programDef, programToQuestionService.get(programDef.id()));
                     /* END TEMP BUG FIX */
                   } catch (QuestionNotFoundException e) {
                     throw new RuntimeException(
