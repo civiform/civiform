@@ -11,7 +11,7 @@ import repository.ApplicationRepository;
 import services.program.ProgramDefinition;
 
 /** The service responsible for mediating access to the Application resource. */
-public class ApplicationService {
+public final class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
 
