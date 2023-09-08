@@ -8,6 +8,7 @@ import java.util.Optional;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
 /**
@@ -68,6 +69,19 @@ public final class SingleSelectQuestion extends Question {
     return getOptions(locale).stream()
         .filter(option -> selectedOptionId == option.id())
         .findFirst();
+  }
+
+  public Optional<String> getSelectedOptionAdminName() {
+    Optional<Long> maybeSelectedOptionId = getSelectedOptionId();
+    if (maybeSelectedOptionId.isEmpty()) {
+      return Optional.empty();
+    }
+
+    Long selectedOptionId = maybeSelectedOptionId.get();
+    return getQuestionDefinition().getOptions().stream()
+        .filter(option -> selectedOptionId == option.id())
+        .findFirst()
+        .map(QuestionOption::adminName);
   }
 
   public MultiOptionQuestionDefinition getQuestionDefinition() {

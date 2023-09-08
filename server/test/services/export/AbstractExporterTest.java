@@ -642,6 +642,32 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    public FakeApplicationFiller answerDropdownQuestion(Long optionId) {
+      Path answerPath =
+          testQuestionBank
+              .applicantIceCream()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerRadioButtonQuestion(Long optionId) {
+      Path answerPath =
+          testQuestionBank
+              .applicantSeason()
+              .getQuestionDefinition()
+              .getContextualizedPath(
+                  /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      QuestionAnswerer.answerSingleSelectQuestion(applicantData, answerPath, optionId);
+      applicant.save();
+      return this;
+    }
+
     public FakeApplicationFiller answerEmailQuestion(String answer) {
       Path answerPath =
           testQuestionBank
