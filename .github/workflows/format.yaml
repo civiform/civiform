@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - id: file_changes
-        uses: tj-actions/changed-files@v36
+        uses: tj-actions/changed-files@v39
         with:
           json: 'true'
 
