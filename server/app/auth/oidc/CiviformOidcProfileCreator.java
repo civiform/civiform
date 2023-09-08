@@ -137,8 +137,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     civiformProfile.setAuthorityId(authorityId).join();
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
-    ((OidcProfile) civiformProfile.getProfileData())
-        .setIdTokenString(oidcProfile.getIdTokenString());
+
+    // In the steady state, we expect that civiformProfile will contain an instance of OidcProfile.
+    // However, previously-stored profiles were of a different type and cannot be safely cast to
+    // OidcProfile.
+    if (civiformProfile.getProfileData() instanceof OidcProfile) {
+      ((OidcProfile) civiformProfile.getProfileData())
+          .setIdTokenString(oidcProfile.getIdTokenString());
+    }
 
     return civiformProfile.getProfileData();
   }

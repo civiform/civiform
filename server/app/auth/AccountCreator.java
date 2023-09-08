@@ -26,13 +26,13 @@ public final class AccountCreator {
     // synchronous.
     supplyAsync(
             () -> {
-              Account acc = new Account();
-              acc.save();
-              Applicant newA = new Applicant();
-              newA.setAccount(acc);
-              newA.save();
+              Account account = new Account();
+              account.save();
+              Applicant applicant = new Applicant();
+              applicant.setAccount(account);
+              applicant.save();
 
-              profile.setId(Preconditions.checkNotNull(acc.id).toString());
+              profile.setId(Preconditions.checkNotNull(account.id).toString());
               return null;
             },
             dbContext)
