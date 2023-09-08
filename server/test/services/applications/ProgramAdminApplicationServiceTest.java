@@ -29,7 +29,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ApplicationEventRepository;
-import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import services.DeploymentType;

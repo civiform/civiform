@@ -328,7 +328,14 @@ export class ApplicantQuestions {
   }
 
   async clickDownload() {
-    await this.page.click('text="Download"')
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null) {
+      throw new Error('download failed')
+    }
     await waitForPageJsLoad(this.page)
   }
 
