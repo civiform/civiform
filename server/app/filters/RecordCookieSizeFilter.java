@@ -34,7 +34,6 @@ public class RecordCookieSizeFilter extends Filter {
     String actionMethod = handlerDef.controller() + "." + handlerDef.method();
     requestHeader.getCookie("PLAY_SESSION").ifPresent(cookie -> {
       PLAY_SESSION_COOKIE_SIZE.labels(actionMethod).observe(cookie.value().length());
-      logger.info("XXX action_method = {}, cookie size = {}", actionMethod, cookie.value().length());
     });
     return next.apply(requestHeader);
   }
