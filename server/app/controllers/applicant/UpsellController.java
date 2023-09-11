@@ -202,7 +202,7 @@ public final class UpsellController extends CiviFormController {
       }
     }
     CompletableFuture<Optional<Application>> applicationMaybe =
-        applicationService.getApplication(applicationId, program.join()).toCompletableFuture();
+        applicationService.getApplication(applicationId, program).toCompletableFuture();
     Optional<Application> maybeApplication = applicationMaybe.join();
     if (maybeApplication.isEmpty()) {
       return CompletableFuture.completedFuture(
