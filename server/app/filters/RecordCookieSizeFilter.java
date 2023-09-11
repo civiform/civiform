@@ -2,8 +2,6 @@ package filters;
 
 import akka.stream.Materializer;
 import io.prometheus.client.Histogram;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -14,8 +12,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 
 public class RecordCookieSizeFilter extends Filter {
-  private static final Logger logger = LoggerFactory.getLogger(RecordCookieSizeFilter.class);
-
   private Histogram PLAY_SESSION_COOKIE_SIZE =
     Histogram.build()
       .name("play_session_cookie_size_bytes")

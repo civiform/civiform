@@ -10,7 +10,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 
-import java.util.Base64;
 import java.util.Optional;
 import javax.inject.Provider;
 import models.Applicant;
@@ -23,7 +22,6 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
-import org.pac4j.play.store.PlayCookieSessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.UserRepository;
