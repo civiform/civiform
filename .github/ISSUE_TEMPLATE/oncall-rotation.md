@@ -39,4 +39,6 @@ Resources:
 - [ ] Create an Oncall issue for the next rotation, and assign to the next oncall
 - [ ] Check Security lists daily
 - [ ] Check #ci Slack channel daily to monitor failed pushes
-- [ ] Check [Dependency updates](https://github.com/civiform/civiform/pulls/app%2Frenovate) once
+- [ ] Check [Dependency Dashboard](https://github.com/civiform/civiform/issues/2124) once
+  - This issue is one that Renovate creates and updates with what it is currently tracking. Check this for any rate-limited dependencies and check the box to create them.
+  - For any problematic dependency updates that break tests, add the "needs-triage" label so Exygy can prioritize fixing these issues.
