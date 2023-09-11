@@ -9,7 +9,6 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
-
 import java.util.Optional;
 import javax.inject.Provider;
 import models.Applicant;
