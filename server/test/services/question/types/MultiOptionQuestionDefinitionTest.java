@@ -14,6 +14,10 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 
 public class MultiOptionQuestionDefinitionTest {
 
+  // TODO(#4862): Once the admin name is assignable and different then the
+  //  default locale's text, test getOptionsAdminName() returns it instead
+  //  of the default locale's text.
+
   @Test
   public void buildMultiSelectQuestion() throws UnsupportedQuestionTypeException {
     ImmutableList<QuestionOption> options =

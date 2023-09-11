@@ -19,7 +19,6 @@ import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
@@ -35,7 +34,6 @@ import play.twirl.api.Content;
 import services.TranslationNotFoundException;
 import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
-import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
@@ -234,12 +232,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private static String getOptionsString(MultiOptionQuestionDefinition questionDefinition) {
-    ImmutableList<LocalizedQuestionOption> options =
-        questionDefinition.getOptionsForDefaultLocale();
-    ImmutableList<String> optionsText =
-        options.stream().map(LocalizedQuestionOption::optionText).collect(toImmutableList());
-
-    return "\"" + String.join("\", \"", optionsText) + "\"";
+    return "\"" + String.join("\", \"", questionDefinition.getOptionsAdminName()) + "\"";
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {

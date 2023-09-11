@@ -35,6 +35,8 @@ public class QuestionOptionTest {
     QuestionOption option =
         QuestionOption.builder()
             .setId(123L)
+            // TODO(#4862): Test the admin name is passed through to the LocalizedQuestionOption
+            .setAdminName("test")
             .setOptionText(LocalizedStrings.withDefaultValue("test"))
             .setDisplayOrder(OptionalLong.of(1L))
             .build();
@@ -42,5 +44,19 @@ public class QuestionOptionTest {
     assertThat(option.localize(LocalizedStrings.DEFAULT_LOCALE))
         .isEqualTo(
             LocalizedQuestionOption.create(123L, 1L, "test", LocalizedStrings.DEFAULT_LOCALE));
+  }
+
+  @Test
+  public void create_withNoDefaultLocaleText_usesIdAsAdminName() {
+    QuestionOption questionOption =
+        QuestionOption.create(1L, LocalizedStrings.of(Locale.FRANCE, "option 1"));
+
+    assertThat(questionOption)
+        .isEqualTo(
+            QuestionOption.builder()
+                .setOptionText(LocalizedStrings.of(Locale.FRANCE, "option 1"))
+                .setAdminName("1")
+                .setId(1L)
+                .build());
   }
 }

@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.inject.Inject;
-import services.LocalizedStrings;
 import services.Path;
 import services.applicant.question.CurrencyQuestion;
 import services.applicant.question.DateQuestion;
@@ -26,7 +25,6 @@ import services.applicant.question.Scalar;
 import services.applicant.question.SingleSelectQuestion;
 import services.export.enums.ApiPathSegment;
 import services.export.enums.QuestionTypeExternal;
-import services.question.LocalizedQuestionOption;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 
@@ -198,9 +196,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
       Path path = question.getSelectionPath().asNestedEntitiesPath();
 
       ImmutableList<String> selectedOptions =
-          question.getSelectedOptionsValue().orElse(ImmutableList.of()).stream()
-              .map(LocalizedQuestionOption::optionText)
-              .collect(ImmutableList.toImmutableList());
+          question.getSelectedOptionsAdminName().orElse(ImmutableList.of());
 
       return ImmutableMap.of(path, Optional.of(selectedOptions));
     }
@@ -329,8 +325,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
           question
               .getApplicantQuestion()
               .createSingleSelectQuestion()
-              .getSelectedOptionValue(LocalizedStrings.DEFAULT_LOCALE)
-              .map(LocalizedQuestionOption::optionText));
+              .getSelectedOptionAdminName());
     }
   }
 }

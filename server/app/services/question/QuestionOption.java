@@ -21,6 +21,10 @@ public abstract class QuestionOption {
   @JsonProperty("id")
   public abstract long id();
 
+  /** The immutable admin name for this option. */
+  @JsonProperty("adminName")
+  public abstract String adminName();
+
   /** The text strings to display to the user, keyed by locale. */
   @JsonProperty("localizedOptionText")
   public abstract LocalizedStrings optionText();
@@ -51,8 +55,13 @@ public abstract class QuestionOption {
 
   /** Create a QuestionOption. */
   public static QuestionOption create(long id, long displayOrder, LocalizedStrings optionText) {
+    // TODO(#4862): Get the adminName from the user, instead of defaulting it to the default
+    // locale's option text.
+    String adminName = optionText.maybeGet(Locale.getDefault()).orElse(String.valueOf(id));
+
     return QuestionOption.builder()
         .setId(id)
+        .setAdminName(adminName)
         .setOptionText(optionText)
         .setDisplayOrder(OptionalLong.of(displayOrder))
         .build();
@@ -60,8 +69,13 @@ public abstract class QuestionOption {
 
   /** Create a QuestionOption. */
   public static QuestionOption create(long id, LocalizedStrings optionText) {
+    // TODO(#4862): Get the adminName from the user, instead of defaulting it to the default
+    // locale's option text.
+    String adminName = optionText.maybeGet(Locale.getDefault()).orElse(String.valueOf(id));
+
     return QuestionOption.builder()
         .setId(id)
+        .setAdminName(adminName)
         .setOptionText(optionText)
         .setDisplayOrder(OptionalLong.empty())
         .build();
@@ -105,6 +119,9 @@ public abstract class QuestionOption {
 
     @JsonProperty("id")
     public abstract Builder setId(long id);
+
+    @JsonProperty("adminName")
+    public abstract Builder setAdminName(String adminName);
 
     @JsonProperty("localizedOptionText")
     public abstract Builder setOptionText(LocalizedStrings optionText);

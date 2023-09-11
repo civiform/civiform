@@ -20,6 +20,10 @@ import services.question.types.QuestionDefinitionConfig;
 
 public class SingleSelectQuestionTest {
 
+  // TODO(#4862): Once the admin name is assignable and different then the
+  //  default locale's text, test getSelectedOptionAdminName() returns it instead
+  //  of the default locale's text.
+
   private static final QuestionDefinitionConfig CONFIG =
       QuestionDefinitionConfig.builder()
           .setName("question name")
