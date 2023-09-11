@@ -6,6 +6,10 @@ import play.mvc.EssentialFilter;
 import play.routing.HandlerDef;
 import play.routing.Router;
 
+/**
+ * Filter that exports the size of the PLAY_SESSION cookie to prometheus, parameterized by
+ * controller method.
+ */
 public class RecordCookieSizeFilter extends EssentialFilter {
   private Histogram PLAY_SESSION_COOKIE_SIZE =
       Histogram.build()
