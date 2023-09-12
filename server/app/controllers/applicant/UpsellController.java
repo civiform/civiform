@@ -11,9 +11,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import models.Account;
 import models.Application;
+import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -189,32 +191,37 @@ public final class UpsellController extends CiviFormController {
     CiviFormProfile profile =
         profileMaybe.orElseThrow(
             () -> new NoSuchElementException("User authorized as applicant but no profile found"));
-    if (!profile.isTrustedIntermediary()) {
-      try {
-        super.checkApplicantAuthorization(request, applicantId).join();
-      } catch (CompletionException | SecurityException e) {
-        return CompletableFuture.completedFuture(unauthorized("Invalid credentials"));
-      }
-    } else {
-      Account currentAccount = profile.getAccount().join();
-      if (currentAccount.getManagedByGroup().isEmpty()) {
-        return CompletableFuture.completedFuture(unauthorized("Invalid credentials"));
-      }
-    }
-    CompletableFuture<Optional<Application>> applicationMaybe =
-        applicationService.getApplication(applicationId, program).toCompletableFuture();
-    Optional<Application> maybeApplication = applicationMaybe.join();
-    if (maybeApplication.isEmpty()) {
-      return CompletableFuture.completedFuture(
-          badRequest(String.format("Application %d does not exist.", applicationId)));
-    }
-    Application application = maybeApplication.get();
-    PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(application);
-    return CompletableFuture.completedFuture(
-        ok(pdf.getByteArray())
-            .as("application/pdf")
-            .withHeader(
-                "Content-Disposition",
-                String.format("attachment; filename=\"%s\"", pdf.getFileName())));
+
+    CompletableFuture<Account> account =
+      profile.getAccount().thenApplyAsync(v -> checkApplicantAuthorization(request,applicantId),httpContext.current())
+        .thenComposeAsync(v -> profile.getAccount(),httpContext.current())
+        .toCompletableFuture();
+
+    CompletableFuture<Optional<Application>> applicationMaybe =  applicationService.getApplication(applicationId, program).toCompletableFuture();
+
+    return CompletableFuture.allOf( applicationMaybe, program,account)
+        .thenApplyAsync(
+          check -> {
+            PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationMaybe.join().get());
+
+            return ok(pdf.getByteArray())
+              .as("application/pdf")
+              .withHeader(
+                "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+          }).exceptionally(
+        ex -> {
+          if (ex instanceof CompletionException) {
+            Throwable cause = ex.getCause();
+            if (cause instanceof SecurityException) {
+              return unauthorized();
+            }
+            if (cause instanceof ProgramNotFoundException) {
+              return notFound(cause.toString());
+            }
+          }
+          throw new RuntimeException(ex);
+        });
+
   }
 }
+

@@ -1,14 +1,15 @@
 package services.applications;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
-import javax.swing.text.html.Option;
 
 import models.Application;
+import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 import services.program.ProgramDefinition;
 
@@ -16,54 +17,36 @@ import services.program.ProgramDefinition;
 public final class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
+  private final HttpExecutionContext httpExecutionContext;
 
   @Inject
-  ApplicationService(ApplicationRepository applicationRepository) {
+  ApplicationService(ApplicationRepository applicationRepository,HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
+    this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
   /**
    * Retrieves the application with the given ID and validates that it is associated with the given
    * program.
    */
-  public CompletionStage<Optional<Application>> getApplication(
+  public CompletableFuture<Optional<Application>> getApplication(
       long applicationId, CompletableFuture<ProgramDefinition> program) {
     CompletableFuture<Optional<Application>> maybeApplication =
-        applicationRepository.getApplication(applicationId).toCompletableFuture();
+      applicationRepository.getApplication(applicationId).toCompletableFuture();
     return CompletableFuture.allOf(maybeApplication, program)
-      .thenApplyAsync(
-        application -> {
-          Optional<Application> maybeApplication1 = maybeApplication.get();
-          Application application = maybeApplication1.get();
-          ProgramDefinition program1 = program.get();
-          if (program1.adminName().isEmpty()
-            || !application
-            .getProgram()
-            .getProgramDefinition()
-            .adminName()
-            .equals(program1.adminName())) {
-            return CompletableFuture.completedFuture(Optional.empty());
+      .thenComposeAsync(
+        applicationMaybe -> {
+          try {
+            if(maybeApplication.get().isEmpty() || !program.get().adminName().equals(maybeApplication.get().get().getProgram().getProgramDefinition().adminName()))
+            {
+              return supplyAsync(() -> Optional.empty());
+            }
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          } catch (ExecutionException e) {
+            throw new RuntimeException(e);
           }
-          return CompletableFuture.completedFuture(Optional.of(application));
-        }
-      )
-      .exceptionally(
-        ex -> {
-          return CompletableFuture.completedFuture(Optional.empty());
-        }
-      );
-//    if (maybeApplication.isEmpty()) {
-//      return CompletableFuture.completedFuture(Optional.empty());
-//    }
-//    Application application = maybeApplication.get();
-//    if (program.adminName().isEmpty()
-//        || !application
-//            .getProgram()
-//            .getProgramDefinition()
-//            .adminName()
-//            .equals(program.adminName())) {
-//      return CompletableFuture.completedFuture(Optional.empty());
-//    }
-//    return CompletableFuture.completedFuture(Optional.of(application));
-//  }
+          return maybeApplication;
+          },httpExecutionContext.current());
+  }
 }
