@@ -3,6 +3,7 @@ package filters;
 import io.prometheus.client.Histogram;
 import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
+import play.mvc.Http;
 import play.routing.HandlerDef;
 import play.routing.Router;
 
@@ -15,7 +16,7 @@ public final class RecordCookieSizeFilter extends EssentialFilter {
       Histogram.build()
           .name("play_session_cookie_size_bytes")
           .linearBuckets(0, 512, 10)
-          .labelNames("action_method")
+          .labelNames("controller_method")
           .help("Size of the PLAY_SESSION cookie in bytes")
           .register();
 
@@ -23,8 +24,7 @@ public final class RecordCookieSizeFilter extends EssentialFilter {
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         requestHeader -> {
-          HandlerDef handlerDef = requestHeader.attrs().get(Router.Attrs.HANDLER_DEF);
-          String actionMethod = handlerDef.controller() + "." + handlerDef.method();
+          String actionMethod = getControllerMethod(requestHeader);
           requestHeader
               .getCookie("PLAY_SESSION")
               .ifPresent(
@@ -33,5 +33,14 @@ public final class RecordCookieSizeFilter extends EssentialFilter {
                   });
           return next.apply(requestHeader);
         });
+  }
+
+  private String getControllerMethod(Http.RequestHeader requestHeader) {
+    // Not always present in browser tests.
+    if (requestHeader.attrs().containsKey(Router.Attrs.HANDLER_DEF)) {
+      HandlerDef handlerDef = requestHeader.attrs().get(Router.Attrs.HANDLER_DEF);
+      return String.format("%s.%s", handlerDef.controller(), handlerDef.method());
+    }
+    return "unknown";
   }
 }
