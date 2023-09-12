@@ -31,13 +31,13 @@ public class RecordCookieSizeFilterTest {
       assertThat(runFilterWithCookieSize(filter, cookieSize).status()).isEqualTo(200);
     }
 
-    var metricFamilySamples = CollectorRegistry.defaultRegistry.metricFamilySamples();
-    assertThat(metricFamilySamples.hasMoreElements()).isTrue();
-    var mfs = metricFamilySamples.nextElement();
-    assertThat(mfs.name).isEqualTo("play_session_cookie_size_bytes");
+    var metricFamilySamplesEnumeration = CollectorRegistry.defaultRegistry.metricFamilySamples();
+    assertThat(metricFamilySamplesEnumeration.hasMoreElements()).isTrue();
+    var metricFamilySamples = metricFamilySamplesEnumeration.nextElement();
+    assertThat(metricFamilySamples.name).isEqualTo("play_session_cookie_size_bytes");
 
     double upperBoundOfCookieSize = 0;
-    for (var sample : mfs.samples) {
+    for (var sample : metricFamilySamples.samples) {
       if (sample.name.equals("play_session_cookie_size_bytes_count")) {
         // Number of samples.
         assertThat(sample.value).isEqualTo(cookieSizes.size());
