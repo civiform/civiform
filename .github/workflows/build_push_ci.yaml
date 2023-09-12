@@ -39,7 +39,7 @@ jobs:
       - name: Set up Docker QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Check if we should push
         if: ${{ (github.event_name == 'workflow_dispatch') || (github.event_name == 'push') }}
         run: echo "PUSH_IMAGE=1" >> $GITHUB_ENV
@@ -124,7 +124,7 @@ jobs:
         uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
         if: ${{ steps.check_build.outputs.build == 'build' }}
 
       - name: Check if we should push

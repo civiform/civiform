@@ -16,7 +16,7 @@ jobs:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
@@ -42,7 +42,7 @@ jobs:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build test container
         env:
           DOCKER_BUILDKIT: 1
@@ -60,7 +60,7 @@ jobs:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
@@ -127,7 +127,7 @@ jobs:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
@@ -182,7 +182,7 @@ jobs:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Build prod container
         env:
           DOCKER_BUILDKIT: 1
