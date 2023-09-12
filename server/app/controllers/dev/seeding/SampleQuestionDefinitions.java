@@ -46,9 +46,11 @@ public final class SampleQuestionDefinitions {
 
   private static final ImmutableList<QuestionOption> CHECKBOX_QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("toaster")),
-          QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("pepper grinder")),
-          QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("garlic press")));
+          QuestionOption.create(1L, 1L, "toaster", LocalizedStrings.withDefaultValue("Toaster")),
+          QuestionOption.create(
+              2L, 2L, "pepper_grinder", LocalizedStrings.withDefaultValue("Pepper Grinder")),
+          QuestionOption.create(
+              3L, 3L, "garlic_press", LocalizedStrings.withDefaultValue("Garlic Press")));
 
   @VisibleForTesting
   public static final MultiOptionQuestionDefinition CHECKBOX_QUESTION_DEFINITION =
@@ -79,10 +81,12 @@ public final class SampleQuestionDefinitions {
           .build();
   private static final ImmutableList<QuestionOption> DROPDOWN_QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, 1L, LocalizedStrings.withDefaultValue("chocolate")),
-          QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("strawberry")),
-          QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("vanilla")),
-          QuestionOption.create(4L, 4L, LocalizedStrings.withDefaultValue("coffee")));
+          QuestionOption.create(
+              1L, 1L, "chocolate", LocalizedStrings.withDefaultValue("Chocolate")),
+          QuestionOption.create(
+              2L, 2L, "strawberry", LocalizedStrings.withDefaultValue("Strawberry")),
+          QuestionOption.create(3L, 3L, "vanilla", LocalizedStrings.withDefaultValue("Vanilla")),
+          QuestionOption.create(4L, 4L, "coffee", LocalizedStrings.withDefaultValue("Coffee")));
 
   static final MultiOptionQuestionDefinition DROPDOWN_QUESTION_DEFINITION =
       new MultiOptionQuestionDefinition(
@@ -158,11 +162,11 @@ public final class SampleQuestionDefinitions {
   private static final ImmutableList<QuestionOption> RADIO_BUTTON_QUESTION_OPTIONS =
       ImmutableList.of(
           QuestionOption.create(
-              1L, 1L, LocalizedStrings.withDefaultValue("winter (will hide next block)")),
-          QuestionOption.create(2L, 2L, LocalizedStrings.withDefaultValue("spring")),
-          QuestionOption.create(3L, 3L, LocalizedStrings.withDefaultValue("summer")),
+              1L, 1L, "winter", LocalizedStrings.withDefaultValue("Winter (will hide next block)")),
+          QuestionOption.create(2L, 2L, "spring", LocalizedStrings.withDefaultValue("Spring")),
+          QuestionOption.create(3L, 3L, "summer", LocalizedStrings.withDefaultValue("Summer")),
           QuestionOption.create(
-              4L, 4L, LocalizedStrings.withDefaultValue("fall (will hide next block)")));
+              4L, 4L, "fall", LocalizedStrings.withDefaultValue("Fall (will hide next block)")));
 
   @VisibleForTesting
   public static final MultiOptionQuestionDefinition RADIO_BUTTON_QUESTION_DEFINITION =

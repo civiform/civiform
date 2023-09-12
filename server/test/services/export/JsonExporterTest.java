@@ -60,7 +60,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         2, ".number_of_items_applicant_can_juggle.number", 123456);
     resultAsserter.assertValueAtApplicationPath(2, ".kitchen_tools.selections[0]", "toaster");
     resultAsserter.assertValueAtApplicationPath(
-        2, ".kitchen_tools.selections[1]", "pepper grinder");
+        2, ".kitchen_tools.selections[1]", "pepper_grinder");
     resultAsserter.assertValueAtApplicationPath(2, ".applicant_ice_cream.selection", "strawberry");
     resultAsserter.assertValueAtApplicationPath(
         2, ".applicant_favorite_season.selection", "winter");
@@ -88,7 +88,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         1, ".number_of_items_applicant_can_juggle.number", 123456);
     resultAsserter.assertValueAtApplicationPath(1, ".kitchen_tools.selections[0]", "toaster");
     resultAsserter.assertValueAtApplicationPath(
-        1, ".kitchen_tools.selections[1]", "pepper grinder");
+        1, ".kitchen_tools.selections[1]", "pepper_grinder");
     resultAsserter.assertValueAtApplicationPath(1, ".applicant_ice_cream.selection", "strawberry");
     resultAsserter.assertValueAtApplicationPath(
         1, ".applicant_favorite_season.selection", "winter");
@@ -272,8 +272,8 @@ public class JsonExporterTest extends AbstractExporterTest {
     new FakeApplicationFiller(fakeProgram)
         .answerCheckboxQuestion(
             ImmutableList.of(
-                2L, // "pepper grinder"
-                3L // "garlic press"
+                2L, // "pepper_grinder"
+                3L // "garlic_press"
                 ))
         .submit();
 
@@ -290,7 +290,7 @@ public class JsonExporterTest extends AbstractExporterTest {
         ".kitchen_tools",
         "{\n"
             + "  \"question_type\" : \"MULTI_SELECT\",\n"
-            + "  \"selections\" : [ \"pepper grinder\", \"garlic press\" ]\n"
+            + "  \"selections\" : [ \"pepper_grinder\", \"garlic_press\" ]\n"
             + "}");
   }
 
