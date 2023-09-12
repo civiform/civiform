@@ -3,6 +3,7 @@ package views.questiontypes;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -81,5 +82,46 @@ public class AddressRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
     assertThat(result.render()).contains("selected>WA");
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMatch_autofocusIsPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("Address Question"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameMismatch_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("wrong name"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void maybeFocusOnInputNameIsBlank_autofocusIsNotPresent() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

@@ -11,6 +11,7 @@ import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.NavTag;
+import play.mvc.Http;
 import play.twirl.api.Content;
 import services.DeploymentType;
 import services.settings.SettingsManifest;
@@ -88,10 +89,12 @@ public final class AdminLayout extends BaseHtmlLayout {
 
   @Override
   public HtmlBundle getBundle(HtmlBundle bundle) {
-    return super.getBundle(bundle).addHeaderContent(renderNavBar()).setJsBundle(JsBundle.ADMIN);
+    return super.getBundle(bundle)
+        .addHeaderContent(renderNavBar(bundle.getRequest()))
+        .setJsBundle(JsBundle.ADMIN);
   }
 
-  private NavTag renderNavBar() {
+  private NavTag renderNavBar(Http.RequestHeader request) {
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
 
     DivTag headerIcon =
@@ -168,7 +171,8 @@ public final class AdminLayout extends BaseHtmlLayout {
               .with(intermediariesHeaderLink)
               .with(reportingHeaderLink)
               .with(apiKeysHeaderLink)
-              .condWith(getSettingsManifest().getApiGeneratedDocsEnabled(), apiDocsHeaderLink);
+              .condWith(
+                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink);
           break;
         }
       case PROGRAM_ADMIN:
@@ -176,15 +180,15 @@ public final class AdminLayout extends BaseHtmlLayout {
           adminHeader
               .with(programAdminProgramsHeaderLink)
               .with(reportingHeaderLink)
-              .condWith(getSettingsManifest().getApiGeneratedDocsEnabled(), apiDocsHeaderLink);
+              .condWith(
+                  getSettingsManifest().getApiGeneratedDocsEnabled(request), apiDocsHeaderLink);
           break;
         }
     }
 
     return adminHeader.with(
         headerLink("Logout", logoutLink, "float-right").withId("logout-button"),
-        getSettingsManifest().getAdminSettingsPanelEnabled()
-                && primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
+        primaryAdminType.equals(AdminType.CIVI_FORM_ADMIN)
             ? a(Icons.svg(Icons.COG)
                     .withClasses("h-6", "w-6", "opacity-75", StyleUtils.hover("opacity-100")))
                 .withHref(settingsLink)

@@ -1,6 +1,7 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
@@ -12,7 +13,6 @@ import static j2html.TagCreator.input;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
-import static j2html.TagCreator.a;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
@@ -62,7 +62,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   private static final String SEARCH_PARAM = "search";
   private static final String APPLICATION_STATUS_PARAM = "applicationStatus";
   private static final String IGNORE_FILTERS_PARAM = "ignoreFilters";
-  private static final String CLEAR_REDIRECT = "./applications";
 
   private final AdminLayout layout;
   private final ApplicantUtils applicantUtils;
@@ -167,6 +166,16 @@ public final class ProgramApplicationListView extends BaseHtmlView {
       ImmutableList<String> allPossibleProgramApplicationStatuses,
       ButtonTag downloadButton,
       RenderFilterParams filterParams) {
+    String redirectUrl =
+        routes.AdminApplicationController.index(
+                program.id(),
+                /* search = */ Optional.empty(),
+                /* page= */ Optional.empty(),
+                /* fromDate= */ Optional.empty(),
+                /* untilDate= */ Optional.empty(),
+                /* applicationStatus= */ Optional.empty(),
+                /* selectedApplicationUri= */ Optional.empty())
+            .url();
     return form()
         .withClasses("mt-6")
         .withMethod("GET")
@@ -254,8 +263,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                     makeSvgTextButton("Filter", Icons.FILTER_ALT)
                         .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
                         .withType("submit"),
-                  a().withHref(CLEAR_REDIRECT)
-                    .with(button("Clear").withClass(ButtonStyles.SOLID_BLUE))));
+                    a("Clear").withHref(redirectUrl).withClass(ButtonStyles.SOLID_BLUE)));
   }
 
   private Modal renderDownloadApplicationsModal(

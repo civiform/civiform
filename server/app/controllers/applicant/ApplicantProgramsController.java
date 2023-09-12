@@ -8,6 +8,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
@@ -59,15 +60,21 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> index(Request request, long applicantId) {
+    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
+
+    // If the user doesn't have a profile, send them home.
+    if (requesterProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     Optional<ToastMessage> banner = request.flash().get("banner").map(m -> ToastMessage.alert(m));
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
-    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
+            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
             httpContext.current())
         .thenApplyAsync(
             applicationPrograms -> {
@@ -88,7 +95,9 @@ public final class ApplicantProgramsController extends CiviFormController {
             ex -> {
               if (ex instanceof CompletionException) {
                 if (ex.getCause() instanceof SecurityException) {
-                  return unauthorized();
+                  // If the applicant id in the URL does not correspond to the current user, start
+                  // from scratch. This could happen if a user bookmarks a URL.
+                  return redirectToHome();
                 }
               }
               throw new RuntimeException(ex);
@@ -97,14 +106,20 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> view(Request request, long applicantId, long programId) {
+    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
+
+    // If the user doesn't have a profile, send them home.
+    if (requesterProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
 
-    CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request).orElseThrow();
     return applicantStage
         .thenComposeAsync(v -> checkApplicantAuthorization(request, applicantId))
         .thenComposeAsync(
-            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile),
+            v -> applicantService.relevantProgramsForApplicant(applicantId, requesterProfile.get()),
             httpContext.current())
         .thenApplyAsync(
             relevantPrograms -> {
@@ -130,7 +145,9 @@ public final class ApplicantProgramsController extends CiviFormController {
             ex -> {
               if (ex instanceof CompletionException) {
                 if (ex.getCause() instanceof SecurityException) {
-                  return unauthorized();
+                  // If the applicant id in the URL does not correspond to the current user, start
+                  // from scratch. This could happen if a user bookmarks a URL.
+                  return redirectToHome();
                 }
               }
               throw new RuntimeException(ex);
@@ -139,6 +156,12 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   @Secure
   public CompletionStage<Result> edit(Request request, long applicantId, long programId) {
+    Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
+
+    // If the user doesn't have a profile, send them home.
+    if (requesterProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
 
     // Determine first incomplete block, then redirect to other edit.
     return checkApplicantAuthorization(request, applicantId)
@@ -153,7 +176,10 @@ public final class ApplicantProgramsController extends CiviFormController {
                       Optional.of(
                           found(
                               routes.ApplicantProgramBlocksController.edit(
-                                  applicantId, programId, block.getId()))));
+                                  applicantId,
+                                  programId,
+                                  block.getId(),
+                                  /* questionName= */ Optional.empty()))));
             },
             httpContext.current())
         .thenComposeAsync(
@@ -173,7 +199,9 @@ public final class ApplicantProgramsController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
-                  return unauthorized();
+                  // If the applicant id in the URL does not correspond to the current user, start
+                  // from scratch. This could happen if a user bookmarks a URL.
+                  return redirectToHome();
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return badRequest(cause.toString());
@@ -182,5 +210,9 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  private static Result redirectToHome() {
+    return redirect(controllers.routes.HomeController.index().url());
   }
 }

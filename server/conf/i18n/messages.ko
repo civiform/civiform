@@ -22,8 +22,10 @@ validation.isRequired=이 질문은 필수입니다.
 validation.invalidInput=유효한 내용을 입력하세요.
 validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
+content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
-toast.errorMessageOutline=Error: {0}
+toast.errorMessageOutline=오류: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -137,7 +139,7 @@ content.confirmed={0}에 신청해 주셔서 감사합니다. 신청을 접수�
 title.createAnAccount=계정 만들기 또는 로그인
 content.pleaseCreateAccount=시 계정에 로그인하면 정보가 저장되며 나중에 언제든지 돌아와서 신청서를 마저 작성할 수 있습니다. 아직 계정이 없다면 로그인 페이지에서 계정을 새로 등록할 수 있습니다. 이미 입력한 데이터는 그대로 유지됩니다.
 content.generalLoginModalPrompt=계정에 로그인되어 있지 않습니다. 계정이 없으면 신청서를 수정하거나, 신청서 상태를 확인하거나, 빠르게 다른 혜택을 신청할 수 없습니다.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=계속하기 전에 {0} 계정에 로그인하거나 계정을 만드세요. 그러면 같은 정보를 다시 입력할 필요 없이 여러 가지 혜택을 신청할 수 있습니다. 신청서를 수정하고 신청서 상>태를 확인할 수도 있습니다.
 button.continueWithoutAnAccount=계정 없이 계속
 title.commonIntakeConfirmation=다음 혜택의 자격요건에 해당될 수 있습니다
 title.commonIntakeConfirmationTi=고객이 다음 혜택의 자격요건에 해당될 수 있습니다

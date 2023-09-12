@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
@@ -117,7 +118,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).contains("autofocus");
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
   }
 
   @Test
@@ -127,6 +128,34 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
 
     DivTag result = renderer.render(params);
 
-    assertThat(result.render()).doesNotContain("autofocus");
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void applicantSelectedQuestionNameMatch_hasAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("question name"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).contains(Attr.AUTOFOCUS);
+  }
+
+  @Test
+  public void applicantSelectedQuestionParamsNameMismatch_hasNoAutoFocus() {
+    params =
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setQuestionName(Optional.of("wrong name"))
+            .build();
+
+    DivTag result = renderer.render(params);
+
+    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
   }
 }

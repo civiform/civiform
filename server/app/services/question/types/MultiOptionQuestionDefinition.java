@@ -106,6 +106,15 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
   }
 
   /**
+   * Get the admin names of the question's options.
+   *
+   * @return a list of option admin names.
+   */
+  public ImmutableList<String> getOptionsAdminName() {
+    return this.questionOptions.stream().map(QuestionOption::adminName).collect(toImmutableList());
+  }
+
+  /**
    * Attempt to get question options for the given locale. If there aren't options for the given
    * locale, it will return the options for the default locale.
    */

@@ -168,6 +168,8 @@ def generate_markdown(
                 out += "**Admin writeable**\n\n"
             elif var.mode == env_var_docs.parser.Mode.ADMIN_READABLE:
                 out += "**Admin readable**\n\n"
+            elif var.mode == env_var_docs.parser.Mode.SECRET:
+                out += "**Managed secret**\n\n"
             else:
                 out += "**Server setting**\n\n"
 

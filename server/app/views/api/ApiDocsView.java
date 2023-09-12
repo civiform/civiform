@@ -19,7 +19,6 @@ import static services.export.JsonPrettifier.asPrettyJsonString;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.OptionTag;
@@ -32,12 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.CfJsonDocumentContext;
 import services.TranslationNotFoundException;
-import services.export.JsonExporter;
 import services.export.ProgramJsonSampler;
 import services.program.ProgramDefinition;
-import services.question.LocalizedQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.BaseHtmlLayout;
@@ -55,20 +51,17 @@ public class ApiDocsView extends BaseHtmlView {
   private final BaseHtmlLayout unauthenticatedlayout;
   private final AdminLayout authenticatedlayout;
   private final ProgramJsonSampler programJsonSampler;
-  private final JsonExporter jsonExporter;
 
   @Inject
   public ApiDocsView(
       ProfileUtils profileUtils,
       BaseHtmlLayout unauthenticatedlayout,
       AdminLayoutFactory layoutFactory,
-      ProgramJsonSampler programJsonSampler,
-      JsonExporter jsonExporter) {
+      ProgramJsonSampler programJsonSampler) {
     this.profileUtils = profileUtils;
     this.unauthenticatedlayout = unauthenticatedlayout;
     this.authenticatedlayout = layoutFactory.getLayout(NavPage.API_DOCS);
     this.programJsonSampler = programJsonSampler;
-    this.jsonExporter = jsonExporter;
   }
 
   public Content render(
@@ -164,12 +157,7 @@ public class ApiDocsView extends BaseHtmlView {
 
   private DivTag apiResponseSampleDiv(ProgramDefinition programDefinition) {
     DivTag apiResponseSampleDiv = div();
-    CfJsonDocumentContext sampleJson = programJsonSampler.getSampleJson(programDefinition);
-
-    String sampleJsonString = sampleJson.asJsonString();
-    String fullJsonResponsePreview =
-        jsonExporter.wrapPayloadJson(
-            sampleJsonString, /* paginationTokenPayload= */ Optional.empty());
+    String fullJsonResponsePreview = programJsonSampler.getSampleJson(programDefinition);
     String fullJsonResponsePreviewPretty = asPrettyJsonString(fullJsonResponsePreview);
 
     apiResponseSampleDiv.with(
@@ -244,12 +232,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private static String getOptionsString(MultiOptionQuestionDefinition questionDefinition) {
-    ImmutableList<LocalizedQuestionOption> options =
-        questionDefinition.getOptionsForDefaultLocale();
-    ImmutableList<String> optionsText =
-        options.stream().map(LocalizedQuestionOption::optionText).collect(toImmutableList());
-
-    return "\"" + String.join("\", \"", optionsText) + "\"";
+    return "\"" + String.join("\", \"", questionDefinition.getOptionsAdminName()) + "\"";
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {

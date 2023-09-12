@@ -1,5 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull} from './util'
+import {AccordionController as Accordion} from './accordion'
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -54,10 +55,23 @@ class PreviewController {
   ]
   private static accordionContentClasses = [
     'cf-accordion-content',
-    'h-0',
-    'overflow-hidden',
+    'h-auto',
+    'mt-2',
+    'mb-1',
   ]
-  private static accordionHeaderClasses = ['cf-accordion-header', 'relative']
+  private static accordionHeaderClasses = [
+    'cf-accordion-header',
+    'flex',
+    'justify-between',
+    'relative',
+    'w-full',
+    'bg-white',
+    'text-black',
+    'px-0',
+    'py-0',
+    'border-0',
+    'hover:bg-gray-100',
+  ]
   private static accordionTitleClasses = ['text-xl', 'font-light']
 
   private static accordionContent = '>'
@@ -265,6 +279,13 @@ class PreviewController {
         text,
       )
     }
+    // Add the ability for the accordion to expand and collapse on click
+    const accordionHeaderElement = document.querySelector(
+      '.cf-accordion-header',
+    )
+    if (accordionHeaderElement) {
+      new Accordion(accordionHeaderElement as HTMLElement)
+    }
   }
 
   private static updateFromNewQuestionHelpText(helpText: string) {
@@ -406,13 +427,11 @@ class PreviewController {
       accordion.classList.add(accordionClass),
     )
 
-    const accordionHeader = document.createElement('div')
-    accordionHeader.addEventListener('click', (event: Event) => {
-      const parentAccordion = (event.target as Element).closest('.cf-accordion')
-      if (parentAccordion) {
-        parentAccordion.classList.toggle('cf-accordion-visible')
-      }
-    })
+    const accordionHeader = document.createElement('button')
+    accordionHeader.setAttribute('aria-controls', 'cf-accordion-content')
+    accordionHeader.setAttribute('aria-expanded', 'false')
+    accordionHeader.setAttribute('type', 'button')
+
     this.accordionHeaderClasses.forEach((headerClass) =>
       accordionHeader.classList.add(headerClass),
     )
@@ -429,6 +448,7 @@ class PreviewController {
 
     accordion.appendChild(accordionHeader)
 
+    childContent.setAttribute('id', 'cf-accordion-content')
     this.accordionContentClasses.forEach((contentClass) =>
       childContent.classList.add(contentClass),
     )

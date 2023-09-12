@@ -21,14 +21,17 @@ import repository.VersionRepository;
 public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;
+  protected final ApiPayloadWrapper apiPayloadWrapper;
 
   @Inject
   public CiviFormApiController(
       ApiPaginationTokenSerializer apiPaginationTokenSerializer,
+      ApiPayloadWrapper apiPayloadWrapper,
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.apiPaginationTokenSerializer = checkNotNull(apiPaginationTokenSerializer);
+    this.apiPayloadWrapper = checkNotNull(apiPayloadWrapper);
   }
 
   /**

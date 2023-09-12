@@ -36,19 +36,19 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final Provider<UserRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
 
   public CiviformOidcProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> accountRepositoryProvider) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
+    this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider);
+        new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
   }
 
   protected abstract String emailAttributeName();
@@ -179,7 +179,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
 
     Optional<Applicant> applicantOpt =
-        applicantRepositoryProvider
+        accountRepositoryProvider
             .get()
             .lookupApplicantByAuthorityId(authorityId)
             .toCompletableFuture()
@@ -193,7 +193,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // authority ID and will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
     logger.debug("Looking up user using email {}", userEmail);
-    return applicantRepositoryProvider
+    return accountRepositoryProvider
         .get()
         .lookupApplicantByEmail(userEmail)
         .toCompletableFuture()

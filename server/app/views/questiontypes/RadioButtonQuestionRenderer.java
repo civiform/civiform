@@ -12,6 +12,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -55,7 +56,8 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
                                 singleOptionQuestion.optionIsSelected(option),
                                 hasErrors,
                                 isOptional,
-                                params.errorDisplayMode())));
+                                params.errorDisplayMode(),
+                                params.questionName())));
 
     return radioQuestionFormContent;
   }
@@ -66,13 +68,10 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       boolean checked,
       boolean hasErrors,
       boolean isOptional,
-      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode) {
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      Optional<String> questionName) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
-    LabelTag labelTag =
-        label()
-            .withFor(id)
-            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
     InputTag inputTag =
         input()
             .withId(id)
@@ -80,6 +79,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
+            .condAttr(applicantSelectedQuestion(questionName), Attr.AUTOFOCUS, "")
             .condAttr(hasErrors, "aria-invalid", "true")
             .condAttr(
                 errorDisplayMode.equals(
@@ -89,6 +89,13 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .condAttr(!isOptional, "aria-required", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 
+    LabelTag labelTag =
+        label()
+            .withFor(id)
+            .withClasses("inline-block", "w-full", "h-full")
+            .with(inputTag)
+            .with(span(option.optionText()).withClasses(ReferenceClasses.MULTI_OPTION_VALUE));
+
     return div()
         .withClasses(
             "my-2",
@@ -97,7 +104,6 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             ReferenceClasses.RADIO_OPTION,
             BaseStyles.RADIO_LABEL,
             checked ? BaseStyles.BORDER_SEATTLE_BLUE : "")
-        .with(inputTag)
         .with(labelTag);
   }
 }

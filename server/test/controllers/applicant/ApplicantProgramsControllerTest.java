@@ -7,13 +7,13 @@ import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
-import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import controllers.WithMockedProfiles;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import models.Account;
@@ -38,6 +38,7 @@ import support.ProgramBuilder;
 public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
+  private Applicant applicantWithoutProfile;
   private ApplicantProgramsController controller;
   private VersionRepository versionRepository;
 
@@ -46,13 +47,24 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resetDatabase();
     controller = instanceOf(ApplicantProgramsController.class);
     currentApplicant = createApplicantWithMockedProfile();
+    applicantWithoutProfile = createApplicant();
   }
 
   @Test
-  public void index_differentApplicant_returnsUnauthorizedResult() {
+  public void index_differentApplicant_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.index(request, currentApplicant.id + 1).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void index_applicantWithoutProfile_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.index(request, applicantWithoutProfile.id).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -205,21 +217,47 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void edit_differentApplicant_returnsUnauthorizedResult() {
+  public void view_applicantWithoutProfile_redirectsToHome() {
+    Program program = resourceCreator().insertActiveProgram("program");
+
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+        controller
+            .view(request, applicantWithoutProfile.id, program.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
-  public void edit_applicantAccessToDraftProgram_returnsUnauthorized() {
+  public void edit_differentApplicant_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.edit(request, currentApplicant.id + 1, 1L).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_applicantWithoutProfile_redirectsToHome() {
+    Request request = addCSRFToken(requestBuilderWithSettings()).build();
+    Result result =
+        controller.edit(request, applicantWithoutProfile.id, 1L).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
+  public void edit_applicantAccessToDraftProgram_redirectsToHome() {
     Program draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
         controller.edit(request, currentApplicant.id, draftProgram.id).toCompletableFuture().join();
 
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
   }
 
   @Test
@@ -273,7 +311,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "1")
+            routes.ApplicantProgramBlocksController.edit(
+                    currentApplicant.id, program.id, "1", /* questionName= */ Optional.empty())
                 .url());
   }
 
@@ -302,7 +341,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.ApplicantProgramBlocksController.edit(currentApplicant.id, program.id, "2")
+            routes.ApplicantProgramBlocksController.edit(
+                    currentApplicant.id, program.id, "2", /* questionName= */ Optional.empty())
                 .url());
   }
 

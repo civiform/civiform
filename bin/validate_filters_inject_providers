@@ -1,0 +1,6 @@
+#! /usr/bin/env bash
+
+# DOC: Checks that Filter classes use a Provider<> for injecting dependencies that rely on database access.
+
+find ./server/app/filters -name "*.java" \
+  | ./bin/lib/validate_filters_inject_providers.py

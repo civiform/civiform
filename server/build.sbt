@@ -34,16 +34,16 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.122",
-      "software.amazon.awssdk" % "ses" % "2.20.122",
+      "software.amazon.awssdk" % "s3" % "2.20.145",
+      "software.amazon.awssdk" % "ses" % "2.20.145",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.9.2",
-      "com.azure" % "azure-storage-blob" % "12.22.3",
+      "com.azure" % "azure-identity" % "1.10.1",
+      "com.azure" % "azure-storage-blob" % "12.23.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
-      "com.h2database" % "h2" % "2.2.220" % Test,
+      "com.h2database" % "h2" % "2.2.222" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "0.6.1",
@@ -57,7 +57,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "32.1.1-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.1.2-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -76,11 +76,11 @@ lazy val root = (project in file("."))
       "org.pac4j" % "pac4j-saml" % "5.7.1",
 
       // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.11.0",
+      "org.apache.shiro" % "shiro-crypto-cipher" % "1.12.0",
 
       // Autovalue
-      "com.google.auto.value" % "auto-value-annotations" % "1.10.2",
-      "com.google.auto.value" % "auto-value" % "1.10.2",
+      "com.google.auto.value" % "auto-value-annotations" % "1.10.4",
+      "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.21.1",
@@ -92,7 +92,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.15",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.20",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.5",

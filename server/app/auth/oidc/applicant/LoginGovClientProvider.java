@@ -26,14 +26,14 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   public LoginGovClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> accountRepositoryProvider) {
+    super(configuration, profileFactory, accountRepositoryProvider);
   }
 
   @Override
   @VisibleForTesting
   public String attributePrefix() {
-    return "login_gov";
+    return "login_gov.";
   }
 
   @Override
@@ -44,7 +44,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
         config,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        accountRepositoryProvider,
         "email",
         /*localeAttributeName*/ null,
         nameAttrs);

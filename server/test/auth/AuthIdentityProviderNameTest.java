@@ -11,28 +11,54 @@ import org.junit.Test;
 public class AuthIdentityProviderNameTest {
 
   @Test
-  public void fromConfig_returnsDisabledWhenEmpty() {
-    assertThat(AuthIdentityProviderName.fromConfig(ConfigFactory.empty()))
+  public void fromConfig_applicantReturnsDisabledWhenEmpty() {
+    assertThat(AuthIdentityProviderName.applicantIdentityProviderfromConfig(ConfigFactory.empty()))
         .isEqualTo(AuthIdentityProviderName.IDCS_APPLICANT);
   }
 
   @Test
-  public void fromConfig_returnsValidValue() {
+  public void fromConfig_applicantReturnsValidValue() {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
                 AuthIdentityProviderName.AUTH_APPLICANT_CONFIG_PATH,
                 AuthIdentityProviderName.GENERIC_OIDC_APPLICANT.getValue()));
-    assertThat(AuthIdentityProviderName.fromConfig(config))
+    assertThat(AuthIdentityProviderName.applicantIdentityProviderfromConfig(config))
         .isEqualTo(AuthIdentityProviderName.GENERIC_OIDC_APPLICANT);
   }
 
   @Test
-  public void fromConfig_throwsErrorWithInvalidName() {
+  public void fromConfig_applicantThrowsErrorWithInvalidName() {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(AuthIdentityProviderName.AUTH_APPLICANT_CONFIG_PATH, "bla-bla-bla"));
-    assertThatThrownBy(() -> AuthIdentityProviderName.fromConfig(config))
+    assertThatThrownBy(() -> AuthIdentityProviderName.applicantIdentityProviderfromConfig(config))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void fromConfig_adminReturnsDisabledWhenEmpty() {
+    assertThat(AuthIdentityProviderName.adminIdentityProviderfromConfig(ConfigFactory.empty()))
+        .isEqualTo(AuthIdentityProviderName.ADFS_ADMIN);
+  }
+
+  @Test
+  public void fromConfig_adminReturnsValidValue() {
+    Config config =
+        ConfigFactory.parseMap(
+            ImmutableMap.of(
+                AuthIdentityProviderName.AUTH_ADMIN_CONFIG_PATH,
+                AuthIdentityProviderName.GENERIC_OIDC_ADMIN.getValue()));
+    assertThat(AuthIdentityProviderName.adminIdentityProviderfromConfig(config))
+        .isEqualTo(AuthIdentityProviderName.GENERIC_OIDC_ADMIN);
+  }
+
+  @Test
+  public void fromConfig_adminThrowsErrorWithInvalidName() {
+    Config config =
+        ConfigFactory.parseMap(
+            ImmutableMap.of(AuthIdentityProviderName.AUTH_ADMIN_CONFIG_PATH, "bla-bla-bla"));
+    assertThatThrownBy(() -> AuthIdentityProviderName.adminIdentityProviderfromConfig(config))
         .isInstanceOf(IllegalArgumentException.class);
   }
 }

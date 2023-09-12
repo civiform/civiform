@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import repository.UserRepository;
 
 /**
- * This class provides the base applicant OIDC implementation. It's abstract because AD and other
+ * This class provides the base user OIDC implementation. It's abstract because AD and other
  * providers need slightly different implementations and profile creators, and use different config
  * values.
  */
@@ -31,16 +31,16 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final Provider<UserRepository> accountRepositoryProvider;
   protected final String baseUrl;
 
   public OidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> accountRepositoryProvider) {
     this.civiformConfig = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
-    this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
+    this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
 
     this.baseUrl =
         getBaseConfigurationValue("base_url")
@@ -48,7 +48,9 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   }
 
   /*
-   * The prefix used in the application.conf for retriving oidc options.
+   * The prefix used in the application.conf for retrieving oidc options.
+   *
+   * If a '.' is intended to be included in the attribute name, it must be included at the end of the prefix.
    */
   protected abstract String attributePrefix();
 
@@ -98,27 +100,31 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected abstract ImmutableList<String> getExtraScopes();
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Whether the `state` CSRF parameter should be set in the requests.
+   */
+  protected abstract boolean getUseCsrf();
+
+  /*
+   * Helper function for retrieving values from the application.conf,
+   * prepended with <attributePrefix>
    */
   protected final Optional<String> getConfigurationValue(String suffix) {
-    String name = attributePrefix() + "." + suffix;
+    String name = attributePrefix() + suffix;
     return getBaseConfigurationValue(name);
   }
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf,
+   * prepended with <attributePrefix>
    */
   protected final String getConfigurationValueOrThrow(String suffix) {
-    String name = attributePrefix() + "." + suffix;
+    String name = attributePrefix() + suffix;
     return getBaseConfigurationValue(name)
         .orElseThrow(() -> new RuntimeException(name + " must be set"));
   }
 
   /*
-   * Helper function for retriving values from the application.conf,
-   * prepended with "<attributePrefix>."
+   * Helper function for retrieving values from the application.conf.
    */
   protected final Optional<String> getBaseConfigurationValue(String name) {
     if (civiformConfig.hasPath(name)) {
@@ -137,7 +143,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
 
   /*
    * Helper function for combining the default and additional scopes,
-   * and return them in the space-seperated string required bu OIDC.
+   * and return them in the space-separated string required by OIDC.
    */
   @VisibleForTesting
   public final String getScopesAttribute() {
@@ -194,7 +200,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     config.setResponseType(responseType);
 
     config.setUseNonce(true);
-    config.setWithState(false);
+    config.setWithState(getUseCsrf());
 
     config.setScope(scope);
     return config;

@@ -498,10 +498,29 @@ public class QuestionDefinitionTest {
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config,
-            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.withDefaultValue(""))),
+            ImmutableList.of(
+                QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue(""))),
             MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option questions cannot have blank options"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withBlankOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(QuestionOption.create(1L, "", LocalizedStrings.withDefaultValue("a"))),
+            MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option questions cannot have blank admin names"));
   }
 
   @Test
@@ -515,13 +534,52 @@ public class QuestionDefinitionTest {
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
-            QuestionOption.create(2L, LocalizedStrings.withDefaultValue("a")));
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.withDefaultValue("a")));
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Multi-option question options must be unique"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withDuplicateOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt1", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Multi-option question admin names must be unique"));
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withUniqueOptionAdminNames_doesNotReturnError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate()).isEmpty();
   }
 
   private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {
@@ -587,8 +645,8 @@ public class QuestionDefinitionTest {
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, LocalizedStrings.withDefaultValue("a")),
-            QuestionOption.create(2L, LocalizedStrings.withDefaultValue("b")));
+            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "opt2", LocalizedStrings.withDefaultValue("b")));
 
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(

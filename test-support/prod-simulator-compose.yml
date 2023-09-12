@@ -22,4 +22,3 @@ services:
       - SECRET_KEY=notarealsecret
       - IDCS_CLIENT_ID=client
       - IDCS_SECRET=notarealsecret
-      - ADMIN_SETTINGS_PANEL_ENABLED=true

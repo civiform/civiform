@@ -22,23 +22,24 @@ Resources:
 ## Release
 
 - [ ] Choose a new version number in the format `vX.Y.Z`. If any of the following apply to the release, bump the minor version (Y). Otherwise, bump the patch version (Z). Do not bump the major version (X) without discussing with #engineering, as this will need more extensive communication and planning.
-
   - A brand new feature (both when adding the feature behind a feature flag, and when removing the feature flag)
   - New APIs or API version (e.g. `/v2/` in the path instead of `/v1/`)
   - A database evolution
   - File key naming changes
   - Changes to other stateful parts of the application (i.e. changes to the format of things stored in the database not necessarily requiring an evolution)
   - Config setting addition or removal
-
 - [ ] Create a Draft Release by 12 PT Wed
 - [ ] Contact Matthew Sprenke for QA on Slack
 - [ ] If Matthew is unavailable have the general team attempt a best-effort QA.
 - [ ] After QA, publish the release
 - [ ] Email release notes
+  - The email should include both a link to the release notes on GitHub, and a sentence or two summarizing what is in the release. It should be friendly to non-technical readers (think CiviForm and Program Admins). Feel free to use phrases like "small usability improvements" rather than listing each improvement. Edit the GitHub release notes and add this small summary to the top of it as well.
 
 ## General
 
 - [ ] Create an Oncall issue for the next rotation, and assign to the next oncall
 - [ ] Check Security lists daily
 - [ ] Check #ci Slack channel daily to monitor failed pushes
-- [ ] Check [Dependency updates](https://github.com/civiform/civiform/pulls/app%2Frenovate) once
+- [ ] Check [Dependency Dashboard](https://github.com/civiform/civiform/issues/2124) once
+  - This issue is one that Renovate creates and updates with what it is currently tracking. Check this for any rate-limited dependencies and check the box to create them.
+  - For any problematic dependency updates that break tests, add the "needs-triage" label so Exygy can prioritize fixing these issues.

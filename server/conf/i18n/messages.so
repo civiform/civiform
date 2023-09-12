@@ -22,8 +22,10 @@ validation.isRequired=Su''aashan ayaa loo baahan yahay.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
 content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
+content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
-toast.errorMessageOutline=Error: {0}
+toast.errorMessageOutline=Khalad: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -137,7 +139,7 @@ content.confirmed=Waad ku mahadsan tahay inaad soo gudbisay codsiga {0}. Codsiga
 title.createAnAccount=Akoon samee ama gal oo sign in garee
 content.pleaseCreateAccount=Haddii aad hadda gasho city akoonka, macluumaadkaaga waa la kaydin doonaa oo waxaad awoodi doontaa inaad soo noqoto wakhti kasta si aad u buuxiso codsiyada mustaqbalka. Haddii aanad hore u lahayn akoon, bogga galitaanka internetka ayaa kuu ogolaanaya inaad isdiiwaangeliso. Ma lumin doontid wax xog ah oo aad hore u gelisay.
 content.generalLoginModalPrompt=Maad soo gelin koonto. Markaadan koonto qabin awood uma yeelan doontid inaad wax ka beddesho codsiga, hubiso heerka codsigaaga ama codsato dheefaha kale si degdeg ah.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=Ka hor inta aanad sii wadin, soo gal{0} koontadaada ama samayso koonto. Waxaad awood u yeelan doontaa inaad codsato dheefo badan addoona gelineynin isla macluumaadka mar kale. Waxaad sidoo kale wax ka beddeli kartaa codsiyadaada oo hubin kartaa heerarka codsigaagu marayo.
 button.continueWithoutAnAccount=Sii soco koonto la'aan
 title.commonIntakeConfirmation=Faa'iidooyinka aad u qalmi karto
 title.commonIntakeConfirmationTi=Faa'iidooyinka macmiilkaagu u qalmi karo

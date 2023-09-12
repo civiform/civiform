@@ -131,6 +131,31 @@ class TestGenerateMarkdown(unittest.TestCase):
             self.assertEqual(gotErrors, [])
             self.assertEqual(got, textwrap.dedent(expected))
 
+    def test_secret_var_doc(self):
+        input = """
+        {
+            "MY_VAR": {
+                "description": "A var.",
+                "type": "string",
+                "mode": "SECRET"
+            }
+        }
+        """
+        expected = """\
+        # MY_VAR
+
+        **Managed secret**
+
+        A var.
+
+        - Type: string
+
+        """
+        with io.StringIO(input) as f:
+            got, gotErrors = generate_markdown(f)
+            self.assertEqual(gotErrors, [])
+            self.assertEqual(got, textwrap.dedent(expected))
+
     def test_doc_with_required(self):
         input = """
         {

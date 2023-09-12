@@ -9,7 +9,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,7 +27,6 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
-import services.question.LocalizedQuestionOption;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionType;
@@ -310,8 +308,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .setOriginalFileName(originalFileName)
                 .setTimestamp(timestamp.orElse(AnswerData.TIMESTAMP_NOT_SET))
                 .setIsPreviousResponse(isPreviousResponse)
-                .setScalarAnswersInDefaultLocale(
-                    getScalarAnswers(applicantQuestion, LocalizedStrings.DEFAULT_LOCALE))
+                .setScalarAnswersInDefaultLocale(getScalarAnswers(applicantQuestion))
                 .build();
         builder.add(data);
       }
@@ -452,17 +449,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
    * ApplicantQuestion}. Answers do not include metadata.
    */
   // TODO(#4872): remove this method.
-  private ImmutableMap<Path, String> getScalarAnswers(ApplicantQuestion question, Locale locale) {
+  private ImmutableMap<Path, String> getScalarAnswers(ApplicantQuestion question) {
     switch (question.getType()) {
       case DROPDOWN:
       case RADIO_BUTTON:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.SELECTION),
-            question
-                .createSingleSelectQuestion()
-                .getSelectedOptionValue(locale)
-                .map(LocalizedQuestionOption::optionText)
-                .orElse(""));
+            question.createSingleSelectQuestion().getSelectedOptionAdminName().orElse(""));
       case CURRENCY:
         CurrencyQuestion currencyQuestion = question.createCurrencyQuestion();
         return ImmutableMap.of(
@@ -472,12 +465,10 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             question.getContextualizedPath().join(Scalar.SELECTIONS),
             question
                 .createMultiSelectQuestion()
-                .getSelectedOptionsValue(locale)
+                .getSelectedOptionsAdminName()
                 .map(
                     selectedOptions ->
-                        selectedOptions.stream()
-                            .map(LocalizedQuestionOption::optionText)
-                            .collect(Collectors.joining(", ", "[", "]")))
+                        selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
                 .orElse(""));
       case FILEUPLOAD:
         return ImmutableMap.of(
