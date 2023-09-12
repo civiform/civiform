@@ -219,6 +219,7 @@ public class Question extends BaseModel {
                     QuestionOption.create(
                         Long.valueOf(i),
                         Long.valueOf(i),
+                        optionText,
                         LocalizedStrings.of(firstKey, optionText)))
             .collect(toImmutableList());
 

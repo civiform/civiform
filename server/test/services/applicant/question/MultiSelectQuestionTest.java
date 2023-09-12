@@ -25,10 +25,6 @@ import services.question.types.QuestionDefinitionConfig;
 
 public class MultiSelectQuestionTest {
 
-  // TODO(#4862): Once the admin name is assignable and different then the
-  //  default locale's text, test getSelectedOptionsAdminName() returns it instead
-  //  of the default locale's text.
-
   private static final QuestionDefinitionConfig CONFIG =
       QuestionDefinitionConfig.builder()
           .setName("name")
@@ -46,10 +42,10 @@ public class MultiSelectQuestionTest {
 
   private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "valid")),
-          QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "ok")),
-          QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "third")),
-          QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "fourth")));
+          QuestionOption.create(1L, "uno", LocalizedStrings.of(Locale.US, "valid")),
+          QuestionOption.create(2L, "dos", LocalizedStrings.of(Locale.US, "ok")),
+          QuestionOption.create(3L, "tres", LocalizedStrings.of(Locale.US, "third")),
+          QuestionOption.create(4L, "cuatro", LocalizedStrings.of(Locale.US, "fourth")));
 
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.CHECKBOX);
@@ -165,6 +161,22 @@ public class MultiSelectQuestionTest {
     MultiSelectQuestion multiSelectQuestion = applicantQuestion.createMultiSelectQuestion();
 
     assertThat(multiSelectQuestion.getValidationErrors().isEmpty()).isTrue();
+  }
+
+  @Test
+  public void getSelectedOptionsAdminName_getsAdminNames() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 0, 1L);
+    QuestionAnswerer.answerMultiSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
+
+    Optional<ImmutableList<String>> adminNames =
+        applicantQuestion.createMultiSelectQuestion().getSelectedOptionsAdminName();
+
+    assertThat(adminNames).isPresent();
+    assertThat(adminNames.get()).containsExactlyInAnyOrder("uno", "dos");
   }
 
   @Test

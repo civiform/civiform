@@ -165,7 +165,7 @@ public class QuestionTest extends ResetPostgres {
             .setQuestionHelpText(LocalizedStrings.empty())
             .setQuestionOptions(
                 ImmutableList.of(
-                    QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))))
+                    QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option"))))
             .build();
     Question question = new Question(definition);
 
@@ -179,7 +179,8 @@ public class QuestionTest extends ResetPostgres {
 
     assertThat(multiOption.getOptions())
         .isEqualTo(
-            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option"))));
+            ImmutableList.of(
+                QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option"))));
     assertThat(multiOption.getEnumeratorId()).hasValue(123L);
   }
 

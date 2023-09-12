@@ -21,7 +21,7 @@ public abstract class QuestionOption {
   @JsonProperty("id")
   public abstract long id();
 
-  /** The immutable admin name for this option. */
+  /** The immutable identifier for this option, used to reference it in the API and predicates. */
   @JsonProperty("adminName")
   public abstract String adminName();
 
@@ -42,21 +42,61 @@ public abstract class QuestionOption {
   public static QuestionOption jsonCreator(
       @JsonProperty("id") long id,
       @JsonProperty(value = "displayOrder", defaultValue = "-1L") long displayOrder,
+      @JsonProperty("adminName") String adminName,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
       @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText) {
     if (displayOrder == -1) {
       displayOrder = id;
     }
     if (localizedOptionText != null) {
-      return QuestionOption.create(id, displayOrder, localizedOptionText);
+      return QuestionOption.create(id, displayOrder, adminName, localizedOptionText);
     }
-    return QuestionOption.create(id, displayOrder, LocalizedStrings.create(legacyOptionText));
+    return QuestionOption.create(
+        id, displayOrder, adminName, LocalizedStrings.create(legacyOptionText));
   }
 
-  /** Create a QuestionOption. */
+  /**
+   * Create a {@link QuestionOption}.
+   *
+   * @param id the option id
+   * @param displayOrder the option display
+   * @param adminName the option's immutable admin name, exposed via the API
+   * @param optionText the option's user-facing text
+   * @return the {@link QuestionOption}
+   */
+  public static QuestionOption create(
+      long id, long displayOrder, String adminName, LocalizedStrings optionText) {
+    return QuestionOption.builder()
+        .setId(id)
+        .setAdminName(adminName)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.of(displayOrder))
+        .build();
+  }
+
+  /**
+   * Create a {@link QuestionOption}.
+   *
+   * @param id the option id
+   * @param adminName the option's immutable admin name, exposed via the API
+   * @param optionText the option's user-facing text
+   * @return the {@link QuestionOption}
+   */
+  public static QuestionOption create(long id, String adminName, LocalizedStrings optionText) {
+    return QuestionOption.builder()
+        .setId(id)
+        .setAdminName(adminName)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.empty())
+        .build();
+  }
+
+  /**
+   * Create a QuestionOption.
+   *
+   * <p>TODO(#4862): Deprecate this method.
+   */
   public static QuestionOption create(long id, long displayOrder, LocalizedStrings optionText) {
-    // TODO(#4862): Get the adminName from the user, instead of defaulting it to the default
-    // locale's option text.
     String adminName = optionText.maybeGet(Locale.getDefault()).orElse(String.valueOf(id));
 
     return QuestionOption.builder()
@@ -67,10 +107,12 @@ public abstract class QuestionOption {
         .build();
   }
 
-  /** Create a QuestionOption. */
+  /**
+   * Create a QuestionOption.
+   *
+   * <p>TODO(#4862): Deprecate this method.
+   */
   public static QuestionOption create(long id, LocalizedStrings optionText) {
-    // TODO(#4862): Get the adminName from the user, instead of defaulting it to the default
-    // locale's option text.
     String adminName = optionText.maybeGet(Locale.getDefault()).orElse(String.valueOf(id));
 
     return QuestionOption.builder()
@@ -98,11 +140,12 @@ public abstract class QuestionOption {
     try {
       String localizedText = optionText().get(locale);
       return LocalizedQuestionOption.create(
-          id(), displayOrder().orElse(id()), localizedText, locale);
+          id(), displayOrder().orElse(id()), adminName(), localizedText, locale);
     } catch (TranslationNotFoundException e) {
       return LocalizedQuestionOption.create(
           id(),
           displayOrder().orElse(id()),
+          adminName(),
           optionText().getDefault(),
           LocalizedStrings.DEFAULT_LOCALE);
     }

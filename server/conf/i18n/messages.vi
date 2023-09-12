@@ -22,8 +22,10 @@ validation.isRequired=Đây là câu hỏi bắt buộc.
 validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
 validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
+content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
-toast.errorMessageOutline=Error: {0}
+toast.errorMessageOutline=Lỗi: {0}
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -137,7 +139,7 @@ content.confirmed=Cảm ơn bạn đã đăng ký tham gia {0}. Chúng tôi đã
 title.createAnAccount=Tạo tài khoản hoặc đăng nhập
 content.pleaseCreateAccount=Nếu bây giờ bạn đăng nhập vào tài khoản của thành phố, thông tin của bạn sẽ được lưu lại và bạn có thể trở lại bất cứ lúc nào để hoàn tất các đơn đăng ký sau này. Nếu chưa có tài khoản, bạn có thể đăng ký ở trang đăng nhập. Dữ liệu bạn đã nhập sẽ không bị mất.
 content.generalLoginModalPrompt=Bạn chưa đăng nhập vào tài khoản nào. Nếu không đăng nhập vào tài khoản, bạn sẽ không thể chỉnh sửa đơn đăng ký, kiểm tra trạng thái của đơn đăng ký, hoặc đăng ký các phúc lợi khác một cách nhanh chóng.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=Trước khi tiếp tục, hãy đăng nhập vào tài khoản {0}  của bạn hoặc tạo một tài khoản. Bạn sẽ có thể đăng ký nhiều phúc lợi mà không cần phải nhập lại cùng một thông tin. Bạn cũng có thể chỉnh sửa đơn đăng ký và kiểm tra trạng thái của đơn đăng ký.
 button.continueWithoutAnAccount=Tiếp tục mà không dùng tài khoản
 title.commonIntakeConfirmation=Phúc lợi bạn có thể đủ tiêu chuẩn nhận
 title.commonIntakeConfirmationTi=Phúc lợi khách hàng của bạn có thể đủ tiêu chuẩn nhận

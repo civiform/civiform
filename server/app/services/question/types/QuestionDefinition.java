@@ -226,21 +226,33 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
       }
 
+      if (multiOptionQuestionDefinition.getOptionsAdminName().stream().anyMatch(String::isEmpty)) {
+        errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
+      }
+
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));
       }
 
       int numOptions = multiOptionQuestionDefinition.getOptions().size();
-      int numUniqueOptionDefaultValues =
+      long numUniqueOptionDefaultValues =
           multiOptionQuestionDefinition.getOptions().stream()
               .map(QuestionOption::optionText)
               .map(LocalizedStrings::getDefault)
               .distinct()
-              .mapToInt(s -> 1)
-              .sum();
+              .count();
       if (numUniqueOptionDefaultValues != numOptions) {
         errors.add(CiviFormError.of("Multi-option question options must be unique"));
+      }
+
+      long numUniqueOptionAdminNames =
+          multiOptionQuestionDefinition.getOptions().stream()
+              .map(QuestionOption::adminName)
+              .distinct()
+              .count();
+      if (numUniqueOptionAdminNames != numOptions) {
+        errors.add(CiviFormError.of("Multi-option question admin names must be unique"));
       }
 
       OptionalInt minChoicesRequired =

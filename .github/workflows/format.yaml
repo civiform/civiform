@@ -17,17 +17,17 @@ jobs:
   formatting:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - id: file_changes
-        uses: tj-actions/changed-files@v36
+        uses: tj-actions/changed-files@v39
         with:
           json: 'true'
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Run bin/fmt
         env:

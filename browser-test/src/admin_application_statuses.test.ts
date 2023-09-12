@@ -138,9 +138,8 @@ describe('view program statuses', () => {
 
       it('when confirmed, the page is redirected with a success toast and preserves the selected application', async () => {
         const {adminPrograms} = ctx
-        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-          noEmailStatusName,
-        )
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(noEmailStatusName)
         expect(await modal.innerText()).toContain(
           `Status Change: Unset -> ${noEmailStatusName}`,
         )
@@ -164,9 +163,8 @@ describe('view program statuses', () => {
 
       it('when no email is configured for the applicant, a warning is shown', async () => {
         const {adminPrograms} = ctx
-        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-          emailStatusName,
-        )
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
         expect(await modal.innerText()).toContain(
           'will not receive an email for this change since they have not provided an email address.',
         )
@@ -176,9 +174,8 @@ describe('view program statuses', () => {
       it('when changing status, the previous status is shown', async () => {
         const {adminPrograms} = ctx
         expect(await adminPrograms.getStatusOption()).toBe(noEmailStatusName)
-        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-          emailStatusName,
-        )
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
         expect(await modal.innerText()).toContain(
           `Status Change: ${noEmailStatusName} -> ${emailStatusName}`,
         )
@@ -191,9 +188,8 @@ describe('view program statuses', () => {
           'Guest',
           noEmailStatusName,
         )
-        const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-          emailStatusName,
-        )
+        const modal =
+          await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
         await adminPrograms.confirmStatusUpdateModal(modal)
         await adminPrograms.expectApplicationHasStatusString(
           'Guest',
@@ -213,9 +209,8 @@ describe('view program statuses', () => {
           const emailsBefore = supportsEmailInspection()
             ? await extractEmailsForRecipient(page, testUserDisplayName())
             : []
-          const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-            emailStatusName,
-          )
+          const modal =
+            await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
           const notifyCheckbox = await modal.$('input[type=checkbox]')
           if (!notifyCheckbox) {
             throw new Error('Expected a checkbox input')
@@ -240,9 +235,8 @@ describe('view program statuses', () => {
           const emailsBefore = supportsEmailInspection()
             ? await extractEmailsForRecipient(page, testUserDisplayName())
             : []
-          const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-            emailStatusName,
-          )
+          const modal =
+            await adminPrograms.setStatusOptionAndAwaitModal(emailStatusName)
           const notifyCheckbox = await modal.$('input[type=checkbox]')
           if (!notifyCheckbox) {
             throw new Error('Expected a checkbox input')
@@ -397,9 +391,8 @@ describe('view program statuses', () => {
 
       // Approve guest application
       await adminPrograms.viewApplicationForApplicant('Guest')
-      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-        approvedStatus,
-      )
+      const modal =
+        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatus)
       expect(await modal.innerText()).toContain(
         `Status Change: ${waitingStatus} -> ${approvedStatus}`,
       )
@@ -508,13 +501,11 @@ describe('view program statuses', () => {
         applicationStatusOption:
           AdminPrograms.NO_STATUS_APPLICATION_FILTER_OPTION,
       })
-      const noStatusFilteredCsvContent = await adminPrograms.getCsv(
-        applyFilters,
-      )
+      const noStatusFilteredCsvContent =
+        await adminPrograms.getCsv(applyFilters)
       expect(noStatusFilteredCsvContent).toContain(favoriteColorAnswer)
-      const noStatusFilteredJsonContent = await adminPrograms.getJson(
-        applyFilters,
-      )
+      const noStatusFilteredJsonContent =
+        await adminPrograms.getJson(applyFilters)
       expect(noStatusFilteredJsonContent.length).toEqual(1)
       expect(
         noStatusFilteredJsonContent[0].application.statusesfavecolorq.text,
@@ -525,15 +516,13 @@ describe('view program statuses', () => {
       await adminPrograms.filterProgramApplications({
         applicationStatusOption: approvedStatusName,
       })
-      const approvedStatusFilteredCsvContent = await adminPrograms.getCsv(
-        applyFilters,
-      )
+      const approvedStatusFilteredCsvContent =
+        await adminPrograms.getCsv(applyFilters)
       expect(approvedStatusFilteredCsvContent).not.toContain(
         favoriteColorAnswer,
       )
-      const approvedStatusFilteredJsonContent = await adminPrograms.getJson(
-        applyFilters,
-      )
+      const approvedStatusFilteredJsonContent =
+        await adminPrograms.getJson(applyFilters)
       expect(approvedStatusFilteredJsonContent.length).toEqual(0)
     })
 
@@ -542,9 +531,8 @@ describe('view program statuses', () => {
       // Explicitly set a status for the application.
       await adminPrograms.viewApplications(programForFilteringName)
       await adminPrograms.viewApplicationForApplicant('Guest')
-      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-        approvedStatusName,
-      )
+      const modal =
+        await adminPrograms.setStatusOptionAndAwaitModal(approvedStatusName)
       await adminPrograms.confirmStatusUpdateModal(modal)
 
       // Excluded when filtering to applications without statuses.
@@ -582,9 +570,8 @@ describe('view program statuses', () => {
         applicationStatusOption: approvedStatusName,
       })
       await adminPrograms.viewApplicationForApplicant('Guest')
-      const modal = await adminPrograms.setStatusOptionAndAwaitModal(
-        rejectedStatusName,
-      )
+      const modal =
+        await adminPrograms.setStatusOptionAndAwaitModal(rejectedStatusName)
       await adminPrograms.confirmStatusUpdateModal(modal)
 
       // The application should no longer be in the list, since its status is no longer "approved".

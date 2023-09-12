@@ -144,7 +144,7 @@ public class PredicateExpressionNodeTest {
     assertThat(node.toDisplayString(ImmutableList.of(multiOption, date)))
         .isEqualTo(
             String.format(
-                "\"%s\" selection is one of [chocolate, strawberry]"
+                "\"%s\" selection is one of [Chocolate, Strawberry]"
                     + " or \"%s\" date is earlier than 2021-01-01",
                 multiOption.getName(), date.getName()));
   }
