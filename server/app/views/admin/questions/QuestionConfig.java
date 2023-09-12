@@ -235,6 +235,8 @@ public final class QuestionConfig {
                   LocalizedQuestionOption.create(
                       multiOptionQuestionForm.getOptionIds().get(i),
                       optionIndex,
+                      // TODO(#4862): Use the admin name from the form here
+                      multiOptionQuestionForm.getOptions().get(i),
                       multiOptionQuestionForm.getOptions().get(i),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
@@ -246,7 +248,12 @@ public final class QuestionConfig {
           multiOptionQuestionField(
               Optional.of(
                   LocalizedQuestionOption.create(
-                      -1, optionIndex, newOption, LocalizedStrings.DEFAULT_LOCALE)),
+                      -1,
+                      optionIndex,
+                      // TODO(#4862): Use the admin name from the form here
+                      newOption,
+                      newOption,
+                      LocalizedStrings.DEFAULT_LOCALE)),
               messages,
               /* isForNewOption= */ true));
       optionIndex++;
