@@ -7,7 +7,8 @@
  *  - Rare instances in which we need to update a page without refreshing.
  *  - TBD
  */
-import {addEventListenerToElements, assertNotNull} from './util'
+
+import {addEventListenerToElements, assertNotNull, debounce} from './util'
 
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
@@ -301,6 +302,30 @@ export function init() {
         'question-settings',
       )
     })
+  }
+
+  const formatQuestionName = (unformatted: string) => {
+    const formatted = unformatted
+      .toLowerCase()
+      .replace(/[^a-zA-Z ]/g, '')
+      .replace(/\s/g, '_')
+    return formatted
+  }
+
+  // Give a live preview of how the question name will be formatted in exports
+  const questionNameInput = document.getElementById('question-name-input')
+  if (questionNameInput) {
+    questionNameInput.addEventListener(
+      'input',
+      debounce((event: Event) => {
+        const formattedOutput: HTMLElement | null =
+          document.getElementById('formatted-name')
+        const target = event.target as HTMLInputElement
+        if (formattedOutput && target) {
+          formattedOutput.innerText = formatQuestionName(target.value)
+        }
+      }),
+    )
   }
 
   // Bind click handler for remove options in multi-option edit view

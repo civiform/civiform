@@ -338,9 +338,15 @@ public final class QuestionEditView extends BaseHtmlView {
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.
-    formTag.with(
-        h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
-        administrativeNameField(questionForm.getQuestionName(), !forCreate));
+    formTag
+        .with(
+            h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
+            administrativeNameField(questionForm.getQuestionName(), !forCreate))
+        .condWith(
+            forCreate,
+            p().withId("question-name-preview")
+                .withClasses("text-xs", "text-gray-500", "pb-3")
+                .with(span("Visible in the API as: "), span("").withId("formatted-name")));
     if (!forCreate) {
       formTag.with(
           input()
@@ -525,8 +531,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .setToolTipText(
             "This will be used to identify questions in the API and CSV export.  It will be"
                 + " formatted so that white spaces are replaced with underscores, uppercase"
-                + " letters are converted to lowercase and hyphens are stripped.  For example,"
-                + " \"My Question Name\" will appear as \"my_question_name\" in the API export.")
+                + " letters are converted to lowercase and all non-alphabetic characters are"
+                + " stripped.")
         .setToolTipIcon(Icons.INFO)
         .setRequired(true)
         .setValue(adminName)
