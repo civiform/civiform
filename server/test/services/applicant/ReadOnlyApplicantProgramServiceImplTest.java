@@ -1079,7 +1079,7 @@ public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
                 ApplicantData.APPLICANT_PATH
                     .join(multiSelectQuestionDefinition.getQuestionPathSegment())
                     .join(Scalar.SELECTIONS),
-                "[toaster, pepper grinder]"));
+                "[toaster, pepper_grinder]"));
 
     // check file answer
     assertThat(result.get(5).questionIndex()).isEqualTo(0);

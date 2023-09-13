@@ -173,7 +173,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 Path.create("applicant.sample_checkbox_question.question_type"),
                 Optional.of("MULTI_SELECT"),
                 Path.create("applicant.sample_checkbox_question.selections"),
-                Optional.of(Arrays.asList("toaster", "pepper grinder"))));
+                Optional.of(Arrays.asList("toaster", "pepper_grinder"))));
   }
 
   @Test
@@ -245,7 +245,7 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 Path.create("applicant.sample_radio_button_question.question_type"),
                 Optional.of("SINGLE_SELECT"),
                 Path.create("applicant.sample_radio_button_question.selection"),
-                Optional.of("winter (will hide next block)")));
+                Optional.of("winter")));
   }
 
   @Test

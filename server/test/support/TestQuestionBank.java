@@ -265,9 +265,11 @@ public class TestQuestionBank {
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "toaster")),
-            QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "pepper grinder")),
-            QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "garlic press")));
+            QuestionOption.create(1L, 1L, "toaster", LocalizedStrings.of(Locale.US, "Toaster")),
+            QuestionOption.create(
+                2L, 2L, "pepper_grinder", LocalizedStrings.of(Locale.US, "Pepper Grinder")),
+            QuestionOption.create(
+                3L, 3L, "garlic_press", LocalizedStrings.of(Locale.US, "Garlic Press")));
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
@@ -287,10 +289,11 @@ public class TestQuestionBank {
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "chocolate")),
-            QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "strawberry")),
-            QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "vanilla")),
-            QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "coffee")));
+            QuestionOption.create(1L, 1L, "chocolate", LocalizedStrings.of(Locale.US, "Chocolate")),
+            QuestionOption.create(
+                2L, 2L, "strawberry", LocalizedStrings.of(Locale.US, "Strawberry")),
+            QuestionOption.create(3L, 3L, "vanilla", LocalizedStrings.of(Locale.US, "Vanilla")),
+            QuestionOption.create(4L, 4L, "coffee", LocalizedStrings.of(Locale.US, "Coffee")));
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.DROPDOWN);
@@ -488,10 +491,10 @@ public class TestQuestionBank {
             .build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, 1L, LocalizedStrings.of(Locale.US, "winter")),
-            QuestionOption.create(2L, 2L, LocalizedStrings.of(Locale.US, "spring")),
-            QuestionOption.create(3L, 3L, LocalizedStrings.of(Locale.US, "summer")),
-            QuestionOption.create(4L, 4L, LocalizedStrings.of(Locale.US, "fall")));
+            QuestionOption.create(1L, 1L, "winter", LocalizedStrings.of(Locale.US, "Winter")),
+            QuestionOption.create(2L, 2L, "spring", LocalizedStrings.of(Locale.US, "Spring")),
+            QuestionOption.create(3L, 3L, "summer", LocalizedStrings.of(Locale.US, "Summer")),
+            QuestionOption.create(4L, 4L, "fall", LocalizedStrings.of(Locale.US, "Fall")));
     QuestionDefinition definition =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);

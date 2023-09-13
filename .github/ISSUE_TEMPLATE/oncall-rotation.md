@@ -15,7 +15,7 @@ Please check off all items at their appropriate times during your rotation.
 Resources:
 
 - [Oncall Guide](https://docs.civiform.us/governance-and-management/project-management/on-call-guide#on-call-responsibilities)
-- [Release Guide](https://docs.civiform.us/contributor-guide/developer-guide/releasing)
+- [Release Guide](https://github.com/civiform/civiform/wiki/Releasing)
 
 # Task list:
 
