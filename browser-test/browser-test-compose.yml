@@ -20,11 +20,13 @@ services:
       - 9999:9000
     environment:
       - CIVIFORM_APPLICANT_IDP=idcs
+      - APPLICANT_AUTH_PROTOCOL=oidc
       - IDCS_CLIENT_ID=idcs-fake-oidc-client
       - IDCS_SECRET=idcs-fake-oidc-secret
       - IDCS_DISCOVERY_URI=http://dev-oidc:3390/.well-known/openid-configuration
       - APPLICANT_REGISTER_URI=http://dev-oidc:3390/
       - CIVIFORM_ADMIN_IDP=adfs
+      - ADMIN_AUTH_PROTOCOL=oidc
       - DB_JDBC_STRING=jdbc:postgresql://database:5432/postgres
       - BASE_URL=${BASE_URL:-http://civiform:9000}
       - LOCALSTACK_URL=http://localhost.localstack.cloud:4566

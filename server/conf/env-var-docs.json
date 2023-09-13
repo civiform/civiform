@@ -46,6 +46,12 @@
             ],
             "required": true
           },
+          "APPLICANT_AUTH_PROTOCOL": {
+            "mode": "ADMIN_READABLE",
+            "description": "The protocol used to authenticate applicants.",
+            "type": "string",
+            "values": ["oidc", "saml"]
+          },
           "APPLICANT_REGISTER_URI": {
             "mode": "ADMIN_READABLE",
             "description": "URI to create a new account in the applicant identity provider.",
@@ -232,6 +238,12 @@
             "type": "string",
             "values": ["adfs", "generic-oidc-admin"],
             "required": false
+          },
+          "ADMIN_AUTH_PROTOCOL": {
+            "mode": "ADMIN_READABLE",
+            "description": "The protocol used to authenticate administrators.",
+            "type": "string",
+            "values": ["oidc"]
           },
           "Active Directory Federation Services": {
             "group_description": "Configuration options for the [ADFS](https://docs.civiform.us/contributor-guide/developer-guide/authentication-providers#azure-a-d-and-adfs-oidc) provider.",

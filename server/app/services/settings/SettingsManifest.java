@@ -70,6 +70,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("CIVIFORM_APPLICANT_IDP");
   }
 
+  /** The protocol used to authenticate applicants. */
+  public Optional<String> getApplicantAuthProtocol() {
+    return getString("APPLICANT_AUTH_PROTOCOL");
+  }
+
   /** URI to create a new account in the applicant identity provider. */
   public Optional<String> getApplicantRegisterUri() {
     return getString("APPLICANT_REGISTER_URI");
@@ -285,6 +290,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** What identity provider to use for admins. */
   public Optional<String> getCiviformAdminIdp() {
     return getString("CIVIFORM_ADMIN_IDP");
+  }
+
+  /** The protocol used to authenticate administrators. */
+  public Optional<String> getAdminAuthProtocol() {
+    return getString("ADMIN_AUTH_PROTOCOL");
   }
 
   /**
@@ -1115,6 +1125,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                   "auth0",
                                   "disabled")),
                           SettingDescription.create(
+                              "APPLICANT_AUTH_PROTOCOL",
+                              "The protocol used to authenticate applicants.",
+                              /* isRequired= */ false,
+                              SettingType.ENUM,
+                              SettingMode.ADMIN_READABLE,
+                              ImmutableList.of("oidc", "saml")),
+                          SettingDescription.create(
                               "APPLICANT_REGISTER_URI",
                               "URI to create a new account in the applicant identity provider.",
                               /* isRequired= */ false,
@@ -1273,7 +1290,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               /* isRequired= */ false,
                               SettingType.ENUM,
                               SettingMode.ADMIN_READABLE,
-                              ImmutableList.of("adfs", "generic-oidc-admin")))),
+                              ImmutableList.of("adfs", "generic-oidc-admin")),
+                          SettingDescription.create(
+                              "ADMIN_AUTH_PROTOCOL",
+                              "The protocol used to authenticate administrators.",
+                              /* isRequired= */ false,
+                              SettingType.ENUM,
+                              SettingMode.ADMIN_READABLE,
+                              ImmutableList.of("oidc")))),
                   SettingsSection.create(
                       "Database",
                       "Configures the connection to the PostgreSQL database.",
