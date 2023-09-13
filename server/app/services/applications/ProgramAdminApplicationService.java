@@ -16,6 +16,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ApplicationEventRepository;
+import repository.ApplicationRepository;
 import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
@@ -46,6 +47,7 @@ public final class ProgramAdminApplicationService {
   private final String stagingApplicantNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final MessagesApi messagesApi;
+  private final ApplicationRepository applicationRepository;
 
   @Inject
   ProgramAdminApplicationService(
@@ -56,13 +58,15 @@ public final class ProgramAdminApplicationService {
       Config configuration,
       SimpleEmail emailClient,
       DeploymentType deploymentType,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      ApplicationRepository applicationRepository) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationService = checkNotNull(applicationService);
     this.userRepository = checkNotNull(userRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
     this.messagesApi = checkNotNull(messagesApi);
+    this.applicationRepository = checkNotNull(applicationRepository);
 
     checkNotNull(configuration);
     checkNotNull(deploymentType);
@@ -219,6 +223,7 @@ public final class ProgramAdminApplicationService {
   }
 
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    return applicationService.getApplication(applicationId, program).toCompletableFuture().join();
+    return applicationService.getApplication(
+        applicationRepository.getApplication(applicationId).toCompletableFuture().join(), program);
   }
 }

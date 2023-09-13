@@ -813,7 +813,7 @@ public final class ApplicantService {
    */
   public CompletionStage<ApplicationPrograms> relevantProgramsForApplicant(
       long applicantId, CiviFormProfile requesterProfile) {
-    // Note: The Program model associated with the application is eagerly loaded.
+    // Note: The Program model associated with the application is eagerly loaded.F
     CompletableFuture<ImmutableSet<Application>> applicationsFuture =
         applicationRepository
             .getApplicationsForApplicant(

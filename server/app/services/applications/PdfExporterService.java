@@ -5,8 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.inject.Inject;
 import com.itextpdf.text.DocumentException;
 import java.io.IOException;
-import java.util.Optional;
-
 import models.Application;
 import services.export.PdfExporter;
 

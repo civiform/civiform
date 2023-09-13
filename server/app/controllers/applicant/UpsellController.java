@@ -11,11 +11,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import models.Account;
 import models.Application;
-import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -193,35 +191,39 @@ public final class UpsellController extends CiviFormController {
             () -> new NoSuchElementException("User authorized as applicant but no profile found"));
 
     CompletableFuture<Account> account =
-      profile.getAccount().thenApplyAsync(v -> checkApplicantAuthorization(request,applicantId),httpContext.current())
-        .thenComposeAsync(v -> profile.getAccount(),httpContext.current())
-        .toCompletableFuture();
+        new CompletableFuture<>()
+            .thenApplyAsync(
+                v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
+            .thenComposeAsync(v -> profile.getAccount(), httpContext.current())
+            .toCompletableFuture();
 
-    CompletableFuture<Optional<Application>> applicationMaybe =  applicationService.getApplication(applicationId, program).toCompletableFuture();
+    CompletableFuture<Optional<Application>> applicationMaybe =
+        applicationService.getApplication(applicationId, program).toCompletableFuture();
 
-    return CompletableFuture.allOf( applicationMaybe, program,account)
+    return CompletableFuture.allOf(applicationMaybe, program, account)
         .thenApplyAsync(
-          check -> {
-            PdfExporter.InMemoryPdf pdf = pdfExporterService.generatePdf(applicationMaybe.join().get());
+            check -> {
+              PdfExporter.InMemoryPdf pdf =
+                  pdfExporterService.generatePdf(applicationMaybe.join().get());
 
-            return ok(pdf.getByteArray())
-              .as("application/pdf")
-              .withHeader(
-                "Content-Disposition", String.format("attachment; filename=\"%s\"", pdf.getFileName()));
-          }).exceptionally(
-        ex -> {
-          if (ex instanceof CompletionException) {
-            Throwable cause = ex.getCause();
-            if (cause instanceof SecurityException) {
-              return unauthorized();
-            }
-            if (cause instanceof ProgramNotFoundException) {
-              return notFound(cause.toString());
-            }
-          }
-          throw new RuntimeException(ex);
-        });
-
+              return ok(pdf.getByteArray())
+                  .as("application/pdf")
+                  .withHeader(
+                      "Content-Disposition",
+                      String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+            })
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+              }
+              throw new RuntimeException(ex);
+            });
   }
 }
-
