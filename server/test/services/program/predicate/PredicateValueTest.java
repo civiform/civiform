@@ -78,7 +78,7 @@ public class PredicateValueTest {
 
     PredicateValue value = PredicateValue.listOfStrings(ImmutableList.of("1", "2"));
 
-    assertThat(value.toDisplayString(multiOption)).isEqualTo("[Chocolate, Strawberry]");
+    assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, strawberry]");
   }
 
   @Test
@@ -88,7 +88,7 @@ public class PredicateValueTest {
 
     PredicateValue value = PredicateValue.of("1");
 
-    assertThat(value.toDisplayString(multiOption)).isEqualTo("Toaster");
+    assertThat(value.toDisplayString(multiOption)).isEqualTo("toaster");
   }
 
   @Test
@@ -98,7 +98,7 @@ public class PredicateValueTest {
     PredicateValue value =
         PredicateValue.listOfStrings(ImmutableList.of("1", "100")); // 100 is not a valid ID
 
-    assertThat(value.toDisplayString(multiOption)).isEqualTo("[Chocolate, <obsolete>]");
+    assertThat(value.toDisplayString(multiOption)).isEqualTo("[chocolate, <obsolete>]");
   }
 
   @Test
