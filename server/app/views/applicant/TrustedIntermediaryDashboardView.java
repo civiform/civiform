@@ -78,7 +78,7 @@ public class TrustedIntermediaryDashboardView extends BaseHtmlView {
                 h2(tiGroup.getDescription()).withClasses("ml-2"),
                 hr(),
                 renderHeader("Add Client"),
-                BaseHtmlView.requiredFieldsExplanationContent(),
+                requiredFieldsExplanationContent(),
                 renderAddNewForm(tiGroup, request),
                 hr().withClasses("mt-6"),
                 renderHeader("Clients"),

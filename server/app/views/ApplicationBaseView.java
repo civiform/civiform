@@ -2,11 +2,14 @@ package views;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -136,8 +139,9 @@ public class ApplicationBaseView extends BaseHtmlView {
    * @param messages the localized {@link Messages} for the current applicant
    * @return PTag containing requiredness text.
    */
-  public PTag requiredFieldsExplanationContent(Messages messages) {
-    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
+  public static PTag requiredFieldsExplanationContent(Messages messages) {
+    SpanTag redAsterisk = span("*").withClass("text-red-700");
+    return p(rawHtml(messages.at(MessageKey.REQUIRED_FIELDS_NOTE.getKeyName(), redAsterisk)))
         .withClasses("text-sm", "text-gray-600", "mb-2");
   }
 }
