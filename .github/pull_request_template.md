@@ -10,7 +10,7 @@ The title of the pull request will be used as the default release notes descript
 
 #### General
 
-Read the full guidelines for PRs [here](https://docs.civiform.us/contributor-guide/developer-guide/technical-contribution-guide#guidelines-for-pull-requests)
+Read the full guidelines for PRs [here](https://github.com/civiform/civiform/wiki/Technical-contribution-guide#creating-a-pull-request)
 
 - [ ] Added the correct label: < feature | bug | dependencies | infrastructure | ignore-for-release | database >
 - [ ] Created unit and/or browser tests which fail without the change (if possible)
@@ -19,7 +19,7 @@ Read the full guidelines for PRs [here](https://docs.civiform.us/contributor-gui
 
 #### User visible changes
 
-- [ ] Followed steps to [internationalize new strings](https://docs.civiform.us/contributor-guide/developer-guide/internationalization-i18n#internationalization-for-application-strings)
+- [ ] Followed steps to [internationalize new strings](https://github.com/civiform/civiform/wiki/Internationalization-%28i18n%29#internationalization-for-application-strings)
 - [ ] Wrote browser tests using the [validateAccessibility](https://sourcegraph.com/github.com/civiform/civiform/-/blob/browser-test/src/support/index.ts?L437:14&subtree=true) method
 - [ ] Tested on mobile view. See [mobile device mode](https://developer.chrome.com/docs/devtools/device-mode/)
 - [ ] Manually tested at 200% size
@@ -28,7 +28,7 @@ Read the full guidelines for PRs [here](https://docs.civiform.us/contributor-gui
 #### New Features
 
 - [ ] Add new FeatureFlag env vars to `server/conf/helper/feature-flags.conf`
-- [ ] Conditioned new functionality on a [FeatureFlag](https://docs.civiform.us/contributor-guide/developer-guide/feature-flags)
+- [ ] Conditioned new functionality on a [FeatureFlag](https://github.com/civiform/civiform/wiki/Feature-Flags)
 - [ ] Wrote browser tests with the feature flag off and on, etc.
 
 ### Instructions for manual testing
