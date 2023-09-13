@@ -33,9 +33,9 @@ public class SingleSelectQuestionTest {
   private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
       ImmutableList.of(
           QuestionOption.create(
-              1L, LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
+              1L, "opt1", LocalizedStrings.of(Locale.US, "option 1", Locale.FRANCE, "un")),
           QuestionOption.create(
-              2L, LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux")));
+              2L, "opt2", LocalizedStrings.of(Locale.US, "option 2", Locale.FRANCE, "deux")));
 
   private static final MultiOptionQuestionDefinition dropdownQuestionDefinition =
       new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.DROPDOWN);
@@ -58,8 +58,8 @@ public class SingleSelectQuestionTest {
 
     assertThat(singleSelectQuestion.getOptions())
         .containsOnly(
-            LocalizedQuestionOption.create(1L, 1L, "option 1", Locale.US),
-            LocalizedQuestionOption.create(2L, 2L, "option 2", Locale.US));
+            LocalizedQuestionOption.create(1L, 1L, "opt1", "option 1", Locale.US),
+            LocalizedQuestionOption.create(2L, 2L, "opt2", "option 2", Locale.US));
     assertThat(applicantQuestion.hasErrors()).isFalse();
   }
 
@@ -74,7 +74,7 @@ public class SingleSelectQuestionTest {
 
     assertThat(singleSelectQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(singleSelectQuestion.getSelectedOptionValue())
-        .hasValue(LocalizedQuestionOption.create(1L, 1L, "option 1", Locale.US));
+        .hasValue(LocalizedQuestionOption.create(1L, 1L, "opt1", "option 1", Locale.US));
   }
 
   @Test
@@ -88,6 +88,20 @@ public class SingleSelectQuestionTest {
 
     assertThat(singleSelectQuestion.getValidationErrors().isEmpty()).isTrue();
     assertThat(singleSelectQuestion.getSelectedOptionValue()).isEmpty();
+  }
+
+  @Test
+  public void getSelectedOptionAdminName_getsAdminName() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dropdownQuestionDefinition, applicantData, Optional.empty());
+    QuestionAnswerer.answerSingleSelectQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), 2L);
+
+    Optional<String> adminNames =
+        applicantQuestion.createSingleSelectQuestion().getSelectedOptionAdminName();
+
+    assertThat(adminNames).isPresent();
+    assertThat(adminNames.get()).isEqualTo("opt2");
   }
 
   @Test

@@ -15,7 +15,7 @@ import repository.UserRepository;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc";
+  private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc.";
   private static final ImmutableList<String> DEFAULT_SCOPES =
       ImmutableList.of("openid", "profile", "email");
 
@@ -65,7 +65,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
         config,
         client,
         profileFactory,
-        applicantRepositoryProvider,
+        accountRepositoryProvider,
         emailAttr,
         localeAttr.orElse(null),
         nameAttrsBuilder.build());
@@ -108,5 +108,11 @@ public class GenericOidcClientProvider extends OidcClientProvider {
       return ImmutableList.of();
     }
     return ImmutableList.copyOf(extraScopesMaybe.get().split(" "));
+  }
+
+  @Override
+  protected boolean getUseCsrf() {
+    // In the future, we may wish to make this configurable, since this is a generic provider.
+    return false;
   }
 }

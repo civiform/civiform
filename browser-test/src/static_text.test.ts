@@ -7,6 +7,7 @@ import {
 
 describe('Static text question for applicant flow', () => {
   const staticText = 'Hello, I am some static text!'
+  const accordionText = '\n### Accordion Title \n> This is some content.'
   const programName = 'Test program for static text'
   const ctx = createTestContext(/* clearDb= */ false)
 
@@ -18,6 +19,7 @@ describe('Static text question for applicant flow', () => {
     await adminQuestions.addStaticQuestion({
       questionName: 'static-text-q',
       questionText: staticText,
+      accordionText: accordionText,
     })
     // Must add an answerable question for text to show.
     await adminQuestions.addEmailQuestion({questionName: 'partner-email-q'})
@@ -25,13 +27,6 @@ describe('Static text question for applicant flow', () => {
       ['static-text-q', 'partner-email-q'],
       programName,
     )
-  })
-
-  it('validate screenshot', async () => {
-    const {page, applicantQuestions} = ctx
-    await applicantQuestions.applyProgram(programName)
-
-    await validateScreenshot(page, 'static-text')
   })
 
   it('displays static text', async () => {
@@ -46,5 +41,32 @@ describe('Static text question for applicant flow', () => {
     await applicantQuestions.applyProgram(programName)
 
     await validateAccessibility(page)
+  })
+
+  describe('accordion', () => {
+    it('exists and is closed by default', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      await page.waitForTimeout(300) // ms
+      await validateScreenshot(page, 'static-text-accordion-closed')
+      expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
+        'cf-accordion',
+      )
+    })
+
+    it('expands when accordion header clicked', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      const headerButton = page.locator('.cf-accordion-header')
+      await headerButton.click()
+
+      // Wait for the accordion to open, so we don't screenshot during the opening,
+      // causing inconsistent screenshots.
+      await page.waitForTimeout(300) // ms
+      await validateScreenshot(page, 'static-text-accordion-open')
+      expect(await headerButton.getAttribute('aria-expanded')).toBe('true')
+    })
   })
 })

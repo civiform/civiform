@@ -34,8 +34,8 @@ POST    /admin/programs/:programId/admins/delete  controllers.admin.ProgramAdmin
 POST    /admin/programs/:programId/admins/add     controllers.admin.ProgramAdminManagementController.add(request: Request, programId: Long)
 
 # Routes for a CiviForm admin to manage application statuses for a given program.
-POST    /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusesController.createOrUpdate(request: Request, programId: Long)
-GET     /admin/programs/:programId/statuses controllers.admin.AdminProgramStatusesController.index(request: Request, programId: Long)
+POST    /admin/programs/:programId/statuses        controllers.admin.AdminProgramStatusesController.createOrUpdate(request: Request, programId: Long)
+GET     /admin/programs/:programId/statuses        controllers.admin.AdminProgramStatusesController.index(request: Request, programId: Long)
 POST    /admin/programs/:programId/statuses/delete controllers.admin.AdminProgramStatusesController.delete(request: Request, programId: Long)
 
 # Routes for managing program localization
@@ -103,15 +103,15 @@ POST    /admin/tiGroups/:id/addApplicant                      controllers.ti.Tru
 POST    /admin/tiGroups/updateDateOfBirth/:accountId          controllers.ti.TrustedIntermediaryController.updateDateOfBirth(accountId: Long, request: Request)
 
 # Controller for admins only, related to applications
-GET     /admin/programs/:programId/applications                           controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])
-GET     /admin/programs/:programId/applications/allJson                   controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
-GET     /admin/programs/:programId/applications/all                       controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
-GET     /admin/programs/:programId/applications/singleVersion             controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
-GET     /admin/programs/:programId/applications/:applicationId            controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
-POST    /admin/programs/:programId/applications/:applicationId/updateStatus            controllers.admin.AdminApplicationController.updateStatus(request: Request, programId: Long, applicationId: Long)
-POST    /admin/programs/:programId/applications/:applicationId/updateNote            controllers.admin.AdminApplicationController.updateNote(request: Request, programId: Long, applicationId: Long)
-GET     /admin/programs/:programId/applications/:applicationId/download   controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
-GET     /admin/demographics                                               controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
+GET     /admin/programs/:programId/applications                             controllers.admin.AdminApplicationController.index(request: Request, programId: Long, search: java.util.Optional[String], page: java.util.Optional[Integer], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], selectedApplicationUri: java.util.Optional[String])
+GET     /admin/programs/:programId/applications/allJson                     controllers.admin.AdminApplicationController.downloadAllJson(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
+GET     /admin/programs/:programId/applications/all                         controllers.admin.AdminApplicationController.downloadAll(request: Request, programId: Long, search: java.util.Optional[String], fromDate: java.util.Optional[String], untilDate: java.util.Optional[String], applicationStatus: java.util.Optional[String], ignoreFilters: java.util.Optional[String])
+GET     /admin/programs/:programId/applications/singleVersion               controllers.admin.AdminApplicationController.downloadSingleVersion(request: Request, programId: Long)
+GET     /admin/programs/:programId/applications/:applicationId              controllers.admin.AdminApplicationController.show(request: Request, programId: Long, applicationId: Long)
+POST    /admin/programs/:programId/applications/:applicationId/updateStatus controllers.admin.AdminApplicationController.updateStatus(request: Request, programId: Long, applicationId: Long)
+POST    /admin/programs/:programId/applications/:applicationId/updateNote   controllers.admin.AdminApplicationController.updateNote(request: Request, programId: Long, applicationId: Long)
+GET     /admin/programs/:programId/applications/:applicationId/download     controllers.admin.AdminApplicationController.download(request: Request, programId: Long, applicationId: Long)
+GET     /admin/demographics                                                 controllers.admin.AdminApplicationController.downloadDemographics(request: Request, fromDate: java.util.Optional[String], untilDate: java.util.Optional[String])
 
 # Admin API key management
 GET     /admin/apiKeys                              controllers.admin.AdminApiKeysController.index(request: Request)
@@ -147,7 +147,7 @@ POST    /applicants/:applicantId                                            cont
 GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.view(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
-GET     /applicants/:applicantId/programs/:programId/review                                   controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
+GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)
 POST    /applicants/:applicantId/programs/:programId/submit                                    controllers.applicant.ApplicantProgramReviewController.submit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/edit                      controllers.applicant.ApplicantProgramBlocksController.edit(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
 GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/review                    controllers.applicant.ApplicantProgramBlocksController.review(request: Request, applicantId: Long, programId: Long, blockId: String, questionName: java.util.Optional[String])
@@ -165,7 +165,7 @@ GET     /api/docs/v1/:programSlug/draft                     controllers.api.ApiD
 
 # Methods for user support incidents
 GET     /support/unconfirmedIdcsEmail  controllers.SupportController.handleUnconfirmedIdcsEmail(request: Request)
-GET     /support/unsupportedBrowser  controllers.SupportController.handleUnsupportedBrowser(request: Request)
+GET     /support/unsupportedBrowser    controllers.SupportController.handleUnsupportedBrowser(request: Request)
 
 # Methods for program admins
 GET     /programAdmin       controllers.admin.ProgramAdminController.index(request: Request)
@@ -217,4 +217,4 @@ GET     /dev/feature/:flag/disable     controllers.dev.FeatureFlagOverrideContro
 GET     /dev/feature/:flag/enable      controllers.dev.FeatureFlagOverrideController.enable(request: Request, flag: String)
 
 ## Prometheus metrics export
-GET         /metrics          controllers.monitoring.MetricsController.getMetrics()
+GET     /metrics          controllers.monitoring.MetricsController.getMetrics()

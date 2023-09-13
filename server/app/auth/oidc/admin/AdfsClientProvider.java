@@ -19,17 +19,17 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
-  private final Provider<UserRepository> applicantRepositoryProvider;
+  private final Provider<UserRepository> userRepositoryProvider;
 
   @Inject
   public AdfsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<UserRepository> userRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
     this.profileFactory = profileFactory;
-    this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.userRepositoryProvider = userRepositoryProvider;
   }
 
   @Override
@@ -78,12 +78,12 @@ public class AdfsClientProvider implements Provider<OidcClient> {
     // combined with the name to create the url.
     client.setCallbackUrl(baseUrl + "/callback");
 
-    // This is specific to the implemention using pac4j. pac4j has concept
+    // This is specific to the implementation using pac4j. pac4j has concept
     // of a profile for different identity profiles we have different creators.
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileCreator(
-            config, client, profileFactory, configuration, applicantRepositoryProvider));
+            config, client, profileFactory, configuration, userRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;

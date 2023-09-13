@@ -70,7 +70,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
-  public void addClient_withInvalidDob() {
+  public void addClient_withMissingDob() {
     Http.RequestBuilder requestBuilder =
         addCSRFToken(
             fakeRequest()
@@ -93,6 +93,33 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
         service.addNewClient(form, tiGroup);
     assertThat(returnedForm.error("dob").get().message()).isEqualTo("Date of Birth required");
+  }
+
+  @Test
+  public void addClient_withInvalidDob() {
+    Http.RequestBuilder requestBuilder =
+        addCSRFToken(
+            fakeRequest()
+                .bodyForm(
+                    ImmutableMap.of(
+                        "firstName",
+                        "first",
+                        "middleName",
+                        "middle",
+                        "lastName",
+                        "last",
+                        "emailAddress",
+                        "sample1@fake.com",
+                        "dob",
+                        "1865-07-07")));
+    Form<AddApplicantToTrustedIntermediaryGroupForm> form =
+        formFactory
+            .form(AddApplicantToTrustedIntermediaryGroupForm.class)
+            .bindFromRequest(requestBuilder.build());
+    Form<AddApplicantToTrustedIntermediaryGroupForm> returnedForm =
+        service.addNewClient(form, tiGroup);
+    assertThat(returnedForm.error("dob").get().message())
+        .isEqualTo("Date of Birth should be less than 150 years ago");
   }
 
   @Test

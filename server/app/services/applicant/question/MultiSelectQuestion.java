@@ -12,6 +12,7 @@ import services.MessageKey;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
 import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 
 /**
@@ -95,6 +96,22 @@ public final class MultiSelectQuestion extends Question {
     return Optional.of(
         getOptions(locale).stream()
             .filter(option -> optionIds.contains(option.id()))
+            .collect(toImmutableList()));
+  }
+
+  public Optional<ImmutableList<String>> getSelectedOptionsAdminName() {
+    Optional<ImmutableList<Long>> maybeSelectedOptionIds =
+        applicantQuestion.getApplicantData().readLongList(getSelectionPath());
+
+    if (maybeSelectedOptionIds.isEmpty()) {
+      return Optional.empty();
+    }
+
+    ImmutableList<Long> selectedOptionIds = maybeSelectedOptionIds.get();
+    return Optional.of(
+        getQuestionDefinition().getOptions().stream()
+            .filter(option -> selectedOptionIds.contains(option.id()))
+            .map(QuestionOption::adminName)
             .collect(toImmutableList()));
   }
 

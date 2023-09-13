@@ -22,6 +22,8 @@ validation.isRequired=Esta pregunta es obligatoria.
 validation.invalidInput=Ingresa una entrada válida.
 validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
 content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
+content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+content.optional=(optional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
 
@@ -137,7 +139,7 @@ content.confirmed=Gracias por solicitar {0}. Recibimos tu solicitud y el ID de l
 title.createAnAccount=Crea una cuenta o accede
 content.pleaseCreateAccount=Si accedes a una cuenta municipal ahora, se guardará tu información y podrás regresar en cualquier momento para completar solicitudes en el futuro. Si no tienes una cuenta, la página de acceso te permitirá registrarte. No perderás los datos que ya ingresaste.
 content.generalLoginModalPrompt=No accediste a una cuenta. Si no tienes una cuenta, no podrás editar solicitudes, verificar el estado de tu solicitud o solicitar otros beneficios rápidamente.
-content.initialLoginModalPrompt=Before you continue, log in to your {0} account or create an account. You''ll be able to apply for many benefits without having to enter the same information again. You can also edit applications and check your application statuses.
+content.initialLoginModalPrompt=Antes de continuar, ingresa a tu cuenta de {0}  o crea una. Podrás solicitar muchos beneficios sin necesidad de volver a ingresar la misma información. También puedes editar tus solicitudes y revisar su estado.
 button.continueWithoutAnAccount=Continuar sin una cuenta
 title.commonIntakeConfirmation=Beneficios para los que reúnes los requisitos
 title.commonIntakeConfirmationTi=Beneficios para los que tu cliente reúne los requisitos

@@ -15,7 +15,7 @@ import repository.UserRepository;
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
 
-  private static final String ATTRIBUTE_PREFIX = "idcs";
+  private static final String ATTRIBUTE_PREFIX = "idcs.";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";
   private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
   private static final String DISCOVERY_URI_CONFIG_NAME = "discovery_uri";
@@ -27,8 +27,8 @@ public final class IdcsClientProvider extends OidcClientProvider {
   public IdcsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+      Provider<UserRepository> accountRepositoryProvider) {
+    super(configuration, profileFactory, accountRepositoryProvider);
   }
 
   @Override
@@ -44,7 +44,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
     return new IdcsApplicantProfileCreator(
-        config, client, profileFactory, applicantRepositoryProvider);
+        config, client, profileFactory, accountRepositoryProvider);
   }
 
   @Override
@@ -89,5 +89,10 @@ public final class IdcsClientProvider extends OidcClientProvider {
   @Override
   protected ImmutableList<String> getExtraScopes() {
     return ImmutableList.of();
+  }
+
+  @Override
+  protected boolean getUseCsrf() {
+    return false;
   }
 }

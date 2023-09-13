@@ -68,6 +68,9 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
                 .put(
                     Path.create("applicant.sample_address_question.longitude"),
                     Optional.of("-123.0236"))
+                .put(
+                    Path.create("applicant.sample_address_question.question_type"),
+                    Optional.of("ADDRESS"))
                 .build());
   }
 
@@ -82,6 +85,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_currency_question.question_type"),
+                Optional.of("CURRENCY"),
                 Path.create("applicant.sample_currency_question.currency_dollars"),
                 Optional.of(123.45)));
   }
@@ -97,7 +102,10 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyEntriesOf(
             ImmutableMap.of(
-                Path.create("applicant.sample_date_question.date"), Optional.of("2023-01-02")));
+                Path.create("applicant.sample_date_question.question_type"),
+                Optional.of("DATE"),
+                Path.create("applicant.sample_date_question.date"),
+                Optional.of("2023-01-02")));
   }
 
   @Test
@@ -111,6 +119,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_email_question.question_type"),
+                Optional.of("EMAIL"),
                 Path.create("applicant.sample_email_question.email"),
                 Optional.of("homer.simpson@springfield.gov")));
   }
@@ -126,6 +136,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_file_upload_question.question_type"),
+                Optional.of("FILE_UPLOAD"),
                 Path.create("applicant.sample_file_upload_question.file_key"),
                 Optional.of("http://localhost:9000/admin/applicant-files/my-file-key")));
   }
@@ -140,7 +152,11 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
 
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
-            ImmutableMap.of(Path.create("applicant.sample_id_question.id"), Optional.of("12345")));
+            ImmutableMap.of(
+                Path.create("applicant.sample_id_question.question_type"),
+                Optional.of("ID"),
+                Path.create("applicant.sample_id_question.id"),
+                Optional.of("12345")));
   }
 
   @Test
@@ -154,8 +170,10 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_checkbox_question.question_type"),
+                Optional.of("MULTI_SELECT"),
                 Path.create("applicant.sample_checkbox_question.selections"),
-                Optional.of(Arrays.asList("toaster", "pepper grinder"))));
+                Optional.of(Arrays.asList("toaster", "pepper_grinder"))));
   }
 
   @Test
@@ -169,6 +187,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.name.question_type"),
+                Optional.of("NAME"),
                 Path.create("applicant.name.first_name"),
                 Optional.of("Homer"),
                 Path.create("applicant.name.middle_name"),
@@ -188,7 +208,10 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
-                Path.create("applicant.sample_number_question.number"), Optional.of(12321L)));
+                Path.create("applicant.sample_number_question.question_type"),
+                Optional.of("NUMBER"),
+                Path.create("applicant.sample_number_question.number"),
+                Optional.of(12321L)));
   }
 
   @Test
@@ -202,6 +225,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_phone_question.question_type"),
+                Optional.of("PHONE"),
                 Path.create("applicant.sample_phone_question.phone_number"),
                 Optional.of("+12143673764")));
   }
@@ -217,8 +242,10 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_radio_button_question.question_type"),
+                Optional.of("SINGLE_SELECT"),
                 Path.create("applicant.sample_radio_button_question.selection"),
-                Optional.of("winter (will hide next block)")));
+                Optional.of("winter")));
   }
 
   @Test
@@ -232,6 +259,8 @@ public class QuestionJsonSamplerTest extends ResetPostgres {
     assertThat(entries)
         .containsExactlyInAnyOrderEntriesOf(
             ImmutableMap.of(
+                Path.create("applicant.sample_text_question.question_type"),
+                Optional.of("TEXT"),
                 Path.create("applicant.sample_text_question.text"),
                 Optional.of("I love CiviForm!")));
   }

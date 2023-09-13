@@ -42,6 +42,7 @@ import views.admin.AdminLayout.NavPage;
 import views.admin.AdminLayoutFactory;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
+import views.components.Icons;
 import views.components.LinkElement;
 import views.components.SelectWithLabel;
 import views.components.ToastMessage;
@@ -521,6 +522,12 @@ public final class QuestionEditView extends BaseHtmlView {
         .setId("question-name-input")
         .setFieldName(QUESTION_NAME_FIELD)
         .setLabelText("Administrative identifier. This value can't be changed later")
+        .setToolTipText(
+            "This will be used to identify questions in the API and CSV export.  It will be"
+                + " formatted so that white spaces are replaced with underscores, uppercase"
+                + " letters are converted to lowercase and hyphens are stripped.  For example,"
+                + " \"My Question Name\" will appear as \"my_question_name\" in the API export.")
+        .setToolTipIcon(Icons.INFO)
         .setRequired(true)
         .setValue(adminName)
         .getInputTag();

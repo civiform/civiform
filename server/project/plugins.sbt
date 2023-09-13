@@ -16,7 +16,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
 addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.4.0")
 
 // Formatting plugin
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
 
 // This is needed per https://eed3si9n.com/sbt-1.8.0-beta
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always

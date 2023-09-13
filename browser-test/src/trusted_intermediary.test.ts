@@ -40,6 +40,24 @@ describe('Trusted intermediaries', () => {
     await tiDashboard.expectDashboardContainClient(updatedClient)
   })
 
+  it('expect client cannot be added with invalid date of birth', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'abc@abc.com',
+      firstName: 'first',
+      middleName: 'middle',
+      lastName: 'last',
+      dobDate: '1870-07-11',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.expectDashboardNotContainClient(client)
+    await validateScreenshot(page, 'dashboard-add-client-invalid-dob')
+  })
+
   it('expect Dashboard Contain New Client', async () => {
     const {page, tiDashboard} = ctx
     await loginAsTrustedIntermediary(page)
@@ -84,6 +102,9 @@ describe('Trusted intermediaries', () => {
     }
     await tiDashboard.createClient(client2)
     await tiDashboard.expectDashboardContainClient(client2)
+    await tiDashboard.expectSuccessToast(
+      `Successfully added new client: ${client2.firstName} ${client2.lastName}`,
+    )
 
     await validateScreenshot(page, 'dashboard-add-clients-no-email')
   })
@@ -116,6 +137,18 @@ describe('Trusted intermediaries', () => {
     await loginAsTrustedIntermediary(page)
     await validateScreenshot(page, 'ti')
   })
+
+  it('dashboard contains required indicator note and optional marker', async () => {
+    const {page} = ctx
+    await loginAsTrustedIntermediary(page)
+    expect(await page.locator('label').nth(0).innerText()).toContain(
+      'Email Address (optional)',
+    )
+    expect(await page.locator('p').nth(1).innerText()).toContain(
+      'Fields marked with a * are required.',
+    )
+  })
+
   it('Applicant sees the program review page fully translated', async () => {
     const {
       page,
