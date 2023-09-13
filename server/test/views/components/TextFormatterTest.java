@@ -258,4 +258,68 @@ public class TextFormatterTest {
     assertThat(nonPreservedContent[2])
         .isEqualTo("<div>This is the third (or sixth) line of content.</div>");
   }
+
+  @Test
+  public void addsBoldFormattingToText() {
+    String stringWithBoldedText = "hello this **b(text should be bold) and this text is not";
+    DomContent formattedText =
+        TextFormatter.maybeAddAdditionalFormatting(
+            stringWithBoldedText, new ImmutableList.Builder<DomContent>());
+    assertThat(formattedText.render())
+        .isEqualTo("<span>hello this <b>text should be bold</b> and this text is not</span>");
+  }
+
+  @Test
+  public void addsItalicizedFormattingToText() {
+    String stringWithBoldedText = "hello this **i(text should be italicized) and this text is not";
+    DomContent formattedText =
+        TextFormatter.maybeAddAdditionalFormatting(
+            stringWithBoldedText, new ImmutableList.Builder<DomContent>());
+    assertThat(formattedText.render())
+        .isEqualTo("<span>hello this <i>text should be italicized</i> and this text is not</span>");
+  }
+
+  @Test
+  public void addsFontSizeToText() {
+    String stringWithBoldedAndItalicizedText =
+        "hello this **s(font should be smaller) and this **l(font should be even larger) and this"
+            + " **x(font should be the largest!)";
+    DomContent formattedText =
+        TextFormatter.maybeAddAdditionalFormatting(
+            stringWithBoldedAndItalicizedText, new ImmutableList.Builder<DomContent>());
+    assertThat(formattedText.render())
+        .isEqualTo(
+            "<span>hello this <span class=\"text-sm\">font should be smaller</span> and this <span"
+                + " class=\"text-lg\">font should be even larger</span> and this <span"
+                + " class=\"text-xl\">font should be the largest!</span></span>");
+  }
+
+  @Test
+  public void handlesMultipleFormattingRules() {
+    String stringWithBoldedAndItalicizedText =
+        "hello this **i(text should be italicized) and this **b(text is bold) and this **l(text"
+            + " should be large)!";
+    DomContent formattedText =
+        TextFormatter.maybeAddAdditionalFormatting(
+            stringWithBoldedAndItalicizedText, new ImmutableList.Builder<DomContent>());
+    assertThat(formattedText.render())
+        .isEqualTo(
+            "<span>hello this <i>text should be italicized</i> and this <b>text is bold</b> and"
+                + " this <span class=\"text-lg\">text should be large</span>!</span>");
+  }
+
+  @Test
+  public void handlesNestedFormattingRules() {
+    String stringWithBoldedAndItalicizedText =
+        "hello this **i(text should be italicized, **b(this text should be italicized and bolded,"
+            + " and **s(this text should be italicized, bolded, and small)))!";
+    DomContent formattedText =
+        TextFormatter.maybeAddAdditionalFormatting(
+            stringWithBoldedAndItalicizedText, new ImmutableList.Builder<DomContent>());
+    assertThat(formattedText.render())
+        .isEqualTo(
+            "<span>hello this <i><span>text should be italicized, <b><span>this text should be"
+                + " italicized and bolded, and <span class=\"text-sm\">this text should be"
+                + " italicized, bolded, and small</span></span></b></span></i>!</span>");
+  }
 }

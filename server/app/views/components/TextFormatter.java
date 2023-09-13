@@ -1,8 +1,11 @@
 package views.components;
 
 import static j2html.TagCreator.a;
+import static j2html.TagCreator.b;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.i;
 import static j2html.TagCreator.li;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
 
@@ -50,6 +53,12 @@ public final class TextFormatter {
   private static final String ACCORDION_CONTENT = ">";
   private static final String ACCORDION_HEADER = "### ";
   private static final String BULLETED_ITEM = "* ";
+  private static final String FORMAT_INDICATOR = "**";
+  private static final char BOLD = 'b';
+  private static final char ITALIC = 'i';
+  private static final char SMALL = 's';
+  private static final char LARGE = 'l';
+  private static final char XLARGE = 'x';
 
   /**
    * Parses plain-text string into rich HTML with clickable links.
@@ -105,8 +114,11 @@ public final class TextFormatter {
       }
 
       if (urlStartIndex > 0) {
+        String contentSubstring = content.substring(0, urlStartIndex);
         // If it's not at the beginning, add the text from before the URL.
-        contentBuilder.add(text(content.substring(0, urlStartIndex)));
+        contentBuilder.add(
+            maybeAddAdditionalFormatting(
+                contentSubstring, new ImmutableList.Builder<DomContent>()));
       }
       // Add the URL.
       var urlTag =
@@ -128,7 +140,8 @@ public final class TextFormatter {
     }
     // If there's content leftover, add it.
     if (!Strings.isNullOrEmpty(content)) {
-      contentBuilder.add(text(content));
+      contentBuilder.add(
+          maybeAddAdditionalFormatting(content, new ImmutableList.Builder<DomContent>()));
     }
     if (addRequiredIndicator) {
       contentBuilder.add(ViewUtils.requiredQuestionIndicator());
@@ -173,6 +186,86 @@ public final class TextFormatter {
       }
     }
     return builder.build();
+  }
+
+  public static boolean needsAdditionalFormatting(String content) {
+    return content.indexOf(FORMAT_INDICATOR) != -1;
+  }
+
+  /** Adds additional formatting to text fields such as bolding, italics, and font size. */
+  public static DomContent maybeAddAdditionalFormatting(
+      String content, ImmutableList.Builder<DomContent> contentBuilder) {
+    if (needsAdditionalFormatting(content)) {
+      int formatStartIndex = content.indexOf(FORMAT_INDICATOR);
+      // Add any text before FORMAT_INDICATOR that doesn't require formatting
+      contentBuilder.add(text(content.substring(0, formatStartIndex)));
+
+      // Find the first substring that requires formatting
+      int openParenIndex = content.indexOf("(");
+      int closingParenIndex = findClosingParen(content.toCharArray(), openParenIndex);
+      String substring = content.substring(openParenIndex + 1, closingParenIndex);
+
+      // Apply the appropriate formatting recursively
+      switch (content.charAt(
+          formatStartIndex
+              + 2)) { // This will be the char indicating what formatting to apply eg. "i", "b",
+          // "l", etc.
+        case BOLD:
+          contentBuilder.add(
+              b(maybeAddAdditionalFormatting(substring, new ImmutableList.Builder<DomContent>())));
+          break;
+        case ITALIC:
+          contentBuilder.add(
+              i(maybeAddAdditionalFormatting(substring, new ImmutableList.Builder<DomContent>())));
+          break;
+        case SMALL:
+          contentBuilder.add(
+              span(maybeAddAdditionalFormatting(substring, new ImmutableList.Builder<DomContent>()))
+                  .withClasses("text-sm"));
+          break;
+        case LARGE:
+          contentBuilder.add(
+              span(maybeAddAdditionalFormatting(substring, new ImmutableList.Builder<DomContent>()))
+                  .withClasses("text-lg"));
+          break;
+        case XLARGE:
+          contentBuilder.add(
+              span(maybeAddAdditionalFormatting(substring, new ImmutableList.Builder<DomContent>()))
+                  .withClasses("text-xl"));
+          break;
+        default:
+          contentBuilder.add(text(substring));
+          break;
+      }
+
+      // Handle the remaining substring
+      if (closingParenIndex + 1 != content.length()) {
+        String remainingSubstring = content.substring(closingParenIndex + 1);
+        if (needsAdditionalFormatting(
+            remainingSubstring)) { // seems like we should be able to take this check out
+          maybeAddAdditionalFormatting(remainingSubstring, contentBuilder);
+        } else {
+          contentBuilder.add(text(remainingSubstring));
+        }
+      }
+      return span().with(contentBuilder.build());
+    } else {
+      return text(content);
+    }
+  }
+
+  private static int findClosingParen(char[] text, int openPos) {
+    int closePos = openPos;
+    int counter = 1;
+    while (counter > 0) {
+      char c = text[++closePos];
+      if (c == '(') {
+        counter++;
+      } else if (c == ')') {
+        counter--;
+      }
+    }
+    return closePos;
   }
 
   private static DivTag buildAccordion(String title, String accordionContent) {
