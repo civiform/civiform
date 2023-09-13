@@ -48,6 +48,7 @@ public final class ApplicationService {
         .thenApplyAsync(
             v -> {
               return getApplication(maybeApplication.join(), program.join());
-            });
+            },
+            httpExecutionContext.current());
   }
 }

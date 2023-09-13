@@ -190,9 +190,12 @@ public final class UpsellController extends CiviFormController {
         profileMaybe.orElseThrow(
             () -> new NoSuchElementException("User authorized as applicant but no profile found"));
 
+    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
+        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
+
     CompletableFuture<Account> account =
-        new CompletableFuture<>()
-            .thenApplyAsync(
+        applicantPersonalInfo
+            .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
             .thenComposeAsync(v -> profile.getAccount(), httpContext.current())
             .toCompletableFuture();
