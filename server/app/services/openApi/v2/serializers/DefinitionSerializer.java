@@ -30,6 +30,10 @@ public final class DefinitionSerializer extends OpenApiSchemaSerializer<Definiti
       writeEnumFieldIfPresent(gen, "format", value.getFormat());
     }
 
+    if (value.getNullable()) {
+      gen.writeBooleanField("x-nullable", value.getNullable());
+    }
+
     // process child schemas
     if (value.getDefinitionType() == DefinitionType.ARRAY) {
       gen.writeObjectFieldStart("items");

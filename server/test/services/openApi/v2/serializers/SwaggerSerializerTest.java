@@ -29,7 +29,7 @@ public class SwaggerSerializerTest extends OpenApiSerializationAsserter {
 
     String expected =
         new YamlFormatter()
-            .appendLine("swagger: 2.0")
+            .appendLine("swagger: \"2.0\"")
             .appendLine("basePath: basePath1")
             .appendLine("host: host1")
             .appendLine("info:")
@@ -57,7 +57,7 @@ public class SwaggerSerializerTest extends OpenApiSerializationAsserter {
 
     String expected =
         new YamlFormatter()
-            .appendLine("swagger: 2.0")
+            .appendLine("swagger: \"2.0\"")
             .appendLine("info:")
             .appendLine("  title: title1")
             .appendLine("  version: version1")

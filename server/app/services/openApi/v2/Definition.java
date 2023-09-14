@@ -24,17 +24,25 @@ public abstract class Definition {
    */
   public abstract Optional<Format> getFormat();
 
+  /**
+   * Swagger 2 does not officially support nullable types, but many vendor tools do under the
+   * x-nullable field name
+   */
+  public abstract Boolean getNullable();
+
   /** Get the child definitions */
   public abstract ImmutableList<Definition> getDefinitions();
 
   public static Definition.Builder builder(String name, DefinitionType definitionType) {
-    return new AutoValue_Definition.Builder().setName(name).setDefinitionType(definitionType);
+    return new AutoValue_Definition.Builder()
+        .setName(name)
+        .setDefinitionType(definitionType)
+        .setNullable(false);
   }
 
   public static Definition.Builder builder(
       String name, DefinitionType definitionType, ImmutableList<Definition> definitions) {
-    Builder result =
-        new AutoValue_Definition.Builder().setName(name).setDefinitionType(definitionType);
+    Builder result = builder(name, definitionType);
 
     for (Definition definition : definitions) {
       result.addDefinition(definition);
@@ -51,10 +59,19 @@ public abstract class Definition {
 
     public abstract Definition.Builder setFormat(Format format);
 
+    public abstract Definition.Builder setNullable(Boolean nullable);
+
     protected abstract ImmutableList.Builder<Definition> definitionsBuilder();
 
     public Definition.Builder addDefinition(Definition definition) {
       definitionsBuilder().add(definition);
+      return this;
+    }
+
+    public Definition.Builder addDefinitions(ImmutableList<Definition> definitions) {
+      for (Definition definition : definitions) {
+        addDefinition(definition);
+      }
       return this;
     }
 

@@ -13,12 +13,14 @@ import services.openApi.OpenApiGenerationException;
 import services.openApi.OpenApiSchemaGenerator;
 import services.openApi.OpenApiSchemaSettings;
 import services.openApi.OpenApiVersion;
+import services.openApi.QuestionDefinitionNode;
 import services.openApi.v2.serializers.Swagger2YamlMapper;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
 public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
@@ -33,7 +35,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     try {
       Swagger swaggerRoot =
           Swagger.builder()
-              .setBasePath("/api/v1/programs/" + programDefinition.slug())
+              .setBasePath("/api/v1/admin/programs/" + programDefinition.slug())
               .setHost(getHostName())
               .setInfo(
                   Info.builder(programDefinition.adminName(), Long.toString(programDefinition.id()))
@@ -82,7 +84,6 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                                       .addParameter(
                                           Parameter.builder(
                                                   "fromDate", In.QUERY, DefinitionType.STRING)
-                                              .setFormat(Format.DATE)
                                               .setDescription(
                                                   "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
                                                       + " Limits results to applications submitted"
@@ -91,7 +92,6 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
                                       .addParameter(
                                           Parameter.builder(
                                                   "toDate", In.QUERY, DefinitionType.STRING)
-                                              .setFormat(Format.DATE)
                                               .setDescription(
                                                   "An ISO-8601 formatted date (i.e. YYYY-MM-DD)."
                                                       + " Limits results to applications submitted"
@@ -183,20 +183,56 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
 
   private ImmutableList<Definition> buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+
+    QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
+
+    return new ArrayList<>(buildApplicationDefinitions(rootNode))
+        .stream()
+            .sorted(Comparator.comparing(Definition::getName))
+            .collect(ImmutableList.toImmutableList());
+  }
+
+  private ImmutableList<Definition> buildApplicationDefinitions(
+      QuestionDefinitionNode parentQuestionDefinitionNode)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     ArrayList<Definition> definitionList = new ArrayList<>();
 
-    for (QuestionDefinition questionDefinition :
-        getQuestionDefinitionsSortedByNameKey(programDefinition)) {
+    for (QuestionDefinitionNode childQuestionDefinitionNode :
+        parentQuestionDefinitionNode.getChildren()) {
+      QuestionDefinition questionDefinition = childQuestionDefinitionNode.getQuestionDefinition();
+
+      if (excludeFromSchemaOutput(questionDefinition)) {
+        continue;
+      }
+
       Definition.Builder containerDefinition =
-          Definition.builder(questionDefinition.getQuestionNameKey(), DefinitionType.OBJECT);
+          Definition.builder(
+              questionDefinition.getQuestionNameKey().toLowerCase(Locale.ROOT),
+              DefinitionType.OBJECT);
 
-      for (Scalar scalar : getScalarsSortedByName(questionDefinition)) {
-        String fieldName = scalar.name().toLowerCase(Locale.ROOT);
-        DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
-        Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
+      containerDefinition.addDefinition(
+          Definition.builder("question_type", DefinitionType.STRING).build());
 
-        containerDefinition.addDefinition(
-            Definition.builder(fieldName, definitionType).setFormat(swaggerFormat).build());
+      if (questionDefinition.getQuestionType() != QuestionType.ENUMERATOR) {
+        for (Scalar scalar : getScalarsSortedByName(questionDefinition)) {
+          String fieldName = scalar.name().toLowerCase(Locale.ROOT);
+          DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
+          Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
+          Boolean nullable = setAsNull(definitionType);
+
+          containerDefinition.addDefinition(
+              Definition.builder(fieldName, definitionType)
+                  .setFormat(swaggerFormat)
+                  .setNullable(nullable)
+                  .build());
+        }
+      } else {
+        Definition enumeratorEntitiesDefinition =
+            Definition.builder("entities", DefinitionType.ARRAY)
+                .addDefinitions(buildApplicationDefinitions(childQuestionDefinitionNode))
+                .build();
+
+        containerDefinition.addDefinition(enumeratorEntitiesDefinition);
       }
 
       definitionList.add(containerDefinition.build());
@@ -205,7 +241,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     return definitionList.stream().collect(ImmutableList.toImmutableList());
   }
 
-  private ImmutableList<QuestionDefinition> getQuestionDefinitionsSortedByNameKey(
+  private QuestionDefinitionNode getQuestionDefinitionRootNode(
       ProgramDefinition programDefinition) {
     ArrayList<QuestionDefinition> list = new ArrayList<>();
 
@@ -215,9 +251,20 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
       }
     }
 
-    return list.stream()
-        .sorted(Comparator.comparing(QuestionDefinition::getQuestionNameKey))
-        .collect(ImmutableList.toImmutableList());
+    // Getting a sorted list to allow placing the enumerator questions
+    // into the tree before the questions that are children to the enumerator
+    var sortedList =
+        list.stream()
+            .sorted(Comparator.comparing(QuestionDefinition::getId))
+            .collect(ImmutableList.toImmutableList());
+
+    QuestionDefinitionNode rootNode = QuestionDefinitionNode.createRootNode();
+
+    for (QuestionDefinition questionDefinition : sortedList) {
+      rootNode.addQuestionDefinition(questionDefinition);
+    }
+
+    return rootNode;
   }
 
   private ImmutableList<Scalar> getScalarsSortedByName(QuestionDefinition questionDefinition)
@@ -266,5 +313,15 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
       default:
         return Format.STRING;
     }
+  }
+
+  private Boolean setAsNull(DefinitionType definitionType) {
+    return definitionType != DefinitionType.ARRAY && definitionType != DefinitionType.OBJECT;
+  }
+
+  /** Rules to determine if a question is included in the schema generation output. */
+  private Boolean excludeFromSchemaOutput(QuestionDefinition questionDefinition) {
+    // Static questions are not in the api results
+    return questionDefinition.getQuestionType() == QuestionType.STATIC;
   }
 }
