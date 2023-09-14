@@ -220,7 +220,7 @@ public final class UpsellController extends CiviFormController {
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof SecurityException) {
-                  return unauthorized();
+                  return unauthorized(cause.toString());
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
