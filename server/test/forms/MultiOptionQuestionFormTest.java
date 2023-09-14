@@ -170,12 +170,6 @@ public class MultiOptionQuestionFormTest {
         (MultiOptionQuestionDefinition) form.getBuilder().build();
 
     assertThat(questionDefinition.getOptionsAdminName())
-        .containsExactly(
-            "one admin",
-            "two admin",
-            // TODO(#4862): Currently the admin name is set to the user-facing text. Once the form
-            // view is updated to support admin names, this test should be updated.
-            "three",
-            "four");
+        .containsExactly("one admin", "two admin", "three admin", "four admin");
   }
 }

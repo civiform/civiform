@@ -34,7 +34,11 @@ describe('Applicant navigation flow', () => {
       })
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'nav-radio-q',
-        options: ['one', 'two', 'three'],
+        options: [
+          {adminName: 'one admin', text: 'one'},
+          {adminName: 'two admin', text: 'two'},
+          {adminName: 'three admin', text: 'three'},
+        ],
       })
       await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
       await adminQuestions.addPhoneQuestion({

@@ -435,7 +435,11 @@ describe('create and edit predicates', () => {
       })
       await adminQuestions.addCheckboxQuestion({
         questionName: 'both sides are lists',
-        options: ['dog', 'rabbit', 'cat'],
+        options: [
+          {adminName: 'dog admin', text: 'dog'},
+          {adminName: 'rabbit admin', text: 'rabbit'},
+          {adminName: 'cat admin', text: 'cat'},
+        ],
       })
       await adminQuestions.addTextQuestion({
         questionName: 'depends on previous',
