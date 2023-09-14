@@ -28,7 +28,7 @@ jobs:
       - name: Run tests
         run: bin/run-test-ci
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: server/code-coverage/report/jacoco.xml
           verbose: true
