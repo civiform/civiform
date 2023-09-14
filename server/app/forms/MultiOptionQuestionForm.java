@@ -25,6 +25,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<String> newOptions;
   // The IDs of each option are not expected to be in any particular order.
   private List<Long> optionIds;
+  private List<String> optionAdminNames;
+  private List<String> newOptionAdminNames;
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
   // optionIds list, we do not store options by order of their IDs.
   private OptionalLong nextAvailableId;
@@ -36,6 +38,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
     this.newOptions = new ArrayList<>();
     this.optionIds = new ArrayList<>();
+    this.optionAdminNames = new ArrayList<>();
+    this.newOptionAdminNames = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
     this.nextAvailableId = OptionalLong.empty();
@@ -49,6 +53,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
     this.newOptions = new ArrayList<>();
     this.optionIds = new ArrayList<>();
+    this.optionAdminNames = new ArrayList<>();
+    this.newOptionAdminNames = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -60,6 +66,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                 option -> {
                   options.add(option.optionText());
                   optionIds.add(option.id());
+                  optionAdminNames.add(option.adminName());
                 });
         this.nextAvailableId =
             OptionalLong.of(
@@ -96,6 +103,22 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   public void setOptionIds(List<Long> optionIds) {
     this.optionIds = optionIds;
+  }
+
+  public List<String> getOptionAdminNames() {
+    return this.optionAdminNames;
+  }
+
+  public void setOptionAdminNames(List<String> optionAdminNames) {
+    this.optionAdminNames = optionAdminNames;
+  }
+
+  public List<String> getNewOptionAdminNames() {
+    return this.newOptionAdminNames;
+  }
+
+  public void setNewOptionAdminNames(List<String> newOptionAdminNames) {
+    this.newOptionAdminNames = newOptionAdminNames;
   }
 
   public OptionalInt getMinChoicesRequired() {
@@ -151,12 +174,18 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
+    Preconditions.checkState(
+        this.optionAdminNames.size() == this.options.size(),
+        "Option admin names and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
-              optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
+              optionIds.get(i),
+              i,
+              optionAdminNames.get(i),
+              LocalizedStrings.withDefaultValue(options.get(i))));
     }
 
     // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
@@ -169,6 +198,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
           QuestionOption.create(
               nextAvailableId.getAsLong() + i,
               options.size() + i,
+              // TODO(#4862): Use the admin name from the form here, once the UI allows setting the
+              // admin name
+              newOptions.get(i),
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();

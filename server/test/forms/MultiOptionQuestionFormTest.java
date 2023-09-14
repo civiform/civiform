@@ -27,6 +27,7 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("1");
     form.setMaxChoicesAllowed("10");
     form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin"));
     form.setOptionIds(ImmutableList.of(4L, 1L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
@@ -42,7 +43,8 @@ public class MultiOptionQuestionFormTest {
         new MultiOptionQuestionDefinition(
             config,
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))),
+                QuestionOption.create(
+                    1L, "opt1 admin", LocalizedStrings.of(Locale.US, "option one"))),
             MultiOptionQuestionType.CHECKBOX);
 
     QuestionDefinition actual = builder.build();
@@ -63,7 +65,8 @@ public class MultiOptionQuestionFormTest {
     MultiOptionQuestionDefinition originalQd =
         new MultiOptionQuestionDefinition(
             config,
-            ImmutableList.of(QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option 1"))),
+            ImmutableList.of(
+                QuestionOption.create(1L, "one admin", LocalizedStrings.of(Locale.US, "option 1"))),
             MultiOptionQuestionType.CHECKBOX);
 
     MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
@@ -84,6 +87,7 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
     form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin"));
     form.setOptionIds(ImmutableList.of(4L, 1L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
@@ -98,7 +102,8 @@ public class MultiOptionQuestionFormTest {
         new MultiOptionQuestionDefinition(
             config,
             ImmutableList.of(
-                QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "option one"))),
+                QuestionOption.create(
+                    1L, "one admin", LocalizedStrings.of(Locale.US, "option one"))),
             MultiOptionQuestionType.CHECKBOX);
 
     QuestionDefinition actual = builder.build();
@@ -116,6 +121,7 @@ public class MultiOptionQuestionFormTest {
     form.setMinChoicesRequired("");
     form.setMaxChoicesAllowed("");
     form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin"));
     form.setOptionIds(ImmutableList.of(4L, 1L));
 
     form.getBuilder();
@@ -134,11 +140,42 @@ public class MultiOptionQuestionFormTest {
     form.setMaxChoicesAllowed("");
     // Add two existing options with IDs 1 and 2
     form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin"));
     form.setOptionIds(ImmutableList.of(1L, 2L));
     form.setNewOptions(ImmutableList.of("three", "four"));
+    form.setNewOptionAdminNames(ImmutableList.of("three admin", "four admin"));
 
     form.getBuilder();
 
     assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(5));
+  }
+
+  @Test
+  public void getBuilder_addNewOptions_setsAdminNameCorrectly() throws Exception {
+    MultiOptionQuestionForm form = new DropdownQuestionForm();
+    form.setQuestionName("name");
+    form.setQuestionDescription("description");
+    form.setQuestionText("What is the question text?");
+    form.setQuestionHelpText("help text");
+    form.setMinChoicesRequired("");
+    form.setMaxChoicesAllowed("");
+    // Add two existing options with IDs 1 and 2
+    form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin"));
+    form.setOptionIds(ImmutableList.of(1L, 2L));
+    form.setNewOptions(ImmutableList.of("three", "four"));
+    form.setNewOptionAdminNames(ImmutableList.of("three admin", "four admin"));
+
+    MultiOptionQuestionDefinition questionDefinition =
+        (MultiOptionQuestionDefinition) form.getBuilder().build();
+
+    assertThat(questionDefinition.getOptionsAdminName())
+        .containsExactly(
+            "one admin",
+            "two admin",
+            // TODO(#4862): Currently the admin name is set to the user-facing text. Once the form
+            // view is updated to support admin names, this test should be updated.
+            "three",
+            "four");
   }
 }

@@ -512,9 +512,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
-            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
-            QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")));
+            QuestionOption.create(1L, "cat admin", LocalizedStrings.of(Locale.US, "cat")),
+            QuestionOption.create(2L, "dog admin", LocalizedStrings.of(Locale.US, "dog")),
+            QuestionOption.create(3L, "horse admin", LocalizedStrings.of(Locale.US, "horse")));
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
