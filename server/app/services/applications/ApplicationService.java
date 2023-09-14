@@ -32,8 +32,11 @@ public final class ApplicationService {
             .getProgram()
             .getProgramDefinition()
             .adminName()
-            .equals(program.adminName())) return Optional.empty();
-    else return application;
+            .equals(program.adminName())) {
+      return Optional.empty();
+    } else {
+      return application;
+    }
   }
 
   /**
