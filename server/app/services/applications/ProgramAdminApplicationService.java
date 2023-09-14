@@ -222,6 +222,12 @@ public final class ProgramAdminApplicationService {
         .map(app -> app.getDetails().noteEvent().get().note());
   }
 
+  /**
+   * Returns an application.
+   * @param applicationId The application ID.
+   * @param program The program of the application.
+   * @return the application
+   */
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
     return applicationService.getApplication(
         applicationRepository.getApplication(applicationId).toCompletableFuture().join(), program);
