@@ -201,7 +201,7 @@ public final class UpsellController extends CiviFormController {
             .toCompletableFuture();
 
     CompletableFuture<Optional<Application>> applicationMaybe =
-        applicationService.getApplication(applicationId, program).toCompletableFuture();
+        applicationService.getApplicationAsync(applicationId, program).toCompletableFuture();
 
     return CompletableFuture.allOf(applicationMaybe, program, account)
         .thenApplyAsync(

@@ -93,6 +93,10 @@ public class Application extends BaseModel {
     return this.program;
   }
 
+  public String getProgramName() {
+    return getProgram().getProgramDefinition().adminName();
+  }
+
   public ApplicantData getApplicantData() {
     if (this.preferredLocale == null || this.preferredLocale.isEmpty()) {
       // Default to English.

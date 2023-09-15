@@ -223,13 +223,11 @@ public final class ProgramAdminApplicationService {
   }
 
   /**
-   * Returns an application.
-   * @param applicationId The application ID.
-   * @param program The program of the application.
-   * @return the application
+   * Retrieves the application with the given ID and validates that it is associated with the given
+   * program.
    */
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    return applicationService.getApplication(
+    return applicationService.validateApplication(
         applicationRepository.getApplication(applicationId).toCompletableFuture().join(), program);
   }
 }

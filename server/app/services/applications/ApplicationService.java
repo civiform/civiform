@@ -24,15 +24,10 @@ public final class ApplicationService {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  public Optional<Application> getApplication(
+  /** Validates the given application is associated with the given program. */
+  public Optional<Application> validateApplication(
       Optional<Application> application, ProgramDefinition program) {
-    if (application.isEmpty()
-        || !application
-            .get()
-            .getProgram()
-            .getProgramDefinition()
-            .adminName()
-            .equals(program.adminName())) {
+    if (application.isEmpty() || !application.get().getProgramName().equals(program.adminName())) {
       return Optional.empty();
     } else {
       return application;
@@ -43,14 +38,14 @@ public final class ApplicationService {
    * Retrieves the application with the given ID and validates that it is associated with the given
    * program.
    */
-  public CompletionStage<Optional<Application>> getApplication(
+  public CompletionStage<Optional<Application>> getApplicationAsync(
       long applicationId, CompletableFuture<ProgramDefinition> program) {
     CompletableFuture<Optional<Application>> maybeApplication =
         applicationRepository.getApplication(applicationId).toCompletableFuture();
     return CompletableFuture.allOf(maybeApplication, program)
         .thenApplyAsync(
             v -> {
-              return getApplication(maybeApplication.join(), program.join());
+              return validateApplication(maybeApplication.join(), program.join());
             },
             httpExecutionContext.current());
   }
