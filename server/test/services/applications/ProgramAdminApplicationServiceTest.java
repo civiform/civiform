@@ -29,6 +29,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import repository.ApplicationEventRepository;
+import repository.ApplicationRepository;
 import repository.ResetPostgres;
 import repository.UserRepository;
 import services.DeploymentType;
@@ -187,7 +188,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -247,7 +249,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -299,7 +302,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -359,7 +363,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
@@ -496,7 +501,8 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram("some-program")
