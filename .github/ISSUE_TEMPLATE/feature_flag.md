@@ -6,7 +6,7 @@ labels: 'feature-flag'
 assignees: ''
 ---
 
-See https://docs.civiform.us/contributor-guide/developer-guide/feature-flags#releasing-a-feature-behind-a-feature-flag for more details.
+See [Releasing a Feature Behind a Feature Flag](https://github.com/civiform/civiform/wiki/Feature-Flags#releasing-a-feature-behind-a-feature-flag) for more details.
 
 ### Flag name
 

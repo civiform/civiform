@@ -39,9 +39,9 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
           .build();
   private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
-          QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "happy")),
-          QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "world")));
+          QuestionOption.create(1L, "hello admin", LocalizedStrings.of(Locale.US, "hello")),
+          QuestionOption.create(2L, "happy admin", LocalizedStrings.of(Locale.US, "happy")),
+          QuestionOption.create(3L, "world admin", LocalizedStrings.of(Locale.US, "world")));
   private static final MultiOptionQuestionDefinition CHECKBOX_QUESTION =
       new MultiOptionQuestionDefinition(CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.CHECKBOX);
   private final ApplicantData applicantData = new ApplicantData();

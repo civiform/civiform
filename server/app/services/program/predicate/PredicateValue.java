@@ -131,7 +131,7 @@ public abstract class PredicateValue {
   private static String parseMultiOptionIdToText(
       MultiOptionQuestionDefinition question, String id) {
     return question
-        .getDefaultLocaleOptionForId(Long.parseLong(id.substring(1, id.length() - 1)))
+        .getOptionAdminNameForId(Long.parseLong(id.substring(1, id.length() - 1)))
         .orElse("<obsolete>");
   }
 

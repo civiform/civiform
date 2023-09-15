@@ -162,11 +162,11 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
     }
   }
 
-  /** Get the default locale representation of the option with the given ID. */
-  public Optional<String> getDefaultLocaleOptionForId(long id) {
-    return getOptionsForDefaultLocale().stream()
+  /** Get the admin name representation of the option with the given ID. */
+  public Optional<String> getOptionAdminNameForId(long id) {
+    return getOptions().stream()
         .filter(o -> o.id() == id)
-        .map(LocalizedQuestionOption::optionText)
+        .map(QuestionOption::adminName)
         .findFirst();
   }
 

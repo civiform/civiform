@@ -46,18 +46,4 @@ public class QuestionOptionTest {
             LocalizedQuestionOption.create(
                 123L, 1L, "test admin", "test", LocalizedStrings.DEFAULT_LOCALE));
   }
-
-  @Test
-  public void create_withNoDefaultLocaleText_usesIdAsAdminName() {
-    QuestionOption questionOption =
-        QuestionOption.create(1L, LocalizedStrings.of(Locale.FRANCE, "option 1"));
-
-    assertThat(questionOption)
-        .isEqualTo(
-            QuestionOption.builder()
-                .setOptionText(LocalizedStrings.of(Locale.FRANCE, "option 1"))
-                .setAdminName("1")
-                .setId(1L)
-                .build());
-  }
 }
