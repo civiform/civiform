@@ -273,6 +273,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #
