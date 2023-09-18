@@ -198,9 +198,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
           QuestionOption.create(
               nextAvailableId.getAsLong() + i,
               options.size() + i,
-              // TODO(#4862): Use the admin name from the form here, once the UI allows setting the
-              // admin name
-              newOptions.get(i),
+              newOptionAdminNames.get(i),
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
