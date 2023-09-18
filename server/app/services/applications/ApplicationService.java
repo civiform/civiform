@@ -27,7 +27,9 @@ public final class ApplicationService {
   /** Validates the given application is associated with the given program. */
   public Optional<Application> validateApplication(
       Optional<Application> application, ProgramDefinition program) {
-    if (application.isEmpty() || !application.get().getProgramName().equals(program.adminName())) {
+    if (application.isEmpty()
+        || application.get().getProgramName().isEmpty()
+        || !application.get().getProgramName().equals(program.adminName())) {
       return Optional.empty();
     } else {
       return application;
