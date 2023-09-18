@@ -273,6 +273,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #
