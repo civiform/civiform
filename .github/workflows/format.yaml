@@ -29,10 +29,16 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Re-build formatter if needed
+        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), 'formatter/')
+        id: formatter_rebuild
+        run: bin/build-formatter
+
       - name: Run bin/fmt
         env:
           DOCKER_BUILDKIT: 1
         run: bin/fmt
+
       - name: Run bin/fmt-sbt
         env:
           DOCKER_BUILDKIT: 1
