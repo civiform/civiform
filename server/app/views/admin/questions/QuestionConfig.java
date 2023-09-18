@@ -285,7 +285,13 @@ public final class QuestionConfig {
             ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")
                 .withId("add-new-option")
-                .withClasses("m-2", ButtonStyles.OUTLINED_WHITE_WITH_ICON));
+                .withClasses("m-2", ButtonStyles.OUTLINED_WHITE_WITH_ICON))
+        .with(
+            FieldWithLabel.number()
+                .setFieldName("nextAvailableId")
+                .setValue(multiOptionQuestionForm.getNextAvailableId())
+                .getNumberTag()
+                .withClasses("hidden"));
     return this;
   }
 
