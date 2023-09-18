@@ -273,6 +273,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #
