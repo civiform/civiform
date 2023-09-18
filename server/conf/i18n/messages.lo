@@ -273,6 +273,7 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #
