@@ -328,7 +328,7 @@ export function init() {
         if (formattedOutput && target) {
           formattedOutput.innerText = formatQuestionName(target.value)
         }
-      }),
+      }, 50),
     )
   }
 
