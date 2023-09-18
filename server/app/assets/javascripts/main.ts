@@ -304,6 +304,7 @@ export function init() {
     })
   }
 
+  // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
   const formatQuestionName = (unformatted: string) => {
     const formatted = unformatted
       .toLowerCase()
@@ -314,12 +315,15 @@ export function init() {
 
   // Give a live preview of how the question name will be formatted in exports
   const questionNameInput = document.getElementById('question-name-input')
-  if (questionNameInput) {
+  const formattedOutput: HTMLElement | null =
+    document.getElementById('formatted-name')
+  if (questionNameInput && formattedOutput) {
+    formattedOutput.innerText = formatQuestionName(
+      (questionNameInput as HTMLInputElement).value,
+    )
     questionNameInput.addEventListener(
       'input',
       debounce((event: Event) => {
-        const formattedOutput: HTMLElement | null =
-          document.getElementById('formatted-name')
         const target = event.target as HTMLInputElement
         if (formattedOutput && target) {
           formattedOutput.innerText = formatQuestionName(target.value)
