@@ -108,7 +108,12 @@ describe('normal question lifecycle', () => {
 
     await loginAsAdmin(page)
 
-    const options = ['option1', 'option2', 'option3', 'option4']
+    const options = [
+      {adminName: 'option1 admin', text: 'option1'},
+      {adminName: 'option2 admin', text: 'option2'},
+      {adminName: 'option3 admin', text: 'option3'},
+      {adminName: 'option4 admin', text: 'option4'},
+    ]
     const questionName = 'adropdownquestion'
     await adminQuestions.createDropdownQuestion(
       {
@@ -144,7 +149,10 @@ describe('normal question lifecycle', () => {
     await waitForPageJsLoad(page)
 
     await page.click('#add-new-option')
-    await adminQuestions.changeMultiOptionAnswer(5, 'option5')
+    await adminQuestions.fillMultiOptionAnswer(4, {
+      adminName: 'option5 admin',
+      text: 'option5',
+    })
     const newUpButtons = await page
       .locator(
         '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
@@ -158,15 +166,24 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminQuestions.gotoQuestionEditPage(questionName)
 
+    await page.pause()
     // Validate that the options are in the correct order after saving.
-    const result = await page
-      .getByRole('textbox', {name: 'Question option *'})
+    const optionText = await page
+      .getByRole('textbox', {name: 'Option Text'})
       .all()
-    expect(await result[0].inputValue()).toContain('option3')
-    expect(await result[1].inputValue()).toContain('option2')
-    expect(await result[2].inputValue()).toContain('option1')
-    expect(await result[3].inputValue()).toContain('option5')
-    expect(await result[4].inputValue()).toContain('option4')
+    expect(await optionText[0].inputValue()).toContain('option3')
+    expect(await optionText[1].inputValue()).toContain('option2')
+    expect(await optionText[2].inputValue()).toContain('option1')
+    expect(await optionText[3].inputValue()).toContain('option5')
+    expect(await optionText[4].inputValue()).toContain('option4')
+
+    // Validate that the option admin names are in the correct order after saving.
+    const adminNames = await page.getByRole('textbox', {name: 'Admin ID'}).all()
+    expect(await adminNames[0].inputValue()).toContain('option3 admin')
+    expect(await adminNames[1].inputValue()).toContain('option2 admin')
+    expect(await adminNames[2].inputValue()).toContain('option1 admin')
+    expect(await adminNames[3].inputValue()).toContain('option5 admin')
+    expect(await adminNames[4].inputValue()).toContain('option4 admin')
   })
 
   it('shows error when creating a dropdown question and admin left an option field blank', async () => {
@@ -174,17 +191,26 @@ describe('normal question lifecycle', () => {
 
     await loginAsAdmin(page)
 
-    const options = ['option1', 'option2', '']
+    const options = [
+      {adminName: 'option1 admin', text: 'option1'},
+      {adminName: 'option2 admin', text: 'option2'},
+      {adminName: '', text: ''},
+    ]
 
     await adminQuestions.createDropdownQuestion({
       questionName: 'dropdownWithEmptyOptions',
       options,
     })
 
+    await validateScreenshot(page, 'question-with-blank-options-error')
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await adminQuestions.expectMultiOptionBlankOptionAdminError(options)
 
     // Update empty option to have a value
-    await adminQuestions.changeMultiOptionAnswer(3, 'option3')
+    await adminQuestions.fillMultiOptionAnswer(2, {
+      adminName: 'option3 admin',
+      text: 'option3',
+    })
 
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
@@ -196,7 +222,11 @@ describe('normal question lifecycle', () => {
 
     await loginAsAdmin(page)
 
-    const options = ['option1', 'option2', '']
+    const options = [
+      {adminName: 'option1 admin', text: 'option1'},
+      {adminName: 'option2 admin', text: 'option2'},
+      {adminName: '', text: ''},
+    ]
 
     await adminQuestions.createRadioButtonQuestion({
       questionName: 'radioButtonWithEmptyOptions',
@@ -204,9 +234,13 @@ describe('normal question lifecycle', () => {
     })
 
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await adminQuestions.expectMultiOptionBlankOptionAdminError(options)
 
     // Update empty option to have a value
-    await adminQuestions.changeMultiOptionAnswer(3, 'option3')
+    await adminQuestions.fillMultiOptionAnswer(2, {
+      adminName: 'option3 admin',
+      text: 'option3',
+    })
 
     await adminQuestions.clickSubmitButtonAndNavigate('Create')
 
@@ -218,7 +252,10 @@ describe('normal question lifecycle', () => {
 
     await loginAsAdmin(page)
 
-    const options = ['option1', 'option2']
+    const options = [
+      {adminName: 'option1 admin', text: 'option1'},
+      {adminName: 'option2 admin', text: 'option2'},
+    ]
     const questionName = 'updateEmptyDropdown'
 
     // Add a new valid dropdown question
@@ -229,10 +266,11 @@ describe('normal question lifecycle', () => {
     // Add an empty option
     await page.click('#add-new-option')
     // Add the empty option to the options array
-    options.push('')
+    options.push({adminName: '', text: ''})
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await adminQuestions.expectMultiOptionBlankOptionAdminError(options)
   })
 
   it('shows error when updating a radio question and admin left an option field blank', async () => {
@@ -240,7 +278,10 @@ describe('normal question lifecycle', () => {
 
     await loginAsAdmin(page)
 
-    const options = ['option1', 'option2']
+    const options = [
+      {adminName: 'option1 admin', text: 'option1'},
+      {adminName: 'option2 admin', text: 'option2'},
+    ]
     const questionName = 'updateEmptyRadio'
 
     // Add a new valid radio question
@@ -252,11 +293,42 @@ describe('normal question lifecycle', () => {
     // Add an empty option
     await page.click('#add-new-option')
     // Add the empty option to the options array
-    options.push('')
+    options.push({adminName: '', text: ''})
 
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
 
     await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await adminQuestions.expectMultiOptionBlankOptionAdminError(options)
+  })
+
+  it('shows error when updating a radio question and admin left an adminName field blank', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+
+    const options = [
+      {adminName: 'option1 admin', text: 'option1'},
+      {adminName: 'option2 admin', text: 'option2'},
+    ]
+    const questionName = 'updateEmptyRadio'
+
+    // Add a new valid radio question
+    await adminQuestions.addRadioButtonQuestion({questionName, options})
+
+    // Edit the newly created question
+    await adminQuestions.gotoQuestionEditPage(questionName)
+
+    // Add an option with a missing adminName
+    await page.click('#add-new-option')
+    const newOption = {adminName: '', text: 'option3'}
+    await adminQuestions.fillMultiOptionAnswer(2, newOption)
+    // Add the empty option to the options array
+    options.push(newOption)
+
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+
+    await adminQuestions.expectMultiOptionBlankOptionError(options)
+    await adminQuestions.expectMultiOptionBlankOptionAdminError(options)
   })
 
   it('persists export state', async () => {

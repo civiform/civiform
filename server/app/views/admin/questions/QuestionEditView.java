@@ -241,7 +241,8 @@ public final class QuestionEditView extends BaseHtmlView {
                         "hidden",
                         "flex",
                         "flex-row",
-                        "mb-4"));
+                        "mb-4",
+                        "items-center"));
     if (questionForm instanceof MultiOptionQuestionForm) {
       multiOptionQuestionField.with(
           FieldWithLabel.number()

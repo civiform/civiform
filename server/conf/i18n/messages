@@ -273,6 +273,7 @@ validation.textTooShort=Must contain at least {0} characters.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #

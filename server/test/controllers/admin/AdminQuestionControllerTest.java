@@ -391,6 +391,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
     questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
+    questionForm.setNewOptionAdminNames(
+        ImmutableList.of("cookie admin", "mint admin", "pistachio admin"));
 
     DropdownQuestionForm newQuestionForm =
         new DropdownQuestionForm((MultiOptionQuestionDefinition) questionForm.getBuilder().build());
@@ -453,7 +455,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("optionIds[1]", "3")
             .put("optionAdminNames[0]", "coffee admin")
             .put("optionAdminNames[1]", "vanilla admin")
-            .put("newOptionAdminNames[2]", "lavender admin")
+            .put("newOptionAdminNames[0]", "lavender admin")
             .put("nextAvailableId", "5")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question
@@ -486,10 +488,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 /* displayOrder= */ 1,
                 "vanilla admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
-            // TODO(#4862): For new options, the form processing code currently ignores the
-            // adminName field and sets it to the option text. This test should be updated
-            // once the form is updated to support admin names.
-            QuestionOption.create(5, 2, "lavender", LocalizedStrings.withDefaultValue("lavender")));
+            QuestionOption.create(
+                /* id= */ 5,
+                /* displayOrder= */ 2,
+                "lavender admin",
+                LocalizedStrings.withDefaultValue("lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
 

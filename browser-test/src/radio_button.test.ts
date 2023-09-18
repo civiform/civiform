@@ -19,7 +19,11 @@ describe('Radio button question for applicant flow', () => {
 
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'ice-cream-radio-q',
-        options: ['matcha', 'strawberry', 'vanilla'],
+        options: [
+          {adminName: 'matcha admin', text: 'matcha'},
+          {adminName: 'strawberry admin', text: 'strawberry'},
+          {adminName: 'vanilla admin', text: 'vanilla'},
+        ],
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
         ['ice-cream-radio-q'],
@@ -38,7 +42,12 @@ describe('Radio button question for applicant flow', () => {
           questionName: 'not-used-in-test',
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
-          options: ['red', 'green', 'orange', 'blue'],
+          options: [
+            {adminName: 'red admin', text: 'red'},
+            {adminName: 'green admin', text: 'green'},
+            {adminName: 'orange admin', text: 'orange'},
+            {adminName: 'blue admin', text: 'blue'},
+          ],
         },
         /* clickSubmit= */ false,
       )
@@ -116,12 +125,21 @@ describe('Radio button question for applicant flow', () => {
 
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'fave-ice-cream-q',
-        options: ['matcha', 'strawberry', 'vanilla'],
+        options: [
+          {adminName: 'matcha admin', text: 'matcha'},
+          {adminName: 'strawberry admin', text: 'strawberry'},
+          {adminName: 'vanilla admin', text: 'vanilla'},
+        ],
       })
 
       await adminQuestions.addCheckboxQuestion({
         questionName: 'fave-vacation-q',
-        options: ['beach', 'mountains', 'city', 'cruise'],
+        options: [
+          {adminName: 'beach admin', text: 'beach'},
+          {adminName: 'mountains admin', text: 'mountains'},
+          {adminName: 'city admin', text: 'city'},
+          {adminName: 'cruise admin', text: 'cruise'},
+        ],
       })
 
       await adminPrograms.addProgram(programName)

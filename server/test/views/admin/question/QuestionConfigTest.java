@@ -125,7 +125,7 @@ public class QuestionConfigTest {
     assertThat(result).contains("new-option-d");
     assertThat(result).contains("existing-option-admin-a");
     assertThat(result).contains("existing-option-admin-b");
-    // TODO(#4862): When the form is updated to allow setting admin names, add
-    // the new option admin names to this test.
+    assertThat(result).contains("new-option-admin-c");
+    assertThat(result).contains("new-option-admin-d");
   }
 }
