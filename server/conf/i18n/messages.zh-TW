@@ -273,6 +273,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=多選題不得留空。
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #
