@@ -47,7 +47,7 @@ public class BaseHtmlLayout {
     this.measurementId = settingsManifest.getMeasurementId();
 
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
-    this.addNoindexMetaTag = this.isDevOrStaging && settingsManifest.getStagingAddNoindexMetaTag();
+    this.addNoindexMetaTag = settingsManifest.getStagingAddNoindexMetaTag();
 
     civiformImageTag = settingsManifest.getCiviformImageTag().get();
   }
