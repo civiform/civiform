@@ -273,6 +273,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
 
 #----------------------------------#
 # ERRORS - various error messages  #
