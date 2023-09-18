@@ -116,6 +116,7 @@ public final class ReferenceClasses {
   public static final String MULTI_OPTION_QUESTION_OPTION_EDITABLE =
       "cf-multi-option-question-option-editable";
   public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
+  public static final String MULTI_OPTION_ADMIN_INPUT = "cf-multi-option-admin-input";
 
   public static final String CHECKBOX_QUESTION = "cf-question-checkbox";
   public static final String CURRENCY_QUESTION = "cf-question-currency";

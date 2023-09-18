@@ -217,7 +217,11 @@ describe('Admin can manage translations', () => {
     const questionName = 'multi-option-translated'
     await adminQuestions.addRadioButtonQuestion({
       questionName,
-      options: ['one', 'two', 'three'],
+      options: [
+        {adminName: 'one admin', text: 'one'},
+        {adminName: 'two admin', text: 'two'},
+        {adminName: 'three admin', text: 'three'},
+      ],
     })
 
     // Go to the question translation page and add a translation for Spanish

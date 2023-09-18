@@ -35,32 +35,38 @@ describe('create dropdown question with options', () => {
 
     // Add three options
     await page.click('#add-new-option')
-    await page.fill(
-      '#question-settings div.flex-row:nth-of-type(1) input',
-      'chocolate',
-    )
+    await adminQuestions.fillMultiOptionAnswer(0, {
+      adminName: 'chocolate admin',
+      text: 'chocolate',
+    })
     await page.click('#add-new-option')
-    await page.fill(
-      '#question-settings div.flex-row:nth-of-type(2) input',
-      'vanilla',
-    )
+    await adminQuestions.fillMultiOptionAnswer(1, {
+      adminName: 'vanilla admin',
+      text: 'vanilla',
+    })
     await page.click('#add-new-option')
-    await page.fill(
-      '#question-settings div.flex-row:nth-of-type(3) input',
-      'strawberry',
-    )
-    await page.pause()
+    await adminQuestions.fillMultiOptionAnswer(2, {
+      adminName: 'strawberry admin',
+      text: 'strawberry',
+    })
 
     // Assert there are three options present
     let questionSettingsDiv = await page.innerHTML('#question-settings')
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6) // 2 inputs each for 3 options
+    // 2 inputs each for 3 options (option, optionAdminName)
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6)
 
     // Remove first option - use :visible to not select the hidden template
     await page.click('button:has-text("Delete"):visible')
 
     // Assert there are only two options now
     questionSettingsDiv = await page.innerHTML('#question-settings')
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4) // 2 inputs each for 2 options
+    // 2 inputs each for 2 options (option, optionAdminName)
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4)
+    // First option should now be vanilla
+    await adminQuestions.expectNewMultiOptionAnswer(0, {
+      adminName: 'vanilla admin',
+      text: 'vanilla',
+    })
 
     // Verify question preview text has changed based on user input.
     expect(await page.innerText('.cf-applicant-question-text')).toContain(
@@ -71,7 +77,7 @@ describe('create dropdown question with options', () => {
     )
 
     // Submit the form, then edit that question again
-    await page.click('text=Create')
+    await adminQuestions.clickSubmitButtonAndNavigate('Create')
     await adminQuestions.expectDraftQuestionExist(questionName)
 
     // Edit the question
@@ -79,5 +85,24 @@ describe('create dropdown question with options', () => {
     questionSettingsDiv = await page.innerHTML('#question-settings')
     // 3 inputs each for 2 options (option, optionAdminName, and optionId)
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6)
+    // Check that admin names were set correctly
+    await adminQuestions.expectExistingMultiOptionAnswer(0, {
+      adminName: 'vanilla admin',
+      text: 'vanilla',
+    })
+    await adminQuestions.expectExistingMultiOptionAnswer(1, {
+      adminName: 'strawberry admin',
+      text: 'strawberry',
+    })
+
+    // Edit an option
+    await adminQuestions.changeMultiOptionAnswer(1, 'pistachio')
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    // Expect that the option text has changed but the admin name has not
+    await adminQuestions.expectExistingMultiOptionAnswer(1, {
+      adminName: 'strawberry admin',
+      text: 'pistachio',
+    })
   })
 })
