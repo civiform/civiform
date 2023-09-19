@@ -6,9 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import auth.CiviFormProfile;
-import com.google.common.collect.ImmutableList;
 import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
