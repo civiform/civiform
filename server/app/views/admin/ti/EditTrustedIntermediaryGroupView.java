@@ -1,6 +1,7 @@
 package views.admin.ti;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
@@ -95,12 +96,19 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
             .setFieldName("emailAddress")
             .setLabelText("Member Email Address")
             .setValue(request.flash().get("providedEmail").orElse(""));
+    String redirectUrl = routes.TrustedIntermediaryManagementController.index().url();
     return div()
         .with(
-            formTag.with(
-                emailField.getInputTag(),
-                makeCsrfTokenInputTag(request),
-                submitButton("Add").withClasses(ButtonStyles.SOLID_BLUE, "ml-2", "mb-6")))
+            formTag
+                .with(
+                    emailField.getInputTag(),
+                    makeCsrfTokenInputTag(request),
+                    div()
+                        .withClasses("flex", "space-x-2")
+                        .with(
+                            submitButton("Add").withClasses(ButtonStyles.SOLID_BLUE),
+                            a("Back").withHref(redirectUrl).withClass(ButtonStyles.SOLID_BLUE)))
+                .withClass("m-2"))
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
