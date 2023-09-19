@@ -369,9 +369,10 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (questionForm instanceof MultiOptionQuestionForm) {
-      final MultiOptionQuestionDefinition definition;
+      final ImmutableList<QuestionOption> updatedQuestionOptions;
       try {
-        definition = (MultiOptionQuestionDefinition) questionForm.getBuilder().build();
+        updatedQuestionOptions =
+            ((MultiOptionQuestionDefinition) updatedQuestionDefinitionBuilder.build()).getOptions();
       } catch (UnsupportedQuestionTypeException e) {
         // Impossible - we checked the type above.
         throw new RuntimeException(e);
@@ -379,7 +380,7 @@ public final class AdminQuestionController extends CiviFormController {
       updateDefaultLocalizationForOptions(
           updatedQuestionDefinitionBuilder,
           (MultiOptionQuestionDefinition) currentQuestionDefinition,
-          definition.getOptions());
+          updatedQuestionOptions);
     }
   }
 

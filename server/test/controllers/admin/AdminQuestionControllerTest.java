@@ -637,6 +637,73 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update_correctlyIncrementsId_ifOptionIsRemoved() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant ice cream")
+            .setDescription("Select your favorite ice cream flavor")
+            .setQuestionText(
+                LocalizedStrings.of(Locale.US, "Ice cream?", Locale.FRENCH, "crème glacée?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRENCH, "aider"))
+            .build();
+
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                /* id= */ 1L,
+                "chocolate admin",
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+            QuestionOption.create(
+                /* id= */ 2L,
+                "strawberry admin",
+                LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
+
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.DROPDOWN);
+
+    // We can only update draft questions, so save this in the DRAFT version.
+    Question question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "chocolate")
+            .put("optionIds[0]", "1")
+            .put("optionAdminNames[0]", "chocolate admin")
+            // id 2 was deleted by the user, but 3 is still set as the next ID by the
+            // QuestionConfig
+            .put("nextAvailableId", "3")
+            .put("newOptions[0]", "lavender") // New flavor
+            .put("newOptionAdminNames[0]", "lavender admin")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .build();
+    RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
+
+    controller.update(requestBuilder.build(), question.id, definition.getQuestionType().toString());
+    Question found = questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+
+    ImmutableList<QuestionOption> expectedOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                /* id= */ 1,
+                /* displayOrder= */ 0,
+                "chocolate admin",
+                LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
+            QuestionOption.create(
+                /* id= */ 3, // use nextAvailableId
+                /* displayOrder= */ 1,
+                "lavender admin",
+                LocalizedStrings.of(Locale.US, "lavender")));
+    assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
+        .isEqualTo(expectedOptions);
+  }
+
+  @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
     Question question = testQuestionBank.applicantFavoriteColor();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
