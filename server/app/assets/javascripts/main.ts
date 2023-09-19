@@ -323,12 +323,12 @@ export function init() {
     )
     questionNameInput.addEventListener(
       'input',
-      debounce((event: Event) => {
+        (event: Event) => {
         const target = event.target as HTMLInputElement
         if (formattedOutput && target) {
           formattedOutput.innerText = formatQuestionName(target.value)
         }
-      }, 50),
+      }
     )
   }
 
