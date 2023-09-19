@@ -52,16 +52,17 @@ describe('create dropdown question with options', () => {
 
     // Assert there are three options present
     let questionSettingsDiv = await page.innerHTML('#question-settings')
-    // 2 inputs each for 3 options (option, optionAdminName)
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6)
+    // 2 inputs each for 3 options (option, optionAdminName) + hidden nextAvailableId
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(7)
 
     // Remove first option - use :visible to not select the hidden template
-    await page.click('button:has-text("Delete"):visible')
+    // await page.click('button:has-text("Delete"):visible')
+    await adminQuestions.deleteMultiOptionAnswer(0)
 
     // Assert there are only two options now
     questionSettingsDiv = await page.innerHTML('#question-settings')
-    // 2 inputs each for 2 options (option, optionAdminName)
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(4)
+    // 2 inputs each for 2 options (option, optionAdminName) + hidden nextAvailableId
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(5)
     // First option should now be vanilla
     await adminQuestions.expectNewMultiOptionAnswer(0, {
       adminName: 'vanilla admin',
@@ -83,8 +84,8 @@ describe('create dropdown question with options', () => {
     // Edit the question
     await adminQuestions.gotoQuestionEditPage(questionName)
     questionSettingsDiv = await page.innerHTML('#question-settings')
-    // 3 inputs each for 2 options (option, optionAdminName, and optionId)
-    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(6)
+    // 3 inputs each for 2 options (option, optionAdminName, and optionId) + hidden nextAvailableId
+    expect(questionSettingsDiv.match(/<input/g)).toHaveLength(7)
     // Check that admin names were set correctly
     await adminQuestions.expectExistingMultiOptionAnswer(0, {
       adminName: 'vanilla admin',
@@ -103,6 +104,21 @@ describe('create dropdown question with options', () => {
     await adminQuestions.expectExistingMultiOptionAnswer(1, {
       adminName: 'strawberry admin',
       text: 'pistachio',
+    })
+
+    // Remove the last option and add a new one, and assert the new option has the correct admin name
+    await adminQuestions.deleteMultiOptionAnswer(1)
+    await page.click('#add-new-option')
+    await adminQuestions.fillMultiOptionAnswer(1, {
+      adminName: 'mango admin',
+      text: 'mango',
+    })
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    // Expect that the option text has changed but the admin name has not
+    await adminQuestions.expectExistingMultiOptionAnswer(1, {
+      adminName: 'mango admin',
+      text: 'mango',
     })
   })
 })

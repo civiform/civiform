@@ -54,6 +54,10 @@ export class AdminQuestions {
     `:nth-match(#question-settings div.cf-multi-option-question-option, ${
       index + 1
     }) .cf-multi-option-admin-input input`
+  public static readonly multiOptionDeleteButtonSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) button:has-text("Delete")`
 
   constructor(page: Page) {
     this.page = page
@@ -763,6 +767,11 @@ export class AdminQuestions {
     if (clickSubmit) {
       await this.clickSubmitButtonAndNavigate('Create')
     }
+  }
+
+  /** Deletes a multi-option answer */
+  async deleteMultiOptionAnswer(index: number) {
+    await this.page.click(AdminQuestions.multiOptionDeleteButtonSelector(index))
   }
 
   /** Changes the input field of a multi option answer. */
