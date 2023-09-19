@@ -13,6 +13,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
+import models.Applicant;
 import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
@@ -203,9 +204,12 @@ public final class UpsellController extends CiviFormController {
     CompletableFuture<Optional<Application>> applicationMaybe =
         applicationService.getApplicationAsync(applicationId, program).toCompletableFuture();
 
-    return CompletableFuture.allOf(applicationMaybe, program, account)
+    return CompletableFuture.allOf(applicationMaybe, account)
         .thenApplyAsync(
             check -> {
+              if (!applicationMaybe.join().get().getApplicant().getAccount().equals(account.join())) {
+                return unauthorized("Applicant does not have access to application");
+              }
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generatePdf(applicationMaybe.join().get());
 
