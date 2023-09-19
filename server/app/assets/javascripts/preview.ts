@@ -1,6 +1,7 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull} from './util'
 import {AccordionController as Accordion} from './accordion'
+import MarkdownIt = require('markdown-it')
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -77,6 +78,7 @@ class PreviewController {
   private static accordionContent = '>'
   private static accordionHeader = '### '
   private static bulletedItem = '* '
+  private static headerIndicator = '#'
 
   constructor() {
     const textInput = document.getElementById(
@@ -405,9 +407,7 @@ class PreviewController {
         i = next - 1
         ret.appendChild(PreviewController.buildList(listItems))
       } else if (currentLine.length > 0) {
-        const content = document.createElement('div')
-        content.textContent = currentLine
-        ret.appendChild(content)
+        ret.appendChild(PreviewController.parseMarkdown(currentLine))
       } else if (preserveEmptyLines) {
         const emptyLine = document.createElement('div')
         emptyLine.classList.add('h-6')
@@ -463,10 +463,22 @@ class PreviewController {
 
     items.forEach((item) => {
       const listItem = document.createElement('li')
-      listItem.textContent = item
+      listItem.appendChild(PreviewController.parseMarkdown(item))
       listTag.appendChild(listItem)
     })
     return listTag
+  }
+
+  private static parseMarkdown(currentLine: string): Element {
+    const md = new MarkdownIt()
+    const parser = new DOMParser()
+    let html
+    if (currentLine[0] == this.headerIndicator) {
+      html = parser.parseFromString(md.render(currentLine), 'text/html')
+    } else {
+      html = parser.parseFromString(md.renderInline(currentLine), 'text/html')
+    }
+    return html.body
   }
 }
 

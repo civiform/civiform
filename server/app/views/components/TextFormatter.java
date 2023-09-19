@@ -3,7 +3,7 @@ package views.components;
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.li;
-import static j2html.TagCreator.text;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
 
 import com.google.common.base.Splitter;
@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import views.CiviFormMarkdown;
 import views.ViewUtils;
 
 /**
@@ -50,6 +51,8 @@ public final class TextFormatter {
   private static final String ACCORDION_CONTENT = ">";
   private static final String ACCORDION_HEADER = "### ";
   private static final String BULLETED_ITEM = "* ";
+  private static final char HEADER = '#';
+  private static final CiviFormMarkdown civiFormMarkdown = new CiviFormMarkdown();
 
   /**
    * Parses plain-text string into rich HTML with clickable links.
@@ -106,7 +109,7 @@ public final class TextFormatter {
 
       if (urlStartIndex > 0) {
         // If it's not at the beginning, add the text from before the URL.
-        contentBuilder.add(text(content.substring(0, urlStartIndex)));
+        contentBuilder.add(applyMarkdown(content.substring(0, urlStartIndex)));
       }
       // Add the URL.
       var urlTag =
@@ -128,7 +131,7 @@ public final class TextFormatter {
     }
     // If there's content leftover, add it.
     if (!Strings.isNullOrEmpty(content)) {
-      contentBuilder.add(text(content));
+      contentBuilder.add(applyMarkdown(content));
     }
     if (addRequiredIndicator) {
       contentBuilder.add(ViewUtils.requiredQuestionIndicator());
@@ -184,7 +187,15 @@ public final class TextFormatter {
 
   private static UlTag buildList(List<String> items) {
     UlTag listTag = ul().withClasses("list-disc", "mx-8");
-    items.forEach(item -> listTag.with(li().withText(item)));
+    items.forEach(item -> listTag.with(li(applyMarkdown(item))));
     return listTag;
+  }
+
+  private static DomContent applyMarkdown(String content) {
+    if (content.charAt(0) == TextFormatter.HEADER) {
+      return rawHtml(civiFormMarkdown.render(content));
+    } else {
+      return rawHtml(civiFormMarkdown.renderWithoutWrappingPTags(content));
+    }
   }
 }

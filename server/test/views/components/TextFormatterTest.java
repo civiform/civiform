@@ -170,14 +170,14 @@ public class TextFormatterTest {
   }
 
   @Test
-  public void rendersRecursively() {
+  public void rendersRecursivelyWithMarkdown() {
     String text =
         "Cheesecake Recipe\n"
             + "### Ingredients\n"
-            + ">You will need:\n"
+            + ">You will need these *special* ingredients:\n"
             + ">* cream cheese\n"
             + ">* eggs\n"
-            + ">* sugar\n"
+            + ">* sugar **YUM!**\n"
             + ">* vanilla\n"
             + "### Directions\n"
             + "> View directions and the rest of the recipe at epicurious.com";
@@ -194,7 +194,8 @@ public class TextFormatterTest {
     assertThat(contentStrings[1]).contains("Ingredients");
 
     // ...and that accordion contains a div and an accessible button.
-    assertThat(contentStrings[1]).contains("<div>You will need:</div>");
+    assertThat(contentStrings[1])
+        .contains("<div>You will need these <em>special</em> ingredients:</div>");
     assertThat(contentStrings[1])
         .containsPattern(
             "<button.*cf-accordion-header.*aria-controls=\"cf-accordion-content\" aria-expanded=");
@@ -202,9 +203,8 @@ public class TextFormatterTest {
     // ...and a list.
     assertThat(contentStrings[1])
         .contains(
-            "<ul class=\"list-disc mx-8\">"
-                + "<li>cream cheese</li><li>eggs</li><li>sugar</li><li>vanilla</li>"
-                + "</ul>");
+            "<ul class=\"list-disc mx-8\"><li>cream cheese</li><li>eggs</li><li>sugar"
+                + " <strong>YUM!</strong></li><li>vanilla</li></ul>");
 
     // Verify that we have a second accordion.
     assertThat(contentStrings[2]).startsWith("<div class=\"cf-accordion");
@@ -257,5 +257,17 @@ public class TextFormatterTest {
         .isEqualTo("<div>This is the second (or third) line of content.</div>");
     assertThat(nonPreservedContent[2])
         .isEqualTo("<div>This is the third (or sixth) line of content.</div>");
+  }
+
+  @Test
+  public void appliesMarkdown() {
+    String stringWithMarkdown =
+        "# Hello!\nThis is a string with *italics* and **bold** and `inline code`";
+    ImmutableList<DomContent> formattedText = TextFormatter.formatText(stringWithMarkdown, false);
+    assertThat(formattedText.get(0).render()).isEqualTo("<div><h1>Hello!</h1>\n</div>");
+    assertThat(formattedText.get(1).render())
+        .isEqualTo(
+            "<div>This is a string with <em>italics</em> and <strong>bold</strong> and"
+                + " <code>inline code</code></div>");
   }
 }
