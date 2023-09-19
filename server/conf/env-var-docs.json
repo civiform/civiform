@@ -2,7 +2,7 @@
   "Branding": {
     "group_description": "Configuration options for CiviForm branding.",
     "members": {
-      "WHITELABEL_SMALL_LOGO_URL": {
+      "CIVIC_ENTITY_SMALL_LOGO_URL": {
         "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
         "type": "string"
@@ -251,7 +251,7 @@
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
                 "type": "string"
               },
-              "ADFS_GLOBAL_ADMIN_GROUP": {
+              "ADFS_ADMIN_GROUP": {
                 "mode": "HIDDEN",
                 "description": "The name of the admin group in Active Directory, typically used to tell if a user is a global admin.",
                 "type": "string"
@@ -395,7 +395,7 @@
         "description": "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to 'aws', it is also the region where the AWS s3 service exists.",
         "type": "string"
       },
-      "AWS_SES_SENDER": {
+      "SENDER_EMAIL_ADDRESS": {
         "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
         "type": "string"
@@ -487,17 +487,17 @@
         "description": "This email address receives error notifications from CiviForm when things break.",
         "type": "string"
       },
-      "STAGING_ADMIN_LIST": {
+      "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the program administrator's email address.",
         "type": "string"
       },
-      "STAGING_TI_LIST": {
+      "STAGING_TI_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the trusted intermediary's email address.",
         "type": "string"
       },
-      "STAGING_APPLICANT_LIST": {
+      "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the applicant's email address.",
         "type": "string"

@@ -265,7 +265,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private ATag branding(Http.Request request) {
     ImgTag cityImage =
         settingsManifest
-            .getWhitelabelSmallLogoUrl()
+            .getCivicEntitySmallLogoUrl()
             .map(url -> img().withSrc(url))
             .orElseGet(() -> this.layout.viewUtils.makeLocalImageTag("civiform-staging"));
 

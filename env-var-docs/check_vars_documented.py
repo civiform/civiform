@@ -119,7 +119,7 @@ def vars_from_application_conf(app_conf_path: str) -> Dict[str, ServerVar]:
     include_regex = re.compile(r"^\s*include\s+\"(.+)\"$")
 
     # Matches any UPPER_SNAKE_CASE variables in substitutions like
-    # ${?WHITELABEL_SMALL_LOGO_URL}. Captures the variable name in group 1.
+    # ${?CIVIC_ENTITY_SMALL_LOGO_URL}. Captures the variable name in group 1.
     env_var_regex = re.compile(r"^.*\${\?\s*([A-Z0-9_]+)\s*}")
 
     dir_base = os.path.dirname(app_conf_path)
