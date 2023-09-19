@@ -8,7 +8,7 @@
  *  - TBD
  */
 
-import {addEventListenerToElements, assertNotNull, debounce} from './util'
+import {addEventListenerToElements, assertNotNull} from './util'
 
 function attachDropdown(elementId: string) {
   const dropdownId = elementId + '-dropdown'
@@ -321,15 +321,12 @@ export function init() {
     formattedOutput.innerText = formatQuestionName(
       (questionNameInput as HTMLInputElement).value,
     )
-    questionNameInput.addEventListener(
-      'input',
-        (event: Event) => {
-        const target = event.target as HTMLInputElement
-        if (formattedOutput && target) {
-          formattedOutput.innerText = formatQuestionName(target.value)
-        }
+    questionNameInput.addEventListener('input', (event: Event) => {
+      const target = event.target as HTMLInputElement
+      if (formattedOutput && target) {
+        formattedOutput.innerText = formatQuestionName(target.value)
       }
-    )
+    })
   }
 
   // Bind click handler for remove options in multi-option edit view

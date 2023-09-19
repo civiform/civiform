@@ -47,17 +47,3 @@ export function assertNotNull<T>(
   }
   return value
 }
-
-// Throttles a function's execution.  Helpful for functions triggered by keystrokes.
-export function debounce<A = unknown>(
-  func: (...params: A[]) => void,
-  timeout = 200,
-) {
-  let timer: ReturnType<typeof setTimeout> | undefined
-  return (...args: A[]) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
-      func(...args)
-    }, timeout)
-  }
-}
