@@ -70,13 +70,10 @@ public final class AdminQuestionController extends CiviFormController {
    * the current draft version if any.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> index(Request request) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService ->
-                ok(listView.render(readOnlyService.getActiveAndDraftQuestions(), request)),
-            classLoaderExecutionContext.current());
+  public Result index(Request request) {
+    return ok(
+        listView.render(
+            service.getReadOnlyQuestionServiceSync().getActiveAndDraftQuestions(), request));
   }
 
   /**

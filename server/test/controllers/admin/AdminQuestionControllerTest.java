@@ -235,7 +235,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
     testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -252,7 +252,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .build();
     testQuestionBank.maybeSave(newDraftQuestion, LifecycleStage.DRAFT);
 
-    result = controller.index(request).toCompletableFuture().join();
+    result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -265,7 +265,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void index_withNoQuestions() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -277,7 +277,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void index_showsMessageFlash() {
     Request request =
         addCSRFToken(requestBuilderWithSettings().flash("success", "has message")).build();
-    Result result = controller.index(request).toCompletableFuture().join();
+    Result result = controller.index(request);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
