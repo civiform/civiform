@@ -27,10 +27,12 @@ public final class ApplicationService {
   /** Validates that the given application is part of the given program. */
   public Optional<Application> validateProgram(
       Optional<Application> application, ProgramDefinition program) {
-    if (application.get().getProgramName().equals(program.adminName())) {
-      return validateApplication(application);
+    if (application.isEmpty()
+        || application.get().getProgramName().isEmpty()
+        || !application.get().getProgramName().equals(program.adminName())) {
+      return Optional.empty();
     }
-    return Optional.empty();
+    return application;
   }
 
   /** Validates that the given application is not empty or without a program name. */
