@@ -52,7 +52,7 @@ public final class TextFormatter {
   private static final String ACCORDION_HEADER = "### ";
   private static final String BULLETED_ITEM = "* ";
   private static final char HEADER = '#';
-  private static final CiviFormMarkdown CIVI_FORM_MARKDOWN = new CiviFormMarkdown();
+  private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
 
   /**
    * Parses plain-text string into rich HTML with clickable links.
@@ -192,10 +192,11 @@ public final class TextFormatter {
   }
 
   private static DomContent applyMarkdown(String content) {
-    if (content.charAt(0) == TextFormatter.HEADER) {
-      return rawHtml(civiFormMarkdown.render(content));
+    boolean haveString = content != null && !content.isEmpty();
+    if (haveString && content.charAt(0) == TextFormatter.HEADER) {
+      return rawHtml(CIVIFORM_MARKDOWN.render(content));
     } else {
-      return rawHtml(civiFormMarkdown.renderWithoutWrappingPTags(content));
+      return rawHtml(CIVIFORM_MARKDOWN.renderWithoutWrappingTags(content));
     }
   }
 }

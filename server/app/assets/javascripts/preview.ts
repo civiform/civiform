@@ -473,7 +473,7 @@ class PreviewController {
     const md = new MarkdownIt()
     const parser = new DOMParser()
     let html
-    if (currentLine[0] == this.headerIndicator) {
+    if (currentLine[0] && currentLine[0] === this.headerIndicator) {
       html = parser.parseFromString(md.render(currentLine), 'text/html')
     } else {
       html = parser.parseFromString(md.renderInline(currentLine), 'text/html')
