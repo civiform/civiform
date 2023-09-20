@@ -156,7 +156,6 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getProgramTitle(),
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
-                      programId,
                       applicantId,
                       applicationId,
                       messagesApi.preferred(request),
