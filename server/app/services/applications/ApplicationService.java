@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import models.Application;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
-import services.program.ProgramDefinition;
 
 /** The service responsible for mediating access to the Application resource. */
 public final class ApplicationService {
@@ -22,17 +21,6 @@ public final class ApplicationService {
       ApplicationRepository applicationRepository, HttpExecutionContext httpExecutionContext) {
     this.applicationRepository = checkNotNull(applicationRepository);
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
-  }
-
-  /** Validates that the given application is part of the given program. */
-  public Optional<Application> validateProgram(
-      Optional<Application> application, ProgramDefinition program) {
-    if (application.isEmpty()
-        || application.get().getProgramName().isEmpty()
-        || !application.get().getProgramName().equals(program.adminName())) {
-      return Optional.empty();
-    }
-    return application;
   }
 
   /** Validates that the given application is not empty or without a program name. */

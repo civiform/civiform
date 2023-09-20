@@ -227,7 +227,18 @@ public final class ProgramAdminApplicationService {
    * program.
    */
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    return applicationService.validateProgram(
+    return validateProgram(
         applicationRepository.getApplication(applicationId).toCompletableFuture().join(), program);
+  }
+
+  /** Validates that the given application is part of the given program. */
+  private Optional<Application> validateProgram(
+      Optional<Application> application, ProgramDefinition program) {
+    if (application.isEmpty()
+        || application.get().getProgramName().isEmpty()
+        || !application.get().getProgramName().equals(program.adminName())) {
+      return Optional.empty();
+    }
+    return application;
   }
 }
