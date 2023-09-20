@@ -52,7 +52,7 @@ public final class TextFormatter {
   private static final String ACCORDION_HEADER = "### ";
   private static final String BULLETED_ITEM = "* ";
   private static final char HEADER = '#';
-  private static final CiviFormMarkdown civiFormMarkdown = new CiviFormMarkdown();
+  private static final CiviFormMarkdown CIVI_FORM_MARKDOWN = new CiviFormMarkdown();
 
   /**
    * Parses plain-text string into rich HTML with clickable links.
