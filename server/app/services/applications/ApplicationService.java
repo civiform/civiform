@@ -24,7 +24,7 @@ public final class ApplicationService {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  /** Validates the given application is associated with the given program. */
+  /** Validates the given application is associated with a program. */
   public Optional<Application> validateApplication(
       Optional<Application> application, ProgramDefinition program) {
     if (application.isEmpty()

@@ -190,11 +190,8 @@ public final class UpsellController extends CiviFormController {
         profileMaybe.orElseThrow(
             () -> new NoSuchElementException("User authorized as applicant but no profile found"));
 
-    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
-
     CompletableFuture<Account> account =
-        applicantPersonalInfo
+        program
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
             .thenComposeAsync(v -> profile.getAccount(), httpContext.current())
@@ -206,13 +203,13 @@ public final class UpsellController extends CiviFormController {
     return CompletableFuture.allOf(applicationMaybe, account)
         .thenApplyAsync(
             check -> {
-              if (!applicationMaybe
-                  .join()
-                  .get()
-                  .getApplicant()
-                  .getAccount()
-                  .equals(account.join())) {
-                return unauthorized("Applicant does not have access to application");
+              Account theAccount = account.join();
+              if (profile.isTrustedIntermediary()
+                  && !theAccount.ownedApplicantIds().contains(applicantId)) {
+                return unauthorized();
+              }
+              if (!applicationMaybe.join().get().getApplicant().getAccount().equals(theAccount)) {
+                return unauthorized();
               }
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generatePdf(applicationMaybe.join().get());
