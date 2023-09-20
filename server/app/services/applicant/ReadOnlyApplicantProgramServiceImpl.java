@@ -467,7 +467,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
         ImmutableList<String> allOptions =
-          question.createMultiSelectQuestion().getQuestionDefinition().getCsvHeaders();
+          question.createMultiSelectQuestion().getQuestionDefinition().getOptionsAdminName();
+        System.out.println("---------------------------------------------------------------");
+        System.out.println();
+        System.out.println("*** All Options are : ");
+        allOptions.stream().forEach(e -> System.out.print(e +" , "));
 //        ImmutableList<String> allOptions =
 //          question.createMultiSelectQuestion().getSelectedOptionsAdminName().get();
         //allOptions.stream().forEach(v ->  staticOptions.add(v));
@@ -478,14 +482,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 .map(
                     selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
           .orElse(Collections.singletonList(""));
-       selectedList.stream().forEach(option -> {
-         if(!allOptions.contains(option))
-         {
-           question.createMultiSelectQuestion().getQuestionDefinition().updateCsvHeaders(option);
-         }
-       });
        Map<Path,String> returnMap = new HashMap<>();
        allOptions.stream().forEach(option -> returnMap.put(question.getContextualizedPath().join(option),selectedList.contains(option)? option:""));
+        System.out.println();
+        System.out.println("*** Selected Options are : ");
+        selectedList.stream().forEach(e -> System.out.print(e +" , "));
        return ImmutableMap.<Path, String>builder().putAll(returnMap).build();
 //        return ImmutableMap.of(
 //            question.getContextualizedPath().join(Scalar.SELECTIONS),
