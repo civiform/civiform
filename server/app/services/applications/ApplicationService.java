@@ -24,13 +24,22 @@ public final class ApplicationService {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  /** Validates that the given application is associated with an admin program. */
+  /** Validates that the given application is part of the given program. */
   public Optional<Application> validateProgram(
       Optional<Application> application, ProgramDefinition program) {
     if (application.get().getProgramName().equals(program.adminName())) {
-      return application;
+      return validateApplication(application);
     }
     return Optional.empty();
+  }
+
+  /** Validates that the given application is not empty or without a program name. */
+  public Optional<Application> validateApplication(Optional<Application> application) {
+    if (application.isEmpty() || application.get().getProgramName().isEmpty()) {
+      return Optional.empty();
+    } else {
+      return application;
+    }
   }
 
   /**
@@ -43,12 +52,7 @@ public final class ApplicationService {
     return CompletableFuture.allOf(maybeApplication)
         .thenApplyAsync(
             v -> {
-              Optional<Application> application = maybeApplication.join();
-              if (application.isEmpty() || application.get().getProgramName().isEmpty()) {
-                return Optional.empty();
-              } else {
-                return application;
-              }
+              return validateApplication(maybeApplication.join());
             },
             httpExecutionContext.current());
   }
