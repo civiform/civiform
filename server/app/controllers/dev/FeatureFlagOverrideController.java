@@ -57,6 +57,6 @@ public final class FeatureFlagOverrideController extends Controller {
     newSettings.put(flagName, newValue);
     settingsService.updateSettings(newSettings.build(), "dev mode");
 
-    return redirect(request.getHeaders().get(HeaderNames.REFERER).orElse("/"));
+    return redirect(request.header(HeaderNames.REFERER).orElse("/"));
   }
 }
