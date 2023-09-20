@@ -156,6 +156,7 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getProgramTitle(),
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
+                      programId,
                       applicantId,
                       applicationId,
                       messagesApi.preferred(request),
@@ -180,14 +181,17 @@ public final class UpsellController extends CiviFormController {
   /** Download a PDF file of the application to the program. */
   @Secure
   public CompletionStage<Result> download(
-      Http.Request request, long applicationId, long applicantId) throws ProgramNotFoundException {
+      Http.Request request, long programId, long applicationId, long applicantId)
+      throws ProgramNotFoundException {
+    CompletableFuture<ProgramDefinition> program =
+        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
     CiviFormProfile profile =
         profileMaybe.orElseThrow(
             () -> new NoSuchElementException("User authorized as applicant but no profile found"));
 
     CompletableFuture<Account> account =
-        new CompletableFuture<Void>()
+        program
             .thenComposeAsync(
                 v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
             .thenComposeAsync(v -> profile.getAccount(), httpContext.current())
