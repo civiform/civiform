@@ -204,7 +204,12 @@ public final class UpsellController extends CiviFormController {
         .thenApplyAsync(
             check -> {
               if (!profile.isTrustedIntermediary()) {
-                if (!applicationMaybe.join().get().getApplicant().getAccount().equals(account.join())) {
+                if (!applicationMaybe
+                    .join()
+                    .get()
+                    .getApplicant()
+                    .getAccount()
+                    .equals(account.join())) {
                   return unauthorized();
                 }
               }
