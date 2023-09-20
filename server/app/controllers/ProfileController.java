@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -19,16 +19,16 @@ public class ProfileController extends Controller {
 
   private final ProfileView profileView;
   private final ProfileUtils profileUtils;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   @Inject
   public ProfileController(
       ProfileUtils profileUtils,
       ProfileView profileView,
-      HttpExecutionContext httpExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     this.profileUtils = checkNotNull(profileUtils);
     this.profileView = checkNotNull(profileView);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
   }
 
   public CompletionStage<Result> myProfile(Http.Request request) {
@@ -43,7 +43,7 @@ public class ProfileController extends Controller {
         .getApplicant()
         .thenApplyAsync(
             applicant -> ok(profileView.render(request, maybeProfile.get(), applicant)),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   public Result profilePage(Http.Request request, Long id) {

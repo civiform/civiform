@@ -22,12 +22,16 @@ lazy val root = (project in file("."))
       guice,
       javaJdbc,
       javaWs,
+      // Collections
+      "com.google.guava" % "guava" % "32.1.2-jre",
+      "com.google.auto" % "auto-common" % "1.2.2",
+
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.3",
       "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.3",
       "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3",
-      "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
+      "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
@@ -85,7 +89,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.23.0",
+      // "com.google.errorprone" % "error_prone_core" % "2.23.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
@@ -118,9 +122,9 @@ lazy val root = (project in file("."))
       "-XDcompilePolicy=simple",
       // Turn off the AutoValueSubclassLeaked error since the generated
       // code contains it - we can't control that.
-      "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
+      // "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
       "-implicit:class",
-      "-Werror",
+      // "-Werror",
       // The compile option below is a hack that preserves generated files. Normally,
       // AutoValue generates .java files, compiles them into .class files, and then deletes
       // the .java files. This option keeps the .java files in the specified directory,

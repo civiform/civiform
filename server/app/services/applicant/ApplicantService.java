@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
@@ -102,7 +102,7 @@ public final class ApplicantService {
   private final Clock clock;
   private final String baseUrl;
   private final boolean isStaging;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -122,7 +122,7 @@ public final class ApplicantService {
       SimpleEmail amazonSESClient,
       Clock clock,
       Config configuration,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
@@ -136,7 +136,7 @@ public final class ApplicantService {
     this.programService = checkNotNull(programService);
     this.amazonSESClient = checkNotNull(amazonSESClient);
     this.clock = checkNotNull(clock);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.serviceAreaUpdateResolver = checkNotNull(serviceAreaUpdateResolver);
     this.messagesApi = checkNotNull(messagesApi);
 
@@ -184,7 +184,7 @@ public final class ApplicantService {
                   programDefinition,
                   baseUrl);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from an application. */
@@ -321,7 +321,7 @@ public final class ApplicantService {
                               updates,
                               serviceAreaUpdate);
                         },
-                        httpExecutionContext.current());
+                        classLoaderExecutionContext.current());
               }
 
               return stageAndUpdateIfValid(
@@ -332,7 +332,7 @@ public final class ApplicantService {
                   updates,
                   Optional.empty());
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenCompose(
             (v) ->
                 applicationRepository
@@ -374,7 +374,7 @@ public final class ApplicantService {
       return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
-              (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
+              (finishedSaving) -> roApplicantProgramService, classLoaderExecutionContext.current());
     }
 
     return CompletableFuture.completedFuture(roApplicantProgramService);
@@ -396,14 +396,14 @@ public final class ApplicantService {
     if (submitterProfile.isTrustedIntermediary()) {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(ro -> validateApplicationForSubmission(ro, programId))
-          .thenComposeAsync(v -> submitterProfile.getAccount(), httpExecutionContext.current())
+          .thenComposeAsync(v -> submitterProfile.getAccount(), classLoaderExecutionContext.current())
           .thenComposeAsync(
               account ->
                   submitApplication(
                       applicantId,
                       programId,
                       /* tiSubmitterEmail= */ Optional.of(account.getEmailAddress())),
-              httpExecutionContext.current());
+              classLoaderExecutionContext.current());
     }
 
     return getReadOnlyApplicantProgramService(applicantId, programId)
@@ -516,9 +516,9 @@ public final class ApplicantService {
                       notifyApplicantFuture,
                       notifyTiSubmitterFuture,
                       updateStoredFileAclsForSubmit(applicantId, programId).toCompletableFuture())
-                  .thenApplyAsync((ignoreVoid) -> application, httpExecutionContext.current());
+                  .thenApplyAsync((ignoreVoid) -> application, classLoaderExecutionContext.current());
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -563,8 +563,8 @@ public final class ApplicantService {
     CompletableFuture<List<StoredFile>> storedFilesFuture =
         getReadOnlyApplicantProgramService(applicantId, programId)
             .thenApplyAsync(
-                ReadOnlyApplicantProgramService::getStoredFileKeys, httpExecutionContext.current())
-            .thenComposeAsync(storedFileRepository::lookupFiles, httpExecutionContext.current())
+                ReadOnlyApplicantProgramService::getStoredFileKeys, classLoaderExecutionContext.current())
+            .thenComposeAsync(storedFileRepository::lookupFiles, classLoaderExecutionContext.current())
             .toCompletableFuture();
 
     return CompletableFuture.allOf(programDefinitionCompletableFuture, storedFilesFuture)
@@ -583,7 +583,7 @@ public final class ApplicantService {
 
               return future;
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -733,7 +733,7 @@ public final class ApplicantService {
             amazonSESClient.send(applicantEmail, subject, message);
           }
         },
-        httpExecutionContext.current());
+        classLoaderExecutionContext.current());
   }
 
   /**
@@ -775,7 +775,7 @@ public final class ApplicantService {
                 return ApplicantPersonalInfo.ofTiPartiallyCreated(builder.build());
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return the preferred locale of the given applicant id. */
@@ -785,7 +785,7 @@ public final class ApplicantService {
         .thenApplyAsync(
             applicant ->
                 applicant.map(Applicant::getApplicantData).map(ApplicantData::preferredLocale),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /** Return the preferred locale of the given TI email. */
@@ -801,7 +801,7 @@ public final class ApplicantService {
               Optional<Applicant> applicant = account.get().newestApplicant();
               return applicant.map(Applicant::getApplicantData).map(ApplicantData::preferredLocale);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -865,7 +865,7 @@ public final class ApplicantService {
               return relevantProgramsForApplicantInternal(
                   activeProgramDefinitions, applications, allPrograms);
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -895,7 +895,7 @@ public final class ApplicantService {
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
                     .collect(ImmutableList.toImmutableList()),
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**

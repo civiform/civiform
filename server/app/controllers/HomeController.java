@@ -13,7 +13,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -24,7 +24,7 @@ public class HomeController extends Controller {
 
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final Optional<String> faviconURL;
   private final LanguageUtils languageUtils;
 
@@ -33,12 +33,12 @@ public class HomeController extends Controller {
       Config configuration,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       LanguageUtils languageUtils) {
     checkNotNull(configuration);
     this.profileUtils = checkNotNull(profileUtils);
     this.messagesApi = checkNotNull(messagesApi);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.languageUtils = checkNotNull(languageUtils);
     this.faviconURL =
         Optional.ofNullable(Strings.emptyToNull(configuration.getString("favicon_url")));
@@ -89,7 +89,7 @@ public class HomeController extends Controller {
                           .setLangFromBrowser(applicant.id));
                 }
               },
-              httpExecutionContext.current());
+            classLoaderExecutionContext.current());
     }
   }
 

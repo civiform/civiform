@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Applicant;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -29,14 +29,14 @@ import services.program.ProgramService;
  */
 public final class DeepLinkController extends CiviFormController {
 
-  private final HttpExecutionContext httpContext;
+  private final ClassLoaderExecutionContext httpContext;
   private final ApplicantService applicantService;
   private final ProgramService programService;
   private final LanguageUtils languageUtils;
 
   @Inject
   public DeepLinkController(
-      HttpExecutionContext httpContext,
+      ClassLoaderExecutionContext httpContext,
       ApplicantService applicantService,
       ProfileUtils profileUtils,
       ProgramService programService,

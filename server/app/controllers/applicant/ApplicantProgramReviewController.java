@@ -17,7 +17,7 @@ import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Call;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -52,7 +52,7 @@ import views.components.ToastMessage;
 public class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final IneligibleBlockView ineligibleBlockView;
@@ -63,7 +63,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   @Inject
   public ApplicantProgramReviewController(
       ApplicantService applicantService,
-      HttpExecutionContext httpExecutionContext,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,
@@ -74,7 +74,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
-    this.httpExecutionContext = checkNotNull(httpExecutionContext);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
@@ -104,7 +104,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
             v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
               Messages messages = messagesApi.preferred(request);
@@ -159,7 +159,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
               return ok(summaryView.render(params.build()));
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -197,7 +197,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
-            v -> submitInternal(request, applicantId, programId), httpExecutionContext.current())
+            v -> submitInternal(request, applicantId, programId), classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
@@ -261,7 +261,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       routes.ApplicantProgramsController.index(applicantId).url());
               return found(endOfProgramSubmission);
             },
-            httpExecutionContext.current())
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               if (ex instanceof CompletionException) {
