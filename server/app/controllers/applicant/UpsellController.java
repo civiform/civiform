@@ -203,13 +203,10 @@ public final class UpsellController extends CiviFormController {
     return CompletableFuture.allOf(applicationMaybe, account)
         .thenApplyAsync(
             check -> {
-              Account theAccount = account.join();
-              if (profile.isTrustedIntermediary()
-                  && !theAccount.ownedApplicantIds().contains(applicantId)) {
-                return unauthorized();
-              }
-              if (!applicationMaybe.join().get().getApplicant().getAccount().equals(theAccount)) {
-                return unauthorized();
+              if (!profile.isTrustedIntermediary()) {
+                if (!applicationMaybe.join().get().getApplicant().getAccount().equals(account.join())) {
+                  return unauthorized();
+                }
               }
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generatePdf(applicationMaybe.join().get());
