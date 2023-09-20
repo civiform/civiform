@@ -37,8 +37,6 @@ import services.program.StatusNotFoundException;
 public final class ProgramAdminApplicationService {
 
   private final ApplicantService applicantService;
-
-  private final ApplicationService applicationService;
   private final ApplicationEventRepository eventRepository;
   private final UserRepository userRepository;
   private final SimpleEmail emailClient;
@@ -52,7 +50,6 @@ public final class ProgramAdminApplicationService {
   @Inject
   ProgramAdminApplicationService(
       ApplicantService applicantService,
-      ApplicationService applicationService,
       ApplicationEventRepository eventRepository,
       UserRepository userRepository,
       Config configuration,
@@ -61,7 +58,6 @@ public final class ProgramAdminApplicationService {
       MessagesApi messagesApi,
       ApplicationRepository applicationRepository) {
     this.applicantService = checkNotNull(applicantService);
-    this.applicationService = checkNotNull(applicationService);
     this.userRepository = checkNotNull(userRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
