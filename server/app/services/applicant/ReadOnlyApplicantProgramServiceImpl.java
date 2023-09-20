@@ -8,8 +8,13 @@ import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import services.LocalizedStrings;
@@ -461,15 +466,36 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return ImmutableMap.of(
             currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
-        return ImmutableMap.of(
-            question.getContextualizedPath().join(Scalar.SELECTIONS),
-            question
+        ImmutableList<String> allOptions =
+          question.createMultiSelectQuestion().getQuestionDefinition().getCsvHeaders();
+//        ImmutableList<String> allOptions =
+//          question.createMultiSelectQuestion().getSelectedOptionsAdminName().get();
+        //allOptions.stream().forEach(v ->  staticOptions.add(v));
+        //System.out.print( "++  " + staticOptions.stream().collect(Collectors.joining(" , ","[","]")));
+       List<String> selectedList = question
                 .createMultiSelectQuestion()
                 .getSelectedOptionsAdminName()
                 .map(
-                    selectedOptions ->
-                        selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
-                .orElse(""));
+                    selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
+          .orElse(Collections.singletonList(""));
+       selectedList.stream().forEach(option -> {
+         if(!allOptions.contains(option))
+         {
+           question.createMultiSelectQuestion().getQuestionDefinition().updateCsvHeaders(option);
+         }
+       });
+       Map<Path,String> returnMap = new HashMap<>();
+       allOptions.stream().forEach(option -> returnMap.put(question.getContextualizedPath().join(option),selectedList.contains(option)? option:""));
+       return ImmutableMap.<Path, String>builder().putAll(returnMap).build();
+//        return ImmutableMap.of(
+//            question.getContextualizedPath().join(Scalar.SELECTIONS),
+//            question
+//                .createMultiSelectQuestion()
+//                .getSelectedOptionsAdminName()
+//                .map(
+//                    selectedOptions ->
+//                        selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
+//                .orElse(""));
       case FILEUPLOAD:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),
