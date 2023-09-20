@@ -227,7 +227,7 @@ public final class ProgramAdminApplicationService {
    * program.
    */
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    return applicationService.validateApplication(
+    return applicationService.validateProgram(
         applicationRepository.getApplication(applicationId).toCompletableFuture().join(), program);
   }
 }

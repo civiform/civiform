@@ -174,7 +174,7 @@ GET     /programAdmin       controllers.admin.ProgramAdminController.index(reque
 GET     /programs/:programSlug      controllers.applicant.DeepLinkController.programBySlug(request: Request, programSlug: String)
 
 # Upsell methods
-GET     /download                   controllers.applicant.UpsellController.download(request: Request, programId: Long, applicationId: Long, applicantId: Long)
+GET     /download                   controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
 GET     /considerSignIn             controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String)
 
 # User profile pages
