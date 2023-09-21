@@ -12,6 +12,9 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
@@ -42,6 +45,29 @@ public final class QuestionRepository {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+  }
+
+  public ImmutableList<String> getCsvHeaders(String questionName) {
+    questionName = questionName.isEmpty()? "color" : questionName;
+    Map<Long,String> alloptionsMap = new HashMap<>();
+     database
+      .sqlQuery(
+        "SELECT DISTINCT jsonb_array_elements(q.question_options)->>'adminName'AS AdminName,jsonb_array_elements(q.question_options)->>'id' AS Id"+
+    "FROM questions q where name = :currentQuestion::string")
+      .setParameter("currentQuestion", questionName)
+      .findList()
+      .stream()
+      .forEach(
+        row -> alloptionsMap.put(row.getLong("id"),row.getString("AdminName")));
+
+    Set<Long> allSelectedOptions = new HashSet<>();
+    database.sqlQuery("select  ((object #>> '{}')::jsonb)::json#>'{applicant,:questionName::string,selections}' AS selections from applications;\n")
+      .setParameter("questionName",questionName)
+      .findList()
+      .forEach(row -> ro);
+
+
+
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
