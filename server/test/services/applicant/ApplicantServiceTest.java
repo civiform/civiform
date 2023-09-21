@@ -992,7 +992,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programName,
                 baseUrl
                     + String.format(
-                        "/admin/programs/%d/applications/%d",
+                        "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
     Mockito.verify(amazonSESClient)
@@ -1070,7 +1070,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programName,
                 baseUrl
                     + String.format(
-                        "/admin/programs/%d/applications/%d",
+                        "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
     Mockito.verify(amazonSESClient)
