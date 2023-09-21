@@ -20,21 +20,26 @@ public final class CiviFormMarkdown {
   }
 
   /**
-   * This method removes the tags that wrap an HTML block. This is useful when you want to remove the <p> tags 
-   * that are added by default by the CommonMark library to strings that do not start with a Markdown indicator. 
-   * These inserted <p> tags can create paragraph breaks in places that are not intended. For example, in
-   * TextFormatter.createLinksAndEscapeText, we apply Markdown parsing to the strings in between urls.
-   * Allowing the default behavior of inserting <p> tags results in html that looks like this:
-   * 
-   * Markdown text: "The url www.kittens.com is the cutest url!"
-   * 
-   * Resulting rendered html:
-   *  <p>The url </p>
-   *  <a>www.kittens.com</a>
-   *  <p> is the cutest url!</p>
-   * 
-   * Logic for this method was pulled from this
-   * commit which is the recommended way to solve this problem:
+   * This method removes the tags that wrap an HTML block. This is useful when you want to remove
+   * the
+   *
+   * <p>tags that are added by default by the CommonMark library to strings that do not start with a
+   * Markdown indicator. These inserted
+   *
+   * <p>tags can create paragraph breaks in places that are not intended. For example, in
+   * TextFormatter.createLinksAndEscapeText, we apply Markdown parsing to the strings in between
+   * urls. Allowing the default behavior of inserting
+   *
+   * <p>tags results in html that looks like this:
+   *
+   * <p>Markdown text: "The url www.kittens.com is the cutest url!"
+   *
+   * <p>Resulting rendered html:
+   *
+   * <p>The url <a>www.kittens.com</a>
+   *
+   * <p>is the cutest url! Logic for this method was pulled from this commit which is the
+   * recommended way to solve this problem:
    * https://github.com/commonmark/commonmark-java/commit/8b0fd7c73afaf1756edb6412c15a75cc423a6ba9
    */
   public String renderWithoutWrappingTags(String markdown) {
