@@ -23,6 +23,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 
+/** Configuration used to generate a program specific swagger 2 schema */
 public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
   private final OpenApiSchemaSettings openApiSchemaSettings;
 
@@ -173,6 +174,10 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     }
   }
 
+  /**
+   * Returns the list of schemes to allow in the swagger schema. Special case to allow http for
+   * non-prod environments for testing purposes.
+   */
   private ImmutableList<Scheme> getSchemes() {
     if (openApiSchemaSettings.getAllowHttpScheme()) {
       return ImmutableList.of(Scheme.HTTP, Scheme.HTTPS);
@@ -181,6 +186,9 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     return ImmutableList.of(Scheme.HTTPS);
   }
 
+  /***
+   * Entry point to start building the program specific definitions for questions
+   */
   private ImmutableList<Definition> buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
 
@@ -192,6 +200,9 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
             .collect(ImmutableList.toImmutableList());
   }
 
+  /**
+   * Recursive method used to build out the full object graph from the tree of QuestionDefinitions
+   */
   private ImmutableList<Definition> buildApplicationDefinitions(
       QuestionDefinitionNode parentQuestionDefinitionNode)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
@@ -213,6 +224,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
       containerDefinition.addDefinition(
           Definition.builder("question_type", DefinitionType.STRING).build());
 
+      // Enumerators require special handling
       if (questionDefinition.getQuestionType() != QuestionType.ENUMERATOR) {
         for (Scalar scalar : getScalarsSortedByName(questionDefinition)) {
           String fieldName = scalar.name().toLowerCase(Locale.ROOT);
@@ -241,6 +253,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     return definitionList.stream().collect(ImmutableList.toImmutableList());
   }
 
+  /** Build an n-ary tree from the flat of QuestionDefinition list */
   private QuestionDefinitionNode getQuestionDefinitionRootNode(
       ProgramDefinition programDefinition) {
     ArrayList<QuestionDefinition> list = new ArrayList<>();
@@ -252,7 +265,9 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     }
 
     // Getting a sorted list to allow placing the enumerator questions
-    // into the tree before the questions that are children to the enumerator
+    // into the tree before the questions that are children to the enumerator.
+    // An enumerator already has to be created before a question can be added to it
+    // and questions can only be assigned a parent enumerator when first created.
     var sortedList =
         list.stream()
             .sorted(Comparator.comparing(QuestionDefinition::getId))
@@ -267,6 +282,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     return rootNode;
   }
 
+  /** Get the list of scalars for a question sorted alphabetically */
   private ImmutableList<Scalar> getScalarsSortedByName(QuestionDefinition questionDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     return Scalar.getScalars(questionDefinition.getQuestionType()).stream()
@@ -274,10 +290,12 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
         .collect(ImmutableList.toImmutableList());
   }
 
+  /** Gets the baseurl without scheme */
   private String getHostName() {
     return openApiSchemaSettings.getBaseUrl().replace("https://", "").replace("http://", "");
   }
 
+  /** Map ScalarType to DefinitionType */
   private DefinitionType getDefinitionTypeFromSwaggerType(ScalarType scalarType) {
     switch (scalarType) {
       case LONG:
@@ -296,6 +314,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     }
   }
 
+  /** Map ScalarType to Format */
   private Format getSwaggerFormat(ScalarType scalarType) {
     switch (scalarType) {
       case DATE:
@@ -315,6 +334,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
     }
   }
 
+  /** Determines if the question should be flagged as nullable */
   private Boolean setAsNull(DefinitionType definitionType) {
     return definitionType != DefinitionType.ARRAY && definitionType != DefinitionType.OBJECT;
   }

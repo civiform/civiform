@@ -1,5 +1,6 @@
 package services.openApi.v2;
 
+/** The available mime types to allow */
 public enum MimeType {
   Json("application/json");
 

@@ -1,10 +1,10 @@
 package services.openApi.v2;
 
 /**
- * https://swagger.io/specification/v2/#parameter-object
- *
- * <p>The location of the parameter. Possible values are "query", "header", "path", "formData" or
+ * The location of the parameter. Possible values are "query", "header", "path", "formData" or
  * "body".
+ *
+ * <p>https://swagger.io/specification/v2/#parameter-object
  */
 public enum In {
   QUERY("query"),

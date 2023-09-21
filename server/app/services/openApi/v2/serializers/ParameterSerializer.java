@@ -39,11 +39,12 @@ public final class ParameterSerializer extends OpenApiSchemaSerializer<Parameter
     gen.writeEndObject();
   }
 
+  /** Determines if the format field is allowed to be written */
   private Boolean canWriteFormat(DefinitionType definitionType, Optional<Format> format) {
-    if (definitionType == DefinitionType.OBJECT || definitionType == DefinitionType.ARRAY) {
+    if (format.isEmpty()) {
       return false;
     }
 
-    return format.isPresent();
+    return definitionType != DefinitionType.OBJECT && definitionType != DefinitionType.ARRAY;
   }
 }

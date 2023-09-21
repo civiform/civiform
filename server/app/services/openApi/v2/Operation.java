@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#operation-object
+ * Describes a single API operation on a path.
  *
- * <p>Describes a single API operation on a path.
+ * <p>https://swagger.io/specification/v2/#operation-object
  */
 @AutoValue
 public abstract class Operation {

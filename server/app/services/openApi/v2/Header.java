@@ -4,9 +4,9 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#header-object
+ * Lists the headers that can be sent as part of a response.
  *
- * <p>Settings for a header
+ * <p>https://swagger.io/specification/v2/#header-object
  */
 @AutoValue
 public abstract class Header {

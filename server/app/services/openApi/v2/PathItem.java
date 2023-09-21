@@ -4,11 +4,11 @@ import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 
 /**
- * https://swagger.io/specification/v2/#path-item-object
- *
- * <p>Describes the operations available on a single path. A Path Item may be empty, due to ACL
+ * Describes the operations available on a single path. A Path Item may be empty, due to ACL
  * constraints. The path itself is still exposed to the documentation viewer but they will not know
  * which operations and parameters are available.
+ *
+ * <p>https://swagger.io/specification/v2/#path-item-object
  */
 @AutoValue
 public abstract class PathItem {

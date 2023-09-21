@@ -5,11 +5,11 @@ import com.google.common.base.Preconditions;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#security-definitions-object
- *
- * <p>A declaration of the security schemes available to be used in the specification. This does not
+ * A declaration of the security schemes available to be used in the specification. This does not
  * enforce the security schemes on the operations and only serves to provide the relevant details
  * for each scheme.
+ *
+ * <p>https://swagger.io/specification/v2/#security-definitions-object
  */
 @AutoValue
 public abstract class SecurityDefinition {

@@ -1,9 +1,9 @@
 package services.openApi.v2;
 
 /**
- * https://swagger.io/specification/v2/#security-scheme-object
+ * The location of the API key. Valid values are "query" or "header".
  *
- * <p>The location of the API key. Valid values are "query" or "header".
+ * <p>https://swagger.io/specification/v2/#security-scheme-object
  */
 public enum ApiKeyLocation {
   QUERY("query"),

@@ -4,10 +4,10 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#tag-object
+ * Allows adding meta data to a single tag that is used by the Operation Object. It is not mandatory
+ * to have a Tag Object per tag used there.
  *
- * <p>Allows adding meta data to a single tag that is used by the Operation Object. It is not
- * mandatory to have a Tag Object per tag used there.
+ * <p>https://swagger.io/specification/v2/#tag-object
  */
 @AutoValue
 public abstract class Tag {

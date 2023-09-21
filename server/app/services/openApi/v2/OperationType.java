@@ -1,9 +1,9 @@
 package services.openApi.v2;
 
 /**
- * https://swagger.io/specification/v2/#path-item-object
+ * The allowed list of operations, a.k.a. Http Verbs.
  *
- * <p>The allowed list of operations, a.k.a. Http Verbs.
+ * <p>https://swagger.io/specification/v2/#path-item-object
  */
 public enum OperationType {
   GET("get"),

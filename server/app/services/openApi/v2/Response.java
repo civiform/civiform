@@ -5,9 +5,9 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#responses-object
+ * Describes a single response from an API Operation.
  *
- * <p>Describes a single response from an API Operation.
+ * <p>https://swagger.io/specification/v2/#responses-object
  */
 @AutoValue
 public abstract class Response {

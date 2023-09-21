@@ -1,9 +1,9 @@
 package services.openApi.v2;
 
 /**
- * https://swagger.io/specification/v2/#http-codes
+ * The HTTP Status Codes are used by CiviForm's API responses
  *
- * <p>The HTTP Status Codes are used by CiviForm's API responses
+ * <p>https://swagger.io/specification/v2/#http-codes
  */
 public enum HttpStatusCode {
   OK("200"),

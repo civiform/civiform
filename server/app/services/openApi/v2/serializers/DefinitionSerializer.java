@@ -26,7 +26,7 @@ public final class DefinitionSerializer extends OpenApiSchemaSerializer<Definiti
     gen.writeObjectFieldStart(value.getName());
     gen.writeStringField("type", value.getDefinitionType().toString());
 
-    if (showFormat(value.getFormat())) {
+    if (canWriteFormat(value.getFormat())) {
       writeEnumFieldIfPresent(gen, "format", value.getFormat());
     }
 
@@ -59,15 +59,12 @@ public final class DefinitionSerializer extends OpenApiSchemaSerializer<Definiti
     }
   }
 
-  private Boolean showFormat(Optional<Format> format) {
+  /** Determines if the format field is allowed to be written */
+  private Boolean canWriteFormat(Optional<Format> format) {
     if (format.isEmpty()) {
       return false;
     }
 
-    if (format.get() == Format.STRING || format.get() == Format.ARRAY) {
-      return false;
-    }
-
-    return true;
+    return format.get() != Format.STRING && format.get() != Format.ARRAY;
   }
 }

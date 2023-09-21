@@ -5,12 +5,12 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#schema-object
- *
- * <p>The Schema Object allows the definition of input and output data types. These types can be
+ * The Schema Object allows the definition of input and output data types. These types can be
  * objects, but also primitives and arrays. This object is based on the JSON Schema Specification
  * Draft 4 and uses a predefined subset of it. On top of this subset, there are extensions provided
  * by this specification to allow for more complete documentation.
+ *
+ * <p>https://swagger.io/specification/v2/#schema-object
  */
 @AutoValue
 public abstract class Definition {

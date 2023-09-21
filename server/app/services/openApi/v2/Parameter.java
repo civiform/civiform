@@ -4,9 +4,9 @@ import com.google.auto.value.AutoValue;
 import java.util.Optional;
 
 /**
- * https://swagger.io/specification/v2/#parameter-object
+ * Describes a single operation parameter.
  *
- * <p>Describes a single operation parameter.
+ * <p>https://swagger.io/specification/v2/#parameter-object
  */
 @AutoValue
 public abstract class Parameter {

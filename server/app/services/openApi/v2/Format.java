@@ -1,9 +1,9 @@
 package services.openApi.v2;
 
 /**
- * https://swagger.io/specification/v2/#data-type-format
+ * See link for mapping between type and format
  *
- * <p>See link for mapping between type and format
+ * <p>https://swagger.io/specification/v2/#data-type-format
  */
 public enum Format {
   INT32("int32"),
