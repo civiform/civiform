@@ -13,7 +13,6 @@ import forms.QuestionFormBuilder;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -81,30 +80,24 @@ public final class AdminQuestionController extends CiviFormController {
    * it.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(Request request, long id) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              QuestionDefinition questionDefinition;
-              try {
-                questionDefinition = readOnlyService.getQuestionDefinition(id);
-              } catch (QuestionNotFoundException e) {
-                return badRequest(e.toString());
-              }
+  public Result show(Request request, long id) {
+    var readOnlyService = service.getReadOnlyQuestionServiceSync();
+    QuestionDefinition questionDefinition;
+    try {
+      questionDefinition = readOnlyService.getQuestionDefinition(id);
+    } catch (QuestionNotFoundException e) {
+      return badRequest(e.toString());
+    }
 
-              Optional<QuestionDefinition> maybeEnumerationQuestion =
-                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
-              try {
-                return ok(
-                    editView.renderViewQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
-              } catch (InvalidQuestionTypeException e) {
-                return badRequest(
-                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
-              }
-            },
-            classLoaderExecutionContext.current());
+    Optional<QuestionDefinition> maybeEnumerationQuestion =
+        maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+    try {
+      return ok(
+          editView.renderViewQuestionForm(request, questionDefinition, maybeEnumerationQuestion));
+    } catch (InvalidQuestionTypeException e) {
+      return badRequest(
+          invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
+    }
   }
 
   /** Return a HTML page containing a form to create a new question in the draft version. */
@@ -217,41 +210,36 @@ public final class AdminQuestionController extends CiviFormController {
    * to edit them.
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> edit(Request request, Long id) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              QuestionDefinition questionDefinition;
-              try {
-                questionDefinition = readOnlyService.getQuestionDefinition(id);
-              } catch (QuestionNotFoundException e) {
-                return badRequest(e.toString());
-              }
+  public Result edit(Request request, Long id) {
+    var readOnlyService = service.getReadOnlyQuestionServiceSync();
+    QuestionDefinition questionDefinition;
 
-              // Handle case someone tries to edit a live question that already has a draft version.
-              // In this case we should redirect to the draft version.
-              // https://github.com/seattle-uat/civiform/issues/2497
-              Optional<QuestionDefinition> possibleDraft =
-                  readOnlyService
-                      .getActiveAndDraftQuestions()
-                      .getDraftQuestionDefinition(questionDefinition.getName());
-              if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
-                return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
-              }
+    try {
+      questionDefinition = readOnlyService.getQuestionDefinition(id);
+    } catch (QuestionNotFoundException e) {
+      return badRequest(e.toString());
+    }
 
-              Optional<QuestionDefinition> maybeEnumerationQuestion =
-                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
-              try {
-                return ok(
-                    editView.renderEditQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
-              } catch (InvalidQuestionTypeException e) {
-                return badRequest(
-                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
-              }
-            },
-            classLoaderExecutionContext.current());
+    // Handle case someone tries to edit a live question that already has a draft version.
+    // In this case we should redirect to the draft version.
+    // https://github.com/seattle-uat/civiform/issues/2497
+    Optional<QuestionDefinition> possibleDraft =
+        readOnlyService
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionDefinition.getName());
+    if (possibleDraft.isPresent() && possibleDraft.get().getId() != id) {
+      return redirect(routes.AdminQuestionController.edit(possibleDraft.get().getId()));
+    }
+
+    Optional<QuestionDefinition> maybeEnumerationQuestion =
+        maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+    try {
+      return ok(
+          editView.renderEditQuestionForm(request, questionDefinition, maybeEnumerationQuestion));
+    } catch (InvalidQuestionTypeException e) {
+      return badRequest(
+          invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
+    }
   }
 
   /** POST endpoint for updating a question in the draft version. */

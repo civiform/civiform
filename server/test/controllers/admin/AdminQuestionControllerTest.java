@@ -180,7 +180,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_invalidIDReturnsBadRequest() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, 9999L).toCompletableFuture().join();
+    Result result = controller.edit(request, 9999L);
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -195,7 +195,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
+    Result result = controller.edit(request, publishedQuestion.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -206,7 +206,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_returnsPopulatedForm() {
     Question question = testQuestionBank.applicantName();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, question.id).toCompletableFuture().join();
+    Result result = controller.edit(request, question.id);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
@@ -217,7 +217,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_repeatedQuestion_hasEnumeratorName() {
     Question repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
+    Result result = controller.edit(request, repeatedQuestion.id);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
