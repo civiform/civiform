@@ -178,6 +178,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .url();
     return form()
         .withClasses("mt-6")
+        .attr("data-override-disable-submit-on-enter")
         .withMethod("GET")
         .withAction(
             routes.AdminApplicationController.index(
@@ -211,7 +212,6 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                 .withClasses("flex"))),
             FieldWithLabel.input()
                 .setFieldName(SEARCH_PARAM)
-                .setId("cf-search-applications")
                 .setValue(filterParams.search().orElse(""))
                 .setLabelText("Search by name, email, or application ID")
                 .getInputTag()
