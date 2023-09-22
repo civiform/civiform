@@ -262,7 +262,7 @@ function attachStopPropogationListenerOnFormButtons() {
 /**
  * Disables default browser behavior where pressing Enter on any input in a form
  * triggers form submission. See https://github.com/civiform/civiform/issues/3872
- * Except when the overrideDisableSubmitOnEnter attribute is present for the form, the default form action would work
+ * Except when the data-override-disable-submit-on-enter attribute is present for the form, the default form action would work
  * See https://github.com/civiform/civiform/issues/5464
  */
 function disableEnterToSubmitBehaviorOnForms() {
