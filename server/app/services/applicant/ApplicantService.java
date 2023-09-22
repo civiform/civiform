@@ -603,11 +603,11 @@ public final class ApplicantService {
         baseUrl
             + routes.AdminApplicationController.index(
                     programId,
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
-                    Optional.empty(),
+                    /* search= */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty(),
                     Optional.of(applicationViewLink))
                 .url();
 
