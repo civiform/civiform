@@ -262,8 +262,15 @@ function attachStopPropogationListenerOnFormButtons() {
 /**
  * Disables default browser behavior where pressing Enter on any input in a form
  * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ * Except when the ignore element is present, the default form action would work
+ * See https://github.com/civiform/civiform/issues/5464
  */
 function disableEnterToSubmitBehaviorOnForms() {
+  const ignoreElement = document.getElementById('cf-search-applications')
+  if (ignoreElement) {
+    return
+  }
+
   addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
     const target = (e.target as HTMLElement).tagName.toLowerCase()
     // If event originated from a button, link, or textarea, it should proceed with the default action.
