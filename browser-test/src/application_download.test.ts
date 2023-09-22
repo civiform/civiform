@@ -1,6 +1,7 @@
 import {
   createTestContext,
   dropTables,
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -232,6 +233,7 @@ describe('normal application flow', () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'application_exportable')
 
     const programName = 'Test program'
     await adminQuestions.addNameQuestion({questionName: 'Name'})

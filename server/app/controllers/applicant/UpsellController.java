@@ -30,6 +30,7 @@ import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 import views.components.ToastMessage;
@@ -45,6 +46,7 @@ public final class UpsellController extends CiviFormController {
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
   private final PdfExporterService pdfExporterService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public UpsellController(
@@ -57,6 +59,7 @@ public final class UpsellController extends CiviFormController {
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
       PdfExporterService pdfExporterService,
+      SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
@@ -67,6 +70,7 @@ public final class UpsellController extends CiviFormController {
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
     this.pdfExporterService = checkNotNull(pdfExporterService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure
@@ -183,6 +187,9 @@ public final class UpsellController extends CiviFormController {
   public CompletionStage<Result> download(
       Http.Request request, long programId, long applicationId, long applicantId)
       throws ProgramNotFoundException {
+    if (!settingsManifest.getApplicationExportable(request)) {
+      return CompletableFuture.completedFuture(forbidden());
+    }
     CompletableFuture<ProgramDefinition> program =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
     Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);

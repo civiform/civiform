@@ -748,6 +748,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
+  /** Enables the feature that allows completed applications to be downloadable by PDF. */
+  public boolean getApplicationExportable(RequestHeader request) {
+    return getBool("APPLICATION_EXPORTABLE", request);
+  }
+
   /**
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
@@ -1630,6 +1635,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               "Configuration options to enable or disable optional or in-development features.",
               ImmutableList.of(),
               ImmutableList.of(
+                  SettingDescription.create(
+                      "APPLICATION_EXPORTABLE",
+                      "Enables the feature that allows completed applications to be downloadable"
+                          + " by PDF.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
                       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
                       "Enables the feature that allows for service area validation of a corrected"

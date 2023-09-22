@@ -22,6 +22,7 @@ import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.Modal;
@@ -34,12 +35,15 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
 
   private final ApplicantLayout layout;
   private final String authProviderName;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantUpsellCreateAccountView(
       ApplicantLayout layout,
+      SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
+    this.settingsManifest = settingsManifest;
     this.authProviderName = checkNotNull(authProviderName);
   }
 
@@ -67,13 +71,16 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
-    ATag downloadButton =
-        new ATag()
-            .withHref(redirectUrl)
-            .with(
-                makeSvgTextButton("Download", Icons.DOWNLOAD)
-                    .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
-            .withClass("flex");
+    ATag downloadButton = new ATag();
+    if (settingsManifest.getApplicationExportable(request)) {
+      downloadButton =
+          new ATag()
+              .withHref(redirectUrl)
+              .with(
+                  makeSvgTextButton("Download", Icons.DOWNLOAD)
+                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+              .withClass("flex");
+    }
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
