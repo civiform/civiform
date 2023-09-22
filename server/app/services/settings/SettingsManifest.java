@@ -42,8 +42,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Small logo for the civic entity used on the login page. */
-  public Optional<String> getWhitelabelSmallLogoUrl() {
-    return getString("WHITELABEL_SMALL_LOGO_URL");
+  public Optional<String> getCivicEntitySmallLogoUrl() {
+    return getString("CIVIC_ENTITY_SMALL_LOGO_URL");
   }
 
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
@@ -316,8 +316,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The name of the admin group in Active Directory, typically used to tell if a user is a global
    * admin.
    */
-  public Optional<String> getAdfsGlobalAdminGroup() {
-    return getString("ADFS_GLOBAL_ADMIN_GROUP");
+  public Optional<String> getAdfsAdminGroup() {
+    return getString("ADFS_ADMIN_GROUP");
   }
 
   /**
@@ -487,8 +487,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** The email address used for the 'from' email header for emails sent by CiviForm. */
-  public Optional<String> getAwsSesSender() {
-    return getString("AWS_SES_SENDER");
+  public Optional<String> getSenderEmailAddress() {
+    return getString("SENDER_EMAIL_ADDRESS");
   }
 
   /** What static file storage provider to use. */
@@ -582,24 +582,24 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If this is a staging deployment, the application notification email is sent to this email
    * address instead of the program administrator's email address.
    */
-  public Optional<String> getStagingAdminList() {
-    return getString("STAGING_ADMIN_LIST");
+  public Optional<String> getStagingProgramAdminNotificationMailingList() {
+    return getString("STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST");
   }
 
   /**
    * If this is a staging deployment, the application notification email is sent to this email
    * address instead of the trusted intermediary's email address.
    */
-  public Optional<String> getStagingTiList() {
-    return getString("STAGING_TI_LIST");
+  public Optional<String> getStagingTiNotificationMailingList() {
+    return getString("STAGING_TI_NOTIFICATION_MAILING_LIST");
   }
 
   /**
    * If this is a staging deployment, the application notification email is sent to this email
    * address instead of the applicant's email address.
    */
-  public Optional<String> getStagingApplicantList() {
-    return getString("STAGING_APPLICANT_LIST");
+  public Optional<String> getStagingApplicantNotificationMailingList() {
+    return getString("STAGING_APPLICANT_NOTIFICATION_MAILING_LIST");
   }
 
   /**
@@ -824,7 +824,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
-                      "WHITELABEL_SMALL_LOGO_URL",
+                      "CIVIC_ENTITY_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
                       /* isRequired= */ false,
                       SettingType.STRING,
@@ -1170,7 +1170,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
-                                      "ADFS_GLOBAL_ADMIN_GROUP",
+                                      "ADFS_ADMIN_GROUP",
                                       "The name of the admin group in Active Directory, typically"
                                           + " used to tell if a user is a global admin.",
                                       /* isRequired= */ false,
@@ -1471,7 +1471,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "AWS_SES_SENDER",
+                      "SENDER_EMAIL_ADDRESS",
                       "The email address used for the 'from' email header for emails sent by"
                           + " CiviForm.",
                       /* isRequired= */ false,
@@ -1499,7 +1499,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "STAGING_ADMIN_LIST",
+                      "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the program administrator's email"
                           + " address.",
@@ -1507,7 +1507,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "STAGING_TI_LIST",
+                      "STAGING_TI_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the trusted intermediary's email"
                           + " address.",
@@ -1515,7 +1515,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "STAGING_APPLICANT_LIST",
+                      "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the applicant's email address.",
                       /* isRequired= */ false,

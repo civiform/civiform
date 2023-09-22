@@ -93,7 +93,10 @@ public final class ApplicantQuestionRendererFactory {
       builder.setQuestionOptions(
           ImmutableList.of(
               QuestionOption.create(
-                  1L, 1L, LocalizedStrings.of(Locale.US, "Sample question option"))));
+                  1L,
+                  1L,
+                  "sample option admin name",
+                  LocalizedStrings.of(Locale.US, "Sample question option"))));
     }
 
     if (questionType.equals(QuestionType.ENUMERATOR)) {

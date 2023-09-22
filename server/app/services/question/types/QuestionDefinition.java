@@ -75,6 +75,7 @@ public abstract class QuestionDefinition {
     return config.lastModifiedTime();
   }
 
+  // Note that this formatting logic is duplicated in main.ts formatQuestionName()
   public final String getQuestionNameKey() {
     return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
   }

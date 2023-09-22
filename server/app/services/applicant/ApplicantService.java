@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
+import controllers.admin.routes;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -595,10 +596,21 @@ public final class ApplicantService {
    */
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
+    String applicationViewLink =
+        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
+
     String viewLink =
         baseUrl
-            + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
+            + routes.AdminApplicationController.index(
+                    programId,
+                    /* search= */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty(),
+                    Optional.of(applicationViewLink))
                 .url();
+
     String subject = String.format("New application %d submitted", applicationId);
     String message =
         String.format(

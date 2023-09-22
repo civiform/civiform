@@ -13,7 +13,6 @@ import static j2html.TagCreator.span;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import forms.MultiOptionQuestionForm;
 import forms.QuestionForm;
 import forms.QuestionFormBuilder;
 import j2html.tags.DomContent;
@@ -104,7 +103,7 @@ public final class QuestionEditView extends BaseHtmlView {
         String.format("New %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
-        buildQuestionContainer(title, questionForm)
+        buildQuestionContainer(title)
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions)
                     .with(makeCsrfTokenInputTag(request)));
@@ -155,7 +154,7 @@ public final class QuestionEditView extends BaseHtmlView {
         String.format("Edit %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
-        buildQuestionContainer(title, questionForm)
+        buildQuestionContainer(title)
             .with(
                 buildEditQuestionForm(id, questionForm, maybeEnumerationQuestionDefinition)
                     .with(makeCsrfTokenInputTag(request)));
@@ -182,7 +181,7 @@ public final class QuestionEditView extends BaseHtmlView {
     SelectWithLabel enumeratorOption =
         enumeratorOptionsFromMaybeEnumerationQuestionDefinition(maybeEnumerationQuestionDefinition);
     DivTag formContent =
-        buildQuestionContainer(title, QuestionFormBuilder.create(questionDefinition))
+        buildQuestionContainer(title)
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption));
 
     return renderWithPreview(request, formContent, questionType, title);
@@ -209,7 +208,7 @@ public final class QuestionEditView extends BaseHtmlView {
         questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false);
   }
 
-  private DivTag buildQuestionContainer(String title, QuestionForm questionForm) {
+  private DivTag buildQuestionContainer(String title) {
     return div()
         .withId("question-form")
         .withClasses(
@@ -224,33 +223,24 @@ public final class QuestionEditView extends BaseHtmlView {
             "relative",
             "w-2/5")
         .with(renderHeader(title))
-        .with(multiOptionQuestionField(questionForm));
+        .with(multiOptionQuestionField());
   }
 
   // A hidden template for multi-option questions.
-  private DivTag multiOptionQuestionField(QuestionForm questionForm) {
-    DivTag multiOptionQuestionField =
-        div()
-            .with(
-                QuestionConfig.multiOptionQuestionFieldTemplate(messages)
-                    .withId("multi-option-question-answer-template")
-                    // Add "hidden" to other classes, so that the template is not shown
-                    .withClasses(
-                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-                        ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-                        "hidden",
-                        "flex",
-                        "flex-row",
-                        "mb-4"));
-    if (questionForm instanceof MultiOptionQuestionForm) {
-      multiOptionQuestionField.with(
-          FieldWithLabel.number()
-              .setFieldName("nextAvailableId")
-              .setValue(((MultiOptionQuestionForm) questionForm).getNextAvailableId())
-              .getNumberTag()
-              .withClasses("hidden"));
-    }
-    return multiOptionQuestionField;
+  private DivTag multiOptionQuestionField() {
+    return div()
+        .with(
+            QuestionConfig.multiOptionQuestionFieldTemplate(messages)
+                .withId("multi-option-question-answer-template")
+                // Add "hidden" to other classes, so that the template is not shown
+                .withClasses(
+                    ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                    ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
+                    "hidden",
+                    "flex",
+                    "flex-row",
+                    "mb-4",
+                    "items-center"));
   }
 
   private FormTag buildNewQuestionForm(
@@ -338,9 +328,15 @@ public final class QuestionEditView extends BaseHtmlView {
 
     // The question name and enumerator fields should not be changed after the question is created.
     // If this form is not for creation, hidden fields to pass enumerator and name data are added.
-    formTag.with(
-        h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
-        administrativeNameField(questionForm.getQuestionName(), !forCreate));
+    formTag
+        .with(
+            h2("Visible to administrators only").withClasses("py-2", "mt-6", "font-semibold"),
+            administrativeNameField(questionForm.getQuestionName(), !forCreate))
+        .condWith(
+            forCreate,
+            p().withId("question-name-preview")
+                .withClasses("text-xs", "text-gray-500", "pb-3")
+                .with(span("Visible in the API as: "), span("").withId("formatted-name")));
     if (!forCreate) {
       formTag.with(
           input()
@@ -525,8 +521,8 @@ public final class QuestionEditView extends BaseHtmlView {
         .setToolTipText(
             "This will be used to identify questions in the API and CSV export.  It will be"
                 + " formatted so that white spaces are replaced with underscores, uppercase"
-                + " letters are converted to lowercase and hyphens are stripped.  For example,"
-                + " \"My Question Name\" will appear as \"my_question_name\" in the API export.")
+                + " letters are converted to lowercase and all non-alphabetic characters are"
+                + " stripped.")
         .setToolTipIcon(Icons.INFO)
         .setRequired(true)
         .setValue(adminName)
