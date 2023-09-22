@@ -405,4 +405,28 @@ describe('normal question lifecycle', () => {
       newQuestionText,
     )
   })
+
+  it('shows preview of formatted question name when creating a new question', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.gotoAdminQuestionsPage()
+    await page.click('#create-question-button')
+    await page.click('#create-name-question')
+    await waitForPageJsLoad(page)
+    await page.fill(
+      'label:has-text("Administrative identifier")',
+      'My Test Question14-0',
+    )
+    expect(await page.locator('#question-name-preview').innerText()).toContain(
+      'Visible in the API as:',
+    )
+
+    // Wait for debounce
+    await page.waitForTimeout(300) // ms
+
+    expect(await page.locator('#formatted-name').innerText()).toEqual(
+      'my_test_question',
+    )
+  })
 })

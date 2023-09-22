@@ -7,6 +7,7 @@
  *  - Rare instances in which we need to update a page without refreshing.
  *  - TBD
  */
+
 import {addEventListenerToElements, assertNotNull} from './util'
 
 function attachDropdown(elementId: string) {
@@ -300,6 +301,31 @@ export function init() {
         'add-new-option',
         'question-settings',
       )
+    })
+  }
+
+  // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
+  const formatQuestionName = (unformatted: string) => {
+    const formatted = unformatted
+      .toLowerCase()
+      .replace(/[^a-zA-Z ]/g, '')
+      .replace(/\s/g, '_')
+    return formatted
+  }
+
+  // Give a live preview of how the question name will be formatted in exports
+  const questionNameInput = document.getElementById('question-name-input')
+  const formattedOutput: HTMLElement | null =
+    document.getElementById('formatted-name')
+  if (questionNameInput && formattedOutput) {
+    formattedOutput.innerText = formatQuestionName(
+      (questionNameInput as HTMLInputElement).value,
+    )
+    questionNameInput.addEventListener('input', (event: Event) => {
+      const target = event.target as HTMLInputElement
+      if (formattedOutput && target) {
+        formattedOutput.innerText = formatQuestionName(target.value)
+      }
     })
   }
 
