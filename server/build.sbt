@@ -32,6 +32,7 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.commonmark" % "commonmark" % "0.21.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
 
       // Amazon AWS SDK
       "software.amazon.awssdk" % "s3" % "2.20.149",

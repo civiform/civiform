@@ -1,8 +1,13 @@
 package views;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import org.commonmark.Extension;
+import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.node.Document;
 import org.commonmark.node.Link;
+import org.commonmark.node.ListBlock;
 import org.commonmark.node.Node;
 import org.commonmark.node.Text;
 import org.commonmark.parser.Parser;
@@ -68,10 +73,13 @@ public final class CiviFormMarkdown {
     return RENDERER.render(document);
   }
 
-  private static final Parser PARSER = Parser.builder().build();
+  private static final List<Extension> extensions = Arrays.asList(AutolinkExtension.create());
+
+  private static final Parser PARSER = Parser.builder().extensions(extensions).build();
 
   private static final HtmlRenderer RENDERER =
       HtmlRenderer.builder()
+          .extensions(extensions)
           .attributeProviderFactory(context -> new CiviFormAttributeProvider())
           .build();
 
@@ -81,8 +89,11 @@ public final class CiviFormMarkdown {
     @Override
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {
       if (node instanceof Link) {
-        attributes.put("class", BaseStyles.LINK_TEXT);
+        attributes.put(
+            "class", BaseStyles.LINK_TEXT + " " + BaseStyles.LINK_HOVER_TEXT + " underline");
         attributes.put("target", "_blank");
+      } else if (node instanceof ListBlock) {
+        attributes.put("class", "list-disc mx-8");
       }
     }
   }
