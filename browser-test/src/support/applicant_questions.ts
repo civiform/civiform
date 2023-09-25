@@ -329,7 +329,7 @@ export class ApplicantQuestions {
       this.page.click('text="Download"'),
     ])
     const path = await downloadEvent.path()
-    if (path === null || readFileSync(path, 'utf8').length == 0) {
+    if (path === null || readFileSync(path, 'utf8').length === 0) {
       throw new Error('download failed')
     }
     await waitForPageJsLoad(this.page)
