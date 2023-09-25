@@ -424,7 +424,9 @@ public final class ProgramIndexView extends BaseHtmlView {
                 .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
         TextFormatter.formatText(
-            program.localizedDescription().getOrDefault(preferredLocale), false);
+            program.localizedDescription().getOrDefault(preferredLocale),
+            /*preserveEmptyLines= */ false,
+            /*addRequiredIndicator= */ false);
     DivTag description =
         div()
             .withId(baseId + "-description")

@@ -69,7 +69,11 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .withClasses(
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
-                    .with(TextFormatter.formatText(applicantQuestion.getQuestionHelpText(), true)))
+                    .with(
+                        TextFormatter.formatText(
+                            applicantQuestion.getQuestionHelpText(),
+                            /*preserveEmptyLines= */ true,
+                            /*addRequiredIndicator= */ false)))
             .withClasses("mb-4");
 
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> validationErrors;
@@ -98,7 +102,10 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.formatText(applicantQuestion.getQuestionText(), true);
+        TextFormatter.formatText(
+            applicantQuestion.getQuestionText(),
+            /*preserveEmptyLines= */ true,
+            /*addRequiredIndicator= */ !applicantQuestion.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 
