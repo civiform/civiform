@@ -1,12 +1,18 @@
 package views.components;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.endsWith;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
 import java.util.List;
 import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 public class TextFormatterTest {
 
@@ -139,5 +145,40 @@ public class TextFormatterTest {
         TextFormatter.formatText(
             stringWithScriptTag, /*preserveEmptyLines=*/ false, /*addRequiredIndicator=*/ false);
     assertThat(formattedText.get(0).render()).isEqualTo("\n");
+  }
+
+  @Test
+  public void replacesH1Tags() {
+    String stringWithH1Markdown =
+        "# Header 1\n"
+            + "should be changed to h2 but\n"
+            + "## Header 2\n"
+            + "and\n"
+            + "### Header 3\n"
+            + " should be allowed";
+    ImmutableList<DomContent> formattedText =
+        TextFormatter.formatText(stringWithH1Markdown, false, false);
+    assertThat(formattedText.get(0).render())
+        .isEqualTo(
+            "<h2>Header 1</h2>\n<p>should be changed to h2 but</p>\n<h2>Header"
+                + " 2</h2>\n<p>and</p>\n<h3>Header 3</h3>\n<p>should be allowed</p>\n");
+  }
+
+  @Test
+  public void rejectedElementsAndAttributesAreLogged() {
+    Logger logger = (Logger) LoggerFactory.getLogger(TextFormatter.class);
+    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
+    listAppender.start();
+    logger.addAppender(listAppender);
+
+    String stringWithBadAttributesAndElements =
+        "<script>console.log('uhoh')</script><div id=\"bad-id\"></div>";
+    TextFormatter.formatText(stringWithBadAttributesAndElements, false, false);
+
+    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
+    assertThat(logsList.get(0).getMessage())
+        .isEqualTo("HTML element: \"script\" was caught and discarded.");
+    assertThat(logsList.get(1).getMessage())
+        .isEqualTo("HTML attribute: \"id\" was caught and discarded.");
   }
 }

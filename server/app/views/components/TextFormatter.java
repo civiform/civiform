@@ -4,14 +4,20 @@ import static j2html.TagCreator.rawHtml;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
+import java.util.List;
+import org.owasp.html.HtmlChangeListener;
 import org.owasp.html.HtmlPolicyBuilder;
 import org.owasp.html.PolicyFactory;
 import org.owasp.html.Sanitizers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import views.CiviFormMarkdown;
 import views.ViewUtils;
 
 /** The TextFormatter class formats text using Markdown and some custom logic. */
 public final class TextFormatter {
+
+  private static final Logger logger = LoggerFactory.getLogger(TextFormatter.class);
 
   private static final CiviFormMarkdown CIVIFORM_MARKDOWN = new CiviFormMarkdown();
 
@@ -27,7 +33,6 @@ public final class TextFormatter {
 
     String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText);
-    markdownText = replaceH1Tags(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicatorInsidePTag(markdownText);
     }
@@ -45,12 +50,6 @@ public final class TextFormatter {
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
   }
 
-  // maybe do this with sanitizer??
-  private static String replaceH1Tags(String markdownText) {
-    String replaceOpenTags = markdownText.replaceAll("<h1>", "<h2>");
-    return replaceOpenTags.replaceAll("</h1>", "</h2>");
-  }
-
   private static String addRequiredIndicatorInsidePTag(String markdownText) {
     int indexOfPTag = markdownText.lastIndexOf("</p>");
     String stringWithRequiredIndicator = ViewUtils.requiredQuestionIndicator().toString() + "</p>";
@@ -63,14 +62,39 @@ public final class TextFormatter {
             .allowElements(
                 "p", "div", "h2", "h3", "h4", "h5", "h6", "a", "ul", "li", "span", "svg", "br",
                 "em", "strong", "code", "path", "pre")
+            // Per accessibility best practices, we want to disallow adding h1 headers to
+            // ensure the page does not have more than one h1 header
+            // https://www.a11yproject.com/posts/how-to-accessible-heading-structure/
+            // This logic changes h1 headers to h2 headers which are still larger than the default
+            // text
+            .allowElements(
+                (String elementName, List<String> attrs) -> {
+                  return "h2";
+                },
+                "h1")
             .allowWithoutAttributes()
             .allowAttributes("class", "target")
             .globally()
             .toFactory();
 
-    // Maybe log bad actors?
-
     PolicyFactory policy = customPolicy.and(Sanitizers.LINKS);
-    return policy.sanitize(markdownText);
+    return policy.sanitize(markdownText, buildHtmlChangeListener(), /*context=*/ null);
+  }
+
+  private static HtmlChangeListener<Object> buildHtmlChangeListener() {
+    return new HtmlChangeListener<Object>() {
+      @Override
+      public void discardedTag(Object ctx, String elementName) {
+        logger.warn(String.format("HTML element: \"%s\" was caught and discarded.", elementName));
+      }
+
+      @Override
+      public void discardedAttributes(Object ctx, String tagName, String... attributeNames) {
+        for (String attribute : attributeNames) {
+          logger.warn(
+              String.format("HTML attribute: \"%s\" was caught and discarded.", attribute));
+        }
+      }
+    };
   }
 }
