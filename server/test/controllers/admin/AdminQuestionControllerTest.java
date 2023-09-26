@@ -180,7 +180,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void edit_invalidIDReturnsBadRequest() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, 9999L);
+    Result result = controller.edit(request, 9999L).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
@@ -195,7 +195,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(publishedQuestion.id).isNotEqualTo(draftQuestion.id);
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, publishedQuestion.id);
+    Result result = controller.edit(request, publishedQuestion.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
@@ -206,7 +206,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_returnsPopulatedForm() {
     Question question = testQuestionBank.applicantName();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, question.id);
+    Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
@@ -217,7 +217,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void edit_repeatedQuestion_hasEnumeratorName() {
     Question repeatedQuestion = testQuestionBank.applicantHouseholdMemberName();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.edit(request, repeatedQuestion.id);
+    Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
@@ -235,7 +235,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
     testQuestionBank.maybeSave(updatedQuestion, LifecycleStage.DRAFT);
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request);
+    Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -252,7 +252,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .build();
     testQuestionBank.maybeSave(newDraftQuestion, LifecycleStage.DRAFT);
 
-    result = controller.index(request);
+    result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -265,7 +265,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Test
   public void index_withNoQuestions() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request);
+    Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
@@ -277,7 +277,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void index_showsMessageFlash() {
     Request request =
         addCSRFToken(requestBuilderWithSettings().flash("success", "has message")).build();
-    Result result = controller.index(request);
+    Result result = controller.index(request).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(result.charset()).hasValue("utf-8");
