@@ -470,7 +470,7 @@ class PreviewController {
   }
 
   private static parseMarkdown(currentLine: string): Element {
-    const md = new MarkdownIt()
+    const md = new MarkdownIt({linkify: true})
     const parser = new DOMParser()
     let html
     if (currentLine[0] && currentLine[0] === this.headerIndicator) {
