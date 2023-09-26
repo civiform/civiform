@@ -29,7 +29,7 @@ public class StaticContentQuestionRenderer implements ApplicantQuestionRenderer 
             .with(
                 TextFormatter.formatText(
                     question.getQuestionText(),
-                    /*preserveEmptyLines= */ false,
+                    /*preserveEmptyLines= */ true,
                     /*addRequiredIndicator= */ false));
     return div()
         .withId(question.getContextualizedPath().toString())

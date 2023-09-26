@@ -71,7 +71,11 @@ public final class ProgramCardFactory {
                                 "text-black",
                                 "font-bold",
                                 "text-xl"))
-                    .with(TextFormatter.formatText(programDescriptionText, true, false))
+                    .with(
+                        TextFormatter.formatText(
+                            programDescriptionText,
+                            /*preserveEmptyLines=*/ true,
+                            /*addRequiredIndicator=*/ false))
                     .withClasses("line-clamp-2", "text-gray-700", "text-base")
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(request, displayProgram),
