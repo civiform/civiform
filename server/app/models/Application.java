@@ -93,6 +93,7 @@ public class Application extends BaseModel {
     return this.program;
   }
 
+  /** Returns the program's admin name. */
   public String getProgramName() {
     return getProgram().getProgramDefinition().adminName();
   }

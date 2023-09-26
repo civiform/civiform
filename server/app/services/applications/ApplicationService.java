@@ -23,15 +23,6 @@ public final class ApplicationService {
     this.httpExecutionContext = checkNotNull(httpExecutionContext);
   }
 
-  /** Validates that the given application is not empty or without a program name. */
-  public Optional<Application> validateApplication(Optional<Application> application) {
-    if (application.isEmpty() || application.get().getProgramName().isEmpty()) {
-      return Optional.empty();
-    } else {
-      return application;
-    }
-  }
-
   /**
    * Retrieves the application with the given ID and validates that it is associated with the given
    * program.
@@ -42,7 +33,7 @@ public final class ApplicationService {
     return CompletableFuture.allOf(maybeApplication)
         .thenApplyAsync(
             v -> {
-              return validateApplication(maybeApplication.join());
+              return maybeApplication.join();
             },
             httpExecutionContext.current());
   }

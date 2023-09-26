@@ -24,7 +24,6 @@ import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
-import views.components.Icons;
 import views.components.Modal;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
@@ -76,9 +75,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       downloadButton =
           new ATag()
               .withHref(redirectUrl)
-              .with(
-                  makeSvgTextButton("Download", Icons.DOWNLOAD)
-                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+              .with(button("Download").withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
               .withClass("flex");
     }
     ImmutableList<DomContent> actionButtons =

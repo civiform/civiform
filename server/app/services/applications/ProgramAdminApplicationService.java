@@ -30,6 +30,7 @@ import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
@@ -223,17 +224,23 @@ public final class ProgramAdminApplicationService {
    * program.
    */
   public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    return validateProgram(
-        applicationRepository.getApplication(applicationId).toCompletableFuture().join(), program);
+    try {
+      return validateProgram(
+          applicationRepository.getApplication(applicationId).toCompletableFuture().join(),
+          program);
+    } catch (ProgramNotFoundException e) {
+      return Optional.empty();
+    }
   }
 
   /** Validates that the given application is part of the given program. */
   private Optional<Application> validateProgram(
-      Optional<Application> application, ProgramDefinition program) {
+      Optional<Application> application, ProgramDefinition program)
+      throws ProgramNotFoundException {
     if (application.isEmpty()
         || application.get().getProgramName().isEmpty()
         || !application.get().getProgramName().equals(program.adminName())) {
-      return Optional.empty();
+      throw new ProgramNotFoundException("Application or program is empty or mismatched");
     }
     return application;
   }
