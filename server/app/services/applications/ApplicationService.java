@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Application;
-import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationRepository;
 
 /** The service responsible for mediating access to the Application resource. */
@@ -15,14 +14,11 @@ public final class ApplicationService {
   private final ApplicationRepository applicationRepository;
 
   @Inject
-  ApplicationService(
-      ApplicationRepository applicationRepository) {
+  ApplicationService(ApplicationRepository applicationRepository) {
     this.applicationRepository = checkNotNull(applicationRepository);
   }
 
-  /**
-   * Retrieves the application with the given ID.
-   */
+  /** Retrieves the application with the given ID. */
   public CompletionStage<Optional<Application>> getApplicationAsync(long applicationId) {
     return applicationRepository.getApplication(applicationId);
   }
