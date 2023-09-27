@@ -10,13 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import repository.ExportServiceRepository;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
@@ -52,18 +51,21 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
+  private final ExportServiceRepository exportServiceRepository;
 
   public ReadOnlyApplicantProgramServiceImpl(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
-      String baseUrl) {
+      String baseUrl,
+      ExportServiceRepository exportServiceRepository) {
     this(
         jsonPathPredicateGeneratorFactory,
         applicantData,
         programDefinition,
         baseUrl,
-        /* failedUpdates= */ ImmutableMap.of());
+        /* failedUpdates= */ ImmutableMap.of(),
+        exportServiceRepository);
   }
 
   protected ReadOnlyApplicantProgramServiceImpl(
@@ -71,7 +73,8 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
       String baseUrl,
-      ImmutableMap<Path, String> failedUpdates) {
+      ImmutableMap<Path, String> failedUpdates,
+      ExportServiceRepository exportServiceRepository) {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
     this.applicantData.setPreferredLocale(applicantData.preferredLocale());
@@ -79,6 +82,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
     this.baseUrl = checkNotNull(baseUrl);
+    this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
   @Override
@@ -466,37 +470,31 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         return ImmutableMap.of(
             currencyQuestion.getCurrencyPath(), currencyQuestion.getAnswerString());
       case CHECKBOX:
-        ImmutableList<String> allOptions =
-          question.createMultiSelectQuestion().getQuestionDefinition().getOptionsAdminName();
-        System.out.println("---------------------------------------------------------------");
-        System.out.println();
-        System.out.println("*** All Options are : ");
-        allOptions.stream().forEach(e -> System.out.print(e +" , "));
-//        ImmutableList<String> allOptions =
-//          question.createMultiSelectQuestion().getSelectedOptionsAdminName().get();
-        //allOptions.stream().forEach(v ->  staticOptions.add(v));
-        //System.out.print( "++  " + staticOptions.stream().collect(Collectors.joining(" , ","[","]")));
-       List<String> selectedList = question
+        String questionName =
+            question.createMultiSelectQuestion().getQuestionDefinition().getName();
+        List<String> allOptions = exportServiceRepository.getCsvHeaders(questionName);
+        //
+        // System.out.println("---------------------------------------------------------------");
+        //        System.out.println();
+        //        System.out.println("*** All Options are : ");
+        //        allOptions.stream().forEach(e -> System.out.print(e +" , "));
+        List<String> selectedList =
+            question
                 .createMultiSelectQuestion()
                 .getSelectedOptionsAdminName()
-                .map(
-                    selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
-          .orElse(Collections.singletonList(""));
-       Map<Path,String> returnMap = new HashMap<>();
-       allOptions.stream().forEach(option -> returnMap.put(question.getContextualizedPath().join(option),selectedList.contains(option)? option:""));
-        System.out.println();
-        System.out.println("*** Selected Options are : ");
-        selectedList.stream().forEach(e -> System.out.print(e +" , "));
-       return ImmutableMap.<Path, String>builder().putAll(returnMap).build();
-//        return ImmutableMap.of(
-//            question.getContextualizedPath().join(Scalar.SELECTIONS),
-//            question
-//                .createMultiSelectQuestion()
-//                .getSelectedOptionsAdminName()
-//                .map(
-//                    selectedOptions ->
-//                        selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
-//                .orElse(""));
+                .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
+                .orElse(Collections.singletonList(""));
+        Map<Path, String> returnMap = new HashMap<>();
+        allOptions.stream()
+            .forEach(
+                option ->
+                    returnMap.put(
+                        question.getContextualizedPath().join(option),
+                        selectedList.contains(option) ? option : ""));
+        //        System.out.println();
+        //        System.out.println("*** Selected Options are : ");
+        //        selectedList.stream().forEach(e -> System.out.print(e +" , "));
+        return ImmutableMap.<Path, String>builder().putAll(returnMap).build();
       case FILEUPLOAD:
         return ImmutableMap.of(
             question.getContextualizedPath().join(Scalar.FILE_KEY),

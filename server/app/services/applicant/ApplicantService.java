@@ -43,6 +43,7 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
+import repository.ExportServiceRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
@@ -108,6 +109,7 @@ public final class ApplicantService {
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
+  private final ExportServiceRepository exportServiceRepository;
 
   @Inject
   public ApplicantService(
@@ -125,7 +127,8 @@ public final class ApplicantService {
       DeploymentType deploymentType,
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      ExportServiceRepository exportServiceRepository) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -148,6 +151,7 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
+    this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
   /** Create a new {@link Applicant}. */
@@ -181,7 +185,8 @@ public final class ApplicantService {
                   jsonPathPredicateGeneratorFactory,
                   applicant.getApplicantData(),
                   programDefinition,
-                  baseUrl);
+                  baseUrl,
+                  exportServiceRepository);
             },
             httpExecutionContext.current());
   }
@@ -195,7 +200,8 @@ public final class ApplicantService {
               jsonPathPredicateGeneratorFactory,
               application.getApplicantData(),
               programService.getProgramDefinition(application.getProgram().id),
-              baseUrl));
+              baseUrl,
+              exportServiceRepository));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
@@ -208,14 +214,19 @@ public final class ApplicantService {
         jsonPathPredicateGeneratorFactory,
         application.getApplicantData(),
         programDefinition,
-        baseUrl);
+        baseUrl,
+        exportServiceRepository);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
   private ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
       ApplicantData applicantData, ProgramDefinition programDefinition) {
     return new ReadOnlyApplicantProgramServiceImpl(
-        jsonPathPredicateGeneratorFactory, applicantData, programDefinition, baseUrl);
+        jsonPathPredicateGeneratorFactory,
+        applicantData,
+        programDefinition,
+        baseUrl,
+        exportServiceRepository);
   }
 
   /**
@@ -297,7 +308,8 @@ public final class ApplicantService {
                       jsonPathPredicateGeneratorFactory,
                       applicant.getApplicantData(),
                       programDefinition,
-                      baseUrl);
+                      baseUrl,
+                      exportServiceRepository);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -366,7 +378,8 @@ public final class ApplicantService {
             applicant.getApplicantData(),
             programDefinition,
             baseUrl,
-            failedUpdates);
+            failedUpdates,
+            exportServiceRepository);
 
     Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
