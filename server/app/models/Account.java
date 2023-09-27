@@ -2,8 +2,10 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
+import auth.IdTokens;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
+import io.ebean.annotation.DbJsonB;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -49,6 +51,7 @@ public class Account extends BaseModel {
 
   private String authorityId;
   private String emailAddress;
+  @DbJsonB private IdTokens idTokens;
 
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
@@ -101,6 +104,15 @@ public class Account extends BaseModel {
 
   public Optional<TrustedIntermediaryGroup> getManagedByGroup() {
     return Optional.ofNullable(this.managedByGroup);
+  }
+
+  public IdTokens getIdTokens() {
+    return idTokens;
+  }
+
+  public Account setIdTokens(IdTokens idTokens) {
+    this.idTokens = idTokens;
+    return this;
   }
 
   public ImmutableList<String> getAdministeredProgramNames() {
