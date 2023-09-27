@@ -72,7 +72,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                     .with(
                         TextFormatter.formatText(
                             applicantQuestion.getQuestionHelpText(),
-                            /*preserveEmptyLines= */ true,
+                            /*preserveEmptyLines= */ false,
                             /*addRequiredIndicator= */ false)))
             .withClasses("mb-4");
 
@@ -104,7 +104,7 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.formatText(
             applicantQuestion.getQuestionText(),
-            /*preserveEmptyLines= */ true,
+            /*preserveEmptyLines= */ false,
             /*addRequiredIndicator= */ !applicantQuestion.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
