@@ -55,14 +55,12 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       String programTitle,
       LocalizedStrings customConfirmationMessage,
       ApplicantPersonalInfo personalInfo,
-      Long programId,
       Long applicantId,
       Long applicationId,
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
     boolean shouldUpsell = shouldUpsell(account);
-    String redirectUrl =
-        routes.UpsellController.download(programId, applicationId, applicantId).url();
+    String redirectUrl = routes.UpsellController.download(applicationId, applicantId).url();
     Modal loginPromptModal =
         createLoginPromptModal(
                 messages,

@@ -160,7 +160,6 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getProgramTitle(),
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
-                      programId,
                       applicantId,
                       applicationId,
                       messagesApi.preferred(request),
@@ -185,29 +184,15 @@ public final class UpsellController extends CiviFormController {
   /** Download a PDF file of the application to the program. */
   @Secure
   public CompletionStage<Result> download(
-      Http.Request request, long programId, long applicationId, long applicantId)
-      throws ProgramNotFoundException {
+      Http.Request request, long applicationId, long applicantId) throws ProgramNotFoundException {
     if (!settingsManifest.getApplicationExportable(request)) {
       return CompletableFuture.completedFuture(forbidden());
     }
-    CompletableFuture<ProgramDefinition> program =
-        programService.getProgramDefinitionAsync(programId).toCompletableFuture();
-    Optional<CiviFormProfile> profileMaybe = profileUtils.currentUserProfile(request);
-    CiviFormProfile profile =
-        profileMaybe.orElseThrow(
-            () -> new NoSuchElementException("User authorized as applicant but no profile found"));
-
-    CompletableFuture<Account> account =
-        program
-            .thenComposeAsync(
-                v -> checkApplicantAuthorization(request, applicantId), httpContext.current())
-            .thenComposeAsync(v -> profile.getAccount(), httpContext.current())
-            .toCompletableFuture();
-
+    CompletableFuture<Void> authorization = checkApplicantAuthorization(request, applicantId);
     CompletableFuture<Optional<Application>> applicationMaybe =
         applicationService.getApplicationAsync(applicationId).toCompletableFuture();
 
-    return CompletableFuture.allOf(applicationMaybe, account)
+    return CompletableFuture.allOf(applicationMaybe, authorization)
         .thenApplyAsync(
             check -> {
               PdfExporter.InMemoryPdf pdf =
@@ -228,6 +213,9 @@ public final class UpsellController extends CiviFormController {
                 }
                 if (cause instanceof ProgramNotFoundException) {
                   return notFound(cause.toString());
+                }
+                if (cause instanceof NoSuchElementException) {
+                  return unauthorized(cause.toString());
                 }
               }
               throw new RuntimeException(ex);
