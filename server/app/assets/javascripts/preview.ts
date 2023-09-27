@@ -1,7 +1,10 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull} from './util'
-import {AccordionController as Accordion} from './accordion'
-import MarkdownIt = require('markdown-it')
+var md = require('markdown-it')({
+  html: true,
+  linkify: true,
+  breaks: true
+});
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -43,42 +46,6 @@ class PreviewController {
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
-
-  private static accordionClasses = [
-    'cf-accordion',
-    'bg-white',
-    'my-4',
-    'p-4',
-    'rounded-lg',
-    'shadow-md',
-    'border',
-    'border-gray-300',
-  ]
-  private static accordionContentClasses = [
-    'cf-accordion-content',
-    'h-auto',
-    'mt-2',
-    'mb-1',
-  ]
-  private static accordionHeaderClasses = [
-    'cf-accordion-header',
-    'flex',
-    'justify-between',
-    'relative',
-    'w-full',
-    'bg-white',
-    'text-black',
-    'px-0',
-    'py-0',
-    'border-0',
-    'hover:bg-gray-100',
-  ]
-  private static accordionTitleClasses = ['text-xl', 'font-light']
-
-  private static accordionContent = '>'
-  private static accordionHeader = '### '
-  private static bulletedItem = '* '
-  private static headerIndicator = '#'
 
   constructor() {
     const textInput = document.getElementById(
@@ -263,7 +230,8 @@ class PreviewController {
       questionType &&
       questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
     if (useAdvancedFormatting) {
-      const contentElement = PreviewController.formatText(text, true)
+      // ROCKY pass through formatText here
+      const contentElement = PreviewController.formatText(text)
       contentElement.classList.add('text-sm')
       contentElement.classList.add('font-normal')
       contentElement.classList.add('pr-16')
@@ -280,13 +248,6 @@ class PreviewController {
         PreviewController.QUESTION_TEXT_SELECTOR,
         text,
       )
-    }
-    // Add the ability for the accordion to expand and collapse on click
-    const accordionHeaderElement = document.querySelector(
-      '.cf-accordion-header',
-    )
-    if (accordionHeaderElement) {
-      new Accordion(accordionHeaderElement as HTMLElement)
     }
   }
 
@@ -374,110 +335,52 @@ class PreviewController {
   }
 
   private static formatText(
-    text: string,
-    preserveEmptyLines: boolean,
-  ): Element {
-    const ret = document.createElement('div')
-    const lines = text.split('\n')
-    for (let i = 0; i < lines.length; i++) {
-      const currentLine = lines[i].trim()
-      if (currentLine.startsWith(this.accordionHeader)) {
-        const title = currentLine.substring(4)
-        let content = ''
-        let next = i + 1
-        while (
-          next < lines.length &&
-          lines[next].startsWith(this.accordionContent)
-        ) {
-          content += lines[next].substring(1) + '\n'
-          next++
-        }
-        i = next - 1
-        ret.appendChild(PreviewController.buildAccordion(title, content))
-      } else if (currentLine.startsWith(this.bulletedItem)) {
-        const listItems = [currentLine.substring(2).trim()]
-        let next = i + 1
-        while (
-          next < lines.length &&
-          lines[next].startsWith(this.bulletedItem)
-        ) {
-          listItems.push(lines[next].substring(2).trim())
-          next++
-        }
-        i = next - 1
-        ret.appendChild(PreviewController.buildList(listItems))
-      } else if (currentLine.length > 0) {
-        ret.appendChild(PreviewController.parseMarkdown(currentLine))
-      } else if (preserveEmptyLines) {
-        const emptyLine = document.createElement('div')
-        emptyLine.classList.add('h-6')
-        ret.appendChild(emptyLine)
-      }
-    }
-    return ret
-  }
-
-  private static buildAccordion(title: string, content: string): Element {
-    const childContent = PreviewController.formatText(
-      content,
-      /* preserveEmptyLines = */ true,
-    )
-    const accordion = document.createElement('div')
-    this.accordionClasses.forEach((accordionClass) =>
-      accordion.classList.add(accordionClass),
-    )
-
-    const accordionHeader = document.createElement('button')
-    accordionHeader.setAttribute('aria-controls', 'cf-accordion-content')
-    accordionHeader.setAttribute('aria-expanded', 'false')
-    accordionHeader.setAttribute('type', 'button')
-
-    this.accordionHeaderClasses.forEach((headerClass) =>
-      accordionHeader.classList.add(headerClass),
-    )
-
-    const accordionTitle = document.createElement('div')
-    this.accordionTitleClasses.forEach((titleClass) =>
-      accordionHeader.classList.add(titleClass),
-    )
-    accordionTitle.textContent = title
-    accordionHeader.appendChild(accordionTitle)
-
-    const accordionButton = document.createElement('div')
-    accordionHeader.appendChild(accordionButton)
-
-    accordion.appendChild(accordionHeader)
-
-    childContent.setAttribute('id', 'cf-accordion-content')
-    this.accordionContentClasses.forEach((contentClass) =>
-      childContent.classList.add(contentClass),
-    )
-    accordion.appendChild(childContent)
-    return accordion
-  }
-
-  private static buildList(items: string[]): Element {
-    const listTag = document.createElement('ul')
-    listTag.classList.add('list-disc')
-    listTag.classList.add('mx-8')
-
-    items.forEach((item) => {
-      const listItem = document.createElement('li')
-      listItem.appendChild(PreviewController.parseMarkdown(item))
-      listTag.appendChild(listItem)
-    })
-    return listTag
-  }
-
-  private static parseMarkdown(currentLine: string): Element {
-    const md = new MarkdownIt({linkify: true})
+    text: string  ): Element {
     const parser = new DOMParser()
-    let html
-    if (currentLine[0] && currentLine[0] === this.headerIndicator) {
-      html = parser.parseFromString(md.render(currentLine), 'text/html')
-    } else {
-      html = parser.parseFromString(md.renderInline(currentLine), 'text/html')
-    }
+
+    // Apply line breaks
+    text = text.split("\n").join("<br>") // for some reason this is screwing up other text formatting like lists and headers
+
+    // can try this
+  //   return _.map(input.split('\n'), function(line) {
+  //     return markdown.render(line).trim();
+  // }).join('\n');
+
+  // or maybe this
+//   this.md = new MarkdownIt();
+// const defaultParagraphRenderer = this.md.renderer.rules.paragraph_open || ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
+//     this.md.renderer.rules.paragraph_open = function (tokens, idx, options, env, self) {
+//       let result = '';
+//       if (idx > 1) {
+//         const inline = tokens[idx - 2];
+//         const paragraph = tokens[idx];
+//         if (inline.type === 'inline' && inline.map && inline.map[1] && paragraph.map && paragraph.map[0]) {
+//           const diff = paragraph.map[0] - inline.map[1];
+//           if (diff > 0) {
+//             result = '<br>'.repeat(diff);
+//           }
+//         }
+//       }
+//       return result + defaultParagraphRenderer(tokens, idx, options, env, self);
+//     };
+
+    let parsedHtml = md.render(text)
+    parsedHtml = parsedHtml.replace("<ul>", "<ul class=\"list-disc mx-8\">")
+    // how can i pull the href out???
+    // ok could use var href = s.match(/href="([^"]*)/)[1];
+    // but what if i have more than one a tag?
+    // parsedHtml = parsedHtml.replace(/<a href=".+">/, /<a href=".+" class=\"text-blue-600 hover:text-blue-500 underline\" targe=\"_blank\">/)
+    // this is nasty because it matches when i've just typed "http" but it might be the best i can do
+    parsedHtml = parsedHtml.replace(">http", " class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\">http")
+    parsedHtml = parsedHtml.replace("<h1>", "<h2>")
+    parsedHtml = parsedHtml.replace("</h1>", "</h2>")
+    
+
+    // const html = parser.parseFromString(md.renderer.render(parsedText, {}, {}), 'text/html') 
+    const html = parser.parseFromString(parsedHtml, 'text/html') 
+
+    console.log(parsedHtml)
+    
     return html.body
   }
 }
