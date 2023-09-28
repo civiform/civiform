@@ -16,7 +16,7 @@ public abstract class Parameter {
    * <p>The name of the parameter. Parameter names are case sensitive.
    *
    * <p>If in is "path", the name field MUST correspond to the associated path segment from the path
-   * field in the Paths Object. See Path Templating for further information.
+   * field in the Paths Object. See <a href="">Path Templating</a> for further information.
    *
    * <p>For all other cases, the name corresponds to the parameter name used based on the in
    * property.

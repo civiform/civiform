@@ -41,7 +41,7 @@ public abstract class Swagger {
   /**
    * Required.
    *
-   * <p>Provides metadata about the API. The metadata can be used by the clients if needed
+   * <p>Provides metadata about the API. The metadata can be used by the clients if needed.
    */
   public abstract Info getInfo();
 

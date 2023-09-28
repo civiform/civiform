@@ -73,9 +73,9 @@ public final class OpenApiSchemaController {
 
     try {
       String response = openApiSchemaGenerator.createSchema(optionalProgramDefinition.get());
-      return ok(
-          response); // setting result mime type to text/yaml or application/x-yaml forces file
-      // download
+
+      // Setting result mime type to text/yaml or application/x-yaml forces file to download
+      return ok(response);
     } catch (RuntimeException ex) {
       String errorMsg =
           String.format(
@@ -88,9 +88,9 @@ public final class OpenApiSchemaController {
 
   /** Get program definition for the specific slug and version */
   private Optional<ProgramDefinition> getProgramDefinition(
-      String programSlug, LifecycleStage useActiveVersion) {
+      String programSlug, LifecycleStage lifecycleStage) {
     try {
-      switch (useActiveVersion) {
+      switch (lifecycleStage) {
         case ACTIVE:
           ProgramDefinition activeProgramDefinition =
               programService
@@ -110,7 +110,7 @@ public final class OpenApiSchemaController {
     }
   }
 
-  /** Get either IT email address the support email address */
+  /** Get either IT email address or the support email address */
   private String getEmailAddress(Http.Request request) {
     Optional<String> contactEmailAddress =
         settingsManifest.getItEmailAddress(request).isPresent()

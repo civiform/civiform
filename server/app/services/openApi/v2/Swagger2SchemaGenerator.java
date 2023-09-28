@@ -230,7 +230,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
           String fieldName = scalar.name().toLowerCase(Locale.ROOT);
           DefinitionType definitionType = getDefinitionTypeFromSwaggerType(scalar.toScalarType());
           Format swaggerFormat = getSwaggerFormat(scalar.toScalarType());
-          Boolean nullable = setAsNull(definitionType);
+          Boolean nullable = isNullable(definitionType);
 
           containerDefinition.addDefinition(
               Definition.builder(fieldName, definitionType)
@@ -335,7 +335,7 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
   }
 
   /** Determines if the question should be flagged as nullable */
-  private Boolean setAsNull(DefinitionType definitionType) {
+  private Boolean isNullable(DefinitionType definitionType) {
     return definitionType != DefinitionType.ARRAY && definitionType != DefinitionType.OBJECT;
   }
 

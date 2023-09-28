@@ -5,13 +5,13 @@ package services.openApi.v2;
  *
  * <p>Required. The type of the security scheme. Valid values are "basic", "apiKey" or "oauth2".
  *
+ * <p>OAuth2 is not supported at his time
+ *
  * <p>https://swagger.io/specification/v2/#security-scheme-object
  */
 public enum SecurityType {
   BASIC("basic"),
-  API_KEY("apiKey"),
-//  OAUTH2("oauth2")
-;
+  API_KEY("apiKey");
 
   private final String name;
 
