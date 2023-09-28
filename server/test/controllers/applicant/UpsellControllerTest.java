@@ -172,4 +172,34 @@ public class UpsellControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains(programDefinition.localizedName().getDefault());
     assertThat(contentAsString(result)).contains("Create account");
   }
+
+  @Test
+  public void download_authenticatedApplicant() {
+
+  }
+
+  @Test
+  public void download_authenticatedTI() {
+
+  }
+
+  @Test
+  public void download_authenticatedApplicantWithout() {
+
+  }
+
+  @Test
+  public void download_featureFlagDisabled() {
+
+  }
+
+  @Test
+  public void download_invalidApplicantID() {
+
+  }
+
+  @Test
+  public void download_invalidApplicationID() {
+
+  }
 }
