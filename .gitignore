@@ -65,6 +65,9 @@ server/code-coverage/*
 # Compiled css
 tailwind.css
 
+# USWDS assets
+server/app/assets/uswds/**/*
+
 # env-var-doc python things
 env-var-docs/venv
 env-var-docs/**/*build

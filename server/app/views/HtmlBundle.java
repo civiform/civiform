@@ -191,6 +191,9 @@ public final class HtmlBundle {
     }
     footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
 
+    // Add USWDS scripts
+    footerTag.with(viewUtils.makeUSWDSJsTag("uswds.min"));
+
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));
     }

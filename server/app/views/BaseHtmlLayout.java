@@ -29,7 +29,8 @@ public class BaseHtmlLayout {
   private final String civiformImageTag;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
-  private static final String TAILWIND_COMPILED_FILENAME = "tailwind";
+  private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
+  private static final String USWDS_FILEPATH = "uswds/css/uswds";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 
@@ -96,8 +97,11 @@ public class BaseHtmlLayout {
       bundle.addToastMessages(privacyBanner);
     }
 
+    bundle.addHeadScripts(viewUtils.makeUSWDSJsTag("uswds-init.min"));
+
     // Add default stylesheets.
-    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILENAME));
+    bundle.addStylesheets(viewUtils.makeLocalCssTag(USWDS_FILEPATH));
+    bundle.addStylesheets(viewUtils.makeLocalCssTag(TAILWIND_COMPILED_FILEPATH));
 
     // Add Google analytics scripts.
     measurementId

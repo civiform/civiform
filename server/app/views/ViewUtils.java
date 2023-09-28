@@ -64,6 +64,12 @@ public final class ViewUtils {
         .withType("text/javascript");
   }
 
+  public ScriptTag makeUSWDSJsTag(String filename) {
+    return script()
+      .withSrc(assetsFinder.path("uswds/js/" + filename + ".js"))
+      .withType("text/javascript");
+  }
+
   /**
    * Generates a script tag for loading a javascript asset that is provided by a web JAR and found
    * at the given asset route.
@@ -75,9 +81,9 @@ public final class ViewUtils {
   /**
    * Generates an HTML link tag for loading the CSS file found at public/stylesheets/[filename].css.
    */
-  LinkTag makeLocalCssTag(String filename) {
+  LinkTag makeLocalCssTag(String filePath) {
     return link()
-        .withHref(assetsFinder.path("stylesheets/" + filename + ".css"))
+        .withHref(assetsFinder.path(filePath + ".css"))
         .withRel("stylesheet");
   }
 
