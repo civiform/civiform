@@ -1,5 +1,5 @@
 // Play plugins
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.0-RC2")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.9.0-RC3")
 addSbtPlugin("com.typesafe.play" % "sbt-play-ebean" % "6.2.0-RC4")
 
 // Dependency tree plugin. To use, open an sbt shell and run dependencyBrowseTree

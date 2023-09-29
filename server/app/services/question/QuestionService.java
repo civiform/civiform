@@ -92,7 +92,7 @@ public final class QuestionService {
    * questions in current active and draft versions.
    */
   public CompletionStage<ReadOnlyQuestionService> getReadOnlyQuestionService() {
-    return CompletableFuture.completedFuture(readOnlyQuestionService());
+    return CompletableFuture.completedStage(readOnlyQuestionService());
   }
 
   private ReadOnlyQuestionService readOnlyQuestionService() {
