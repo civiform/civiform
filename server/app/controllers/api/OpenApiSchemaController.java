@@ -8,7 +8,6 @@ import static play.mvc.Results.ok;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import javax.transaction.NotSupportedException;
 import models.LifecycleStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,7 @@ public final class OpenApiSchemaController {
       Http.Request request,
       String programSlug,
       Optional<String> stage,
-      Optional<String> openApiVersion)
-      throws NotSupportedException {
+      Optional<String> openApiVersion) {
     LifecycleStage lifecycleStage =
         stage
             .map(x -> LifecycleStage.valueOf(x.toUpperCase(Locale.ROOT)))
@@ -59,7 +57,7 @@ public final class OpenApiSchemaController {
       return notFound("No program found");
     }
 
-    OpenApiVersion openApiVersionType = OpenApiVersion.fromStringOrDefault(openApiVersion);
+    OpenApiVersion openApiVersionType = OpenApiVersion.fromString(openApiVersion);
 
     OpenApiSchemaSettings openApiSchemaSettings =
         OpenApiSchemaSettings.builder()

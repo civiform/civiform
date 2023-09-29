@@ -40,14 +40,16 @@ public final class QuestionDefinitionNode {
     }
 
     for (QuestionDefinitionNode child : children) {
-      // Check if the questionDefinition to add has en existing parent enumerator
-      // already in the tree; if it does add it
+      // Check if the questionDefinition we're adding has an existing parent enumerator
+      // already in the tree; if it does, add it
       if (newQuestionDefinition.getEnumeratorId().isPresent()
           && child.questionDefinition.getId() == newQuestionDefinition.getEnumeratorId().get()) {
         child.children.add(new QuestionDefinitionNode(newQuestionDefinition));
         return;
       }
 
+      // If none of the current node's children are the question's enumerator, check the children's
+      // children.
       child.addQuestionDefinition(newQuestionDefinition);
     }
   }
