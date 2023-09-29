@@ -1,5 +1,6 @@
 package services.openApi;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import services.question.types.QuestionDefinition;
@@ -23,8 +24,8 @@ public final class QuestionDefinitionNode {
     return questionDefinition;
   }
 
-  public List<QuestionDefinitionNode> getChildren() {
-    return children;
+  public ImmutableList<QuestionDefinitionNode> getChildren() {
+    return ImmutableList.copyOf(children);
   }
 
   /**

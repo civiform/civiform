@@ -194,10 +194,9 @@ public class Swagger2SchemaGenerator implements OpenApiSchemaGenerator {
 
     QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
 
-    return new ArrayList<>(buildApplicationDefinitions(rootNode))
-        .stream()
-            .sorted(Comparator.comparing(Definition::getName))
-            .collect(ImmutableList.toImmutableList());
+    return buildApplicationDefinitions(rootNode).stream()
+        .sorted(Comparator.comparing(Definition::getName))
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
