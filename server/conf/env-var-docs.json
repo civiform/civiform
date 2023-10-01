@@ -555,7 +555,12 @@
   },
   "CIVIFORM_SUPPORTED_LANGUAGES": {
     "mode": "HIDDEN",
-    "description": "The languages that applicants can choose from when specifying their language preference and that admins can choose from when adding translations for programs and applications.",
+    "description": "The full list of languages available to CiviForm. These are the language that admins can choose from when adding translations for programs and applications, as well as the default list that applicants can choose from when specifying their language preference. See CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to applicants.",
+    "type": "index-list"
+  },
+  "CIVIFORM_APPLICANT_ENABLED_LANGUAGES": {
+    "mode": "HIDDEN",
+    "description": "If populated, this filters the languages that are visible to the applicant to just those in the list. This allows program admins to develop languages support for programs and questions, but not let the applicant use a language that is not yet ready.",
     "type": "index-list"
   },
   "CIVIFORM_TIME_ZONE_ID": {

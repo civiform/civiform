@@ -2,21 +2,34 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Sets;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Applicant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.i18n.Lang;
 import play.i18n.Langs;
 import repository.UserRepository;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
+import services.settings.SettingsManifest;
 
 public final class LanguageUtils {
   private final UserRepository userRepository;
   private final Langs langs;
+  private final SettingsManifest settingsManifest;
+  private static final Logger LOGGER = LoggerFactory.getLogger(LanguageUtils.class);
 
   @Inject
-  public LanguageUtils(UserRepository userRepository, Langs langs) {
+  public LanguageUtils(
+      UserRepository userRepository, Langs langs, SettingsManifest settingsManifest) {
     this.userRepository = checkNotNull(userRepository);
     this.langs = checkNotNull(langs);
+    this.settingsManifest = settingsManifest;
   }
 
   public Applicant maybeSetDefaultLocale(Applicant applicant) {
@@ -30,5 +43,40 @@ public final class LanguageUtils {
             : langs.availables().get(0).toLocale());
     userRepository.updateApplicant(applicant).toCompletableFuture().join();
     return applicant;
+  }
+
+  /** Returns the languages available for an applicant to select */
+  public ImmutableList<Lang> getApplicantEnabledLanguages() {
+    List<Lang> allLanguages = langs.availables();
+    HashSet<String> applicantLanguages =
+        new HashSet<>(
+            settingsManifest.getCiviformApplicantEnabledLanguages().orElse(ImmutableList.of()));
+
+    // No overrides so use all languages
+    if (applicantLanguages.isEmpty()) {
+      return ImmutableList.copyOf(allLanguages);
+    }
+
+    // Check and log warning if there are languages listed for applicant that are not supported by
+    // the system
+    String unconfiguredLanguages =
+        String.join(
+            ", ",
+            Sets.difference(
+                applicantLanguages,
+                allLanguages.stream().map(Lang::code).collect(Collectors.toSet())));
+
+    if (!unconfiguredLanguages.isEmpty()) {
+      LOGGER.warn(
+          "Settings for CIVIFORM_APPLICANT_ENABLED_LANGUAGES contains one or more languages not"
+              + " support by the system in CIVIFORM_SUPPORTED_LANGUAGES. Unsupported language"
+              + " codes: {}.",
+          unconfiguredLanguages);
+    }
+
+    // Filter list
+    return allLanguages.stream()
+        .filter(x -> applicantLanguages.contains(x.code()))
+        .collect(ImmutableList.toImmutableList());
   }
 }
