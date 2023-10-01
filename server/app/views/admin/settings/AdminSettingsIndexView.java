@@ -42,7 +42,8 @@ import views.style.StyleUtils;
 public final class AdminSettingsIndexView extends BaseHtmlView {
 
   private static final String FORM_ID = "settings-update-form";
-  private static final String SECTION_STYLES = "grid grid-flow-row-dense grid-cols-2 gap-8";
+  private static final String SECTION_STYLES =
+      "grid grid-flow-row-dense lg:grid-cols-2 grid-cols-1 gap-8";
   public static final DivTag READ_ONLY_TEXT =
       div("Read-only").withClasses("text-xs", "mt-2", "text-gray-600");
 
@@ -121,7 +122,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
   }
 
   private DivTag renderSideNav() {
-    var container = div().withClasses("relative", "p-6", "w-2/12");
+    var container = div().withClasses("relative", "md:px-4", "px-0", "xl:w-2/12", "w-3/12");
     var subContainer =
         div(h1("Settings").withClasses("text-3xl", "py-6"))
             .withId("admin-settings-side-nav")
@@ -195,7 +196,7 @@ public final class AdminSettingsIndexView extends BaseHtmlView {
             div(rawHtml(renderedDescriptionHtml)).withClasses("text-sm"),
             renderSettingInput(request, errorMessages, settingDescription))
         .withData("testid", String.format("%s-container", settingDescription.variableName()))
-        .withClasses("max-w-md");
+        .withClasses("md:max-w-lg", "max-w-md");
   }
 
   private DomContent renderSettingInput(
