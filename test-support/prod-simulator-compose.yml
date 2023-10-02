@@ -19,6 +19,6 @@ services:
     ports:
       - 8888:9000
     environment:
-      - SECRET_KEY=notarealsecret
+      - SECRET_KEY=K5SgucxBYC3xJwNcGWZV1Y7uASmrc+SqftbcTROH0s8=
       - IDCS_CLIENT_ID=client
       - IDCS_SECRET=notarealsecret
