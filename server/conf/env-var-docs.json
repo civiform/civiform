@@ -5,7 +5,8 @@
       "CIVIC_ENTITY_SMALL_LOGO_URL": {
         "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
@@ -398,7 +399,8 @@
       "SENDER_EMAIL_ADDRESS": {
         "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
@@ -490,17 +492,20 @@
       "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the program administrator's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "STAGING_TI_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the trusted intermediary's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the applicant's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       }
     }
   },
