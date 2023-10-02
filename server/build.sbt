@@ -151,6 +151,9 @@ lazy val root = (project in file("."))
     ),
     // Use test config for tests
     Test / javaOptions += "-Dconfig.file=conf/application.test.conf",
+    // Play 2.9 started using a dynamically assigned port number. Setting it in the
+    // application.test.conf file didn't have any effect so we set it here.
+    Test / javaOptions += "-Dtestserver.port=9000",
     // Uncomment the following line to disable JVM forking, which allows attaching a remote
     // debugger (https://stackoverflow.com/a/57396198). This isn't disabled unilaterally
     // since running in non-forked mode causes javaOptions to not be propagated, which
