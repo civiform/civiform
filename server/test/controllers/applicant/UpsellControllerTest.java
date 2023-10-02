@@ -226,6 +226,34 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void download_unauthorizedTI() {
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    Applicant unmanagedApplicant = createApplicant();
+    Applicant managedApplicant = createApplicant();
+    createTIWithMockedProfile(managedApplicant);
+    profileFactory.createFakeTrustedIntermediary();
+    Application application =
+        resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          instanceOf(UpsellController.class)
+              .download(
+                  addCSRFToken(requestBuilderWithSettings()).build(),
+                  application.id,
+                  unmanagedApplicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
   public void download_invalidApplicantID() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
