@@ -52,6 +52,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
   private final ExportServiceRepository exportServiceRepository;
+  private static Map<String,ImmutableList<String>> multiSelectOptionHeaderMap = new HashMap<>();
 
   public ReadOnlyApplicantProgramServiceImpl(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
@@ -472,7 +473,13 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       case CHECKBOX:
         String questionName =
             question.createMultiSelectQuestion().getQuestionDefinition().getName();
-        List<String> allOptions = exportServiceRepository.getCsvHeaders(questionName);
+        List<String> allOptions;
+        if(!multiSelectOptionHeaderMap.containsKey(questionName)) {
+          allOptions = exportServiceRepository.getCsvHeaders(questionName);
+        }
+        else {
+         allOptions = multiSelectOptionHeaderMap.get(questionName);
+        }
         //
         // System.out.println("---------------------------------------------------------------");
         //        System.out.println();
