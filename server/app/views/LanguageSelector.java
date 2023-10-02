@@ -54,7 +54,7 @@ public final class LanguageSelector {
 
     var preferredLanguage =
         languageUtils.getApplicantEnabledLanguages().stream()
-            .filter(x -> x.code().equals(preferredLanguageCode))
+            .filter(lang -> lang.code().equals(preferredLanguageCode))
             .findFirst();
 
     return preferredLanguage.orElse(Lang.defaultLang());

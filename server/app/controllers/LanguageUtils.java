@@ -29,7 +29,7 @@ public final class LanguageUtils {
       UserRepository userRepository, Langs langs, SettingsManifest settingsManifest) {
     this.userRepository = checkNotNull(userRepository);
     this.langs = checkNotNull(langs);
-    this.settingsManifest = settingsManifest;
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Applicant maybeSetDefaultLocale(Applicant applicant) {
@@ -76,7 +76,7 @@ public final class LanguageUtils {
 
     // Filter list
     return allLanguages.stream()
-        .filter(x -> applicantLanguages.contains(x.code()))
+        .filter(lang -> applicantLanguages.contains(lang.code()))
         .collect(ImmutableList.toImmutableList());
   }
 }
