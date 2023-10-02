@@ -28,6 +28,22 @@ describe('Managing system-wide settings', () => {
     )
   })
 
+  it('Displays the settings page in a narrow viewport', async () => {
+    const {page} = ctx
+
+    // We know the header will start to wrap at smaller widths
+    await page.setViewportSize({
+      width: 768,
+      height: 720,
+    })
+
+    await loginAsAdmin(page)
+    const adminSettings = new AdminSettings(page)
+    await adminSettings.gotoAdminSettings()
+
+    await validateScreenshot(page, 'admin-settings-page-narrow')
+  })
+
   it('Updates settings on save', async () => {
     const {page} = ctx
     await loginAsAdmin(page)
