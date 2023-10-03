@@ -215,7 +215,7 @@ public final class UpsellController extends CiviFormController {
                   return notFound(cause.toString());
                 }
                 if (cause instanceof NoSuchElementException) {
-                  return unauthorized(cause.toString());
+                  return notFound(cause.toString());
                 }
               }
               throw new RuntimeException(ex);
