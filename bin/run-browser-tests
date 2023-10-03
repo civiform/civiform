@@ -4,7 +4,7 @@
 
 source bin/lib.sh
 docker::set_project_name_browser_tests
-CI=true bin/pull-image
+bin/pull-image
 
 # Run browser tests from within the civiform-browser-test container. We map
 # full browser-test local directory to the container so that it uses local changes.
