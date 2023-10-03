@@ -61,8 +61,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Set CI=true
-        run: export CI=true
       - name: Build test app container
         env:
           DOCKER_BUILDKIT: 1
@@ -92,8 +90,12 @@ jobs:
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
       - name: Bring up test env with Localstack
+        env:
+          CI: true
         run: bin/run-browser-test-env --aws --ci
       - name: Run browser tests with Localstack
+        env:
+          CI: true
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
       - name: Verify no new image snapshots added
         # jest-image-snapshots automatically adds snapshot if it's missing.
@@ -159,8 +161,12 @@ jobs:
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
       - name: Bring up test env with Azurite
+        env:
+          CI: true
         run: bin/run-browser-test-env --azure --ci
       - name: Run browser tests with Azurite
+        env:
+          CI: true
         run: bin/run-browser-tests-azure
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v3
