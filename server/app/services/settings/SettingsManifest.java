@@ -821,7 +821,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "CIVIC_ENTITY_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1469,7 +1469,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SENDER_EMAIL_ADDRESS",
                       "The email address used for the 'from' email header for emails sent by"
                           + " CiviForm.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Email Addresses",
@@ -1498,7 +1498,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the program administrator's email"
                           + " address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1506,14 +1506,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the trusted intermediary's email"
                           + " address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the applicant's email address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Custom Text",
