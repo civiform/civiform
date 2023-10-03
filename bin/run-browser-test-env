@@ -115,7 +115,7 @@ function compose_browser_test() {
 
 set_args "$@"
 
-bin/pull-image
+CI=true bin/pull-image
 
 truth::declare_var_false use_dev
 
