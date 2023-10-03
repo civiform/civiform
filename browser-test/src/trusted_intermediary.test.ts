@@ -259,6 +259,47 @@ describe('Trusted intermediaries', () => {
     )
   })
 
+  it('sees client name in sub-banner while applying for them', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake12@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.clickOnApplicantDashboard()
+    expect(await page.innerText('#ti-clients-link')).toContain(
+      'Select a new client',
+    )
+    expect(await page.innerText('#ti-banner')).toContain(
+      'You are applying for last1, first1. Are you trying to apply for a different client?',
+    )
+  })
+
+  it('returns to TI dashboard from application when clicks the sub-banner link', async () => {
+    const {page, tiDashboard} = ctx
+    await loginAsTrustedIntermediary(page)
+    await tiDashboard.gotoTIDashboardPage(page)
+    await waitForPageJsLoad(page)
+    const client: ClientInformation = {
+      emailAddress: 'fake12@sample.com',
+      firstName: 'first1',
+      middleName: 'middle',
+      lastName: 'last1',
+      dobDate: '2021-07-10',
+    }
+    await tiDashboard.createClient(client)
+    await tiDashboard.clickOnApplicantDashboard()
+    await page.click('#ti-clients-link')
+
+    expect(await page.innerText('#add-client')).toContain('Add Client')
+  })
+
   describe('application flow with eligibility conditions', () => {
     // Create a program with 2 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
