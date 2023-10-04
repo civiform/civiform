@@ -37,7 +37,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
     ImmutableSet.Builder<QuestionDefinition> upToDateBuilder = ImmutableSet.builder();
     Set<String> namesFoundInDraft = new HashSet<>();
     for (QuestionDefinition qd :
-        draftVersion.getQuestions().stream()
+        repository.getQuestionsForVersion(draftVersion).stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
       if (!draftVersion.getTombstonedQuestionNames().contains(qd.getName())) {
@@ -48,7 +48,7 @@ public final class ReadOnlyCurrentQuestionServiceImpl implements ReadOnlyQuestio
       namesFoundInDraft.add(qd.getName());
     }
     for (QuestionDefinition qd :
-        activeVersion.getQuestions().stream()
+        repository.getQuestionsForVersion(activeVersion).stream()
             .map(Question::getQuestionDefinition)
             .collect(Collectors.toList())) {
 

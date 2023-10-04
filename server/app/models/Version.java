@@ -99,6 +99,10 @@ public final class Version extends BaseModel {
     return ImmutableList.copyOf(programs);
   }
 
+  /**
+   * Returns all questions of a given version. Instead of calling this function directly,
+   * getQuestionsForVersion should be called, since that will implement caching.
+   */
   public ImmutableList<Question> getQuestions() {
     return ImmutableList.copyOf(questions);
   }
