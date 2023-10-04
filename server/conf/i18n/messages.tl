@@ -22,8 +22,8 @@ validation.isRequired=Ang tanong na ito ay kinakailangan.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago magpatuloy.
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
+content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
 
@@ -283,7 +283,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
-adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
+adminValidation.multiOptionAdminEmpty=Hindi puwedeng blangko ang mga admin ID ng mga tanong na may maraming opsyon.
 
 #----------------------------------#
 # ERRORS - various error messages  #
