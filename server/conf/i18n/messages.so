@@ -22,8 +22,8 @@ validation.isRequired=Su''aashan ayaa loo baahan yahay.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
 content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yahay
+content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
 
@@ -283,7 +283,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
-adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
+adminValidation.multiOptionAdminEmpty=Doorashooyinka badan ee su'aalaha ma lahaan karaan Aqoonsiyada maamulka oo banaan.
 
 #----------------------------------#
 # ERRORS - various error messages  #
