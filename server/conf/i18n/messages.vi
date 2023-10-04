@@ -22,8 +22,8 @@ validation.isRequired=Đây là câu hỏi bắt buộc.
 validation.invalidInput=Vui lòng nhập thông tin hợp lệ.
 validation.errorAnnouncementSr=Có lỗi trong biểu mẫu. Vui lòng khắc phục trước khi tiếp tục.
 content.requiredFieldsAnnotation=Lưu ý: Các trường có dấu * là bắt buộc.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trường bắt buộc.
+content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
 
@@ -283,7 +283,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
-adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
+adminValidation.multiOptionAdminEmpty=Các câu hỏi có nhiều lựa chọn không được để trống mã nhận dạng quản trị viên.
 
 #----------------------------------#
 # ERRORS - various error messages  #
