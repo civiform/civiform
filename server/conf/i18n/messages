@@ -150,6 +150,16 @@ content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find program
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 button.applyToPrograms=Apply to programs
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save
+content.noChanges=You have not made any changes to the application yet.
+content.continueEditing=Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
