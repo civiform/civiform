@@ -326,7 +326,7 @@ export class ApplicantQuestions {
   async clickDownload() {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.click('text="Download"'),
+      this.page.click('text="Download PDF"'),
     ])
     const path = await downloadEvent.path()
     if (path === null || readFileSync(path, 'utf8').length === 0) {

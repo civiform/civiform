@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.test.Helpers.contentAsString;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
@@ -291,6 +292,6 @@ public class UpsellControllerTest extends WithMockedProfiles {
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException(e);
     }
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 }

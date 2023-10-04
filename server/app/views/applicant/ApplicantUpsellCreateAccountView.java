@@ -73,7 +73,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       downloadButton =
           new ATag()
               .withHref(redirectUrl)
-              .with(button("Download").withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+              .with(button("Download PDF").withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
               .withClass("flex");
     }
     ImmutableList<DomContent> actionButtons =
