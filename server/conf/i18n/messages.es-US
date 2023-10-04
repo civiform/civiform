@@ -22,8 +22,8 @@ validation.isRequired=Esta pregunta es obligatoria.
 validation.invalidInput=Ingresa una entrada válida.
 validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
 content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios.
+content.optional=(opcional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
 
@@ -283,7 +283,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
-adminValidation.multiOptionAdminEmpty=Multi option questions cannot have blank admin IDs.
+adminValidation.multiOptionAdminEmpty=Las preguntas de opción múltiple no se puede dejar sin IDs de administrador.
 
 #----------------------------------#
 # ERRORS - various error messages  #
