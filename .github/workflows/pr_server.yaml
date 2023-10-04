@@ -16,8 +16,7 @@ on:
       - 'browser-test/**'
       - 'test-support/**'
       - 'mock-web-services/**'
-      - 'Dockerfile'
-      - 'prod.Dockerfile'
+      - '**.Dockerfile'
       - '.github/workflows/**'
 
 permissions: read-all
