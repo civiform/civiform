@@ -150,6 +150,16 @@ content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 button.applyToPrograms=Mag-apply sa mga programa
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save
+content.noChanges=You have not made any changes to the application yet.
+content.continueEditing=Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
