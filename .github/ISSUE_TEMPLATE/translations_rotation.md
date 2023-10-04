@@ -11,4 +11,4 @@ Request and update CiviForm translations using [Transifex](https://app.transifex
 Follow the instructions at go/civiform-translations to
 - [ ] Request a new batch of translations
 - [ ] Upload translations into Transifex
-- [ ] Create a ticket for the next batch of translations
+- [ ] Create a ticket for the next batch of translations, and assign to the next Google.org Works SWE
