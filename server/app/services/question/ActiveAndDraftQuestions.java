@@ -48,13 +48,13 @@ public final class ActiveAndDraftQuestions {
 
   private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
-        active.getQuestions().stream()
+        VersionRepository.getQuestionsForVersion(active).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.activeQuestions = activeNameToQuestion.values().asList();
 
     ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
-        draft.getQuestions().stream()
+        VersionRepository.getQuestionsForVersion(draft).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.draftQuestions = draftNameToQuestion.values().asList();

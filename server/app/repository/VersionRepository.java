@@ -125,7 +125,7 @@ public final class VersionRepository {
           .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
-      active.getQuestions().stream()
+      getQuestionsForVersion(active).stream()
           // Exclude questions deleted in the draft.
           .filter(not(questionIsDeletedInDraft))
           // Exclude questions that are in the draft already.
@@ -141,7 +141,7 @@ public final class VersionRepository {
           .forEach(draft::addQuestion);
 
       // Remove any questions / programs both added and archived in the current version.
-      draft.getQuestions().stream()
+      getQuestionsForVersion(draft).stream()
           .filter(questionIsDeletedInDraft)
           .forEach(
               questionToDelete -> {
@@ -163,7 +163,7 @@ public final class VersionRepository {
       switch (publishMode) {
         case PUBLISH_CHANGES:
           Preconditions.checkState(
-              !draft.getPrograms().isEmpty() || !draft.getQuestions().isEmpty(),
+              !draft.getPrograms().isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
@@ -231,7 +231,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      existingDraft.getQuestions().stream()
+      getQuestionsForVersion(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(question.getQuestionDefinition().getName()))
@@ -249,7 +249,7 @@ public final class VersionRepository {
                   !programToPublishAdminName.equals(
                       activeProgram.getProgramDefinition().adminName()))
           .forEach(existingDraft::addProgram);
-      active.getQuestions().stream()
+      getQuestionsForVersion(active).stream()
           .filter(
               activeQuestion ->
                   !questionsToPublishNames.contains(
@@ -374,6 +374,16 @@ public final class VersionRepository {
   }
 
   /**
+   * Returns the questions for a version.
+   *
+   * <p>This replaces all calls for version.getQuestions() and will eventually be where
+   * version-questions caching is implemented.
+   */
+  public static ImmutableList<Question> getQuestionsForVersion(Version version) {
+    return version.getQuestions();
+  }
+
+  /**
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
    */
@@ -381,13 +391,13 @@ public final class VersionRepository {
     String questionName =
         database.find(Question.class).setId(questionId).select("name").findSingleAttribute();
     Optional<Question> draftQuestion =
-        getDraftVersionOrCreate().getQuestions().stream()
+        getQuestionsForVersion(getDraftVersionOrCreate()).stream()
             .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
             .findFirst();
     if (draftQuestion.isPresent()) {
       return draftQuestion;
     }
-    return getActiveVersion().getQuestions().stream()
+    return getQuestionsForVersion(getActiveVersion()).stream()
         .filter(question -> question.getQuestionDefinition().getName().equals(questionName))
         .findFirst();
   }
@@ -415,7 +425,7 @@ public final class VersionRepository {
   }
 
   public boolean isInactive(Question question) {
-    return !getActiveVersion().getQuestions().stream()
+    return !getQuestionsForVersion(getActiveVersion()).stream()
         .anyMatch(activeQuestion -> activeQuestion.id.equals(question.id));
   }
 
@@ -425,7 +435,7 @@ public final class VersionRepository {
   }
 
   public boolean isDraft(Question question) {
-    return getDraftVersionOrCreate().getQuestions().stream()
+    return getQuestionsForVersion(getDraftVersionOrCreate()).stream()
         .anyMatch(draftQuestion -> draftQuestion.id.equals(question.id));
   }
 
@@ -455,7 +465,7 @@ public final class VersionRepository {
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
     ImmutableList<QuestionDefinition> newActiveQuestions =
-        activeVersion.getQuestions().stream()
+        getQuestionsForVersion(activeVersion).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
@@ -654,7 +664,7 @@ public final class VersionRepository {
    * across versions.
    */
   private static ImmutableMap<Long, String> getQuestionIdToNameMap(Version version) {
-    return version.getQuestions().stream()
+    return getQuestionsForVersion(version).stream()
         .map(Question::getQuestionDefinition)
         .collect(
             ImmutableMap.toImmutableMap(QuestionDefinition::getId, QuestionDefinition::getName));
