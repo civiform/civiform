@@ -13,6 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import repository.VersionRepository;
 import services.program.ProgramDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -122,7 +123,7 @@ public final class Version extends BaseModel {
    * can exist in a version.
    */
   public Optional<Question> getQuestionByName(String name) {
-    return getQuestions().stream()
+    return VersionRepository.getQuestionsForVersion(this).stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
   }
@@ -137,7 +138,7 @@ public final class Version extends BaseModel {
 
   /** Returns the names of all the questions. */
   public ImmutableSet<String> getQuestionNames() {
-    return getQuestions().stream()
+    return VersionRepository.getQuestionsForVersion(this).stream()
         .map(Question::getQuestionDefinition)
         .map(QuestionDefinition::getName)
         .collect(ImmutableSet.toImmutableSet());
