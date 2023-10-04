@@ -13,6 +13,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+import repository.VersionRepository;
 import services.program.ProgramDefinition;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
@@ -95,6 +96,10 @@ public final class Version extends BaseModel {
     return this.questions.remove(question);
   }
 
+  /**
+   * Returns all programs of a given version. Instead of calling this function directly,
+   * getProgramsForVersion should be called, since that will implement caching.
+   */
   public ImmutableList<Program> getPrograms() {
     return ImmutableList.copyOf(programs);
   }
@@ -112,7 +117,7 @@ public final class Version extends BaseModel {
    * exist in a version.
    */
   public Optional<Program> getProgramByName(String name) {
-    return getPrograms().stream()
+    return VersionRepository.getProgramsForVersion(this).stream()
         .filter(p -> p.getProgramDefinition().adminName().equals(name))
         .findAny();
   }
@@ -129,7 +134,7 @@ public final class Version extends BaseModel {
 
   /** Returns the names of all the programs. */
   public ImmutableSet<String> getProgramNames() {
-    return getPrograms().stream()
+    return VersionRepository.getProgramsForVersion(this).stream()
         .map(Program::getProgramDefinition)
         .map(ProgramDefinition::adminName)
         .collect(ImmutableSet.toImmutableSet());

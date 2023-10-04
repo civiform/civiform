@@ -123,8 +123,7 @@ public final class ProfileFactory {
             account -> {
               versionRepositoryProvider
                   .get()
-                  .getActiveVersion()
-                  .getPrograms()
+                  .getProgramsForVersion(versionRepositoryProvider.get().getActiveVersion())
                   .forEach(
                       program -> account.addAdministeredProgram(program.getProgramDefinition()));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));
@@ -149,8 +148,7 @@ public final class ProfileFactory {
               account.setAuthorityId(generateFakeAdminAuthorityId());
               versionRepositoryProvider
                   .get()
-                  .getActiveVersion()
-                  .getPrograms()
+                  .getProgramsForVersion(versionRepositoryProvider.get().getActiveVersion())
                   .forEach(
                       program -> account.addAdministeredProgram(program.getProgramDefinition()));
               account.setEmailAddress(String.format("fake-local-admin-%d@example.com", account.id));

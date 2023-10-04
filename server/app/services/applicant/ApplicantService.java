@@ -832,7 +832,7 @@ public final class ApplicantService {
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
-        versionRepository.getActiveVersion().getPrograms().stream()
+        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
             .map(Program::getProgramDefinition)
             .filter(
                 pdef ->

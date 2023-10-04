@@ -52,7 +52,7 @@ public final class ActiveAndDraftPrograms {
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        checkNotNull(active).getPrograms().stream()
+        VersionRepository.getProgramsForVersion(checkNotNull(active)).stream()
             .map(
                 program ->
                     service.isPresent()
@@ -62,7 +62,7 @@ public final class ActiveAndDraftPrograms {
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        checkNotNull(draft).getPrograms().stream()
+        VersionRepository.getProgramsForVersion(checkNotNull(draft)).stream()
             .map(
                 program ->
                     service.isPresent()
