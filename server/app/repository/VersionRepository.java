@@ -47,6 +47,7 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 /** A repository object for dealing with versioning of questions and programs. */
@@ -99,7 +100,7 @@ public final class VersionRepository {
       Version active = getActiveVersion();
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramNames();
-      ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
+      ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
       // Is a program being deleted in the draft version?
       Predicate<Program> programIsDeletedInDraft =
@@ -374,12 +375,46 @@ public final class VersionRepository {
   }
 
   /**
+   * Attempts to mark the provided question of a particular version as not eligible for copying to
+   * the next version.
+   *
+   * @return true if the question was successfully marked as tombstoned, false otherwise.
+   * @throws QuestionNotFoundException if the question cannot be found in this version.
+   */
+  public boolean addTombstoneForQuestionInVersion(Question question, Version version)
+      throws QuestionNotFoundException {
+    String name = question.getQuestionDefinition().getName();
+    if (!getQuestionNamesForVersion(version).contains(name)) {
+      throw new QuestionNotFoundException(question.getQuestionDefinition().getId());
+    }
+    return version.addTombstoneForQuestion(name);
+  }
+
+  /** Returns the names of all the questions for a particular version. */
+  public ImmutableSet<String> getQuestionNamesForVersion(Version version) {
+    return getQuestionsForVersion(version).stream()
+        .map(Question::getQuestionDefinition)
+        .map(QuestionDefinition::getName)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
+   * If a question by the given name exists, return it. A maximum of one question by a given name
+   * can exist in a version.
+   */
+  public Optional<Question> getQuestionByNameForVersion(String name, Version version) {
+    return getQuestionsForVersion(version).stream()
+        .filter(q -> q.getQuestionDefinition().getName().equals(name))
+        .findAny();
+  }
+
+  /**
    * Returns the questions for a version.
    *
    * <p>This replaces all calls for version.getQuestions() and will eventually be where
    * version-questions caching is implemented.
    */
-  public static ImmutableList<Question> getQuestionsForVersion(Version version) {
+  public ImmutableList<Question> getQuestionsForVersion(Version version) {
     return version.getQuestions();
   }
 
@@ -628,7 +663,7 @@ public final class VersionRepository {
    * Inspects the provided version and returns a map where the key is the question name and the
    * value is a set of programs that reference the given question in this version.
    */
-  public static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+  public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
@@ -648,7 +683,7 @@ public final class VersionRepository {
   }
 
   /** Returns the names of questions referenced by the program that are in the specified version. */
-  public static ImmutableSet<String> getProgramQuestionNamesInVersion(
+  public ImmutableSet<String> getProgramQuestionNamesInVersion(
       ProgramDefinition program, Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     return getProgramQuestionNames(program, questionIdToNameLookup);
@@ -658,7 +693,7 @@ public final class VersionRepository {
    * Returns true if any questions in the provided set are referenced by multiple programs in the
    * specified version.
    */
-  private static boolean anyQuestionIsShared(Version version, ImmutableSet<String> questions) {
+  private boolean anyQuestionIsShared(Version version, ImmutableSet<String> questions) {
     ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencingProgramsByQuestionName =
         buildReferencingProgramsMap(version);
     return questions.stream()
@@ -673,7 +708,7 @@ public final class VersionRepository {
    * Different versions of a question can have distinct IDs. The name is an ID that is constant
    * across versions.
    */
-  private static ImmutableMap<Long, String> getQuestionIdToNameMap(Version version) {
+  private ImmutableMap<Long, String> getQuestionIdToNameMap(Version version) {
     return getQuestionsForVersion(version).stream()
         .map(Question::getQuestionDefinition)
         .collect(

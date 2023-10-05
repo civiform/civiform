@@ -24,9 +24,10 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
   private static final Logger LOGGER =
       LoggerFactory.getLogger(ReadOnlyVersionedQuestionServiceImpl.class);
 
-  public ReadOnlyVersionedQuestionServiceImpl(Version version) {
+  public ReadOnlyVersionedQuestionServiceImpl(
+      Version version, VersionRepository versionRepository) {
     questionsById =
-        VersionRepository.getQuestionsForVersion(version).stream()
+        versionRepository.getQuestionsForVersion(version).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getId, qd -> qd));
   }

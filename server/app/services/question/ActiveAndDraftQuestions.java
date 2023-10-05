@@ -40,21 +40,21 @@ public final class ActiveAndDraftQuestions {
    * state.
    */
   public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
-    return new ActiveAndDraftQuestions(
-        repository.getActiveVersion(),
-        repository.getDraftVersionOrCreate(),
-        repository.previewPublishNewSynchronizedVersion());
+    return new ActiveAndDraftQuestions(repository);
   }
 
-  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
+  private ActiveAndDraftQuestions(VersionRepository repository) {
+    Version active = repository.getActiveVersion();
+    Version draft = repository.getDraftVersionOrCreate();
+    Version withDraftEdits = repository.previewPublishNewSynchronizedVersion();
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
-        VersionRepository.getQuestionsForVersion(active).stream()
+        repository.getQuestionsForVersion(active).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.activeQuestions = activeNameToQuestion.values().asList();
 
     ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
-        VersionRepository.getQuestionsForVersion(draft).stream()
+        repository.getQuestionsForVersion(draft).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.draftQuestions = draftNameToQuestion.values().asList();
@@ -71,9 +71,8 @@ public final class ActiveAndDraftQuestions {
                     }));
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
-    this.referencingActiveProgramsByName = VersionRepository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName =
-        VersionRepository.buildReferencingProgramsMap(withDraftEdits);
+    this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
+    this.referencingDraftProgramsByName = repository.buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(

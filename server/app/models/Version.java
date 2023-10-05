@@ -15,8 +15,6 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import repository.VersionRepository;
 import services.program.ProgramDefinition;
-import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.QuestionDefinition;
 
 /**
  * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.
@@ -122,29 +120,11 @@ public final class Version extends BaseModel {
         .findAny();
   }
 
-  /**
-   * If a question by the given name exists, return it. A maximum of one question by a given name
-   * can exist in a version.
-   */
-  public Optional<Question> getQuestionByName(String name) {
-    return getQuestions().stream()
-        .filter(q -> q.getQuestionDefinition().getName().equals(name))
-        .findAny();
-  }
-
   /** Returns the names of all the programs. */
   public ImmutableSet<String> getProgramNames() {
     return VersionRepository.getProgramsForVersion(this).stream()
         .map(Program::getProgramDefinition)
         .map(ProgramDefinition::adminName)
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  /** Returns the names of all the questions. */
-  public ImmutableSet<String> getQuestionNames() {
-    return getQuestions().stream()
-        .map(Question::getQuestionDefinition)
-        .map(QuestionDefinition::getName)
         .collect(ImmutableSet.toImmutableSet());
   }
 
@@ -176,20 +156,15 @@ public final class Version extends BaseModel {
    * Attempts to mark the provided question as not eligible for copying to the next version.
    *
    * @return true if the question was successfully marked as tombstoned, false otherwise.
-   * @throws QuestionNotFoundException if the question cannot be found in this version.
    */
-  public boolean addTombstoneForQuestion(Question question) throws QuestionNotFoundException {
-    String name = question.getQuestionDefinition().getName();
-    if (!this.getQuestionNames().contains(name)) {
-      throw new QuestionNotFoundException(question.getQuestionDefinition().getId());
-    }
+  public boolean addTombstoneForQuestion(String questionName) {
     if (this.tombstonedQuestionNames == null) {
       this.tombstonedQuestionNames = new ArrayList<>();
     }
-    if (this.questionIsTombstoned(name)) {
+    if (this.questionIsTombstoned(questionName)) {
       return false;
     }
-    return this.tombstonedQuestionNames.add(name);
+    return this.tombstonedQuestionNames.add(questionName);
   }
 
   /**

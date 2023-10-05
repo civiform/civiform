@@ -52,7 +52,10 @@ public class VersionRepositoryTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("draft-only-program").withBlock("Screen 1").build();
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(draftOnlyQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(
+                draftOnlyQuestion, draftForTombstoning))
+        .isTrue();
     assertThat(draftForTombstoning.addTombstoneForProgramForTest(draftOnlyProgram)).isTrue();
     draftForTombstoning.save();
 
@@ -189,7 +192,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
+        .isTrue();
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
@@ -226,7 +231,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
+        .isTrue();
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     versionRepository.updateProgramsThatReferenceQuestion(secondQuestion.id);
@@ -275,7 +282,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
+        .isTrue();
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
@@ -885,20 +894,20 @@ public class VersionRepositoryTest extends ResetPostgres {
     Version active = versionRepository.getActiveVersion();
 
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 firstProgramActive.getProgramDefinition(), active))
         .containsExactlyInAnyOrder(firstQuestion.getQuestionDefinition().getName());
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 firstProgramActive.getProgramDefinition(), draft))
         .isEmpty();
 
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 secondProgramActive.getProgramDefinition(), active))
         .containsExactlyInAnyOrder(secondQuestion.getQuestionDefinition().getName());
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 secondProgramDraft.getProgramDefinition(), draft))
         .containsExactlyInAnyOrder(
             secondQuestionUpdated.getQuestionDefinition().getName(),
@@ -920,5 +929,32 @@ public class VersionRepositoryTest extends ResetPostgres {
     Optional<Version> previousVersion = versionRepository.getPreviousVersion(activeVersion);
 
     assertThat(previousVersion.isPresent()).isTrue();
+  }
+
+  @Test
+  public void getQuestionByNameForVersion_found() {
+    Version version = versionRepository.getDraftVersionOrCreate();
+    String questionName = "question";
+    Question question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(version).save();
+    version.refresh();
+
+    Optional<Question> result =
+        versionRepository.getQuestionByNameForVersion(questionName, version);
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().getQuestionDefinition().getName()).isEqualTo(questionName);
+  }
+
+  @Test
+  public void getQuestionByNameForVersion_notFound() {
+    Version version = versionRepository.getDraftVersionOrCreate();
+    String questionName = "question";
+    Question question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(version).save();
+    version.refresh();
+
+    Optional<Question> result =
+        versionRepository.getQuestionByNameForVersion(questionName + "other", version);
+    assertThat(result.isPresent()).isFalse();
   }
 }
