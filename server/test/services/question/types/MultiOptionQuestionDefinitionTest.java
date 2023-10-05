@@ -155,7 +155,7 @@ public class MultiOptionQuestionDefinitionTest {
   }
 
   @Test
-  public void getOptionsAdminName_returnsAdminNames() throws UnsupportedQuestionTypeException {
+  public void getOptionAdminNames_returnsAdminNames() throws UnsupportedQuestionTypeException {
     ImmutableList<QuestionOption> options =
         ImmutableList.of(
             QuestionOption.create(1L, "opt1", LocalizedStrings.of(Locale.US, "option 1")),
@@ -173,6 +173,6 @@ public class MultiOptionQuestionDefinitionTest {
 
     MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) definition;
 
-    assertThat(multiOption.getOptionsAdminName()).containsExactly("opt1", "opt2");
+    assertThat(multiOption.getOptionAdminNames()).containsExactly("opt1", "opt2");
   }
 }

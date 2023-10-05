@@ -233,7 +233,7 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
       }
 
-      if (multiOptionQuestionDefinition.getOptionsAdminName().stream().anyMatch(String::isEmpty)) {
+      if (multiOptionQuestionDefinition.getOptionAdminNames().stream().anyMatch(String::isEmpty)) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
       }
 

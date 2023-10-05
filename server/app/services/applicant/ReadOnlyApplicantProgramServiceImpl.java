@@ -465,7 +465,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
             question.getContextualizedPath().join(Scalar.SELECTIONS),
             question
                 .createMultiSelectQuestion()
-                .getSelectedOptionsAdminName()
+                .getSelectedOptionAdminNames()
                 .map(
                     selectedOptions ->
                         selectedOptions.stream().collect(Collectors.joining(", ", "[", "]")))
