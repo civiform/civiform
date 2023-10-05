@@ -22,8 +22,8 @@ validation.isRequired=Ang tanong na ito ay kinakailangan.
 validation.invalidInput=Maaari lamang ay maglagay ng halaga para sa bawat linya.
 validation.errorAnnouncementSr=May mga error sa form. Ayusin ang mga iyon bago magpatuloy.
 content.requiredFieldsAnnotation=Tandaan: Kinakailangan ang mga field na may *.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0}.
+content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
 button.applyToPrograms=Mag-apply sa mga programa
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
+adminValidation.multiOptionAdminEmpty=Hindi puwedeng blangko ang mga admin ID ng mga tanong na may maraming opsyon.
 
 #----------------------------------#
 # ERRORS - various error messages  #

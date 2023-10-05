@@ -480,16 +480,11 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
         else {
          allOptions = multiSelectOptionHeaderMap.get(questionName);
         }
-        //
-        // System.out.println("---------------------------------------------------------------");
-        //        System.out.println();
-        //        System.out.println("*** All Options are : ");
-        //        allOptions.stream().forEach(e -> System.out.print(e +" , "));
         List<String> selectedList =
             question
-                .createMultiSelectQuestion()
-                .getSelectedOptionsAdminName()
-                .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
+                .createMultiSelectQuestion().getSelectedOptionAdminNames()
+              .map(selectedOptions -> selectedOptions.stream()
+                .collect(Collectors.toList()))
                 .orElse(Collections.singletonList(""));
         Map<Path, String> returnMap = new HashMap<>();
         allOptions.stream()
@@ -497,10 +492,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
                 option ->
                     returnMap.put(
                         question.getContextualizedPath().join(option),
-                        selectedList.contains(option) ? option : ""));
-        //        System.out.println();
-        //        System.out.println("*** Selected Options are : ");
-        //        selectedList.stream().forEach(e -> System.out.print(e +" , "));
+                        selectedList.contains(option) ? "Selected" : ""));
         return ImmutableMap.<Path, String>builder().putAll(returnMap).build();
       case FILEUPLOAD:
         return ImmutableMap.of(

@@ -34,6 +34,7 @@ describe('program creation', () => {
         '### This is an example of some static text with formatting',
     })
 
+    await page.waitForTimeout(100) // ms
     await validateScreenshot(
       page,
       'program-creation-static-question-with-formatting',

@@ -18,6 +18,7 @@ import services.CiviFormError;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.RepeatedEntity;
+import services.applicant.question.Scalar;
 import services.question.QuestionOption;
 
 /** Superclass for all question types. */
@@ -75,6 +76,7 @@ public abstract class QuestionDefinition {
     return config.lastModifiedTime();
   }
 
+  // Note that this formatting logic is duplicated in main.ts formatQuestionName()
   public final String getQuestionNameKey() {
     return config.name().replaceAll("[^a-zA-Z ]", "").replaceAll("\\s", "_");
   }
@@ -206,6 +208,11 @@ public abstract class QuestionDefinition {
     if (config.name().isBlank()) {
       errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
     }
+    if (getQuestionPathSegment().equals(Path.empty().join(Scalar.ENTITY_NAME).toString())) {
+      errors.add(
+          CiviFormError.of(
+              String.format("Administrative identifier '%s' is not allowed", getName())));
+    }
     if (getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumeratorQuestionDefinition =
           (EnumeratorQuestionDefinition) this;
@@ -226,7 +233,7 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions must have at least one option"));
       }
 
-      if (multiOptionQuestionDefinition.getOptionsAdminName().stream().anyMatch(String::isEmpty)) {
+      if (multiOptionQuestionDefinition.getOptionAdminNames().stream().anyMatch(String::isEmpty)) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
       }
 

@@ -2,10 +2,11 @@
   "Branding": {
     "group_description": "Configuration options for CiviForm branding.",
     "members": {
-      "WHITELABEL_SMALL_LOGO_URL": {
+      "CIVIC_ENTITY_SMALL_LOGO_URL": {
         "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
@@ -251,7 +252,7 @@
                 "description": "A URL that returns a JSON listing of OIDC (OpenID Connect) data associated with the IDCS auth provider.",
                 "type": "string"
               },
-              "ADFS_GLOBAL_ADMIN_GROUP": {
+              "ADFS_ADMIN_GROUP": {
                 "mode": "HIDDEN",
                 "description": "The name of the admin group in Active Directory, typically used to tell if a user is a global admin.",
                 "type": "string"
@@ -395,10 +396,11 @@
         "description": "Region where the AWS SES service exists. If STORAGE_SERVICE_NAME is set to 'aws', it is also the region where the AWS s3 service exists.",
         "type": "string"
       },
-      "AWS_SES_SENDER": {
+      "SENDER_EMAIL_ADDRESS": {
         "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
@@ -487,20 +489,23 @@
         "description": "This email address receives error notifications from CiviForm when things break.",
         "type": "string"
       },
-      "STAGING_ADMIN_LIST": {
+      "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the program administrator's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
-      "STAGING_TI_LIST": {
+      "STAGING_TI_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the trusted intermediary's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
-      "STAGING_APPLICANT_LIST": {
+      "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the applicant's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       }
     }
   },
@@ -555,7 +560,12 @@
   },
   "CIVIFORM_SUPPORTED_LANGUAGES": {
     "mode": "HIDDEN",
-    "description": "The languages that applicants can choose from when specifying their language preference and that admins can choose from when adding translations for programs and applications.",
+    "description": "The full list of languages available to CiviForm. These are the language that admins can choose from when adding translations for programs and applications, as well as the default list that applicants can choose from when specifying their language preference. See CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to applicants.",
+    "type": "index-list"
+  },
+  "CIVIFORM_APPLICANT_ENABLED_LANGUAGES": {
+    "mode": "HIDDEN",
+    "description": "If populated, this filters the languages that are visible to the applicant to just those in the list. This allows program admins to develop languages support for programs and questions, but not let the applicant use a language that is not yet ready.",
     "type": "index-list"
   },
   "CIVIFORM_TIME_ZONE_ID": {

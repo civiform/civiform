@@ -9,9 +9,9 @@ set +e # errors are OK
 
 echo "Stopping & deleting local civiform emulators"
 docker::compose_dev --profile emulator down -v
-echo "Stopping & deletng local civiform shell"
+echo "Stopping & deleting local civiform shell"
 docker::compose_dev --profile shell down -v
-echo "Stopping & deletng local civiform container"
+echo "Stopping & deleting local civiform container"
 docker::compose_dev down --remove-orphans -v
 
 docker network rm "${DOCKER_NETWORK_NAME}" 2>/dev/null

@@ -178,6 +178,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
             .url();
     return form()
         .withClasses("mt-6")
+        .attr("data-override-disable-submit-on-enter")
         .withMethod("GET")
         .withAction(
             routes.AdminApplicationController.index(

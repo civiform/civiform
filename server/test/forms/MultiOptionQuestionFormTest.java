@@ -62,19 +62,45 @@ public class MultiOptionQuestionFormTest {
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
             .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
             .build();
-    MultiOptionQuestionDefinition originalQd =
+    MultiOptionQuestionDefinition expectedQd =
         new MultiOptionQuestionDefinition(
             config,
             ImmutableList.of(
                 QuestionOption.create(1L, "one admin", LocalizedStrings.of(Locale.US, "option 1"))),
             MultiOptionQuestionType.CHECKBOX);
 
-    MultiOptionQuestionForm form = new CheckboxQuestionForm(originalQd);
+    MultiOptionQuestionForm form = new CheckboxQuestionForm(expectedQd);
     QuestionDefinitionBuilder builder = form.getBuilder();
+    QuestionDefinition actualQd = builder.build();
 
-    QuestionDefinition actual = builder.build();
+    assertThat(actualQd).isEqualTo(expectedQd);
+  }
 
-    assertThat(actual).isEqualTo(originalQd);
+  @Test
+  public void constructor_withQd_returnsCompleteForm() throws Exception {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is the question text?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setValidationPredicates(MultiOptionValidationPredicates.create(1, 10))
+            .build();
+    MultiOptionQuestionDefinition expectedQd =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(
+                QuestionOption.create(1L, "one admin", LocalizedStrings.of(Locale.US, "option 1")),
+                QuestionOption.create(2L, "two admin", LocalizedStrings.of(Locale.US, "option 2")),
+                QuestionOption.create(
+                    5L, "five admin", LocalizedStrings.of(Locale.US, "option 5"))),
+            MultiOptionQuestionType.CHECKBOX);
+
+    MultiOptionQuestionForm form = new CheckboxQuestionForm(expectedQd);
+    assertThat(form.getNextAvailableId().getAsLong()).isEqualTo(6L);
+    assertThat(form.getOptions()).containsExactly("option 1", "option 2", "option 5");
+    assertThat(form.getOptionAdminNames()).containsExactly("one admin", "two admin", "five admin");
+    assertThat(form.getOptionIds()).containsExactly(1L, 2L, 5L);
   }
 
   @Test
@@ -130,7 +156,7 @@ public class MultiOptionQuestionFormTest {
   }
 
   @Test
-  public void getBuilder_addNewOptions_setsNextIdCorrectly() throws Exception {
+  public void getBuilder_addNewOptions_setsIdsCorrectly() throws Exception {
     MultiOptionQuestionForm form = new DropdownQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -144,14 +170,18 @@ public class MultiOptionQuestionFormTest {
     form.setOptionIds(ImmutableList.of(1L, 2L));
     form.setNewOptions(ImmutableList.of("three", "four"));
     form.setNewOptionAdminNames(ImmutableList.of("three admin", "four admin"));
+    form.setNextAvailableId(7L);
 
-    form.getBuilder();
+    MultiOptionQuestionDefinition questionDefinition =
+        (MultiOptionQuestionDefinition) form.getBuilder().build();
 
-    assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(5));
+    assertThat(form.getNextAvailableId()).isEqualTo(OptionalLong.of(9));
+    assertThat(questionDefinition.getOptions().stream().map(QuestionOption::id))
+        .containsExactly(1L, 2L, 7L, 8L);
   }
 
   @Test
-  public void getBuilder_addNewOptions_setsAdminNameCorrectly() throws Exception {
+  public void getBuilder_addNewOptions_setsAdminNamesCorrectly() throws Exception {
     MultiOptionQuestionForm form = new DropdownQuestionForm();
     form.setQuestionName("name");
     form.setQuestionDescription("description");
@@ -169,13 +199,7 @@ public class MultiOptionQuestionFormTest {
     MultiOptionQuestionDefinition questionDefinition =
         (MultiOptionQuestionDefinition) form.getBuilder().build();
 
-    assertThat(questionDefinition.getOptionsAdminName())
-        .containsExactly(
-            "one admin",
-            "two admin",
-            // TODO(#4862): Currently the admin name is set to the user-facing text. Once the form
-            // view is updated to support admin names, this test should be updated.
-            "three",
-            "four");
+    assertThat(questionDefinition.getOptionAdminNames())
+        .containsExactly("one admin", "two admin", "three admin", "four admin");
   }
 }

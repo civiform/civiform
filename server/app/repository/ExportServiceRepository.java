@@ -22,8 +22,7 @@ public class ExportServiceRepository {
     this.versionRepository = checkNotNull(versionRepository);
   }
 
-  public ImmutableList<String> getCsvHeaders(String questionName) {
-    questionName = questionName.isEmpty() ? "color" : questionName;
+  public ImmutableList<String> getMultiSelectedHeaders(String questionName) {
     Map<Long, String> alloptionsMap = new HashMap<>();
     database
         .sqlQuery(
@@ -39,9 +38,9 @@ public class ExportServiceRepository {
     database
         .sqlQuery(
             "select json_array_elements(((object #>>"
-                + " '{}')::jsonb)::json#>'{applicant,color,selections}') AS selections from"
+                + " '{}')::jsonb)::json#>'{applicant,:currentQuestion::varchar,selections}') AS selections from"
                 + " applications;")
-        // .setParameter("currentQuestion",questionName)
+         .setParameter("currentQuestion",questionName)
         .findList()
         .forEach(
             row ->

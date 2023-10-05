@@ -109,11 +109,14 @@ public final class QuestionRepository {
    * newEnumeratorId}.
    */
   public void updateAllRepeatedQuestions(long newEnumeratorId, long oldEnumeratorId) {
+    VersionRepository versionRepository = versionRepositoryProvider.get();
     // TODO: This seems error prone as a question could be present as a DRAFT and ACTIVE.
     // Investigate further.
     Stream.concat(
-            versionRepositoryProvider.get().getDraftVersionOrCreate().getQuestions().stream(),
-            versionRepositoryProvider.get().getActiveVersion().getQuestions().stream())
+            versionRepository
+                .getQuestionsForVersion(versionRepository.getDraftVersionOrCreate())
+                .stream(),
+            versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()).stream())
         // Find questions that reference the old enumerator ID.
         .filter(
             question ->
@@ -162,7 +165,9 @@ public final class QuestionRepository {
   public ImmutableList<QuestionDefinition> getAllQuestionsForTag(QuestionTag tag) {
     Version active = versionRepositoryProvider.get().getActiveVersion();
     ImmutableSet<Long> activeQuestionIds =
-        active.getQuestions().stream().map(q -> q.id).collect(ImmutableSet.toImmutableSet());
+        versionRepositoryProvider.get().getQuestionsForVersion(active).stream()
+            .map(q -> q.id)
+            .collect(ImmutableSet.toImmutableSet());
     return database
         .find(Question.class)
         .where()

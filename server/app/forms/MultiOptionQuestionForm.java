@@ -42,9 +42,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.newOptionAdminNames = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
-    this.nextAvailableId = OptionalLong.empty();
+    this.nextAvailableId = OptionalLong.of(0);
   }
 
+  /**
+   * Build a QuestionForm from a {@link QuestionDefinition}, to build the QuestionEditView.
+   *
+   * @param qd the {@link QuestionDefinition} from which to build a QuestionForm
+   */
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
     this.minChoicesRequired = qd.getMultiOptionValidationPredicates().minChoicesRequired();
@@ -73,7 +78,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                 qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
                         .mapToLong(LocalizedQuestionOption::id)
                         .max()
-                        .getAsLong()
+                        .orElse(0)
                     + 1);
       }
     } catch (TranslationNotFoundException e) {
@@ -125,6 +130,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return minChoicesRequired;
   }
 
+  public OptionalLong getNextAvailableId() {
+    return nextAvailableId;
+  }
+
+  public void setNextAvailableId(long nextAvailableId) {
+    this.nextAvailableId = OptionalLong.of(nextAvailableId);
+  }
+
   /**
    * We use a string parameter here so that if the field is empty (i.e. unset), we can correctly set
    * to an empty OptionalInt. Since the HTML input is type "number", we can be sure this string is
@@ -157,6 +170,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
   }
 
+  /**
+   * Build a {@link QuestionDefinitionBuilder} from this QuestionForm, for handling the form
+   * response.
+   *
+   * @return a {@link QuestionDefinitionBuilder} with the values from this QuestionForm
+   */
   @Override
   public QuestionDefinitionBuilder getBuilder() {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
@@ -188,19 +207,17 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               LocalizedStrings.withDefaultValue(options.get(i))));
     }
 
-    // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
-    // the largest ID in the list and accurately set the next largest.
-    Long maxId = optionIds.stream().max(Long::compareTo).orElse(-1L);
-    setNextAvailableId(maxId + 1);
+    // Get the next available ID, from either the max of the option IDs in the response or the
+    // nextAvailableId in the response
+    Long maxIdInFormResponseOptions = optionIds.stream().max(Long::compareTo).orElse(-1L);
+    setNextAvailableId(Math.max(nextAvailableId.orElse(0), maxIdInFormResponseOptions + 1));
 
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
               nextAvailableId.getAsLong() + i,
               options.size() + i,
-              // TODO(#4862): Use the admin name from the form here, once the UI allows setting the
-              // admin name
-              newOptions.get(i),
+              newOptionAdminNames.get(i),
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
@@ -212,13 +229,5 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return super.getBuilder()
         .setQuestionOptions(questionOptions)
         .setValidationPredicates(predicateBuilder.build());
-  }
-
-  public OptionalLong getNextAvailableId() {
-    return nextAvailableId;
-  }
-
-  public void setNextAvailableId(long nextAvailableId) {
-    this.nextAvailableId = OptionalLong.of(nextAvailableId);
   }
 }

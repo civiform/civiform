@@ -23,19 +23,39 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.addEmailQuestion({questionName: 'email-q'})
     await adminQuestions.addDropdownQuestion({
       questionName: 'ice-cream-q',
-      options: ['chocolate', 'banana', 'black raspberry'],
+      options: [
+        {adminName: 'chocolate admin', text: 'chocolate'},
+        {adminName: 'banana admin', text: 'banana'},
+        {adminName: 'black raspberry admin', text: 'black raspberry'},
+      ],
     })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'favorite-trees-q',
-      options: ['oak', 'maple', 'pine', 'cherry'],
+      options: [
+        {adminName: 'oak admin', text: 'oak'},
+        {adminName: 'maple admin', text: 'maple'},
+        {adminName: 'pine admin', text: 'pine'},
+        {adminName: 'cherry admin', text: 'cherry'},
+      ],
     })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'favorite-rats-q',
-      options: ['sewage', 'laboratory', 'bubonic', 'giant'],
+      options: [
+        {adminName: 'sewage admin', text: 'sewage'},
+        {adminName: 'laboratory admin', text: 'laboratory'},
+        {adminName: 'bubonic admin', text: 'bubonic'},
+        {adminName: 'giant admin', text: 'giant'},
+      ],
     })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'scared-of-q',
-      options: ['dogs', 'bees', 'spiders', 'the dark', 'clowns'],
+      options: [
+        {adminName: 'dog admin', text: 'dogs'},
+        {adminName: 'bee admin', text: 'bees'},
+        {adminName: 'spider admin', text: 'spiders'},
+        {adminName: 'dark admin', text: 'the dark'},
+        {adminName: 'clown admin', text: 'clowns'},
+      ],
     })
     await adminQuestions.addCurrencyQuestion({
       questionName: 'monthly-income-q',
@@ -49,7 +69,11 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.addTextQuestion({questionName: 'text-q'})
     await adminQuestions.addRadioButtonQuestion({
       questionName: 'radio-q',
-      options: ['one', 'two', 'three'],
+      options: [
+        {adminName: 'one admin', text: 'one'},
+        {adminName: 'two admin', text: 'two'},
+        {adminName: 'three admin', text: 'three'},
+      ],
     })
     await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})
     await adminQuestions.addStaticQuestion({questionName: 'second-static-q'})

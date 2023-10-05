@@ -19,7 +19,12 @@ describe('Checkbox question for applicant flow', () => {
 
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-color-q',
-        options: ['red', 'green', 'orange', 'blue'],
+        options: [
+          {adminName: 'red admin', text: 'red'},
+          {adminName: 'green admin', text: 'green'},
+          {adminName: 'orange admin', text: 'orange'},
+          {adminName: 'blue admin', text: 'blue'},
+        ],
         minNum: 1,
         maxNum: 2,
       })
@@ -40,7 +45,12 @@ describe('Checkbox question for applicant flow', () => {
           questionName: 'not-used-in-test',
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
-          options: ['red', 'green', 'orange', 'blue'],
+          options: [
+            {adminName: 'red admin', text: 'red'},
+            {adminName: 'green admin', text: 'green'},
+            {adminName: 'orange admin', text: 'orange'},
+            {adminName: 'blue admin', text: 'blue'},
+          ],
         },
         /* clickSubmit= */ false,
       )
@@ -142,13 +152,23 @@ describe('Checkbox question for applicant flow', () => {
 
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-fave-color-q',
-        options: ['red', 'green', 'orange', 'blue'],
+        options: [
+          {adminName: 'red admin', text: 'red'},
+          {adminName: 'green admin', text: 'green'},
+          {adminName: 'orange admin', text: 'orange'},
+          {adminName: 'blue admin', text: 'blue'},
+        ],
         minNum: 1,
         maxNum: 2,
       })
       await adminQuestions.addCheckboxQuestion({
         questionName: 'checkbox-vacation-q',
-        options: ['beach', 'mountains', 'city', 'cruise'],
+        options: [
+          {adminName: 'beach admin', text: 'beach'},
+          {adminName: 'mountains admin', text: 'mountains'},
+          {adminName: 'city admin', text: 'city'},
+          {adminName: 'cruise admin', text: 'cruise'},
+        ],
         minNum: 1,
         maxNum: 2,
       })
