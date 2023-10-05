@@ -656,7 +656,7 @@ public final class VersionRepository {
   }
 
   /** Returns the names of questions referenced by the program that are in the specified version. */
-  public static ImmutableSet<String> getProgramQuestionNamesInVersion(
+  public ImmutableSet<String> getProgramQuestionNamesInVersion(
       ProgramDefinition program, Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     return getProgramQuestionNames(program, questionIdToNameLookup);

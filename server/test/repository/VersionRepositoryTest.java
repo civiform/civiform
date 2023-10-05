@@ -885,20 +885,20 @@ public class VersionRepositoryTest extends ResetPostgres {
     Version active = versionRepository.getActiveVersion();
 
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 firstProgramActive.getProgramDefinition(), active))
         .containsExactlyInAnyOrder(firstQuestion.getQuestionDefinition().getName());
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 firstProgramActive.getProgramDefinition(), draft))
         .isEmpty();
 
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 secondProgramActive.getProgramDefinition(), active))
         .containsExactlyInAnyOrder(secondQuestion.getQuestionDefinition().getName());
     assertThat(
-            VersionRepository.getProgramQuestionNamesInVersion(
+            versionRepository.getProgramQuestionNamesInVersion(
                 secondProgramDraft.getProgramDefinition(), draft))
         .containsExactlyInAnyOrder(
             secondQuestionUpdated.getQuestionDefinition().getName(),
