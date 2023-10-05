@@ -32,8 +32,7 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsSynced(
       ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository.getActiveVersion(), repository.getDraftVersionOrCreate(), Optional.of(service));
+    return new ActiveAndDraftPrograms(repository, Optional.of(service));
   }
 
   /**
@@ -43,16 +42,17 @@ public final class ActiveAndDraftPrograms {
    */
   public static ActiveAndDraftPrograms buildFromCurrentVersionsUnsynced(
       VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository.getActiveVersion(), repository.getDraftVersionOrCreate(), Optional.empty());
+    return new ActiveAndDraftPrograms(repository, Optional.empty());
   }
 
-  private ActiveAndDraftPrograms(Version active, Version draft, Optional<ProgramService> service) {
+  private ActiveAndDraftPrograms(VersionRepository repository, Optional<ProgramService> service) {
+    Version active = repository.getActiveVersion();
+    Version draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        VersionRepository.getProgramsForVersion(checkNotNull(active)).stream()
+        repository.getProgramsForVersion(checkNotNull(active)).stream()
             .map(
                 program ->
                     service.isPresent()
@@ -62,7 +62,7 @@ public final class ActiveAndDraftPrograms {
                 ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        VersionRepository.getProgramsForVersion(checkNotNull(draft)).stream()
+        repository.getProgramsForVersion(checkNotNull(draft)).stream()
             .map(
                 program ->
                     service.isPresent()

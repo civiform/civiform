@@ -68,7 +68,7 @@ public class VersionTest extends ResetPostgres {
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
 
-    Optional<Program> result = version.getProgramByName(programName);
+    Optional<Program> result = versionRepository.getProgramByNameForVersion(programName, version);
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().getProgramDefinition().adminName()).isEqualTo(programName);
   }
@@ -80,7 +80,8 @@ public class VersionTest extends ResetPostgres {
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
 
-    Optional<Program> result = version.getProgramByName(programName + "other");
+    Optional<Program> result =
+        versionRepository.getProgramByNameForVersion(programName + "other", version);
     assertThat(result.isPresent()).isFalse();
   }
 
@@ -98,8 +99,8 @@ public class VersionTest extends ResetPostgres {
     version.addProgram(programTwo);
     version.addProgram(programThree);
 
-    assertThat(version.getProgramNames()).hasSize(3);
-    assertThat(version.getProgramNames())
+    assertThat(versionRepository.getProgramNamesForVersion(version)).hasSize(3);
+    assertThat(versionRepository.getProgramNamesForVersion(version))
         .containsExactlyInAnyOrder(programNameOne, programNameTwo, programNameThree);
   }
 

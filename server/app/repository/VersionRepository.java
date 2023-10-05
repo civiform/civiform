@@ -99,7 +99,7 @@ public final class VersionRepository {
       Version draft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
 
-      ImmutableSet<String> draftProgramsNames = draft.getProgramNames();
+      ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
       ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
       // Is a program being deleted in the draft version?
@@ -207,8 +207,7 @@ public final class VersionRepository {
       database.insert(newDraft);
 
       Program programToPublish =
-          existingDraft
-              .getProgramByName(programToPublishAdminName)
+          getProgramByNameForVersion(programToPublishAdminName, existingDraft)
               .orElseThrow(() -> new ProgramNotFoundException(programToPublishAdminName));
 
       ImmutableSet<String> questionsToPublishNames =
@@ -419,12 +418,30 @@ public final class VersionRepository {
   }
 
   /**
+   * If a program by the given name exists, return it. A maximum of one program by a given name can
+   * exist in a version.
+   */
+  public Optional<Program> getProgramByNameForVersion(String name, Version version) {
+    return getProgramsForVersion(version).stream()
+        .filter(p -> p.getProgramDefinition().adminName().equals(name))
+        .findAny();
+  }
+
+  /** Returns the names of all the programs. */
+  public ImmutableSet<String> getProgramNamesForVersion(Version version) {
+    return getProgramsForVersion(version).stream()
+        .map(Program::getProgramDefinition)
+        .map(ProgramDefinition::adminName)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
    * Returns the programs for a version.
    *
    * <p>This replaces all calls for version.getPrograms() and will eventually be where
    * version-programs caching is implemented.
    */
-  public static ImmutableList<Program> getProgramsForVersion(Version version) {
+  public ImmutableList<Program> getProgramsForVersion(Version version) {
     return version.getPrograms();
   }
 
@@ -653,8 +670,8 @@ public final class VersionRepository {
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .filter(
             program ->
-                getDraftVersionOrCreate()
-                    .getProgramByName(program.getProgramDefinition().adminName())
+                getProgramByNameForVersion(
+                        program.getProgramDefinition().adminName(), getDraftVersionOrCreate())
                     .isEmpty())
         .forEach(programRepository::createOrUpdateDraft);
   }

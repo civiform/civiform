@@ -107,7 +107,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableSet<String> getActiveProgramNames() {
-    return versionRepository.getActiveVersion().getProgramNames();
+    return versionRepository.getProgramNamesForVersion(versionRepository.getActiveVersion());
   }
 
   @Override
