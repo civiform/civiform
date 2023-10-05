@@ -32,6 +32,7 @@ public enum MessageKey {
   BUTTON_CONTINUE_COMMON_INTAKE_SR("button.continueCommonIntakeSr"),
   BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT("button.continueWithoutAnAccount"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
+  BUTTON_DOWNLOAD_PDF("button.downloadPdf"),
   BUTTON_EDIT("button.edit"),
   BUTTON_EDIT_SR("button.editSr"),
   BUTTON_EDIT_COMMON_INTAKE_SR("button.editCommonIntakeSr"),

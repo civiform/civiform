@@ -74,7 +74,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
           new ATag()
               .withHref(redirectUrl)
               .with(
-                  button("Download PDF")
+                  button(messages.at(MessageKey.BUTTON_DOWNLOAD_PDF.getKeyName()))
                       .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
               .withClass("flex");
     }
