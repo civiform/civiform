@@ -21,7 +21,7 @@ import play.i18n.Lang;
 import play.i18n.Langs;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
-import repository.UserRepository;
+import repository.AccountRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
@@ -138,7 +138,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     DeepLinkController controller =
         new DeepLinkController(
@@ -170,7 +170,7 @@ public class DeepLinkControllerTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     DeepLinkController controller =
         new DeepLinkController(

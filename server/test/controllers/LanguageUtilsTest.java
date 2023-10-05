@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Langs;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.LocalizedStrings;
 import services.settings.SettingsManifest;
 
@@ -26,7 +26,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
 
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
     assertThat(applicant.getApplicantData().hasPreferredLocale()).isFalse();
   }
@@ -39,7 +39,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("ko")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
     assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREAN);
   }
@@ -51,7 +51,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
     assertThat(applicant.getApplicantData().preferredLocale())
         .isEqualTo(LocalizedStrings.DEFAULT_LOCALE);
@@ -65,7 +65,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of());
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
     assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREAN);
   }
@@ -78,7 +78,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
     applicant = languageUtils.maybeSetDefaultLocale(applicant);
     assertThat(applicant.getApplicantData().preferredLocale()).isEqualTo(Locale.KOREAN);
   }
@@ -95,7 +95,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
         .thenReturn(Optional.of(ImmutableList.of("en-US", "vi")));
 
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     assertThat(languageUtils.getApplicantEnabledLanguages().size()).isEqualTo(2);
   }
@@ -112,7 +112,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
         .thenReturn(Optional.of(ImmutableList.of()));
 
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     assertThat(languageUtils.getApplicantEnabledLanguages().size()).isEqualTo(3);
   }
@@ -129,7 +129,7 @@ public class LanguageUtilsTest extends WithMockedProfiles {
         .thenReturn(Optional.of(ImmutableList.of("en-US", "vi", "jp")));
 
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     var applicantEnabledLanguages = languageUtils.getApplicantEnabledLanguages();
 

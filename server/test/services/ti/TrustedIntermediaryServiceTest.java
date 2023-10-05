@@ -20,14 +20,14 @@ import org.junit.Test;
 import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
+import repository.AccountRepository;
 import repository.SearchParameters;
-import repository.UserRepository;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
-  private UserRepository repo;
+  private AccountRepository repo;
 
   private TrustedIntermediaryService service;
   private FormFactory formFactory;
@@ -37,7 +37,7 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
 
   @Before
   public void setup() {
-    repo = instanceOf(UserRepository.class);
+    repo = instanceOf(AccountRepository.class);
     service = instanceOf(TrustedIntermediaryService.class);
     formFactory = instanceOf(FormFactory.class);
     profileFactory = instanceOf(ProfileFactory.class);

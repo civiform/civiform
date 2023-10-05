@@ -11,7 +11,7 @@ import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 public class GenericOidcClientProvider extends OidcClientProvider {
 
@@ -37,7 +37,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   public GenericOidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider) {
     super(configuration, profileFactory, applicantRepositoryProvider);
   }
 

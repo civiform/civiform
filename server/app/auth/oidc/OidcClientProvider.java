@@ -19,7 +19,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class provides the base user OIDC implementation. It's abstract because AD and other
@@ -31,13 +31,13 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> accountRepositoryProvider;
+  protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
 
   public OidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider) {
+      Provider<AccountRepository> accountRepositoryProvider) {
     this.civiformConfig = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);

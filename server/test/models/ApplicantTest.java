@@ -6,18 +6,18 @@ import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
 import org.junit.Test;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 
 public class ApplicantTest extends ResetPostgres {
 
-  private UserRepository repo;
+  private AccountRepository repo;
 
   @Before
   public void setupApplicantRepository() {
-    repo = instanceOf(UserRepository.class);
+    repo = instanceOf(AccountRepository.class);
   }
 
   @Test

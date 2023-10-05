@@ -20,8 +20,8 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
@@ -36,11 +36,11 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   private CiviformOidcProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
+  private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
@@ -50,7 +50,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             profileFactory,
-            CfTestHelpers.userRepositoryProvider(userRepository));
+            CfTestHelpers.userRepositoryProvider(accountRepository));
 
     profile = new OidcProfile();
     profile.addAttribute("user_emailid", EMAIL);

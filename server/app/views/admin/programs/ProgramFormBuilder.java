@@ -23,7 +23,7 @@ import models.DisplayMode;
 import models.TrustedIntermediaryGroup;
 import modules.MainModule;
 import play.mvc.Http.Request;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
@@ -47,13 +47,13 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
 
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
 
   ProgramFormBuilder(
-      Config configuration, SettingsManifest settingsManifest, UserRepository userRepository) {
+      Config configuration, SettingsManifest settingsManifest, AccountRepository accountRepository) {
     this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
   }
 
   /** Builds the form using program form data. */
@@ -223,7 +223,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private DomContent showTiSelectionList(List<Long> selectedTi, boolean selectTiChecked) {
-    List<TrustedIntermediaryGroup> tiGroups = userRepository.listTrustedIntermediaryGroups();
+    List<TrustedIntermediaryGroup> tiGroups = accountRepository.listTrustedIntermediaryGroups();
     DivTag tiSelectionRenderer =
         div()
             // Hidden input that's always selected to allow for clearing multi-select data.

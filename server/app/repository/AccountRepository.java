@@ -29,16 +29,15 @@ import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 
 /**
- * UserRepository performs complicated operations on {@link Account} and {@link Applicant} that
- * often involve other EBean models or asynchronous handling.
+ * AccountRepository contains database interactions for {@link Account} and {@link Applicant}.
  */
-public final class UserRepository {
+public final class AccountRepository {
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
 
   @Inject
-  public UserRepository(DatabaseExecutionContext executionContext) {
+  public AccountRepository(DatabaseExecutionContext executionContext) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
   }

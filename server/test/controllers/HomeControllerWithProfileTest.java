@@ -16,7 +16,7 @@ import play.i18n.Langs;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Result;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.settings.SettingsManifest;
 
 public class HomeControllerWithProfileTest extends WithMockedProfiles {
@@ -45,7 +45,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     LanguageUtils languageUtils =
-        new LanguageUtils(instanceOf(UserRepository.class), mockLangs, mockSettingsManifest);
+        new LanguageUtils(instanceOf(AccountRepository.class), mockLangs, mockSettingsManifest);
 
     HomeController controller =
         new HomeController(

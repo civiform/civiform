@@ -17,7 +17,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
 import play.mvc.Call;
 import play.mvc.Http;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.program.predicate.PredicateValue;
 
 public class CfTestHelpers {
@@ -53,11 +53,11 @@ public class CfTestHelpers {
         .build();
   }
 
-  public static Provider<UserRepository> userRepositoryProvider(UserRepository userRepository) {
-    return new Provider<UserRepository>() {
+  public static Provider<AccountRepository> userRepositoryProvider(AccountRepository accountRepository) {
+    return new Provider<AccountRepository>() {
       @Override
-      public UserRepository get() {
-        return userRepository;
+      public AccountRepository get() {
+        return accountRepository;
       }
     };
   }
