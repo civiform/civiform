@@ -22,8 +22,8 @@ validation.isRequired=這是必答問題。
 validation.invalidInput=請輸入有效內容。
 validation.errorAnnouncementSr=表單中出現錯誤，請修正錯誤再繼續。
 content.requiredFieldsAnnotation=注意：標有 * 的欄位為必填欄位。
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=注意：標有 {0} 的欄位為必填欄位。
+content.optional=(選用)
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
 button.applyToPrograms=申請參加計畫
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=長度不可少於 {0} 個字元。
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=多選題不得留空。
+adminValidation.multiOptionAdminEmpty=複選題的管理員 ID 不得留空。
 
 #----------------------------------#
 # ERRORS - various error messages  #
