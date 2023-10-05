@@ -52,7 +52,10 @@ public class VersionRepositoryTest extends ResetPostgres {
         ProgramBuilder.newDraftProgram("draft-only-program").withBlock("Screen 1").build();
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(draftOnlyQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(
+                draftOnlyQuestion, draftForTombstoning))
+        .isTrue();
     assertThat(draftForTombstoning.addTombstoneForProgramForTest(draftOnlyProgram)).isTrue();
     draftForTombstoning.save();
 
@@ -189,7 +192,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
+        .isTrue();
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 
@@ -226,7 +231,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
+        .isTrue();
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     versionRepository.updateProgramsThatReferenceQuestion(secondQuestion.id);
@@ -275,7 +282,9 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     Version draftForTombstoning = versionRepository.getDraftVersionOrCreate();
     draftForTombstoning.addQuestion(firstQuestion).save();
-    assertThat(draftForTombstoning.addTombstoneForQuestion(firstQuestion)).isTrue();
+    assertThat(
+            versionRepository.addTombstoneForQuestionInVersion(firstQuestion, draftForTombstoning))
+        .isTrue();
     Question secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
 

@@ -47,6 +47,7 @@ import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.OrNode;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 
 /** A repository object for dealing with versioning of questions and programs. */
@@ -371,6 +372,22 @@ public final class VersionRepository {
             .findOne();
 
     return Optional.ofNullable(previousVersion);
+  }
+
+  /**
+   * Attempts to mark the provided question of a particular version as not eligible for copying to
+   * the next version.
+   *
+   * @return true if the question was successfully marked as tombstoned, false otherwise.
+   * @throws QuestionNotFoundException if the question cannot be found in this version.
+   */
+  public boolean addTombstoneForQuestionInVersion(Question question, Version version)
+      throws QuestionNotFoundException {
+    String name = question.getQuestionDefinition().getName();
+    if (!getQuestionNamesForVersion(version).contains(name)) {
+      throw new QuestionNotFoundException(question.getQuestionDefinition().getId());
+    }
+    return version.addTombstoneForQuestion(name);
   }
 
   /** Returns the names of all the questions for a particular version. */
