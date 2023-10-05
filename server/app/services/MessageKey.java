@@ -67,7 +67,6 @@ public enum MessageKey {
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_TI("content.commonIntakeNoMatchingProgramsTi"),
   CONTENT_COMMON_INTAKE_NO_MATCHING_PROGRAMS_NEXT_STEP(
       "content.commonIntakeNoMatchingProgramsNextStep"),
-  CONTENT_CONTINUE_EDITING("content.continueEditing"),
   CONTENT_ELIGIBILITY_CRITERIA("content.eligibilityCriteria"),
   CONTENT_GET_BENEFITS("content.benefits"),
   CONTENT_GUEST_DESCRIPTION("content.guestDescription"),

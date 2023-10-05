@@ -154,9 +154,8 @@ button.applyToPrograms=Apply to programs
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save
-content.noChanges=You have not made any changes to the application yet.
-content.continueEditing=Would you like to continue editing?
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
 button.continueEditing=Continue editing
 button.exitApplication=Exit application
 
