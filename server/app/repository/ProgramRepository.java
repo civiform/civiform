@@ -91,7 +91,10 @@ public final class ProgramRepository {
   public Program createOrUpdateDraft(Program existingProgram) {
     Version draftVersion = versionRepository.get().getDraftVersionOrCreate();
     Optional<Program> existingDraftOpt =
-        draftVersion.getProgramByName(existingProgram.getProgramDefinition().adminName());
+        versionRepository
+            .get()
+            .getProgramByNameForVersion(
+                existingProgram.getProgramDefinition().adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
       Program existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
