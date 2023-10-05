@@ -103,8 +103,8 @@ public final class QuestionService {
    * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
    * questions in a particular version.
    */
-  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version) {
-    return new ReadOnlyVersionedQuestionServiceImpl(version);
+  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version, VersionRepository versionRepository) {
+    return new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
   }
 
   /**
@@ -210,8 +210,8 @@ public final class QuestionService {
     // Find the Active version.
     Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
     Long activeId =
-        activeVersion
-            .getQuestionByName(question.getQuestionDefinition().getName())
+        versionRepositoryProvider.get()
+            .getQuestionByNameForVersion(question.getQuestionDefinition().getName(), activeVersion)
             // TODO: If nothing depends on this question then it could be removed.
             .orElseThrow(
                 () ->

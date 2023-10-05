@@ -118,29 +118,11 @@ public final class Version extends BaseModel {
         .findAny();
   }
 
-  /**
-   * If a question by the given name exists, return it. A maximum of one question by a given name
-   * can exist in a version.
-   */
-  public Optional<Question> getQuestionByName(String name) {
-    return VersionRepository.getQuestionsForVersion(this).stream()
-        .filter(q -> q.getQuestionDefinition().getName().equals(name))
-        .findAny();
-  }
-
   /** Returns the names of all the programs. */
   public ImmutableSet<String> getProgramNames() {
     return getPrograms().stream()
         .map(Program::getProgramDefinition)
         .map(ProgramDefinition::adminName)
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  /** Returns the names of all the questions. */
-  public ImmutableSet<String> getQuestionNames() {
-    return VersionRepository.getQuestionsForVersion(this).stream()
-        .map(Question::getQuestionDefinition)
-        .map(QuestionDefinition::getName)
         .collect(ImmutableSet.toImmutableSet());
   }
 

@@ -921,4 +921,29 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     assertThat(previousVersion.isPresent()).isTrue();
   }
+
+  @Test
+  public void getQuestionByNameForVersion_found() {
+    Version version = versionRepository.getDraftVersionOrCreate();
+    String questionName = "question";
+    Question question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(version).save();
+    version.refresh();
+
+    Optional<Question> result = versionRepository.getQuestionByNameForVersion(questionName, version);
+    assertThat(result.isPresent()).isTrue();
+    assertThat(result.get().getQuestionDefinition().getName()).isEqualTo(questionName);
+  }
+
+  @Test
+  public void getQuestionByNameForVersion_notFound() {
+    Version version = versionRepository.getDraftVersionOrCreate();
+    String questionName = "question";
+    Question question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(version).save();
+    version.refresh();
+
+    Optional<Question> result = versionRepository.getQuestionByNameForVersion(questionName + "other", version);
+    assertThat(result.isPresent()).isFalse();
+  }
 }

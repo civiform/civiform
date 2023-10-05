@@ -61,7 +61,7 @@ public final class QuestionRepository {
     Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try (Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE))) {
-      Optional<Question> existingDraft = draftVersion.getQuestionByName(definition.getName());
+      Optional<Question> existingDraft = versionRepositoryProvider.get().getQuestionByNameForVersion(definition.getName(), draftVersion);
       try {
         if (existingDraft.isPresent()) {
           Question updatedDraft =

@@ -43,18 +43,18 @@ public final class ActiveAndDraftQuestions {
     return new ActiveAndDraftQuestions(
         repository.getActiveVersion(),
         repository.getDraftVersionOrCreate(),
-        repository.previewPublishNewSynchronizedVersion());
+        repository.previewPublishNewSynchronizedVersion(), repository);
   }
 
-  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits) {
+  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits, VersionRepository repository) {
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
-        VersionRepository.getQuestionsForVersion(active).stream()
+        repository.getQuestionsForVersion(active).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.activeQuestions = activeNameToQuestion.values().asList();
 
     ImmutableMap<String, QuestionDefinition> draftNameToQuestion =
-        VersionRepository.getQuestionsForVersion(draft).stream()
+        repository.getQuestionsForVersion(draft).stream()
             .map(Question::getQuestionDefinition)
             .collect(ImmutableMap.toImmutableMap(QuestionDefinition::getName, Function.identity()));
     this.draftQuestions = draftNameToQuestion.values().asList();
@@ -71,9 +71,9 @@ public final class ActiveAndDraftQuestions {
                     }));
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
-    this.referencingActiveProgramsByName = VersionRepository.buildReferencingProgramsMap(active);
+    this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
     this.referencingDraftProgramsByName =
-        VersionRepository.buildReferencingProgramsMap(withDraftEdits);
+        repository.buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(

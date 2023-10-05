@@ -373,13 +373,33 @@ public final class VersionRepository {
     return Optional.ofNullable(previousVersion);
   }
 
+
+  /** Returns the names of all the questions for a particular version. */
+  public ImmutableSet<String> getQuestionNamesForVersion(Version version) {
+    return getQuestionsForVersion(version).stream()
+      .map(Question::getQuestionDefinition)
+      .map(QuestionDefinition::getName)
+      .collect(ImmutableSet.toImmutableSet());
+  }
+
+
+  /**
+   * If a question by the given name exists, return it. A maximum of one question by a given name
+   * can exist in a version.
+   */
+  public Optional<Question> getQuestionByNameForVersion(String name, Version version) {
+    return getQuestionsForVersion(version).stream()
+      .filter(q -> q.getQuestionDefinition().getName().equals(name))
+      .findAny();
+  }
+
   /**
    * Returns the questions for a version.
    *
    * <p>This replaces all calls for version.getQuestions() and will eventually be where
    * version-questions caching is implemented.
    */
-  public static ImmutableList<Question> getQuestionsForVersion(Version version) {
+  public ImmutableList<Question> getQuestionsForVersion(Version version) {
     return version.getQuestions();
   }
 
@@ -618,7 +638,7 @@ public final class VersionRepository {
    * Inspects the provided version and returns a map where the key is the question name and the
    * value is a set of programs that reference the given question in this version.
    */
-  public static ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
+  public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
       Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
@@ -663,7 +683,7 @@ public final class VersionRepository {
    * Different versions of a question can have distinct IDs. The name is an ID that is constant
    * across versions.
    */
-  private static ImmutableMap<Long, String> getQuestionIdToNameMap(Version version) {
+  private ImmutableMap<Long, String> getQuestionIdToNameMap(Version version) {
     return getQuestionsForVersion(version).stream()
         .map(Question::getQuestionDefinition)
         .collect(
