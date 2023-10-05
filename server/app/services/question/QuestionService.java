@@ -396,6 +396,8 @@ public final class QuestionService {
       return ImmutableList.of();
     }
 
-    return getReadOnlyVersionedQuestionService(optionalPreviousVersion.get()).getAllQuestions();
+    return getReadOnlyVersionedQuestionService(
+            optionalPreviousVersion.get(), versionRepositoryProvider.get())
+        .getAllQuestions();
   }
 }

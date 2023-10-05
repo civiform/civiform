@@ -99,7 +99,7 @@ public final class VersionRepository {
       Version active = getActiveVersion();
 
       ImmutableSet<String> draftProgramsNames = draft.getProgramNames();
-      ImmutableSet<String> draftQuestionNames = draft.getQuestionNames();
+      ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
       // Is a program being deleted in the draft version?
       Predicate<Program> programIsDeletedInDraft =

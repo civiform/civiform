@@ -15,6 +15,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.program.ProgramDefinition;
 import services.question.exceptions.QuestionNotFoundException;
+import services.question.types.QuestionDefinition;
 
 /**
  * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.
@@ -156,7 +157,11 @@ public final class Version extends BaseModel {
    */
   public boolean addTombstoneForQuestion(Question question) throws QuestionNotFoundException {
     String name = question.getQuestionDefinition().getName();
-    if (!this.getQuestionNames().contains(name)) {
+    if (!this.getQuestions().stream()
+        .map(Question::getQuestionDefinition)
+        .map(QuestionDefinition::getName)
+        .collect(ImmutableSet.toImmutableSet())
+        .contains(name)) {
       throw new QuestionNotFoundException(question.getQuestionDefinition().getId());
     }
     if (this.tombstonedQuestionNames == null) {
