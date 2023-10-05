@@ -930,7 +930,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     question.addVersion(version).save();
     version.refresh();
 
-    Optional<Question> result = versionRepository.getQuestionByNameForVersion(questionName, version);
+    Optional<Question> result =
+        versionRepository.getQuestionByNameForVersion(questionName, version);
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().getQuestionDefinition().getName()).isEqualTo(questionName);
   }
@@ -943,7 +944,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     question.addVersion(version).save();
     version.refresh();
 
-    Optional<Question> result = versionRepository.getQuestionByNameForVersion(questionName + "other", version);
+    Optional<Question> result =
+        versionRepository.getQuestionByNameForVersion(questionName + "other", version);
     assertThat(result.isPresent()).isFalse();
   }
 }

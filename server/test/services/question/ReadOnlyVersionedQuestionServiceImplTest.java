@@ -18,7 +18,8 @@ import support.TestQuestionBank;
 public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyVersionedQuestionServiceImpl(new Version(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
+      new ReadOnlyVersionedQuestionServiceImpl(
+          new Version(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
   private TestQuestionBank testQuestionBank;
   private Question nameQuestion;
   private Question addressQuestion;

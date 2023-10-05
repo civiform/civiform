@@ -1028,7 +1028,8 @@ public final class ProgramServiceImpl implements ProgramService {
         Version v = p.getVersions().stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
-          questionServiceForVersion = questionService.getReadOnlyVersionedQuestionService(v, versionRepository);
+          questionServiceForVersion =
+              questionService.getReadOnlyVersionedQuestionService(v, versionRepository);
           versionToQuestionService.put(v.id, questionServiceForVersion);
         }
         programToQuestionService.put(programDef.id(), questionServiceForVersion);
@@ -1260,7 +1261,8 @@ public final class ProgramServiceImpl implements ProgramService {
       ProgramDefinition programDefinition, Version version) {
     try {
       return syncProgramDefinitionQuestions(
-          programDefinition, questionService.getReadOnlyVersionedQuestionService(version, versionRepository));
+          programDefinition,
+          questionService.getReadOnlyVersionedQuestionService(version, versionRepository));
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(
           String.format(

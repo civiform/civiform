@@ -373,15 +373,13 @@ public final class VersionRepository {
     return Optional.ofNullable(previousVersion);
   }
 
-
   /** Returns the names of all the questions for a particular version. */
   public ImmutableSet<String> getQuestionNamesForVersion(Version version) {
     return getQuestionsForVersion(version).stream()
-      .map(Question::getQuestionDefinition)
-      .map(QuestionDefinition::getName)
-      .collect(ImmutableSet.toImmutableSet());
+        .map(Question::getQuestionDefinition)
+        .map(QuestionDefinition::getName)
+        .collect(ImmutableSet.toImmutableSet());
   }
-
 
   /**
    * If a question by the given name exists, return it. A maximum of one question by a given name
@@ -389,8 +387,8 @@ public final class VersionRepository {
    */
   public Optional<Question> getQuestionByNameForVersion(String name, Version version) {
     return getQuestionsForVersion(version).stream()
-      .filter(q -> q.getQuestionDefinition().getName().equals(name))
-      .findAny();
+        .filter(q -> q.getQuestionDefinition().getName().equals(name))
+        .findAny();
   }
 
   /**

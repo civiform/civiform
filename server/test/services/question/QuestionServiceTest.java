@@ -182,7 +182,8 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify the draft is there.
     Optional<Question> draftQuestion =
-        versionRepository.getQuestionByNameForVersion(nameQuestion.getName(), versionRepository.getDraftVersionOrCreate());
+        versionRepository.getQuestionByNameForVersion(
+            nameQuestion.getName(), versionRepository.getDraftVersionOrCreate());
     assertThat(draftQuestion).isPresent();
     assertThat(draftQuestion.get().getQuestionDefinition().getQuestionText())
         .isEqualTo(toUpdate.getQuestionText());
@@ -192,7 +193,8 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify.
     assertThat(
-      versionRepository.getQuestionByNameForVersion(nameQuestion.getName(), versionRepository.getDraftVersionOrCreate()))
+            versionRepository.getQuestionByNameForVersion(
+                nameQuestion.getName(), versionRepository.getDraftVersionOrCreate()))
         .isNotPresent();
   }
 
@@ -222,7 +224,8 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify.
     Optional<Question> dependentDraft =
-        versionRepository.getQuestionByNameForVersion(dependentQuestion.getName(), versionRepository.getDraftVersionOrCreate());
+        versionRepository.getQuestionByNameForVersion(
+            dependentQuestion.getName(), versionRepository.getDraftVersionOrCreate());
     assertThat(dependentDraft).isPresent();
     assertThat(dependentDraft.get().getQuestionDefinition().getEnumeratorId().get())
         .isEqualTo(enumeratorActiveId);

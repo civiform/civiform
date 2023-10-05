@@ -40,13 +40,13 @@ public final class ActiveAndDraftQuestions {
    * state.
    */
   public static ActiveAndDraftQuestions buildFromCurrentVersions(VersionRepository repository) {
-    return new ActiveAndDraftQuestions(
-        repository.getActiveVersion(),
-        repository.getDraftVersionOrCreate(),
-        repository.previewPublishNewSynchronizedVersion(), repository);
+    return new ActiveAndDraftQuestions(repository);
   }
 
-  private ActiveAndDraftQuestions(Version active, Version draft, Version withDraftEdits, VersionRepository repository) {
+  private ActiveAndDraftQuestions(VersionRepository repository) {
+    Version active = repository.getActiveVersion();
+    Version draft = repository.getDraftVersionOrCreate();
+    Version withDraftEdits = repository.previewPublishNewSynchronizedVersion();
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionsForVersion(active).stream()
             .map(Question::getQuestionDefinition)
@@ -72,8 +72,7 @@ public final class ActiveAndDraftQuestions {
 
     this.draftVersionHasAnyEdits = draft.hasAnyChanges();
     this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName =
-        repository.buildReferencingProgramsMap(withDraftEdits);
+    this.referencingDraftProgramsByName = repository.buildReferencingProgramsMap(withDraftEdits);
 
     ImmutableSet<String> tombstonedQuestionNames =
         ImmutableSet.copyOf(
