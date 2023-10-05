@@ -24,7 +24,7 @@ public final class ButtonStyles {
           BaseStyles.BG_SEATTLE_BLUE,
           "border-transparent",
           "text-white",
-          "rounded-full",
+          //   "rounded-full",
           "font-semibold",
           "px-8",
           StyleUtils.hover("bg-blue-700"),
@@ -91,4 +91,7 @@ public final class ButtonStyles {
   // Just like CLEAR_WITH_ICON, but in dropdowns we want to remove the rounded corners.
   public static final String CLEAR_WITH_ICON_FOR_DROPDOWN =
       StyleUtils.removeStyles(CLEAR_WITH_ICON, "rounded-full");
+
+  public static final String LINK_STYLE =
+      StyleUtils.joinStyles(CLEAR_WITH_ICON, BaseStyles.LINK_TEXT, "underline");
 }

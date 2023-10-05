@@ -350,6 +350,60 @@ describe('Applicant navigation flow', () => {
       )
       await validateScreenshot(page, 'program-out-of-date')
     })
+
+    it('shows "no changes" page when a duplicate application is submitted', async () => {
+      const {page, applicantQuestions} = ctx
+      await applicantQuestions.applyProgram(programName)
+
+      // Fill out application and submit.
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerAddressQuestion(
+        '1234 St',
+        'Unit B',
+        'Sim',
+        'WA',
+        '54321',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerRadioButtonQuestion('one')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.answerPhoneQuestion(
+        'United States',
+        '4256373270',
+      )
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // submit the application again without editing it
+      await applicantQuestions.returnToProgramsFromSubmissionPage()
+      await applicantQuestions.clickApplyProgramButton(programName)
+      await applicantQuestions.submitFromReviewPage()
+
+      // see the duplicate submissions page
+      await validateScreenshot(page, 'duplicate-submission-page')
+      await validateAccessibility(page)
+
+      // click the "Continue editing" button to return to the review page
+      await page.click('#continue-editing-button')
+      await applicantQuestions.expectReviewPage()
+      await applicantQuestions.clickEdit()
+
+      // Edit the application but insert the same values as before and submit.
+      await applicantQuestions.answerDateQuestion('2021-11-01')
+      await applicantQuestions.answerEmailQuestion('test1@gmail.com')
+      await applicantQuestions.clickNext()
+      await applicantQuestions.submitFromReviewPage()
+
+      // see the duplicate submissions page
+      await validateScreenshot(page, 'duplicate-submission-page')
+
+      // click the "Exit application" link to return to the programs page
+      await page.click('text="Exit application"')
+      await applicantQuestions.expectProgramsPage()
+    })
   })
 
   describe('navigation with common intake', () => {

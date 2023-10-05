@@ -22,6 +22,7 @@ import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -74,6 +75,7 @@ public final class ApplicationRepository {
    */
   public CompletionStage<Optional<Application>> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
+    // need to pass through applicantData here maybe?
     return this.perform(
         applicantId,
         programId,
@@ -128,14 +130,16 @@ public final class ApplicationRepository {
           continue;
         }
         boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
+        if (isDuplicate) {
+          throw new DuplicateApplicationException();
+        }
         LOGGER.warn(
             "Multiple applications found at submit time for applicant {} to program {} {}:"
-                + " application {}, duplicate = {}",
+                + " application {}",
             applicant.id,
             program.id,
             program.getProgramDefinition().adminName(),
-            app.id,
-            isDuplicate);
+            app.id);
 
         app.setSubmitTimeToNow();
         app.setLifecycleStage(LifecycleStage.OBSOLETE);
@@ -172,6 +176,9 @@ public final class ApplicationRepository {
         .thenApplyAsync(Optional::of)
         .exceptionally(
             exception -> {
+              if (exception.getCause() instanceof DuplicateApplicationException) {
+                throw new DuplicateApplicationException();
+              }
               LOGGER.error(exception.toString());
               exception.printStackTrace();
               return Optional.empty();

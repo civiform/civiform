@@ -374,9 +374,13 @@ export class ApplicantQuestions {
     if (pageContent!.includes('Continue without an account')) {
       await this.page.click('text="Continue without an account"')
     }
-    await waitForPageJsLoad(this.page)
 
     // Ensure that we redirected to the programs list page.
+    await this.expectProgramsPage()
+  }
+
+  async expectProgramsPage() {
+    await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
