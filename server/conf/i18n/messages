@@ -31,6 +31,7 @@ toast.errorMessageOutline=Error: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Login
 content.loginPrompt=Please log in with your {0} account
 button.createAnAccount=Create an account
