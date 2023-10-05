@@ -14,7 +14,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 import services.program.ProgramDefinition;
-import services.question.exceptions.QuestionNotFoundException;
 
 /**
  * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.

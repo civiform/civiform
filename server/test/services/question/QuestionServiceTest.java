@@ -285,14 +285,18 @@ public class QuestionServiceTest extends ResetPostgres {
   public void archiveQuestion_createsDraftIfNoneExists() throws Exception {
     Question addressQuestion = testQuestionBank.applicantAddress();
 
-    assertThat(versionRepository.getDraftVersionOrCreate().getQuestionNames())
+    assertThat(
+            versionRepository.getQuestionNamesForVersion(
+                versionRepository.getDraftVersionOrCreate()))
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
 
     questionService.archiveQuestion(addressQuestion.id);
 
-    assertThat(versionRepository.getDraftVersionOrCreate().getQuestionNames())
+    assertThat(
+            versionRepository.getQuestionNamesForVersion(
+                versionRepository.getDraftVersionOrCreate()))
         .contains(addressQuestion.getQuestionDefinition().getName());
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());
