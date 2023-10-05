@@ -666,7 +666,7 @@ public final class VersionRepository {
    * Returns true if any questions in the provided set are referenced by multiple programs in the
    * specified version.
    */
-  private static boolean anyQuestionIsShared(Version version, ImmutableSet<String> questions) {
+  private boolean anyQuestionIsShared(Version version, ImmutableSet<String> questions) {
     ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencingProgramsByQuestionName =
         buildReferencingProgramsMap(version);
     return questions.stream()
