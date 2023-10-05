@@ -191,8 +191,10 @@ public final class ProgramServiceImpl implements ProgramService {
 
   private boolean isActiveOrDraftProgram(Program program) {
     return Streams.concat(
-            versionRepository.getActiveVersion().getPrograms().stream(),
-            versionRepository.getDraftVersionOrCreate().getPrograms().stream())
+            versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
+            versionRepository
+                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
+                .stream())
         .anyMatch(p -> p.id.equals(program.id));
   }
 

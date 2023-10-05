@@ -110,7 +110,7 @@ public final class VersionRepository {
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
-      active.getPrograms().stream()
+      getProgramsForVersion(active).stream()
           // Exclude programs deleted in the draft.
           .filter(not(programIsDeletedInDraft))
           // Exclude programs that are in the draft already.
@@ -149,7 +149,7 @@ public final class VersionRepository {
                 draft.removeTombstoneForQuestion(questionToDelete);
                 draft.removeQuestion(questionToDelete);
               });
-      draft.getPrograms().stream()
+      getProgramsForVersion(draft).stream()
           .filter(programIsDeletedInDraft)
           .forEach(
               programToDelete -> {
@@ -164,7 +164,7 @@ public final class VersionRepository {
       switch (publishMode) {
         case PUBLISH_CHANGES:
           Preconditions.checkState(
-              !draft.getPrograms().isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
+              !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
@@ -223,7 +223,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      existingDraft.getPrograms().stream()
+      getProgramsForVersion(existingDraft).stream()
           .filter(
               program ->
                   !program.getProgramDefinition().adminName().equals(programToPublishAdminName))
@@ -244,7 +244,7 @@ public final class VersionRepository {
 
       // Associate any active programs and questions that aren't present in the draft with the
       // draft.
-      active.getPrograms().stream()
+      getProgramsForVersion(active).stream()
           .filter(
               activeProgram ->
                   !programToPublishAdminName.equals(
@@ -419,6 +419,16 @@ public final class VersionRepository {
   }
 
   /**
+   * Returns the programs for a version.
+   *
+   * <p>This replaces all calls for version.getPrograms() and will eventually be where
+   * version-programs caching is implemented.
+   */
+  public static ImmutableList<Program> getProgramsForVersion(Version version) {
+    return version.getPrograms();
+  }
+
+  /**
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
    */
@@ -465,7 +475,7 @@ public final class VersionRepository {
   }
 
   public boolean isInactive(Program program) {
-    return !getActiveVersion().getPrograms().stream()
+    return !getProgramsForVersion(getActiveVersion()).stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(program.id));
   }
 
@@ -481,7 +491,7 @@ public final class VersionRepository {
 
   /** Returns true if the program with the provided id is a member of the current draft version. */
   public boolean isDraftProgram(Long programId) {
-    return getDraftVersionOrCreate().getPrograms().stream()
+    return getProgramsForVersion(getDraftVersionOrCreate()).stream()
         .anyMatch(draftProgram -> draftProgram.id.equals(programId));
   }
 
@@ -492,7 +502,7 @@ public final class VersionRepository {
 
   /** Returns true if the program with the provided id is a member of the current active version. */
   public boolean isActiveProgram(Long programId) {
-    return getActiveVersion().getPrograms().stream()
+    return getProgramsForVersion(getActiveVersion()).stream()
         .anyMatch(activeProgram -> activeProgram.id.equals(programId));
   }
 
@@ -506,7 +516,7 @@ public final class VersionRepository {
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestions);
     ImmutableSet<Long> missingQuestionIds =
-        activeVersion.getPrograms().stream()
+        getProgramsForVersion(activeVersion).stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
             .filter(
@@ -518,7 +528,7 @@ public final class VersionRepository {
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
       ImmutableSet<Long> programIdsMissingQuestions =
-          activeVersion.getPrograms().stream()
+          getProgramsForVersion(activeVersion).stream()
               .filter(
                   program ->
                       program.getProgramDefinition().getQuestionIdsInProgram().stream()
@@ -633,13 +643,13 @@ public final class VersionRepository {
    */
   public void updateProgramsThatReferenceQuestion(long oldQuestionId) {
     // Update all DRAFT program revisions that reference the question.
-    getDraftVersionOrCreate().getPrograms().stream()
+    getProgramsForVersion(getDraftVersionOrCreate()).stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .forEach(this::updateQuestionVersions);
 
     // Update any ACTIVE program without a DRAFT that references the question, a new DRAFT is
     // created.
-    getActiveVersion().getPrograms().stream()
+    getProgramsForVersion(getActiveVersion()).stream()
         .filter(program -> program.getProgramDefinition().hasQuestion(oldQuestionId))
         .filter(
             program ->
@@ -657,7 +667,7 @@ public final class VersionRepository {
       Version version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
-    for (Program program : version.getPrograms()) {
+    for (Program program : getProgramsForVersion(version)) {
       ImmutableSet<String> programQuestionNames =
           getProgramQuestionNames(program.getProgramDefinition(), questionIdToNameLookup);
       for (String questionName : programQuestionNames) {
