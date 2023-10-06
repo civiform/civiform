@@ -9,7 +9,7 @@ import java.net.URL;
 import java.util.Optional;
 import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * Provider for auth0.com. Auth0 mostly implements OIDC protocol so it relies on base implementation
@@ -24,7 +24,7 @@ public class Auth0ClientProvider extends GenericOidcClientProvider {
   public Auth0ClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider) {
+      Provider<AccountRepository> accountRepositoryProvider) {
     super(configuration, profileFactory, accountRepositoryProvider);
   }
 

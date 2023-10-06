@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -19,12 +19,12 @@ import services.program.ProgramService;
 public final class RoleService {
 
   private final ProgramService programService;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
 
   @Inject
-  public RoleService(ProgramService programRepository, UserRepository userRepository) {
+  public RoleService(ProgramService programRepository, AccountRepository accountRepository) {
     this.programService = programRepository;
-    this.userRepository = userRepository;
+    this.accountRepository = accountRepository;
   }
 
   /**
@@ -33,7 +33,7 @@ public final class RoleService {
    * @return an {@link ImmutableSet} of {@link Account}s that are CiviForm admins.
    */
   public ImmutableSet<Account> getGlobalAdmins() {
-    return userRepository.getGlobalAdmins();
+    return accountRepository.getGlobalAdmins();
   }
 
   /**
@@ -70,7 +70,8 @@ public final class RoleService {
       if (globalAdminEmails.contains(email)) {
         invalidEmailBuilder.add(email);
       } else {
-        Optional<CiviFormError> maybeError = userRepository.addAdministeredProgram(email, program);
+        Optional<CiviFormError> maybeError =
+            accountRepository.addAdministeredProgram(email, program);
 
         // Concatenate error messages.
         if (maybeError.isPresent()) {
@@ -112,7 +113,7 @@ public final class RoleService {
       throws ProgramNotFoundException {
     if (!accountEmails.isEmpty()) {
       ProgramDefinition program = programService.getProgramDefinition(programId);
-      accountEmails.forEach(email -> userRepository.removeAdministeredProgram(email, program));
+      accountEmails.forEach(email -> accountRepository.removeAdministeredProgram(email, program));
     }
   }
 }

@@ -30,7 +30,7 @@ import services.program.ProgramNotFoundException;
  */
 public final class ApplicationRepository {
   private final ProgramRepository programRepository;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationRepository.class);
@@ -38,10 +38,10 @@ public final class ApplicationRepository {
   @Inject
   public ApplicationRepository(
       ProgramRepository programRepository,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       DatabaseExecutionContext executionContext) {
     this.programRepository = checkNotNull(programRepository);
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
   }
@@ -154,7 +154,8 @@ public final class ApplicationRepository {
    */
   private CompletionStage<Optional<Application>> perform(
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
-    CompletionStage<Optional<Applicant>> applicantDb = userRepository.lookupApplicant(applicantId);
+    CompletionStage<Optional<Applicant>> applicantDb =
+        accountRepository.lookupApplicant(applicantId);
     CompletionStage<Optional<Program>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
         .thenCombineAsync(

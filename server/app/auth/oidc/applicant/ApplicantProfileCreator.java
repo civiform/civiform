@@ -18,7 +18,7 @@ import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -39,7 +39,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider,
+      Provider<AccountRepository> accountRepositoryProvider,
       String emailAttributeName,
       @Nullable String localeAttributeName,
       ImmutableList<String> nameAttributeNames) {

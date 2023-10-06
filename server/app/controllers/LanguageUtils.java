@@ -13,21 +13,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.i18n.Lang;
 import play.i18n.Langs;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.settings.SettingsManifest;
 
 public final class LanguageUtils {
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final Langs langs;
   private final SettingsManifest settingsManifest;
   private static final Logger LOGGER = LoggerFactory.getLogger(LanguageUtils.class);
 
   @Inject
   public LanguageUtils(
-      UserRepository userRepository, Langs langs, SettingsManifest settingsManifest) {
-    this.userRepository = checkNotNull(userRepository);
+      AccountRepository accountRepository, Langs langs, SettingsManifest settingsManifest) {
+    this.accountRepository = checkNotNull(accountRepository);
     this.langs = checkNotNull(langs);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
@@ -41,7 +41,7 @@ public final class LanguageUtils {
         langs.availables().isEmpty()
             ? LocalizedStrings.DEFAULT_LOCALE
             : langs.availables().get(0).toLocale());
-    userRepository.updateApplicant(applicant).toCompletableFuture().join();
+    accountRepository.updateApplicant(applicant).toCompletableFuture().join();
     return applicant;
   }
 

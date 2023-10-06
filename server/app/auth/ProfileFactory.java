@@ -11,8 +11,8 @@ import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
-import repository.UserRepository;
 import repository.VersionRepository;
 import services.apikey.ApiKeyService;
 import services.settings.SettingsManifest;
@@ -28,7 +28,7 @@ public final class ProfileFactory {
   private final HttpExecutionContext httpContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
   private final Provider<ApiKeyService> apiKeyService;
-  private final Provider<UserRepository> userRepositoryProvider;
+  private final Provider<AccountRepository> userRepositoryProvider;
   private final SettingsManifest settingsManifest;
 
   @Inject
@@ -37,7 +37,7 @@ public final class ProfileFactory {
       HttpExecutionContext httpContext,
       Provider<VersionRepository> versionRepositoryProvider,
       Provider<ApiKeyService> apiKeyService,
-      Provider<UserRepository> userRepositoryProvider,
+      Provider<AccountRepository> userRepositoryProvider,
       SettingsManifest settingsManifest) {
     this.dbContext = Preconditions.checkNotNull(dbContext);
     this.httpContext = Preconditions.checkNotNull(httpContext);
@@ -160,12 +160,14 @@ public final class ProfileFactory {
 
   /** This creates a trusted intermediary. */
   public CiviFormProfileData createFakeTrustedIntermediary() {
-    UserRepository userRepository = userRepositoryProvider.get();
-    List<TrustedIntermediaryGroup> existingGroups = userRepository.listTrustedIntermediaryGroups();
+    AccountRepository accountRepository = userRepositoryProvider.get();
+    List<TrustedIntermediaryGroup> existingGroups =
+        accountRepository.listTrustedIntermediaryGroups();
     TrustedIntermediaryGroup group;
 
     if (existingGroups.isEmpty()) {
-      group = userRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
+      group =
+          accountRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
     } else {
       group = existingGroups.get(0);
     }
@@ -182,7 +184,7 @@ public final class ProfileFactory {
                   String.format("fake-trusted-intermediary-%s@example.com", tiProfile.getId());
               account.setEmailAddress(email);
               account.save();
-              userRepository.addTrustedIntermediaryToGroup(group.id, email);
+              accountRepository.addTrustedIntermediaryToGroup(group.id, email);
             })
         .join();
 
@@ -190,7 +192,7 @@ public final class ProfileFactory {
     // The name for a fake TI must not be unique so that screenshot tests stay consistent. Use an
     // underscore so that the name parser doesn't display "TI, Fake".
     tiApplicant.getApplicantData().setUserName("Fake_TI");
-    userRepository.updateApplicant(tiApplicant);
+    accountRepository.updateApplicant(tiApplicant);
 
     return tiProfileData;
   }

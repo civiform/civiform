@@ -14,8 +14,8 @@ import models.Account;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import play.data.Form;
+import repository.AccountRepository;
 import repository.SearchParameters;
-import repository.UserRepository;
 import services.DateConverter;
 import services.applicant.exception.ApplicantNotFoundException;
 
@@ -32,7 +32,7 @@ import services.applicant.exception.ApplicantNotFoundException;
  * <p>If any of the validation fails, it sends the form object with all of its errors.
  */
 public final class TrustedIntermediaryService {
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final DateConverter dateConverter;
   public static final String FORM_FIELD_NAME_FIRST_NAME = "firstName";
   public static final String FORM_FIELD_NAME_LAST_NAME = "lastName";
@@ -40,8 +40,9 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_DOB = "dob";
 
   @Inject
-  public TrustedIntermediaryService(UserRepository userRepository, DateConverter dateConverter) {
-    this.userRepository = Preconditions.checkNotNull(userRepository);
+  public TrustedIntermediaryService(
+      AccountRepository accountRepository, DateConverter dateConverter) {
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
 
@@ -55,7 +56,7 @@ public final class TrustedIntermediaryService {
       return form;
     }
     try {
-      userRepository.createNewApplicantForTrustedIntermediaryGroup(
+      accountRepository.createNewApplicantForTrustedIntermediaryGroup(
           form.get(), trustedIntermediaryGroup);
     } catch (EmailAddressExistsException e) {
       return form.withError(
@@ -200,7 +201,7 @@ public final class TrustedIntermediaryService {
     }
     Applicant applicant = optionalAccount.get().newestApplicant().get();
     applicant.getApplicantData().setDateOfBirth(form.get().getDob());
-    userRepository.updateApplicant(applicant).toCompletableFuture().join();
+    accountRepository.updateApplicant(applicant).toCompletableFuture().join();
     return form;
   }
 
