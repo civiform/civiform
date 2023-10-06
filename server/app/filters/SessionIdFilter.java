@@ -59,17 +59,15 @@ public final class SessionIdFilter extends EssentialFilter {
           result -> {
             // XXX NPE below at startup using result.session()
             // XXX request.session() is non-null but causes looping in browser test
-            System.out.println("XXX request.session() = " + request.session());
-            System.out.println("XXX result.session() = " + result.session());
-            System.out.println("XXX request.session().get(SESSION_ID = " + request.session().get(SESSION_ID));
-            if (request.session().get(SESSION_ID).isEmpty()) {
+//            System.out.println("XXX request.session() = " + request.session());
+//            System.out.println("XXX result.session() = " + result.session());
+//            System.out.println("XXX request.session().get(SESSION_ID = " + request.session().get(SESSION_ID));
+            if (request.getCookie(SESSION_ID).isEmpty()) {
               String sessionId = UUID.randomUUID().toString();
               System.out.println("XXX minted sessionId: " + sessionId);
-              Map<String, String> newSessionData = new HashMap<>(request.session().data());
-              newSessionData.put(SESSION_ID, sessionId);
-              return result.withSession(new Http.Session(newSessionData));
+              return result.withCookies(Http.Cookie.builder(SESSION_ID, sessionId).build());
             } else {
-              System.out.println("XXX found sessionId: " + request.session().get(SESSION_ID).get());
+              System.out.println("XXX found sessionId: " + request.getCookie(SESSION_ID).get().value());
               return result;
             }
           },
