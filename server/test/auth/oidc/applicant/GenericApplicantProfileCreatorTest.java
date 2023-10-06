@@ -13,8 +13,8 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.ResetPostgres;
 import repository.AccountRepository;
+import repository.ResetPostgres;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 

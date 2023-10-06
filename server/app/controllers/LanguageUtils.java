@@ -26,7 +26,7 @@ public final class LanguageUtils {
 
   @Inject
   public LanguageUtils(
-          AccountRepository accountRepository, Langs langs, SettingsManifest settingsManifest) {
+      AccountRepository accountRepository, Langs langs, SettingsManifest settingsManifest) {
     this.accountRepository = checkNotNull(accountRepository);
     this.langs = checkNotNull(langs);
     this.settingsManifest = checkNotNull(settingsManifest);

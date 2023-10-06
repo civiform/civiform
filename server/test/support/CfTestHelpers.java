@@ -53,7 +53,8 @@ public class CfTestHelpers {
         .build();
   }
 
-  public static Provider<AccountRepository> userRepositoryProvider(AccountRepository accountRepository) {
+  public static Provider<AccountRepository> userRepositoryProvider(
+      AccountRepository accountRepository) {
     return new Provider<AccountRepository>() {
       @Override
       public AccountRepository get() {

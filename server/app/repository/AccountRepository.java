@@ -28,9 +28,7 @@ import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 
-/**
- * AccountRepository contains database interactions for {@link Account} and {@link Applicant}.
- */
+/** AccountRepository contains database interactions for {@link Account} and {@link Applicant}. */
 public final class AccountRepository {
 
   private final Database database;

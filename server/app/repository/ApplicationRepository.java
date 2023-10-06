@@ -154,7 +154,8 @@ public final class ApplicationRepository {
    */
   private CompletionStage<Optional<Application>> perform(
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
-    CompletionStage<Optional<Applicant>> applicantDb = accountRepository.lookupApplicant(applicantId);
+    CompletionStage<Optional<Applicant>> applicantDb =
+        accountRepository.lookupApplicant(applicantId);
     CompletionStage<Optional<Program>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
         .thenCombineAsync(
