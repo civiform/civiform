@@ -18,7 +18,9 @@ public final class DefaultToGuestRedirector {
    * them, redirecting them to the original page afterward.
    */
   public static Result createGuestSessionAndRedirect(Http.Request request) {
+    System.out.println("XXX before creating guest session, the current session contains: " + request.session().data());
     return redirect(routes.CallbackController.callback(GuestClient.CLIENT_NAME).url())
-        .withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
+        .addingToSession(request, REDIRECT_TO_SESSION_KEY, request.uri());
+        // .withSession(ImmutableMap.of(REDIRECT_TO_SESSION_KEY, request.uri()));
   }
 }
