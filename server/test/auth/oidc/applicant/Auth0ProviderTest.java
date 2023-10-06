@@ -19,8 +19,8 @@ import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.play.PlayWebContext;
 import play.api.test.Helpers;
 import play.mvc.Http.Request;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
@@ -38,7 +38,7 @@ public class Auth0ProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    UserRepository userRepository = instanceOf(UserRepository.class);
+    AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     Config config =
         ConfigFactory.parseMap(
@@ -55,7 +55,7 @@ public class Auth0ProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     auth0Provider =
         new Auth0ClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+            config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository));
   }
 
   @Test

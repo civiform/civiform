@@ -746,8 +746,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.updateQuestionVersions(program);
     ProgramDefinition updated =
         versionRepository
-            .getDraftVersionOrCreate()
-            .getProgramByName(program.getProgramDefinition().adminName())
+            .getProgramByNameForVersion(
+                program.getProgramDefinition().adminName(),
+                versionRepository.getDraftVersionOrCreate())
             .get()
             .getProgramDefinition();
 

@@ -15,9 +15,9 @@ import models.Program;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
-import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -39,7 +39,7 @@ public final class ProgramAdminApplicationService {
   private final ApplicantService applicantService;
   private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final SimpleEmail emailClient;
   private final String baseUrl;
   private final boolean isStaging;
@@ -52,14 +52,14 @@ public final class ProgramAdminApplicationService {
       ApplicantService applicantService,
       ApplicationRepository applicationRepository,
       ApplicationEventRepository eventRepository,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       Config configuration,
       SimpleEmail emailClient,
       DeploymentType deploymentType,
       MessagesApi messagesApi) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
     this.messagesApi = checkNotNull(messagesApi);
@@ -195,7 +195,7 @@ public final class ProgramAdminApplicationService {
     }
 
     Locale locale =
-        userRepository
+        accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
             .flatMap(Account::newestApplicant)
             .map(Applicant::getApplicantData)

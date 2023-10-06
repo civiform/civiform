@@ -15,19 +15,19 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 public class ApplicantInformationControllerTest extends WithMockedProfiles {
 
   private Applicant currentApplicant;
-  private UserRepository userRepository;
+  private AccountRepository accountRepository;
   private ApplicantInformationController controller;
 
   @Before
   public void setup() {
     resetDatabase();
     controller = instanceOf(ApplicantInformationController.class);
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     currentApplicant = createApplicantWithMockedProfile();
   }
 
@@ -55,7 +55,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
         controller.setLangFromBrowser(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        accountRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -86,7 +86,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
         controller.setLangFromSwitcher(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        accountRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -108,7 +108,7 @@ public class ApplicantInformationControllerTest extends WithMockedProfiles {
         controller.setLangFromSwitcher(request, currentApplicant.id).toCompletableFuture().join();
 
     currentApplicant =
-        userRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
+        accountRepository.lookupApplicant(currentApplicant.id).toCompletableFuture().join().get();
     assertThat(currentApplicant.getApplicantData().preferredLocale())
         .isEqualTo(Locale.forLanguageTag("es-US"));
     assertThat(result.status()).isEqualTo(SEE_OTHER);

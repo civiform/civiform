@@ -23,7 +23,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
@@ -40,7 +40,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> userRepositoryProvider) {
+      Provider<AccountRepository> userRepositoryProvider) {
     super(
         configuration,
         client,

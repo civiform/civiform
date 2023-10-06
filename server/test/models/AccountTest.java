@@ -4,18 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
 public class AccountTest extends ResetPostgres {
 
-  private UserRepository repository;
+  private AccountRepository repository;
 
   @Before
   public void setup() {
-    repository = instanceOf(UserRepository.class);
+    repository = instanceOf(AccountRepository.class);
   }
 
   @Test
