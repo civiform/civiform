@@ -50,7 +50,9 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
   private final AccountRepository accountRepository;
 
   ProgramFormBuilder(
-      Config configuration, SettingsManifest settingsManifest, AccountRepository accountRepository) {
+      Config configuration,
+      SettingsManifest settingsManifest,
+      AccountRepository accountRepository) {
     this.settingsManifest = settingsManifest;
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.accountRepository = checkNotNull(accountRepository);

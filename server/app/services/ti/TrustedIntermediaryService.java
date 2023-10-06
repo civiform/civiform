@@ -40,7 +40,8 @@ public final class TrustedIntermediaryService {
   public static final String FORM_FIELD_NAME_DOB = "dob";
 
   @Inject
-  public TrustedIntermediaryService(AccountRepository accountRepository, DateConverter dateConverter) {
+  public TrustedIntermediaryService(
+      AccountRepository accountRepository, DateConverter dateConverter) {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }

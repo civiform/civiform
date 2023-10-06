@@ -11,8 +11,8 @@ import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.libs.concurrent.HttpExecutionContext;
-import repository.DatabaseExecutionContext;
 import repository.AccountRepository;
+import repository.DatabaseExecutionContext;
 import repository.VersionRepository;
 import services.apikey.ApiKeyService;
 import services.settings.SettingsManifest;
@@ -161,11 +161,13 @@ public final class ProfileFactory {
   /** This creates a trusted intermediary. */
   public CiviFormProfileData createFakeTrustedIntermediary() {
     AccountRepository accountRepository = userRepositoryProvider.get();
-    List<TrustedIntermediaryGroup> existingGroups = accountRepository.listTrustedIntermediaryGroups();
+    List<TrustedIntermediaryGroup> existingGroups =
+        accountRepository.listTrustedIntermediaryGroups();
     TrustedIntermediaryGroup group;
 
     if (existingGroups.isEmpty()) {
-      group = accountRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
+      group =
+          accountRepository.createNewTrustedIntermediaryGroup("Test group", "Created for testing");
     } else {
       group = existingGroups.get(0);
     }

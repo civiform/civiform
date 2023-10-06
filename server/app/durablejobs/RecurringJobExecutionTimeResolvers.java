@@ -35,10 +35,23 @@ public final class RecurringJobExecutionTimeResolvers {
     @Override
     public Instant resolveExecutionTime(Clock clock) {
       return LocalDate.now(clock)
-          .with(TemporalAdjusters.firstDayOfNextMonth())
-          .atStartOfDay(clock.getZone())
-          .plus(2, ChronoUnit.HOURS)
-          .toInstant();
+        .with(TemporalAdjusters.firstDayOfNextMonth())
+        .atStartOfDay(clock.getZone())
+        .plus(2, ChronoUnit.HOURS)
+        .toInstant();
+    }
+  }
+  /** Second day of the month at 2am local time. */
+  public static final class SecondOfMonth2Am implements RecurringJobExecutionTimeResolver {
+
+    @Override
+    public Instant resolveExecutionTime(Clock clock) {
+      return LocalDate.now(clock)
+        .with(TemporalAdjusters.firstDayOfNextMonth())
+        .plusDays(1L)
+        .atStartOfDay(clock.getZone())
+        .plus(2, ChronoUnit.HOURS)
+        .toInstant();
     }
   }
 }

@@ -70,7 +70,8 @@ public final class RoleService {
       if (globalAdminEmails.contains(email)) {
         invalidEmailBuilder.add(email);
       } else {
-        Optional<CiviFormError> maybeError = accountRepository.addAdministeredProgram(email, program);
+        Optional<CiviFormError> maybeError =
+            accountRepository.addAdministeredProgram(email, program);
 
         // Concatenate error messages.
         if (maybeError.isPresent()) {

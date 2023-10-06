@@ -8,8 +8,11 @@ import auth.CiviFormProfile;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
+import io.ebean.CallableSql;
 import io.ebean.DB;
 import io.ebean.Database;
+
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -302,5 +305,15 @@ public final class AccountRepository {
   public ImmutableSet<Account> getGlobalAdmins() {
     return ImmutableSet.copyOf(
         database.find(Account.class).where().eq("global_admin", true).findList());
+  }
+
+  /** Delete guest accounts that have no data and were created before the provided maximum age. */
+  public int deleteUnusedGuestAccounts(Instant maxAge) {
+    String sql = "DELETE FROM applicants " +
+      "LEFT JOIN applications ON applicants.id = applications.applicant_id " +
+      "WHERE applications.applicant_id IS NULL " +
+      "AND applicants.when_created > $1;";
+
+    return database.sqlUpdate(sql).setParameter(1, maxAge).execute();
   }
 }

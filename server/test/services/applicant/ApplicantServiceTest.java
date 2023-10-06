@@ -36,9 +36,9 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import repository.AccountRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
-import repository.AccountRepository;
 import repository.VersionRepository;
 import services.Address;
 import services.LocalizedStrings;
@@ -559,7 +559,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    applicantDataAfter = accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
             applicantDataAfter.readLongList(
@@ -574,7 +575,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    applicantDataAfter = accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
             applicantDataAfter.readLongList(
