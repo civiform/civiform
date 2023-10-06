@@ -75,7 +75,6 @@ public final class ApplicationRepository {
    */
   public CompletionStage<Optional<Application>> submitApplication(
       long applicantId, long programId, Optional<String> tiSubmitterEmail) {
-    // need to pass through applicantData here maybe?
     return this.perform(
         applicantId,
         programId,

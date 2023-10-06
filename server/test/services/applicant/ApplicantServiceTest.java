@@ -2242,7 +2242,6 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void relevantProgramsForApplicant_multipleActiveAndDraftApplications() {
     Applicant applicant = createTestApplicant();
-
     Program programForDraft =
         ProgramBuilder.newActiveProgram("program_for_draft")
             .withBlock()
@@ -2262,7 +2261,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join()
             .get();
-    
+
     // Update application for the second submission to avoid duplicate exception
     applicant.getApplicantData().putString(Path.create("text"), "text");
     applicant.save();

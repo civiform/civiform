@@ -102,7 +102,7 @@ describe('normal application flow', () => {
 
     // Apply to the program again as the same user
     await applicantQuestions.clickApplyProgramButton(programName)
-    // edit one answer so it saves the application
+    // Edit one answer on the application a duplicate exception
     await applicantQuestions.clickEdit()
     await applicantQuestions.answerNumberQuestion('1500')
     await applicantQuestions.clickNext()

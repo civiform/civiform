@@ -377,16 +377,16 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
-      // submit the application again without editing it
+      // Submit the application again without editing it
       await applicantQuestions.returnToProgramsFromSubmissionPage()
       await applicantQuestions.clickApplyProgramButton(programName)
       await applicantQuestions.submitFromReviewPage()
 
-      // see the duplicate submissions page
+      // See the duplicate submissions page
       await validateScreenshot(page, 'duplicate-submission-page')
       await validateAccessibility(page)
 
-      // click the "Continue editing" button to return to the review page
+      // Click the "Continue editing" button to return to the review page
       await page.click('#continue-editing-button')
       await applicantQuestions.expectReviewPage()
       await applicantQuestions.clickEdit()
@@ -397,10 +397,10 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.clickNext()
       await applicantQuestions.submitFromReviewPage()
 
-      // see the duplicate submissions page
+      // See the duplicate submissions page
       await validateScreenshot(page, 'duplicate-submission-page')
 
-      // click the "Exit application" link to return to the programs page
+      // Click the "Exit application" link to return to the programs page
       await page.click('text="Exit application"')
       await applicantQuestions.expectProgramsPage()
     })

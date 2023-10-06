@@ -24,7 +24,7 @@ public final class ButtonStyles {
           BaseStyles.BG_SEATTLE_BLUE,
           "border-transparent",
           "text-white",
-          //   "rounded-full",
+          "rounded-full",
           "font-semibold",
           "px-8",
           StyleUtils.hover("bg-blue-700"),

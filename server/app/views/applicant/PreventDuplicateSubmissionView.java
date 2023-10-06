@@ -20,7 +20,10 @@ import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.style.ApplicantStyles;
 
-/** Renders a page indicating the applicant is not eligible for a program. */
+/**
+ * Renders a page indicating the applicant has not made any changes and asking them if they would
+ * like to continue editing or exit the application.
+ */
 public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
 
   private final ApplicantLayout layout;
