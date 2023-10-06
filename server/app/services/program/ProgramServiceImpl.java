@@ -33,9 +33,9 @@ import modules.MainModule;
 import play.db.ebean.Transactional;
 import play.libs.F;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.AccountRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
-import repository.UserRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -72,7 +72,7 @@ public final class ProgramServiceImpl implements ProgramService {
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
   private final HttpExecutionContext httpExecutionContext;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
@@ -80,14 +80,14 @@ public final class ProgramServiceImpl implements ProgramService {
   public ProgramServiceImpl(
       ProgramRepository programRepository,
       QuestionService questionService,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       VersionRepository versionRepository,
       HttpExecutionContext ec,
       ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
     this.httpExecutionContext = checkNotNull(ec);
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
@@ -107,7 +107,7 @@ public final class ProgramServiceImpl implements ProgramService {
 
   @Override
   public ImmutableSet<String> getActiveProgramNames() {
-    return versionRepository.getActiveVersion().getProgramNames();
+    return versionRepository.getProgramNamesForVersion(versionRepository.getActiveVersion());
   }
 
   @Override
@@ -191,8 +191,10 @@ public final class ProgramServiceImpl implements ProgramService {
 
   private boolean isActiveOrDraftProgram(Program program) {
     return Streams.concat(
-            versionRepository.getActiveVersion().getPrograms().stream(),
-            versionRepository.getDraftVersionOrCreate().getPrograms().stream())
+            versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
+            versionRepository
+                .getProgramsForVersion(versionRepository.getDraftVersionOrCreate())
+                .stream())
         .anyMatch(p -> p.id.equals(program.id));
   }
 
@@ -589,7 +591,7 @@ public final class ProgramServiceImpl implements ProgramService {
       return explicitProgramAdmins;
     }
     // Return all the global admins email addresses.
-    return userRepository.getGlobalAdmins().stream()
+    return accountRepository.getGlobalAdmins().stream()
         .map(Account::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
@@ -1028,7 +1030,8 @@ public final class ProgramServiceImpl implements ProgramService {
         Version v = p.getVersions().stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
-          questionServiceForVersion = questionService.getReadOnlyVersionedQuestionService(v);
+          questionServiceForVersion =
+              questionService.getReadOnlyVersionedQuestionService(v, versionRepository);
           versionToQuestionService.put(v.id, questionServiceForVersion);
         }
         programToQuestionService.put(programDef.id(), questionServiceForVersion);
@@ -1260,7 +1263,8 @@ public final class ProgramServiceImpl implements ProgramService {
       ProgramDefinition programDefinition, Version version) {
     try {
       return syncProgramDefinitionQuestions(
-          programDefinition, questionService.getReadOnlyVersionedQuestionService(version));
+          programDefinition,
+          questionService.getReadOnlyVersionedQuestionService(version, versionRepository));
     } catch (QuestionNotFoundException e) {
       throw new RuntimeException(
           String.format(

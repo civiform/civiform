@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableList;
 import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an AD
@@ -17,7 +17,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider,
+      Provider<AccountRepository> accountRepositoryProvider,
       String emailAttributeName,
       String localeAttributeName,
       ImmutableList<String> nameAttributeNames) {

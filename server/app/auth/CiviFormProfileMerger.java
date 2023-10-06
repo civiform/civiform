@@ -6,16 +6,16 @@ import javax.inject.Provider;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.UserProfile;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /** Helper class for common {@code UserProfile} merging logic. */
 public final class CiviFormProfileMerger {
 
   private final ProfileFactory profileFactory;
-  private final Provider<UserRepository> applicantRepositoryProvider;
+  private final Provider<AccountRepository> applicantRepositoryProvider;
 
   public CiviFormProfileMerger(
-      ProfileFactory profileFactory, Provider<UserRepository> applicantRepositoryProvider) {
+      ProfileFactory profileFactory, Provider<AccountRepository> applicantRepositoryProvider) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
   }
