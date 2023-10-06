@@ -6,6 +6,8 @@ import static play.test.Helpers.fakeRequest;
 import akka.stream.Materializer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -14,8 +16,9 @@ import play.test.WithApplication;
 public class SessionIdFilterTest extends WithApplication {
   @Test
   public void testSessionIdIsCreated() throws Exception {
-    Materializer mat = app.injector().instanceOf(Materializer.class);
-    SessionIdFilter filter = new SessionIdFilter(mat);
+    // XXX Materializer mat = app.injector().instanceOf(Materializer.class);
+    Executor executor = app.injector().instanceOf(Executor.class);
+    SessionIdFilter filter = new SessionIdFilter(executor);
 
     // The request has no session id.
     Http.RequestBuilder request = fakeRequest();
