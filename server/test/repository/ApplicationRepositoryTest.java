@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
 import services.Path;
+import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramType;
 import support.CfTestHelpers;
 
@@ -162,6 +163,21 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void submitApplication_duplicateSubmissionsThrowsException() {
+    Applicant applicant = saveApplicant("Alice");
+    Program program = createDraftProgram("Program");
+
+    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    assertThatThrownBy(
+            () ->
+                repo.submitApplication(applicant, program, Optional.empty())
+                    .toCompletableFuture()
+                    .join())
+        .cause()
+        .isInstanceOf(DuplicateApplicationException.class);
   }
 
   private Application createSubmittedAppAtInstant(Program program, Instant submitTime) {
