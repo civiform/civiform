@@ -1018,7 +1018,7 @@ export class AdminPrograms {
     const [downloadEvent] = await Promise.all([
       this.page.waitForEvent('download'),
       this.page.click(
-        '#download-demographics-csv-modal button:has-text("Download Exported Data (CSV)")',
+        '#download-demographics-csv-modal button:has-text("Download Demographic Data (CSV)")',
       ),
     ])
     await dismissModal(this.page)

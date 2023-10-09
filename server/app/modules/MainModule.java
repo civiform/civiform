@@ -16,8 +16,6 @@ import java.time.ZoneId;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
-import services.program.ProgramService;
-import services.program.ProgramServiceImpl;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -30,11 +28,6 @@ import services.program.ProgramServiceImpl;
 public class MainModule extends AbstractModule {
 
   public static final Slugify SLUGIFIER = Slugify.builder().build();
-
-  @Override
-  public void configure() {
-    bind(ProgramService.class).to(ProgramServiceImpl.class);
-  }
 
   @Provides
   @EnUsLang
