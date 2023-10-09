@@ -5,14 +5,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import forms.AddApplicantToTrustedIntermediaryGroupForm;
-import io.ebean.CallableSql;
 import io.ebean.DB;
 import io.ebean.Database;
-
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -31,9 +29,7 @@ import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 
-/**
- * AccountRepository contains database interactions for {@link Account} and {@link Applicant}.
- */
+/** AccountRepository contains database interactions for {@link Account} and {@link Applicant}. */
 public final class AccountRepository {
 
   private final Database database;
@@ -307,13 +303,32 @@ public final class AccountRepository {
         database.find(Account.class).where().eq("global_admin", true).findList());
   }
 
-  /** Delete guest accounts that have no data and were created before the provided maximum age. */
-  public int deleteUnusedGuestAccounts(Instant maxAge) {
-    String sql = "DELETE FROM applicants " +
-      "LEFT JOIN applications ON applicants.id = applications.applicant_id " +
-      "WHERE applications.applicant_id IS NULL " +
-      "AND applicants.when_created > $1;";
+  @VisibleForTesting
+  public ImmutableSet<Account> listAccounts() {
+    return ImmutableSet.copyOf(database.find(Account.class).findSet());
+  }
 
-    return database.sqlUpdate(sql).setParameter(1, maxAge).execute();
+  /** Delete guest accounts that have no data and were created before the provided maximum age. */
+  public int deleteUnusedGuestAccounts(int maxAgeInDays) {
+    String sql =
+        "WITH unused_accounts AS ( "
+            + "  SELECT applicants.account_id AS account_id, applicants.id AS applicant_id "
+            + "  FROM applicants"
+            + "  LEFT JOIN applications ON applicants.id = applications.applicant_id "
+            + "  LEFT JOIN accounts ON accounts.id = applicants.account_id "
+            + "  WHERE applications.applicant_id IS NULL "
+            + "  AND accounts.authority_id IS NULL "
+            + "  AND applicants.when_created < CURRENT_DATE - INTERVAL '"
+            + maxAgeInDays
+            + " days' "
+            + "), "
+            + "applicants_deleted AS ("
+            + "  DELETE FROM applicants"
+            + "  WHERE applicants.id IN (SELECT applicant_id FROM unused_accounts) "
+            + ") "
+            + "DELETE FROM accounts "
+            + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
+
+    return database.sqlUpdate(sql).execute();
   }
 }

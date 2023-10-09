@@ -3,32 +3,26 @@ package durablejobs.jobs;
 import com.google.common.base.Preconditions;
 import com.google.inject.Provider;
 import durablejobs.DurableJob;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import models.PersistedDurableJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
-import services.DateConverter;
 
 public final class UnusedAccountCleanupJob extends DurableJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(OldJobCleanupJob.class);
-  private static final Duration MAX_AGE_UNUSED_ACCOUNT = Duration.of(3L, ChronoUnit.MONTHS);
+  private static final int UNUSED_ACCOUNT_MAX_AGE_IN_DAYS = 90;
 
   private final AccountRepository accountRepository;
-  private final DateConverter dateConverter;
   private final Provider<LocalDateTime> nowProvider;
   private final PersistedDurableJob persistedDurableJob;
 
   public UnusedAccountCleanupJob(
-    AccountRepository accountRepository,
-    DateConverter dateConverter,
-    Provider<LocalDateTime> nowProvider,
-    PersistedDurableJob persistedDurableJob) {
+      AccountRepository accountRepository,
+      Provider<LocalDateTime> nowProvider,
+      PersistedDurableJob persistedDurableJob) {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
-    this.dateConverter = Preconditions.checkNotNull(dateConverter);
     this.nowProvider = Preconditions.checkNotNull(nowProvider);
     this.persistedDurableJob = Preconditions.checkNotNull(persistedDurableJob);
   }
@@ -40,10 +34,8 @@ public final class UnusedAccountCleanupJob extends DurableJob {
 
   @Override
   public void run() {
-    LocalDateTime cutoff = nowProvider.get().minus(MAX_AGE_UNUSED_ACCOUNT);
-    Instant cutoffInstant = dateConverter.localDateTimeToInstant(cutoff);
-
-    int numberDeleted = accountRepository.deleteUnusedGuestAccounts(cutoffInstant);
+    LocalDateTime cutoff = nowProvider.get().minus(UNUSED_ACCOUNT_MAX_AGE_IN_DAYS, ChronoUnit.DAYS);
+    int numberDeleted = accountRepository.deleteUnusedGuestAccounts(UNUSED_ACCOUNT_MAX_AGE_IN_DAYS);
 
     LOGGER.info("Deleted {} accounts created before {}", numberDeleted, cutoff);
   }
