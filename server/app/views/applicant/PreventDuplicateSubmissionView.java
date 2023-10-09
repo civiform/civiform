@@ -40,17 +40,15 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
       Messages messages,
       long applicantId) {
 
-                
-
     DivTag content =
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
-                p(messages.at(MessageKey.TITLE_NO_CHANGES_TO_SAVE.getKeyName(), roApplicantProgramService.getProgramTitle()))
+                p(messages.at(
+                        MessageKey.TITLE_NO_CHANGES_TO_SAVE.getKeyName(),
+                        roApplicantProgramService.getProgramTitle()))
                     .withClasses("text-black", "font-bold", "text-xl", "pb-8"))
-            .with(
-                p(messages.at(MessageKey.CONTENT_NO_CHANGES.getKeyName()))
-                    .withClasses("pb-8"))
+            .with(p(messages.at(MessageKey.CONTENT_NO_CHANGES.getKeyName())).withClasses("pb-8"))
             .with(
                 div()
                     .with(
