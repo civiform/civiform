@@ -20,6 +20,7 @@ import views.ApplicationBaseView;
 import views.HtmlBundle;
 import views.components.ButtonStyles;
 import views.style.ApplicantStyles;
+import views.style.StyleUtils;
 
 /**
  * Renders a page indicating the applicant has not made any changes and asking them if they would
@@ -51,6 +52,8 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
             .with(p(messages.at(MessageKey.CONTENT_NO_CHANGES.getKeyName())).withClasses("pb-8"))
             .with(
                 div()
+                    .withClasses(
+                        "flex", "flex-col", "gap-4", StyleUtils.responsiveSmall("flex-row"))
                     .with(
                         redirectButton(
                                 "continue-editing-button",
@@ -58,13 +61,12 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
                                 routes.ApplicantProgramReviewController.review(
                                         applicantId, roApplicantProgramService.getProgramId())
                                     .url())
-                            .withClasses(ButtonStyles.SOLID_BLUE, "mr-5"),
+                            .withClasses(ButtonStyles.SOLID_BLUE),
                         redirectButton(
                                 "exit-application-button",
                                 messages.at(MessageKey.BUTTON_EXIT_APPLICATION.getKeyName()),
                                 routes.ApplicantProgramsController.index(applicantId).url())
-                            .withClasses(ButtonStyles.LINK_STYLE))
-                    .withClasses("flex", "flex-row"));
+                            .withClasses(ButtonStyles.LINK_STYLE)));
 
     String title = "No changes to save";
     HtmlBundle bundle =

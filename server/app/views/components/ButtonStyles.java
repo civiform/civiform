@@ -93,5 +93,10 @@ public final class ButtonStyles {
       StyleUtils.removeStyles(CLEAR_WITH_ICON, "rounded-full");
 
   public static final String LINK_STYLE =
-      StyleUtils.joinStyles(CLEAR_WITH_ICON, BaseStyles.LINK_TEXT, "underline");
+      StyleUtils.joinStyles(
+          StyleUtils.removeStyles(
+              BUTTON_BASE_OUTLINE_SEMIBOLD, "border", BaseStyles.BORDER_SEATTLE_BLUE, "px-8"),
+          BaseStyles.LINK_TEXT,
+          "underline",
+          "px-2");
 }
