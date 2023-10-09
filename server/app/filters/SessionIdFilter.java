@@ -17,7 +17,8 @@ import play.mvc.Result;
 public final class SessionIdFilter extends Filter {
   public static final String SESSION_ID = "sessionId";
 
-  public static final ImmutableSet<String> excludedPrefixes = ImmutableSet.of("/api/", "/dev/");
+  public static final ImmutableSet<String> excludedPrefixes =
+      ImmutableSet.of("/api/", "/dev/", "/favicon");
 
   @Inject
   public SessionIdFilter(Materializer mat) {
