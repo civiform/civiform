@@ -150,7 +150,7 @@ public final class ProgramIndexView extends BaseHtmlView {
 
   private Modal renderDemographicsCsvModal() {
     String modalId = "download-demographics-csv-modal";
-    String downloadActionText = "Download Exported Data (CSV)";
+    String downloadActionText = "Download Demographic Data (CSV)";
     DivTag downloadDemographicCsvModalContent =
         div()
             .withClasses("px-8")
@@ -162,10 +162,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                                 Optional.empty(), Optional.empty())
                             .url())
                     .with(
-                        p("This will download all applications for all programs. Use the filters"
-                                + " below to select a date range for the exported data. If you"
-                                + " select a large date range or leave it blank, the data could"
-                                + " be slow to export.")
+                        p("This will download demographic data for all applications for all"
+                                + " programs. Use the filters below to select a date range for the"
+                                + " exported data. If you select a large date range or leave it"
+                                + " blank, the data could be slow to export.")
                             .withClass("text-sm"),
                         fieldset()
                             .withClasses("mt-4", "pt-1", "pb-2", "border")
