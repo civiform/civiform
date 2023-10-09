@@ -1,6 +1,7 @@
 package support;
 
 import static org.mockito.Mockito.mockStatic;
+import static play.test.Helpers.route;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.collect.ImmutableMap;
@@ -14,9 +15,11 @@ import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import play.Application;
 import play.api.test.Helpers;
 import play.mvc.Call;
 import play.mvc.Http;
+import play.mvc.Result;
 import repository.AccountRepository;
 import services.program.predicate.PredicateValue;
 
@@ -118,5 +121,52 @@ public class CfTestHelpers {
     }
 
     return requestBuilder.attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
+  }
+
+  public static class ResultWithFinalRequestUri {
+    private Result result;
+    private String finalRequestUri;
+
+    public ResultWithFinalRequestUri(Result result, String finalRequestUri) {
+      this.result = result;
+      this.finalRequestUri = finalRequestUri;
+    }
+
+    public Result getResult() {
+      return result;
+    }
+
+    public void setResult(Result result) {
+      this.result = result;
+    }
+
+    public String getFinalRequestUri() {
+      return finalRequestUri;
+    }
+
+    public void setFinalRequestUri(String finalRequestUri) {
+      this.finalRequestUri = finalRequestUri;
+    }
+  }
+
+  // Makes a request and follows redirects, propagating session and cookies.
+  public static ResultWithFinalRequestUri doRequestWithRedirects(
+      Application app, Http.RequestBuilder request) {
+    Result result;
+    String requestUri = request.uri();
+    do {
+      result = route(app, request);
+      if (result.redirectLocation().isPresent()) {
+        request = request.uri(result.redirectLocation().get());
+        if (result.session() != null) {
+          request = request.session(result.session().data());
+        }
+        requestUri = request.uri();
+        for (Http.Cookie cookie : result.cookies()) {
+          request = request.cookie(cookie);
+        }
+      }
+    } while (result.redirectLocation().isPresent());
+    return new ResultWithFinalRequestUri(result, requestUri);
   }
 }
