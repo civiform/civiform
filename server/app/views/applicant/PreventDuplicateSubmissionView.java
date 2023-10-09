@@ -75,9 +75,9 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
             .setTitle(title)
             .addMainStyles(ApplicantStyles.MAIN_APPLICANT_INFO)
             .addMainContent(h1(title).withClasses("sr-only"), content);
-
     Optional<String> applicantName =
         roApplicantProgramService.getApplicantData().getApplicantName();
+
     return layout.renderWithNav(
         request,
         applicantName.isPresent()
