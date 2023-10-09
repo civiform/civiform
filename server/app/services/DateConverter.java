@@ -7,7 +7,6 @@ import java.sql.Timestamp;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -56,10 +55,6 @@ public final class DateConverter {
   /** Returns the current LocalDate based on the specified time-zone(zoneId) */
   public LocalDate getCurrentDateForZoneId() {
     return LocalDate.now(this.zoneId);
-  }
-
-  public Instant localDateTimeToInstant(LocalDateTime localDateTime) {
-    return localDateTime.toInstant(this.zoneId.getRules().getOffset(localDateTime));
   }
 
   /**

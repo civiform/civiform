@@ -41,6 +41,7 @@ public final class RecurringJobExecutionTimeResolvers {
           .toInstant();
     }
   }
+
   /** Second day of the month at 2am local time. */
   public static final class SecondOfMonth2Am implements RecurringJobExecutionTimeResolver {
 

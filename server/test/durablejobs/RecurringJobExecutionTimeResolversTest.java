@@ -33,4 +33,17 @@ public class RecurringJobExecutionTimeResolversTest {
 
     assertThat(result).isEqualTo(expected);
   }
+
+  @Test
+  public void secondOfMonth2Am() {
+    // Wednesday Dec 7 at 10:15am
+    Clock clock = Clock.fixed(Instant.parse("2022-12-07T10:15:30.00Z"), ZoneId.of("UTC"));
+    // Jan 1 at 2:00am
+    Instant expected = Instant.parse("2023-01-02T02:00:00.00Z");
+
+    Instant result =
+        new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am().resolveExecutionTime(clock);
+
+    assertThat(result).isEqualTo(expected);
+  }
 }
