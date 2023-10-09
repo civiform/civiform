@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
+import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -39,30 +40,30 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
       Messages messages,
       long applicantId) {
 
+                
+
     DivTag content =
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
-                p("There are no changes to save for the "
-                        + roApplicantProgramService.getProgramTitle())
+                p(messages.at(MessageKey.TITLE_NO_CHANGES_TO_SAVE.getKeyName(), roApplicantProgramService.getProgramTitle()))
                     .withClasses("text-black", "font-bold", "text-xl", "pb-8"))
             .with(
-                p("You have not made any changes to the application yet. Would you like to"
-                        + " continue editing?")
+                p(messages.at(MessageKey.CONTENT_NO_CHANGES.getKeyName()))
                     .withClasses("pb-8"))
             .with(
                 div()
                     .with(
                         redirectButton(
                                 "continue-editing-button",
-                                "Continue editing",
+                                messages.at(MessageKey.BUTTON_CONTINUE_EDITING.getKeyName()),
                                 routes.ApplicantProgramReviewController.review(
                                         applicantId, roApplicantProgramService.getProgramId())
                                     .url())
                             .withClasses(ButtonStyles.SOLID_BLUE, "mr-5"),
                         redirectButton(
                                 "exit-application-button",
-                                "Exit application",
+                                messages.at(MessageKey.BUTTON_EXIT_APPLICATION.getKeyName()),
                                 routes.ApplicantProgramsController.index(applicantId).url())
                             .withClasses(ButtonStyles.LINK_STYLE))
                     .withClasses("flex", "flex-row"));
