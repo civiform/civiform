@@ -37,7 +37,7 @@ import services.question.types.ScalarType;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
-public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
+public class ReadOnlyApplicantProgramServiceImplTest extends ResetPostgres {
   private static final String FAKE_BASE_URL = "http://fake-base-url";
 
   private QuestionDefinition nameQuestion;
