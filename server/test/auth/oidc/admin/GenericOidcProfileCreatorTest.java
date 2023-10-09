@@ -14,18 +14,18 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 public class GenericOidcProfileCreatorTest extends ResetPostgres {
   private GenericOidcProfileCreator genericOidcProfileCreator;
   private ProfileFactory profileFactory;
-  private static UserRepository accountRepository;
+  private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
-    accountRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);

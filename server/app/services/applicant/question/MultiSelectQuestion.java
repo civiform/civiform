@@ -38,7 +38,7 @@ public final class MultiSelectQuestion extends Question {
 
   private ImmutableSet<ValidationErrorMessage> validateOptions() {
     MultiOptionQuestionDefinition definition = getQuestionDefinition();
-    int numberOfSelections = getSelectedOptionsValue().map(ImmutableList::size).orElse(0);
+    int numberOfSelections = getSelectedOptionValues().map(ImmutableList::size).orElse(0);
     ImmutableSet.Builder<ValidationErrorMessage> errors = ImmutableSet.builder();
 
     if (definition.getMultiOptionValidationPredicates().minChoicesRequired().isPresent()) {
@@ -64,7 +64,7 @@ public final class MultiSelectQuestion extends Question {
   }
 
   public boolean hasValue() {
-    return getSelectedOptionsValue().isPresent();
+    return getSelectedOptionValues().isPresent();
   }
 
   @Override
@@ -73,16 +73,16 @@ public final class MultiSelectQuestion extends Question {
   }
 
   /** Get the selected options in the applicant's preferred locale. */
-  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue() {
+  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionValues() {
     if (selectedOptionsValue == null) {
       selectedOptionsValue =
-          getSelectedOptionsValue(applicantQuestion.getApplicantData().preferredLocale());
+          getSelectedOptionValues(applicantQuestion.getApplicantData().preferredLocale());
     }
     return selectedOptionsValue;
   }
 
   /** Get the selected options in the specified locale. */
-  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionsValue(Locale locale) {
+  public Optional<ImmutableList<LocalizedQuestionOption>> getSelectedOptionValues(Locale locale) {
     Optional<ImmutableList<Long>> maybeOptionIds =
         applicantQuestion.getApplicantData().readLongList(getSelectionPath());
 
@@ -99,7 +99,7 @@ public final class MultiSelectQuestion extends Question {
             .collect(toImmutableList()));
   }
 
-  public Optional<ImmutableList<String>> getSelectedOptionsAdminName() {
+  public Optional<ImmutableList<String>> getSelectedOptionAdminNames() {
     Optional<ImmutableList<Long>> maybeSelectedOptionIds =
         applicantQuestion.getApplicantData().readLongList(getSelectionPath());
 
@@ -116,8 +116,8 @@ public final class MultiSelectQuestion extends Question {
   }
 
   public boolean optionIsSelected(LocalizedQuestionOption option) {
-    return getSelectedOptionsValue().isPresent()
-        && getSelectedOptionsValue().get().contains(option);
+    return getSelectedOptionValues().isPresent()
+        && getSelectedOptionValues().get().contains(option);
   }
 
   public MultiOptionQuestionDefinition getQuestionDefinition() {
@@ -149,7 +149,7 @@ public final class MultiSelectQuestion extends Question {
 
   @Override
   public String getAnswerString() {
-    return getSelectedOptionsValue()
+    return getSelectedOptionValues()
         .map(
             options ->
                 options.stream()

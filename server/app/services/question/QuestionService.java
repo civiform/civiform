@@ -103,8 +103,9 @@ public final class QuestionService {
    * Get a {@link ReadOnlyQuestionService} which implements synchronous, in-memory read behavior for
    * questions in a particular version.
    */
-  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(Version version) {
-    return new ReadOnlyVersionedQuestionServiceImpl(version);
+  public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(
+      Version version, VersionRepository versionRepository) {
+    return new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
   }
 
   /**
@@ -188,7 +189,9 @@ public final class QuestionService {
         questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
     Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try {
-      if (!draftVersion.addTombstoneForQuestion(draftQuestion)) {
+      if (!versionRepositoryProvider
+          .get()
+          .addTombstoneForQuestionInVersion(draftQuestion, draftVersion)) {
         throw new InvalidUpdateException("Already tombstoned.");
       }
     } catch (QuestionNotFoundException e) {
@@ -210,8 +213,9 @@ public final class QuestionService {
     // Find the Active version.
     Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
     Long activeId =
-        activeVersion
-            .getQuestionByName(question.getQuestionDefinition().getName())
+        versionRepositoryProvider
+            .get()
+            .getQuestionByNameForVersion(question.getQuestionDefinition().getName(), activeVersion)
             // TODO: If nothing depends on this question then it could be removed.
             .orElseThrow(
                 () ->
@@ -394,6 +398,8 @@ public final class QuestionService {
       return ImmutableList.of();
     }
 
-    return getReadOnlyVersionedQuestionService(optionalPreviousVersion.get()).getAllQuestions();
+    return getReadOnlyVersionedQuestionService(
+            optionalPreviousVersion.get(), versionRepositoryProvider.get())
+        .getAllQuestions();
   }
 }

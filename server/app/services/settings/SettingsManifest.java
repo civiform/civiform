@@ -637,11 +637,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The languages that applicants can choose from when specifying their language preference and
-   * that admins can choose from when adding translations for programs and applications.
+   * The full list of languages available to CiviForm. These are the language that admins can choose
+   * from when adding translations for programs and applications, as well as the default list that
+   * applicants can choose from when specifying their language preference. See
+   * CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to
+   * applicants.
    */
   public Optional<ImmutableList<String>> getCiviformSupportedLanguages() {
     return getListOfStrings("CIVIFORM_SUPPORTED_LANGUAGES");
+  }
+
+  /**
+   * If populated, this filters the languages that are visible to the applicant to just those in the
+   * list. This allows program admins to develop languages support for programs and questions, but
+   * not let the applicant use a language that is not yet ready.
+   */
+  public Optional<ImmutableList<String>> getCiviformApplicantEnabledLanguages() {
+    return getListOfStrings("CIVIFORM_APPLICANT_ENABLED_LANGUAGES");
   }
 
   /**
@@ -1725,9 +1737,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       Pattern.compile("^(?!http://|https://).+")),
                   SettingDescription.create(
                       "CIVIFORM_SUPPORTED_LANGUAGES",
-                      "The languages that applicants can choose from when specifying their"
-                          + " language preference and that admins can choose from when adding"
-                          + " translations for programs and applications.",
+                      "The full list of languages available to CiviForm. These are the language"
+                          + " that admins can choose from when adding translations for programs"
+                          + " and applications, as well as the default list that applicants can"
+                          + " choose from when specifying their language preference. See"
+                          + " CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over"
+                          + " languages available to applicants.",
+                      /* isRequired= */ false,
+                      SettingType.LIST_OF_STRINGS,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "CIVIFORM_APPLICANT_ENABLED_LANGUAGES",
+                      "If populated, this filters the languages that are visible to the applicant"
+                          + " to just those in the list. This allows program admins to develop"
+                          + " languages support for programs and questions, but not let the"
+                          + " applicant use a language that is not yet ready.",
                       /* isRequired= */ false,
                       SettingType.LIST_OF_STRINGS,
                       SettingMode.HIDDEN),

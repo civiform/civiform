@@ -14,15 +14,15 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class GenericOidcClientProviderTest extends ResetPostgres {
   private GenericOidcClientProvider genericOidcProvider;
   private ProfileFactory profileFactory;
-  private static UserRepository accountProvider;
+  private static AccountRepository accountProvider;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
@@ -30,7 +30,7 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    accountProvider = instanceOf(UserRepository.class);
+    accountProvider = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     Config config =
         ConfigFactory.parseMap(

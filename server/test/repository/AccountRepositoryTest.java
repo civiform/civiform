@@ -13,16 +13,16 @@ import services.Path;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class UserRepositoryTest extends ResetPostgres {
+public class AccountRepositoryTest extends ResetPostgres {
   public static final String EMAIL = "email@email.com";
   public static final String PROGRAM_NAME = "program";
   public static final String AUTHORITY_ID = "I'm an authority ID";
 
-  private UserRepository repo;
+  private AccountRepository repo;
 
   @Before
   public void setupApplicantRepository() {
-    repo = instanceOf(UserRepository.class);
+    repo = instanceOf(AccountRepository.class);
   }
 
   @Test

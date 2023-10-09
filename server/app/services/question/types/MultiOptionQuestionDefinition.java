@@ -110,7 +110,7 @@ public final class MultiOptionQuestionDefinition extends QuestionDefinition {
    *
    * @return a list of option admin names.
    */
-  public ImmutableList<String> getOptionsAdminName() {
+  public ImmutableList<String> getOptionAdminNames() {
     return this.questionOptions.stream().map(QuestionOption::adminName).collect(toImmutableList());
   }
 

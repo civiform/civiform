@@ -31,6 +31,7 @@ toast.errorMessageOutline=Error: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Login
 content.loginPrompt=Please log in with your {0} account
 button.createAnAccount=Create an account
@@ -149,6 +150,15 @@ content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs 
 content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
 button.applyToPrograms=Apply to programs
+
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #

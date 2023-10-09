@@ -91,7 +91,10 @@ public final class ProgramRepository {
   public Program createOrUpdateDraft(Program existingProgram) {
     Version draftVersion = versionRepository.get().getDraftVersionOrCreate();
     Optional<Program> existingDraftOpt =
-        draftVersion.getProgramByName(existingProgram.getProgramDefinition().adminName());
+        versionRepository
+            .get()
+            .getProgramByNameForVersion(
+                existingProgram.getProgramDefinition().adminName(), draftVersion);
     if (existingDraftOpt.isPresent()) {
       Program existingDraft = existingDraftOpt.get();
       if (!existingDraft.id.equals(existingProgram.id)) {
@@ -121,7 +124,7 @@ public final class ProgramRepository {
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
-          draftVersion.getPrograms().contains(newDraft),
+          versionRepository.get().getProgramsForVersion(draftVersion).contains(newDraft),
           "Must have successfully added draft version.");
       Preconditions.checkState(
           draftVersion.getLifecycleStage().equals(LifecycleStage.DRAFT),
@@ -129,7 +132,7 @@ public final class ProgramRepository {
       // Ensure we didn't add a duplicate with other code running at the same time.
       String programName = existingProgram.getProgramDefinition().adminName();
       Preconditions.checkState(
-          draftVersion.getPrograms().stream()
+          versionRepository.get().getProgramsForVersion(draftVersion).stream()
                   .map(Program::getProgramDefinition)
                   .map(ProgramDefinition::adminName)
                   .filter(programName::equals)
@@ -159,7 +162,9 @@ public final class ProgramRepository {
     return supplyAsync(
         () -> {
           ImmutableList<Program> activePrograms =
-              versionRepository.get().getActiveVersion().getPrograms();
+              versionRepository
+                  .get()
+                  .getProgramsForVersion(versionRepository.get().getActiveVersion());
           return activePrograms.stream()
               .filter(activeProgram -> activeProgram.getSlug().equals(slug))
               .findFirst()
@@ -177,7 +182,8 @@ public final class ProgramRepository {
       throw new ProgramDraftNotFoundException(slug);
     }
 
-    ImmutableList<Program> draftPrograms = version.get().getPrograms();
+    ImmutableList<Program> draftPrograms =
+        versionRepository.get().getProgramsForVersion(version.get());
 
     return draftPrograms.stream()
         .filter(draftProgram -> draftProgram.getSlug().equals(slug))

@@ -182,7 +182,8 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify the draft is there.
     Optional<Question> draftQuestion =
-        versionRepository.getDraftVersionOrCreate().getQuestionByName(nameQuestion.getName());
+        versionRepository.getQuestionByNameForVersion(
+            nameQuestion.getName(), versionRepository.getDraftVersionOrCreate());
     assertThat(draftQuestion).isPresent();
     assertThat(draftQuestion.get().getQuestionDefinition().getQuestionText())
         .isEqualTo(toUpdate.getQuestionText());
@@ -192,7 +193,8 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify.
     assertThat(
-            versionRepository.getDraftVersionOrCreate().getQuestionByName(nameQuestion.getName()))
+            versionRepository.getQuestionByNameForVersion(
+                nameQuestion.getName(), versionRepository.getDraftVersionOrCreate()))
         .isNotPresent();
   }
 
@@ -222,7 +224,8 @@ public class QuestionServiceTest extends ResetPostgres {
 
     // Verify.
     Optional<Question> dependentDraft =
-        versionRepository.getDraftVersionOrCreate().getQuestionByName(dependentQuestion.getName());
+        versionRepository.getQuestionByNameForVersion(
+            dependentQuestion.getName(), versionRepository.getDraftVersionOrCreate());
     assertThat(dependentDraft).isPresent();
     assertThat(dependentDraft.get().getQuestionDefinition().getEnumeratorId().get())
         .isEqualTo(enumeratorActiveId);
@@ -282,14 +285,18 @@ public class QuestionServiceTest extends ResetPostgres {
   public void archiveQuestion_createsDraftIfNoneExists() throws Exception {
     Question addressQuestion = testQuestionBank.applicantAddress();
 
-    assertThat(versionRepository.getDraftVersionOrCreate().getQuestionNames())
+    assertThat(
+            versionRepository.getQuestionNamesForVersion(
+                versionRepository.getDraftVersionOrCreate()))
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .doesNotContain(addressQuestion.getQuestionDefinition().getName());
 
     questionService.archiveQuestion(addressQuestion.id);
 
-    assertThat(versionRepository.getDraftVersionOrCreate().getQuestionNames())
+    assertThat(
+            versionRepository.getQuestionNamesForVersion(
+                versionRepository.getDraftVersionOrCreate()))
         .contains(addressQuestion.getQuestionDefinition().getName());
     assertThat(versionRepository.getDraftVersionOrCreate().getTombstonedQuestionNames())
         .contains(addressQuestion.getQuestionDefinition().getName());

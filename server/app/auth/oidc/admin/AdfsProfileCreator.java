@@ -11,7 +11,7 @@ import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an AD
@@ -27,7 +27,7 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       OidcClient client,
       ProfileFactory profileFactory,
       Config appConfig,
-      Provider<UserRepository> accountRepositoryProvider) {
+      Provider<AccountRepository> accountRepositoryProvider) {
     super(configuration, client, profileFactory, accountRepositoryProvider);
     this.adminGroupName = appConfig.getString("adfs.admin_group");
     this.ad_groups_attribute_name = appConfig.getString("adfs.ad_groups_attribute_name");

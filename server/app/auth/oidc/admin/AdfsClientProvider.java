@@ -11,7 +11,7 @@ import java.util.Collections;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /** Provider class for the AD OIDC Client. */
 public class AdfsClientProvider implements Provider<OidcClient> {
@@ -19,13 +19,13 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
-  private final Provider<UserRepository> userRepositoryProvider;
+  private final Provider<AccountRepository> userRepositoryProvider;
 
   @Inject
   public AdfsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> userRepositoryProvider) {
+      Provider<AccountRepository> userRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
     this.profileFactory = profileFactory;
