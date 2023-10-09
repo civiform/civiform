@@ -70,7 +70,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
-import services.program.ProgramServiceImpl;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -138,7 +137,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(applicantProfile.getEmailAddress())
         .thenReturn(CompletableFuture.completedFuture("applicant@example.com"));
 
-    programService = instanceOf(ProgramServiceImpl.class);
+    programService = instanceOf(ProgramService.class);
 
     amazonSESClient = Mockito.mock(SimpleEmail.class);
     FieldUtils.writeField(subject, "amazonSESClient", amazonSESClient, true);

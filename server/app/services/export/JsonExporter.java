@@ -29,7 +29,6 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
-import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 
 /** Exports all applications for a given program as JSON. */
@@ -66,14 +65,10 @@ public final class JsonExporter {
       ProgramDefinition programDefinition,
       IdentifierBasedPaginationSpec<Long> paginationSpec,
       SubmittedApplicationFilter filters) {
-    PaginationResult<Application> paginationResult;
-    try {
-      paginationResult =
-          programService.getSubmittedProgramApplicationsAllVersions(
-              programDefinition.id(), F.Either.Left(paginationSpec), filters);
-    } catch (ProgramNotFoundException e) {
-      throw new RuntimeException(e);
-    }
+    PaginationResult<Application> paginationResult =
+        programService.getSubmittedProgramApplicationsAllVersions(
+            programDefinition.id(), F.Either.Left(paginationSpec), filters);
+
     return exportPage(programDefinition, paginationResult);
   }
 
