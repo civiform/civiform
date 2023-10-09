@@ -149,24 +149,43 @@ public class CfTestHelpers {
     }
   }
 
+  private static boolean isInternalRedirect(Result result) {
+    return result.redirectLocation().isPresent() && result.redirectLocation().get().startsWith("/");
+  }
+
   // Makes a request and follows redirects, propagating session and cookies.
+  // Uses a maxRedirects of 10.
   public static ResultWithFinalRequestUri doRequestWithRedirects(
       Application app, Http.RequestBuilder request) {
-    Result result;
-    String requestUri = request.uri();
+    return doRequestWithRedirects(app, request, 10);
+  }
+
+  // Makes a request and follows redirects, propagating session and cookies.
+  // Throws a runtime exception if maxRedirects is exceeded.
+  public static ResultWithFinalRequestUri doRequestWithRedirects(
+      Application app, Http.RequestBuilder request, int maxRedirects) {
+    Result currentResult;
+    String currentRequestUri = request.uri();
+
     do {
-      result = route(app, request);
-      if (result.redirectLocation().isPresent()) {
-        request = request.uri(result.redirectLocation().get());
-        if (result.session() != null) {
-          request = request.session(result.session().data());
+      currentResult = route(app, request);
+      if (isInternalRedirect(currentResult)) {
+        --maxRedirects;
+        currentRequestUri = currentResult.redirectLocation().get();
+        request = request.uri(currentRequestUri);
+        if (currentResult.session() != null) {
+          request = request.session(currentResult.session().data());
         }
-        requestUri = request.uri();
-        for (Http.Cookie cookie : result.cookies()) {
+        for (Http.Cookie cookie : currentResult.cookies()) {
           request = request.cookie(cookie);
         }
       }
-    } while (result.redirectLocation().isPresent());
-    return new ResultWithFinalRequestUri(result, requestUri);
+    } while (isInternalRedirect(currentResult) && maxRedirects > 0);
+
+    if (maxRedirects == 0) {
+      throw new RuntimeException("Too many redirects");
+    }
+
+    return new ResultWithFinalRequestUri(currentResult, currentRequestUri);
   }
 }
