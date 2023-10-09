@@ -1531,7 +1531,6 @@ public final class ProgramService {
    * @param paginationSpecEither the query supports two types of pagination, F.Either wraps the
    *     pagination spec to use for a given call.
    * @param filters a set of filters to apply to the examined applications.
-   * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   public PaginationResult<Application> getSubmittedProgramApplicationsAllVersions(
       long programId,
