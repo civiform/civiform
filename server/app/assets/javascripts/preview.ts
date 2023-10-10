@@ -337,50 +337,17 @@ class PreviewController {
   private static formatText(
     text: string  ): Element {
     const parser = new DOMParser()
-
-    // Apply line breaks
-    text = text.split("\n").join("<br>") // for some reason this is screwing up other text formatting like lists and headers
-
-    // can try this
-  //   return _.map(input.split('\n'), function(line) {
-  //     return markdown.render(line).trim();
-  // }).join('\n');
-
-  // or maybe this
-//   this.md = new MarkdownIt();
-// const defaultParagraphRenderer = this.md.renderer.rules.paragraph_open || ((tokens, idx, options, env, self) => self.renderToken(tokens, idx, options));
-//     this.md.renderer.rules.paragraph_open = function (tokens, idx, options, env, self) {
-//       let result = '';
-//       if (idx > 1) {
-//         const inline = tokens[idx - 2];
-//         const paragraph = tokens[idx];
-//         if (inline.type === 'inline' && inline.map && inline.map[1] && paragraph.map && paragraph.map[0]) {
-//           const diff = paragraph.map[0] - inline.map[1];
-//           if (diff > 0) {
-//             result = '<br>'.repeat(diff);
-//           }
-//         }
-//       }
-//       return result + defaultParagraphRenderer(tokens, idx, options, env, self);
-//     };
-
+    // Preserve line breaks before parsing the text
+    text = text.replace(/\n$/gm, "\n&nbsp;")
     let parsedHtml = md.render(text)
+    // Format lists
     parsedHtml = parsedHtml.replace("<ul>", "<ul class=\"list-disc mx-8\">")
-    // how can i pull the href out???
-    // ok could use var href = s.match(/href="([^"]*)/)[1];
-    // but what if i have more than one a tag?
-    // parsedHtml = parsedHtml.replace(/<a href=".+">/, /<a href=".+" class=\"text-blue-600 hover:text-blue-500 underline\" targe=\"_blank\">/)
-    // this is nasty because it matches when i've just typed "http" but it might be the best i can do
+    // Format links
     parsedHtml = parsedHtml.replace(">http", " class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\">http")
+    // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
     parsedHtml = parsedHtml.replace("<h1>", "<h2>")
     parsedHtml = parsedHtml.replace("</h1>", "</h2>")
-    
-
-    // const html = parser.parseFromString(md.renderer.render(parsedText, {}, {}), 'text/html') 
-    const html = parser.parseFromString(parsedHtml, 'text/html') 
-
-    console.log(parsedHtml)
-    
+    const html = parser.parseFromString(parsedHtml, 'text/html')     
     return html.body
   }
 }
