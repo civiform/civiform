@@ -41,7 +41,7 @@ public class SessionIdFilterTest extends WithApplication {
   @Test
   public void testSessionIdIsCreatedForNonExcludedRoute() throws Exception {
     SettingsManifest settingsManifest = createSettingsManifest(true);
-    SessionIdFilter filter = new SessionIdFilter(mat, settingsManifest);
+    SessionIdFilter filter = new SessionIdFilter(mat, () -> settingsManifest);
 
     // The request has no session id.
     Http.RequestBuilder request = fakeRequest();
@@ -61,7 +61,7 @@ public class SessionIdFilterTest extends WithApplication {
   @Test
   public void testSessionIdIsNotCreatedForExcludedRoute() throws Exception {
     SettingsManifest settingsManifest = createSettingsManifest(true);
-    SessionIdFilter filter = new SessionIdFilter(mat, settingsManifest);
+    SessionIdFilter filter = new SessionIdFilter(mat, () -> settingsManifest);
 
     // The request is for an API route and has no session id.
     Http.RequestBuilder request = fakeRequest("GET", "/api/v1/admin");
@@ -82,7 +82,7 @@ public class SessionIdFilterTest extends WithApplication {
   @Test
   public void testSessionIdIsNotCreatedWhenDisabled() throws Exception {
     SettingsManifest settingsManifest = createSettingsManifest(false);
-    SessionIdFilter filter = new SessionIdFilter(mat, settingsManifest);
+    SessionIdFilter filter = new SessionIdFilter(mat, () -> settingsManifest);
 
     // The request has no session id.
     Http.RequestBuilder request = fakeRequest();
