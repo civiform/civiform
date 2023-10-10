@@ -5,6 +5,7 @@ import static play.mvc.Results.redirect;
 import akka.stream.Materializer;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -21,16 +22,16 @@ public final class SessionIdFilter extends Filter {
   private static final ImmutableSet<String> excludedPrefixes =
       ImmutableSet.of("/api/", "/assets/", "/dev/", "/favicon");
 
-  private final SettingsManifest settingsManifest;
+  private final Provider<SettingsManifest> settingsManifestProvider;
 
   @Inject
-  public SessionIdFilter(Materializer mat, SettingsManifest settingsManifest) {
+  public SessionIdFilter(Materializer mat, Provider<SettingsManifest> settingsManifestProvider) {
     super(mat);
-    this.settingsManifest = settingsManifest;
+    this.settingsManifestProvider = settingsManifestProvider;
   }
 
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
-    return settingsManifest.getEnhancedOidcLogoutEnabled(requestHeader)
+    return settingsManifestProvider.get().getEnhancedOidcLogoutEnabled()
         && excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
         // Since we are using redirects, we only apply this filter for a GET request.
         && requestHeader.method().equals("GET")
