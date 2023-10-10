@@ -20,7 +20,7 @@ public class HomeControllerTest extends ResetPostgres {
         fakeRequest(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     ResultWithFinalRequestUri resultWithFinalRequestUri =
-        CfTestHelpers.doRequestWithRedirects(app, request);
+        CfTestHelpers.doRequestWithInternalRedirects(app, request);
     assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
 
     assertThat(resultWithFinalRequestUri.getFinalRequestUri()).startsWith("/applicants/");
@@ -33,7 +33,7 @@ public class HomeControllerTest extends ResetPostgres {
         fakeRequest(routes.HomeController.favicon())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     ResultWithFinalRequestUri resultWithFinalRequestUri =
-        CfTestHelpers.doRequestWithRedirects(app, request);
+        CfTestHelpers.doRequestWithInternalRedirects(app, request);
     Result result = resultWithFinalRequestUri.getResult();
     assertThat(result.redirectLocation()).isNotEmpty();
     assertThat(result.redirectLocation().get()).contains("civiform.us/favicon");

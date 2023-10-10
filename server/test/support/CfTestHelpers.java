@@ -153,16 +153,16 @@ public class CfTestHelpers {
     return result.redirectLocation().isPresent() && result.redirectLocation().get().startsWith("/");
   }
 
-  // Makes a request and follows redirects, propagating session and cookies.
-  // Uses a maxRedirects of 10.
-  public static ResultWithFinalRequestUri doRequestWithRedirects(
+  // Makes a request and follows internal redirects, propagating session and cookies.
+  // Throws a runtime exception if maxRedirects (10) is exceeded.
+  public static ResultWithFinalRequestUri doRequestWithInternalRedirects(
       Application app, Http.RequestBuilder request) {
-    return doRequestWithRedirects(app, request, 10);
+    return doRequestWithInternalRedirects(app, request, 10);
   }
 
-  // Makes a request and follows redirects, propagating session and cookies.
+  // Makes a request and follows internal redirects, propagating session and cookies.
   // Throws a runtime exception if maxRedirects is exceeded.
-  public static ResultWithFinalRequestUri doRequestWithRedirects(
+  public static ResultWithFinalRequestUri doRequestWithInternalRedirects(
       Application app, Http.RequestBuilder request, int maxRedirects) {
     Result currentResult;
     String currentRequestUri = request.uri();
