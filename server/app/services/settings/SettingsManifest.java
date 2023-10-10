@@ -837,6 +837,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("QUESTION_CACHE_ENABLED");
   }
 
+  /** Enables logic to populate more fields in OIDC logout requests. */
+  public boolean getEnhancedOidcLogoutEnabled(RequestHeader request) {
+    return getBool("ENHANCED_OIDC_LOGOUT_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1736,7 +1741,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables caching for questions and their associated data.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))),
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "ENHANCED_OIDC_LOGOUT_ENABLED",
+                      "Enables logic to populate more fields in OIDC logout requests.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
