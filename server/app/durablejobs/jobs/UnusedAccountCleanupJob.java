@@ -12,7 +12,7 @@ import repository.AccountRepository;
 
 /** Destroys all guest accounts older than a set age that have not started any applications. */
 public final class UnusedAccountCleanupJob extends DurableJob {
-  private static final Logger LOGGER = LoggerFactory.getLogger(OldJobCleanupJob.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(UnusedAccountCleanupJob.class);
   private static final int UNUSED_ACCOUNT_MAX_AGE_IN_DAYS = 90;
 
   private final AccountRepository accountRepository;
