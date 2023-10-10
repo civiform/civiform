@@ -62,8 +62,8 @@ public final class VersionRepository {
   private final DatabaseExecutionContext databaseExecutionContext;
 
   private final SettingsManifest settingsManifest;
-  private SyncCacheApi questionsByVersionCache;
-  private SyncCacheApi programsByVersionCache;
+  private final SyncCacheApi questionsByVersionCache;
+  private final SyncCacheApi programsByVersionCache;
 
   @Inject
   public VersionRepository(
