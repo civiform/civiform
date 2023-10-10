@@ -19,7 +19,7 @@ public final class SessionIdFilter extends Filter {
   public static final String SESSION_ID = "sessionId";
 
   private static final ImmutableSet<String> excludedPrefixes =
-      ImmutableSet.of("/api/", "/dev/", "/favicon");
+      ImmutableSet.of("/api/", "/assets/", "/dev/", "/favicon");
 
   private final SettingsManifest settingsManifest;
 
