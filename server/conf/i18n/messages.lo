@@ -22,8 +22,8 @@ validation.isRequired=ຕ້ອງຕອບຄຳຖາມນີ້.
 validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຖືກຕ້ອງ.
 validation.errorAnnouncementSr=ມີຂໍ້ຜິດພາດໃນແບບຟອມ. ກະລຸນາແກ້ໄຂກ່ອນສືບຕໍ່.
 content.requiredFieldsAnnotation=ໝາຍເຫດ: ຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ * ແມ່ນຕ້ອງລະບຸ.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
+content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງ
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
+adminValidation.multiOptionAdminEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກຕ້ອງບໍ່ມີ ID ຜູ້ເບິ່ງແຍງທີ່ຫວ່າງເປົ່າ.
 
 #----------------------------------#
 # ERRORS - various error messages  #

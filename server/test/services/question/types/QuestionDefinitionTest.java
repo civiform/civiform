@@ -471,6 +471,20 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validate_nameIsNotEntityName() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("entity name")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Entity Name Test"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    assertThat(question.validate())
+        .containsOnly(CiviFormError.of("Administrative identifier 'entity name' is not allowed"));
+  }
+
+  @Test
   public void validate_multiOptionQuestion_withoutOptions_returnsError() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()

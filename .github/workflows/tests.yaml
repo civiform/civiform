@@ -90,8 +90,12 @@ jobs:
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
       - name: Bring up test env with Localstack
+        env:
+          CI: true
         run: bin/run-browser-test-env --aws --ci
       - name: Run browser tests with Localstack
+        env:
+          CI: true
         run: bin/run-browser-tests-ci-batch ${{ matrix.batch_number }}
       - name: Verify no new image snapshots added
         # jest-image-snapshots automatically adds snapshot if it's missing.
@@ -157,8 +161,12 @@ jobs:
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
       - name: Bring up test env with Azurite
+        env:
+          CI: true
         run: bin/run-browser-test-env --azure --ci
       - name: Run browser tests with Azurite
+        env:
+          CI: true
         run: bin/run-browser-tests-azure
       - name: Upload image diff outputs
         uses: actions/upload-artifact@v3
@@ -188,8 +196,11 @@ jobs:
           DOCKER_BUILDKIT: 1
         run: docker build -f prod.Dockerfile -t civiform:prod --cache-from docker.io/civiform/civiform:latest ./
       - name: Build the stack
-        run: docker compose -f test-support/prod-simulator-compose.yml up -d
+        run: docker compose -f test-support/prod-simulator-compose.yml up -d > .dockerlogs 2>&1
       - name: Test
         # Confirm that we get a response on port 9000.
         run: while ! docker run --network host appropriate/curl -v -s --retry-max-time 180 --retry-connrefused http://localhost:8888/ ; do sleep 5; done
         timeout-minutes: 3
+      - name: Print logs on failure
+        if: failure()
+        run: cat .dockerlogs

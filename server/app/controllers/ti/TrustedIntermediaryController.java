@@ -24,8 +24,8 @@ import play.data.validation.ValidationError;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.AccountRepository;
 import repository.SearchParameters;
-import repository.UserRepository;
 import services.PaginationInfo;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
@@ -43,7 +43,7 @@ public final class TrustedIntermediaryController {
   private static final int PAGE_SIZE = 10;
   private final TrustedIntermediaryDashboardView tiDashboardView;
   private final ProfileUtils profileUtils;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final MessagesApi messagesApi;
   private final FormFactory formFactory;
   private final TrustedIntermediaryService tiService;
@@ -51,14 +51,14 @@ public final class TrustedIntermediaryController {
   @Inject
   public TrustedIntermediaryController(
       ProfileUtils profileUtils,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       FormFactory formFactory,
       MessagesApi messagesApi,
       TrustedIntermediaryDashboardView trustedIntermediaryDashboardView,
       TrustedIntermediaryService tiService) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiDashboardView = Preconditions.checkNotNull(trustedIntermediaryDashboardView);
-    this.userRepository = Preconditions.checkNotNull(userRepository);
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.messagesApi = Preconditions.checkNotNull(messagesApi);
     this.tiService = Preconditions.checkNotNull(tiService);
@@ -79,7 +79,7 @@ public final class TrustedIntermediaryController {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -120,7 +120,7 @@ public final class TrustedIntermediaryController {
     }
 
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
@@ -151,7 +151,7 @@ public final class TrustedIntermediaryController {
       return unauthorized();
     }
     Optional<TrustedIntermediaryGroup> trustedIntermediaryGroup =
-        userRepository.getTrustedIntermediaryGroup(civiformProfile.get());
+        accountRepository.getTrustedIntermediaryGroup(civiformProfile.get());
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }

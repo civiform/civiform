@@ -5,7 +5,8 @@
       "CIVIC_ENTITY_SMALL_LOGO_URL": {
         "mode": "ADMIN_READABLE",
         "description": "Small logo for the civic entity used on the login page.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "WHITELABEL_CIVIC_ENTITY_SHORT_NAME": {
         "mode": "ADMIN_WRITEABLE",
@@ -398,7 +399,8 @@
       "SENDER_EMAIL_ADDRESS": {
         "mode": "HIDDEN",
         "description": "The email address used for the 'from' email header for emails sent by CiviForm.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "Application File Upload Storage": {
         "group_description": "Configuration options for the application file upload storage provider",
@@ -490,17 +492,20 @@
       "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the program administrator's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "STAGING_TI_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the trusted intermediary's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       },
       "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST": {
         "mode": "HIDDEN",
         "description": "If this is a staging deployment, the application notification email is sent to this email address instead of the applicant's email address.",
-        "type": "string"
+        "type": "string",
+        "required": true
       }
     }
   },
@@ -555,7 +560,12 @@
   },
   "CIVIFORM_SUPPORTED_LANGUAGES": {
     "mode": "HIDDEN",
-    "description": "The languages that applicants can choose from when specifying their language preference and that admins can choose from when adding translations for programs and applications.",
+    "description": "The full list of languages available to CiviForm. These are the language that admins can choose from when adding translations for programs and applications, as well as the default list that applicants can choose from when specifying their language preference. See CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to applicants.",
+    "type": "index-list"
+  },
+  "CIVIFORM_APPLICANT_ENABLED_LANGUAGES": {
+    "mode": "HIDDEN",
+    "description": "If populated, this filters the languages that are visible to the applicant to just those in the list. This allows program admins to develop languages support for programs and questions, but not let the applicant use a language that is not yet ready.",
     "type": "index-list"
   },
   "CIVIFORM_TIME_ZONE_ID": {
@@ -686,6 +696,21 @@
       "API_GENERATED_DOCS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the API docs tab on CiviForm.",
+        "type": "bool"
+      },
+      "VERSION_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for versions and their associated data.",
+        "type": "bool"
+      },
+      "PROGRAM_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for programs and their associated data.",
+        "type": "bool"
+      },
+      "QUESTION_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for questions and their associated data.",
         "type": "bool"
       }
     }

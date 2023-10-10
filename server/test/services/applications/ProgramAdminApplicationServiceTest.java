@@ -28,10 +28,10 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -183,7 +183,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -243,7 +243,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -295,7 +295,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -355,7 +355,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
@@ -492,7 +492,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
             instanceOf(ApplicationEventRepository.class),
-            instanceOf(UserRepository.class),
+            instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),

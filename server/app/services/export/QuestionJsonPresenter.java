@@ -196,7 +196,7 @@ public interface QuestionJsonPresenter<Q extends Question> {
       Path path = question.getSelectionPath().asNestedEntitiesPath();
 
       ImmutableList<String> selectedOptions =
-          question.getSelectedOptionsAdminName().orElse(ImmutableList.of());
+          question.getSelectedOptionAdminNames().orElse(ImmutableList.of());
 
       return ImmutableMap.of(path, Optional.of(selectedOptions));
     }

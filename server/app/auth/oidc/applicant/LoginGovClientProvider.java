@@ -13,7 +13,7 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.core.util.generator.RandomValueGenerator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /*
  * Login.gov (https://developers.login.gov/oidc/) OIDC provider using the PKCE method.
@@ -26,7 +26,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   public LoginGovClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider) {
+      Provider<AccountRepository> accountRepositoryProvider) {
     super(configuration, profileFactory, accountRepositoryProvider);
   }
 

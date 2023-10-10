@@ -199,7 +199,7 @@ public class MultiOptionQuestionFormTest {
     MultiOptionQuestionDefinition questionDefinition =
         (MultiOptionQuestionDefinition) form.getBuilder().build();
 
-    assertThat(questionDefinition.getOptionsAdminName())
+    assertThat(questionDefinition.getOptionAdminNames())
         .containsExactly("one admin", "two admin", "three admin", "four admin");
   }
 }
