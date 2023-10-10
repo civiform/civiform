@@ -51,7 +51,7 @@ public class HomeControllerAuthenticatedTest extends WithApplication {
         fakeRequest(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
     ResultWithFinalRequestUri resultWithFinalRequestUri =
-        CfTestHelpers.doRequestWithRedirects(app, request);
+        CfTestHelpers.doRequestWithInternalRedirects(app, request);
     assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
   }
 }

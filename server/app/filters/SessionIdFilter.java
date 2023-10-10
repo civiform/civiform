@@ -13,7 +13,7 @@ import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
 
-/** Filter that stores a random session ID in the session, if not already present. */
+/** Filter that ensures all sessions have have a unique ID. */
 public final class SessionIdFilter extends Filter {
   public static final String SESSION_ID = "sessionId";
 
@@ -29,19 +29,19 @@ public final class SessionIdFilter extends Filter {
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-    if (excludedPrefixes.stream().anyMatch(prefix -> requestHeader.uri().startsWith(prefix))) {
+    if (excludedPrefixes.stream().anyMatch(prefix -> requestHeader.uri().startsWith(prefix)) ||
+        requestHeader.session().get(SESSION_ID).isPresent() ||
+        !requestHeader.method().equals("GET")) {
       return nextFilter.apply(requestHeader);
     }
-    // If we don't have a session id, mint and store one.
+    
+    // Mint and store one a new session id.
     //
     // Since the Play session is immutable for a request, we must redirect in order to get Play to
     // pick up the new value. Since we are using redirects, we only apply one for a GET request.
-    if (requestHeader.session().get(SESSION_ID).isEmpty() && requestHeader.method().equals("GET")) {
       String sessionId = UUID.randomUUID().toString();
       return CompletableFuture.completedFuture(
           redirect(requestHeader.uri())
               .withSession(requestHeader.session().adding(SESSION_ID, sessionId)));
-    }
-    return nextFilter.apply(requestHeader);
   }
 }
