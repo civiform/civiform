@@ -1,10 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull} from './util'
-var md = require('markdown-it')({
-  html: true,
-  linkify: true,
-  breaks: true
-});
+import MarkdownIt = require('markdown-it')
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -46,6 +42,13 @@ class PreviewController {
   // This regex is used to match $this and $this.parent (etc) strings so we can
   // highlight them in the question preview.
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
+
+  private static parser = new DOMParser()
+  private static md = new MarkdownIt({
+    html: true,
+    linkify: true,
+    breaks: true,
+  })
 
   constructor() {
     const textInput = document.getElementById(
@@ -230,7 +233,6 @@ class PreviewController {
       questionType &&
       questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
     if (useAdvancedFormatting) {
-      // ROCKY pass through formatText here
       const contentElement = PreviewController.formatText(text)
       contentElement.classList.add('text-sm')
       contentElement.classList.add('font-normal')
@@ -334,20 +336,21 @@ class PreviewController {
     })
   }
 
-  private static formatText(
-    text: string  ): Element {
-    const parser = new DOMParser()
+  private static formatText(text: string): Element {
     // Preserve line breaks before parsing the text
-    text = text.replace(/\n$/gm, "\n&nbsp;")
-    let parsedHtml = md.render(text)
+    text = text.replace(/\n$/gm, '\n&nbsp;')
+    let parsedHtml = PreviewController.md.render(text)
     // Format lists
-    parsedHtml = parsedHtml.replace("<ul>", "<ul class=\"list-disc mx-8\">")
+    parsedHtml = parsedHtml.replace('<ul>', '<ul class="list-disc mx-8">')
     // Format links
-    parsedHtml = parsedHtml.replace(">http", " class=\"text-blue-600 hover:text-blue-500 underline\" target=\"_blank\">http")
+    parsedHtml = parsedHtml.split('href').join('class="text-blue-600 hover:text-blue-500 underline" target="_blank" href')
     // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
-    parsedHtml = parsedHtml.replace("<h1>", "<h2>")
-    parsedHtml = parsedHtml.replace("</h1>", "</h2>")
-    const html = parser.parseFromString(parsedHtml, 'text/html')     
+    parsedHtml = parsedHtml.replace('<h1>', '<h2>')
+    parsedHtml = parsedHtml.replace('</h1>', '</h2>')
+    const html = PreviewController.parser.parseFromString(
+      parsedHtml,
+      'text/html',
+    )
     return html.body
   }
 }

@@ -91,8 +91,7 @@ public final class TextFormatter {
       @Override
       public void discardedAttributes(Object ctx, String tagName, String... attributeNames) {
         for (String attribute : attributeNames) {
-          logger.warn(
-              String.format("HTML attribute: \"%s\" was caught and discarded.", attribute));
+          logger.warn(String.format("HTML attribute: \"%s\" was caught and discarded.", attribute));
         }
       }
     };
