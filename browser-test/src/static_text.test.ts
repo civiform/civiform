@@ -6,8 +6,17 @@ import {
 } from './support'
 
 describe('Static text question for applicant flow', () => {
-  const staticText = 'Hello, I am some static text!'
-  const accordionText = '\n### Accordion Title \n> This is some content.'
+  const staticText =
+    'Hello, I am some static text!'
+  const markdownText =
+  '[This is a link](www.example.com)\n'+
+  'This is a list:\n'+
+  '*Item 1\n'+
+  '# This is a header 1 that should be changed to header 2\n'+
+  'There are some empty lines below this that should be preserved\n'+
+  '\n'+
+  '\n'+
+  'Last line of content'
   const programName = 'Test program for static text'
   const ctx = createTestContext(/* clearDb= */ false)
 
@@ -19,7 +28,7 @@ describe('Static text question for applicant flow', () => {
     await adminQuestions.addStaticQuestion({
       questionName: 'static-text-q',
       questionText: staticText,
-      accordionText: accordionText,
+      markdownText: markdownText
     })
     // Must add an answerable question for text to show.
     await adminQuestions.addEmailQuestion({questionName: 'partner-email-q'})
@@ -30,10 +39,13 @@ describe('Static text question for applicant flow', () => {
   })
 
   it('displays static text', async () => {
-    const {applicantQuestions} = ctx
+    const {page, applicantQuestions} = ctx
     await applicantQuestions.applyProgram(programName)
 
     await applicantQuestions.seeStaticQuestion(staticText)
+    await validateScreenshot(page, 'markdown-text')
+
+
   })
 
   it('has no accessiblity violations', async () => {
@@ -43,30 +55,26 @@ describe('Static text question for applicant flow', () => {
     await validateAccessibility(page)
   })
 
-  describe('accordion', () => {
-    it('exists and is closed by default', async () => {
+  describe('markdown parsing', () => {
+    it('parses markdown', async () => {
+      
+      // test for links
+      // lists (formatting)
+      // bold
+      // h1 -> h2
+      // formatting on autodetect links
+      // preserves lines (whitespace)
       const {page, applicantQuestions} = ctx
       await applicantQuestions.applyProgram(programName)
+      await validateScreenshot(page, 'markdown-text')
 
-      await page.waitForTimeout(300) // ms
-      await validateScreenshot(page, 'static-text-accordion-closed')
+      expect(await page.innerHTML('.cf-applicant-question-text')).toContain('<p>Hello, I am some static text!</p>')
       expect(await page.innerHTML('.cf-applicant-question-text')).toContain(
-        'cf-accordion',
+        '<a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="http://www.example.com">This is a link</a>'
       )
-    })
-
-    it('expands when accordion header clicked', async () => {
-      const {page, applicantQuestions} = ctx
-      await applicantQuestions.applyProgram(programName)
-
-      const headerButton = page.locator('.cf-accordion-header')
-      await headerButton.click()
-
-      // Wait for the accordion to open, so we don't screenshot during the opening,
-      // causing inconsistent screenshots.
-      await page.waitForTimeout(300) // ms
-      await validateScreenshot(page, 'static-text-accordion-open')
-      expect(await headerButton.getAttribute('aria-expanded')).toBe('true')
+      expect(await page.innerHTML('.cf-applicant-question-text')).toContain('<ul class=\"list-disc mx-8\"><li>Welcome to this test program.</li><li>It contains one of every question type.<br>&nbsp;</li></ul>')
+      expect(await page.innerHTML('.cf-applicant-question-text')).toContain('<h2>This is a header 1 that should be changed to header 2</h2>')
+      expect(await page.innerHTML('.cf-applicant-question-text')).toContain('<br>&nbsp;<br>&nbsp;')
     })
   })
 })
