@@ -21,8 +21,7 @@ What feature is this flag guarding?
 - [ ] Feature flag created, feature guarded with flag in code
 - [ ] Flag [enabled in dev](https://github.com/civiform/civiform/blob/main/server/conf/application.dev.conf)
 - [ ] Flag [disabled for browser tests](https://github.com/civiform/civiform/blob/main/server/conf/application.dev-browser-tests.conf)
-- [ ] Feature written and guarded with flag, including unit and browser tests that manipulate the state of the flag as needed
-- [ ] Flag passed through to deployment system ([example](https://github.com/civiform/cloud-deploy-infra/commit/9d17356ff1fa1f3a16c97608cc00cbd4c7c11ffe))
+- [ ] Feature written and guarded with flag, including unit and browser tests that manipulate the state of the flag as needed. Enable the flag for browser tests when it's ready to be tested.
 - [ ] Flag enabled in staging and Seattle staging
 - [ ] Seattle given option to test manually
 - [ ] Flag default changed to true, with PR release notes mentioning the change and what feature it enables. <Edit this issue and note the date it was enabled here>

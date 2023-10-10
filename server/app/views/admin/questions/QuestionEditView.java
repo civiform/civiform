@@ -383,24 +383,19 @@ public final class QuestionEditView extends BaseHtmlView {
     // TODO(#2618): Consider using helpers for grouping related radio controls.
     return fieldset()
         .with(
-            legend("Data privacy settings")
+            legend("Demographic data privacy settings")
                 .with(ViewUtils.requiredQuestionIndicator())
                 .withClass(BaseStyles.INPUT_LABEL),
             p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
                 .with(
-                    span("Learn more about each of the data export settings in the "),
-                    new LinkElement()
-                        .setHref(
-                            "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
-                        .setText("documentation")
-                        .opensInNewTab()
-                        .asAnchorText(),
-                    span(".")),
+                    span(
+                        "The setting below only controls what is exported in the demographic"
+                            + " export. Answers are always exported via the API.")),
             FieldWithLabel.radio()
                 .setDisabled(!submittable)
                 .setAriaRequired(true)
                 .setFieldName("questionExportState")
-                .setLabelText("Don't allow answers to be exported")
+                .setLabelText("Don't include in demographic export")
                 .setValue(QuestionTag.NON_DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.NON_DEMOGRAPHIC)
                 .getRadioTag(),
@@ -408,7 +403,7 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setAriaRequired(true)
                 .setFieldName("questionExportState")
-                .setLabelText("Export exact answers")
+                .setLabelText("Include in demographic export")
                 .setValue(QuestionTag.DEMOGRAPHIC.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC)
                 .getRadioTag(),
@@ -416,10 +411,18 @@ public final class QuestionEditView extends BaseHtmlView {
                 .setDisabled(!submittable)
                 .setAriaRequired(true)
                 .setFieldName("questionExportState")
-                .setLabelText("Export obfuscated answers")
+                .setLabelText("Obfuscate and include in demographic export")
                 .setValue(QuestionTag.DEMOGRAPHIC_PII.getValue())
                 .setChecked(exportState == QuestionTag.DEMOGRAPHIC_PII)
-                .getRadioTag());
+                .getRadioTag(),
+            span("Learn more about each of the demographic data export settings in the "),
+            new LinkElement()
+                .setHref(
+                    "https://docs.civiform.us/user-manual/civiform-admin-guide/manage-questions#question-export-settings")
+                .setText("documentation")
+                .opensInNewTab()
+                .asAnchorText(),
+            span("."));
   }
 
   /**
