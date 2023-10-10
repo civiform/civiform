@@ -12,36 +12,46 @@ import java.util.function.Function;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
+import services.settings.SettingsManifest;
 
 /** Filter that ensures all sessions have have a unique ID. */
 public final class SessionIdFilter extends Filter {
   public static final String SESSION_ID = "sessionId";
 
-  public static final ImmutableSet<String> excludedPrefixes =
+  private static final ImmutableSet<String> excludedPrefixes =
       ImmutableSet.of("/api/", "/dev/", "/favicon");
 
+  private final SettingsManifest settingsManifest;
+
   @Inject
-  public SessionIdFilter(Materializer mat) {
+  public SessionIdFilter(Materializer mat, SettingsManifest settingsManifest) {
     super(mat);
+    this.settingsManifest = settingsManifest;
+  }
+
+  private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
+    return settingsManifest.getEnhancedOidcLogoutEnabled(requestHeader)
+        && excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
+        // Since we are using redirects, we only apply this filter for a GET request.
+        && requestHeader.method().equals("GET")
+        && requestHeader.session().get(SESSION_ID).isEmpty();
   }
 
   @Override
   public CompletionStage<Result> apply(
       Function<Http.RequestHeader, CompletionStage<Result>> nextFilter,
       Http.RequestHeader requestHeader) {
-    if (excludedPrefixes.stream().anyMatch(prefix -> requestHeader.uri().startsWith(prefix)) ||
-        requestHeader.session().get(SESSION_ID).isPresent() ||
-        !requestHeader.method().equals("GET")) {
+    if (!shouldApplyThisFilter(requestHeader)) {
       return nextFilter.apply(requestHeader);
     }
-    
-    // Mint and store one a new session id.
+
+    // Mint and store a new session id.
     //
     // Since the Play session is immutable for a request, we must redirect in order to get Play to
-    // pick up the new value. Since we are using redirects, we only apply one for a GET request.
-      String sessionId = UUID.randomUUID().toString();
-      return CompletableFuture.completedFuture(
-          redirect(requestHeader.uri())
-              .withSession(requestHeader.session().adding(SESSION_ID, sessionId)));
+    // pick up the new value.
+    String sessionId = UUID.randomUUID().toString();
+    return CompletableFuture.completedFuture(
+        redirect(requestHeader.uri())
+            .withSession(requestHeader.session().adding(SESSION_ID, sessionId)));
   }
 }

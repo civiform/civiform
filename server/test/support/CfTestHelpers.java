@@ -123,6 +123,7 @@ public class CfTestHelpers {
     return requestBuilder.attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
   }
 
+  /** Class to hold a Result as well as the final request URI after internal redirects. */
   public static class ResultWithFinalRequestUri {
     private Result result;
     private String finalRequestUri;
