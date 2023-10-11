@@ -70,12 +70,15 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
             fileUploadViewStrategy.signedFileUploadFields(
                 params, fileUploadQuestion, fileInputId, ariaDescribedByIds, hasErrors))
         .with(
-            label()
-                .withFor(fileInputId)
-                .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
+            div()
                 .attr("role", "button")
                 .attr("tabindex", 0)
-                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer"));
+                .withClasses("inline-block", "mt-2")
+                .with(
+                    label()
+                        .withFor(fileInputId)
+                        .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
+                        .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "cursor-pointer")));
   }
 
   @Override
