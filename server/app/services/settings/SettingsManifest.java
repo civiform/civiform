@@ -42,8 +42,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Small logo for the civic entity used on the login page. */
-  public Optional<String> getWhitelabelSmallLogoUrl() {
-    return getString("WHITELABEL_SMALL_LOGO_URL");
+  public Optional<String> getCivicEntitySmallLogoUrl() {
+    return getString("CIVIC_ENTITY_SMALL_LOGO_URL");
   }
 
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
@@ -316,8 +316,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The name of the admin group in Active Directory, typically used to tell if a user is a global
    * admin.
    */
-  public Optional<String> getAdfsGlobalAdminGroup() {
-    return getString("ADFS_GLOBAL_ADMIN_GROUP");
+  public Optional<String> getAdfsAdminGroup() {
+    return getString("ADFS_ADMIN_GROUP");
   }
 
   /**
@@ -487,8 +487,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** The email address used for the 'from' email header for emails sent by CiviForm. */
-  public Optional<String> getAwsSesSender() {
-    return getString("AWS_SES_SENDER");
+  public Optional<String> getSenderEmailAddress() {
+    return getString("SENDER_EMAIL_ADDRESS");
   }
 
   /** What static file storage provider to use. */
@@ -582,24 +582,24 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If this is a staging deployment, the application notification email is sent to this email
    * address instead of the program administrator's email address.
    */
-  public Optional<String> getStagingAdminList() {
-    return getString("STAGING_ADMIN_LIST");
+  public Optional<String> getStagingProgramAdminNotificationMailingList() {
+    return getString("STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST");
   }
 
   /**
    * If this is a staging deployment, the application notification email is sent to this email
    * address instead of the trusted intermediary's email address.
    */
-  public Optional<String> getStagingTiList() {
-    return getString("STAGING_TI_LIST");
+  public Optional<String> getStagingTiNotificationMailingList() {
+    return getString("STAGING_TI_NOTIFICATION_MAILING_LIST");
   }
 
   /**
    * If this is a staging deployment, the application notification email is sent to this email
    * address instead of the applicant's email address.
    */
-  public Optional<String> getStagingApplicantList() {
-    return getString("STAGING_APPLICANT_LIST");
+  public Optional<String> getStagingApplicantNotificationMailingList() {
+    return getString("STAGING_APPLICANT_NOTIFICATION_MAILING_LIST");
   }
 
   /**
@@ -637,11 +637,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The languages that applicants can choose from when specifying their language preference and
-   * that admins can choose from when adding translations for programs and applications.
+   * The full list of languages available to CiviForm. These are the language that admins can choose
+   * from when adding translations for programs and applications, as well as the default list that
+   * applicants can choose from when specifying their language preference. See
+   * CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to
+   * applicants.
    */
   public Optional<ImmutableList<String>> getCiviformSupportedLanguages() {
     return getListOfStrings("CIVIFORM_SUPPORTED_LANGUAGES");
+  }
+
+  /**
+   * If populated, this filters the languages that are visible to the applicant to just those in the
+   * list. This allows program admins to develop languages support for programs and questions, but
+   * not let the applicant use a language that is not yet ready.
+   */
+  public Optional<ImmutableList<String>> getCiviformApplicantEnabledLanguages() {
+    return getListOfStrings("CIVIFORM_APPLICANT_ENABLED_LANGUAGES");
   }
 
   /**
@@ -810,6 +822,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("API_GENERATED_DOCS_ENABLED", request);
   }
 
+  /** Enables caching for versions and their associated data. */
+  public boolean getVersionCacheEnabled() {
+    return getBool("VERSION_CACHE_ENABLED");
+  }
+
+  /** Enables caching for programs and their associated data. */
+  public boolean getProgramCacheEnabled() {
+    return getBool("PROGRAM_CACHE_ENABLED");
+  }
+
+  /** Enables caching for questions and their associated data. */
+  public boolean getQuestionCacheEnabled() {
+    return getBool("QUESTION_CACHE_ENABLED");
+  }
+
+  /** Enables logic to populate more fields in OIDC logout requests. */
+  public boolean getEnhancedOidcLogoutEnabled() {
+    return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -819,9 +851,9 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
-                      "WHITELABEL_SMALL_LOGO_URL",
+                      "CIVIC_ENTITY_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1165,7 +1197,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                                       SettingType.STRING,
                                       SettingMode.HIDDEN),
                                   SettingDescription.create(
-                                      "ADFS_GLOBAL_ADMIN_GROUP",
+                                      "ADFS_ADMIN_GROUP",
                                       "The name of the admin group in Active Directory, typically"
                                           + " used to tell if a user is a global admin.",
                                       /* isRequired= */ false,
@@ -1466,10 +1498,10 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "AWS_SES_SENDER",
+                      "SENDER_EMAIL_ADDRESS",
                       "The email address used for the 'from' email header for emails sent by"
                           + " CiviForm.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Email Addresses",
@@ -1494,26 +1526,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.STRING,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                      "STAGING_ADMIN_LIST",
+                      "STAGING_PROGRAM_ADMIN_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the program administrator's email"
                           + " address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "STAGING_TI_LIST",
+                      "STAGING_TI_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the trusted intermediary's email"
                           + " address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "STAGING_APPLICANT_LIST",
+                      "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the applicant's email address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Custom Text",
@@ -1691,7 +1723,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the API docs tab on CiviForm.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "VERSION_CACHE_ENABLED",
+                      "Enables caching for versions and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "PROGRAM_CACHE_ENABLED",
+                      "Enables caching for programs and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "QUESTION_CACHE_ENABLED",
+                      "Enables caching for questions and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "ENHANCED_OIDC_LOGOUT_ENABLED",
+                      "Enables logic to populate more fields in OIDC logout requests.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -1725,9 +1781,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       Pattern.compile("^(?!http://|https://).+")),
                   SettingDescription.create(
                       "CIVIFORM_SUPPORTED_LANGUAGES",
-                      "The languages that applicants can choose from when specifying their"
-                          + " language preference and that admins can choose from when adding"
-                          + " translations for programs and applications.",
+                      "The full list of languages available to CiviForm. These are the language"
+                          + " that admins can choose from when adding translations for programs"
+                          + " and applications, as well as the default list that applicants can"
+                          + " choose from when specifying their language preference. See"
+                          + " CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over"
+                          + " languages available to applicants.",
+                      /* isRequired= */ false,
+                      SettingType.LIST_OF_STRINGS,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "CIVIFORM_APPLICANT_ENABLED_LANGUAGES",
+                      "If populated, this filters the languages that are visible to the applicant"
+                          + " to just those in the list. This allows program admins to develop"
+                          + " languages support for programs and questions, but not let the"
+                          + " applicant use a language that is not yet ready.",
                       /* isRequired= */ false,
                       SettingType.LIST_OF_STRINGS,
                       SettingMode.HIDDEN),

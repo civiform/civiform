@@ -2,11 +2,16 @@ import {ElementHandle, Page} from 'playwright'
 import {dismissModal, waitForAnyModal, waitForPageJsLoad} from './wait'
 import * as assert from 'assert'
 
+type QuestionOption = {
+  adminName: string
+  text: string
+}
+
 type QuestionParams = {
   questionName: string
   minNum?: number | null
   maxNum?: number | null
-  options?: Array<string>
+  options?: Array<QuestionOption>
   description?: string
   questionText?: string
   accordionText?: string
@@ -37,10 +42,24 @@ export class AdminQuestions {
 
   static readonly DOES_NOT_REPEAT_OPTION = 'does not repeat'
 
-  public static readonly NO_EXPORT_OPTION = "Don't allow answers to be exported"
-  public static readonly EXPORT_VALUE_OPTION = 'Export exact answers'
-  public static readonly EXPORT_OBFUSCATED_OPTION = 'Export obfuscated answers'
+  public static readonly NO_EXPORT_OPTION =
+    "Don't include in demographic export"
+  public static readonly EXPORT_VALUE_OPTION = 'Include in demographic export'
+  public static readonly EXPORT_OBFUSCATED_OPTION =
+    'Obfuscate and include in demographic export'
   public static readonly NUMBER_QUESTION_TEXT = 'number question text'
+  public static readonly multiOptionInputSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) .cf-multi-option-input input`
+  public static readonly multiOptionAdminInputSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) .cf-multi-option-admin-input input`
+  public static readonly multiOptionDeleteButtonSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) button:has-text("Delete")`
 
   constructor(page: Page) {
     this.page = page
@@ -87,13 +106,29 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: string[]) {
+  async expectMultiOptionBlankOptionError(options: QuestionOption[]) {
     const errors = this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
-    // Checks that the error is not hidden when it's corresponding option is empty. The order of the options array corresponds to the order of the errors array.
+    // Checks that the error is not hidden when its corresponding option is empty.
+    // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
-      if (options[i] === '') {
+      if (options[i].text === '') {
+        expect(await errors.nth(i).isHidden()).toEqual(false)
+      } else {
+        expect(await errors.nth(i).isHidden()).toEqual(true)
+      }
+    }
+  }
+
+  async expectMultiOptionBlankOptionAdminError(options: QuestionOption[]) {
+    const errors = this.page.locator(
+      '#question-settings .cf-multi-option-admin-input-error',
+    )
+    // Checks that the error is not hidden when its corresponding option adminName is empty.
+    // The order of the options array corresponds to the order of the errors array.
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].adminName === '') {
         expect(await errors.nth(i).isHidden()).toEqual(false)
       } else {
         expect(await errors.nth(i).isHidden()).toEqual(true)
@@ -439,7 +474,12 @@ export class AdminQuestions {
       case QuestionType.CHECKBOX:
         await this.addCheckboxQuestion({
           questionName,
-          options: ['op1', 'op2', 'op3', 'op4'],
+          options: [
+            {adminName: 'op1 admin', text: 'op1'},
+            {adminName: 'op2 admin', text: 'op2'},
+            {adminName: 'op3 admin', text: 'op3'},
+            {adminName: 'op4 admin', text: 'op4'},
+          ],
         })
         break
       case QuestionType.CURRENCY:
@@ -453,7 +493,11 @@ export class AdminQuestions {
       case QuestionType.DROPDOWN:
         await this.addDropdownQuestion({
           questionName,
-          options: ['op1', 'op2', 'op3'],
+          options: [
+            {adminName: 'op1 admin', text: 'op1'},
+            {adminName: 'op2 admin', text: 'op2'},
+            {adminName: 'op3 admin', text: 'op3'},
+          ],
         })
         break
       case QuestionType.EMAIL:
@@ -473,7 +517,11 @@ export class AdminQuestions {
       case QuestionType.RADIO:
         await this.addRadioButtonQuestion({
           questionName,
-          options: ['one', 'two', 'three'],
+          options: [
+            {adminName: 'one admin', text: 'one'},
+            {adminName: 'two admin', text: 'two'},
+            {adminName: 'three admin', text: 'three'},
+          ],
         })
         break
       case QuestionType.TEXT:
@@ -676,10 +724,7 @@ export class AdminQuestions {
     assert(options)
     for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
-        options[index],
-      )
+      await this.fillMultiOptionAnswer(index, options[index])
     }
 
     if (clickSubmit) {
@@ -718,8 +763,7 @@ export class AdminQuestions {
     assert(options)
     for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      const matchIndex = index + 1
-      await this.changeMultiOptionAnswer(matchIndex, options[index])
+      await this.fillMultiOptionAnswer(index, options[index])
     }
 
     if (clickSubmit) {
@@ -727,12 +771,58 @@ export class AdminQuestions {
     }
   }
 
+  /** Deletes a multi-option answer */
+  async deleteMultiOptionAnswer(index: number) {
+    await this.page.click(AdminQuestions.multiOptionDeleteButtonSelector(index))
+  }
+
   /** Changes the input field of a multi option answer. */
-  async changeMultiOptionAnswer(index: number, text: string) {
+  async changeMultiOptionAnswer(index: number, optionText: string) {
     await this.page.fill(
-      `:nth-match(#question-settings div.cf-multi-option-question-option, ${index}) input`,
-      text,
+      AdminQuestions.multiOptionInputSelector(index),
+      optionText,
     )
+  }
+
+  async fillMultiOptionAnswer(index: number, option: QuestionOption) {
+    await this.page.fill(
+      AdminQuestions.multiOptionInputSelector(index),
+      option.text,
+    )
+    await this.page.fill(
+      AdminQuestions.multiOptionAdminInputSelector(index),
+      option.adminName,
+    )
+  }
+
+  async expectNewMultiOptionAnswer(index: number, option: QuestionOption) {
+    await this.expectMultiOptionAnswer(index, option, true)
+  }
+
+  async expectExistingMultiOptionAnswer(index: number, option: QuestionOption) {
+    await this.expectMultiOptionAnswer(index, option, false)
+  }
+
+  async expectMultiOptionAnswer(
+    index: number,
+    option: QuestionOption,
+    adminNameIsEditable: boolean,
+  ) {
+    expect(
+      await this.page
+        .locator(AdminQuestions.multiOptionInputSelector(index))
+        .inputValue(),
+    ).toEqual(option.text)
+    expect(
+      await this.page
+        .locator(AdminQuestions.multiOptionAdminInputSelector(index))
+        .inputValue(),
+    ).toEqual(option.adminName)
+    expect(
+      await this.page
+        .locator(AdminQuestions.multiOptionAdminInputSelector(index))
+        .isEditable(),
+    ).toEqual(adminNameIsEditable)
   }
 
   async addCurrencyQuestion({
@@ -981,10 +1071,7 @@ export class AdminQuestions {
     assert(options)
     for (let index = 0; index < options.length; index++) {
       await this.page.click('#add-new-option')
-      await this.page.fill(
-        `:nth-match(#question-settings div.flex-row, ${index + 1}) input`,
-        options[index],
-      )
+      await this.fillMultiOptionAnswer(index, options[index])
     }
 
     if (clickSubmit) {

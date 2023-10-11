@@ -22,7 +22,7 @@ import play.mvc.Http;
 import play.mvc.Http.Session;
 import play.mvc.Result;
 import play.mvc.Results;
-import repository.UserRepository;
+import repository.AccountRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantData;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -36,7 +36,7 @@ public final class ApplicantInformationController extends CiviFormController {
 
   private final HttpExecutionContext httpExecutionContext;
   private final MessagesApi messagesApi;
-  private final UserRepository repository;
+  private final AccountRepository repository;
   private final FormFactory formFactory;
   private final ApplicantLayout layout;
 
@@ -44,7 +44,7 @@ public final class ApplicantInformationController extends CiviFormController {
   public ApplicantInformationController(
       HttpExecutionContext httpExecutionContext,
       MessagesApi messagesApi,
-      UserRepository repository,
+      AccountRepository repository,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ApplicantLayout layout,

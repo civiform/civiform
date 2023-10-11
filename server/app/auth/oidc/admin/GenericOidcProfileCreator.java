@@ -11,7 +11,7 @@ import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class creates a pac4j `UserProfile` for admins when the identity provider is a generic OIDC
@@ -33,7 +33,7 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
       OidcClient client,
       ProfileFactory profileFactory,
       Config appConfig,
-      Provider<UserRepository> userRepositoryProvider) {
+      Provider<AccountRepository> userRepositoryProvider) {
     super(configuration, client, profileFactory, userRepositoryProvider);
     this.groupsAttributeName = appConfig.getString(ID_GROUPS_ATTRIBUTE_NAME);
     this.adminGroupName = appConfig.getString(ADMIN_GROUP_CONFIG_NAME);

@@ -22,8 +22,8 @@ validation.isRequired=ይህ ጥያቄ አስፈላጊ ነው።
 validation.invalidInput=እባክዎ ትክክለኛ ግብዓት ያስገቡ።
 validation.errorAnnouncementSr=በቅጹ ውስጥ ስህተቶች አሉ። እባክዎ ከመቀጠልዎ በፊት ያስተካክሉ።
 content.requiredFieldsAnnotation=ማስታወሻ፦ የ* ምልክት የተደረገባቸው መስኮች ያስፈልጋሉ።
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=ማስታወሻ፦ በ {0} ምልክት የተደረገባቸው መስኮች አስፈላጊ ናቸው።
+content.optional=(አማራጭ)
 content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
 toast.errorMessageOutline=ስህተት: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛ�
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=ቢያንስ {0} ቁምፊዎችን መያዝ አለበ�
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ባለብዙ አማራጭ ጥያቄዎች ባዶ አማራጮች ሊኖሯቸው አይችሉም።
+adminValidation.multiOptionAdminEmpty=ብዙ አማራጭ ያላቸው ጥያቄዎች ባዶ የአስተዳዳሪ መታወቂያዎች ሊኖሯቸው አይችሉም።
 
 #----------------------------------#
 # ERRORS - various error messages  #

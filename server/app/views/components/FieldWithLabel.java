@@ -73,6 +73,7 @@ public class FieldWithLabel {
   private boolean shouldForceAriaInvalid = false;
   private boolean checked = false;
   private boolean disabled = false;
+  private boolean readOnly = false;
   private boolean required = false;
   private boolean ariaRequired = false;
   private boolean focusOnInput = false;
@@ -291,6 +292,11 @@ public class FieldWithLabel {
 
   public FieldWithLabel setDisabled(boolean disabled) {
     this.disabled = disabled;
+    return this;
+  }
+
+  public FieldWithLabel setReadOnly(boolean readOnly) {
+    this.readOnly = readOnly;
     return this;
   }
 
@@ -553,10 +559,14 @@ public class FieldWithLabel {
     // before the calls to this method, thus simplifying the code.
     fieldTag
         .withClasses(
-            StyleUtils.joinStyles(hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT))
+            hasFieldErrors ? BaseStyles.INPUT_WITH_ERROR : BaseStyles.INPUT,
+            // TODO(#5623): Use unified styles for disabled inputs
+            this.readOnly ? "text-gray-500" : "",
+            this.readOnly ? "bg-gray-100" : "")
         .withId(this.id)
         .withName(this.fieldName)
         .withCondDisabled(this.disabled)
+        .condAttr(this.readOnly, Attr.READONLY, Attr.READONLY)
         .condAttr(this.autocomplete.isPresent(), Attr.AUTOCOMPLETE, this.autocomplete.orElse(""))
         .condAttr(
             !Strings.isNullOrEmpty(this.placeholderText), Attr.PLACEHOLDER, this.placeholderText)

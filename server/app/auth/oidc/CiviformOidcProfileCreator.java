@@ -23,7 +23,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 /**
  * This class ensures that the OidcProfileCreator that both the AD and IDCS clients use will
@@ -36,14 +36,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> accountRepositoryProvider;
+  protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
 
   public CiviformOidcProfileCreator(
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider) {
+      Provider<AccountRepository> accountRepositoryProvider) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);

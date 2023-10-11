@@ -22,8 +22,8 @@ validation.isRequired=Su''aashan ayaa loo baahan yahay.
 validation.invalidInput=Fadlan geli qiimaha sadar kasta.
 validation.errorAnnouncementSr=Khaladaad ayaa ku jira foomka Fadlan hagaaji ka hor inta aanad sii wadin.
 content.requiredFieldsAnnotation=Fiiro: Qaybaha ku calaamadsan * waa loo baahan yahay
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yahay
+content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha hore waa uu heli kari waayey
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
 button.applyToPrograms=Codso barnaamijyada
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+adminValidation.multiOptionAdminEmpty=Doorashooyinka badan ee su'aalaha ma lahaan karaan Aqoonsiyada maamulka oo banaan.
 
 #----------------------------------#
 # ERRORS - various error messages  #

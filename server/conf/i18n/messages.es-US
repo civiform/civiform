@@ -22,8 +22,8 @@ validation.isRequired=Esta pregunta es obligatoria.
 validation.invalidInput=Ingresa una entrada válida.
 validation.errorAnnouncementSr=Hay errores en el formulario. Corrígelos antes de continuar.
 content.requiredFieldsAnnotation=Nota: Los campos marcados con * son obligatorios.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios.
+content.optional=(opcional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no encontró 
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
 button.applyToPrograms=Postularse a programas
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+adminValidation.multiOptionAdminEmpty=Las preguntas de opción múltiple no se puede dejar sin IDs de administrador.
 
 #----------------------------------#
 # ERRORS - various error messages  #

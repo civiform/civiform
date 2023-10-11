@@ -355,7 +355,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Program> newProgram =
-        versionRepository.getDraftVersionOrCreate().getProgramByName(adminName);
+        versionRepository.getProgramByNameForVersion(
+            adminName, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());
@@ -406,7 +407,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result result = controller.newVersionFrom(request, activeProgram.id);
     Optional<Program> newDraft =
-        versionRepository.getDraftVersionOrCreate().getProgramByName(programName);
+        versionRepository.getProgramByNameForVersion(
+            programName, versionRepository.getDraftVersionOrCreate());
 
     // A new draft is made and redirected to.
     assertThat(newDraft).isPresent();
@@ -640,7 +642,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     Optional<Program> newProgram =
-        versionRepository.getDraftVersionOrCreate().getProgramByName("Existing One");
+        versionRepository.getProgramByNameForVersion(
+            "Existing One", versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramBlocksController.index(newProgram.get().id).url());

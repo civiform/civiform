@@ -37,10 +37,12 @@ public class RadioButtonQuestionRendererTest {
           .build();
   private static final ImmutableList<QuestionOption> QUESTION_OPTIONS =
       ImmutableList.of(
-          QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "chocolate")),
-          QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "peanut butter")),
-          QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "vanilla")),
-          QuestionOption.create(4L, LocalizedStrings.of(Locale.US, "raspberry")));
+          QuestionOption.create(1L, "chocolate admin", LocalizedStrings.of(Locale.US, "chocolate")),
+          QuestionOption.create(
+              2L, "peanut butter admin", LocalizedStrings.of(Locale.US, "peanut butter")),
+          QuestionOption.create(3L, "vanilla admin", LocalizedStrings.of(Locale.US, "vanilla")),
+          QuestionOption.create(
+              4L, "raspberry admin", LocalizedStrings.of(Locale.US, "raspberry")));
   private static final MultiOptionQuestionDefinition QUESTION =
       new MultiOptionQuestionDefinition(
           CONFIG, QUESTION_OPTIONS, MultiOptionQuestionType.RADIO_BUTTON);

@@ -103,18 +103,9 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
         .getActiveProgramDefinitionAsync(programSlug)
         .thenApplyAsync(
             programDefinition -> {
-              PaginationResult<Application> paginationResult;
-
-              // By now the program specified by the request has already been found and
-              // retrieved, so if a ProgramNotFoundException occurs in the following code
-              // it's due to an error in the server code, not a bad request.
-              try {
-                paginationResult =
-                    programService.getSubmittedProgramApplicationsAllVersions(
-                        programDefinition.id(), F.Either.Left(paginationSpec), filters);
-              } catch (ProgramNotFoundException e) {
-                throw new RuntimeException(e);
-              }
+              PaginationResult<Application> paginationResult =
+                  programService.getSubmittedProgramApplicationsAllVersions(
+                      programDefinition.id(), F.Either.Left(paginationSpec), filters);
 
               String applicationsJson =
                   jsonExporter.exportPage(programDefinition, paginationResult);
