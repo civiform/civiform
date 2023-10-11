@@ -3,6 +3,7 @@ package controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
 import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.route;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -17,9 +18,8 @@ import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.engine.DefaultSecurityLogic;
 import play.mvc.Http;
+import play.mvc.Result;
 import play.test.WithApplication;
-import support.CfTestHelpers;
-import support.CfTestHelpers.ResultWithFinalRequestUri;
 
 public class HomeControllerAuthenticatedTest extends WithApplication {
 
@@ -50,8 +50,7 @@ public class HomeControllerAuthenticatedTest extends WithApplication {
     Http.RequestBuilder request =
         fakeRequest(routes.HomeController.securePlayIndex())
             .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
-    ResultWithFinalRequestUri resultWithFinalRequestUri =
-        CfTestHelpers.doRequestWithInternalRedirects(app, request);
-    assertThat(resultWithFinalRequestUri.getResult().status()).isEqualTo(HttpConstants.OK);
+    Result result = route(app, request);
+    assertThat(result.status()).isEqualTo(HttpConstants.OK);
   }
 }
