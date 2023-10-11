@@ -109,8 +109,11 @@ public class QuestionConfigTest {
   public void checkboxForm_preservesNewOptions() {
     CheckboxQuestionForm form = new CheckboxQuestionForm();
     form.setOptions(ImmutableList.of("existing-option-a", "existing-option-b"));
+    form.setOptionAdminNames(
+        ImmutableList.of("existing-option-admin-a", "existing-option-admin-b"));
     form.setOptionIds(ImmutableList.of(1L, 2L));
     form.setNewOptions(ImmutableList.of("new-option-c", "new-option-d"));
+    form.setNewOptionAdminNames(ImmutableList.of("new-option-admin-c", "new-option-admin-d"));
 
     Optional<DivTag> maybeConfig = QuestionConfig.buildQuestionConfig(form, messages);
     assertThat(maybeConfig).isPresent();
@@ -120,5 +123,9 @@ public class QuestionConfigTest {
     assertThat(result).contains("existing-option-b");
     assertThat(result).contains("new-option-c");
     assertThat(result).contains("new-option-d");
+    assertThat(result).contains("existing-option-admin-a");
+    assertThat(result).contains("existing-option-admin-b");
+    assertThat(result).contains("new-option-admin-c");
+    assertThat(result).contains("new-option-admin-d");
   }
 }

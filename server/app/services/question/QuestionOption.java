@@ -91,38 +91,6 @@ public abstract class QuestionOption {
         .build();
   }
 
-  /**
-   * Create a QuestionOption.
-   *
-   * <p>TODO(#4862): Deprecate this method.
-   */
-  public static QuestionOption create(long id, long displayOrder, LocalizedStrings optionText) {
-    String adminName = optionText.maybeGet(Locale.getDefault()).orElse(String.valueOf(id));
-
-    return QuestionOption.builder()
-        .setId(id)
-        .setAdminName(adminName)
-        .setOptionText(optionText)
-        .setDisplayOrder(OptionalLong.of(displayOrder))
-        .build();
-  }
-
-  /**
-   * Create a QuestionOption.
-   *
-   * <p>TODO(#4862): Deprecate this method.
-   */
-  public static QuestionOption create(long id, LocalizedStrings optionText) {
-    String adminName = optionText.maybeGet(Locale.getDefault()).orElse(String.valueOf(id));
-
-    return QuestionOption.builder()
-        .setId(id)
-        .setAdminName(adminName)
-        .setOptionText(optionText)
-        .setDisplayOrder(OptionalLong.empty())
-        .build();
-  }
-
   public LocalizedQuestionOption localize(Locale locale) {
     if (!optionText().hasTranslationFor(locale)) {
       throw new RuntimeException(

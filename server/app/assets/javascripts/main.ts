@@ -7,6 +7,7 @@
  *  - Rare instances in which we need to update a page without refreshing.
  *  - TBD
  */
+
 import {addEventListenerToElements, assertNotNull} from './util'
 
 function attachDropdown(elementId: string) {
@@ -261,12 +262,20 @@ function attachStopPropogationListenerOnFormButtons() {
 /**
  * Disables default browser behavior where pressing Enter on any input in a form
  * triggers form submission. See https://github.com/civiform/civiform/issues/3872
+ * Except when the data-override-disable-submit-on-enter attribute is present for the form, the default form action would work
+ * See https://github.com/civiform/civiform/issues/5464
  */
 function disableEnterToSubmitBehaviorOnForms() {
   addEventListenerToElements('form', 'keydown', (e: KeyboardEvent) => {
     const target = (e.target as HTMLElement).tagName.toLowerCase()
-    // If event originated from a button, link, or textarea, it should proceed with the default action.
+    const overrideDisableSubmitOnEnter = document
+      .getElementById((e.target as HTMLElement).id)
+      ?.closest('form')
+      ?.hasAttribute('data-override-disable-submit-on-enter')
+    // If event originated from a button, link, or textarea, or if overrideDisableSubmitOnEnter is enabled,
+    // it should proceed with the default action.
     if (
+      overrideDisableSubmitOnEnter === false &&
       target !== 'button' &&
       target !== 'a' &&
       target !== 'textarea' &&
@@ -300,6 +309,31 @@ export function init() {
         'add-new-option',
         'question-settings',
       )
+    })
+  }
+
+  // Note that this formatting logic mimics QuestionDefinition.getQuestionNameKey()
+  const formatQuestionName = (unformatted: string) => {
+    const formatted = unformatted
+      .toLowerCase()
+      .replace(/[^a-zA-Z ]/g, '')
+      .replace(/\s/g, '_')
+    return formatted
+  }
+
+  // Give a live preview of how the question name will be formatted in exports
+  const questionNameInput = document.getElementById('question-name-input')
+  const formattedOutput: HTMLElement | null =
+    document.getElementById('formatted-name')
+  if (questionNameInput && formattedOutput) {
+    formattedOutput.innerText = formatQuestionName(
+      (questionNameInput as HTMLInputElement).value,
+    )
+    questionNameInput.addEventListener('input', (event: Event) => {
+      const target = event.target as HTMLInputElement
+      if (formattedOutput && target) {
+        formattedOutput.innerText = formatQuestionName(target.value)
+      }
     })
   }
 

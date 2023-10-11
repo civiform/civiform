@@ -1,21 +1,16 @@
 package models;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.WhenModified;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import services.program.ProgramDefinition;
-import services.question.exceptions.QuestionNotFoundException;
-import services.question.types.QuestionDefinition;
 
 /**
  * An EBean mapped class that stores a reference object for coordinating the CiviForm data model.
@@ -95,48 +90,20 @@ public final class Version extends BaseModel {
     return this.questions.remove(question);
   }
 
+  /**
+   * Returns all programs of a given version. Instead of calling this function directly,
+   * getProgramsForVersion should be called, since that will implement caching.
+   */
   public ImmutableList<Program> getPrograms() {
     return ImmutableList.copyOf(programs);
   }
 
+  /**
+   * Returns all questions of a given version. Instead of calling this function directly,
+   * getQuestionsForVersion should be called, since that will implement caching.
+   */
   public ImmutableList<Question> getQuestions() {
     return ImmutableList.copyOf(questions);
-  }
-
-  /**
-   * If a program by the given name exists, return it. A maximum of one program by a given name can
-   * exist in a version.
-   */
-  public Optional<Program> getProgramByName(String name) {
-    return getPrograms().stream()
-        .filter(p -> p.getProgramDefinition().adminName().equals(name))
-        .findAny();
-  }
-
-  /**
-   * If a question by the given name exists, return it. A maximum of one question by a given name
-   * can exist in a version.
-   */
-  public Optional<Question> getQuestionByName(String name) {
-    return getQuestions().stream()
-        .filter(q -> q.getQuestionDefinition().getName().equals(name))
-        .findAny();
-  }
-
-  /** Returns the names of all the programs. */
-  public ImmutableSet<String> getProgramNames() {
-    return getPrograms().stream()
-        .map(Program::getProgramDefinition)
-        .map(ProgramDefinition::adminName)
-        .collect(ImmutableSet.toImmutableSet());
-  }
-
-  /** Returns the names of all the questions. */
-  public ImmutableSet<String> getQuestionNames() {
-    return getQuestions().stream()
-        .map(Question::getQuestionDefinition)
-        .map(QuestionDefinition::getName)
-        .collect(ImmutableSet.toImmutableSet());
   }
 
   public ImmutableList<String> getTombstonedProgramNames() {
@@ -167,20 +134,15 @@ public final class Version extends BaseModel {
    * Attempts to mark the provided question as not eligible for copying to the next version.
    *
    * @return true if the question was successfully marked as tombstoned, false otherwise.
-   * @throws QuestionNotFoundException if the question cannot be found in this version.
    */
-  public boolean addTombstoneForQuestion(Question question) throws QuestionNotFoundException {
-    String name = question.getQuestionDefinition().getName();
-    if (!this.getQuestionNames().contains(name)) {
-      throw new QuestionNotFoundException(question.getQuestionDefinition().getId());
-    }
+  public boolean addTombstoneForQuestion(String questionName) {
     if (this.tombstonedQuestionNames == null) {
       this.tombstonedQuestionNames = new ArrayList<>();
     }
-    if (this.questionIsTombstoned(name)) {
+    if (this.questionIsTombstoned(questionName)) {
       return false;
     }
-    return this.tombstonedQuestionNames.add(name);
+    return this.tombstonedQuestionNames.add(questionName);
   }
 
   /**

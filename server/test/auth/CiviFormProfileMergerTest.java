@@ -21,7 +21,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CiviFormProfileMergerTest {
@@ -31,7 +31,7 @@ public class CiviFormProfileMergerTest {
   private static final String EMAIL2 = "bar@foo.com";
   private static final Long ACCOUNT_ID = 12345L;
 
-  @Mock private UserRepository repository;
+  @Mock private AccountRepository repository;
   @Mock private ProfileFactory profileFactory;
   @Mock private CiviFormProfile civiFormProfile;
   @Mock private Applicant applicant;

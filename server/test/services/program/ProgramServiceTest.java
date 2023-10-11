@@ -53,17 +53,17 @@ import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramServiceImplTest extends ResetPostgres {
+public class ProgramServiceTest extends ResetPostgres {
 
   private QuestionDefinition addressQuestion;
   private QuestionDefinition secondaryAddressQuestion;
   private QuestionDefinition colorQuestion;
   private QuestionDefinition nameQuestion;
-  private ProgramServiceImpl ps;
+  private ProgramService ps;
 
   @Before
   public void setProgramServiceImpl() {
-    ps = instanceOf(ProgramServiceImpl.class);
+    ps = instanceOf(ProgramService.class);
   }
 
   @Before

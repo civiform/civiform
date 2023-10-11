@@ -164,7 +164,7 @@ public class MultiSelectQuestionTest {
   }
 
   @Test
-  public void getSelectedOptionsAdminName_getsAdminNames() {
+  public void getSelectedOptionAdminNames_getsAdminNames() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(CHECKBOX_QUESTION, applicantData, Optional.empty());
     QuestionAnswerer.answerMultiSelectQuestion(
@@ -173,7 +173,7 @@ public class MultiSelectQuestionTest {
         applicantData, applicantQuestion.getContextualizedPath(), 1, 2L);
 
     Optional<ImmutableList<String>> adminNames =
-        applicantQuestion.createMultiSelectQuestion().getSelectedOptionsAdminName();
+        applicantQuestion.createMultiSelectQuestion().getSelectedOptionAdminNames();
 
     assertThat(adminNames).isPresent();
     assertThat(adminNames.get()).containsExactlyInAnyOrder("uno", "dos");

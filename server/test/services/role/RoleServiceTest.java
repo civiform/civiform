@@ -9,8 +9,8 @@ import models.Account;
 import models.Program;
 import org.junit.Before;
 import org.junit.Test;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -18,12 +18,12 @@ import support.ProgramBuilder;
 
 public class RoleServiceTest extends ResetPostgres {
 
-  private UserRepository userRepository;
+  private AccountRepository accountRepository;
   private RoleService service;
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     service = instanceOf(RoleService.class);
   }
 
@@ -46,8 +46,8 @@ public class RoleServiceTest extends ResetPostgres {
 
     assertThat(result).isEmpty();
 
-    account1 = userRepository.lookupAccountByEmail(email1).get();
-    account2 = userRepository.lookupAccountByEmail(email2).get();
+    account1 = accountRepository.lookupAccountByEmail(email1).get();
+    account2 = accountRepository.lookupAccountByEmail(email2).get();
 
     assertThat(account1.getAdministeredProgramNames()).containsOnly(programName);
     assertThat(account2.getAdministeredProgramNames()).containsOnly(programName);
@@ -79,7 +79,7 @@ public class RoleServiceTest extends ResetPostgres {
                         emailLowerCase))));
 
     // Lookup the upper case account. They do not have permission to any programs.
-    account = userRepository.lookupAccountByEmail(emailUpperCase).get();
+    account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).isEmpty();
 
     // Now make the upper case Email a program admin.
@@ -88,7 +88,7 @@ public class RoleServiceTest extends ResetPostgres {
     assertThat(result).isEmpty();
 
     // Lookup the upper case account. They now have permissions to the program.
-    account = userRepository.lookupAccountByEmail(emailUpperCase).get();
+    account = accountRepository.lookupAccountByEmail(emailUpperCase).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
@@ -181,9 +181,9 @@ public class RoleServiceTest extends ResetPostgres {
 
     service.removeProgramAdmins(toRemove.id(), ImmutableSet.of(emailOne, emailTwo));
 
-    assertThat(userRepository.lookupAccountByEmail(emailOne).get().getAdministeredProgramNames())
+    assertThat(accountRepository.lookupAccountByEmail(emailOne).get().getAdministeredProgramNames())
         .isEmpty();
-    assertThat(userRepository.lookupAccountByEmail(emailTwo).get().getAdministeredProgramNames())
+    assertThat(accountRepository.lookupAccountByEmail(emailTwo).get().getAdministeredProgramNames())
         .containsOnly(extraName);
   }
 

@@ -25,6 +25,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<String> newOptions;
   // The IDs of each option are not expected to be in any particular order.
   private List<Long> optionIds;
+  private List<String> optionAdminNames;
+  private List<String> newOptionAdminNames;
   // This value is the max existing ID + 1. The max ID will not necessarily be the last one in the
   // optionIds list, we do not store options by order of their IDs.
   private OptionalLong nextAvailableId;
@@ -36,11 +38,18 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
     this.newOptions = new ArrayList<>();
     this.optionIds = new ArrayList<>();
+    this.optionAdminNames = new ArrayList<>();
+    this.newOptionAdminNames = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
-    this.nextAvailableId = OptionalLong.empty();
+    this.nextAvailableId = OptionalLong.of(0);
   }
 
+  /**
+   * Build a QuestionForm from a {@link QuestionDefinition}, to build the QuestionEditView.
+   *
+   * @param qd the {@link QuestionDefinition} from which to build a QuestionForm
+   */
   protected MultiOptionQuestionForm(MultiOptionQuestionDefinition qd) {
     super(qd);
     this.minChoicesRequired = qd.getMultiOptionValidationPredicates().minChoicesRequired();
@@ -49,6 +58,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.options = new ArrayList<>();
     this.newOptions = new ArrayList<>();
     this.optionIds = new ArrayList<>();
+    this.optionAdminNames = new ArrayList<>();
+    this.newOptionAdminNames = new ArrayList<>();
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -60,13 +71,14 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                 option -> {
                   options.add(option.optionText());
                   optionIds.add(option.id());
+                  optionAdminNames.add(option.adminName());
                 });
         this.nextAvailableId =
             OptionalLong.of(
                 qd.getOptionsForLocale(LocalizedStrings.DEFAULT_LOCALE).stream()
                         .mapToLong(LocalizedQuestionOption::id)
                         .max()
-                        .getAsLong()
+                        .orElse(0)
                     + 1);
       }
     } catch (TranslationNotFoundException e) {
@@ -98,8 +110,32 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = optionIds;
   }
 
+  public List<String> getOptionAdminNames() {
+    return this.optionAdminNames;
+  }
+
+  public void setOptionAdminNames(List<String> optionAdminNames) {
+    this.optionAdminNames = optionAdminNames;
+  }
+
+  public List<String> getNewOptionAdminNames() {
+    return this.newOptionAdminNames;
+  }
+
+  public void setNewOptionAdminNames(List<String> newOptionAdminNames) {
+    this.newOptionAdminNames = newOptionAdminNames;
+  }
+
   public OptionalInt getMinChoicesRequired() {
     return minChoicesRequired;
+  }
+
+  public OptionalLong getNextAvailableId() {
+    return nextAvailableId;
+  }
+
+  public void setNextAvailableId(long nextAvailableId) {
+    this.nextAvailableId = OptionalLong.of(nextAvailableId);
   }
 
   /**
@@ -134,6 +170,12 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     }
   }
 
+  /**
+   * Build a {@link QuestionDefinitionBuilder} from this QuestionForm, for handling the form
+   * response.
+   *
+   * @return a {@link QuestionDefinitionBuilder} with the values from this QuestionForm
+   */
   @Override
   public QuestionDefinitionBuilder getBuilder() {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
@@ -151,24 +193,31 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     Preconditions.checkState(
         this.optionIds.size() == this.options.size(),
         "Option ids and options are not the same size.");
+    Preconditions.checkState(
+        this.optionAdminNames.size() == this.options.size(),
+        "Option admin names and options are not the same size.");
 
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
-              optionIds.get(i), i, LocalizedStrings.withDefaultValue(options.get(i))));
+              optionIds.get(i),
+              i,
+              optionAdminNames.get(i),
+              LocalizedStrings.withDefaultValue(options.get(i))));
     }
 
-    // The IDs are not guaranteed to be in any type of order, so doing this ensures that we find
-    // the largest ID in the list and accurately set the next largest.
-    Long maxId = optionIds.stream().max(Long::compareTo).orElse(-1L);
-    setNextAvailableId(maxId + 1);
+    // Get the next available ID, from either the max of the option IDs in the response or the
+    // nextAvailableId in the response
+    Long maxIdInFormResponseOptions = optionIds.stream().max(Long::compareTo).orElse(-1L);
+    setNextAvailableId(Math.max(nextAvailableId.orElse(0), maxIdInFormResponseOptions + 1));
 
     for (int i = 0; i < newOptions.size(); i++) {
       questionOptionsBuilder.add(
           QuestionOption.create(
               nextAvailableId.getAsLong() + i,
               options.size() + i,
+              newOptionAdminNames.get(i),
               LocalizedStrings.withDefaultValue(newOptions.get(i))));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
@@ -180,13 +229,5 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     return super.getBuilder()
         .setQuestionOptions(questionOptions)
         .setValidationPredicates(predicateBuilder.build());
-  }
-
-  public OptionalLong getNextAvailableId() {
-    return nextAvailableId;
-  }
-
-  public void setNextAvailableId(long nextAvailableId) {
-    this.nextAvailableId = OptionalLong.of(nextAvailableId);
   }
 }

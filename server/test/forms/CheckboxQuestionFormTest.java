@@ -24,6 +24,7 @@ public class CheckboxQuestionFormTest {
     form.setQuestionHelpText("help text");
     // Unique field
     form.setOptions(ImmutableList.of("cat", "dog", "rabbit"));
+    form.setOptionAdminNames(ImmutableList.of("cat admin", "dog admin", "rabbit admin"));
     form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
     QuestionDefinitionBuilder builder = form.getBuilder();
 
@@ -37,9 +38,9 @@ public class CheckboxQuestionFormTest {
 
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
-            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
-            QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "rabbit")));
+            QuestionOption.create(1L, "cat admin", LocalizedStrings.of(Locale.US, "cat")),
+            QuestionOption.create(2L, "dog admin", LocalizedStrings.of(Locale.US, "dog")),
+            QuestionOption.create(3L, "rabbit admin", LocalizedStrings.of(Locale.US, "rabbit")));
     MultiOptionQuestionDefinition expected =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
@@ -59,8 +60,8 @@ public class CheckboxQuestionFormTest {
 
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "hello")),
-            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "world")));
+            QuestionOption.create(1L, "hello admin", LocalizedStrings.of(Locale.US, "hello")),
+            QuestionOption.create(2L, "world admin", LocalizedStrings.of(Locale.US, "world")));
 
     MultiOptionQuestionDefinition originalQd =
         new MultiOptionQuestionDefinition(

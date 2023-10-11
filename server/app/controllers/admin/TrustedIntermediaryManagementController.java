@@ -16,7 +16,7 @@ import play.data.FormFactory;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
@@ -26,7 +26,7 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 /** Controller for admins to manage trusted intermediaries of programs. */
 public class TrustedIntermediaryManagementController extends Controller {
   private final TrustedIntermediaryGroupListView listView;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final FormFactory formFactory;
   private final EditTrustedIntermediaryGroupView editView;
 
@@ -34,10 +34,10 @@ public class TrustedIntermediaryManagementController extends Controller {
   public TrustedIntermediaryManagementController(
       TrustedIntermediaryGroupListView listView,
       EditTrustedIntermediaryGroupView editView,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       FormFactory formFactory) {
     this.listView = Preconditions.checkNotNull(listView);
-    this.userRepository = Preconditions.checkNotNull(userRepository);
+    this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.editView = Preconditions.checkNotNull(editView);
   }
@@ -47,7 +47,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   public Result index(Http.Request request) {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
         .info(request.flash().data().toString());
-    return ok(listView.render(userRepository.listTrustedIntermediaryGroups(), request));
+    return ok(listView.render(accountRepository.listTrustedIntermediaryGroups(), request));
   }
 
   /** POST endpoint for creating a new trusted intermediary group. */
@@ -64,7 +64,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     if (Strings.isNullOrEmpty(form.get().getDescription())) {
       return flashCreateTIFieldValuesWithError("Must provide group description.", form);
     }
-    userRepository.createNewTrustedIntermediaryGroup(
+    accountRepository.createNewTrustedIntermediaryGroup(
         form.get().getName(), form.get().getDescription());
 
     return redirect(routes.TrustedIntermediaryManagementController.index());
@@ -94,7 +94,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   /** Return a HTML page displaying all trusted intermediaries in the specified group. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(long id, Http.Request request) {
-    Optional<TrustedIntermediaryGroup> tiGroup = userRepository.getTrustedIntermediaryGroup(id);
+    Optional<TrustedIntermediaryGroup> tiGroup = accountRepository.getTrustedIntermediaryGroup(id);
     if (tiGroup.isEmpty()) {
       return notFound("no such group.");
     }
@@ -105,7 +105,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result delete(long id, Http.Request request) {
     try {
-      userRepository.deleteTrustedIntermediaryGroup(id);
+      accountRepository.deleteTrustedIntermediaryGroup(id);
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return notFound("no such group");
     }
@@ -121,7 +121,7 @@ public class TrustedIntermediaryManagementController extends Controller {
       return flashAddTIFieldValuesWithError(form.errors().get(0).toString(), form, id);
     }
     try {
-      userRepository.addTrustedIntermediaryToGroup(id, form.get().getEmailAddress());
+      accountRepository.addTrustedIntermediaryToGroup(id, form.get().getEmailAddress());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return flashAddTIFieldValuesWithError("No such TI group.", form, id);
     } catch (NotEligibleToBecomeTiError e) {
@@ -138,7 +138,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     try {
       Form<RemoveTrustedIntermediaryForm> form =
           formFactory.form(RemoveTrustedIntermediaryForm.class).bindFromRequest(request);
-      userRepository.removeTrustedIntermediaryFromGroup(id, form.get().getAccountId());
+      accountRepository.removeTrustedIntermediaryFromGroup(id, form.get().getAccountId());
     } catch (NoSuchTrustedIntermediaryGroupError e) {
       return redirect(routes.TrustedIntermediaryManagementController.edit(id))
           .flashing("error", "No such TI group.");

@@ -36,9 +36,9 @@ import org.mockito.Mockito;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import repository.AccountRepository;
 import repository.ApplicationRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import repository.VersionRepository;
 import services.Address;
 import services.LocalizedStrings;
@@ -70,7 +70,6 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinitionInvalidException;
 import services.program.ProgramQuestionDefinitionNotFoundException;
 import services.program.ProgramService;
-import services.program.ProgramServiceImpl;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.program.predicate.LeafAddressServiceAreaExpressionNode;
@@ -97,7 +96,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   private QuestionService questionService;
   private NameQuestionDefinition questionDefinition;
   private ProgramDefinition programDefinition;
-  private UserRepository userRepository;
+  private AccountRepository accountRepository;
   private ApplicationRepository applicationRepository;
   private VersionRepository versionRepository;
   private CiviFormProfile trustedIntermediaryProfile;
@@ -115,7 +114,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     baseUrl = config.getString("base_url");
     subject = instanceOf(ApplicantService.class);
     questionService = instanceOf(QuestionService.class);
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     applicationRepository = instanceOf(ApplicationRepository.class);
     versionRepository = instanceOf(VersionRepository.class);
     createQuestions();
@@ -138,7 +137,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(applicantProfile.getEmailAddress())
         .thenReturn(CompletableFuture.completedFuture("applicant@example.com"));
 
-    programService = instanceOf(ProgramServiceImpl.class);
+    programService = instanceOf(ProgramService.class);
 
     amazonSESClient = Mockito.mock(SimpleEmail.class);
     FieldUtils.writeField(subject, "amazonSESClient", amazonSESClient, true);
@@ -169,7 +168,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     Path questionPath =
         ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
@@ -199,7 +198,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantDataMiddle.asJsonString()).contains("Alice", "Doe");
 
     // Now put empty updates
@@ -214,7 +213,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.FIRST_NAME))).isFalse();
     assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.LAST_NAME))).isFalse();
@@ -241,7 +240,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantDataMiddle.readLongList(questionPath.join(Scalar.SELECTIONS))).isNotEmpty();
 
     // Now put empty updates
@@ -252,7 +251,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.hasPath(questionPath.join(Scalar.SELECTIONS))).isFalse();
     assertThat(applicantDataAfter.readLong(questionPath.join(Scalar.PROGRAM_UPDATED_IN)))
@@ -318,7 +317,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 "invalid_phone_input"));
 
     ApplicantData freshApplicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(freshApplicantDataAfter.hasPath(datePath)).isFalse();
     assertThat(freshApplicantDataAfter.hasPath(currencyPath)).isFalse();
     assertThat(freshApplicantDataAfter.hasPath(numberPath)).isFalse();
@@ -346,7 +345,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(
             applicantDataMiddle.readLong(
                 enumeratorPath.withoutArrayReference().join(Scalar.PROGRAM_UPDATED_IN)))
@@ -362,7 +361,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).hasSize(2);
     assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
         .contains("first");
@@ -386,7 +385,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(
             applicantDataAfterDeletion.readLong(
                 enumeratorPath.withoutArrayReference().join(Scalar.PROGRAM_UPDATED_IN)))
@@ -418,7 +417,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantDataBefore.readRepeatedEntities(enumeratorPath)).hasSize(2);
     assertThat(applicantDataBefore.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
         .contains("first");
@@ -440,7 +439,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).hasSize(2);
     assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
         .contains("first");
@@ -476,7 +475,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString()).contains("Alice", "Doe");
   }
@@ -492,7 +491,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     Path programIdPath = Path.create("applicant.name").join(Scalar.PROGRAM_UPDATED_IN);
     Path timestampPath = Path.create("applicant.name").join(Scalar.UPDATED_AT);
@@ -512,9 +511,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, LocalizedStrings.of(Locale.US, "cat")),
-            QuestionOption.create(2L, LocalizedStrings.of(Locale.US, "dog")),
-            QuestionOption.create(3L, LocalizedStrings.of(Locale.US, "horse")));
+            QuestionOption.create(1L, "cat admin", LocalizedStrings.of(Locale.US, "cat")),
+            QuestionOption.create(2L, "dog admin", LocalizedStrings.of(Locale.US, "dog")),
+            QuestionOption.create(3L, "horse admin", LocalizedStrings.of(Locale.US, "horse")));
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
@@ -541,7 +540,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
             applicantDataAfter.readLongList(
@@ -559,7 +558,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
             applicantDataAfter.readLongList(
@@ -574,7 +574,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         .toCompletableFuture()
         .join();
 
-    applicantDataAfter = userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(
             applicantDataAfter.readLongList(
@@ -607,7 +608,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).containsExactly("second");
   }
@@ -632,7 +633,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.hasPath(enumeratorPath.withoutArrayReference())).isTrue();
     assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).isEmpty();
@@ -992,7 +993,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programName,
                 baseUrl
                     + String.format(
-                        "/admin/programs/%d/applications/%d",
+                        "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
     Mockito.verify(amazonSESClient)
@@ -1070,7 +1071,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programName,
                 baseUrl
                     + String.format(
-                        "/admin/programs/%d/applications/%d",
+                        "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
                         programDefinition.id(), application.id)));
     // TI email
     Mockito.verify(amazonSESClient)
@@ -1356,7 +1357,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString()).contains("Seattle_InArea_");
   }
@@ -1415,7 +1416,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.asJsonString())
         .contains("Bloomington_NotInArea_1234", "Seattle_InArea_");
@@ -3002,7 +3003,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     Question question = testQuestionBank.applicantAddress();
 
     Program program =
@@ -3109,7 +3110,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     Question question = testQuestionBank.applicantAddress();
 
     Program program =
@@ -3198,7 +3199,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     Question question = testQuestionBank.applicantAddress();
 
     Program program =
@@ -3286,7 +3287,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     Question question = testQuestionBank.applicantAddress();
 
     Program program =
@@ -3323,7 +3324,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     // Arrange
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     Question question = testQuestionBank.applicantAddress();
 
     Program program =
@@ -3356,7 +3357,7 @@ public class ApplicantServiceTest extends ResetPostgres {
           ProgramQuestionDefinitionNotFoundException, ProgramQuestionDefinitionInvalidException {
     Applicant applicant = subject.createApplicant().toCompletableFuture().join();
     ApplicantData applicantData =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
     Question question = testQuestionBank.applicantAddress();
 
     Program program =
@@ -3395,7 +3396,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     ApplicantData applicantDataAfter =
-        userRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     return new Block(
         String.valueOf(blockDefinition.id()),
@@ -3453,7 +3454,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    applicant = userRepository.lookupApplicantSync(applicant.id).get();
+    applicant = accountRepository.lookupApplicantSync(applicant.id).get();
 
     assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
         .isFalse();
@@ -3468,7 +3469,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(applicant.id, programDefinition.id(), "1", updates, false)
         .toCompletableFuture()
         .join();
-    applicant = userRepository.lookupApplicantSync(applicant.id).get();
+    applicant = accountRepository.lookupApplicantSync(applicant.id).get();
 
     assertThat(subject.getApplicantMayBeEligibleStatus(applicant, programDefinition).get())
         .isTrue();

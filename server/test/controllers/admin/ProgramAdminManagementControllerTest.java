@@ -15,19 +15,19 @@ import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
 public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
-  private UserRepository userRepository;
+  private AccountRepository accountRepository;
   private ProgramAdminManagementController controller;
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     controller = instanceOf(ProgramAdminManagementController.class);
   }
 
@@ -78,7 +78,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
-    account = userRepository.lookupAccountByEmail(email).get();
+    account = accountRepository.lookupAccountByEmail(email).get();
     assertThat(account.getAdministeredProgramNames()).containsOnly(programName);
   }
 
@@ -92,7 +92,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     deleteAccount.setEmailAddress(deleteEmail);
     deleteAccount.addAdministeredProgram(program.getProgramDefinition());
     deleteAccount.save();
-    assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
+    assertThat(
+            accountRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
         .isNotEmpty();
 
     Http.Request request =
@@ -100,7 +101,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     Result result = controller.delete(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(userRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
+    assertThat(
+            accountRepository.lookupAccountByEmail(deleteEmail).get().getAdministeredProgramNames())
         .isEmpty();
   }
 
@@ -114,7 +116,8 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     adminAccount.setEmailAddress(adminEmail);
     adminAccount.addAdministeredProgram(program.getProgramDefinition());
     adminAccount.save();
-    assertThat(userRepository.lookupAccountByEmail(adminEmail).get().getAdministeredProgramNames())
+    assertThat(
+            accountRepository.lookupAccountByEmail(adminEmail).get().getAdministeredProgramNames())
         .isNotEmpty();
 
     Http.Request request =

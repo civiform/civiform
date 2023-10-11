@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
+import controllers.admin.routes;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
@@ -41,11 +42,11 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
+import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
-import repository.UserRepository;
 import repository.VersionRepository;
 import services.Address;
 import services.DeploymentType;
@@ -92,7 +93,7 @@ public final class ApplicantService {
 
   private final ApplicationEventRepository applicationEventRepository;
   private final ApplicationRepository applicationRepository;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final StoredFileRepository storedFileRepository;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private final VersionRepository versionRepository;
@@ -113,7 +114,7 @@ public final class ApplicantService {
   public ApplicantService(
       ApplicationEventRepository applicationEventRepository,
       ApplicationRepository applicationRepository,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       VersionRepository versionRepository,
       StoredFileRepository storedFileRepository,
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
@@ -128,7 +129,7 @@ public final class ApplicantService {
       MessagesApi messagesApi) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
@@ -154,7 +155,7 @@ public final class ApplicantService {
   public CompletionStage<Applicant> createApplicant() {
 
     Applicant applicant = new Applicant();
-    return userRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
+    return accountRepository.insertApplicant(applicant).thenApply((unused) -> applicant);
   }
 
   /**
@@ -167,7 +168,7 @@ public final class ApplicantService {
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       long applicantId, long programId) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        userRepository.lookupApplicant(applicantId).toCompletableFuture();
+        accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
 
@@ -276,7 +277,7 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled) {
     CompletableFuture<Optional<Applicant>> applicantCompletableFuture =
-        userRepository.lookupApplicant(applicantId).toCompletableFuture();
+        accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
         programService.getProgramDefinitionAsync(programId).toCompletableFuture();
@@ -370,7 +371,7 @@ public final class ApplicantService {
 
     Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
-      return userRepository
+      return accountRepository
           .updateApplicant(applicant)
           .thenApplyAsync(
               (finishedSaving) -> roApplicantProgramService, httpExecutionContext.current());
@@ -595,10 +596,21 @@ public final class ApplicantService {
    */
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
+    String applicationViewLink =
+        controllers.admin.routes.AdminApplicationController.show(programId, applicationId).url();
+
     String viewLink =
         baseUrl
-            + controllers.admin.routes.AdminApplicationController.show(programId, applicationId)
+            + routes.AdminApplicationController.index(
+                    programId,
+                    /* search= */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty(),
+                    Optional.of(applicationViewLink))
                 .url();
+
     String subject = String.format("New application %d submitted", applicationId);
     String message =
         String.format(
@@ -728,7 +740,7 @@ public final class ApplicantService {
    * Returns an ApplicantPersonalInfo, which represents some contact/display info for an applicant.
    */
   public CompletionStage<ApplicantPersonalInfo> getPersonalInfo(long applicantId) {
-    return userRepository
+    return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant -> {
@@ -768,7 +780,7 @@ public final class ApplicantService {
 
   /** Return the preferred locale of the given applicant id. */
   public CompletionStage<Optional<Locale>> getPreferredLocale(long applicantId) {
-    return userRepository
+    return accountRepository
         .lookupApplicant(applicantId)
         .thenApplyAsync(
             applicant ->
@@ -778,7 +790,7 @@ public final class ApplicantService {
 
   /** Return the preferred locale of the given TI email. */
   public CompletionStage<Optional<Locale>> getPreferredTiLocale(String tiEmail) {
-    return userRepository
+    return accountRepository
         .lookupAccountByEmailAsync(tiEmail)
         .thenApplyAsync(
             account -> {
@@ -820,7 +832,7 @@ public final class ApplicantService {
                 applicantId, ImmutableSet.of(LifecycleStage.DRAFT, LifecycleStage.ACTIVE))
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
-        versionRepository.getActiveVersion().getPrograms().stream()
+        versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
             .map(Program::getProgramDefinition)
             .filter(
                 pdef ->

@@ -232,7 +232,7 @@ public class ApiDocsView extends BaseHtmlView {
   }
 
   private static String getOptionsString(MultiOptionQuestionDefinition questionDefinition) {
-    return "\"" + String.join("\", \"", questionDefinition.getOptionsAdminName()) + "\"";
+    return "\"" + String.join("\", \"", questionDefinition.getOptionAdminNames()) + "\"";
   }
 
   private boolean isAuthenticatedAdmin(Http.Request request) {
