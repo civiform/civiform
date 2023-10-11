@@ -35,6 +35,8 @@ import models.Question;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import services.program.BlockDefinition;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -49,6 +51,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 
 /** A repository object for dealing with versioning of questions and programs. */
 public final class VersionRepository {
@@ -58,12 +61,23 @@ public final class VersionRepository {
   private final ProgramRepository programRepository;
   private final DatabaseExecutionContext databaseExecutionContext;
 
+  private final SettingsManifest settingsManifest;
+  private final SyncCacheApi questionsByVersionCache;
+  private final SyncCacheApi programsByVersionCache;
+
   @Inject
   public VersionRepository(
-      ProgramRepository programRepository, DatabaseExecutionContext databaseExecutionContext) {
+      ProgramRepository programRepository,
+      DatabaseExecutionContext databaseExecutionContext,
+      SettingsManifest settingsManifest,
+      @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
+      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
+    this.programsByVersionCache = checkNotNull(programsByVersionCache);
   }
 
   /**
@@ -410,10 +424,15 @@ public final class VersionRepository {
   /**
    * Returns the questions for a version.
    *
-   * <p>This replaces all calls for version.getQuestions() and will eventually be where
-   * version-questions caching is implemented.
+   * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
+   * present.
    */
   public ImmutableList<Question> getQuestionsForVersion(Version version) {
+    // Only set the version cache for active and obsolete versions
+    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
+      return questionsByVersionCache.getOrElseUpdate(
+          String.valueOf(version.id), () -> version.getQuestions());
+    }
     return version.getQuestions();
   }
 
@@ -438,10 +457,15 @@ public final class VersionRepository {
   /**
    * Returns the programs for a version.
    *
-   * <p>This replaces all calls for version.getPrograms() and will eventually be where
-   * version-programs caching is implemented.
+   * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
+   * present.
    */
   public ImmutableList<Program> getProgramsForVersion(Version version) {
+    // Only set the version cache for active and obsolete versions
+    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
+      return programsByVersionCache.getOrElseUpdate(
+          String.valueOf(version.id), () -> version.getPrograms());
+    }
     return version.getPrograms();
   }
 
