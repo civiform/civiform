@@ -3,7 +3,7 @@ version: '3.4'
 
 services:
   localstack:
-    image: localstack/localstack:2.2.0
+    image: localstack/localstack:2.3.2
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
@@ -16,7 +16,7 @@ services:
           # We use hosted-style for s3 bucket urls. Which matches production.
           # https://docs.localstack.cloud/user-guide/aws/s3/
           # So we need to add host mapping for test bucket civiform-local-s3
-          - civiform-local-s3.localhost.localstack.cloud
+          - civiform-local-s3.s3.localhost.localstack.cloud
           - localhost.localstack.cloud
 
   azurite:
