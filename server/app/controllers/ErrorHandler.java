@@ -45,8 +45,8 @@ import views.errors.NotFound;
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
 
-  private final InternalServerError internalServerErrorPage;
-  private final NotFound notFoundPage;
+  private final Provider<InternalServerError> internalServerErrorPageProvider;
+  private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
@@ -72,12 +72,12 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       Environment environment,
       OptionalSourceMapper sourceMapper,
       Provider<Router> routes,
-      InternalServerError internalServerErrorPage,
-      NotFound notFoundPage,
+      Provider<InternalServerError> internalServerErrorPageProvider,
+      Provider<NotFound> notFoundPageProvider,
       MessagesApi messagesApi) {
     super(config, environment, sourceMapper, routes);
-    this.internalServerErrorPage = checkNotNull(internalServerErrorPage);
-    this.notFoundPage = checkNotNull(notFoundPage);
+    this.internalServerErrorPageProvider = checkNotNull(internalServerErrorPageProvider);
+    this.notFoundPageProvider = checkNotNull(notFoundPageProvider);
     this.messagesApi = checkNotNull(messagesApi);
   }
 
@@ -129,7 +129,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   @Override
   public CompletionStage<Result> onNotFound(RequestHeader request, String message) {
     return CompletableFuture.completedFuture(
-        Results.notFound(notFoundPage.render(request, messagesApi.preferred(request))));
+        Results.notFound(
+            notFoundPageProvider.get().render(request, messagesApi.preferred(request))));
   }
 
   @Override
@@ -137,6 +138,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       RequestHeader request, UsefulException exception) {
     return CompletableFuture.completedFuture(
         Results.internalServerError(
-            internalServerErrorPage.render(request, messagesApi.preferred(request), exception.id)));
+            internalServerErrorPageProvider
+                .get()
+                .render(request, messagesApi.preferred(request), exception.id)));
   }
 }
