@@ -20,6 +20,7 @@ import services.cloud.StorageClient;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.style.BaseStyles;
 
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
@@ -140,8 +141,8 @@ public class ApplicationBaseView extends BaseHtmlView {
    * @return PTag containing requiredness text.
    */
   public static PTag requiredFieldsExplanationContent(Messages messages) {
-    SpanTag redAsterisk = span("*").withClass("text-red-700");
+    SpanTag redAsterisk = span("*").withClass(BaseStyles.FORM_ERROR_TEXT_COLOR);
     return p(rawHtml(messages.at(MessageKey.REQUIRED_FIELDS_NOTE.getKeyName(), redAsterisk)))
-        .withClasses("text-sm", "text-gray-600", "mb-2");
+        .withClasses("text-sm", BaseStyles.FORM_LABEL_TEXT_COLOR, "mb-2");
   }
 }
