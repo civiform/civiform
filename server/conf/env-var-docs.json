@@ -712,6 +712,11 @@
         "mode": "HIDDEN",
         "description": "Enables caching for questions and their associated data.",
         "type": "bool"
+      },
+      "ENHANCED_OIDC_LOGOUT_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables logic to populate more fields in OIDC logout requests.",
+        "type": "bool"
       }
     }
   }

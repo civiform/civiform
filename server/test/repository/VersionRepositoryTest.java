@@ -16,6 +16,8 @@ import models.Question;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import play.cache.SyncCacheApi;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -32,14 +34,28 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateExpressionNodeType;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 
 public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
+  private SyncCacheApi questionsByVersionCache;
+  private SyncCacheApi programsByVersionCache;
+
+  private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setupVersionRepository() {
-    versionRepository = instanceOf(VersionRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    questionsByVersionCache = instanceOf(SyncCacheApi.class);
+    programsByVersionCache = instanceOf(SyncCacheApi.class);
+    versionRepository =
+        new VersionRepository(
+            instanceOf(ProgramRepository.class),
+            instanceOf(DatabaseExecutionContext.class),
+            mockSettingsManifest,
+            questionsByVersionCache,
+            programsByVersionCache);
   }
 
   @Test
@@ -957,5 +973,129 @@ public class VersionRepositoryTest extends ResetPostgres {
     Optional<Question> result =
         versionRepository.getQuestionByNameForVersion(questionName + "other", version);
     assertThat(result.isPresent()).isFalse();
+  }
+
+  @Test
+  public void getQuestions_usesCacheIfEnabledForObsoleteVersion() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    ProgramBuilder.newDraftProgram("draft program").build();
+    versionRepository.publishNewSynchronizedVersion();
+    version1.refresh();
+
+    // Create another version and publish it, so the original version becomes obsolete
+    Version version2 = versionRepository.getDraftVersionOrCreate();
+    ProgramBuilder.newDraftProgram("draft program2").build();
+    version2.save();
+    versionRepository.publishNewSynchronizedVersion();
+    version2.refresh();
+
+    String version1Key = String.valueOf(version1.id);
+
+    // Remove the questionCache for this version, since it is cached in
+    // publishNewSynchronizedVersion, but we're associating questions with it later.
+    questionsByVersionCache.remove(version1Key);
+
+    // Associate question with obsolete version
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version1).save();
+
+    ImmutableList<Question> questionsForVersion =
+        versionRepository.getQuestionsForVersion(version1);
+
+    assertThat(questionsByVersionCache.get(version1Key).get()).isEqualTo(questionsForVersion);
+  }
+
+  @Test
+  public void getQuestions_usesCacheIfEnabledForActiveVersion() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    ProgramBuilder.newDraftProgram("draft program").build();
+    versionRepository.publishNewSynchronizedVersion();
+    version1.refresh();
+
+    String version1Key = String.valueOf(version1.id);
+
+    // Associate question with active version
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version1).save();
+
+    ImmutableList<Question> questionsForVersion =
+        versionRepository.getQuestionsForVersion(version1);
+
+    assertThat(questionsByVersionCache.get(version1Key).get()).isEqualTo(questionsForVersion);
+  }
+
+  @Test
+  public void getQuestions_doesNotUseCacheForDraftVersion() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    version1.save();
+    Question firstQuestion = resourceCreator.insertQuestion("first-question");
+    firstQuestion.addVersion(version1).save();
+
+    String version1Key = String.valueOf(version1.id);
+
+    assertThat(questionsByVersionCache.get(version1Key).isPresent()).isFalse();
+
+    versionRepository.getQuestionsForVersion(version1);
+
+    assertThat(questionsByVersionCache.get(version1Key).isPresent()).isFalse();
+  }
+
+  @Test
+  public void getPrograms_usesCacheIfEnabledForObsoleteVersion() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version1.refresh();
+
+    // Create another version and publish it, so the original version becomes obsolete
+    Version version2 = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("second-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version2.refresh();
+
+    String version1Key = String.valueOf(version1.id);
+
+    ImmutableList<Program> programsForVersion = versionRepository.getProgramsForVersion(version1);
+
+    assertThat(programsByVersionCache.get(version1Key).get()).isEqualTo(programsForVersion);
+  }
+
+  @Test
+  public void getPrograms_usesCacheIfEnabledForActiveVersion() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+    versionRepository.publishNewSynchronizedVersion();
+    version1.refresh();
+
+    String version1Key = String.valueOf(version1.id);
+
+    ImmutableList<Program> programsForVersion = versionRepository.getProgramsForVersion(version1);
+
+    assertThat(programsByVersionCache.get(version1Key).get()).isEqualTo(programsForVersion);
+  }
+
+  @Test
+  public void getPrograms_doesNotUseCacheForDraftVersion() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+    Version version1 = versionRepository.getDraftVersionOrCreate();
+    resourceCreator.insertDraftProgram("first-program");
+    version1.save();
+
+    String version1Key = String.valueOf(version1.id);
+
+    assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
+
+    versionRepository.getProgramsForVersion(version1);
+
+    assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
   }
 }

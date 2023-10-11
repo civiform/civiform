@@ -273,7 +273,11 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             .withAction(formAction)
             .withMethod(POST)
             .withClasses(
-                "p-8", "bg-gray-100", "predicate-config-form", ReferenceClasses.PREDICATE_OPTIONS);
+                "overflow-x-scroll",
+                "p-8",
+                "bg-gray-100",
+                "predicate-config-form",
+                ReferenceClasses.PREDICATE_OPTIONS);
 
     DivTag valueRowContainer = div().withId("predicate-config-value-row-container");
 
@@ -432,7 +436,8 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       ImmutableList<QuestionDefinition> questionDefinitions,
       int groupId,
       Optional<AndNode> maybeAndNode) {
-    DivTag row = div().withClasses("flex", "mb-6", "predicate-config-value-row");
+    DivTag innerRow = div().withClasses("flex");
+    DivTag row = div(innerRow).withClasses("flex", "mb-6", "predicate-config-value-row");
     DivTag andText = div("and").withClasses("object-center", "w-16", "p-4", "leading-10");
 
     if (maybeAndNode.isPresent()) {
@@ -447,14 +452,16 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
       for (var qd : questionDefinitions) {
         var leafNode = questionIdLeafNodeMap.get(qd.getId());
 
-        row.condWith(columnNumber++ != 1, andText)
+        innerRow
+            .condWith(columnNumber++ != 1, andText)
             .with(createValueField(qd, groupId, Optional.of(leafNode)));
       }
     } else {
       int columnNumber = 1;
 
       for (var questionDefinition : questionDefinitions) {
-        row.condWith(columnNumber++ != 1, andText)
+        innerRow
+            .condWith(columnNumber++ != 1, andText)
             .with(
                 createValueField(
                     questionDefinition, groupId, /* maybeLeafNode= */ Optional.empty()));
