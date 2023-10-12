@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
 import play.libs.F;
+import repository.ExportServiceRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import services.DateConverter;
@@ -67,6 +69,7 @@ public final class CsvExporterService {
 
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
+  private final ExportServiceRepository exportServiceRepository;
 
   @Inject
   public CsvExporterService(
@@ -74,12 +77,14 @@ public final class CsvExporterService {
       QuestionService questionService,
       ApplicantService applicantService,
       Config config,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      ExportServiceRepository exportServiceRepository) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
     this.config = checkNotNull(config);
     this.dateConverter = dateConverter;
+    this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
@@ -280,18 +285,38 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
+    Map<String, ImmutableMap<Long,String>> checkBoxQuestionScalarMap = new HashMap<>();
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
       if (answerData.questionDefinition().isEnumerator()) {
         continue; // Do not include Enumerator answers in CSVs.
       }
-      for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
-        columnsBuilder.add(
+      if(answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX))
+      {
+        String questionName = answerData.questionDefinition().getName();
+        if(!checkBoxQuestionScalarMap.containsKey(questionName)){
+          checkBoxQuestionScalarMap.put(questionName,exportServiceRepository.getMultiSelectedHeaders(questionName));
+        }
+        Map<Long,String> optionHeaderMap = checkBoxQuestionScalarMap.get(questionName);
+        optionHeaderMap.keySet().stream().sorted().forEach(option ->{
+          Path path = answerData.contextualizedPath().join(String.valueOf(option));
+          columnsBuilder.add(
             Column.builder()
-                .setHeader(pathToHeader(path))
-                .setJsonPath(path)
-                .setColumnType(ColumnType.APPLICANT_ANSWER)
-                .build());
+              .setHeader(pathToHeader(path))
+              .setJsonPath(path)
+              .setColumnType(ColumnType.APPLICANT_ANSWER)
+              .build());
+        });
+      }
+      else {
+        for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
+          columnsBuilder.add(
+            Column.builder()
+              .setHeader(pathToHeader(path))
+              .setJsonPath(path)
+              .setColumnType(ColumnType.APPLICANT_ANSWER)
+              .build());
+        }
       }
     }
     return new CsvExportConfig() {
