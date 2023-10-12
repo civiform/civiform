@@ -10,9 +10,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import repository.ExportServiceRepository;
@@ -52,7 +54,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
   private ImmutableList<Block> allBlockList;
   private ImmutableList<Block> currentBlockList;
   private final ExportServiceRepository exportServiceRepository;
-  private static Map<String,ImmutableList<String>> multiSelectOptionHeaderMap = new HashMap<>();
+
 
   public ReadOnlyApplicantProgramServiceImpl(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
@@ -84,6 +86,7 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
     this.programDefinition = checkNotNull(programDefinition);
     this.baseUrl = checkNotNull(baseUrl);
     this.exportServiceRepository = checkNotNull(exportServiceRepository);
+
   }
 
   @Override
@@ -473,12 +476,12 @@ public class ReadOnlyApplicantProgramServiceImpl implements ReadOnlyApplicantPro
       case CHECKBOX:
         String questionName =
             question.createMultiSelectQuestion().getQuestionDefinition().getName();
-        List<String> allOptions;
-        if(!multiSelectOptionHeaderMap.containsKey(questionName)) {
-          allOptions = exportServiceRepository.getCsvHeaders(questionName);
+        Set<String> allOptions;
+        if(multiSelectOptionHeaderMap.containsKey(questionName)) {
+          allOptions = multiSelectOptionHeaderMap.get(questionName);
         }
         else {
-         allOptions = multiSelectOptionHeaderMap.get(questionName);
+         allOptions =  exportServiceRepository.getMultiSelectedHeaders(questionName);
         }
         List<String> selectedList =
             question

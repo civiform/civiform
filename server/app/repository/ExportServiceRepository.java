@@ -3,10 +3,13 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
@@ -22,7 +25,7 @@ public class ExportServiceRepository {
     this.versionRepository = checkNotNull(versionRepository);
   }
 
-  public ImmutableList<String> getMultiSelectedHeaders(String questionName) {
+  public ImmutableMap<Long,String> getMultiSelectedHeaders(String questionName) {
     Map<Long, String> alloptionsMap = new HashMap<>();
     database
         .sqlQuery(
@@ -33,43 +36,44 @@ public class ExportServiceRepository {
         .findList()
         .stream()
         .forEach(row -> alloptionsMap.put(row.getLong("id"), row.getString("AdminName")));
-
     Set<Long> allSelectedOptions = new HashSet<>();
     database
         .sqlQuery(
             "select json_array_elements(((object #>>"
-                + " '{}')::jsonb)::json#>'{applicant,:currentQuestion::varchar,selections}') AS selections from"
+                + " '{}')::jsonb)::json#>'{applicant, " + questionName + " ,selections}') AS selections from"
                 + " applications;")
-         .setParameter("currentQuestion",questionName)
         .findList()
         .forEach(
             row ->
                 allSelectedOptions.add(
                     Long.parseLong(row.getString("selections").replaceAll("^\"|\"$", ""))));
+    Map<Long,String> combinedList = new HashMap<>();
+   alloptionsMap.keySet().stream().forEach(e -> {
+     if(allSelectedOptions.contains(e)) {
+       combinedList.put(e,alloptionsMap.get(e));
+     }
+   });
 
-    Set<String> allHeaders = new HashSet<>();
-    alloptionsMap.keySet().stream()
-        .forEach(
-            key -> {
-              if (allSelectedOptions.contains(key)) {
-                allHeaders.add(alloptionsMap.get(key));
-              }
-            });
-
-    MultiOptionQuestionDefinition q =
+    MultiOptionQuestionDefinition currentQuestion =
         (MultiOptionQuestionDefinition)
             versionRepository
                 .getActiveVersion()
                 .getQuestionByName(questionName)
                 .get()
                 .getQuestionDefinition();
-    q.getOptions().stream()
-        .forEach(
-            e -> {
-              if (!allHeaders.contains(e.adminName())) {
-                allHeaders.add(e.adminName());
-              }
-            });
-    return ImmutableList.<String>builder().addAll(allHeaders).build();
+    currentQuestion.getOptions().stream()
+      .forEach(e ->
+      {
+        if(!combinedList.containsKey(e.id())){
+          combinedList.put(e.id(),e.adminName());
+        }
+      });
+    //LinkedHashSet<String> allHeaders = new LinkedHashSet<>();
+    //combinedList.keySet().stream().sorted().forEach(e -> allHeaders.add(combinedList.get(e)));
+    //allHeaders.stream().forEach(e -> System.out.println("_____ "+ e));
+    System.out.println("******Calling it " + 1);
+
+    //combinedList.keySet().stream().sorted().forEach(e -> allHeaders.add(combinedList.get(e)));
+    return ImmutableMap.<Long, String>builder().putAll(combinedList).build();
   }
 }

@@ -44,7 +44,6 @@ import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
-import repository.ExportServiceRepository;
 import repository.StoredFileRepository;
 import repository.TimeFilter;
 import repository.UserRepository;
@@ -110,7 +109,7 @@ public final class ApplicantService {
   private final ServiceAreaUpdateResolver serviceAreaUpdateResolver;
   private final EsriClient esriClient;
   private final MessagesApi messagesApi;
-  private final ExportServiceRepository exportServiceRepository;
+  private final MultiSelectQuestionHeaderService multiSelectQuestionHeaderService;
 
   @Inject
   public ApplicantService(
@@ -129,7 +128,7 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      ExportServiceRepository exportServiceRepository) {
+      MultiSelectQuestionHeaderService multiSelectQuestionHeaderService) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.userRepository = checkNotNull(userRepository);
@@ -152,7 +151,7 @@ public final class ApplicantService {
     this.stagingApplicantNotificationMailingList =
         checkNotNull(configuration).getString("staging_applicant_notification_mailing_list");
     this.esriClient = checkNotNull(esriClient);
-    this.exportServiceRepository = checkNotNull(exportServiceRepository);
+    this.multiSelectQuestionHeaderService = checkNotNull(multiSelectQuestionHeaderService);
   }
 
   /** Create a new {@link Applicant}. */
@@ -187,7 +186,7 @@ public final class ApplicantService {
                   applicant.getApplicantData(),
                   programDefinition,
                   baseUrl,
-                  exportServiceRepository);
+                multiSelectQuestionHeaderService);
             },
             httpExecutionContext.current());
   }
@@ -202,7 +201,7 @@ public final class ApplicantService {
               application.getApplicantData(),
               programService.getProgramDefinition(application.getProgram().id),
               baseUrl,
-              exportServiceRepository));
+              multiSelectQuestionHeaderService));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
@@ -216,7 +215,7 @@ public final class ApplicantService {
         application.getApplicantData(),
         programDefinition,
         baseUrl,
-        exportServiceRepository);
+        multiSelectQuestionHeaderService;
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
@@ -227,7 +226,7 @@ public final class ApplicantService {
         applicantData,
         programDefinition,
         baseUrl,
-        exportServiceRepository);
+        multiSelectQuestionHeaderService);
   }
 
   /**
@@ -310,7 +309,7 @@ public final class ApplicantService {
                       applicant.getApplicantData(),
                       programDefinition,
                       baseUrl,
-                      exportServiceRepository);
+                      multiSelectQuestionHeaderService);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -380,7 +379,7 @@ public final class ApplicantService {
             programDefinition,
             baseUrl,
             failedUpdates,
-            exportServiceRepository);
+            multiSelectQuestionHeaderService;
 
     Optional<Block> blockMaybe = roApplicantProgramService.getBlock(blockBeforeUpdate.getId());
     if (blockMaybe.isPresent() && !blockMaybe.get().hasErrors()) {
