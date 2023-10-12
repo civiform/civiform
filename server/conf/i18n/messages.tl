@@ -31,6 +31,7 @@ toast.errorMessageOutline=Error: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Mag log in
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 button.createAnAccount=Gumawa ng account
@@ -155,7 +156,7 @@ button.applyToPrograms=Mag-apply sa mga programa
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+content.noChanges=You have already submitted an application to this program. There are no new edits to the application. Would you like to continue editing?
 button.continueEditing=Continue editing
 button.exitApplication=Exit application
 
