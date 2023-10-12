@@ -31,6 +31,7 @@ toast.errorMessageOutline=오류: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=로그인
 content.loginPrompt={0} 계정으로 로그인하세요.
 button.createAnAccount=계정 만들기
@@ -155,7 +156,7 @@ button.applyToPrograms=프로그램 신청
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+content.noChanges=You have already submitted an application to this program. There are no new edits to the application. Would you like to continue editing?
 button.continueEditing=Continue editing
 button.exitApplication=Exit application
 
