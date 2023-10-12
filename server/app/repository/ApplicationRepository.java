@@ -130,6 +130,12 @@ public final class ApplicationRepository {
         }
         boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
         if (isDuplicate) {
+          LOGGER.info(
+              "Application for applicant {} to program {} {} was detected as a duplicate and was"
+                  + " not saved",
+              applicant.id,
+              program.id,
+              program.getProgramDefinition().adminName());
           throw new DuplicateApplicationException();
         }
         LOGGER.warn(
