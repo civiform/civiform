@@ -9,6 +9,8 @@ import io.ebean.Database;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
@@ -31,6 +33,9 @@ public class DevDatabaseSeedController extends Controller {
   private final SettingsService settingsService;
   private final boolean isDevOrStaging;
 
+  private final SyncCacheApi questionsByVersionCache;
+  private final SyncCacheApi programsByVersionCache;
+
   @Inject
   public DevDatabaseSeedController(
       DevDatabaseSeedTask devDatabaseSeedTask,
@@ -38,7 +43,9 @@ public class DevDatabaseSeedController extends Controller {
       QuestionService questionService,
       ProgramService programService,
       SettingsService settingsService,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
+      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
@@ -46,6 +53,8 @@ public class DevDatabaseSeedController extends Controller {
     this.programService = checkNotNull(programService);
     this.settingsService = checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
+    this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
+    this.programsByVersionCache = checkNotNull(programsByVersionCache);
   }
 
   /**
@@ -94,8 +103,25 @@ public class DevDatabaseSeedController extends Controller {
       return notFound();
     }
     resetTables();
+    clearCache();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
+  }
+
+  public void clearCache() {
+    if (!isDevOrStaging) {
+      return;
+    }
+    clearDataForCacheType(programsByVersionCache);
+    clearDataForCacheType(questionsByVersionCache);
+  }
+
+  private void clearDataForCacheType(SyncCacheApi cache) {
+    int num = 1;
+    while (cache.get(String.valueOf(num)).isPresent()) {
+      cache.remove(String.valueOf(num));
+      num++;
+    }
   }
 
   // Create a date question definition with the given name and questionText. We currently create
