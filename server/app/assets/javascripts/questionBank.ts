@@ -140,14 +140,14 @@ class QuestionBankController {
     )
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
-      const filterText = questionElement.getAttribute(
+      const questionFilterText = questionElement.getAttribute(
         'data-' + this.RELEVANT_FILTER_TEXT_DATA_ATTR,
       )
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
           (filterText == null ||
-            !filterText.toUpperCase().includes(filterString)),
+            !questionFilterText.toUpperCase().includes(filterString)),
       )
     })
   }
