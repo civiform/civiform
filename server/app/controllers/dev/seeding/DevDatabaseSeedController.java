@@ -122,7 +122,7 @@ public class DevDatabaseSeedController extends Controller {
   }
 
   private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
-    for(int num = 1; num <= activeVersion.id; num++) {
+    for (int num = 1; num <= activeVersion.id; num++) {
       if (cache.get(String.valueOf(num)).isPresent()) {
         cache.remove(String.valueOf(num));
       }
