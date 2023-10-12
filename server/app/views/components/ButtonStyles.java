@@ -91,12 +91,4 @@ public final class ButtonStyles {
   // Just like CLEAR_WITH_ICON, but in dropdowns we want to remove the rounded corners.
   public static final String CLEAR_WITH_ICON_FOR_DROPDOWN =
       StyleUtils.removeStyles(CLEAR_WITH_ICON, "rounded-full");
-
-  public static final String LINK_STYLE =
-      StyleUtils.joinStyles(
-          StyleUtils.removeStyles(
-              BUTTON_BASE_OUTLINE_SEMIBOLD, "border", BaseStyles.BORDER_SEATTLE_BLUE, "px-8"),
-          BaseStyles.LINK_TEXT,
-          "underline",
-          "px-2");
 }

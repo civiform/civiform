@@ -383,6 +383,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // See the duplicate submissions page
+      await applicantQuestions.expectDuplicatesPage()
       await validateScreenshot(page, 'duplicate-submission-page')
       await validateAccessibility(page)
 
@@ -398,7 +399,7 @@ describe('Applicant navigation flow', () => {
       await applicantQuestions.submitFromReviewPage()
 
       // See the duplicate submissions page
-      await validateScreenshot(page, 'duplicate-submission-page')
+      await applicantQuestions.expectDuplicatesPage()
 
       // Click the "Exit application" link to return to the programs page
       await page.click('text="Exit application"')

@@ -436,6 +436,12 @@ export class ApplicantQuestions {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
   }
 
+  async expectDuplicatesPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'There are no changes to save',
+    )
+  }
+
   async expectIneligibleQuestion(questionText: string) {
     expect(await this.page.innerText('li')).toContain(questionText)
   }

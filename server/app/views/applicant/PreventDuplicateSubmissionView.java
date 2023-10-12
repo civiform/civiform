@@ -3,6 +3,7 @@ package views.applicant;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.h1;
+import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
 import controllers.applicant.routes;
@@ -45,7 +46,7 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
         div()
             .withClasses(ApplicantStyles.PROGRAM_INFORMATION_BOX)
             .with(
-                p(messages.at(
+                h2(messages.at(
                         MessageKey.TITLE_NO_CHANGES_TO_SAVE.getKeyName(),
                         roApplicantProgramService.getProgramTitle()))
                     .withClasses("text-black", "font-bold", "text-xl", "pb-8"))
@@ -66,7 +67,7 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
                                 "exit-application-button",
                                 messages.at(MessageKey.BUTTON_EXIT_APPLICATION.getKeyName()),
                                 routes.ApplicantProgramsController.index(applicantId).url())
-                            .withClasses(ButtonStyles.LINK_STYLE)));
+                            .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)));
 
     String title = "No changes to save";
     HtmlBundle bundle =
