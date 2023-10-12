@@ -14,6 +14,7 @@ import play.cache.SyncCacheApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.VersionRepository;
 import services.DeploymentType;
 import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
@@ -33,6 +34,7 @@ public class DevDatabaseSeedController extends Controller {
   private final SettingsService settingsService;
   private final boolean isDevOrStaging;
 
+  private final VersionRepository versionRepository;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
 
@@ -44,6 +46,7 @@ public class DevDatabaseSeedController extends Controller {
       ProgramService programService,
       SettingsService settingsService,
       DeploymentType deploymentType,
+      VersionRepository versionRepository,
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
@@ -53,6 +56,7 @@ public class DevDatabaseSeedController extends Controller {
     this.programService = checkNotNull(programService);
     this.settingsService = checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
+    this.versionRepository = checkNotNull(versionRepository);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
   }
@@ -102,8 +106,8 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    resetTables();
     clearCache();
+    resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
@@ -112,15 +116,16 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return;
     }
-    clearDataForCacheType(programsByVersionCache);
-    clearDataForCacheType(questionsByVersionCache);
+    Version activeVersion = versionRepository.getActiveVersion();
+    clearVersionCache(programsByVersionCache, activeVersion);
+    clearVersionCache(questionsByVersionCache, activeVersion);
   }
 
-  private void clearDataForCacheType(SyncCacheApi cache) {
-    int num = 1;
-    while (cache.get(String.valueOf(num)).isPresent()) {
-      cache.remove(String.valueOf(num));
-      num++;
+  private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
+    for(int num = 1; num <= activeVersion.id; num++) {
+      if (cache.get(String.valueOf(num)).isPresent()) {
+        cache.remove(String.valueOf(num));
+      }
     }
   }
 
