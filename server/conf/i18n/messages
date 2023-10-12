@@ -156,7 +156,7 @@ button.applyToPrograms=Apply to programs
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+content.noChanges=You have already submitted an application to this program. There are no new edits to the application. Would you like to continue editing?
 button.continueEditing=Continue editing
 button.exitApplication=Exit application
 

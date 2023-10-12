@@ -692,6 +692,26 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the API docs tab on CiviForm.",
         "type": "bool"
+      },
+      "VERSION_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for versions and their associated data.",
+        "type": "bool"
+      },
+      "PROGRAM_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for programs and their associated data.",
+        "type": "bool"
+      },
+      "QUESTION_CACHE_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables caching for questions and their associated data.",
+        "type": "bool"
+      },
+      "ENHANCED_OIDC_LOGOUT_ENABLED": {
+        "mode": "HIDDEN",
+        "description": "Enables logic to populate more fields in OIDC logout requests.",
+        "type": "bool"
       }
     }
   }

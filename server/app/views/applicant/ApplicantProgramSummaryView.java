@@ -27,6 +27,7 @@ import services.applicant.RepeatedEntity;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
+import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -145,7 +146,7 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
         layout.renderProgramApplicationTitleAndProgressIndicator(
             params.programTitle(), params.completedBlockCount(), params.totalBlockCount(), true),
         h2(pageTitle).withClasses(ApplicantStyles.PROGRAM_APPLICATION_TITLE),
-        requiredFieldsExplanationContent(),
+        ApplicationBaseView.requiredFieldsExplanationContent(messages),
         content);
     bundle.addMainStyles(ApplicantStyles.MAIN_PROGRAM_APPLICATION);
 
