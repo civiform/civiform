@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -93,7 +94,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   @Override
   protected final CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, WebContext context) {
     final Optional<String> maybeLocale = getLocale(oidcProfile);
     final Optional<String> maybeName = getName(oidcProfile);
 
@@ -117,7 +118,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
           .join();
     }
 
-    return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
+    return super.mergeCiviFormProfile(civiformProfile, oidcProfile, context);
   }
 
   @Override

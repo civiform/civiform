@@ -3,12 +3,18 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfileData;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.LogoutRequest;
 import com.typesafe.config.Config;
+import filters.SessionIdFilter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.util.Optional;
+import javax.inject.Provider;
+import models.AccountModel;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.TechnicalException;
@@ -18,6 +24,10 @@ import org.pac4j.core.util.CommonHelper;
 import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
+import org.pac4j.play.PlayWebContext;
+import play.mvc.Http;
+import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 /**
  * Custom OidcLogoutActionBuilder for CiviFormProfileData (since it extends CommonProfile, not
@@ -37,17 +47,29 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
 
   private String postLogoutRedirectParam;
   private final String clientId;
+  private Provider<AccountRepository> accountRepositoryProvider;
+  private final IdTokensFactory idTokensFactory;
+  private boolean isAdmin;
+  private SettingsManifest settingsManifest;
 
   public CiviformOidcLogoutActionBuilder(
-      Config civiformConfiguration, OidcConfiguration oidcConfiguration, String clientId) {
+      OidcConfiguration oidcConfiguration,
+      String clientId,
+      OidcClientProviderParams params,
+      boolean isAdmin) {
     super(oidcConfiguration);
-    checkNotNull(civiformConfiguration);
+
+    checkNotNull(params.configuration());
     // Use `post_logout_redirect_uri` by default according OIDC spec.
     this.postLogoutRedirectParam =
-        getConfigurationValue(civiformConfiguration, "auth.oidc_post_logout_param")
+        getConfigurationValue(params.configuration(), "auth.oidc_post_logout_param")
             .orElse("post_logout_redirect_uri");
 
     this.clientId = clientId;
+    this.accountRepositoryProvider = params.accountRepositoryProvider();
+    this.idTokensFactory = checkNotNull(params.idTokensFactory());
+    this.isAdmin = isAdmin;
+    this.settingsManifest = new SettingsManifest(params.configuration());
   }
 
   /** Helper function for retriving values from the application.conf, */
@@ -66,6 +88,35 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   public CiviformOidcLogoutActionBuilder setPostLogoutRedirectParam(String param) {
     this.postLogoutRedirectParam = param;
     return this;
+  }
+
+  private JWT getIdTokenForAccount(long accountId, WebContext context) {
+    PlayWebContext playWebContext = (PlayWebContext) context;
+    if (!enhancedLogoutEnabled(context)) {
+      return null;
+    }
+    Optional<String> sessionId = playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
+    if (sessionId.isEmpty()) {
+      // The session id is only populated if the feature flag is enabled.
+      return null;
+    }
+    Optional<AccountModel> account = accountRepositoryProvider.get().lookupAccount(accountId);
+    if (account.isEmpty()) {
+      return null;
+    }
+    SerializedIdTokens serializedIdTokens = account.get().getSerializedIdTokens();
+    IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
+    // When we build the logout action, we do not remove the id token. We leave it in place in case
+    // of transient logout failures. Expired tokens are purged at login time instead.
+    Optional<String> idToken = idTokens.getIdToken(sessionId.get());
+    if (idToken.isEmpty()) {
+      return null;
+    }
+    try {
+      return JWTParser.parse(idToken.get());
+    } catch (ParseException e) {
+      return null;
+    }
   }
 
   /**
@@ -88,13 +139,17 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
         State state =
             new State(configuration.getStateGenerator().generateValue(context, sessionStore));
 
+        long accountId = Long.parseLong(currentProfile.getId());
+        JWT idToken = getIdTokenForAccount(accountId, context);
+
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
                 endSessionEndpoint,
                 postLogoutRedirectParam,
                 new URI(targetUrl),
                 Optional.of(clientId),
-                state);
+                state,
+                idToken);
 
         return Optional.of(
             HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
@@ -104,5 +159,15 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     }
 
     return Optional.empty();
+  }
+
+  private boolean enhancedLogoutEnabled(WebContext context) {
+    PlayWebContext playWebContext = (PlayWebContext) context;
+    Http.RequestHeader request = playWebContext.getNativeJavaRequest();
+    if (isAdmin) {
+      return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
+    } else {
+      return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
+    }
   }
 }

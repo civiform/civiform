@@ -79,7 +79,9 @@ public class MainModule extends AbstractModule {
   public OidcClientProviderParams provideOidcClientProviderParams(
       Config config,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
-    return OidcClientProviderParams.create(config, profileFactory, accountRepositoryProvider);
+    return OidcClientProviderParams.create(
+        config, profileFactory, idTokensFactory, accountRepositoryProvider);
   }
 }

@@ -265,7 +265,7 @@ public final class AccountRepository {
     }
   }
 
-  private Optional<AccountModel> lookupAccount(long accountId) {
+  public Optional<AccountModel> lookupAccount(long accountId) {
     return database
         .find(AccountModel.class)
         .setId(accountId)
