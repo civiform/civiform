@@ -2,8 +2,8 @@ name: Format
 
 on:
   pull_request:
-    branches:
-      - main
+    branches-ignore:
+      - 'spike/**'
 
 # cancels in-progress jobs on this pull request
 # avoids wasted work when a new commit is pushed
