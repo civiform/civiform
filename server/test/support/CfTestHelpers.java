@@ -1,6 +1,7 @@
 package support;
 
 import static org.mockito.Mockito.mockStatic;
+import static play.test.Helpers.route;
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.collect.ImmutableMap;
@@ -14,9 +15,11 @@ import javax.inject.Provider;
 import org.mockito.MockedStatic;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import play.Application;
 import play.api.test.Helpers;
 import play.mvc.Call;
 import play.mvc.Http;
+import play.mvc.Result;
 import repository.AccountRepository;
 import services.program.predicate.PredicateValue;
 
@@ -118,5 +121,72 @@ public class CfTestHelpers {
     }
 
     return requestBuilder.attr(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, settingsMap.build());
+  }
+
+  /** Class to hold a Result as well as the final request URI after internal redirects. */
+  public static class ResultWithFinalRequestUri {
+    private Result result;
+    private String finalRequestUri;
+
+    public ResultWithFinalRequestUri(Result result, String finalRequestUri) {
+      this.result = result;
+      this.finalRequestUri = finalRequestUri;
+    }
+
+    public Result getResult() {
+      return result;
+    }
+
+    public void setResult(Result result) {
+      this.result = result;
+    }
+
+    public String getFinalRequestUri() {
+      return finalRequestUri;
+    }
+
+    public void setFinalRequestUri(String finalRequestUri) {
+      this.finalRequestUri = finalRequestUri;
+    }
+  }
+
+  private static boolean isInternalRedirect(Result result) {
+    return result.redirectLocation().isPresent() && result.redirectLocation().get().startsWith("/");
+  }
+
+  // Makes a request and follows internal redirects, propagating session and cookies.
+  // Throws a runtime exception if maxRedirects (10) is exceeded.
+  public static ResultWithFinalRequestUri doRequestWithInternalRedirects(
+      Application app, Http.RequestBuilder request) {
+    return doRequestWithInternalRedirects(app, request, 10);
+  }
+
+  // Makes a request and follows internal redirects, propagating session and cookies.
+  // Throws a runtime exception if maxRedirects is exceeded.
+  public static ResultWithFinalRequestUri doRequestWithInternalRedirects(
+      Application app, Http.RequestBuilder request, int maxRedirects) {
+    Result currentResult;
+    String currentRequestUri = request.uri();
+
+    do {
+      currentResult = route(app, request);
+      if (isInternalRedirect(currentResult)) {
+        --maxRedirects;
+        currentRequestUri = currentResult.redirectLocation().get();
+        request = request.uri(currentRequestUri);
+        if (currentResult.session() != null) {
+          request = request.session(currentResult.session().data());
+        }
+        for (Http.Cookie cookie : currentResult.cookies()) {
+          request = request.cookie(cookie);
+        }
+      }
+    } while (isInternalRedirect(currentResult) && maxRedirects > 0);
+
+    if (maxRedirects == 0) {
+      throw new RuntimeException("Too many redirects");
+    }
+
+    return new ResultWithFinalRequestUri(currentResult, currentRequestUri);
   }
 }
