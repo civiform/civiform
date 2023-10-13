@@ -24,9 +24,9 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -218,9 +218,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.3"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.
