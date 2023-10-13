@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.Provider;
 import io.ebean.DB;
 import io.ebean.Database;
 import java.util.HashMap;
@@ -10,16 +11,18 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.inject.Inject;
+
+import models.Version;
 import services.question.types.MultiOptionQuestionDefinition;
 
 public class ExportServiceRepository {
   private final Database database;
-  private final VersionRepository versionRepository;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
-  public ExportServiceRepository(VersionRepository versionRepository) {
+  public ExportServiceRepository(Provider<VersionRepository>  versionRepositoryProvider) {
     this.database = DB.getDefault();
-    this.versionRepository = checkNotNull(versionRepository);
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   public ImmutableMap<Long, String> getMultiSelectedHeaders(String questionName) {
@@ -55,13 +58,11 @@ public class ExportServiceRepository {
           }
         });
 
+    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
     MultiOptionQuestionDefinition currentQuestion =
-      (MultiOptionQuestionDefinition)
-        versionRepository
-          .getActiveVersion()
-          .getQuestionByName(questionName)
-          .get()
-          .getQuestionDefinition();
+            (MultiOptionQuestionDefinition) versionRepositoryProvider.get().getQuestionByNameForVersion(questionName,activeVersion)
+              .get()
+              .getQuestionDefinition();
     currentQuestion.getOptions().stream()
       .forEach(
         e -> {

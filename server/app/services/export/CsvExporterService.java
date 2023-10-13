@@ -299,7 +299,7 @@ public final class CsvExporterService {
         }
         Map<Long,String> optionHeaderMap = checkBoxQuestionScalarMap.get(questionName);
         optionHeaderMap.keySet().stream().sorted().forEach(option ->{
-          Path path = answerData.contextualizedPath().join(String.valueOf(option));
+          Path path = answerData.contextualizedPath().join(String.valueOf(optionHeaderMap.get(option)));
           columnsBuilder.add(
             Column.builder()
               .setHeader(pathToHeader(path))
