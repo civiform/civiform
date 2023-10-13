@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -30,12 +31,14 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
 
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
+  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -44,6 +47,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             profileFactory,
+            idTokensFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository),
             EMAIL_ATTRIBUTE_NAME,
             LOCALE_ATTRIBUTE_NAME,
@@ -63,7 +67,7 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     profile.setId(SUBJECT);
 
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, Optional.empty());
     assertThat(profileData).isNotNull();
     assertThat(profileData.getEmail()).isEqualTo("foo@bar.com");
 

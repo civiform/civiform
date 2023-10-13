@@ -5,6 +5,7 @@ import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
+import auth.oidc.IdTokensFactory;
 import com.beust.jcommander.internal.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -39,11 +40,12 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider,
       String emailAttributeName,
       @Nullable String localeAttributeName,
       ImmutableList<String> nameAttributeNames) {
-    super(configuration, client, profileFactory, accountRepositoryProvider);
+    super(configuration, client, profileFactory, idTokensFactory, accountRepositoryProvider);
     this.emailAttributeName = Preconditions.checkNotNull(emailAttributeName);
     this.localeAttributeName = Optional.ofNullable(localeAttributeName);
     this.nameAttributeNames = Preconditions.checkNotNull(nameAttributeNames);
@@ -95,7 +97,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   @Override
   protected final CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, Optional<String> sessionId) {
     final Optional<String> maybeLocale = getLocale(oidcProfile);
     final Optional<String> maybeName = getName(oidcProfile);
 
@@ -119,6 +121,6 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
           .join();
     }
 
-    return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
+    return super.mergeCiviFormProfile(civiformProfile, oidcProfile, sessionId);
   }
 }

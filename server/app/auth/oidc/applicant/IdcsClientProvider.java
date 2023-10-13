@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -27,8 +28,9 @@ public final class IdcsClientProvider extends OidcClientProvider {
   public IdcsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
-    super(configuration, profileFactory, accountRepositoryProvider);
+    super(configuration, profileFactory, idTokensFactory, accountRepositoryProvider);
   }
 
   @Override
@@ -44,7 +46,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
     return new IdcsApplicantProfileCreator(
-        config, client, profileFactory, accountRepositoryProvider);
+        config, client, profileFactory, idTokensFactory, accountRepositoryProvider);
   }
 
   @Override

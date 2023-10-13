@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProvider;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -37,8 +38,9 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   public GenericOidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> applicantRepositoryProvider) {
-    super(configuration, profileFactory, applicantRepositoryProvider);
+    super(configuration, profileFactory, idTokensFactory, applicantRepositoryProvider);
   }
 
   @Override
@@ -65,6 +67,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
         config,
         client,
         profileFactory,
+        idTokensFactory,
         accountRepositoryProvider,
         emailAttr,
         localeAttr.orElse(null),

@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableList;
 import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
@@ -17,6 +18,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider,
       String emailAttributeName,
       String localeAttributeName,
@@ -25,6 +27,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
         configuration,
         client,
         profileFactory,
+        idTokensFactory,
         accountRepositoryProvider,
         emailAttributeName,
         localeAttributeName,

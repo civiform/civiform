@@ -31,15 +31,18 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
+  protected final IdTokensFactory idTokensFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
 
   public OidcClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
     this.civiformConfig = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
+    this.idTokensFactory = checkNotNull(idTokensFactory);
     this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
 
     this.baseUrl =
@@ -224,7 +227,12 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     client.setProfileCreator(getProfileCreator(config, client));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
-        new CiviformOidcLogoutActionBuilder(civiformConfig, config, config.getClientId()));
+        new CiviformOidcLogoutActionBuilder(
+            civiformConfig,
+            config,
+            config.getClientId(),
+            accountRepositoryProvider,
+            idTokensFactory));
 
     try {
       client.init();

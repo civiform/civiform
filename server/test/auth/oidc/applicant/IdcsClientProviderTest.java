@@ -3,6 +3,7 @@ package auth.oidc.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -22,6 +23,7 @@ import support.CfTestHelpers;
 public class IdcsClientProviderTest extends ResetPostgres {
   private IdcsClientProvider idcsProvider;
   private ProfileFactory profileFactory;
+  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
@@ -32,6 +34,7 @@ public class IdcsClientProviderTest extends ResetPostgres {
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.of(
@@ -47,7 +50,10 @@ public class IdcsClientProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     idcsProvider =
         new IdcsClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository));
+            config,
+            profileFactory,
+            idTokensFactory,
+            CfTestHelpers.userRepositoryProvider(accountRepository));
   }
 
   @Test

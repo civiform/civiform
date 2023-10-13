@@ -2,6 +2,7 @@ package auth.oidc.applicant;
 
 import auth.ProfileFactory;
 import auth.oidc.CiviformOidcLogoutActionBuilder;
+import auth.oidc.IdTokensFactory;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.net.MalformedURLException;
@@ -24,8 +25,9 @@ public class Auth0ClientProvider extends GenericOidcClientProvider {
   public Auth0ClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
-    super(configuration, profileFactory, accountRepositoryProvider);
+    super(configuration, profileFactory, idTokensFactory, accountRepositoryProvider);
   }
 
   @Override

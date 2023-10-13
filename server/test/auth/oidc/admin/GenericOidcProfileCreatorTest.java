@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -21,12 +22,14 @@ import support.CfTestHelpers;
 public class GenericOidcProfileCreatorTest extends ResetPostgres {
   private GenericOidcProfileCreator genericOidcProfileCreator;
   private ProfileFactory profileFactory;
+  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     Config serverConfig =
@@ -40,6 +43,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             profileFactory,
+            idTokensFactory,
             serverConfig,
             CfTestHelpers.userRepositoryProvider(accountRepository));
   }
@@ -54,7 +58,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.setId("subject");
 
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, Optional.empty());
 
     assertThat(profileData.getRoles()).contains("ROLE_CIVIFORM_ADMIN");
   }
@@ -69,7 +73,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
     profile.setId("subject");
 
     CiviFormProfileData profileData =
-        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile);
+        genericOidcProfileCreator.mergeCiviFormProfile(Optional.empty(), profile, Optional.empty());
 
     assertThat(profileData.getRoles()).doesNotContain("ROLE_CIVIFORM_ADMIN");
   }

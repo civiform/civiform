@@ -9,7 +9,9 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import filters.SessionIdFilter;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import javax.inject.Provider;
 import models.Applicant;
 import org.pac4j.core.context.WebContext;
@@ -21,6 +23,7 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
+import org.pac4j.play.PlayWebContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
@@ -36,6 +39,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
+  protected final IdTokensFactory idTokensFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
 
@@ -43,9 +47,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
+    this.idTokensFactory = Preconditions.checkNotNull(idTokensFactory);
     this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
@@ -96,19 +102,21 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
    */
   @VisibleForTesting
   public CiviFormProfileData mergeCiviFormProfile(
-      Optional<CiviFormProfile> maybeCiviFormProfile, OidcProfile oidcProfile) {
+      Optional<CiviFormProfile> maybeCiviFormProfile,
+      OidcProfile oidcProfile,
+      Optional<String> sessionId) {
     var civiformProfile =
         maybeCiviFormProfile.orElseGet(
             () -> {
               logger.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);
             });
-    return mergeCiviFormProfile(civiformProfile, oidcProfile);
+    return mergeCiviFormProfile(civiformProfile, oidcProfile, sessionId);
   }
 
   /** Merge the two provided profiles into a new CiviFormProfileData. */
   protected CiviFormProfileData mergeCiviFormProfile(
-      CiviFormProfile civiformProfile, OidcProfile oidcProfile) {
+      CiviFormProfile civiformProfile, OidcProfile oidcProfile, Optional<String> sessionId) {
 
     // Meaning: whatever you signed in with most recently is the role you have.
     ImmutableSet<Role> roles = roles(civiformProfile, oidcProfile);
@@ -138,7 +146,34 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
     civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
+    // Save the id_token from the returned OidcProfile into the account so that it can be retrieved
+    // at logout time.
+    civiformProfile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              if (sessionId.isEmpty()) {
+                // The session id is only populated if the feature flag is enabled.
+                return;
+              }
+              SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
+              if (serializedIdTokens == null) {
+                serializedIdTokens = new SerializedIdTokens();
+                account.setSerializedIdTokens(serializedIdTokens);
+              }
+              IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
+              idTokens.purgeExpiredIdTokens();
+              idTokens.storeIdToken(sessionId.get(), oidcProfile.getIdTokenString());
+              account.save();
+            })
+        .join();
+
     return civiformProfile.getProfileData();
+  }
+
+  private Optional<String> getSessionId(WebContext context) {
+    PlayWebContext playWebContext = (PlayWebContext) context;
+    return playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
   }
 
   @Override
@@ -162,8 +197,13 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+    // The merge function signature specifies the two profiles as parameters.
+    // We need to supply an extra parameter (session id), so bind it here.
+    BiFunction<Optional<CiviFormProfile>, OidcProfile, UserProfile> mergeFunction =
+        (cProfile, oProfile) ->
+            this.mergeCiviFormProfile(cProfile, oProfile, getSessionId(context));
     return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
+        existingApplicant, guestProfile, profile, mergeFunction);
   }
 
   @VisibleForTesting

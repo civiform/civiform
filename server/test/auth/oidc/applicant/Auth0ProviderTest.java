@@ -5,6 +5,7 @@ import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -40,6 +41,7 @@ public class Auth0ProviderTest extends ResetPostgres {
   public void setup() {
     AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    IdTokensFactory idTokensFactory = instanceOf(IdTokensFactory.class);
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -55,7 +57,10 @@ public class Auth0ProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     auth0Provider =
         new Auth0ClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository));
+            config,
+            profileFactory,
+            idTokensFactory,
+            CfTestHelpers.userRepositoryProvider(accountRepository));
   }
 
   @Test
@@ -70,7 +75,7 @@ public class Auth0ProviderTest extends ResetPostgres {
         auth0Provider
             .get()
             .getLogoutAction(
-                webContext, mockSessionStore, new CiviFormProfileData(), afterLogoutUri);
+                webContext, mockSessionStore, new CiviFormProfileData(1L), afterLogoutUri);
     assertThat(logoutAction).containsInstanceOf(FoundAction.class);
     var logoutUri = new URI(((FoundAction) logoutAction.get()).getLocation());
     assertThat(logoutUri)

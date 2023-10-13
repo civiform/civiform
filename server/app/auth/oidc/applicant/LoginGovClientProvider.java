@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
@@ -26,8 +27,9 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
   public LoginGovClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> accountRepositoryProvider) {
-    super(configuration, profileFactory, accountRepositoryProvider);
+    super(configuration, profileFactory, idTokensFactory, accountRepositoryProvider);
   }
 
   @Override
@@ -44,6 +46,7 @@ public final class LoginGovClientProvider extends GenericOidcClientProvider {
         config,
         client,
         profileFactory,
+        idTokensFactory,
         accountRepositoryProvider,
         "email",
         /*localeAttributeName*/ null,

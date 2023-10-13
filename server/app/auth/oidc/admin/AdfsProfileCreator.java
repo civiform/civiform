@@ -4,6 +4,7 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.util.List;
@@ -26,9 +27,10 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Config appConfig,
       Provider<AccountRepository> accountRepositoryProvider) {
-    super(configuration, client, profileFactory, accountRepositoryProvider);
+    super(configuration, client, profileFactory, idTokensFactory, accountRepositoryProvider);
     this.adminGroupName = appConfig.getString("adfs.admin_group");
     this.ad_groups_attribute_name = appConfig.getString("adfs.ad_groups_attribute_name");
   }

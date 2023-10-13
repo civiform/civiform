@@ -1,6 +1,7 @@
 package auth.oidc.applicant;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
@@ -40,11 +41,13 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       ProfileFactory profileFactory,
+      IdTokensFactory idTokensFactory,
       Provider<AccountRepository> userRepositoryProvider) {
     super(
         configuration,
         client,
         profileFactory,
+        idTokensFactory,
         userRepositoryProvider,
         EMAIL_ATTRIBUTE_NAME,
         LOCALE_ATTRIBUTE_NAME,

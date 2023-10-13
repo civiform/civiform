@@ -3,6 +3,7 @@ package auth.oidc.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.typesafe.config.Config;
@@ -19,17 +20,20 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final Config configuration;
   private final String baseUrl;
   private final ProfileFactory profileFactory;
-  private final Provider<AccountRepository> userRepositoryProvider;
+  private final IdTokensFactory idTokensFactory;
+  private final Provider<AccountRepository> accountRepositoryProvider;
 
   @Inject
   public AdfsClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<AccountRepository> userRepositoryProvider) {
+      IdTokensFactory idTokensFactory,
+      Provider<AccountRepository> accountRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
     this.profileFactory = profileFactory;
-    this.userRepositoryProvider = userRepositoryProvider;
+    this.idTokensFactory = idTokensFactory;
+    this.accountRepositoryProvider = accountRepositoryProvider;
   }
 
   @Override
@@ -83,7 +87,12 @@ public class AdfsClientProvider implements Provider<OidcClient> {
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileCreator(
-            config, client, profileFactory, configuration, userRepositoryProvider));
+            config,
+            client,
+            profileFactory,
+            idTokensFactory,
+            configuration,
+            accountRepositoryProvider));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;

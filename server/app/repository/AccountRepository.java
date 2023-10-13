@@ -214,7 +214,7 @@ public final class AccountRepository {
     }
   }
 
-  private Optional<Account> lookupAccount(long accountId) {
+  public Optional<Account> lookupAccount(long accountId) {
     return database.find(Account.class).setId(accountId).findOneOrEmpty();
   }
 

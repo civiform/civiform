@@ -31,17 +31,20 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   private static final String ISSUER = "issuer";
   private static final String SUBJECT = "subject";
   private static final String AUTHORITY_ID = "iss: issuer sub: subject";
+  private static final String SESSION_ID = "session_id";
 
   private static OidcProfile profile;
 
   private CiviformOidcProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
+  private IdTokensFactory idTokensFactory;
   private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
+    idTokensFactory = instanceOf(IdTokensFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -50,6 +53,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             profileFactory,
+            idTokensFactory,
             CfTestHelpers.userRepositoryProvider(accountRepository));
 
     profile = new OidcProfile();
@@ -117,7 +121,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   public void mergeCiviFormProfile_succeeds_new_user() {
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(Optional.empty(), profile, Optional.of(SESSION_ID));
 
     // Verify.
     assertThat(profileData).isNotNull();
@@ -135,6 +139,11 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.FRENCH);
+
+    // Ensure that an id token has been stored in the account.
+    Account account = maybeApplicant.get().getAccount();
+    SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
+    assertThat(serializedIdTokens.containsKey(SESSION_ID)).isTrue();
   }
 
   @Test
@@ -153,7 +162,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Execute.
     CiviFormProfileData profileData =
-        oidcProfileAdapter.mergeCiviFormProfile(Optional.of(trustedIntermediary), profile);
+        oidcProfileAdapter.mergeCiviFormProfile(
+            Optional.of(trustedIntermediary), profile, Optional.empty());
 
     // Verify.
     // Profile data should still be present after the no-op merge.
