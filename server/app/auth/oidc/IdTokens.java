@@ -1,53 +1,43 @@
-package auth;
+package auth.oidc;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import java.text.ParseException;
 import java.time.Clock;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import javax.annotation.Nullable;
-import javax.inject.Inject;
 
+/** Class that manages stored ID tokens for an Account. */
 public final class IdTokens {
-  @JsonProperty("idTokens")
-  private Map<String, String> idTokens;
+  private SerializedIdTokens serializedIdTokens;
 
   private Clock clock;
 
-  public IdTokens() {
-    this.idTokens = new HashMap<>();
-  }
-
-  @JsonCreator
-  @Inject
-  public IdTokens(Clock clock, @Nullable @JsonProperty("idTokens") Map<String, String> idTokens) {
-    this.clock = clock;
-    this.idTokens = idTokens;
+  public IdTokens(Clock clock, SerializedIdTokens serializedIdTokens) {
+    this.clock = checkNotNull(clock);
+    this.serializedIdTokens = checkNotNull(serializedIdTokens);
   }
 
   public Optional<String> getIdToken(String sessionId) {
-    if (!idTokens.containsKey(sessionId)) {
+    if (!serializedIdTokens.containsKey(sessionId)) {
       return Optional.empty();
     }
-    return Optional.of(idTokens.get(sessionId));
+    return Optional.of(serializedIdTokens.get(sessionId));
   }
 
   public void storeIdToken(String sessionId, String idToken) {
-    idTokens.put(sessionId, idToken);
+    serializedIdTokens.put(sessionId, idToken);
   }
 
   public boolean removeIdToken(String sessionId) {
-    return idTokens.remove(sessionId) != null;
+    return serializedIdTokens.remove(sessionId) != null;
   }
 
   public void purgeExpiredIdTokens() {
-    idTokens
+    serializedIdTokens
         .entrySet()
         .removeIf(
             (entry) -> {

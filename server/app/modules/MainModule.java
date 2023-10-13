@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import annotations.BindingAnnotations.ApplicantAuthProviderName;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
+import auth.oidc.IdTokensFactory;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -63,5 +64,10 @@ public class MainModule extends AbstractModule {
     }
 
     return config.getString("whitelabel_civic_entity_full_name");
+  }
+
+  @Provides
+  public IdTokensFactory provideIdTokensFactory(Clock clock) {
+    return new IdTokensFactory(clock);
   }
 }

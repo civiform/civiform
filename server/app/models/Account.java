@@ -2,7 +2,7 @@ package models;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
 
-import auth.IdTokens;
+import auth.oidc.SerializedIdTokens;
 import com.google.common.collect.ImmutableList;
 import io.ebean.annotation.DbArray;
 import io.ebean.annotation.DbJsonB;
@@ -51,7 +51,9 @@ public class Account extends BaseModel {
 
   private String authorityId;
   private String emailAddress;
-  @DbJsonB private IdTokens idTokens;
+
+  @DbJsonB(name = "id_tokens")
+  private SerializedIdTokens serializedIdTokens;
 
   public ImmutableList<Long> ownedApplicantIds() {
     return getApplicants().stream().map(applicant -> applicant.id).collect(toImmutableList());
@@ -106,12 +108,12 @@ public class Account extends BaseModel {
     return Optional.ofNullable(this.managedByGroup);
   }
 
-  public IdTokens getIdTokens() {
-    return idTokens;
+  public SerializedIdTokens getSerializedIdTokens() {
+    return serializedIdTokens;
   }
 
-  public Account setIdTokens(IdTokens idTokens) {
-    this.idTokens = idTokens;
+  public Account setSerializedIdTokens(SerializedIdTokens serializedIdTokens) {
+    this.serializedIdTokens = serializedIdTokens;
     return this;
   }
 
