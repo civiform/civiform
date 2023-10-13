@@ -128,6 +128,7 @@ public final class AdminReportingIndexView extends BaseHtmlView {
   public static final ImmutableList<ReportingTableRenderer.ReportingTableHeader>
       APPLICATION_COUNTS_BY_PROGRAM_HEADERS =
           ImmutableList.of(
+              ReportingTableRenderer.ReportingTableHeader.create("Name"),
               ReportingTableRenderer.ReportingTableHeader.create("Program"),
               ReportingTableRenderer.ReportingTableHeader.create(
                   "Submissions", "The total number of applications submitted to this program."),
