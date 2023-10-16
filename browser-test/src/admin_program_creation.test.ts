@@ -393,7 +393,7 @@ describe('program creation', () => {
       ])
   })
 
-  fit('filter questions in question bank based on text', async () => {
+  it('filter questions in question bank based on text', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -411,11 +411,12 @@ describe('program creation', () => {
     await adminPrograms.editProgramBlock(programName)
     await adminPrograms.openQuestionBank()
 
-    await page.pause();
     await page.locator('#question-bank-filter').fill('fi')
     expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
     await page.locator('#question-bank-filter').fill('se')
     expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+
     await page.locator('#question-bank-filter').fill('')
     expect(await adminPrograms.questionBankNames()).toEqual([
       'second question',
@@ -440,8 +441,10 @@ describe('program creation', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName)
       await adminPrograms.openQuestionBank()
+
       await page.locator('#question-bank-filter').fill('q-f')
       expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
       await page.locator('#question-bank-filter').fill('q-s')
       expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
     })
@@ -465,12 +468,10 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName)
     await adminPrograms.openQuestionBank()
-    expect(await adminPrograms.questionBankNames()).toEqual([
-      'second question',
-      'first question',
-    ])
+
     await page.locator('#question-bank-filter').fill('qf-help')
     expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
     await page.locator('#question-bank-filter').fill('qs-help')
     expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
   })
@@ -494,12 +495,10 @@ describe('program creation', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName)
       await adminPrograms.openQuestionBank()
-      expect(await adminPrograms.questionBankNames()).toEqual([
-        'second question',
-        'first question',
-      ])
+
       await page.locator('#question-bank-filter').fill('qf-desc')
       expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
       await page.locator('#question-bank-filter').fill('qs-desc')
       expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
     })
@@ -525,10 +524,6 @@ describe('program creation', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName)
       await adminPrograms.openQuestionBank()
-      expect(await adminPrograms.questionBankNames()).toEqual([
-        'second question',
-        'first question',
-      ])
 
       await page.locator('#question-bank-filter').fill('add')
 
@@ -556,10 +551,6 @@ describe('program creation', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName)
       await adminPrograms.openQuestionBank()
-      expect(await adminPrograms.questionBankNames()).toEqual([
-        'second question',
-        'first question',
-      ])
 
       await page.locator('#question-bank-filter').fill('admin id')
 
@@ -587,10 +578,6 @@ describe('program creation', () => {
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName)
       await adminPrograms.openQuestionBank()
-      expect(await adminPrograms.questionBankNames()).toEqual([
-        'second question',
-        'first question',
-      ])
 
       await page.locator('#question-bank-filter').fill('admin note')
 

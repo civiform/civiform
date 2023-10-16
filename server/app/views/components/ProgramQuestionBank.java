@@ -39,6 +39,8 @@ public final class ProgramQuestionBank {
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
 
+  private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
+
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
 
@@ -192,7 +194,7 @@ public final class ProgramQuestionBank {
             .withData(
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
                 definition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
-            .withData("relevantfiltertext", relevantFilterText);
+            .withData(RELEVANT_FILTER_TEXT_DATA_ATTR, relevantFilterText);
 
     ButtonTag addButton =
         button("Add")

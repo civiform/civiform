@@ -140,14 +140,10 @@ class QuestionBankController {
     )
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
-   //   console.log("question=" + question)// + "  " + "attrs=" + questionElement.attrs)
-
       const questionFilterText = questionElement.getAttribute(
-        'data-' + this.RELEVANT_FILTER_TEXT_DATA_ATTR,
+        'data-' + QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
       )
-      console.log("questionFilterText Caitlin=" + questionFilterText)
-      console.log("adminName=" + questionElement.getAttribute('data-adminname'))
-      console.log("lastmodified=" + questionElement.getAttribute('data-lastmodified'))
+
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
