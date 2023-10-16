@@ -76,7 +76,7 @@ public final class ProgramCardFactory {
                             .with(
                                 TextFormatter.formatText(
                                     programDescriptionText,
-                                    /*preserveEmptyLines=*/ true,
+                                    /*preserveEmptyLines=*/ false,
                                     /*addRequiredIndicator=*/ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(

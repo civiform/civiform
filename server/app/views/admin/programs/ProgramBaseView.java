@@ -35,7 +35,7 @@ abstract class ProgramBaseView extends BaseHtmlView {
             .with(
                 TextFormatter.formatText(
                     programDefinition.localizedDescription().getDefault(),
-                    /*preserveEmptyLines=*/ true,
+                    /*preserveEmptyLines=*/ false,
                     /*addRequiredIndicator=*/ false))
             .withClasses("text-sm");
     DivTag adminNote =
