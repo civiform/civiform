@@ -4,6 +4,7 @@ import static j2html.TagCreator.rawHtml;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import j2html.tags.DomContent;
 import java.util.List;
 import org.owasp.html.HtmlChangeListener;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.CiviFormMarkdown;
 import views.ViewUtils;
-import com.google.common.collect.Iterables;
 
 /** The TextFormatter class formats text using Markdown and some custom logic. */
 public final class TextFormatter {
@@ -37,8 +37,6 @@ public final class TextFormatter {
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicatorInsidePTag(markdownText);
     }
-    // System.out.println("before sanitized..." + markdownText);
-    // System.out.println("sanitized html..." + sanitizeHtml(markdownText));
 
     builder.add(rawHtml(sanitizeHtml(markdownText)));
     return builder.build();
@@ -88,7 +86,16 @@ public final class TextFormatter {
                 },
                 "h1")
             .allowWithoutAttributes()
-            .allowAttributes("class", "target", "xmlns", "fill", "stroke", "stroke-width", "aria-hidden", "viewbox", "d")
+            .allowAttributes(
+                "class",
+                "target",
+                "xmlns",
+                "fill",
+                "stroke",
+                "stroke-width",
+                "aria-hidden",
+                "viewbox",
+                "d")
             .globally()
             .toFactory();
 

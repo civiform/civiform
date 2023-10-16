@@ -336,21 +336,23 @@ class PreviewController {
 
   private static formatText(text: string): Element {
     // Preserve line breaks before parsing the text
-    let textArray = text.split("\n");
-    for (let i=0; i<textArray.length; i++) {
-      if (textArray[i]) {
-        continue;
-      } else {
-        textArray[i] = "&nbsp;\n"
+    const textArray = text.split('\n')
+    for (let i = 0; i < textArray.length; i++) {
+      if (!textArray[i]) {
+        textArray[i] = '&nbsp;\n'
       }
     }
-    text = textArray.join("\n")
+    text = textArray.join('\n')
 
     let parsedHtml = PreviewController.md.render(text)
     // Format lists
     parsedHtml = parsedHtml.replace('<ul>', '<ul class="list-disc mx-8">')
     // Format links
-    parsedHtml = parsedHtml.split('href').join('class="text-blue-600 hover:text-blue-500 underline" target="_blank" href')
+    parsedHtml = parsedHtml
+      .split('href')
+      .join(
+        'class="text-blue-600 hover:text-blue-500 underline" target="_blank" href',
+      )
     // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
     parsedHtml = parsedHtml.replace('<h1>', '<h2>')
     parsedHtml = parsedHtml.replace('</h1>', '</h2>')
