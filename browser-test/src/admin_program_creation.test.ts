@@ -369,7 +369,7 @@ describe('program creation', () => {
     ])
   })
 
-  it('all questions shown on question bank open', async () => {
+  it('all questions shown on question bank before filtering', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
