@@ -187,13 +187,17 @@ public abstract class Modal {
         .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
         .with(div().withClasses("flex-grow"))
       .with(
-        TagCreator.button()
+        button("Close")
           .attr("aria-label", "Close")
-          .withClasses(ReferenceClasses.MODAL_CLOSE, "border-none", "bg-transparent")
+          .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.OUTLINED_TRANSPARENT, "border-none", "bg-transparent")
           .with(
-            Icons.svg(Icons.CLOSE).withClasses(BaseStyles.MODAL_CLOSE_BUTTON))
-          );
-
+            Icons.svg(Icons.CLOSE).withClasses(
+              "w-6",
+              "h-6",
+              "cursor-pointer",
+              "mr-2")
+          )
+);
       /*
         .with(
           makeSvgTextButton("", Icons.CLOSE)
