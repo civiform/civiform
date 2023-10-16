@@ -393,7 +393,7 @@ describe('program creation', () => {
       ])
   })
 
-  it('filter questions in question bank based on text', async () => {
+  fit('filter questions in question bank based on text', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -410,6 +410,8 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName)
     await adminPrograms.openQuestionBank()
+
+    await page.pause();
     await page.locator('#question-bank-filter').fill('fi')
     expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
     await page.locator('#question-bank-filter').fill('se')

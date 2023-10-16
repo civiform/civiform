@@ -41,7 +41,7 @@
   <logger name="com.gargoylesoftware.htmlunit" level="OFF" />
   <logger name="org.apache.http.wire" level="OFF" />
 
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="ASYNCFILE" />
     <appender-ref ref="ASYNCSTDOUT" />
   </root>
