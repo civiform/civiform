@@ -2,6 +2,7 @@ package views.components;
 
 import static j2html.TagCreator.rawHtml;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import views.CiviFormMarkdown;
 import views.ViewUtils;
+import com.google.common.collect.Iterables;
 
 /** The TextFormatter class formats text using Markdown and some custom logic. */
 public final class TextFormatter {
@@ -28,17 +30,30 @@ public final class TextFormatter {
     ImmutableList.Builder<DomContent> builder = new ImmutableList.Builder<DomContent>();
 
     if (preserveEmptyLines) {
-      text = text.replaceAll("\n", "<br/>");
+      text = preserveEmptyLines(text);
     }
-
     String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicatorInsidePTag(markdownText);
     }
+    // System.out.println("before sanitized..." + markdownText);
+    // System.out.println("sanitized html..." + sanitizeHtml(markdownText));
 
     builder.add(rawHtml(sanitizeHtml(markdownText)));
     return builder.build();
+  }
+
+  private static String preserveEmptyLines(String text) {
+    String[] lines = Iterables.toArray(Splitter.on("\n").split(text), String.class);
+    for (int i = 0; i < lines.length; i++) {
+      String line = lines[i].trim();
+      if (line.isBlank()) {
+        // Add an empty space character so the blank line is preserved
+        lines[i] = "&nbsp;\n";
+      }
+    }
+    return String.join("\n", lines);
   }
 
   private static String addIconToLinks(String markdownText) {
@@ -73,7 +88,7 @@ public final class TextFormatter {
                 },
                 "h1")
             .allowWithoutAttributes()
-            .allowAttributes("class", "target")
+            .allowAttributes("class", "target", "xmlns", "fill", "stroke", "stroke-width", "aria-hidden", "viewbox", "d")
             .globally()
             .toFactory();
 
