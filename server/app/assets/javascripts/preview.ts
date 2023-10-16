@@ -234,8 +234,6 @@ class PreviewController {
       questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
     if (useAdvancedFormatting) {
       const contentElement = PreviewController.formatText(text)
-      contentElement.classList.add('text-sm')
-      contentElement.classList.add('font-normal')
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
@@ -338,7 +336,16 @@ class PreviewController {
 
   private static formatText(text: string): Element {
     // Preserve line breaks before parsing the text
-    text = text.replace(/\n$/gm, '\n&nbsp;')
+    let textArray = text.split("\n");
+    for (let i=0; i<textArray.length; i++) {
+      if (textArray[i]) {
+        continue;
+      } else {
+        textArray[i] = "&nbsp;\n"
+      }
+    }
+    text = textArray.join("\n")
+
     let parsedHtml = PreviewController.md.render(text)
     // Format lists
     parsedHtml = parsedHtml.replace('<ul>', '<ul class="list-disc mx-8">')
