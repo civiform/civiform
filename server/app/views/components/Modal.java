@@ -2,14 +2,18 @@ package views.components;
 
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
+import static views.BaseHtmlView.makeSvgTextButton;
 
 import com.google.auto.value.AutoValue;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+
+import views.ViewUtils;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -182,9 +186,21 @@ public abstract class Modal {
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
         .with(div().withClasses("flex-grow"))
+      .with(
+        TagCreator.button()
+          .attr("aria-label", "Close")
+          .withClasses(ReferenceClasses.MODAL_CLOSE, "border-none", "bg-transparent")
+          .with(
+            Icons.svg(Icons.CLOSE).withClasses(BaseStyles.MODAL_CLOSE_BUTTON))
+          );
+
+      /*
         .with(
-            Icons.svg(Icons.CLOSE)
-                .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
+          makeSvgTextButton("", Icons.CLOSE)
+            .withClasses(ButtonStyles.CLEAR_WITH_ICON, ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON)
+        );
+
+       */
   }
 
   public static String randomModalId() {

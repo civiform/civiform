@@ -83,7 +83,7 @@ public abstract class BaseHtmlView {
     return element;
   }
 
-  protected static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
+  public static ButtonTag makeSvgTextButton(String buttonText, Icons icon) {
     return ViewUtils.makeSvgTextButton(buttonText, icon);
   }
 
