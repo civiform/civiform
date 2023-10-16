@@ -8,17 +8,24 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import repository.ExportServiceRepository;
 import services.DateConverter;
 import services.Path;
+import services.applicant.AnswerData;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.export.enums.SubmitterType;
 import services.program.Column;
+import services.question.types.QuestionType;
 
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
@@ -56,13 +63,48 @@ public final class CsvExporter implements AutoCloseable {
   public void exportRecord(
       Application application,
       ReadOnlyApplicantProgramService roApplicantService,
-      Optional<Boolean> optionalEligibilityStatus)
+      Optional<Boolean> optionalEligibilityStatus,
+      ExportServiceRepository exportServiceRepository)
       throws IOException {
-    ImmutableMap<Path, String> answerMap =
-        roApplicantService.getSummaryData().stream()
-            .flatMap(data -> data.scalarAnswersInDefaultLocale().entrySet().stream())
-            .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue));
+    Map<Path, String> answerDataMap = new HashMap<>();
+    Map<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap = new HashMap<>();
+    System.out.println("---Inside Export record---");
+    for (AnswerData answerData : roApplicantService.getSummaryData()) {
+      if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
+        String questionName = answerData.questionDefinition().getName();
+        if (!checkBoxQuestionScalarMap.containsKey(questionName)) {
+          checkBoxQuestionScalarMap.put(
+              questionName, exportServiceRepository.getMultiSelectedHeaders(questionName));
+        }
+        Map<Long, String> optionHeaderMap = checkBoxQuestionScalarMap.get(questionName);
+        String defaultText = answerData.isAnswered() ? "Not Selected" : "Not Answered - optional";
+        List<String> selectedList =
+            answerData
+                .applicantQuestion()
+                .createMultiSelectQuestion()
+                .getSelectedOptionAdminNames()
+                .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
+                .orElse(Collections.singletonList(""));
+        optionHeaderMap.keySet().stream()
+            .sorted()
+            .forEach(
+                option ->
+                    answerDataMap.put(
+                        answerData
+                            .contextualizedPath()
+                            .join(String.valueOf(optionHeaderMap.get(option))),
+                        selectedList.contains(optionHeaderMap.get(option))
+                            ? "Selected"
+                            : defaultText));
 
+      } else {
+        for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {
+          answerDataMap.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
+        }
+      }
+    }
+    ImmutableMap<Path, String> answerMap =
+        ImmutableMap.<Path, String>builder().putAll(answerDataMap).build();
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
