@@ -38,7 +38,8 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
-
+  // Data attribute used to store which text is relevant when filtering
+  // questions via the search bar.
   private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
 
   private final ProgramQuestionBankParams params;

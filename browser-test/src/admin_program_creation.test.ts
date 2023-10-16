@@ -456,12 +456,12 @@ describe('program creation', () => {
     await adminQuestions.addTextQuestion({
       questionName: 'q-f',
       questionText: 'first question',
-      helpText: 'qf-help-text-here',
+      helpText: 'qf-help-text',
     })
     await adminQuestions.addTextQuestion({
       questionName: 'q-s',
       questionText: 'second question',
-      helpText: 'qs-help-text-here',
+      helpText: 'qs-help-text',
     })
 
     const programName = 'Test program'
@@ -483,12 +483,12 @@ describe('program creation', () => {
     await adminQuestions.addTextQuestion({
       questionName: 'q-f',
       questionText: 'first question',
-      description: 'qf-description-text-here',
+      description: 'qf-description-text',
     })
     await adminQuestions.addTextQuestion({
       questionName: 'q-s',
       questionText: 'second question',
-      description: 'qs-description-text-here',
+      description: 'qs-description-text',
     })
 
     const programName = 'Test program'
