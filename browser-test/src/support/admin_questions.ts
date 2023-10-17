@@ -907,7 +907,7 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
-    markdownText = '\n[Here is a link](www.example.com)\n',
+    markdownText = '\n[Here is a link](https://www.example.com)\n',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.createStaticQuestion({

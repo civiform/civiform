@@ -108,7 +108,16 @@ export class AdminPrograms {
     adminDescription = 'admin description',
     isCommonIntake = false,
     selectedTI = 'none',
-    confirmationMessage = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\r\n\r\nAenean non magna augue. https://example.org/some/path. Suspendisse hendrerit orci sit amet luctus congue. ',
+    confirmationMessage = 'This is the _custom confirmation message_ with markdown\n' +
+      '[This is a link](https://www.example.com)\n' +
+      'This is a list:\n' +
+      '* Item 1\n' +
+      '* Item 2\n' +
+      '\n' +
+      'There are some empty lines below this that should be preserved\n' +
+      '\n' +
+      '\n' +
+      'This link should be autodetected: https://www.example.com\n',
   ) {
     await this.gotoAdminProgramsPage()
     await this.page.click('#new-program-button')
