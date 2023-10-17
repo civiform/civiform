@@ -9,6 +9,7 @@ class QuestionBankController {
   static readonly QUESTION_BANK_CONTAINER = 'cf-question-bank-container'
   static readonly QUESTION_BANK_HIDDEN = 'cf-question-bank-hidden'
   static readonly BANK_SHOWN_URL_PARAM = 'sqb'
+  static readonly RELEVANT_FILTER_TEXT_DATA_ATTR = 'data-relevantfiltertext'
 
   static readonly SORT_SELECT_ID = 'question-bank-sort'
 
@@ -139,11 +140,14 @@ class QuestionBankController {
     )
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
-      const questionContents = questionElement.innerText
+      const questionFilterText =
+        questionElement.getAttribute(
+          QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
+        ) ?? questionElement.innerText
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
-          !questionContents.toUpperCase().includes(filterString),
+          !questionFilterText.toUpperCase().includes(filterString),
       )
     })
   }
