@@ -346,7 +346,7 @@ class PreviewController {
 
     let parsedHtml = PreviewController.md.render(text)
     // Format lists
-    parsedHtml = parsedHtml.replace('<ul>', '<ul class="list-disc mx-8">')
+    parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
     // Format links
     parsedHtml = parsedHtml
       .split('href')
@@ -354,8 +354,9 @@ class PreviewController {
         'class="text-blue-600 hover:text-blue-500 underline" target="_blank" href',
       )
     // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
-    parsedHtml = parsedHtml.replace('<h1>', '<h2>')
-    parsedHtml = parsedHtml.replace('</h1>', '</h2>')
+    parsedHtml = parsedHtml.split('<h1>').join('<h2>')
+    parsedHtml = parsedHtml.split('</h1>').join('</h2>')
+
     const html = PreviewController.parser.parseFromString(
       parsedHtml,
       'text/html',
