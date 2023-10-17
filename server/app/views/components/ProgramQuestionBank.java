@@ -39,6 +39,9 @@ public final class ProgramQuestionBank {
   // Url parameter used to force question bank open upon initial rendering
   // of program edit page.
   private static final String SHOW_QUESTION_BANK_PARAM = "sqb";
+  // Data attribute used to store which text is relevant when filtering
+  // questions via the search bar.
+  private static final String RELEVANT_FILTER_TEXT_DATA_ATTR = "relevantfiltertext";
 
   private final ProgramQuestionBankParams params;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
@@ -161,6 +164,20 @@ public final class ProgramQuestionBank {
   }
 
   private DivTag renderQuestionDefinition(QuestionDefinition definition) {
+    String questionHelpText =
+        definition.getQuestionHelpText().isEmpty()
+            ? ""
+            : definition.getQuestionHelpText().getDefault();
+    // Create a string containing all the text that should be indexed when
+    // filtering questions.
+    String relevantFilterText =
+        String.join(
+            " ",
+            definition.getQuestionText().getDefault(),
+            questionHelpText,
+            definition.getName(),
+            definition.getDescription());
+
     DivTag questionDiv =
         div()
             .withId("add-question-" + definition.getId())
@@ -176,7 +193,8 @@ public final class ProgramQuestionBank {
             .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), definition.getName())
             .withData(
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
-                definition.getLastModifiedTime().orElse(Instant.EPOCH).toString());
+                definition.getLastModifiedTime().orElse(Instant.EPOCH).toString())
+            .withData(RELEVANT_FILTER_TEXT_DATA_ATTR, relevantFilterText);
 
     ButtonTag addButton =
         button("Add")
@@ -189,10 +207,7 @@ public final class ProgramQuestionBank {
 
     SvgTag icon =
         Icons.questionTypeSvg(definition.getQuestionType()).withClasses("shrink-0", "h-12", "w-6");
-    String questionHelpText =
-        definition.getQuestionHelpText().isEmpty()
-            ? ""
-            : definition.getQuestionHelpText().getDefault();
+
     // Only show the admin note if it is not empty.
     PTag adminNote =
         definition.getDescription().isEmpty()
