@@ -114,7 +114,7 @@ public class TextFormatterTest {
         .contains(
             "<p>This is the first line of content.<br />\u00A0</p>\n"
                 + // u00A0 is a non-breaking whitespace represented by &nbsp; before going through
-                  // the parser
+                // the parser
                 "<p>This is the second (or third) line of content.<br />\u00A0</p>\n"
                 + "<p>\u00A0</p>\n"
                 + "<p>This is the third (or sixth) line of content.</p>\n");
