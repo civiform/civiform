@@ -238,14 +238,14 @@ public final class CsvExporterService {
             .sorted(
                 Comparator.comparing(AnswerData::blockId).thenComparing(AnswerData::questionIndex))
             .collect(ImmutableList.toImmutableList());
-    return generateDefaultCsvConfig(answers, showEligibilityColumn);
+    return buildColumnHeaders(answers, showEligibilityColumn);
   }
 
   /**
    * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The default
    * config includes all the questions, the application id, and the application submission time.
    */
-  private CsvExportConfig generateDefaultCsvConfig(
+  private CsvExportConfig buildColumnHeaders(
       ImmutableList<AnswerData> answerDataList, boolean showEligibilityColumn) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
