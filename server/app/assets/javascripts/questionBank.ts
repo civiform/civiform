@@ -140,20 +140,10 @@ class QuestionBankController {
     )
     questions.forEach((question) => {
       const questionElement = question as HTMLElement
-
-      let questionFilterText
-      if (
-        questionElement.hasAttribute(
+      const questionFilterText =
+        questionElement.getAttribute(
           QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
-        )
-      ) {
-        questionFilterText = questionElement.getAttribute(
-          QuestionBankController.RELEVANT_FILTER_TEXT_DATA_ATTR,
-        )
-      } else {
-        questionFilterText = questionElement.innerText
-      }
-
+        ) ?? questionElement.innerText
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
