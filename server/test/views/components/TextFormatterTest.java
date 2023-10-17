@@ -38,13 +38,15 @@ public class TextFormatterTest {
     List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
-        "<a href=\"http://internet.website\" class=\"text-blue-600 hover:text-blue-500 underline\""
-            + " target=\"_blank\" rel=\"nofollow noopener noreferrer\">http://internet.website<svg",
+        "<a href=\"http://internet.website\" class=\"text-sm text-blue-900 font-bold opacity-75"
+            + " underline hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">http://internet.website<svg",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
-        "<a href=\"https://secure.website\" class=\"text-blue-600 hover:text-blue-500 underline\""
-            + " target=\"_blank\" rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
+        "<a href=\"https://secure.website\" class=\"text-sm text-blue-900 font-bold opacity-75"
+            + " underline hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">https://secure.website<svg",
         "</svg></a></p>\n");
   }
 
@@ -58,8 +60,9 @@ public class TextFormatterTest {
     String htmlContent = content.get(0).render();
     assertIsExternalUrlWithIcon(
         htmlContent,
-        "<a href=\"https://www.google.com\" class=\"text-blue-600 hover:text-blue-500 underline\""
-            + " target=\"_blank\" rel=\"nofollow noopener noreferrer\">this is a link",
+        "<a href=\"https://www.google.com\" class=\"text-sm text-blue-900 font-bold opacity-75"
+            + " underline hover:opacity-100\" target=\"_blank\" rel=\"nofollow noopener"
+            + " noreferrer\">this is a link",
         "</svg></a></p>\n");
   }
 
@@ -109,9 +112,12 @@ public class TextFormatterTest {
             withBlankLine, /*preserveEmptyLines=*/ true, /*addRequiredIndicator=*/ false);
     assertThat(preservedBlanksContent.get(0).render())
         .contains(
-            "<p>This is the first line of content.<br /><br />This is the second (or third) line"
-                + " of content.<br /><br /><br />This is the third (or sixth) line of"
-                + " content.</p>");
+            "<p>This is the first line of content.<br />\u00A0</p>\n"
+                + // u00A0 is a non-breaking whitespace represented by &nbsp; before going through
+                  // the parser
+                "<p>This is the second (or third) line of content.<br />\u00A0</p>\n"
+                + "<p>\u00A0</p>\n"
+                + "<p>This is the third (or sixth) line of content.</p>\n");
 
     ImmutableList<DomContent> nonPreservedBlanksContent =
         TextFormatter.formatText(
