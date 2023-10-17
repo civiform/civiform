@@ -147,8 +147,7 @@ class QuestionBankController {
       questionElement.classList.toggle(
         'hidden',
         filterString.length > 0 &&
-          (questionFilterText == null ||
-            !questionFilterText.toUpperCase().includes(filterString)),
+          !questionFilterText.toUpperCase().includes(filterString),
       )
     })
   }
