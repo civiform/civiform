@@ -709,7 +709,7 @@
         "type": "bool"
       },
       "ENHANCED_OIDC_LOGOUT_ENABLED": {
-        "mode": "HIDDEN",
+        "mode": "ADMIN_WRITEABLE",
         "description": "Enables logic to populate more fields in OIDC logout requests.",
         "type": "bool"
       }

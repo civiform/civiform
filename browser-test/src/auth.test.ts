@@ -1,5 +1,6 @@
 import {
   createTestContext,
+  enableFeatureFlag,
   loginAsTestUser,
   validateScreenshot,
   testUserDisplayName,
@@ -37,6 +38,7 @@ describe('applicant auth', () => {
   if (TEST_USER_AUTH_STRATEGY === AuthStrategy.FAKE_OIDC) {
     it('applicant can confirm central provider logout', async () => {
       const {page} = ctx
+      await enableFeatureFlag(page, 'enhanced_oidc_logout_enabled')
       await loginAsTestUser(page)
       expect(await ctx.page.textContent('html')).toContain(
         `Logged in as ${testUserDisplayName()}`,
@@ -53,6 +55,7 @@ describe('applicant auth', () => {
 
   it('applicant can logout', async () => {
     const {page} = ctx
+    await enableFeatureFlag(page, 'enhanced_oidc_logout_enabled')
     await loginAsTestUser(page)
     expect(await ctx.page.textContent('html')).toContain(
       `Logged in as ${testUserDisplayName()}`,

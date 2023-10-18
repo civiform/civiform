@@ -31,7 +31,7 @@ public final class SessionIdFilter extends Filter {
   }
 
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
-    return settingsManifestProvider.get().getEnhancedOidcLogoutEnabled()
+    return settingsManifestProvider.get().getEnhancedOidcLogoutEnabled(requestHeader)
         && excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
         // Since we are using redirects, we only apply this filter for a GET request.
         && requestHeader.method().equals("GET")

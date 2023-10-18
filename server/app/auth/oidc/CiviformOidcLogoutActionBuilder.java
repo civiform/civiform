@@ -25,6 +25,8 @@ import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 import org.pac4j.play.PlayWebContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
 
 /**
@@ -42,6 +44,7 @@ import repository.AccountRepository;
  * <p>Always adds the client_id to the logout request.
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
+  private static Logger logger = LoggerFactory.getLogger(CiviformOidcLogoutActionBuilder.class);
 
   private String postLogoutRedirectParam;
   private final String clientId;
@@ -87,11 +90,13 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   private JWT getIdTokenForAccount(long accountId, WebContext context) {
     PlayWebContext playWebContext = (PlayWebContext) context;
     Optional<String> sessionId = playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
+    logger.info("XXX CiviformOidcLogoutActionBuilder: sessionId = {}", sessionId);
     if (sessionId.isEmpty()) {
       // The session id is only populated if the feature flag is enabled.
       return null;
     }
     Optional<Account> account = accountRepositoryProvider.get().lookupAccount(accountId);
+    logger.info("XXX CiviformOidcLogoutActionBuilder: account = {}", account);
     if (account.isEmpty()) {
       return null;
     }
@@ -100,6 +105,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     // When we build the logout action, we do not remove the id token. We leave it in place in case
     // of transient logout failures. Expired tokens are purged at login time instead.
     Optional<String> idToken = idTokens.getIdToken(sessionId.get());
+    logger.info("XXX CiviformOidcLogoutActionBuilder: idToken = {}", idToken);
     if (idToken.isEmpty()) {
       return null;
     }

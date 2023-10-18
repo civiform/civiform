@@ -154,6 +154,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             account -> {
               if (sessionId.isEmpty()) {
                 // The session id is only populated if the feature flag is enabled.
+                logger.info("XXX sessionId is empty, so cannot store id token");
                 return;
               }
               SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
@@ -165,6 +166,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
               idTokens.purgeExpiredIdTokens();
               idTokens.storeIdToken(sessionId.get(), oidcProfile.getIdTokenString());
               account.save();
+              logger.info("XXX Stored ID token for session id {}", sessionId.get());
             })
         .join();
 
