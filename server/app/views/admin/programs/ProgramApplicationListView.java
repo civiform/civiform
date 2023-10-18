@@ -27,6 +27,8 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import models.Application;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.SubmittedApplicationFilter;
@@ -66,6 +68,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
 
   private final ApplicantService applicantService;
   private final DateConverter dateConverter;
+  private final Logger log = LoggerFactory.getLogger(ProgramApplicationListView.class);
 
   @Inject
   public ProgramApplicationListView(
@@ -413,11 +416,12 @@ public final class ProgramApplicationListView extends BaseHtmlView {
   }
 
   private SpanTag renderSubmitTime(Application application) {
-    String submitTime =
-        application.getSubmitTime() == null
-            ? ""
-            : dateConverter.renderDateTime(application.getSubmitTime());
-    return span().withText(submitTime);
+    try {
+      return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
+    } catch (NullPointerException e) {
+      log.error("Application {} submitted without submission time marked.", application.id);
+      return span();
+    }
   }
 
   private ATag renderViewLink(String text, Application application) {

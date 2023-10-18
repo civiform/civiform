@@ -31,8 +31,6 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -68,7 +66,6 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
-  private final Logger log = LoggerFactory.getLogger(ProgramApplicationView.class);
 
   @Inject
   public ProgramApplicationView(
@@ -453,11 +450,10 @@ public final class ProgramApplicationView extends BaseHtmlView {
   }
 
   private SpanTag renderSubmitTime(Application application) {
-    try {
-      return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
-    } catch (NullPointerException e) {
-      log.error("Application {} submitted without submission time marked.", application.id);
-      return span();
-    }
+    String submitTime =
+        application.getSubmitTime() == null
+            ? ""
+            : dateConverter.renderDateTime(application.getSubmitTime());
+    return span().withText(submitTime);
   }
 }
