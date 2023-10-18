@@ -452,7 +452,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private SpanTag renderSubmitTime(Application application) {
     String submitTime =
         application.getSubmitTime() == null
-            ? ""
+            ? "Application submitted without submission time marked."
             : dateConverter.renderDateTime(application.getSubmitTime());
     return span().withText(submitTime);
   }

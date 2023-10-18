@@ -118,7 +118,8 @@ public final class PdfExporter {
       document.add(status);
       Paragraph submitTimeInformation =
           new Paragraph(
-              "Submit Time: " + submitTime.orElse(""),
+              "Submit Time: "
+                  + submitTime.orElse("Application submitted without submission time marked."),
               FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
