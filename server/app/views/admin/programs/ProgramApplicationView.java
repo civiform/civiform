@@ -24,12 +24,15 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
+import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.OptionalLong;
 import models.Application;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -65,6 +68,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final Messages enUsMessages;
   private final DateConverter dateConverter;
+  private final Logger log = LoggerFactory.getLogger(ProgramApplicationView.class);
 
   @Inject
   public ProgramApplicationView(
@@ -137,6 +141,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                 renderStatusOptionsSelector(application, statusDefinitions),
                                 updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
+            .with(
+                p(renderSubmitTime(application))
+                    .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
             .with(
                 each(
                     blocks,
@@ -443,5 +450,14 @@ public final class ProgramApplicationView extends BaseHtmlView {
             span(applicantNameWithApplicationId).withClass("font-semibold"),
             span(" of this change at "),
             span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
+  }
+
+  private SpanTag renderSubmitTime(Application application) {
+    try {
+      return span().withText(dateConverter.renderDateTime(application.getSubmitTime()));
+    } catch (NullPointerException e) {
+      log.error("Application {} submitted without submission time marked.", application.id);
+      return span();
+    }
   }
 }
