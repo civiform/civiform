@@ -79,10 +79,10 @@ public final class PdfExporter {
     return new InMemoryPdf(bytes, filename);
   }
 
-  private Optional<String> getSubmitTime(Instant submitTime) {
+  private String getSubmitTime(Instant submitTime) {
     return submitTime == null
-        ? Optional.empty()
-        : Optional.of(dateConverter.renderDateTime(submitTime));
+        ? "Application submitted without submission time marked."
+        : dateConverter.renderDateTime(submitTime);
   }
 
   private byte[] buildPDF(
@@ -90,7 +90,7 @@ public final class PdfExporter {
       String applicantNameWithApplicationId,
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
-      Optional<String> submitTime)
+      String submitTime)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -118,9 +118,7 @@ public final class PdfExporter {
       document.add(status);
       Paragraph submitTimeInformation =
           new Paragraph(
-              "Submit Time: "
-                  + submitTime.orElse("Application submitted without submission time marked."),
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+              "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
