@@ -133,6 +133,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(annots).isNull();
     pdfReader.close();
     assertThat(textFromPDF).isNotNull();
+    System.out.println(textFromPDF);
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
     assertThat(textFromPDF).isNotNull();
     String programName = applicationSix.getProgram().getProgramDefinition().adminName();
@@ -172,6 +173,7 @@ public class PdfExporterTest extends AbstractExporterTest {
       "Optional.empty (653)\n"
           + "Program Name : Fake Optional Question Program\n"
           + "Status: none\n"
+          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
           + " \n"
           + "applicant name\n"
           + "Example Six\n"
@@ -183,6 +185,7 @@ public class PdfExporterTest extends AbstractExporterTest {
       "Optional.empty (558)\n"
           + "Program Name : Fake Optional Question Program\n"
           + "Status: none\n"
+          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
           + " \n"
           + "applicant name\n"
           + "Example Five\n"
@@ -197,6 +200,7 @@ public class PdfExporterTest extends AbstractExporterTest {
           + "Status: "
           + STATUS_VALUE
           + "\n"
+          + "Submit Time: 2021/12/31 at 4:00 PM PST\n"
           + " \n"
           + "applicant Email address\n"
           + "one@example.com\n"

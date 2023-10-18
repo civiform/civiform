@@ -24,6 +24,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
+import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -137,6 +138,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                 renderStatusOptionsSelector(application, statusDefinitions),
                                 updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
+            .with(
+                p(renderSubmitTime(application))
+                    .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
             .with(
                 each(
                     blocks,
@@ -445,5 +449,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
             span(applicantNameWithApplicationId).withClass("font-semibold"),
             span(" of this change at "),
             span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
+  }
+
+  private SpanTag renderSubmitTime(Application application) {
+    String submitTime =
+        application.getSubmitTime() == null
+            ? "Application submitted without submission time marked."
+            : dateConverter.renderDateTime(application.getSubmitTime());
+    return span().withText(submitTime);
   }
 }
