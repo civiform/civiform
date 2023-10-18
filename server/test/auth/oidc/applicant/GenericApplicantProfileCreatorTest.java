@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -43,8 +44,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
         new GenericApplicantProfileCreator(
             client_config,
             client,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository),
+            OidcClientProviderParams.create(
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
             EMAIL_ATTRIBUTE_NAME,
             LOCALE_ATTRIBUTE_NAME,
             ImmutableList.of(

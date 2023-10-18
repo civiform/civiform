@@ -29,18 +29,17 @@ import repository.AccountRepository;
 public abstract class OidcClientProvider implements Provider<OidcClient> {
 
   private static final Logger logger = LoggerFactory.getLogger(OidcClientProvider.class);
+  protected final OidcClientProviderParams params;
   protected final Config civiformConfig;
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
 
-  public OidcClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<AccountRepository> accountRepositoryProvider) {
-    this.civiformConfig = checkNotNull(configuration);
-    this.profileFactory = checkNotNull(profileFactory);
-    this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
+  public OidcClientProvider(OidcClientProviderParams params) {
+    this.params = params;
+    this.civiformConfig = checkNotNull(params.configuration());
+    this.profileFactory = checkNotNull(params.profileFactory());
+    this.accountRepositoryProvider = checkNotNull(params.accountRepositoryProvider());
 
     this.baseUrl =
         getBaseConfigurationValue("base_url")
