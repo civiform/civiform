@@ -21,6 +21,7 @@ import services.geo.AddressLocation;
 public class EsriTestHelper {
   public static enum TestType {
     STANDARD,
+    STANDARD_WITH_LINE_2,
     NO_CANDIDATES,
     ERROR,
     SERVICE_AREA_VALIDATION,
@@ -62,6 +63,17 @@ public class EsriTestHelper {
                     RoutingDsl.fromComponents(components)
                         .GET("/findAddressCandidates")
                         .routingTo(request -> ok().sendResource("esri/findAddressCandidates.json"))
+                        .build());
+        break;
+      case STANDARD_WITH_LINE_2:
+        server =
+            Server.forRouter(
+                (components) ->
+                    RoutingDsl.fromComponents(components)
+                        .GET("/findAddressCandidates")
+                        .routingTo(
+                            request ->
+                                ok().sendResource("esri/findAddressCandidatesWithLine2.json"))
                         .build());
         break;
       case NO_CANDIDATES:

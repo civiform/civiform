@@ -218,7 +218,7 @@ public abstract class EsriClient {
       JsonNode parentJsonNode, String keyName, Supplier<String> getDefaultValue) {
     JsonNode childJsonNode = parentJsonNode.get(keyName);
 
-    return (childJsonNode == null || childJsonNode.isNull())
+    return (childJsonNode == null || childJsonNode.isNull() || childJsonNode.asText().isEmpty())
         ? getDefaultValue.get()
         : childJsonNode.asText();
   }
