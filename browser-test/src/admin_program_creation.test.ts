@@ -369,7 +369,7 @@ describe('program creation', () => {
     ])
   })
 
-  it('filter questions in question bank', async () => {
+  it('all questions shown on question bank before filtering', async () => {
     const {page, adminQuestions, adminPrograms} = ctx
 
     await loginAsAdmin(page)
@@ -386,19 +386,202 @@ describe('program creation', () => {
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName)
     await adminPrograms.openQuestionBank()
+
     expect(await adminPrograms.questionBankNames()).toEqual([
       'second question',
       'first question',
     ])
+  })
+
+  it('filter questions in question bank based on text', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
     await page.locator('#question-bank-filter').fill('fi')
     expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
     await page.locator('#question-bank-filter').fill('se')
     expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+
     await page.locator('#question-bank-filter').fill('')
     expect(await adminPrograms.questionBankNames()).toEqual([
       'second question',
       'first question',
     ])
+  })
+
+  it('filter questions in question bank based on name', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
+    await page.locator('#question-bank-filter').fill('q-f')
+    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
+    await page.locator('#question-bank-filter').fill('q-s')
+    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+  })
+
+  it('filter questions in question bank based on help text', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+      helpText: 'qf-help-text',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+      helpText: 'qs-help-text',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
+    await page.locator('#question-bank-filter').fill('qf-help')
+    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
+    await page.locator('#question-bank-filter').fill('qs-help')
+    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+  })
+
+  it('filter questions in question bank based on description', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+      description: 'qf-description-text',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+      description: 'qs-description-text',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
+    await page.locator('#question-bank-filter').fill('qf-desc')
+    expect(await adminPrograms.questionBankNames()).toEqual(['first question'])
+
+    await page.locator('#question-bank-filter').fill('qs-desc')
+    expect(await adminPrograms.questionBankNames()).toEqual(['second question'])
+  })
+
+  /**
+   * All question UIs will have an "Add" button, so ensure filtering to "Add"
+   * doesn't just show every question.
+   */
+  it('filters out add button', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
+    await page.locator('#question-bank-filter').fill('add')
+
+    expect(await adminPrograms.questionBankNames()).toEqual([])
+  })
+
+  /**
+   * All question UIs will have an "Admin ID" field, so ensure filtering to
+   * "Admin ID" doesn't just show every question.
+   */
+  it('filters out admin ID', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
+    await page.locator('#question-bank-filter').fill('admin id')
+
+    expect(await adminPrograms.questionBankNames()).toEqual([])
+  })
+
+  /**
+   * Many question UIs will have an "Admin Note" field, so ensure filtering to
+   * "Admin Note" doesn't just show all questions with an admin note.
+   */
+  it('filters out admin note', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-f',
+      questionText: 'first question',
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'q-s',
+      questionText: 'second question',
+    })
+
+    const programName = 'Test program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(programName)
+    await adminPrograms.openQuestionBank()
+
+    await page.locator('#question-bank-filter').fill('admin note')
+
+    expect(await adminPrograms.questionBankNames()).toEqual([])
   })
 
   /**
