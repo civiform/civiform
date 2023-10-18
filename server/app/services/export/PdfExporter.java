@@ -80,11 +80,7 @@ public final class PdfExporter {
   }
 
   private String getSubmitTime(Instant submitTime) {
-    try {
-      return dateConverter.renderDateTime(submitTime);
-    } catch (NullPointerException e) {
-      return "Application submitted without submission time marked.";
-    }
+    return submitTime == Optional.Empty() ? "" :  Optional.of(dateConverter.renderDateTime(submitTime));
   }
 
   private byte[] buildPDF(
