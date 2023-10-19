@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.concurrent.CompletableFuture;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
@@ -22,8 +23,6 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsService;
 import views.dev.DatabaseSeedView;
-
-import java.util.concurrent.CompletableFuture;
 
 /** Controller for seeding the development database with test content. */
 public class DevDatabaseSeedController extends Controller {
@@ -119,10 +118,11 @@ public class DevDatabaseSeedController extends Controller {
       return CompletableFuture.completedFuture(null);
     }
     return CompletableFuture.completedFuture(versionRepository.getActiveVersion())
-      .thenAcceptAsync((activeVersion) -> {
-        clearVersionCache(programsByVersionCache, activeVersion);
-        clearVersionCache(questionsByVersionCache, activeVersion);
-      });
+        .thenAcceptAsync(
+            (activeVersion) -> {
+              clearVersionCache(programsByVersionCache, activeVersion);
+              clearVersionCache(questionsByVersionCache, activeVersion);
+            });
   }
 
   private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {

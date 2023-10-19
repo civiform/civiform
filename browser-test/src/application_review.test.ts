@@ -253,18 +253,6 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.gotoQuestionEditPage('favorite-trees-q')
     await page.click('#question-settings button:has-text("Delete"):visible')
     await page.click('text=Update')
-//     await adminPrograms.gotoAdminProgramsPage()
-//     await adminPrograms.expectDraftProgram(programName)
-//
-//     await adminPrograms.gotoAdminProgramsPage()
-//     const modal = await adminPrograms.openPublishAllDraftsModal()
-//     await validateScreenshot(page, 'check-program-stuff-modal')
-//     const confirmHandle = (await modal.$('button:has-text("Confirm")'))!
-//     await confirmHandle.click()
-// //     await clickAndWaitForModal(page, )
-// //     await validateScreenshot(page, 'check-program-stuff')
-//     await waitForPageJsLoad(page)
-//     await adminPrograms.expectActiveProgram(programName)
     await adminPrograms.publishProgram(programName)
 
     await logout(page)
