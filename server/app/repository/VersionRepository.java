@@ -174,12 +174,6 @@ public final class VersionRepository {
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
-      if (settingsManifest.getVersionCacheEnabled()) {
-        questionsByVersionCache.remove(active.id.toString());
-        programsByVersionCache.remove(active.id.toString());
-        questionsByVersionCache.remove(draft.id.toString());
-        programsByVersionCache.remove(draft.id.toString());
-      }
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
@@ -191,6 +185,10 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
+          if (settingsManifest.getVersionCacheEnabled()) {
+            questionsByVersionCache.remove(active.id.toString());
+            programsByVersionCache.remove(active.id.toString());
+          }
           validateProgramQuestionState();
           break;
         case DRY_RUN:
