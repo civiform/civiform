@@ -1,16 +1,13 @@
 package auth.oidc.applicant;
 
-import auth.ProfileFactory;
 import auth.oidc.OidcClientProvider;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import java.util.Optional;
-import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.AccountRepository;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
@@ -24,11 +21,8 @@ public final class IdcsClientProvider extends OidcClientProvider {
       ImmutableList.of("openid", "profile", "email");
 
   @Inject
-  public IdcsClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<AccountRepository> accountRepositoryProvider) {
-    super(configuration, profileFactory, accountRepositoryProvider);
+  public IdcsClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override
@@ -43,8 +37,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new IdcsApplicantProfileCreator(
-        config, client, profileFactory, accountRepositoryProvider);
+    return new IdcsApplicantProfileCreator(config, client, params);
   }
 
   @Override
