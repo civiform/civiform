@@ -49,7 +49,9 @@ public abstract class Modal {
     RequiredMessages setModalId(String modalId);
   }
 
-  // TODO: If this feels like the preferred route, we'll need to update a lot of classes
+  // TODO: If we want all modals to have a Close button whose aria-label is
+  // translated, I think we'll need to require any page that constructs a modal
+  // to also pass in the translated Messages?
   public interface RequiredMessages {
     RequiredContent setMessages(Messages messages);
   }
