@@ -269,6 +269,10 @@ public final class VersionRepository {
                   !questionsToPublishNames.contains(
                       activeQuestion.getQuestionDefinition().getName()))
           .forEach(existingDraft::addQuestion);
+      if (settingsManifest.getVersionCacheEnabled()) {
+        questionsByVersionCache.remove(existingDraft.id.toString());
+        programsByVersionCache.remove(existingDraft.id.toString());
+      }
 
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
@@ -433,6 +437,11 @@ public final class VersionRepository {
       return questionsByVersionCache.getOrElseUpdate(
           String.valueOf(version.id), () -> version.getQuestions());
     }
+    return getQuestionsForVersionWithoutCache(version);
+  }
+
+  /** Returns the questions for a version without using the cache. */
+  public ImmutableList<Question> getQuestionsForVersionWithoutCache(Version version) {
     return version.getQuestions();
   }
 
@@ -466,6 +475,11 @@ public final class VersionRepository {
       return programsByVersionCache.getOrElseUpdate(
           String.valueOf(version.id), () -> version.getPrograms());
     }
+    return getProgramsForVersionWithoutCache(version);
+  }
+
+  /** Returns the programs for a version without using the cache. */
+  public ImmutableList<Program> getProgramsForVersionWithoutCache(Version version) {
     return version.getPrograms();
   }
 
