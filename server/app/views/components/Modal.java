@@ -2,18 +2,17 @@ package views.components;
 
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
-import static views.BaseHtmlView.makeSvgTextButton;
+import static views.BaseHtmlView.noTextButton;
 
 import com.google.auto.value.AutoValue;
-import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-
-import views.ViewUtils;
+import play.i18n.Messages;
+import services.MessageKey;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -23,6 +22,8 @@ import views.style.StyleUtils;
 public abstract class Modal {
 
   public abstract String modalId();
+
+  public abstract Messages messages();
 
   public abstract ContainerTag<?> content();
 
@@ -45,7 +46,12 @@ public abstract class Modal {
   }
 
   public interface RequiredModalId {
-    RequiredContent setModalId(String modalId);
+    RequiredMessages setModalId(String modalId);
+  }
+
+  // TODO: If this feels like the preferred route, we'll need to update a lot of classes
+  public interface RequiredMessages {
+    RequiredContent setMessages(Messages messages);
   }
 
   public interface RequiredContent {
@@ -57,7 +63,8 @@ public abstract class Modal {
   }
 
   @AutoValue.Builder
-  public abstract static class Builder implements RequiredModalId, RequiredTitle, RequiredContent {
+  public abstract static class Builder
+      implements RequiredModalId, RequiredMessages, RequiredTitle, RequiredContent {
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
@@ -70,6 +77,8 @@ public abstract class Modal {
     abstract String modalTitle();
 
     abstract String modalId();
+
+    abstract Messages messages();
 
     // This is the build method that AutoValue will generate an implementation for.
     abstract Modal autoBuild();
@@ -186,25 +195,10 @@ public abstract class Modal {
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
         .with(div().withClasses("flex-grow"))
-      .with(
-        button("Close")
-          .attr("aria-label", "Close")
-          .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.OUTLINED_TRANSPARENT, "border-none", "bg-transparent")
-          .with(
-            Icons.svg(Icons.CLOSE).withClasses(
-              "w-6",
-              "h-6",
-              "cursor-pointer",
-              "mr-2")
-          )
-);
-      /*
         .with(
-          makeSvgTextButton("", Icons.CLOSE)
-            .withClasses(ButtonStyles.CLEAR_WITH_ICON, ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON)
-        );
-
-       */
+            noTextButton(messages().at(MessageKey.ARIA_LABEL_CLOSE.getKeyName()))
+                .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON)
+                .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer")));
   }
 
   public static String randomModalId() {
