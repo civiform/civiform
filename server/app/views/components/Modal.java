@@ -23,7 +23,7 @@ public abstract class Modal {
 
   public abstract String modalId();
 
-  public abstract Messages messages();
+  public abstract TranslationStrategy translationStrategy();
 
   public abstract ContainerTag<?> content();
 
@@ -46,14 +46,11 @@ public abstract class Modal {
   }
 
   public interface RequiredModalId {
-    RequiredMessages setModalId(String modalId);
+    RequiredTranslationStrategy setModalId(String modalId);
   }
 
-  // TODO: If we want all modals to have a Close button whose aria-label is
-  // translated, I think we'll need to require any page that constructs a modal
-  // to also pass in the translated Messages?
-  public interface RequiredMessages {
-    RequiredContent setMessages(Messages messages);
+  public interface RequiredTranslationStrategy {
+    RequiredContent setTranslationStrategy(TranslationStrategy translationStrategy);
   }
 
   public interface RequiredContent {
@@ -66,7 +63,7 @@ public abstract class Modal {
 
   @AutoValue.Builder
   public abstract static class Builder
-      implements RequiredModalId, RequiredMessages, RequiredTitle, RequiredContent {
+      implements RequiredModalId, RequiredTranslationStrategy, RequiredTitle, RequiredContent {
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
@@ -80,7 +77,7 @@ public abstract class Modal {
 
     abstract String modalId();
 
-    abstract Messages messages();
+    abstract TranslationStrategy translationStrategy();
 
     // This is the build method that AutoValue will generate an implementation for.
     abstract Modal autoBuild();
@@ -110,6 +107,47 @@ public abstract class Modal {
 
     public String getStyle() {
       return this.width;
+    }
+  }
+
+  /** Provides the translation(s) needed for common modal elements. */
+  public interface TranslationStrategy {
+    /** Returns the aria label to use for the close button on the modal. */
+    String getCloseButtonLabel();
+  }
+
+  /**
+   * Translation strategy that does *not* translate text and instead hardcodes
+   * text to be in the default language.
+   *
+   * This should *never* be used for modals that will be shown to applicants,
+   * since applicant pages are localized. This *can* be used for modals only
+   * shown to admins.
+   */
+  public static class DefaultTranslationStrategy implements TranslationStrategy {
+    public DefaultTranslationStrategy() {}
+    @Override
+    public String getCloseButtonLabel() {
+      return "Close";
+    }
+  }
+
+  /**
+   * Translation strategy that uses the provided {@code messages} to localize
+   * the modal text to the given language.
+   *
+   * Modals that will be shown to applicants are *required* to use this strategy
+   * and *not* use {@link DefaultTranslationStrategy}.
+   */
+  public static class ApplicantTranslationStrategy implements TranslationStrategy {
+    private final Messages messages;
+
+    public ApplicantTranslationStrategy(Messages messages) {
+      this.messages = messages;
+    }
+    @Override
+    public String getCloseButtonLabel() {
+      return this.messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName()); // TODO: Update to CLOSE
     }
   }
 
@@ -193,12 +231,13 @@ public abstract class Modal {
   }
 
   private DivTag getModalHeader() {
+    // TODO: Recommended to put it at the end of the content (https://designsystem.digital.gov/components/modal/)
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
         .with(div().withClasses("flex-grow"))
         .with(
-            noTextButton(messages().at(MessageKey.ARIA_LABEL_CLOSE.getKeyName()))
+            noTextButton(translationStrategy().getCloseButtonLabel())
                 .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON)
                 .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer")));
   }

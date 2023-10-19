@@ -188,7 +188,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                             .withType("submit")));
     return Modal.builder()
         .setModalId(modalId)
-        .setContent(downloadDemographicCsvModalContent)
+      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+      .setContent(downloadDemographicCsvModalContent)
         .setModalTitle(downloadActionText)
         .setTriggerButtonContent(makeSvgTextButton(downloadActionText, Icons.DOWNLOAD))
         .build();
@@ -258,7 +259,8 @@ public final class ProgramIndexView extends BaseHtmlView {
     Modal publishAllModal =
         Modal.builder()
             .setModalId("publish-all-programs-modal")
-            .setContent(publishAllModalContent)
+          .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+          .setContent(publishAllModalContent)
             .setModalTitle("All draft programs will be published")
             .setTriggerButtonContent(publishAllButton)
             .build();

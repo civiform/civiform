@@ -66,7 +66,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
   private static final Modal DEBUG_CONTENT_MODAL =
       Modal.builder()
           .setModalId("debug-content-modal")
-          .setContent(DebugContent.devTools())
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy()) // TODO: Maybe not accurate since
+        // this is in the Applicant Layout?
+        .setContent(DebugContent.devTools())
           .setModalTitle("Debug Tools")
           .setWidth(Width.THIRD)
           .build();
