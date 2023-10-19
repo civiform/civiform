@@ -23,6 +23,8 @@ import services.question.types.QuestionDefinition;
 import services.settings.SettingsService;
 import views.dev.DatabaseSeedView;
 
+import java.util.concurrent.CompletableFuture;
+
 /** Controller for seeding the development database with test content. */
 public class DevDatabaseSeedController extends Controller {
 
@@ -106,19 +108,21 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    clearCache();
+    clearCache().join();
     resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
 
-  public void clearCache() {
+  public CompletableFuture<Void> clearCache() {
     if (!isDevOrStaging) {
-      return;
+      return CompletableFuture.completedFuture(null);
     }
-    Version activeVersion = versionRepository.getActiveVersion();
-    clearVersionCache(programsByVersionCache, activeVersion);
-    clearVersionCache(questionsByVersionCache, activeVersion);
+    return CompletableFuture.completedFuture(versionRepository.getActiveVersion())
+      .thenAcceptAsync((activeVersion) -> {
+        clearVersionCache(programsByVersionCache, activeVersion);
+        clearVersionCache(questionsByVersionCache, activeVersion);
+      });
   }
 
   private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
