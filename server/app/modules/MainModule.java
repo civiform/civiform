@@ -5,6 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import annotations.BindingAnnotations.ApplicantAuthProviderName;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
+import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -13,9 +15,11 @@ import com.typesafe.config.Config;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import javax.inject.Provider;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import repository.AccountRepository;
 
 /**
  * This class is a Guice module that tells Guice how to bind several different types. This Guice
@@ -63,5 +67,13 @@ public class MainModule extends AbstractModule {
     }
 
     return config.getString("whitelabel_civic_entity_full_name");
+  }
+
+  @Provides
+  public OidcClientProviderParams provideOidcClientProviderParams(
+      Config config,
+      ProfileFactory profileFactory,
+      Provider<AccountRepository> accountRepositoryProvider) {
+    return OidcClientProviderParams.create(config, profileFactory, accountRepositoryProvider);
   }
 }
