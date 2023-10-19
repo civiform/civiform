@@ -438,7 +438,7 @@ public final class VersionRepository {
    */
   public ImmutableList<Question> getQuestionsForVersion(Version version) {
     // Only set the version cache for active and obsolete versions
-    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
+    if (settingsManifest.getVersionCacheEnabled() && version.id < getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
           String.valueOf(version.id), () -> version.getQuestions());
     }
@@ -476,7 +476,7 @@ public final class VersionRepository {
    */
   public ImmutableList<Program> getProgramsForVersion(Version version) {
     // Only set the version cache for active and obsolete versions
-    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
+    if (settingsManifest.getVersionCacheEnabled() && version.id < getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
           String.valueOf(version.id), () -> version.getPrograms());
     }
