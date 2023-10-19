@@ -149,6 +149,7 @@ content.commonIntakeConfirmationTi=Your client may be able to get these benefits
 content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+button.downloadPdf=Download PDF
 button.applyToPrograms=Apply to programs
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -156,7 +157,7 @@ button.applyToPrograms=Apply to programs
 #-------------------------------------------------------------------------------------------------------------------------#
 
 title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+content.noChanges=You have already submitted an application to this program. There are no new edits to the application. Would you like to continue editing?
 button.continueEditing=Continue editing
 button.exitApplication=Exit application
 
