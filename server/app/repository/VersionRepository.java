@@ -183,6 +183,8 @@ public final class VersionRepository {
       if (settingsManifest.getVersionCacheEnabled()) {
         questionsByVersionCache.remove(active.id.toString());
         programsByVersionCache.remove(active.id.toString());
+        questionsByVersionCache.remove(draft.id.toString());
+        programsByVersionCache.remove(draft.id.toString());
       }
 
       switch (publishMode) {
