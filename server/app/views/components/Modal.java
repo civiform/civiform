@@ -199,8 +199,8 @@ public abstract class Modal {
             .with(getModalHeader())
             .with(getContent())
             // https://designsystem.digital.gov/components/modal/ recommends putting the close
-            // button at the end
-            // of the modal so screen readers don't put focus on the close button first.
+            // button at the end of the modal so screen readers don't put focus on the close
+            // button first.
             .with(getCloseButton());
 
     String modalStyles =
