@@ -124,7 +124,7 @@ public final class VersionRepository {
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
-      getProgramsForVersion(active).stream()
+      getProgramsForVersionWithoutCache(active).stream()
           // Exclude programs deleted in the draft.
           .filter(not(programIsDeletedInDraft))
           // Exclude programs that are in the draft already.
@@ -140,7 +140,7 @@ public final class VersionRepository {
           .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
-      getQuestionsForVersion(active).stream()
+      getQuestionsForVersionWithoutCache(active).stream()
           // Exclude questions deleted in the draft.
           .filter(not(questionIsDeletedInDraft))
           // Exclude questions that are in the draft already.
@@ -177,12 +177,14 @@ public final class VersionRepository {
       if (settingsManifest.getVersionCacheEnabled()) {
         questionsByVersionCache.remove(active.id.toString());
         programsByVersionCache.remove(active.id.toString());
+        questionsByVersionCache.remove(draft.id.toString());
+        programsByVersionCache.remove(draft.id.toString());
       }
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
           Preconditions.checkState(
-              !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
+              !getProgramsForVersionWithoutCache(draft).isEmpty() || !getQuestionsForVersionWithoutCache(draft).isEmpty(),
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
@@ -240,7 +242,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersion(existingDraft).stream()
+      getProgramsForVersionWithoutCache(existingDraft).stream()
           .filter(
               program ->
                   !program.getProgramDefinition().adminName().equals(programToPublishAdminName))
@@ -249,7 +251,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersion(existingDraft).stream()
+      getQuestionsForVersionWithoutCache(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(question.getQuestionDefinition().getName()))
@@ -261,13 +263,13 @@ public final class VersionRepository {
 
       // Associate any active programs and questions that aren't present in the draft with the
       // draft.
-      getProgramsForVersion(active).stream()
+      getProgramsForVersionWithoutCache(active).stream()
           .filter(
               activeProgram ->
                   !programToPublishAdminName.equals(
                       activeProgram.getProgramDefinition().adminName()))
           .forEach(existingDraft::addProgram);
-      getQuestionsForVersion(active).stream()
+      getQuestionsForVersionWithoutCache(active).stream()
           .filter(
               activeQuestion ->
                   !questionsToPublishNames.contains(
