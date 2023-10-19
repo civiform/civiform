@@ -231,6 +231,8 @@ public final class VersionRepository {
       if (settingsManifest.getVersionCacheEnabled()) {
         questionsByVersionCache.remove(existingDraft.id.toString());
         programsByVersionCache.remove(existingDraft.id.toString());
+        questionsByVersionCache.remove(active.id.toString());
+        programsByVersionCache.remove(active.id.toString());
       }
 
       // Any drafts not being published right now will be moved to newDraft.
@@ -289,6 +291,8 @@ public final class VersionRepository {
       if (settingsManifest.getVersionCacheEnabled()) {
         questionsByVersionCache.remove(existingDraft.id.toString());
         programsByVersionCache.remove(existingDraft.id.toString());
+        questionsByVersionCache.remove(active.id.toString());
+        programsByVersionCache.remove(active.id.toString());
       }
 
       // Move forward the ACTIVE version.
