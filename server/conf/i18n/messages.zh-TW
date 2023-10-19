@@ -149,6 +149,7 @@ content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
+button.downloadPdf=Download PDF
 button.applyToPrograms=申請參加計畫
 
 #-------------------------------------------------------------------------------------------------------------------------#
