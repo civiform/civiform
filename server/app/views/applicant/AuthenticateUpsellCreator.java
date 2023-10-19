@@ -48,7 +48,7 @@ public final class AuthenticateUpsellCreator extends BaseHtmlView {
 
     return Modal.builder()
         .setModalId(Modal.randomModalId())
-        .setTranslationStrategy(new Modal.ApplicantTranslationStrategy(messages))
+        .setTranslationStrategy(new Modal.LocalizedTranslationStrategy(messages))
         .setContent(modalContent)
         .setModalTitle(modalTitle)
         .setWidth(Width.HALF);

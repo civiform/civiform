@@ -138,10 +138,10 @@ public abstract class Modal {
    * <p>Modals shown to applicants are *required* to use this strategy and *not* use {@link
    * DefaultTranslationStrategy}.
    */
-  public static class ApplicantTranslationStrategy implements TranslationStrategy {
+  public static class LocalizedTranslationStrategy implements TranslationStrategy {
     private final Messages messages;
 
-    public ApplicantTranslationStrategy(Messages messages) {
+    public LocalizedTranslationStrategy(Messages messages) {
       this.messages = messages;
     }
 

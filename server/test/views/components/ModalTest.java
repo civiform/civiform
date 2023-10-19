@@ -12,6 +12,7 @@ public class ModalTest {
   private static final Modal.Builder MODAL_BUILDER =
       Modal.builder()
           .setModalId("modal-id")
+          .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
           .setContent(div().with(text("content")))
           .setModalTitle("Modal Title");
 
@@ -67,5 +68,25 @@ public class ModalTest {
 
     assertThat(rendered).contains("only-show-once-group=\"programs_index_login_prompt\"");
     assertThat(rendered).contains("bypass-url=\"https://bypassurl.com\"");
+  }
+
+  @Test
+  public void buildsModal_usesTranslationStrategyForCloseButton() {
+    Modal.TranslationStrategy translationStrategy = new Modal.TranslationStrategy() {
+      @Override
+      public String getCloseButtonLabel() {
+        return "TestCloseLabel";
+      }
+    };
+
+    Modal modal = Modal.builder()
+      .setModalId("modal-id")
+      .setTranslationStrategy(translationStrategy)
+      .setContent(div().with(text("content")))
+      .setModalTitle("Modal Title")
+      .build();
+    String rendered = modal.getContainerTag().render();
+
+    assertThat(rendered).contains("aria-label=\"TestCloseLabel\"");
   }
 }
