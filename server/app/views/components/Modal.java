@@ -117,15 +117,15 @@ public abstract class Modal {
   }
 
   /**
-   * Translation strategy that does *not* translate text and instead hardcodes
-   * text to be in the default language.
+   * Translation strategy that does *not* translate text and instead hardcodes text to be in the
+   * default language.
    *
-   * This should *never* be used for modals that will be shown to applicants,
-   * since applicant pages are localized. This *can* be used for modals only
-   * shown to admins.
+   * <p>This strategy should *never* be used for modals shown to applicants, since applicant pages
+   * need to be localized. This strategy *can* be used for modals only shown to admins.
    */
   public static class DefaultTranslationStrategy implements TranslationStrategy {
     public DefaultTranslationStrategy() {}
+
     @Override
     public String getCloseButtonLabel() {
       return "Close";
@@ -133,11 +133,10 @@ public abstract class Modal {
   }
 
   /**
-   * Translation strategy that uses the provided {@code messages} to localize
-   * the modal text to the given language.
+   * Translation strategy that uses the provided {@code messages} to localize the modal text.
    *
-   * Modals that will be shown to applicants are *required* to use this strategy
-   * and *not* use {@link DefaultTranslationStrategy}.
+   * <p>Modals shown to applicants are *required* to use this strategy and *not* use {@link
+   * DefaultTranslationStrategy}.
    */
   public static class ApplicantTranslationStrategy implements TranslationStrategy {
     private final Messages messages;
@@ -145,6 +144,7 @@ public abstract class Modal {
     public ApplicantTranslationStrategy(Messages messages) {
       this.messages = messages;
     }
+
     @Override
     public String getCloseButtonLabel() {
       return this.messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName()); // TODO: Update to CLOSE
@@ -193,7 +193,15 @@ public abstract class Modal {
   }
 
   public DivTag getContainerTag() {
-    DivTag divTag = div().withId(modalId()).with(getModalHeader()).with(getContent());
+    DivTag divTag =
+        div()
+            .withId(modalId())
+            .with(getModalHeader())
+            .with(getContent())
+            // https://designsystem.digital.gov/components/modal/ recommends putting the close
+            // button at the end
+            // of the modal so screen readers don't put focus on the close button first.
+            .with(getCloseButton());
 
     String modalStyles =
         StyleUtils.joinStyles(
@@ -231,15 +239,23 @@ public abstract class Modal {
   }
 
   private DivTag getModalHeader() {
-    // TODO: Recommended to put it at the end of the content (https://designsystem.digital.gov/components/modal/)
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
-        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
-        .with(div().withClasses("flex-grow"))
-        .with(
-            noTextButton(translationStrategy().getCloseButtonLabel())
-                .withClasses(ReferenceClasses.MODAL_CLOSE, ButtonStyles.CLEAR_WITH_ICON)
-                .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer")));
+        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE));
+  }
+
+  private ButtonTag getCloseButton() {
+    return noTextButton(translationStrategy().getCloseButtonLabel())
+        .withClasses(
+            ReferenceClasses.MODAL_CLOSE,
+            ButtonStyles.CLEAR_WITH_ICON,
+            // The close button is visually in the top-right part of the header and should look
+            // aligned with other header content.
+            "top-0",
+            "right-0",
+            "absolute",
+            BaseStyles.MODAL_HEADER_ITEM_SPACING)
+        .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer"));
   }
 
   public static String randomModalId() {

@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.stream.IntStream;
-
 import play.mvc.Http.HttpVerbs;
 import play.mvc.Http.Request;
 import play.twirl.api.Content;
@@ -1081,7 +1080,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /** Creates a modal, which allows the admin to confirm that they want to delete a block. */
-  private Modal renderBlockDeleteModal(InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
+  private Modal renderBlockDeleteModal(
+      InputTag csrfTag, String blockDeleteAction, BlockDefinition blockDefinition) {
 
     FormTag deleteBlockForm =
         form(csrfTag)
@@ -1148,7 +1148,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     return Modal.builder()
         .setModalId("block-delete-modal")
-      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
         .setContent(deleteBlockForm)
         .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
@@ -1194,8 +1194,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     return Modal.builder()
         .setModalId("block-description-modal")
-      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
-      .setContent(blockDescriptionForm)
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setContent(blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonContent(editScreenButton)
         .setWidth(Modal.Width.THIRD)
