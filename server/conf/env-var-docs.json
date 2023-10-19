@@ -648,6 +648,11 @@
   "Feature Flags": {
     "group_description": "Configuration options to enable or disable optional or in-development features.",
     "members": {
+      "APPLICATION_EXPORTABLE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables the feature that allows completed applications to be downloadable by PDF.",
+        "type": "bool"
+      },
       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables the feature that allows for service area validation of a corrected address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
