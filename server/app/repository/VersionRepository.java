@@ -174,6 +174,10 @@ public final class VersionRepository {
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
+      if (settingsManifest.getVersionCacheEnabled()) {
+        questionsByVersionCache.remove(active.id.toString());
+        programsByVersionCache.remove(active.id.toString());
+      }
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
