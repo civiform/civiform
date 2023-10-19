@@ -116,6 +116,11 @@ public final class VersionRepository {
       ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
       ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
+      if (settingsManifest.getVersionCacheEnabled()) {
+        questionsByVersionCache.remove(active.id.toString());
+        programsByVersionCache.remove(active.id.toString());
+      }
+
       // Is a program being deleted in the draft version?
       Predicate<Program> programIsDeletedInDraft =
           program -> draft.programIsTombstoned(program.getProgramDefinition().adminName());
@@ -175,6 +180,11 @@ public final class VersionRepository {
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
+      if (settingsManifest.getVersionCacheEnabled()) {
+        questionsByVersionCache.remove(active.id.toString());
+        programsByVersionCache.remove(active.id.toString());
+      }
+
       switch (publishMode) {
         case PUBLISH_CHANGES:
           Preconditions.checkState(
@@ -185,10 +195,6 @@ public final class VersionRepository {
           active.save();
           draft.refresh();
           active.refresh();
-          if (settingsManifest.getVersionCacheEnabled()) {
-            questionsByVersionCache.remove(active.id.toString());
-            programsByVersionCache.remove(active.id.toString());
-          }
           validateProgramQuestionState();
           break;
         case DRY_RUN:
@@ -221,6 +227,12 @@ public final class VersionRepository {
     try {
       Version existingDraft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
+
+      if (settingsManifest.getVersionCacheEnabled()) {
+        questionsByVersionCache.remove(existingDraft.id.toString());
+        programsByVersionCache.remove(existingDraft.id.toString());
+      }
+
       // Any drafts not being published right now will be moved to newDraft.
       Version newDraft = new Version(LifecycleStage.DRAFT);
       database.insert(newDraft);
@@ -438,7 +450,7 @@ public final class VersionRepository {
    */
   public ImmutableList<Question> getQuestionsForVersion(Version version) {
     // Only set the version cache for active and obsolete versions
-    if (settingsManifest.getVersionCacheEnabled() && version.id < getActiveVersion().id) {
+    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
           String.valueOf(version.id), () -> version.getQuestions());
     }
@@ -476,7 +488,7 @@ public final class VersionRepository {
    */
   public ImmutableList<Program> getProgramsForVersion(Version version) {
     // Only set the version cache for active and obsolete versions
-    if (settingsManifest.getVersionCacheEnabled() && version.id < getActiveVersion().id) {
+    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
           String.valueOf(version.id), () -> version.getPrograms());
     }
