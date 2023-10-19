@@ -6,12 +6,14 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Account;
+import models.Application;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
@@ -22,9 +24,13 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
 import services.applicant.ApplicantService.ApplicantProgramData;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applications.ApplicationService;
+import services.applications.PdfExporterService;
+import services.export.PdfExporter;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.applicant.ApplicantCommonIntakeUpsellCreateAccountView;
 import views.applicant.ApplicantUpsellCreateAccountView;
 import views.components.ToastMessage;
@@ -34,28 +40,37 @@ public final class UpsellController extends CiviFormController {
 
   private final HttpExecutionContext httpContext;
   private final ApplicantService applicantService;
+  private final ApplicationService applicationService;
   private final ProgramService programService;
   private final ApplicantUpsellCreateAccountView upsellView;
   private final ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView;
   private final MessagesApi messagesApi;
+  private final PdfExporterService pdfExporterService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public UpsellController(
       HttpExecutionContext httpContext,
       ApplicantService applicantService,
+      ApplicationService applicationService,
       ProfileUtils profileUtils,
       ProgramService programService,
       ApplicantUpsellCreateAccountView upsellView,
       ApplicantCommonIntakeUpsellCreateAccountView cifUpsellView,
       MessagesApi messagesApi,
+      PdfExporterService pdfExporterService,
+      SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
     this.httpContext = checkNotNull(httpContext);
     this.applicantService = checkNotNull(applicantService);
+    this.applicationService = checkNotNull(applicationService);
     this.programService = checkNotNull(programService);
     this.upsellView = checkNotNull(upsellView);
     this.cifUpsellView = checkNotNull(cifUpsellView);
     this.messagesApi = checkNotNull(messagesApi);
+    this.pdfExporterService = checkNotNull(pdfExporterService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure
@@ -159,6 +174,47 @@ public final class UpsellController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  /** Download a PDF file of the application to the program. */
+  @Secure
+  public CompletionStage<Result> download(
+      Http.Request request, long applicationId, long applicantId) throws ProgramNotFoundException {
+    if (!settingsManifest.getApplicationExportable(request)) {
+      return CompletableFuture.completedFuture(forbidden());
+    }
+    CompletableFuture<Void> authorization = checkApplicantAuthorization(request, applicantId);
+    CompletableFuture<Optional<Application>> applicationMaybe =
+        applicationService.getApplicationAsync(applicationId).toCompletableFuture();
+
+    return CompletableFuture.allOf(applicationMaybe, authorization)
+        .thenApplyAsync(
+            check -> {
+              PdfExporter.InMemoryPdf pdf =
+                  pdfExporterService.generatePdf(applicationMaybe.join().get());
+
+              return ok(pdf.getByteArray())
+                  .as("application/pdf")
+                  .withHeader(
+                      "Content-Disposition",
+                      String.format("attachment; filename=\"%s\"", pdf.getFileName()));
+            })
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized(cause.toString());
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound(cause.toString());
+                }
+                if (cause instanceof NoSuchElementException) {
                   return notFound(cause.toString());
                 }
               }

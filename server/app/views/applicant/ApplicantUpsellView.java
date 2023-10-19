@@ -93,7 +93,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
                     "flex-col",
                     "gap-4",
                     "justify-end",
-                    StyleUtils.responsiveMedium("flex-row"))
+                    StyleUtils.responsiveLarge("flex-row"))
                 .with(actionButtons));
   }
 }

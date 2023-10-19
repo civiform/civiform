@@ -48,10 +48,10 @@ import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.applications.PdfExporterService;
 import services.applications.ProgramAdminApplicationService;
 import services.export.CsvExporterService;
 import services.export.JsonExporter;
-import services.export.PdfExporter;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.StatusDefinitions;
@@ -594,7 +594,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(CsvExporterService.class),
         instanceOf(FormFactory.class),
         instanceOf(JsonExporter.class),
-        instanceOf(PdfExporter.class),
+        instanceOf(PdfExporterService.class),
         instanceOf(ProgramApplicationListView.class),
         instanceOf(ProgramApplicationView.class),
         instanceOf(ProgramAdminApplicationService.class),
