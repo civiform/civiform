@@ -241,7 +241,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersion(existingDraft).stream()
+      getProgramsForVersionWithoutCache(existingDraft).stream()
           .filter(
               program ->
                   !program.getProgramDefinition().adminName().equals(programToPublishAdminName))
@@ -250,7 +250,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersion(existingDraft).stream()
+      getQuestionsForVersionWithoutCache(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(question.getQuestionDefinition().getName()))
@@ -578,6 +578,7 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
+    removeCacheForVersion(String.valueOf(activeVersion.id)).join();
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersion(activeVersion).stream()
             .map(question -> question.getQuestionDefinition())
