@@ -116,11 +116,6 @@ public final class VersionRepository {
       ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
       ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
 
-      if (settingsManifest.getVersionCacheEnabled()) {
-        questionsByVersionCache.remove(active.id.toString());
-        programsByVersionCache.remove(active.id.toString());
-      }
-
       // Is a program being deleted in the draft version?
       Predicate<Program> programIsDeletedInDraft =
           program -> draft.programIsTombstoned(program.getProgramDefinition().adminName());
@@ -229,13 +224,6 @@ public final class VersionRepository {
     try {
       Version existingDraft = getDraftVersionOrCreate();
       Version active = getActiveVersion();
-
-      if (settingsManifest.getVersionCacheEnabled()) {
-        questionsByVersionCache.remove(existingDraft.id.toString());
-        programsByVersionCache.remove(existingDraft.id.toString());
-        questionsByVersionCache.remove(active.id.toString());
-        programsByVersionCache.remove(active.id.toString());
-      }
 
       // Any drafts not being published right now will be moved to newDraft.
       Version newDraft = new Version(LifecycleStage.DRAFT);
@@ -588,13 +576,13 @@ public final class VersionRepository {
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
     ImmutableList<QuestionDefinition> newActiveQuestions =
-        getQuestionsForVersion(activeVersion).stream()
+        getQuestionsForVersionWithoutCache(activeVersion).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestions);
     ImmutableSet<Long> missingQuestionIds =
-        getProgramsForVersion(activeVersion).stream()
+        getProgramsForVersionWithoutCache(activeVersion).stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
             .filter(
@@ -606,7 +594,7 @@ public final class VersionRepository {
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
       ImmutableSet<Long> programIdsMissingQuestions =
-          getProgramsForVersion(activeVersion).stream()
+          getProgramsForVersionWithoutCache(activeVersion).stream()
               .filter(
                   program ->
                       program.getProgramDefinition().getQuestionIdsInProgram().stream()
