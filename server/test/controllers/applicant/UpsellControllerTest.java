@@ -2,10 +2,13 @@ package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.CSRFTokenHelper.addCSRFToken;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
+import auth.ProfileFactory;
 import controllers.WithMockedProfiles;
 import models.Applicant;
 import models.Application;
@@ -18,6 +21,7 @@ import services.applicant.ApplicantData;
 import services.applicant.question.Scalar;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.predicate.LeafOperationExpressionNode;
 import services.program.predicate.Operator;
 import services.program.predicate.PredicateAction;
@@ -171,5 +175,123 @@ public class UpsellControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains("Benefits");
     assertThat(contentAsString(result)).contains(programDefinition.localizedName().getDefault());
     assertThat(contentAsString(result)).contains("Create account");
+  }
+
+  @Test
+  public void download_authenticatedApplicant() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    Applicant applicant = createApplicantWithMockedProfile();
+    Application application =
+        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          instanceOf(UpsellController.class)
+              .download(
+                  addCSRFToken(requestBuilderWithSettings()).build(), application.id, applicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void download_authenticatedTI() {
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    Applicant managedApplicant = createApplicant();
+    createTIWithMockedProfile(managedApplicant);
+    profileFactory.createFakeTrustedIntermediary();
+    Application application =
+        resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          instanceOf(UpsellController.class)
+              .download(
+                  addCSRFToken(requestBuilderWithSettings()).build(),
+                  application.id,
+                  managedApplicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void download_unauthorizedTI() {
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    Applicant unmanagedApplicant = createApplicant();
+    Applicant managedApplicant = createApplicant();
+    createTIWithMockedProfile(managedApplicant);
+    profileFactory.createFakeTrustedIntermediary();
+    Application application =
+        resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          instanceOf(UpsellController.class)
+              .download(
+                  addCSRFToken(requestBuilderWithSettings()).build(),
+                  application.id,
+                  unmanagedApplicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void download_invalidApplicantID() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    Applicant applicant = createApplicantWithMockedProfile();
+    Application application =
+        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          instanceOf(UpsellController.class)
+              .download(addCSRFToken(requestBuilderWithSettings()).build(), application.id, 0)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void download_invalidApplicationID() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    Applicant applicant = createApplicantWithMockedProfile();
+    resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+
+    Result result;
+    try {
+      result =
+          instanceOf(UpsellController.class)
+              .download(addCSRFToken(requestBuilderWithSettings()).build(), 0, applicant.id)
+              .toCompletableFuture()
+              .join();
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 }

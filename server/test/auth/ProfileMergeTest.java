@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.oidc.InvalidOidcProfileException;
+import auth.oidc.OidcClientProviderParams;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlProfileCreator;
@@ -48,8 +49,8 @@ public class ProfileMergeTest extends ResetPostgres {
         new IdcsApplicantProfileCreator(
             client_config,
             client,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository));
+            OidcClientProviderParams.create(
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
     samlProfileCreator =
         new SamlProfileCreator(
             /* configuration = */ null,

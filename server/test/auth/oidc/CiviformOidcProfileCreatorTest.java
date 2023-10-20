@@ -49,8 +49,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         new IdcsApplicantProfileCreator(
             client_config,
             client,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(accountRepository));
+            OidcClientProviderParams.create(
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
 
     profile = new OidcProfile();
     profile.addAttribute("user_emailid", EMAIL);

@@ -3,6 +3,7 @@ package auth.oidc.admin;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.typesafe.config.Config;
@@ -83,7 +84,10 @@ public class AdfsClientProvider implements Provider<OidcClient> {
     // This is what links the user to the stuff they have access to.
     client.setProfileCreator(
         new AdfsProfileCreator(
-            config, client, profileFactory, configuration, userRepositoryProvider));
+            config,
+            client,
+            OidcClientProviderParams.create(
+                configuration, profileFactory, userRepositoryProvider)));
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
     return client;
