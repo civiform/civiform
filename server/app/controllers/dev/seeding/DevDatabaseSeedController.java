@@ -21,6 +21,7 @@ import services.program.ActiveAndDraftPrograms;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 import views.dev.DatabaseSeedView;
 
@@ -36,6 +37,7 @@ public class DevDatabaseSeedController extends Controller {
   private final boolean isDevOrStaging;
 
   private final VersionRepository versionRepository;
+  private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
 
@@ -48,6 +50,7 @@ public class DevDatabaseSeedController extends Controller {
       SettingsService settingsService,
       DeploymentType deploymentType,
       VersionRepository versionRepository,
+      SettingsManifest settingsManifest,
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
@@ -58,6 +61,7 @@ public class DevDatabaseSeedController extends Controller {
     this.settingsService = checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
     this.versionRepository = checkNotNull(versionRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
   }
@@ -107,30 +111,33 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    clearCache().join();
+    if (settingsManifest.getVersionCacheEnabled()) {
+      clearCache().join();
+    }
     resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
 
   public CompletableFuture<Void> clearCache() {
-    if (!isDevOrStaging) {
-      return CompletableFuture.completedFuture(null);
-    }
+    if (!isDevOrStaging) return CompletableFuture.completedFuture(null);
     return CompletableFuture.completedFuture(versionRepository.getActiveVersion())
-        .thenAcceptAsync(
-            (activeVersion) -> {
-              clearVersionCache(programsByVersionCache, activeVersion);
-              clearVersionCache(questionsByVersionCache, activeVersion);
-            });
+        .thenComposeAsync(
+            activeVersion -> {
+              return CompletableFuture.allOf(
+                  clearVersionCache(programsByVersionCache, activeVersion),
+                  clearVersionCache(questionsByVersionCache, activeVersion));
+            }).thenApply(ignored -> null);
   }
 
-  private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
-    for (int num = 1; num <= activeVersion.id; num++) {
-      if (cache.get(String.valueOf(num)).isPresent()) {
-        cache.remove(String.valueOf(num));
+  private CompletableFuture<Void> clearVersionCache(SyncCacheApi cache, Version activeVersion) {
+    return CompletableFuture.runAsync(() -> {
+      for (int num = 1; num <= activeVersion.id; num++) {
+        if (cache.get(String.valueOf(num)).isPresent()) {
+          cache.remove(String.valueOf(num));
+        }
       }
-    }
+    });
   }
 
   // Create a date question definition with the given name and questionText. We currently create
