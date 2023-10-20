@@ -127,17 +127,19 @@ public class DevDatabaseSeedController extends Controller {
               return CompletableFuture.allOf(
                   clearVersionCache(programsByVersionCache, activeVersion),
                   clearVersionCache(questionsByVersionCache, activeVersion));
-            }).thenApply(ignored -> null);
+            })
+        .thenApply(ignored -> null);
   }
 
   private CompletableFuture<Void> clearVersionCache(SyncCacheApi cache, Version activeVersion) {
-    return CompletableFuture.runAsync(() -> {
-      for (int num = 1; num <= activeVersion.id; num++) {
-        if (cache.get(String.valueOf(num)).isPresent()) {
-          cache.remove(String.valueOf(num));
-        }
-      }
-    });
+    return CompletableFuture.runAsync(
+        () -> {
+          for (int num = 1; num <= activeVersion.id; num++) {
+            if (cache.get(String.valueOf(num)).isPresent()) {
+              cache.remove(String.valueOf(num));
+            }
+          }
+        });
   }
 
   // Create a date question definition with the given name and questionText. We currently create
