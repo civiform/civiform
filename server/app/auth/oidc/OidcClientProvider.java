@@ -19,7 +19,9 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.mvc.Http;
 import repository.AccountRepository;
+import services.settings.SettingsManifest;
 
 /**
  * This class provides the base user OIDC implementation. It's abstract because AD and other
@@ -34,6 +36,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final String baseUrl;
+  protected final SettingsManifest settingsManifest;
 
   public OidcClientProvider(OidcClientProviderParams params) {
     this.params = params;
@@ -44,6 +47,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     this.baseUrl =
         getBaseConfigurationValue("base_url")
             .orElseThrow(() -> new RuntimeException("base_url must be set"));
+    this.settingsManifest = new SettingsManifest(this.civiformConfig);
   }
 
   /*
@@ -139,6 +143,11 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
   protected Optional<String> getLogoutURL() {
     return getBaseConfigurationValue("auth.oidc_override_logout_url");
   }
+
+  /*
+   * Returns true if this client provider should provide enhanced logout capabilities (populate `id_token_hint` in logout request).
+   */
+  protected abstract boolean enhancedLogoutEnabled(Http.RequestHeader requestHeader);
 
   /*
    * Helper function for combining the default and additional scopes,
