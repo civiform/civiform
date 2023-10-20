@@ -124,7 +124,7 @@ public final class VersionRepository {
           question -> draft.questionIsTombstoned(question.getQuestionDefinition().getName());
 
       // Associate any active programs that aren't present in the draft with the draft.
-      getProgramsForVersionWithoutCache(active).stream()
+      getProgramsForVersion(active).stream()
           // Exclude programs deleted in the draft.
           .filter(not(programIsDeletedInDraft))
           // Exclude programs that are in the draft already.
@@ -140,7 +140,7 @@ public final class VersionRepository {
           .forEach(draft::addProgram);
 
       // Associate any active questions that aren't present in the draft with the draft.
-      getQuestionsForVersionWithoutCache(active).stream()
+      getQuestionsForVersion(active).stream()
           // Exclude questions deleted in the draft.
           .filter(not(questionIsDeletedInDraft))
           // Exclude questions that are in the draft already.
@@ -182,8 +182,7 @@ public final class VersionRepository {
       switch (publishMode) {
         case PUBLISH_CHANGES:
           Preconditions.checkState(
-              !getProgramsForVersionWithoutCache(draft).isEmpty()
-                  || !getQuestionsForVersionWithoutCache(draft).isEmpty(),
+              !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
               "Must have at least 1 program or question in the draft version.");
           draft.save();
           active.save();
@@ -242,7 +241,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersionWithoutCache(existingDraft).stream()
+      getProgramsForVersion(existingDraft).stream()
           .filter(
               program ->
                   !program.getProgramDefinition().adminName().equals(programToPublishAdminName))
@@ -251,7 +250,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersionWithoutCache(existingDraft).stream()
+      getQuestionsForVersion(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(question.getQuestionDefinition().getName()))
@@ -263,13 +262,13 @@ public final class VersionRepository {
 
       // Associate any active programs and questions that aren't present in the draft with the
       // draft.
-      getProgramsForVersionWithoutCache(active).stream()
+      getProgramsForVersion(active).stream()
           .filter(
               activeProgram ->
                   !programToPublishAdminName.equals(
                       activeProgram.getProgramDefinition().adminName()))
           .forEach(existingDraft::addProgram);
-      getQuestionsForVersionWithoutCache(active).stream()
+      getQuestionsForVersion(active).stream()
           .filter(
               activeQuestion ->
                   !questionsToPublishNames.contains(
@@ -578,13 +577,13 @@ public final class VersionRepository {
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
     ImmutableList<QuestionDefinition> newActiveQuestions =
-        getQuestionsForVersionWithoutCache(activeVersion).stream()
+        getQuestionsForVersion(activeVersion).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestions);
     ImmutableSet<Long> missingQuestionIds =
-        getProgramsForVersionWithoutCache(activeVersion).stream()
+        getProgramsForVersion(activeVersion).stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
             .filter(
@@ -596,7 +595,7 @@ public final class VersionRepository {
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
       ImmutableSet<Long> programIdsMissingQuestions =
-          getProgramsForVersionWithoutCache(activeVersion).stream()
+          getProgramsForVersion(activeVersion).stream()
               .filter(
                   program ->
                       program.getProgramDefinition().getQuestionIdsInProgram().stream()
