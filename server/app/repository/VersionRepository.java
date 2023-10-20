@@ -175,12 +175,9 @@ public final class VersionRepository {
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
-      if (settingsManifest.getVersionCacheEnabled()) {
-        questionsByVersionCache.remove(active.id.toString());
-        programsByVersionCache.remove(active.id.toString());
-        questionsByVersionCache.remove(draft.id.toString());
-        programsByVersionCache.remove(draft.id.toString());
-      }
+      // Clear the cache before publishing is completed.
+      removeCacheForVersion(String.valueOf(active.id));
+      removeCacheForVersion(String.valueOf(draft.id));
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
@@ -278,12 +275,10 @@ public final class VersionRepository {
                   !questionsToPublishNames.contains(
                       activeQuestion.getQuestionDefinition().getName()))
           .forEach(existingDraft::addQuestion);
-      if (settingsManifest.getVersionCacheEnabled()) {
-        questionsByVersionCache.remove(existingDraft.id.toString());
-        programsByVersionCache.remove(existingDraft.id.toString());
-        questionsByVersionCache.remove(active.id.toString());
-        programsByVersionCache.remove(active.id.toString());
-      }
+
+      // Clear the cache before publishing is completed.
+      removeCacheForVersion(String.valueOf(existingDraft.id));
+      removeCacheForVersion(String.valueOf(active.id));
 
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
@@ -492,6 +487,13 @@ public final class VersionRepository {
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<Program> getProgramsForVersionWithoutCache(Version version) {
     return version.getPrograms();
+  }
+
+  private void removeCacheForVersion(String versionKey) {
+    if (settingsManifest.getVersionCacheEnabled()) {
+      questionsByVersionCache.remove(versionKey);
+      programsByVersionCache.remove(versionKey);
+    }
   }
 
   /**
