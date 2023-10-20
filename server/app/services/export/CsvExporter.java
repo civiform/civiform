@@ -8,6 +8,7 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +19,6 @@ import models.Application;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import repository.ExportServiceRepository;
 import services.DateConverter;
 import services.Path;
 import services.applicant.AnswerData;
@@ -42,14 +42,20 @@ public final class CsvExporter implements AutoCloseable {
   private final String secret;
   private final CSVPrinter printer;
   private final DateConverter dateConverter;
+  private final ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(
-      ImmutableList<Column> columns, String secret, Writer writer, DateConverter dateConverter)
+      ImmutableList<Column> columns,
+      String secret,
+      Writer writer,
+      DateConverter dateConverter,
+      ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);
     this.dateConverter = dateConverter;
+    this.checkBoxQuestionScalarMap = checkNotNull(checkBoxQuestionScalarMap);
 
     CSVFormat format =
         CSVFormat.DEFAULT
@@ -63,21 +69,24 @@ public final class CsvExporter implements AutoCloseable {
   public void exportRecord(
       Application application,
       ReadOnlyApplicantProgramService roApplicantService,
-      Optional<Boolean> optionalEligibilityStatus,
-      ExportServiceRepository exportServiceRepository)
+      Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
     Map<Path, String> answerDataMap = new HashMap<>();
-    Map<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap = new HashMap<>();
     System.out.println("---Inside Export record---");
     for (AnswerData answerData : roApplicantService.getSummaryData()) {
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         String questionName = answerData.questionDefinition().getName();
+        // If the question isn't present in the scalar map, it means, its demographic export and
+        // this question
+        // was flagged not to be included in demographic export
         if (!checkBoxQuestionScalarMap.containsKey(questionName)) {
-          checkBoxQuestionScalarMap.put(
-              questionName, exportServiceRepository.getMultiSelectedHeaders(questionName));
+          continue;
         }
         Map<Long, String> optionHeaderMap = checkBoxQuestionScalarMap.get(questionName);
-        String defaultText = answerData.isAnswered() ? "Not Selected" : "Not Answered - optional";
+        String defaultText =
+            answerData.isAnswered()
+                ? "Not An Option At Program Version"
+                : "Not Answered - optional";
         List<String> selectedList =
             answerData
                 .applicantQuestion()
@@ -85,6 +94,10 @@ public final class CsvExporter implements AutoCloseable {
                 .getSelectedOptionAdminNames()
                 .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
                 .orElse(Collections.singletonList(""));
+        List<String> allOptionsShownInQuestion = new ArrayList<>();
+        answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
+            .forEach(option -> allOptionsShownInQuestion.add(option.adminName()));
+
         optionHeaderMap.keySet().stream()
             .sorted()
             .forEach(
@@ -95,7 +108,10 @@ public final class CsvExporter implements AutoCloseable {
                             .join(String.valueOf(optionHeaderMap.get(option))),
                         selectedList.contains(optionHeaderMap.get(option))
                             ? "Selected"
-                            : defaultText));
+                            : allOptionsShownInQuestion.contains(optionHeaderMap.get(option))
+                                    && answerData.isAnswered()
+                                ? "Not Selected"
+                                : defaultText));
 
       } else {
         for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {

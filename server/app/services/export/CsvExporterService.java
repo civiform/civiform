@@ -133,7 +133,7 @@ public final class CsvExporterService {
                     .thenComparing(answerData -> answerData.contextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return generateDefaultCsvConfig(answers, showEligibilityColumn);
+    return buildColumnHeaders(answers, showEligibilityColumn);
   }
 
   /**
@@ -162,7 +162,8 @@ public final class CsvExporterService {
               exportConfig.columns(),
               config.getString("play.http.secret.key"),
               writer,
-              dateConverter)) {
+              dateConverter,
+              exportConfig.checkBoxQuestionScalarMap())) {
         // Cache Program data which doesn't change, so we only look it up once rather than on every
         // exported row.
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
@@ -189,8 +190,7 @@ public final class CsvExporterService {
                   ? applicantService.getApplicationEligibilityStatus(application, programDefinition)
                   : Optional.empty();
 
-          csvExporter.exportRecord(
-              application, roApplicantService, optionalEligibilityStatus, exportServiceRepository);
+          csvExporter.exportRecord(application, roApplicantService, optionalEligibilityStatus);
         }
       }
     } catch (IOException e) {
@@ -286,7 +286,7 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
-    Map<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap = new HashMap<>();
+    Map<String, ImmutableMap<Long, String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
     System.out.println("---Inside service---");
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
@@ -295,11 +295,11 @@ public final class CsvExporterService {
       }
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         String questionName = answerData.questionDefinition().getName();
-        if (!checkBoxQuestionScalarMap.containsKey(questionName)) {
-          checkBoxQuestionScalarMap.put(
+        if (!currentCheckBoxQuestionScalarMap.containsKey(questionName)) {
+          currentCheckBoxQuestionScalarMap.put(
               questionName, exportServiceRepository.getMultiSelectedHeaders(questionName));
         }
-        Map<Long, String> optionHeaderMap = checkBoxQuestionScalarMap.get(questionName);
+        Map<Long, String> optionHeaderMap = currentCheckBoxQuestionScalarMap.get(questionName);
         optionHeaderMap.keySet().stream()
             .sorted()
             .forEach(
@@ -327,12 +327,8 @@ public final class CsvExporterService {
         }
       }
     }
-    return new CsvExportConfig() {
-      @Override
-      public ImmutableList<Column> columns() {
-        return columnsBuilder.build();
-      }
-    };
+
+    return getCsvExportConfig(columnsBuilder, currentCheckBoxQuestionScalarMap);
   }
 
   /**
@@ -425,7 +421,7 @@ public final class CsvExporterService {
         Column.builder().setHeader("Submit Time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
-
+    Map<String, ImmutableMap<Long, String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
     for (QuestionTag tagType :
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
       for (QuestionDefinition questionDefinition :
@@ -439,23 +435,66 @@ public final class CsvExporterService {
             ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
         Question applicantQuestion =
             new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).getQuestion();
-        for (Path path : applicantQuestion.getAllPaths()) {
-          columnsBuilder.add(
-              Column.builder()
-                  .setHeader(pathToHeader(path))
-                  .setJsonPath(path)
-                  .setColumnType(
-                      tagType == QuestionTag.DEMOGRAPHIC_PII
-                          ? ColumnType.APPLICANT_OPAQUE
-                          : ColumnType.APPLICANT_ANSWER)
-                  .build());
+        if (questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
+          String questionName = questionDefinition.getName();
+          if (!currentCheckBoxQuestionScalarMap.containsKey(questionName)) {
+            currentCheckBoxQuestionScalarMap.put(
+                questionName, exportServiceRepository.getMultiSelectedHeaders(questionName));
+          }
+          Map<Long, String> optionHeaderMap = currentCheckBoxQuestionScalarMap.get(questionName);
+          optionHeaderMap.keySet().stream()
+              .sorted()
+              .forEach(
+                  option -> {
+                    Path path =
+                        applicantQuestion
+                            .getApplicantQuestion()
+                            .getContextualizedPath()
+                            .join(String.valueOf(optionHeaderMap.get(option)));
+
+                    columnsBuilder.add(
+                        Column.builder()
+                            .setHeader(pathToHeader(path))
+                            .setJsonPath(path)
+                            .setColumnType(
+                                tagType == QuestionTag.DEMOGRAPHIC_PII
+                                    ? ColumnType.APPLICANT_OPAQUE
+                                    : ColumnType.APPLICANT_ANSWER)
+                            .build());
+                  });
+        } else {
+
+          for (Path path : applicantQuestion.getAllPaths()) {
+            columnsBuilder.add(
+                Column.builder()
+                    .setHeader(pathToHeader(path))
+                    .setJsonPath(path)
+                    .setColumnType(
+                        tagType == QuestionTag.DEMOGRAPHIC_PII
+                            ? ColumnType.APPLICANT_OPAQUE
+                            : ColumnType.APPLICANT_ANSWER)
+                    .build());
+          }
         }
       }
     }
+    return getCsvExportConfig(columnsBuilder, currentCheckBoxQuestionScalarMap);
+  }
+
+  private CsvExportConfig getCsvExportConfig(
+      ImmutableList.Builder<Column> columnsBuilder,
+      Map<String, ImmutableMap<Long, String>> currentCheckBoxQuestionScalarMap) {
     return new CsvExportConfig() {
       @Override
       public ImmutableList<Column> columns() {
         return columnsBuilder.build();
+      }
+
+      @Override
+      public ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap() {
+        return ImmutableMap.<String, ImmutableMap<Long, String>>builder()
+            .putAll(currentCheckBoxQuestionScalarMap)
+            .build();
       }
     };
   }
