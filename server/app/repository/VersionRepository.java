@@ -176,8 +176,8 @@ public final class VersionRepository {
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
       // Clear the cache before publishing is completed.
-      removeCacheForVersion(String.valueOf(active.id));
-      removeCacheForVersion(String.valueOf(draft.id));
+      removeCacheForVersion(String.valueOf(active.id)).join();
+      removeCacheForVersion(String.valueOf(draft.id)).join();
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
@@ -241,7 +241,7 @@ public final class VersionRepository {
       }
 
       // Move everything we're not publishing right now to the new draft.
-      getProgramsForVersionWithoutCache(existingDraft).stream()
+      getProgramsForVersion(existingDraft).stream()
           .filter(
               program ->
                   !program.getProgramDefinition().adminName().equals(programToPublishAdminName))
@@ -250,7 +250,7 @@ public final class VersionRepository {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
               });
-      getQuestionsForVersionWithoutCache(existingDraft).stream()
+      getQuestionsForVersion(existingDraft).stream()
           .filter(
               question ->
                   !questionsToPublishNames.contains(question.getQuestionDefinition().getName()))
@@ -275,13 +275,13 @@ public final class VersionRepository {
                       activeQuestion.getQuestionDefinition().getName()))
           .forEach(existingDraft::addQuestion);
 
-      // Clear the cache before publishing is completed.
-      removeCacheForVersion(String.valueOf(existingDraft.id));
-      removeCacheForVersion(String.valueOf(active.id));
-
       // Move forward the ACTIVE version.
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       existingDraft.setLifecycleStage(LifecycleStage.ACTIVE);
+
+      // Clear the cache before publishing is completed.
+      removeCacheForVersion(String.valueOf(existingDraft.id)).join();
+      removeCacheForVersion(String.valueOf(active.id)).join();
 
       existingDraft.save();
       active.save();
@@ -488,11 +488,13 @@ public final class VersionRepository {
     return version.getPrograms();
   }
 
-  private void removeCacheForVersion(String versionKey) {
+  private CompletableFuture<Void> removeCacheForVersion(String versionKey) {
     if (settingsManifest.getVersionCacheEnabled()) {
-      questionsByVersionCache.remove(versionKey);
-      programsByVersionCache.remove(versionKey);
+      return CompletableFuture.allOf(
+          CompletableFuture.runAsync(() -> questionsByVersionCache.remove(versionKey)),
+          CompletableFuture.runAsync(() -> programsByVersionCache.remove(versionKey)));
     }
+    return CompletableFuture.completedFuture(null);
   }
 
   /**
