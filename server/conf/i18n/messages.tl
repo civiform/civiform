@@ -156,10 +156,10 @@ button.applyToPrograms=Mag-apply sa mga programa
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have already submitted an application to this program. There are no new edits to the application. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=Walang pagbabagong ise-save para sa {0}
+content.noChanges=Wala ka pang ginagawang anumang pagbabago sa aplikasyon. Gusto mo bang magpatuloy sa pag-edit?
+button.continueEditing=Magpatuloy sa pag-edit
+button.exitApplication=Lumabas sa aplikasyon
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
