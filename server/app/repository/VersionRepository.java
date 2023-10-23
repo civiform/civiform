@@ -262,13 +262,13 @@ public final class VersionRepository {
 
       // Associate any active programs and questions that aren't present in the draft with the
       // draft.
-      getProgramsForVersion(active).stream()
+      getProgramsForVersionWithoutCache(active).stream()
           .filter(
               activeProgram ->
                   !programToPublishAdminName.equals(
                       activeProgram.getProgramDefinition().adminName()))
           .forEach(existingDraft::addProgram);
-      getQuestionsForVersion(active).stream()
+      getQuestionsForVersionWithoutCache(active).stream()
           .filter(
               activeQuestion ->
                   !questionsToPublishNames.contains(
