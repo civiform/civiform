@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -39,9 +40,10 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
         new GenericOidcProfileCreator(
             client_config,
             client,
-            profileFactory,
-            serverConfig,
-            CfTestHelpers.userRepositoryProvider(accountRepository));
+            OidcClientProviderParams.create(
+                serverConfig,
+                profileFactory,
+                CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test

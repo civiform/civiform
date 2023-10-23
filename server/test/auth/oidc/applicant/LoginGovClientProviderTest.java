@@ -5,6 +5,7 @@ import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -55,7 +56,8 @@ public class LoginGovClientProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     loginGovProvider =
         new LoginGovClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository));
+            OidcClientProviderParams.create(
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test

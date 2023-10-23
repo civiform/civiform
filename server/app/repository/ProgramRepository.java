@@ -73,6 +73,10 @@ public final class ProgramRepository {
     return program;
   }
 
+  public ImmutableList<Version> getVersionsForProgram(Program program) {
+    return program.getVersions();
+  }
+
   public ImmutableSet<String> getAllProgramNames() {
     ImmutableSet.Builder<String> names = ImmutableSet.builder();
     List<SqlRow> rows = database.sqlQuery("SELECT DISTINCT name FROM programs").findList();
