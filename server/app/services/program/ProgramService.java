@@ -226,7 +226,7 @@ public final class ProgramService {
     }
 
     // Any version that the program is in has all the questions the program has.
-    Version version = program.getVersions().stream().findAny().get();
+    Version version = programRepository.getVersionsForProgram(program).stream().findAny().get();
     ProgramDefinition programDefinition =
         syncProgramDefinitionQuestions(program.getProgramDefinition(), version);
 
@@ -1312,7 +1312,7 @@ public final class ProgramService {
       p.refresh();
       // We only need to get the question data if the program has eligibility conditions.
       if (programDef.hasEligibilityEnabled()) {
-        Version v = p.getVersions().stream().findAny().orElseThrow();
+        Version v = programRepository.getVersionsForProgram(p).stream().findAny().orElseThrow();
         ReadOnlyQuestionService questionServiceForVersion = versionToQuestionService.get(v.id);
         if (questionServiceForVersion == null) {
           questionServiceForVersion =
