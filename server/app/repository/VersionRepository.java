@@ -598,7 +598,7 @@ public final class VersionRepository {
             .collect(ImmutableSet.toImmutableSet());
     if (!missingQuestionIds.isEmpty()) {
       ImmutableSet<Long> programIdsMissingQuestions =
-          getProgramsForVersion(activeVersion).stream()
+          getProgramsForVersionWithoutCache(activeVersion).stream()
               .filter(
                   program ->
                       program.getProgramDefinition().getQuestionIdsInProgram().stream()
