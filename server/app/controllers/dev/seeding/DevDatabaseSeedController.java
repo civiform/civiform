@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import io.ebean.DB;
 import io.ebean.Database;
-import java.util.concurrent.CompletableFuture;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
@@ -112,34 +111,26 @@ public class DevDatabaseSeedController extends Controller {
       return notFound();
     }
     if (settingsManifest.getVersionCacheEnabled()) {
-      clearCache().join();
+      clearCache();
     }
     resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
 
-  public CompletableFuture<Void> clearCache() {
-    if (!isDevOrStaging) return CompletableFuture.completedFuture(null);
-    return CompletableFuture.completedFuture(versionRepository.getActiveVersion())
-        .thenComposeAsync(
-            activeVersion -> {
-              return CompletableFuture.allOf(
-                  clearVersionCache(programsByVersionCache, activeVersion),
-                  clearVersionCache(questionsByVersionCache, activeVersion));
-            })
-        .thenApply(ignored -> null);
+  public void clearCache() {
+    if (!isDevOrStaging) return;
+    Version activeVersion = versionRepository.getActiveVersion();
+    clearVersionCache(programsByVersionCache, activeVersion);
+    clearVersionCache(questionsByVersionCache, activeVersion);
   }
 
-  private CompletableFuture<Void> clearVersionCache(SyncCacheApi cache, Version activeVersion) {
-    return CompletableFuture.runAsync(
-        () -> {
-          for (int num = 1; num <= activeVersion.id; num++) {
-            if (cache.get(String.valueOf(num)).isPresent()) {
-              cache.remove(String.valueOf(num));
-            }
-          }
-        });
+  private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
+    for (int num = 1; num <= activeVersion.id; num++) {
+      if (cache.get(String.valueOf(num)).isPresent()) {
+        cache.remove(String.valueOf(num));
+      }
+    }
   }
 
   // Create a date question definition with the given name and questionText. We currently create
