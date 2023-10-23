@@ -14,6 +14,7 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.junit.Before;
 import org.junit.Test;
+import repository.ExportServiceRepository;
 import repository.TimeFilter;
 import services.DateConverter;
 import services.applicant.ApplicantData;
@@ -47,7 +48,8 @@ public class CsvExporterTest extends AbstractExporterTest {
             instanceOf(QuestionService.class),
             instanceOf(ApplicantService.class),
             ConfigFactory.parseMap(ImmutableMap.of("play.http.secret.key", SECRET_SALT)),
-            instanceOf(DateConverter.class));
+            instanceOf(DateConverter.class),
+            instanceOf(ExportServiceRepository.class));
   }
 
   @Test

@@ -13,6 +13,8 @@ import java.util.Set;
 import javax.inject.Inject;
 import models.Version;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 public class ExportServiceRepository {
   private final Database database;
@@ -24,7 +26,11 @@ public class ExportServiceRepository {
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
-  public ImmutableMap<Long, String> getMultiSelectedHeaders(String questionName) {
+  public ImmutableMap<Long, String> getMultiSelectedHeaders(QuestionDefinition questionDefinition) {
+    if (!questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
+      throw new RuntimeException("The Question Type is not checkbox");
+    }
+    String questionName = questionDefinition.getName();
     Map<Long, String> alloptionsMap = new HashMap<>();
     database
         .sqlQuery(
@@ -72,12 +78,6 @@ public class ExportServiceRepository {
                 combinedList.put(e.id(), e.adminName());
               }
             });
-    // LinkedHashSet<String> allHeaders = new LinkedHashSet<>();
-    // combinedList.keySet().stream().sorted().forEach(e -> allHeaders.add(combinedList.get(e)));
-    // allHeaders.stream().forEach(e -> System.out.println("_____ "+ e));
-    System.out.println("******Calling it " + 1);
-
-    // combinedList.keySet().stream().sorted().forEach(e -> allHeaders.add(combinedList.get(e)));
     return ImmutableMap.<Long, String>builder().putAll(combinedList).build();
   }
 }

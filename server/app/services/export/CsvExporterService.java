@@ -294,12 +294,14 @@ public final class CsvExporterService {
         continue; // Do not include Enumerator answers in CSVs.
       }
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
-        String questionName = answerData.questionDefinition().getName();
-        if (!currentCheckBoxQuestionScalarMap.containsKey(questionName)) {
+        QuestionDefinition questionDefinition = answerData.questionDefinition();
+        if (!currentCheckBoxQuestionScalarMap.containsKey(questionDefinition.getName())) {
           currentCheckBoxQuestionScalarMap.put(
-              questionName, exportServiceRepository.getMultiSelectedHeaders(questionName));
+              questionDefinition.getName(),
+              exportServiceRepository.getMultiSelectedHeaders(questionDefinition));
         }
-        Map<Long, String> optionHeaderMap = currentCheckBoxQuestionScalarMap.get(questionName);
+        Map<Long, String> optionHeaderMap =
+            currentCheckBoxQuestionScalarMap.get(questionDefinition.getName());
         optionHeaderMap.keySet().stream()
             .sorted()
             .forEach(
@@ -439,7 +441,7 @@ public final class CsvExporterService {
           String questionName = questionDefinition.getName();
           if (!currentCheckBoxQuestionScalarMap.containsKey(questionName)) {
             currentCheckBoxQuestionScalarMap.put(
-                questionName, exportServiceRepository.getMultiSelectedHeaders(questionName));
+                questionName, exportServiceRepository.getMultiSelectedHeaders(questionDefinition));
           }
           Map<Long, String> optionHeaderMap = currentCheckBoxQuestionScalarMap.get(questionName);
           optionHeaderMap.keySet().stream()
