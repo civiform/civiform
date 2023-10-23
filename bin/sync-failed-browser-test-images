@@ -1,0 +1,109 @@
+#! /usr/bin/env bash
+
+# DOC: Sync failed github action browser-test snapshots with local system.
+#      This can run without a GITHUB_TOKEN, but you may hit the hourly limit
+
+function exit_on_jq_failure() {
+  local last_exit_code="${1}"
+  local value="${2}"
+  local message="${3}"
+
+  if [[ "${last_exit_code}" != "0" ]]; then
+    echo "jq command failed. ${message}"
+    exit 1
+  fi
+
+  if [[ "${value}" == "null" ]]; then
+    echo "${message}"
+    exit 1
+  fi
+}
+
+function exit_on_curl_failure() {
+  local last_exit_code="${1}"
+  local url="${2}"
+
+  if [[ "${last_exit_code}" != "0" ]]; then
+    echo "Curl failed trying to call ${url}"
+    exit 1
+  fi
+}
+
+function verify_dependencies() {
+  if ! command -v jq &>/dev/null; then
+    echo "Missing jq command"
+    echo "https://jqlang.github.io/jq"
+    exit
+  fi
+}
+
+verify_dependencies
+
+# Set path to root of repo
+pushd "$(git rev-parse --show-toplevel)" >/dev/null || exit
+
+# Setup common curl arguments
+CURL_ARGS=(-L
+  --silent
+  -H "Accept: application/vnd.github+json"
+  -H "X-GitHub-Api-Version: 2022-11-28")
+
+# If set use a github token to allow for more hourly calls
+if [[ -n "${GITHUB_TOKEN}" ]]; then
+  CURL_ARGS+=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
+else
+  echo "Running without a Github Token. You may hit the hourly limit."
+  echo "Set 'GITHUB_TOKEN' environment variable for more flexiblity."
+fi
+
+# Set branch name to user provided value or default to the current active branch
+readonly BRANCH_NAME="${1:-$(git rev-parse --abbrev-ref HEAD)}"
+
+# Get details on the failed run for the active branch
+readonly JOB_RUN_LIST_URL="https://api.github.com/repos/civiform/civiform/actions/runs?per_page=20&status=failure&branch=${BRANCH_NAME}"
+readonly JOB_RUN_LIST_JSON=$(curl "${CURL_ARGS[@]}" "${JOB_RUN_LIST_URL}")
+exit_on_curl_failure "$?" "${JOB_RUN_LIST_URL}"
+
+# Determine the url for the artifacts endpoint
+readonly ARTIFACT_LIST_URL="$(echo "${JOB_RUN_LIST_JSON}" | jq -r -c '
+.workflow_runs 
+| map(
+  select(.name == "Server - On PR to Main")
+  | .artifacts_url
+)[0]')"
+
+exit_on_jq_failure "$?" "${ARTIFACT_LIST_URL}" "Branch '${BRANCH_NAME}' doesn't appear to have any snapshots to download"
+
+# Determine the url for the artifact we want to download
+readonly ARTIFACT_LIST_JSON=$(curl "${CURL_ARGS[@]}" "${ARTIFACT_LIST_URL}")
+exit_on_curl_failure "$?" "${ARTIFACT_LIST_URL}"
+
+readonly ARTIFACT_DOWNLOAD_URL="$(echo "${ARTIFACT_LIST_JSON}" | jq -r -c '
+.artifacts 
+| map(
+  select(.name == "updated snapshots output directory" and .expired == false) 
+  | .archive_download_url
+)[0]')"
+
+exit_on_jq_failure "$?" "${ARTIFACT_DOWNLOAD_URL}" "Unable to find artifact url"
+
+# Download the archive
+readonly ARTIFACT_FILE="snapshots.zip"
+readonly SNAPSHOT_FOLDER="./browser-test/image_snapshots"
+
+curl "${CURL_ARGS[@]}" "${ARTIFACT_DOWNLOAD_URL}" --output "${ARTIFACT_FILE}"
+
+# Unzip and remove archive file
+unzip -qq "${ARTIFACT_FILE}" -d "${SNAPSHOT_FOLDER}"
+rm "${ARTIFACT_FILE}"
+
+# Rename updated files removing the playwright "-received" suffix
+find "${SNAPSHOT_FOLDER}" -type f -name "*-received.png" -exec bash -c 'mv "$0" "${0/-received.png/.png}"' {} \;
+
+# Display changes files
+git diff --name-only "${SNAPSHOT_FOLDER}"
+
+#########
+echo
+echo "Done. Check if you need to commit new images"
+echo
