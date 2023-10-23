@@ -580,13 +580,13 @@ public final class VersionRepository {
     Version activeVersion = getActiveVersion();
     removeCacheForVersion(String.valueOf(activeVersion.id)).join();
     ImmutableList<QuestionDefinition> newActiveQuestions =
-        getQuestionsForVersion(activeVersion).stream()
+        getQuestionsForVersionWithoutCache(activeVersion).stream()
             .map(question -> question.getQuestionDefinition())
             .collect(ImmutableList.toImmutableList());
     // Check there aren't any duplicate questions in the new active version
     validateNoDuplicateQuestions(newActiveQuestions);
     ImmutableSet<Long> missingQuestionIds =
-        getProgramsForVersion(activeVersion).stream()
+        getProgramsForVersionWithoutCache(activeVersion).stream()
             .map(program -> program.getProgramDefinition().getQuestionIdsInProgram())
             .flatMap(Collection::stream)
             .filter(
