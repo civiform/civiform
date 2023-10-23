@@ -129,9 +129,8 @@ public final class BaseStyles {
       StyleUtils.joinStyles(
           "sticky", "top-0", "px-2", "pt-2", "flex", "gap-4", "place-items-center");
 
-  public static final String MODAL_HEADER_ITEM_SPACING = StyleUtils.joinStyles("my-5", "mx-4");
   public static final String MODAL_TITLE =
-      StyleUtils.joinStyles("text-2xl", "text-gray-600", MODAL_HEADER_ITEM_SPACING);
+      StyleUtils.joinStyles("text-2xl", "text-gray-600", "my-5", "mx-4");
 
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins

@@ -72,19 +72,21 @@ public class ModalTest {
 
   @Test
   public void buildsModal_usesTranslationStrategyForCloseButton() {
-    Modal.TranslationStrategy translationStrategy = new Modal.TranslationStrategy() {
-      @Override
-      public String getCloseButtonLabel() {
-        return "TestCloseLabel";
-      }
-    };
+    Modal.TranslationStrategy translationStrategy =
+        new Modal.TranslationStrategy() {
+          @Override
+          public String getCloseButtonLabel() {
+            return "TestCloseLabel";
+          }
+        };
 
-    Modal modal = Modal.builder()
-      .setModalId("modal-id")
-      .setTranslationStrategy(translationStrategy)
-      .setContent(div().with(text("content")))
-      .setModalTitle("Modal Title")
-      .build();
+    Modal modal =
+        Modal.builder()
+            .setModalId("modal-id")
+            .setTranslationStrategy(translationStrategy)
+            .setContent(div().with(text("content")))
+            .setModalTitle("Modal Title")
+            .build();
     String rendered = modal.getContainerTag().render();
 
     assertThat(rendered).contains("aria-label=\"TestCloseLabel\"");

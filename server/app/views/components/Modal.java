@@ -241,7 +241,10 @@ public abstract class Modal {
   private DivTag getModalHeader() {
     return div()
         .withClasses(BaseStyles.MODAL_HEADER)
-        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE));
+        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
+        // Leave enough space for the close button so the close button and title
+        // don't overlap.
+        .with(div().withClasses("w-12"));
   }
 
   private ButtonTag getCloseButton() {
@@ -249,12 +252,11 @@ public abstract class Modal {
         .withClasses(
             ReferenceClasses.MODAL_CLOSE,
             ButtonStyles.CLEAR_WITH_ICON,
-            // The close button is visually in the top-right part of the header and should look
-            // aligned with other header content.
             "top-0",
             "right-0",
             "absolute",
-            BaseStyles.MODAL_HEADER_ITEM_SPACING)
+            "my-6",
+            "mx-4")
         .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer"));
   }
 
