@@ -60,10 +60,11 @@ public final class VersionRepository {
   private final Database database;
   private final ProgramRepository programRepository;
   private final DatabaseExecutionContext databaseExecutionContext;
-
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
+  private final SyncCacheApi programCache;
+  private final SyncCacheApi versionsByProgramCache;
 
   @Inject
   public VersionRepository(
@@ -71,13 +72,17 @@ public final class VersionRepository {
       DatabaseExecutionContext databaseExecutionContext,
       SettingsManifest settingsManifest,
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
-      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
+      @NamedCache("version-programs") SyncCacheApi programsByVersionCache,
+      @NamedCache("program") SyncCacheApi programCache,
+      @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
+    this.programCache = checkNotNull(programCache);
+    this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
   /**
@@ -137,7 +142,14 @@ public final class VersionRepository {
           // side of the relationship rather than the Program side in order to prevent the
           // save causing the "updated" timestamp to be changed for a Program. We intend for
           // that timestamp only to be updated for actual changes to the program.
-          .forEach(draft::addProgram);
+          .forEach(
+              program -> {
+                draft.addProgram(program);
+                if (settingsManifest.getProgramCacheEnabled()) {
+                  versionsByProgramCache.remove(String.valueOf(program.id));
+                  programCache.remove(String.valueOf(program.id));
+                }
+              });
 
       // Associate any active questions that aren't present in the draft with the draft.
       getQuestionsForVersion(active).stream()
