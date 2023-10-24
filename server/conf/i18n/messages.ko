@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=다음 중 옵션을 선택하세요.
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=국가
-label.phoneNumber=Enter phone number
+label.phoneNumber=전화번호 입력
 validation.phoneNumberRequired=전화번호는 필수 항목입니다.
 validation.phoneCountryCodeRequired=국가는 필수 선택 항목입니다.
 validation.phoneNumberMustContainNumbersOnly=전화번호는 숫자로만 구성되어야 합니다.
