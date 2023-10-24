@@ -176,8 +176,8 @@ public final class VersionRepository {
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
       // Clear the cache before publishing is completed.
-      removeCacheForVersion(String.valueOf(active.id)).join();
-      removeCacheForVersion(String.valueOf(draft.id)).join();
+      removeCacheForVersion(String.valueOf(active.id));
+      removeCacheForVersion(String.valueOf(draft.id));
 
       switch (publishMode) {
         case PUBLISH_CHANGES:
@@ -280,8 +280,8 @@ public final class VersionRepository {
       existingDraft.setLifecycleStage(LifecycleStage.ACTIVE);
 
       // Clear the cache before publishing is completed.
-      removeCacheForVersion(String.valueOf(existingDraft.id)).join();
-      removeCacheForVersion(String.valueOf(active.id)).join();
+      removeCacheForVersion(String.valueOf(existingDraft.id));
+      removeCacheForVersion(String.valueOf(active.id));
 
       existingDraft.save();
       active.save();
@@ -488,13 +488,11 @@ public final class VersionRepository {
     return version.getPrograms();
   }
 
-  private CompletableFuture<Void> removeCacheForVersion(String versionKey) {
+  private void removeCacheForVersion(String versionKey) {
     if (settingsManifest.getVersionCacheEnabled()) {
-      return CompletableFuture.allOf(
-          CompletableFuture.runAsync(() -> questionsByVersionCache.remove(versionKey)),
-          CompletableFuture.runAsync(() -> programsByVersionCache.remove(versionKey)));
+      questionsByVersionCache.remove(versionKey);
+      programsByVersionCache.remove(versionKey);
     }
-    return CompletableFuture.completedFuture(null);
   }
 
   /**
@@ -578,7 +576,7 @@ public final class VersionRepository {
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
     Version activeVersion = getActiveVersion();
-    removeCacheForVersion(String.valueOf(activeVersion.id)).join();
+    removeCacheForVersion(String.valueOf(activeVersion.id));
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersionWithoutCache(activeVersion).stream()
             .map(question -> question.getQuestionDefinition())
