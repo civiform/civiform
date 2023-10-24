@@ -21,9 +21,12 @@ import javax.inject.Provider;
 import models.Question;
 import models.QuestionTag;
 import models.Version;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.settings.SettingsManifest;
 
 /**
  * QuestionRepository performs complicated operations on {@link Question} that often involve other
@@ -35,13 +38,20 @@ public final class QuestionRepository {
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
+  private final SettingsManifest settingsManifest;
+  private final SyncCacheApi questionCache;
+
   @Inject
   public QuestionRepository(
       DatabaseExecutionContext executionContext,
-      Provider<VersionRepository> versionRepositoryProvider) {
+      Provider<VersionRepository> versionRepositoryProvider,
+      SettingsManifest settingsManifest,
+      @NamedCache("question") SyncCacheApi questionCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.questionCache = checkNotNull(questionCache);
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
@@ -49,8 +59,16 @@ public final class QuestionRepository {
   }
 
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
-    return supplyAsync(
-        () -> database.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
+    if (settingsManifest.getQuestionCacheEnabled()) {
+      return supplyAsync(
+          () -> questionCache.getOrElseUpdate(String.valueOf(id), () -> lookupQuestionSync(id)),
+          executionContext);
+    }
+    return supplyAsync(() -> lookupQuestionSync(id), executionContext);
+  }
+
+  private Optional<Question> lookupQuestionSync(long id) {
+    return database.find(Question.class).setId(id).findOneOrEmpty();
   }
 
   /**

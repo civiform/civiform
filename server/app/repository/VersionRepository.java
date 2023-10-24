@@ -64,6 +64,7 @@ public final class VersionRepository {
   private final SettingsManifest settingsManifest;
   private final SyncCacheApi questionsByVersionCache;
   private final SyncCacheApi programsByVersionCache;
+  private final SyncCacheApi questionCache;
 
   @Inject
   public VersionRepository(
@@ -71,13 +72,15 @@ public final class VersionRepository {
       DatabaseExecutionContext databaseExecutionContext,
       SettingsManifest settingsManifest,
       @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
-      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
+      @NamedCache("version-programs") SyncCacheApi programsByVersionCache,
+      @NamedCache("question") SyncCacheApi questionCache) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
+    this.questionCache = checkNotNull(questionCache);
   }
 
   /**
@@ -153,7 +156,13 @@ public final class VersionRepository {
           // side of the relationship rather than the Question side in order to prevent the
           // save causing the "updated" timestamp to be changed for a Question. We intend for
           // that timestamp only to be updated for actual changes to the question.
-          .forEach(draft::addQuestion);
+          .forEach(
+              question -> {
+                draft.addQuestion(question);
+                if (settingsManifest.getQuestionCacheEnabled()) {
+                  questionCache.remove(String.valueOf(question.id));
+                }
+              });
 
       // Remove any questions / programs both added and archived in the current version.
       getQuestionsForVersion(draft).stream()
