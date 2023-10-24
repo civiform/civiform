@@ -16,7 +16,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
-public class ExportServiceRepository {
+public final class ExportServiceRepository {
   private final Database database;
   private final Provider<VersionRepository> versionRepositoryProvider;
 
