@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=አንድ አማራጭ ይምረጡ፡-
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=አገር
-label.phoneNumber=Enter phone number
+label.phoneNumber=ስልክ ቁጥር ያስገቡ
 validation.phoneNumberRequired=ስልክ ቁጥር ያስፈልጋል
 validation.phoneCountryCodeRequired=አገር መመረጥ አለበት
 validation.phoneNumberMustContainNumbersOnly=ስልክ ቁጥር ቁጥር ያልሆኑ ቁምፊዎችን ሊይዝ አይችልም
