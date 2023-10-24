@@ -118,4 +118,9 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
 
     return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
   }
+
+  @Override
+  protected boolean isAdminProfileCreator() {
+    return false;
+  }
 }

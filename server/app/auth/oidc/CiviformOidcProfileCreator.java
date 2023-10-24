@@ -56,6 +56,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
   public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
 
+  /** Returns true if the profile creator is for (global or program) admins. */
+  protected abstract boolean isAdminProfileCreator();
+
   protected final Optional<String> getEmail(OidcProfile oidcProfile) {
     final String emailAttributeName = emailAttributeName();
 

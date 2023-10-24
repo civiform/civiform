@@ -69,4 +69,9 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
     }
     return profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin());
   }
+
+  @Override
+  protected boolean isAdminProfileCreator() {
+    return true;
+  }
 }

@@ -75,4 +75,9 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
 
     assertThat(profileData.getRoles()).doesNotContain("ROLE_CIVIFORM_ADMIN");
   }
+
+  @Test
+  public void profileCreatorIsForAdmins() {
+    assertThat(genericOidcProfileCreator.isAdminProfileCreator()).isTrue();
+  }
 }

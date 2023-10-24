@@ -78,4 +78,9 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
   }
+
+  @Test
+  public void applicantProfileCreatorIsNotForAdmins() {
+    assertThat(oidcProfileAdapter.isAdminProfileCreator()).isFalse();
+  }
 }
