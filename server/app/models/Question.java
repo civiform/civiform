@@ -148,7 +148,8 @@ public class Question extends BaseModel {
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
             .setValidationPredicatesString(validationPredicates)
-            .setLastModifiedTime(Optional.ofNullable(lastModifiedTime));
+            .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
+            .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL));
 
     setEnumeratorEntityType(builder);
 
@@ -261,6 +262,17 @@ public class Question extends BaseModel {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
       enumeratorEntityType = enumerator.getEntityType();
     }
+
+    // We must ensure we always initTags here. Otherwise, if we aren't
+    // adding the tag, and we're needing to remove the universal tag
+    // from an existing question, we'd end up with the questionTags field
+    // being null, which will simply not update the tags in the database at all.
+    if (questionDefinition.isUniversal()) {
+      addTag(QuestionTag.UNIVERSAL);
+    } else {
+      initTags();
+    }
+
     return this;
   }
 
