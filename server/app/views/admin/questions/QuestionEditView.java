@@ -363,10 +363,11 @@ public final class QuestionEditView extends BaseHtmlView {
     if (questionConfig.isPresent()) {
       questionSettingsContentBuilder.add(questionConfig.get());
     }
-
+    questionSettingsContentBuilder.add(buildUniversalQuestion(questionForm));
     if (!CsvExporterService.NON_EXPORTED_QUESTION_TYPES.contains(questionType)) {
       questionSettingsContentBuilder.add(buildDemographicFields(questionForm, submittable));
     }
+
     ImmutableList<DomContent> questionSettingsContent = questionSettingsContentBuilder.build();
     if (!questionSettingsContent.isEmpty()) {
       formTag
@@ -375,6 +376,27 @@ public final class QuestionEditView extends BaseHtmlView {
     }
 
     return formTag;
+  }
+
+  private DomContent buildUniversalQuestion(QuestionForm questionForm) {
+    DivTag universalToggle =
+        FieldWithLabel.toggle()
+            .setAriaRequired(true)
+            .setFieldName("isUniversal")
+            .setLabelText("Set as a universal question")
+            .setChecked(questionForm.isUniversal())
+            .setValue("true")
+            .getToggleTag()
+            .withClass("cf-universal-question-toggle");
+    return fieldset()
+        .with(
+            legend("Universal question").withClass(BaseStyles.INPUT_LABEL),
+            p().withClasses("px-1", "pb-2", "text-sm", "text-gray-600")
+                .with(
+                    span(
+                        "Universal questions will be recommended as a standardized type of"
+                            + " question to be added to all programs.")))
+        .with(universalToggle);
   }
 
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
