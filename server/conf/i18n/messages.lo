@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=ເລືອກຕົວເລືອກ:
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=ປະເທດ
-label.phoneNumber=Enter phone number
+label.phoneNumber=ໃສ່ເບີໂທລະສັບ
 validation.phoneNumberRequired=ຕ້ອງລະບຸເບີໂທລະສັບ
 validation.phoneCountryCodeRequired=ຕ້ອງເລືອກປະເທດ
 validation.phoneNumberMustContainNumbersOnly=ເບີໂທລະສັບບໍ່ສາມາດມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກໄດ້
