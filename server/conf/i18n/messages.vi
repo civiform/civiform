@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=Chọn một phương án:
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=Quốc gia
-label.phoneNumber=Nhập số điện thoại
+label.phoneNumber=Enter phone number
 validation.phoneNumberRequired=Bạn phải điền số điện thoại
 validation.phoneCountryCodeRequired=Bạn phải chọn quốc gia
 validation.phoneNumberMustContainNumbersOnly=Số điện thoại không được chứa các ký tự không phải là số
