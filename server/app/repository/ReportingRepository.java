@@ -44,6 +44,7 @@ public final class ReportingRepository {
         .map(
             row ->
                 ApplicationSubmissionsStat.create(
+                    row.getString("public_name"),
                     row.getString("program_name"),
                     Optional.of(row.getTimestamp("submit_month")),
                     row.getLong("count"),
@@ -66,6 +67,7 @@ public final class ReportingRepository {
     return database
         .sqlQuery(
             "SELECT\n"
+                + "  programs.localized_name AS public_name,\n"
                 + "  programs.name AS program_name,\n"
                 + "  count(*),\n"
                 + "  percentile_cont(0.5) WITHIN GROUP (\n"
@@ -80,13 +82,14 @@ public final class ReportingRepository {
                 + "INNER JOIN programs ON applications.program_id = programs.id\n"
                 + "WHERE applications.lifecycle_stage IN ('active', 'obsolete')\n"
                 + "AND applications.submit_time >= date_trunc('month', :current_date::date)\n"
-                + "GROUP BY programs.name")
+                + "GROUP BY programs.localized_name, programs.name")
         .setParameter("current_date", firstOfMonth)
         .findList()
         .stream()
         .map(
             row ->
                 ApplicationSubmissionsStat.create(
+                    row.getString("public_name"),
                     row.getString("program_name"),
                     Optional.of(firstOfMonth),
                     row.getLong("count"),

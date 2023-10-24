@@ -6,6 +6,7 @@ GENERATED ALWAYS AS (submit_time - create_time) STORED;
 
 CREATE MATERIALIZED VIEW monthly_submissions_reporting_view AS
 SELECT
+  programs.localized_name AS public_name,
   programs.name AS program_name,
   date_trunc('month', applications.submit_time) AS submit_month,
   count(*),
@@ -20,7 +21,7 @@ SELECT
 FROM applications
 INNER JOIN programs ON applications.program_id = programs.id
 WHERE applications.lifecycle_stage IN ('active', 'obsolete')
-GROUP BY programs.name, DATE_TRUNC('month', applications.submit_time)
+GROUP BY programs.localized_name, programs.name, DATE_TRUNC('month', applications.submit_time)
 ORDER BY programs.name, DATE_TRUNC('month', applications.submit_time) DESC;
 
 CREATE INDEX index_applications_by_submit_time ON applications(submit_time);

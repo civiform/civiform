@@ -13,6 +13,7 @@ import java.util.Optional;
 public abstract class ApplicationSubmissionsStat {
 
   public static ApplicationSubmissionsStat create(
+      String publicName,
       String programName,
       Optional<Timestamp> timestamp,
       long applicationCount,
@@ -21,6 +22,7 @@ public abstract class ApplicationSubmissionsStat {
       double submissionDurationSeconds75p,
       double submissionDurationSeconds99p) {
     return new AutoValue_ApplicationSubmissionsStat(
+        publicName,
         programName,
         timestamp,
         applicationCount,
@@ -29,6 +31,9 @@ public abstract class ApplicationSubmissionsStat {
         submissionDurationSeconds75p,
         submissionDurationSeconds99p);
   }
+
+  /** The public-facing name of the program. */
+  public abstract String publicName();
 
   /** The name of the program the applications were submitted for. */
   public abstract String programName();
@@ -52,6 +57,7 @@ public abstract class ApplicationSubmissionsStat {
   public abstract double submissionDurationSeconds99p();
 
   static final class Aggregator {
+    private final String publicName;
     private final String programName;
     private final Optional<Timestamp> timestamp;
     private long count = 0;
@@ -60,12 +66,14 @@ public abstract class ApplicationSubmissionsStat {
     private double p75WithWeights = 0;
     private double p99WithWeights = 0;
 
-    Aggregator(String programName, Timestamp timestamp) {
+    Aggregator(String publicName, String programName, Timestamp timestamp) {
+      this.publicName = Preconditions.checkNotNull(publicName);
       this.programName = Preconditions.checkNotNull(programName);
       this.timestamp = Optional.of(Preconditions.checkNotNull(timestamp));
     }
 
-    Aggregator(String programName) {
+    Aggregator(String publicName, String programName) {
+      this.publicName = Preconditions.checkNotNull(publicName);
       this.programName = Preconditions.checkNotNull(programName);
       this.timestamp = Optional.empty();
     }
@@ -80,6 +88,7 @@ public abstract class ApplicationSubmissionsStat {
 
     ApplicationSubmissionsStat getAggregateStat() {
       return ApplicationSubmissionsStat.create(
+          publicName,
           programName,
           timestamp,
           count,
