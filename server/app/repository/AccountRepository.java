@@ -309,7 +309,7 @@ public final class AccountRepository {
   }
 
   /** Delete guest accounts that have no data and were created before the provided maximum age. */
-  public int deleteUnusedGuestAccounts(int maxAgeInDays) {
+  public int deleteUnusedGuestAccounts(int minAgeInDays) {
     String sql =
         "WITH unused_accounts AS ( "
             + "  SELECT applicants.account_id AS account_id, applicants.id AS applicant_id "
@@ -319,7 +319,7 @@ public final class AccountRepository {
             + "  WHERE applications.applicant_id IS NULL "
             + "  AND accounts.authority_id IS NULL "
             + "  AND applicants.when_created < CURRENT_DATE - INTERVAL '"
-            + maxAgeInDays
+            + minAgeInDays
             + " days' "
             + "), "
             + "applicants_deleted AS ("

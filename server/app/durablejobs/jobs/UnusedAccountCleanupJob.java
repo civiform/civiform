@@ -13,7 +13,7 @@ import repository.AccountRepository;
 /** Destroys all guest accounts older than a set age that have not started any applications. */
 public final class UnusedAccountCleanupJob extends DurableJob {
   private static final Logger LOGGER = LoggerFactory.getLogger(UnusedAccountCleanupJob.class);
-  private static final int UNUSED_ACCOUNT_MAX_AGE_IN_DAYS = 90;
+  private static final int UNUSED_ACCOUNT_MIN_AGE_IN_DAYS = 90;
 
   private final AccountRepository accountRepository;
   private final Provider<LocalDateTime> nowProvider;
@@ -35,8 +35,8 @@ public final class UnusedAccountCleanupJob extends DurableJob {
 
   @Override
   public void run() {
-    LocalDateTime cutoff = nowProvider.get().minus(UNUSED_ACCOUNT_MAX_AGE_IN_DAYS, ChronoUnit.DAYS);
-    int numberDeleted = accountRepository.deleteUnusedGuestAccounts(UNUSED_ACCOUNT_MAX_AGE_IN_DAYS);
+    LocalDateTime cutoff = nowProvider.get().minus(UNUSED_ACCOUNT_MIN_AGE_IN_DAYS, ChronoUnit.DAYS);
+    int numberDeleted = accountRepository.deleteUnusedGuestAccounts(UNUSED_ACCOUNT_MIN_AGE_IN_DAYS);
 
     LOGGER.info("Deleted {} accounts created before {}", numberDeleted, cutoff);
   }
