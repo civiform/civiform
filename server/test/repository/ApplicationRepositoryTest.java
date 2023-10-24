@@ -44,11 +44,6 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_updatesOtherApplicationVersions() {
-    Logger logger = (Logger) LoggerFactory.getLogger(ApplicationRepository.class);
-    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-    listAppender.start();
-    logger.addAppender(listAppender);
-
     Applicant applicant = saveApplicant("Alice");
     Program program = createDraftProgram("Program");
 
@@ -78,15 +73,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Application appTwoSubmitted =
         repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
     assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-
     assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
-
-    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
-    assertThat(logsList)
-        .anySatisfy(
-            event -> {
-              assertThat(event.getFormattedMessage()).matches(".*duplicate = true.*");
-            });
+    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join().get().getSubmitTime())
+        .isEqualTo(initialSubmitTime);
   }
 
   @Test

@@ -392,7 +392,7 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
   }
 
   private void addTombstoneToVersion(Version version, Question question) throws Exception {
-    assertThat(version.addTombstoneForQuestion(question)).isTrue();
+    assertThat(versionRepository.addTombstoneForQuestionInVersion(question, version)).isTrue();
     version.save();
   }
 }

@@ -145,9 +145,9 @@ public abstract class BaseHtmlView {
 
   protected static final PTag requiredFieldsExplanationContent() {
     return p().with(
-            span("Note: Fields marked with a ").withClass("text-gray-600"),
-            span("*").withClass("text-red-700"),
-            span(" are required.").withClass("text-gray-600"))
+            span("Note: Fields marked with a ").withClass(BaseStyles.FORM_LABEL_TEXT_COLOR),
+            span("*").withClass(BaseStyles.FORM_ERROR_TEXT_COLOR),
+            span(" are required.").withClass(BaseStyles.FORM_LABEL_TEXT_COLOR))
         .withClass("text-sm");
   }
 }

@@ -637,11 +637,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * The languages that applicants can choose from when specifying their language preference and
-   * that admins can choose from when adding translations for programs and applications.
+   * The full list of languages available to CiviForm. These are the language that admins can choose
+   * from when adding translations for programs and applications, as well as the default list that
+   * applicants can choose from when specifying their language preference. See
+   * CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over languages available to
+   * applicants.
    */
   public Optional<ImmutableList<String>> getCiviformSupportedLanguages() {
     return getListOfStrings("CIVIFORM_SUPPORTED_LANGUAGES");
+  }
+
+  /**
+   * If populated, this filters the languages that are visible to the applicant to just those in the
+   * list. This allows program admins to develop languages support for programs and questions, but
+   * not let the applicant use a language that is not yet ready.
+   */
+  public Optional<ImmutableList<String>> getCiviformApplicantEnabledLanguages() {
+    return getListOfStrings("CIVIFORM_APPLICANT_ENABLED_LANGUAGES");
   }
 
   /**
@@ -748,6 +760,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
+  /** Enables the feature that allows completed applications to be downloadable by PDF. */
+  public boolean getApplicationExportable(RequestHeader request) {
+    return getBool("APPLICATION_EXPORTABLE", request);
+  }
+
   /**
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
@@ -810,6 +827,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("API_GENERATED_DOCS_ENABLED", request);
   }
 
+  /** Enables caching for versions and their associated data. */
+  public boolean getVersionCacheEnabled() {
+    return getBool("VERSION_CACHE_ENABLED");
+  }
+
+  /** Enables caching for programs and their associated data. */
+  public boolean getProgramCacheEnabled() {
+    return getBool("PROGRAM_CACHE_ENABLED");
+  }
+
+  /** Enables caching for questions and their associated data. */
+  public boolean getQuestionCacheEnabled() {
+    return getBool("QUESTION_CACHE_ENABLED");
+  }
+
+  /** Enables logic to populate more fields in OIDC logout requests. */
+  public boolean getEnhancedOidcLogoutEnabled() {
+    return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -821,7 +858,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "CIVIC_ENTITY_SMALL_LOGO_URL",
                       "Small logo for the civic entity used on the login page.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.ADMIN_READABLE),
                   SettingDescription.create(
@@ -1469,7 +1506,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "SENDER_EMAIL_ADDRESS",
                       "The email address used for the 'from' email header for emails sent by"
                           + " CiviForm.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Email Addresses",
@@ -1498,7 +1535,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the program administrator's email"
                           + " address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
@@ -1506,14 +1543,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the trusted intermediary's email"
                           + " address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
                       "STAGING_APPLICANT_NOTIFICATION_MAILING_LIST",
                       "If this is a staging deployment, the application notification email is sent"
                           + " to this email address instead of the applicant's email address.",
-                      /* isRequired= */ false,
+                      /* isRequired= */ true,
                       SettingType.STRING,
                       SettingMode.HIDDEN))),
           "Custom Text",
@@ -1631,6 +1668,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
+                      "APPLICATION_EXPORTABLE",
+                      "Enables the feature that allows completed applications to be downloadable"
+                          + " by PDF.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
                       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
                       "Enables the feature that allows for service area validation of a corrected"
                           + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
@@ -1691,7 +1735,31 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables the API docs tab on CiviForm.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.ADMIN_WRITEABLE))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "VERSION_CACHE_ENABLED",
+                      "Enables caching for versions and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "PROGRAM_CACHE_ENABLED",
+                      "Enables caching for programs and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "QUESTION_CACHE_ENABLED",
+                      "Enables caching for questions and their associated data.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "ENHANCED_OIDC_LOGOUT_ENABLED",
+                      "Enables logic to populate more fields in OIDC logout requests.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
@@ -1725,9 +1793,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       Pattern.compile("^(?!http://|https://).+")),
                   SettingDescription.create(
                       "CIVIFORM_SUPPORTED_LANGUAGES",
-                      "The languages that applicants can choose from when specifying their"
-                          + " language preference and that admins can choose from when adding"
-                          + " translations for programs and applications.",
+                      "The full list of languages available to CiviForm. These are the language"
+                          + " that admins can choose from when adding translations for programs"
+                          + " and applications, as well as the default list that applicants can"
+                          + " choose from when specifying their language preference. See"
+                          + " CIVIFORM_APPLICANT_ENABLED_LANGUAGES for further control over"
+                          + " languages available to applicants.",
+                      /* isRequired= */ false,
+                      SettingType.LIST_OF_STRINGS,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "CIVIFORM_APPLICANT_ENABLED_LANGUAGES",
+                      "If populated, this filters the languages that are visible to the applicant"
+                          + " to just those in the list. This allows program admins to develop"
+                          + " languages support for programs and questions, but not let the"
+                          + " applicant use a language that is not yet ready.",
                       /* isRequired= */ false,
                       SettingType.LIST_OF_STRINGS,
                       SettingMode.HIDDEN),

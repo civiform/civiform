@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.oidc.InvalidOidcProfileException;
+import auth.oidc.OidcClientProviderParams;
 import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import auth.saml.InvalidSamlProfileException;
 import auth.saml.SamlProfileCreator;
@@ -20,8 +21,8 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.saml.profile.SAML2Profile;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 public class ProfileMergeTest extends ResetPostgres {
@@ -29,7 +30,7 @@ public class ProfileMergeTest extends ResetPostgres {
   private IdcsApplicantProfileCreator idcsApplicantProfileCreator;
   private SamlProfileCreator samlProfileCreator;
   private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
+  private static AccountRepository accountRepository;
   private Database database;
 
   @Before
@@ -40,7 +41,7 @@ public class ProfileMergeTest extends ResetPostgres {
   @Before
   public void setupFactory() {
     profileFactory = instanceOf(ProfileFactory.class);
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     // Just need some complete adaptor to access methods.
@@ -48,14 +49,14 @@ public class ProfileMergeTest extends ResetPostgres {
         new IdcsApplicantProfileCreator(
             client_config,
             client,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(userRepository));
+            OidcClientProviderParams.create(
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
     samlProfileCreator =
         new SamlProfileCreator(
             /* configuration = */ null,
             /* client = */ null,
             profileFactory,
-            CfTestHelpers.userRepositoryProvider(userRepository));
+            CfTestHelpers.userRepositoryProvider(accountRepository));
   }
 
   private OidcProfile createOidcProfile(String email, String issuer, String subject) {

@@ -18,11 +18,11 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import repository.UserRepository;
+import repository.AccountRepository;
 import services.applicant.exception.ApplicantNotFoundException;
 
 public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
-  private UserRepository repo;
+  private AccountRepository repo;
   private TrustedIntermediaryController tiController;
   private ProfileFactory profileFactory;
   private ProfileUtils profileUtils;
@@ -33,7 +33,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
     tiController = instanceOf(TrustedIntermediaryController.class);
     Applicant managedApplicant = createApplicant();
     createTIWithMockedProfile(managedApplicant);
-    repo = instanceOf(UserRepository.class);
+    repo = instanceOf(AccountRepository.class);
     profileFactory.createFakeTrustedIntermediary();
     profileUtils = instanceOf(ProfileUtils.class);
   }

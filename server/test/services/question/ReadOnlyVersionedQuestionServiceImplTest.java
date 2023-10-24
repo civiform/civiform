@@ -10,14 +10,16 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionType;
 import support.TestQuestionBank;
 
 public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
-
+  private VersionRepository versionRepository;
   private final ReadOnlyQuestionService emptyService =
-      new ReadOnlyVersionedQuestionServiceImpl(new Version(LifecycleStage.OBSOLETE));
+      new ReadOnlyVersionedQuestionServiceImpl(
+          new Version(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
   private TestQuestionBank testQuestionBank;
   private Question nameQuestion;
   private Question addressQuestion;
@@ -33,9 +35,10 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
     addressQuestion = testQuestionBank.applicantAddress();
     basicQuestion = testQuestionBank.applicantFavoriteColor();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
+    versionRepository = instanceOf(VersionRepository.class);
     Version version = new Version(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
-    service = new ReadOnlyVersionedQuestionServiceImpl(version);
+    service = new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
   }
 
   @Test
@@ -76,7 +79,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
     Version version = new Version(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
     addQuestionsToVersion(version, ImmutableList.of(enumeratorQuestion));
-    var service = new ReadOnlyVersionedQuestionServiceImpl(version);
+    var service = new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
     assertThat(service.getAllEnumeratorQuestions().size()).isEqualTo(1);
     assertThat(service.getAllEnumeratorQuestions().get(0))
         .isEqualTo(enumeratorQuestion.getQuestionDefinition());

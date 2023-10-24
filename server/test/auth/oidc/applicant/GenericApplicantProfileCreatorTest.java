@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
@@ -13,8 +14,8 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import services.applicant.ApplicantData;
 import support.CfTestHelpers;
 
@@ -30,11 +31,11 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
 
   private GenericApplicantProfileCreator oidcProfileAdapter;
   private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
+  private static AccountRepository accountRepository;
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
@@ -43,8 +44,8 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
         new GenericApplicantProfileCreator(
             client_config,
             client,
-            profileFactory,
-            CfTestHelpers.userRepositoryProvider(userRepository),
+            OidcClientProviderParams.create(
+                profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)),
             EMAIL_ATTRIBUTE_NAME,
             LOCALE_ATTRIBUTE_NAME,
             ImmutableList.of(

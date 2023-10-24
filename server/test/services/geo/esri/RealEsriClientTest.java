@@ -37,6 +37,21 @@ public class RealEsriClientTest {
   }
 
   @Test
+  public void fetchAddressSuggestionsHavingLine2Populated() throws Exception {
+    helper = new EsriTestHelper(TestType.STANDARD_WITH_LINE_2);
+    ObjectNode addressJson = Json.newObject();
+    addressJson.put("street", "380 New York St");
+    addressJson.put("line2", "Apt 123");
+    Optional<JsonNode> maybeResp =
+        helper.getClient().fetchAddressSuggestions(addressJson).toCompletableFuture().get();
+    JsonNode resp = maybeResp.get();
+
+    JsonNode nodeWithLine2 = resp.get("candidates").get(0);
+    String actualLine2Value = nodeWithLine2.get("attributes").get("SubAddr").asText();
+    assertThat(actualLine2Value).isEqualTo("Apt 123");
+  }
+
+  @Test
   public void fetchAddressSuggestionsWithNoCandidates() throws Exception {
     helper = new EsriTestHelper(TestType.NO_CANDIDATES);
     ObjectNode addressJson = Json.newObject();

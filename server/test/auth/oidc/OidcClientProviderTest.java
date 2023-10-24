@@ -20,15 +20,15 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
+import repository.AccountRepository;
 import repository.ResetPostgres;
-import repository.UserRepository;
 import support.CfTestHelpers;
 
 @RunWith(JUnitParamsRunner.class)
 public class OidcClientProviderTest extends ResetPostgres {
   private OidcClientProvider oidcClientProvider;
   private ProfileFactory profileFactory;
-  private static UserRepository userRepository;
+  private static AccountRepository accountRepository;
   private static final String DISCOVERY_URI =
       "http://dev-oidc:3390/.well-known/openid-configuration";
   private static final String BASE_URL =
@@ -36,7 +36,7 @@ public class OidcClientProviderTest extends ResetPostgres {
 
   @Before
   public void setup() {
-    userRepository = instanceOf(UserRepository.class);
+    accountRepository = instanceOf(AccountRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     Config config =
         ConfigFactory.parseMap(
@@ -53,7 +53,8 @@ public class OidcClientProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     oidcClientProvider =
         new IdcsClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+            OidcClientProviderParams.create(
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test
@@ -109,7 +110,8 @@ public class OidcClientProviderTest extends ResetPostgres {
 
     OidcClientProvider oidcClientProvider =
         new IdcsClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(userRepository));
+            OidcClientProviderParams.create(
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
 
     OidcClient client = oidcClientProvider.get();
 
@@ -177,9 +179,10 @@ public class OidcClientProviderTest extends ResetPostgres {
             () -> {
               OidcClientProvider badOidcClientProvider =
                   new IdcsClientProvider(
-                      bad_secret_config,
-                      profileFactory,
-                      CfTestHelpers.userRepositoryProvider(userRepository));
+                      OidcClientProviderParams.create(
+                          bad_secret_config,
+                          profileFactory,
+                          CfTestHelpers.userRepositoryProvider(accountRepository)));
               badOidcClientProvider.get();
             })
         .isInstanceOf(RuntimeException.class);

@@ -15,9 +15,9 @@ import models.Program;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
-import repository.UserRepository;
 import services.DeploymentType;
 import services.LocalizedStrings;
 import services.MessageKey;
@@ -30,6 +30,7 @@ import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
@@ -37,29 +38,29 @@ import services.program.StatusNotFoundException;
 public final class ProgramAdminApplicationService {
 
   private final ApplicantService applicantService;
-  private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final SimpleEmail emailClient;
   private final String baseUrl;
   private final boolean isStaging;
   private final String stagingApplicantNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final MessagesApi messagesApi;
+  private final ApplicationRepository applicationRepository;
 
   @Inject
   ProgramAdminApplicationService(
       ApplicantService applicantService,
-      ApplicationRepository applicationRepository,
       ApplicationEventRepository eventRepository,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       Config configuration,
       SimpleEmail emailClient,
       DeploymentType deploymentType,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      ApplicationRepository applicationRepository) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
     this.eventRepository = checkNotNull(eventRepository);
     this.emailClient = checkNotNull(emailClient);
     this.messagesApi = checkNotNull(messagesApi);
@@ -73,28 +74,6 @@ public final class ProgramAdminApplicationService {
         configuration.getString("staging_applicant_notification_mailing_list");
     this.stagingTiNotificationMailingList =
         configuration.getString("staging_ti_notification_mailing_list");
-  }
-
-  /**
-   * Retrieves the application with the given ID and validates that it is associated with the given
-   * program.
-   */
-  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    Optional<Application> maybeApplication =
-        applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-    if (maybeApplication.isEmpty()) {
-      return Optional.empty();
-    }
-    Application application = maybeApplication.get();
-    if (program.adminName().isEmpty()
-        || !application
-            .getProgram()
-            .getProgramDefinition()
-            .adminName()
-            .equals(program.adminName())) {
-      return Optional.empty();
-    }
-    return Optional.of(application);
   }
 
   /**
@@ -195,7 +174,7 @@ public final class ProgramAdminApplicationService {
     }
 
     Locale locale =
-        userRepository
+        accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
             .flatMap(Account::newestApplicant)
             .map(Applicant::getApplicantData)
@@ -238,5 +217,31 @@ public final class ProgramAdminApplicationService {
         .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
         .findFirst()
         .map(app -> app.getDetails().noteEvent().get().note());
+  }
+
+  /**
+   * Retrieves the application with the given ID and validates that it is associated with the given
+   * program.
+   */
+  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
+    try {
+      return validateProgram(
+          applicationRepository.getApplication(applicationId).toCompletableFuture().join(),
+          program);
+    } catch (ProgramNotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
+  /** Validates that the given application is part of the given program. */
+  private Optional<Application> validateProgram(
+      Optional<Application> application, ProgramDefinition program)
+      throws ProgramNotFoundException {
+    if (application.isEmpty()
+        || application.get().getProgramName().isEmpty()
+        || !application.get().getProgramName().equals(program.adminName())) {
+      throw new ProgramNotFoundException("Application or program is empty or mismatched");
+    }
+    return application;
   }
 }

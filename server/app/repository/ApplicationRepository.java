@@ -30,7 +30,7 @@ import services.program.ProgramNotFoundException;
  */
 public final class ApplicationRepository {
   private final ProgramRepository programRepository;
-  private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationRepository.class);
@@ -38,10 +38,10 @@ public final class ApplicationRepository {
   @Inject
   public ApplicationRepository(
       ProgramRepository programRepository,
-      UserRepository userRepository,
+      AccountRepository accountRepository,
       DatabaseExecutionContext executionContext) {
     this.programRepository = checkNotNull(programRepository);
-    this.userRepository = checkNotNull(userRepository);
+    this.accountRepository = checkNotNull(accountRepository);
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
   }
@@ -114,6 +114,35 @@ public final class ApplicationRepository {
                 applicant.id, program.id));
       }
 
+      ImmutableList<Application> previousActive =
+          oldApplications.stream()
+              .filter(app -> app.getLifecycleStage().equals(LifecycleStage.ACTIVE))
+              .collect(ImmutableList.toImmutableList());
+
+      if (previousActive.size() > 1) {
+        // This shouldn't really be possible, but just in case
+        LOGGER.warn(
+            "Multiple previous active applications found for applicant {} to program {} {}. All"
+                + " will be set to OBSOLETE. Application IDs: {}",
+            applicant.id,
+            program.id,
+            program.getProgramDefinition().adminName(),
+            String.join(
+                ",",
+                previousActive.stream()
+                    .map(app -> app.id.toString())
+                    .collect(ImmutableList.toImmutableList())));
+      }
+
+      for (Application app : previousActive) {
+        // https://github.com/civiform/civiform/issues/3227
+        if (app.getSubmitTime() == null) {
+          app.setSubmitTimeToNow();
+        }
+        app.setLifecycleStage(LifecycleStage.OBSOLETE);
+        app.save();
+      }
+
       application.setApplicantData(applicant.getApplicantData());
       application.setLifecycleStage(LifecycleStage.ACTIVE);
       application.setSubmitTimeToNow();
@@ -122,25 +151,6 @@ public final class ApplicationRepository {
       }
       application.save();
 
-      for (Application app : oldApplications) {
-        if (application.id.equals(app.id)
-            || app.getLifecycleStage().equals(LifecycleStage.OBSOLETE)) {
-          continue;
-        }
-        boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
-        LOGGER.warn(
-            "Multiple applications found at submit time for applicant {} to program {} {}:"
-                + " application {}, duplicate = {}",
-            applicant.id,
-            program.id,
-            program.getProgramDefinition().adminName(),
-            app.id,
-            isDuplicate);
-
-        app.setSubmitTimeToNow();
-        app.setLifecycleStage(LifecycleStage.OBSOLETE);
-        app.save();
-      }
       database.commitTransaction();
       return application;
     } finally {
@@ -154,7 +164,8 @@ public final class ApplicationRepository {
    */
   private CompletionStage<Optional<Application>> perform(
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
-    CompletionStage<Optional<Applicant>> applicantDb = userRepository.lookupApplicant(applicantId);
+    CompletionStage<Optional<Applicant>> applicantDb =
+        accountRepository.lookupApplicant(applicantId);
     CompletionStage<Optional<Program>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
         .thenCombineAsync(

@@ -1,17 +1,14 @@
 package auth.oidc.admin;
 
-import auth.ProfileFactory;
 import auth.oidc.OidcClientProvider;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
-import com.typesafe.config.Config;
 import java.util.Optional;
-import javax.inject.Provider;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.UserRepository;
 
 /**
  * This class implements a `Provider` of a generic `OidcClient` for use in authenticating and
@@ -33,11 +30,8 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String USE_CSRF = "use_csrf";
 
   @Inject
-  GenericOidcClientProvider(
-      Config configuration,
-      ProfileFactory profileFactory,
-      Provider<UserRepository> accountRepositoryProvider) {
-    super(configuration, profileFactory, accountRepositoryProvider);
+  GenericOidcClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override
@@ -53,8 +47,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new GenericOidcProfileCreator(
-        config, client, profileFactory, civiformConfig, this.accountRepositoryProvider);
+    return new GenericOidcProfileCreator(config, client, params);
   }
 
   @Override

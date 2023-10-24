@@ -2,11 +2,14 @@ package views;
 
 import static j2html.TagCreator.a;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
+import static j2html.TagCreator.span;
 
 import com.google.auto.value.AutoValue;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.PTag;
+import j2html.tags.specialized.SpanTag;
 import java.util.Optional;
 import play.i18n.Messages;
 import play.mvc.Http;
@@ -17,6 +20,7 @@ import services.cloud.StorageClient;
 import views.components.ButtonStyles;
 import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
+import views.style.BaseStyles;
 
 public class ApplicationBaseView extends BaseHtmlView {
   final String REVIEW_APPLICATION_BUTTON_ID = "review-application-button";
@@ -136,8 +140,9 @@ public class ApplicationBaseView extends BaseHtmlView {
    * @param messages the localized {@link Messages} for the current applicant
    * @return PTag containing requiredness text.
    */
-  public PTag requiredFieldsExplanationContent(Messages messages) {
-    return p(messages.at(MessageKey.REQUIRED_FIELDS_ANNOTATION.getKeyName()))
-        .withClasses("text-sm", "text-gray-600", "mb-2");
+  public static PTag requiredFieldsExplanationContent(Messages messages) {
+    SpanTag redAsterisk = span("*").withClass(BaseStyles.FORM_ERROR_TEXT_COLOR);
+    return p(rawHtml(messages.at(MessageKey.REQUIRED_FIELDS_NOTE.getKeyName(), redAsterisk)))
+        .withClasses("text-sm", BaseStyles.FORM_LABEL_TEXT_COLOR, "mb-2");
   }
 }

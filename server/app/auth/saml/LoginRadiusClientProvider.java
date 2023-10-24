@@ -14,7 +14,7 @@ import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 // TODO(#3856): Update with a non deprecated saml impl.
 @SuppressWarnings("deprecation")
@@ -24,14 +24,14 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
 
   private final Config configuration;
   private final ProfileFactory profileFactory;
-  private final Provider<UserRepository> applicantRepositoryProvider;
+  private final Provider<AccountRepository> applicantRepositoryProvider;
   private final String baseUrl;
 
   @Inject
   public LoginRadiusClientProvider(
       Config configuration,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.baseUrl = configuration.getString("base_url");

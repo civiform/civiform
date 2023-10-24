@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Application;
+import services.DateConverter;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantService;
 import services.applicant.ReadOnlyApplicantProgramService;
@@ -34,15 +35,18 @@ public final class PdfExporter {
   private final ApplicantService applicantService;
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
+  private final DateConverter dateConverter;
 
   @Inject
   PdfExporter(
       ApplicantService applicantService,
       @Now Provider<LocalDateTime> nowProvider,
-      Config configuration) {
+      Config configuration,
+      DateConverter dateConverter) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -70,15 +74,23 @@ public final class PdfExporter {
             answers,
             applicantNameWithApplicationId,
             application.getProgram().getProgramDefinition(),
-            application.getLatestStatus());
+            application.getLatestStatus(),
+            getSubmitTime(application.getSubmitTime()));
     return new InMemoryPdf(bytes, filename);
+  }
+
+  private String getSubmitTime(Instant submitTime) {
+    return submitTime == null
+        ? "Application submitted without submission time marked."
+        : dateConverter.renderDateTime(submitTime);
   }
 
   private byte[] buildPDF(
       ImmutableList<AnswerData> answers,
       String applicantNameWithApplicationId,
       ProgramDefinition programDefinition,
-      Optional<String> statusValue)
+      Optional<String> statusValue,
+      String submitTime)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -104,6 +116,10 @@ public final class PdfExporter {
               "Status: " + statusValue.orElse("none"),
               FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(status);
+      Paragraph submitTimeInformation =
+          new Paragraph(
+              "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answers) {

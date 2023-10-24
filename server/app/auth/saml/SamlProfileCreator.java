@@ -27,14 +27,14 @@ import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import repository.UserRepository;
+import repository.AccountRepository;
 
 public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(SamlProfileCreator.class);
   protected final CiviFormProfileMerger civiFormProfileMerger;
   protected final ProfileFactory profileFactory;
-  protected final Provider<UserRepository> applicantRepositoryProvider;
+  protected final Provider<AccountRepository> applicantRepositoryProvider;
   protected final SAML2Configuration saml2Configuration;
   // TODO(#3856): Update with a non deprecated saml impl.
   @SuppressWarnings("deprecation")
@@ -46,7 +46,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       SAML2Configuration configuration,
       SAML2Client client,
       ProfileFactory profileFactory,
-      Provider<UserRepository> applicantRepositoryProvider) {
+      Provider<AccountRepository> applicantRepositoryProvider) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);

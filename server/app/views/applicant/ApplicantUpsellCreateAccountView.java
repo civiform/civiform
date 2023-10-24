@@ -10,7 +10,9 @@ import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 import annotations.BindingAnnotations;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import controllers.applicant.routes;
 import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import java.util.Locale;
 import java.util.Optional;
 import models.Account;
@@ -20,6 +22,7 @@ import play.twirl.api.Content;
 import services.LocalizedStrings;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
+import services.settings.SettingsManifest;
 import views.components.ButtonStyles;
 import views.components.Modal;
 import views.components.TextFormatter;
@@ -31,12 +34,15 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
 
   private final ApplicantLayout layout;
   private final String authProviderName;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantUpsellCreateAccountView(
       ApplicantLayout layout,
+      SettingsManifest settingsManifest,
       @BindingAnnotations.ApplicantAuthProviderName String authProviderName) {
     this.layout = checkNotNull(layout);
+    this.settingsManifest = settingsManifest;
     this.authProviderName = checkNotNull(authProviderName);
   }
 
@@ -54,7 +60,7 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
     boolean shouldUpsell = shouldUpsell(account);
-
+    String redirectUrl = routes.UpsellController.download(applicationId, applicantId).url();
     Modal loginPromptModal =
         createLoginPromptModal(
                 messages,
@@ -62,16 +68,27 @@ public final class ApplicantUpsellCreateAccountView extends ApplicantUpsellView 
                 /* description= */ messages.at(MessageKey.GENERAL_LOGIN_MODAL_PROMPT.getKeyName()),
                 /* bypassMessage= */ MessageKey.BUTTON_CONTINUE_WITHOUT_AN_ACCOUNT)
             .build();
-
+    ATag downloadButton = new ATag();
+    if (settingsManifest.getApplicationExportable(request)) {
+      downloadButton =
+          new ATag()
+              .withHref(redirectUrl)
+              .with(
+                  button(messages.at(MessageKey.BUTTON_DOWNLOAD_PDF.getKeyName()))
+                      .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "flex-grow"))
+              .withClass("flex");
+    }
     ImmutableList<DomContent> actionButtons =
         shouldUpsell
             ? ImmutableList.of(
+                downloadButton,
                 button(messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                     .withId(loginPromptModal.getTriggerButtonId())
                     .withClasses(ButtonStyles.OUTLINED_TRANSPARENT),
                 createLoginButton("sign-in", messages, redirectTo),
                 createNewAccountButton("sign-up", messages))
             : ImmutableList.of(
+                downloadButton,
                 createApplyToProgramsButton(
                     "another-program",
                     messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()),

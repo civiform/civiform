@@ -471,18 +471,6 @@ describe('create and edit predicates', () => {
         'Screen 1',
       )
 
-      // Select all questions
-      for (const question of questions) {
-        await adminPredicates.selectQuestionForPredicate(question)
-      }
-      await adminPredicates.clickAddConditionButton()
-      await validateToastMessage(page, 'select fewer than 5 questions')
-
-      // Unselect all questions
-      for (const question of questions) {
-        await adminPredicates.selectQuestionForPredicate(question)
-      }
-
       await adminPredicates.addPredicates([
         {
           questionName: 'predicate-date-is-earlier-than',

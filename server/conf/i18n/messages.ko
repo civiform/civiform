@@ -22,8 +22,8 @@ validation.isRequired=이 질문은 필수입니다.
 validation.invalidInput=유효한 내용을 입력하세요.
 validation.errorAnnouncementSr=양식에 오류가 있습니다.
 content.requiredFieldsAnnotation=참고: * 표시된 필드는 필수입니다.
-content.requiredFieldsNote=Note: Fields marked with a {0} are required.
-content.optional=(optional)
+content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입니다.
+content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
 
@@ -150,6 +150,15 @@ content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
 button.applyToPrograms=프로그램 신청
 
+#-------------------------------------------------------------------------------------------------------------------------#
+# APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
+#-------------------------------------------------------------------------------------------------------------------------#
+
+title.noChangesToSave=There are no changes to save for the {0}
+content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
+button.continueEditing=Continue editing
+button.exitApplication=Exit application
+
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
 #----------------------------------------------------------#
@@ -273,6 +282,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
+adminValidation.multiOptionAdminEmpty=다중 선택이 가능한 질문에서 관리자 ID를 비워두면 안 됩니다.
 
 #----------------------------------#
 # ERRORS - various error messages  #

@@ -218,7 +218,7 @@ public final class DevDatabaseSeedTask {
               StatusDefinitions.Status.builder()
                   .setStatusText("Pending Review")
                   .setDefaultStatus(Optional.of(true))
-                  .setLocalizedStatusText(LocalizedStrings.empty())
+                  .setLocalizedStatusText(LocalizedStrings.withDefaultValue("Pending Review"))
                   .setLocalizedEmailBodyText(Optional.empty())
                   .build());
       if (appendStatusResult.isError()) {

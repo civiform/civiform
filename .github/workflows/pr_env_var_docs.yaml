@@ -8,8 +8,8 @@ concurrency:
 
 on:
   pull_request:
-    branches:
-      - 'main'
+    branches-ignore:
+      - 'spike/**'
     paths:
       - 'env-var-docs/**'
       - 'server/conf/env-var-docs.json'
