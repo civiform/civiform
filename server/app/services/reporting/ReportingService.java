@@ -219,7 +219,9 @@ public final class ReportingService {
               if (aggregators.containsKey(stat.programName())) {
                 aggregator = aggregators.get(stat.programName());
               } else {
-                aggregator = new ApplicationSubmissionsStat.Aggregator(stat.publicName(), stat.programName());
+                aggregator =
+                    new ApplicationSubmissionsStat.Aggregator(
+                        stat.publicName(), stat.programName());
                 aggregators.put(stat.programName(), aggregator);
               }
 
