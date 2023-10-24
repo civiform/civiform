@@ -118,6 +118,7 @@ public class DevDatabaseSeedController extends Controller {
         .flashing("success", "The database has been cleared");
   }
 
+  /** Remove all content from the cache. */
   public void clearCache() {
     if (!isDevOrStaging) return;
     Version activeVersion = versionRepository.getActiveVersion();
@@ -125,6 +126,10 @@ public class DevDatabaseSeedController extends Controller {
     clearVersionCache(questionsByVersionCache, activeVersion);
   }
 
+  /**
+   * Remove all content from the version cache, using the active version as the maximum key to
+   * clear.
+   */
   private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
     for (int num = 1; num <= activeVersion.id; num++) {
       if (cache.get(String.valueOf(num)).isPresent()) {
