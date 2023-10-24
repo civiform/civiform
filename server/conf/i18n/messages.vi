@@ -31,6 +31,7 @@ toast.errorMessageOutline=Lỗi: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Đăng nhập
 content.loginPrompt=Vui lòng đăng nhập bằng tài khoản {0} của bạn
 button.createAnAccount=Tạo tài khoản
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=Khách hàng của bạn có thể nhận đ�
 content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
+button.downloadPdf=Download PDF
 button.applyToPrograms=Đăng ký chương trình
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=Không có thay đổi nào cần lưu đối với {0}
+content.noChanges=Bạn chưa thay đổi gì trong đơn đăng ký. Bạn có muốn tiếp tục chỉnh sửa không?
+button.continueEditing=Tiếp tục chỉnh sửa
+button.exitApplication=Thoát quy trình đăng ký
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #

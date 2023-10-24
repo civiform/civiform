@@ -31,6 +31,7 @@ toast.errorMessageOutline=Error: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Acceso
 content.loginPrompt=Accede con tu cuenta {0}
 button.createAnAccount=Crear una cuenta
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=Tu cliente puede obtener estos beneficios si 
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no encontró programas para los que reúnas los requisitos en este momento. No obstante, puedes solicitar beneficios en cualquier momento si haces clic en "Postularse a programas". Para ver programas de beneficios adicionales, visita {0}.
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no encontró programas para los que tu cliente reúna los requisitos en este momento. No obstante, puedes solicitar beneficios en cualquier momento si haces clic en "Postularse a programas". Para ver programas de beneficios adicionales, visita {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
+button.downloadPdf=Download PDF
 button.applyToPrograms=Postularse a programas
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=No hay cambios para guardar en el programa {0}
+content.noChanges=Aún no realizaste cambios en la solicitud. ¿Deseas continuar con la edición?
+button.continueEditing=Seguir editando
+button.exitApplication=Salir de la solicitud
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
