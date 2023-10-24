@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=選擇一個選項：
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=國家/地區
-label.phoneNumber=Enter phone number
+label.phoneNumber=輸入電話號碼
 validation.phoneNumberRequired=必須提供電話號碼
 validation.phoneCountryCodeRequired=必須選取國家/地區
 validation.phoneNumberMustContainNumbersOnly=電話號碼不得包含非數字字元
