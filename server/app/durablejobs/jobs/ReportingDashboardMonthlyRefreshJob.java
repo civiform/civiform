@@ -10,8 +10,8 @@ public final class ReportingDashboardMonthlyRefreshJob extends DurableJob {
   private final PersistedDurableJob persistedDurableJob;
 
   public ReportingDashboardMonthlyRefreshJob(
-      ReportingRepository persistedDurableJobRepository, PersistedDurableJob persistedDurableJob) {
-    this.reportingRepository = Preconditions.checkNotNull(persistedDurableJobRepository);
+      ReportingRepository reportingRepository, PersistedDurableJob persistedDurableJob) {
+    this.reportingRepository = Preconditions.checkNotNull(reportingRepository);
     this.persistedDurableJob = Preconditions.checkNotNull(persistedDurableJob);
   }
 

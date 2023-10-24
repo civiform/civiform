@@ -3,6 +3,7 @@ package auth.oidc.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.ProfileFactory;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
@@ -55,7 +56,8 @@ public class GenericOidcClientProviderTest extends ResetPostgres {
     // Just need some complete adaptor to access methods.
     genericOidcProvider =
         new GenericOidcClientProvider(
-            config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository));
+            OidcClientProviderParams.create(
+                config, profileFactory, CfTestHelpers.userRepositoryProvider(accountRepository)));
   }
 
   @Test
