@@ -27,6 +27,7 @@ public abstract class QuestionForm {
   private Optional<String> questionExportState;
   private QuestionDefinition qd;
   private String redirectUrl;
+  private boolean isUniversal;
 
   protected QuestionForm() {
     questionName = "";
@@ -36,6 +37,7 @@ public abstract class QuestionForm {
     questionHelpText = "";
     questionExportState = Optional.of("");
     redirectUrl = "";
+    isUniversal = false;
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -57,6 +59,8 @@ public abstract class QuestionForm {
     } catch (TranslationNotFoundException e) {
       questionHelpText = "Missing Text";
     }
+
+    isUniversal = qd.isUniversal();
   }
 
   public final String getQuestionName() {
@@ -134,7 +138,8 @@ public abstract class QuestionForm {
             .setDescription(questionDescription)
             .setEnumeratorId(enumeratorId)
             .setQuestionText(questionTextMap)
-            .setQuestionHelpText(questionHelpTextMap);
+            .setQuestionHelpText(questionHelpTextMap)
+            .setUniversal(isUniversal);
     return builder;
   }
 
@@ -177,5 +182,14 @@ public abstract class QuestionForm {
       populateQuestionExportStateFromTags(q.getQuestionTags());
     }
     return questionExportState.get();
+  }
+
+  public final boolean isUniversal() {
+    return this.isUniversal;
+  }
+
+  // Awkwardly named, but must match the field name
+  public final void setIsUniversal(boolean universal) {
+    this.isUniversal = universal;
   }
 }
