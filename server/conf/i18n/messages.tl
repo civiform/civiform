@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=Pumili ng opsyon:
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=Bansa
-label.phoneNumber=Enter phone number
+label.phoneNumber=Ilagay ang Numero ng telepono
 validation.phoneNumberRequired=Kinakailangan ang numero ng telepono
 validation.phoneCountryCodeRequired=Dapat piliin ang bansa
 validation.phoneNumberMustContainNumbersOnly=Hindi puwedeng maglaman ng mga character na hindi numero ang numero ng telepono
