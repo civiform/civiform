@@ -16,6 +16,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
+/** Implements queries related to CSV exporting needs. */
 public final class ExportServiceRepository {
   private final Database database;
   private final Provider<VersionRepository> versionRepositoryProvider;
@@ -26,6 +27,15 @@ public final class ExportServiceRepository {
     this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
+  /**
+   * This method creates a map of all the optionIds to its option's adminName string for a given
+   * multiselect question definition There are two queries which are run here 1. To get all the
+   * adminNames to optionIds for a given question 2. To get all the options which were ever picked
+   * by an applicant (this is to filter out options accidentally introduced) The options are now
+   * combined with the latest active version of the question and returned as an immutable map. It
+   * throws RuntimeException when the question is not of type Checkbox It also throws
+   * NoSuchElementException when the active version of the question is missing
+   */
   public ImmutableMap<Long, String> getMultiSelectedHeaders(QuestionDefinition questionDefinition) {
     if (!questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
       throw new RuntimeException("The Question Type is not checkbox");
