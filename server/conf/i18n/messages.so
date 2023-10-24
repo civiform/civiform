@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=Dooro ikhtiyaar:
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=Wadanka
-label.phoneNumber=Enter phone number
+label.phoneNumber=Geli lambarka telefoonka
 validation.phoneNumberRequired=Waxaa loo baahan yahay lambarka telefoonka
 validation.phoneCountryCodeRequired=Wadanka waa in la doortaa
 validation.phoneNumberMustContainNumbersOnly=Lambarka telefoonku kama koobnaan karo xarfo aan tiro ahayn
