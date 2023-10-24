@@ -203,7 +203,7 @@ placeholder.noDropdownSelection=Elige una opción:
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=País
-label.phoneNumber=Enter phone number
+label.phoneNumber=Ingresa el número de teléfono
 validation.phoneNumberRequired=El número de teléfono es obligatorio
 validation.phoneCountryCodeRequired=Debes seleccionar un país
 validation.phoneNumberMustContainNumbersOnly=Los números de teléfono no pueden contener caracteres no numéricos
