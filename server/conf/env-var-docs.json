@@ -717,6 +717,11 @@
         "mode": "HIDDEN",
         "description": "Enables logic to populate more fields in OIDC logout requests.",
         "type": "bool"
+      },
+      "UNIVERSAL_QUESTIONS": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables setting the universal question state on questions.",
+        "type": "bool"
       }
     }
   }
