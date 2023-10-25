@@ -35,8 +35,8 @@ import models.Question;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
-import play.cache.SyncCacheApi;
 import services.program.BlockDefinition;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -62,16 +62,16 @@ public final class VersionRepository {
   private final DatabaseExecutionContext databaseExecutionContext;
 
   private final SettingsManifest settingsManifest;
-  private final SyncCacheApi questionsByVersionCache;
-  private final SyncCacheApi programsByVersionCache;
+  private final AsyncCacheApi questionsByVersionCache;
+  private final AsyncCacheApi programsByVersionCache;
 
   @Inject
   public VersionRepository(
       ProgramRepository programRepository,
       DatabaseExecutionContext databaseExecutionContext,
       SettingsManifest settingsManifest,
-      @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
-      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
+      @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
+      @NamedCache("version-programs") AsyncCacheApi programsByVersionCache) {
     this.database = DB.getDefault();
     this.programRepository = checkNotNull(programRepository);
     this.databaseExecutionContext = checkNotNull(databaseExecutionContext);
@@ -430,8 +430,9 @@ public final class VersionRepository {
   public ImmutableList<Question> getQuestionsForVersion(Version version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
-      return questionsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), () -> version.getQuestions());
+      return questionsByVersionCache
+          .sync()
+          .getOrElseUpdate(String.valueOf(version.id), () -> version.getQuestions());
     }
     return version.getQuestions();
   }
@@ -463,8 +464,9 @@ public final class VersionRepository {
   public ImmutableList<Program> getProgramsForVersion(Version version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
-      return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), () -> version.getPrograms());
+      return programsByVersionCache
+          .sync()
+          .getOrElseUpdate(String.valueOf(version.id), () -> version.getPrograms());
     }
     return version.getPrograms();
   }

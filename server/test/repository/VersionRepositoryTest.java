@@ -17,7 +17,7 @@ import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import play.cache.SyncCacheApi;
+import play.cache.AsyncCacheApi;
 import services.applicant.question.Scalar;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.EligibilityDefinition;
@@ -39,16 +39,16 @@ import support.ProgramBuilder;
 
 public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
-  private SyncCacheApi questionsByVersionCache;
-  private SyncCacheApi programsByVersionCache;
+  private AsyncCacheApi questionsByVersionCache;
+  private AsyncCacheApi programsByVersionCache;
 
   private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setupVersionRepository() {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
-    questionsByVersionCache = instanceOf(SyncCacheApi.class);
-    programsByVersionCache = instanceOf(SyncCacheApi.class);
+    questionsByVersionCache = instanceOf(AsyncCacheApi.class);
+    programsByVersionCache = instanceOf(AsyncCacheApi.class);
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
@@ -1004,7 +1004,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     ImmutableList<Question> questionsForVersion =
         versionRepository.getQuestionsForVersion(version1);
 
-    assertThat(questionsByVersionCache.get(version1Key).get()).isEqualTo(questionsForVersion);
+    assertThat(questionsByVersionCache.sync().get(version1Key).get())
+        .isEqualTo(questionsForVersion);
   }
 
   @Test
@@ -1025,7 +1026,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     ImmutableList<Question> questionsForVersion =
         versionRepository.getQuestionsForVersion(version1);
 
-    assertThat(questionsByVersionCache.get(version1Key).get()).isEqualTo(questionsForVersion);
+    assertThat(questionsByVersionCache.sync().get(version1Key).get())
+        .isEqualTo(questionsForVersion);
   }
 
   @Test
@@ -1039,11 +1041,11 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     String version1Key = String.valueOf(version1.id);
 
-    assertThat(questionsByVersionCache.get(version1Key).isPresent()).isFalse();
+    assertThat(questionsByVersionCache.sync().get(version1Key).isPresent()).isFalse();
 
     versionRepository.getQuestionsForVersion(version1);
 
-    assertThat(questionsByVersionCache.get(version1Key).isPresent()).isFalse();
+    assertThat(questionsByVersionCache.sync().get(version1Key).isPresent()).isFalse();
   }
 
   @Test
@@ -1065,7 +1067,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     ImmutableList<Program> programsForVersion = versionRepository.getProgramsForVersion(version1);
 
-    assertThat(programsByVersionCache.get(version1Key).get()).isEqualTo(programsForVersion);
+    assertThat(programsByVersionCache.sync().get(version1Key).get()).isEqualTo(programsForVersion);
   }
 
   @Test
@@ -1080,7 +1082,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     ImmutableList<Program> programsForVersion = versionRepository.getProgramsForVersion(version1);
 
-    assertThat(programsByVersionCache.get(version1Key).get()).isEqualTo(programsForVersion);
+    assertThat(programsByVersionCache.sync().get(version1Key).get()).isEqualTo(programsForVersion);
   }
 
   @Test
@@ -1092,10 +1094,10 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     String version1Key = String.valueOf(version1.id);
 
-    assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
+    assertThat(programsByVersionCache.sync().get(version1Key).isPresent()).isFalse();
 
     versionRepository.getProgramsForVersion(version1);
 
-    assertThat(programsByVersionCache.get(version1Key).isPresent()).isFalse();
+    assertThat(programsByVersionCache.sync().get(version1Key).isPresent()).isFalse();
   }
 }
