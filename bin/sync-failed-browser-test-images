@@ -4,6 +4,8 @@
 #      With no arguments this defaults to the current active branch or
 #      pass in the first argument to specify a branch name
 
+source bin/lib.sh
+
 # Constants
 readonly CURL_ARGS=(-L
   --silent
@@ -83,9 +85,6 @@ function verify_dependencies() {
 }
 
 verify_dependencies
-
-# Set path to root of repo
-pushd "$(git rev-parse --show-toplevel)" >/dev/null || exit 1
 
 # Set branch name to user provided value or default to the current active branch
 readonly BRANCH_NAME="${1:-$(git rev-parse --abbrev-ref HEAD)}"
