@@ -27,6 +27,8 @@ import models.Program;
 import models.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.cache.NamedCache;
+import play.cache.SyncCacheApi;
 import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
@@ -36,6 +38,7 @@ import services.WellKnownPaths;
 import services.program.ProgramDefinition;
 import services.program.ProgramDraftNotFoundException;
 import services.program.ProgramNotFoundException;
+import services.settings.SettingsManifest;
 
 /**
  * ProgramRepository performs complicated operations on {@link Program} that often involve other
@@ -47,18 +50,36 @@ public final class ProgramRepository {
   private final Database database;
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepository;
+  private final SettingsManifest settingsManifest;
+  private final SyncCacheApi programCache;
+  private final SyncCacheApi versionsByProgramCache;
 
   @Inject
   public ProgramRepository(
-      DatabaseExecutionContext executionContext, Provider<VersionRepository> versionRepository) {
+      DatabaseExecutionContext executionContext,
+      Provider<VersionRepository> versionRepository,
+      SettingsManifest settingsManifest,
+      @NamedCache("program") SyncCacheApi programCache,
+      @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
     this.versionRepository = checkNotNull(versionRepository);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.programCache = checkNotNull(programCache);
+    this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
-    return supplyAsync(
-        () -> database.find(Program.class).where().eq("id", id).findOneOrEmpty(), executionContext);
+    if (settingsManifest.getProgramCacheEnabled()) {
+      return supplyAsync(
+          () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
+          executionContext);
+    }
+    return supplyAsync(() -> lookupProgramSync(id), executionContext);
+  }
+
+  private Optional<Program> lookupProgramSync(long id) {
+    return database.find(Program.class).where().eq("id", id).findOneOrEmpty();
   }
 
   public Program insertProgramSync(Program program) {
@@ -74,6 +95,10 @@ public final class ProgramRepository {
   }
 
   public ImmutableList<Version> getVersionsForProgram(Program program) {
+    if (settingsManifest.getProgramCacheEnabled()) {
+      return versionsByProgramCache.getOrElseUpdate(
+          String.valueOf(program.id), () -> program.getVersions());
+    }
     return program.getVersions();
   }
 
