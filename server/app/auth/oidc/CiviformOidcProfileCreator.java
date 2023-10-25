@@ -34,7 +34,7 @@ import repository.AccountRepository;
  */
 public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
-  private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
@@ -97,7 +97,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     var civiformProfile =
         maybeCiviFormProfile.orElseGet(
             () -> {
-              logger.debug("Found no existing profile in session cookie.");
+              LOGGER.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);
             });
     return mergeCiviFormProfile(civiformProfile, oidcProfile);
@@ -145,12 +145,12 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
-      logger.warn("Didn't get a valid profile back from OIDC.");
+      LOGGER.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
-      logger.warn(
+      LOGGER.warn(
           "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
@@ -182,14 +182,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .toCompletableFuture()
             .join();
     if (applicantOpt.isPresent()) {
-      logger.debug("Found user using authority ID: {}", authorityId);
+      LOGGER.debug("Found user using authority ID: {}", authorityId);
       return applicantOpt;
     }
 
     // For pre-existing deployments before April 2022, users will exist without an
     // authority ID and will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
-    logger.debug("Looking up user using email {}", userEmail);
+    LOGGER.debug("Looking up user using email {}", userEmail);
     return accountRepositoryProvider
         .get()
         .lookupApplicantByEmail(userEmail)

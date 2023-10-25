@@ -386,17 +386,19 @@ public class ApplicantLayout extends BaseHtmlLayout {
               a(createAnAccountMessage)
                   .withHref(createAnAccountLink)
                   .withClasses(ApplicantStyles.LINK)));
-    } else {
-      String loggedInAsMessage =
-          messages.at(MessageKey.USER_NAME.getKeyName(), personalInfo.getDisplayString(messages));
-      String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-      return outsideDiv.with(
-          div(loggedInAsMessage).withClasses("text-sm"),
-          a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-              .withId("logout-button")
-              .withHref(logoutLink)
-              .withClasses(ApplicantStyles.LINK));
     }
+
+    String accountIdentifier =
+        isTi ? profile.get().getProfileData().getEmail() : personalInfo.getDisplayString(messages);
+
+    String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), accountIdentifier);
+    String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
+    return outsideDiv.with(
+        div(loggedInAsMessage).withClasses("text-sm"),
+        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+            .withId("logout-button")
+            .withHref(logoutLink)
+            .withClasses(ApplicantStyles.LINK));
   }
 
   protected String renderPageTitleWithBlockProgress(
