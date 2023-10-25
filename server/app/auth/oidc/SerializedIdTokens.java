@@ -37,6 +37,10 @@ public final class SerializedIdTokens {
     return idTokens.get(key);
   }
 
+  public String getOrDefault(Object key, String defaultValue) {
+    return idTokens.getOrDefault(key, defaultValue);
+  }
+
   public String put(String key, String value) {
     return idTokens.put(key, value);
   }

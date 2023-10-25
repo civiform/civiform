@@ -2,6 +2,8 @@ package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import auth.oidc.SerializedIdTokens;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -60,5 +62,18 @@ public class AccountModelTest extends ResetPostgres {
 
     account.removeAdministeredProgram(program);
     assertThat(account.getAdministeredProgramNames()).isEmpty();
+  }
+
+  @Test
+  public void manageSerializedIdTokens() {
+    Account account = new Account();
+
+    SerializedIdTokens serializedIdTokens =
+        new SerializedIdTokens(ImmutableMap.of("session1", "token1", "session2", "token2"));
+    account.setSerializedIdTokens(serializedIdTokens);
+
+    assertThat(account.getSerializedIdTokens().size()).isEqualTo(2);
+    assertThat(account.getSerializedIdTokens().get("session1")).isEqualTo("token1");
+    assertThat(account.getSerializedIdTokens().get("session2")).isEqualTo("token2");
   }
 }
