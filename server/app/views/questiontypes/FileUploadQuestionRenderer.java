@@ -2,6 +2,7 @@ package views.questiontypes;
 
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.label;
+import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -72,8 +73,13 @@ public class FileUploadQuestionRenderer extends ApplicantSingleQuestionRenderer 
         .with(
             label()
                 .withFor(fileInputId)
-                .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
-                .withClasses(ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer"));
+                .with(
+                    span()
+                        .attr("role", "button")
+                        .attr("tabindex", 0)
+                        .withText(messages.at(MessageKey.BUTTON_CHOOSE_FILE.getKeyName()))
+                        .withClasses(
+                            ButtonStyles.OUTLINED_TRANSPARENT, "w-44", "mt-2", "cursor-pointer")));
   }
 
   @Override

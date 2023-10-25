@@ -40,13 +40,10 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   protected final CiviFormProfileMerger civiFormProfileMerger;
 
   public CiviformOidcProfileCreator(
-      OidcConfiguration configuration,
-      OidcClient client,
-      ProfileFactory profileFactory,
-      Provider<AccountRepository> accountRepositoryProvider) {
+      OidcConfiguration configuration, OidcClient client, OidcClientProviderParams params) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
-    this.profileFactory = Preconditions.checkNotNull(profileFactory);
-    this.accountRepositoryProvider = Preconditions.checkNotNull(accountRepositoryProvider);
+    this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
+    this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
   }

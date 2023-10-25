@@ -7,8 +7,8 @@ name: Skip Server - On PR to Main
 
 on:
   pull_request:
-    branches:
-      - 'main'
+    branches-ignore:
+      - 'spike/**'
     paths-ignore:
       - 'server/**'
       - 'bin/**'

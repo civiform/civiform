@@ -1,17 +1,14 @@
 package auth.oidc.admin;
 
 import auth.CiviFormProfile;
-import auth.ProfileFactory;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
+import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableSet;
-import com.typesafe.config.Config;
 import java.util.List;
-import javax.inject.Provider;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.AccountRepository;
 
 /**
  * This class creates a pac4j `UserProfile` for admins when the identity provider is a generic OIDC
@@ -29,14 +26,10 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
   private static String ADMIN_GROUP_CONFIG_NAME = "admin_generic_oidc_admin_group_name";
 
   public GenericOidcProfileCreator(
-      OidcConfiguration configuration,
-      OidcClient client,
-      ProfileFactory profileFactory,
-      Config appConfig,
-      Provider<AccountRepository> userRepositoryProvider) {
-    super(configuration, client, profileFactory, userRepositoryProvider);
-    this.groupsAttributeName = appConfig.getString(ID_GROUPS_ATTRIBUTE_NAME);
-    this.adminGroupName = appConfig.getString(ADMIN_GROUP_CONFIG_NAME);
+      OidcConfiguration oidcConfiguration, OidcClient client, OidcClientProviderParams params) {
+    super(oidcConfiguration, client, params);
+    this.groupsAttributeName = params.configuration().getString(ID_GROUPS_ATTRIBUTE_NAME);
+    this.adminGroupName = params.configuration().getString(ADMIN_GROUP_CONFIG_NAME);
   }
 
   @Override
