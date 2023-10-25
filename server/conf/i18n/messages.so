@@ -26,6 +26,8 @@ content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yaha
 content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
