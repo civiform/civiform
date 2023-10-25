@@ -135,35 +135,6 @@ public final class ApplicationRepository {
                     .collect(ImmutableList.toImmutableList())));
       }
 
-
-      //       for (Application app : oldApplications) {
-      //   if (application.id.equals(app.id)
-      //       || app.getLifecycleStage().equals(LifecycleStage.OBSOLETE)) {
-      //     continue;
-      //   }
-      //   boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
-      //   if (isDuplicate) {
-      //     LOGGER.info(
-      //         "Application for applicant {} to program {} {} was detected as a duplicate and was"
-      //             + " not saved",
-      //         applicant.id,
-      //         program.id,
-      //         program.getProgramDefinition().adminName());
-      //     throw new DuplicateApplicationException();
-      //   }
-      //   LOGGER.warn(
-      //       "Multiple applications found at submit time for applicant {} to program {} {}:"
-      //           + " application {}",
-      //       applicant.id,
-      //       program.id,
-      //       program.getProgramDefinition().adminName(),
-      //       app.id);
-
-      //   app.setSubmitTimeToNow();
-      //   app.setLifecycleStage(LifecycleStage.OBSOLETE);
-      //   app.save();
-      // }
-
       for (Application app : previousActive) {
         boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
         if (isDuplicate) {
