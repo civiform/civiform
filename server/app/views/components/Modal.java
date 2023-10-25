@@ -62,8 +62,8 @@ public abstract class Modal {
   }
 
   @AutoValue.Builder
-  public abstract static class Builder implements
-    RequiredModalId, RequiredTranslationStrategy, RequiredTitle, RequiredContent {
+  public abstract static class Builder
+      implements RequiredModalId, RequiredTranslationStrategy, RequiredTitle, RequiredContent {
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
@@ -192,14 +192,14 @@ public abstract class Modal {
 
   public DivTag getContainerTag() {
     DivTag divTag =
-      div()
-        .withId(modalId())
-        .with(getModalHeader())
-        .with(getContent())
-        // https://designsystem.digital.gov/components/modal/ recommends putting the close
-        // button at the end of the modal so screen readers don't put focus on the close
-        // button first.
-        .with(getCloseButton());
+        div()
+            .withId(modalId())
+            .with(getModalHeader())
+            .with(getContent())
+            // https://designsystem.digital.gov/components/modal/ recommends putting the close
+            // button at the end of the modal so screen readers don't put focus on the close
+            // button first.
+            .with(getCloseButton());
 
     String modalStyles =
         StyleUtils.joinStyles(
@@ -238,24 +238,24 @@ public abstract class Modal {
 
   private DivTag getModalHeader() {
     return div()
-      .withClasses(BaseStyles.MODAL_HEADER)
-      .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
-      // Leave enough space for the close button so the close button and title
-      // don't overlap.
-      .with(div().withClasses("w-12"));
+        .withClasses(BaseStyles.MODAL_HEADER)
+        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
+        // Leave enough space for the close button so the close button and title
+        // don't overlap.
+        .with(div().withClasses("w-12"));
   }
 
   private ButtonTag getCloseButton() {
     return noTextButton(translationStrategy().getCloseButtonLabel())
-      .withClasses(
-        ReferenceClasses.MODAL_CLOSE,
-        ButtonStyles.CLEAR_WITH_ICON,
-        "top-0",
-        "right-0",
-        "absolute",
-        "my-6",
-        "mx-4")
-      .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer"));
+        .withClasses(
+            ReferenceClasses.MODAL_CLOSE,
+            ButtonStyles.CLEAR_WITH_ICON,
+            "top-0",
+            "right-0",
+            "absolute",
+            "my-6",
+            "mx-4")
+        .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer"));
   }
 
   public static String randomModalId() {

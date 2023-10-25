@@ -314,7 +314,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
 
     return Modal.builder()
         .setModalId(Modal.randomModalId())
-      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
         .setContent(content)
         .setModalTitle("Delete this status")
         .build();
@@ -407,7 +407,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         submitButton("Confirm").withClass(ButtonStyles.CLEAR_WITH_ICON)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
-      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
         .setContent(content)
         .setModalTitle(
             formData.getConfiguredStatusText().isEmpty()

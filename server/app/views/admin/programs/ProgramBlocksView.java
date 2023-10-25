@@ -1148,7 +1148,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     return Modal.builder()
         .setModalId("block-delete-modal")
-      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
         .setContent(deleteBlockForm)
         .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
@@ -1194,7 +1194,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);
     return Modal.builder()
         .setModalId("block-description-modal")
-      .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
         .setContent(blockDescriptionForm)
         .setModalTitle(modalTitle)
         .setTriggerButtonContent(editScreenButton)

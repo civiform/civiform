@@ -120,11 +120,11 @@ public final class ProgramQuestionBank {
         div()
             .withClasses("flex", "items-center")
             .with(
-              noTextButton("Close")
-                .withClasses(
-                  ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON, ButtonStyles.CLEAR_WITH_ICON)
-                .with(
-                  Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer", "mr-2")))
+                noTextButton("Close")
+                    .withClasses(
+                        ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON, ButtonStyles.CLEAR_WITH_ICON)
+                    .with(
+                        Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer", "mr-2")))
             .with(headerDiv));
     contentDiv.with(
         QuestionBank.renderFilterAndSort(
