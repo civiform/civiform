@@ -26,6 +26,8 @@ content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0
 content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
