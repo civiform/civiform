@@ -26,6 +26,8 @@ content.requiredFieldsNote=Note: Fields marked with a {0} are required.
 content.optional=(optional)
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 toast.errorMessageOutline=Error: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
