@@ -53,7 +53,6 @@ public class ProgramRepositoryTest extends ResetPostgres {
   private SyncCacheApi versionsByProgramCache;
   private SettingsManifest mockSettingsManifest;
 
-
   @Before
   public void setup() {
     versionRepo = instanceOf(VersionRepository.class);
@@ -61,12 +60,12 @@ public class ProgramRepositoryTest extends ResetPostgres {
     programCache = instanceOf(SyncCacheApi.class);
     versionsByProgramCache = instanceOf(SyncCacheApi.class);
     repo =
-      new ProgramRepository(
-        instanceOf(DatabaseExecutionContext.class),
-        Providers.of(versionRepo),
-        mockSettingsManifest,
-        programCache,
-        versionsByProgramCache);
+        new ProgramRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            Providers.of(versionRepo),
+            mockSettingsManifest,
+            programCache,
+            versionsByProgramCache);
   }
 
   @Test
