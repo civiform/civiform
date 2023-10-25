@@ -152,6 +152,8 @@ public class CiviFormProfile {
    * @return the future of the database operation
    */
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
+    profileData.addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+
     return this.getAccount()
         .thenApplyAsync(
             a -> {

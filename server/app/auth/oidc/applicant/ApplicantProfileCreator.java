@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -73,10 +72,7 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
   /** Create a totally new Applicant CiviForm profile informed by the provided OidcProfile. */
   @Override
   public final CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile) {
-    CiviFormProfileData civiFormProfileData = profileFactory.createNewApplicant();
-    civiFormProfileData.addAttribute(
-        CommonProfileDefinition.EMAIL, profile.getAttribute(emailAttributeName()));
-    return profileFactory.wrapProfileData(civiFormProfileData);
+    return profileFactory.wrapProfileData(profileFactory.createNewApplicant());
   }
 
   @Override

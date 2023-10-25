@@ -16,7 +16,6 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -60,10 +59,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   protected final Optional<String> getEmail(OidcProfile oidcProfile) {
     final String emailAttributeName = emailAttributeName();
 
-    if (!emailAttributeName.isBlank()) {
-      return Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName, String.class));
+    if (emailAttributeName.isBlank()) {
+      return Optional.empty();
     }
-    return Optional.empty();
+
+    return Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName, String.class));
   }
 
   private Optional<String> getAuthorityId(OidcProfile oidcProfile) {
@@ -114,17 +114,17 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .forEach(role -> civiformProfile.getProfileData().addRole(role));
     adaptForRole(civiformProfile, roles);
 
-    // If the civiformProfile is a trusted intermediary, bypass remaining merging because
-    // we don't want to actually merge the guest profile into theirs.
-    if (isTrustedIntermediary(civiformProfile)) {
-      return civiformProfile.getProfileData();
-    }
-
     String emailAddress =
         getEmail(oidcProfile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get email from profile."));
     civiformProfile.setEmailAddress(emailAddress).join();
+
+    // If the civiformProfile is a trusted intermediary, bypass remaining merging because
+    // we don't want to actually merge the guest profile into theirs.
+    if (isTrustedIntermediary(civiformProfile)) {
+      return civiformProfile.getProfileData();
+    }
 
     String authorityId =
         getAuthorityId(oidcProfile)
@@ -132,8 +132,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
 
     civiformProfile.setAuthorityId(authorityId).join();
-
-    civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     return civiformProfile.getProfileData();
   }
@@ -159,6 +157,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }

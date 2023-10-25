@@ -389,7 +389,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     }
 
     String accountIdentifier =
-        isTi ? profile.get().getProfileData().getEmail() : personalInfo.getDisplayString(messages);
+        isTi ? tiEmailForDisplay(profile.get()) : personalInfo.getDisplayString(messages);
 
     String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), accountIdentifier);
     String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
@@ -399,6 +399,16 @@ public class ApplicantLayout extends BaseHtmlLayout {
             .withId("logout-button")
             .withHref(logoutLink)
             .withClasses(ApplicantStyles.LINK));
+  }
+
+  private String tiEmailForDisplay(CiviFormProfile profile) {
+    String email = profile.getProfileData().getEmail();
+
+    if (email.endsWith("@example.com")) {
+      return "trusted-intermediary@example.com";
+    }
+
+    return email;
   }
 
   protected String renderPageTitleWithBlockProgress(
