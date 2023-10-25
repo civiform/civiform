@@ -16,6 +16,7 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -118,13 +119,17 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         getEmail(oidcProfile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get email from profile."));
-    civiformProfile.setEmailAddress(emailAddress).join();
 
     // If the civiformProfile is a trusted intermediary, bypass remaining merging because
     // we don't want to actually merge the guest profile into theirs.
     if (isTrustedIntermediary(civiformProfile)) {
-      return civiformProfile.getProfileData();
+      CiviFormProfileData profileData = civiformProfile.getProfileData();
+      profileData.addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+
+      return profileData;
     }
+
+    civiformProfile.setEmailAddress(emailAddress).join();
 
     String authorityId =
         getAuthorityId(oidcProfile)
