@@ -2,6 +2,7 @@ package views.components;
 
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
+import static views.BaseHtmlView.noTextButton;
 
 import com.google.auto.value.AutoValue;
 import j2html.tags.ContainerTag;
@@ -10,6 +11,8 @@ import j2html.tags.specialized.DivTag;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import play.i18n.Messages;
+import services.MessageKey;
 import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
@@ -19,6 +22,8 @@ import views.style.StyleUtils;
 public abstract class Modal {
 
   public abstract String modalId();
+
+  public abstract TranslationStrategy translationStrategy();
 
   public abstract ContainerTag<?> content();
 
@@ -41,7 +46,11 @@ public abstract class Modal {
   }
 
   public interface RequiredModalId {
-    RequiredContent setModalId(String modalId);
+    RequiredTranslationStrategy setModalId(String modalId);
+  }
+
+  public interface RequiredTranslationStrategy {
+    RequiredContent setTranslationStrategy(TranslationStrategy translationStrategy);
   }
 
   public interface RequiredContent {
@@ -53,7 +62,8 @@ public abstract class Modal {
   }
 
   @AutoValue.Builder
-  public abstract static class Builder implements RequiredModalId, RequiredTitle, RequiredContent {
+  public abstract static class Builder implements
+    RequiredModalId, RequiredTranslationStrategy, RequiredTitle, RequiredContent {
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
@@ -95,6 +105,47 @@ public abstract class Modal {
 
     public String getStyle() {
       return this.width;
+    }
+  }
+
+  /** Provides the translation(s) needed for common modal elements. */
+  public interface TranslationStrategy {
+    /** Returns the aria label to use for the close button on the modal. */
+    String getCloseButtonLabel();
+  }
+
+  /**
+   * Translation strategy that does *not* translate text and instead hardcodes text to be in the
+   * default language.
+   *
+   * <p>This strategy should *never* be used for modals shown to applicants, since applicant pages
+   * need to be localized. This strategy *can* be used for modals only shown to admins.
+   */
+  public static class DefaultTranslationStrategy implements TranslationStrategy {
+    public DefaultTranslationStrategy() {}
+
+    @Override
+    public String getCloseButtonLabel() {
+      return "Close";
+    }
+  }
+
+  /**
+   * Translation strategy that uses the provided {@code messages} to localize the modal text.
+   *
+   * <p>Modals shown to applicants are *required* to use this strategy and *not* use {@link
+   * DefaultTranslationStrategy}.
+   */
+  public static class LocalizedTranslationStrategy implements TranslationStrategy {
+    private final Messages messages;
+
+    public LocalizedTranslationStrategy(Messages messages) {
+      this.messages = messages;
+    }
+
+    @Override
+    public String getCloseButtonLabel() {
+      return this.messages.at(MessageKey.BUTTON_CLOSE.getKeyName());
     }
   }
 
@@ -140,7 +191,15 @@ public abstract class Modal {
   }
 
   public DivTag getContainerTag() {
-    DivTag divTag = div().withId(modalId()).with(getModalHeader()).with(getContent());
+    DivTag divTag =
+      div()
+        .withId(modalId())
+        .with(getModalHeader())
+        .with(getContent())
+        // https://designsystem.digital.gov/components/modal/ recommends putting the close
+        // button at the end of the modal so screen readers don't put focus on the close
+        // button first.
+        .with(getCloseButton());
 
     String modalStyles =
         StyleUtils.joinStyles(
@@ -179,12 +238,24 @@ public abstract class Modal {
 
   private DivTag getModalHeader() {
     return div()
-        .withClasses(BaseStyles.MODAL_HEADER)
-        .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
-        .with(div().withClasses("flex-grow"))
-        .with(
-            Icons.svg(Icons.CLOSE)
-                .withClasses(ReferenceClasses.MODAL_CLOSE, BaseStyles.MODAL_CLOSE_BUTTON));
+      .withClasses(BaseStyles.MODAL_HEADER)
+      .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
+      // Leave enough space for the close button so the close button and title
+      // don't overlap.
+      .with(div().withClasses("w-12"));
+  }
+
+  private ButtonTag getCloseButton() {
+    return noTextButton(translationStrategy().getCloseButtonLabel())
+      .withClasses(
+        ReferenceClasses.MODAL_CLOSE,
+        ButtonStyles.CLEAR_WITH_ICON,
+        "top-0",
+        "right-0",
+        "absolute",
+        "my-6",
+        "mx-4")
+      .with(Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer"));
   }
 
   public static String randomModalId() {

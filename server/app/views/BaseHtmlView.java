@@ -50,6 +50,17 @@ public abstract class BaseHtmlView {
         .withClasses(BaseStyles.FORM_ERROR_TEXT_BASE, StyleUtils.joinStyles(additionalClasses));
   }
 
+  /**
+   * Creates a button that doesn't display any text but includes an aria label, which is needed for
+   * accessibility.
+   *
+   * @param ariaLabel a label that will be used by screenreaders and other accessibility services to
+   *     describe the button's purpose.
+   */
+  public static ButtonTag noTextButton(String ariaLabel) {
+    return TagCreator.button().withType("button").attr("aria-label", ariaLabel);
+  }
+
   public static ButtonTag button(String textContents) {
     return TagCreator.button(text(textContents)).withType("button");
   }

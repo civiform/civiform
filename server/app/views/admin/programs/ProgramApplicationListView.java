@@ -341,6 +341,7 @@ public final class ProgramApplicationListView extends BaseHtmlView {
                                     .withType("submit"))));
     return Modal.builder()
         .setModalId(modalId)
+        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
         .setContent(modalContent)
         .setModalTitle("Download application data")
         .setTriggerButtonContent(

@@ -130,27 +130,7 @@ public final class BaseStyles {
           "sticky", "top-0", "px-2", "pt-2", "flex", "gap-4", "place-items-center");
   public static final String MODAL_TITLE =
       StyleUtils.joinStyles("text-2xl", "text-gray-600", "my-5", "mx-4");
-  /** Generic style for the modal button. */
-  public static final String MODAL_BUTTON =
-      StyleUtils.joinStyles(
-          "block",
-          "py-2",
-          "text-center",
-          "rounded-full",
-          BaseStyles.BG_SEATTLE_BLUE,
-          StyleUtils.hover("bg-blue-700"),
-          "text-white",
-          "rounded-full");
-  /** Generic styles for the button to close the modal. This is shared across all modals. */
-  public static final String MODAL_CLOSE_BUTTON =
-      StyleUtils.joinStyles(
-          "font-bold",
-          "cursor-pointer",
-          "opacity-60",
-          "w-7",
-          "h-7",
-          "m-4",
-          StyleUtils.hover("opacity-100"));
+
   /**
    * Simple styling for the div that holds the custom modal content. Should just have decent margins
    * and sizing.
