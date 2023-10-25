@@ -26,6 +26,8 @@ content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອ
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
