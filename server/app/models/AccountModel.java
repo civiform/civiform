@@ -112,7 +112,7 @@ public class AccountModel extends BaseModel {
     return serializedIdTokens;
   }
 
-  public Account setSerializedIdTokens(SerializedIdTokens serializedIdTokens) {
+  public AccountModel setSerializedIdTokens(SerializedIdTokens serializedIdTokens) {
     this.serializedIdTokens = serializedIdTokens;
     return this;
   }

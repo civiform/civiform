@@ -47,8 +47,8 @@ public class IdTokensTest {
     SerializedIdTokens serializedIdTokens = new SerializedIdTokens(new HashMap<>());
     IdTokens idTokens = new IdTokens(clock, serializedIdTokens);
 
-    idTokens.storeIdToken("s1", getJwt(99).serialize());
-    idTokens.storeIdToken("s2", getJwt(100).serialize());
+    idTokens.storeIdToken("s1", getJwt(90).serialize());
+    idTokens.storeIdToken("s2", getJwt(99).serialize());
     idTokens.storeIdToken("s3", getJwt(101).serialize());
 
     assertThat(idTokens.getIdToken("s1")).isNotEmpty();
