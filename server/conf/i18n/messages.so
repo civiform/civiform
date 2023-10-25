@@ -31,6 +31,7 @@ toast.errorMessageOutline=Khalad: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Soo gal
 content.loginPrompt=Fadlan ku gal akoonkaaga Magaalada {0}
 button.createAnAccount=Samee koonto
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=Macmiilkaagu waxa uu awoodi karaa inuu helo f
 content.commonIntakeNoMatchingPrograms=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
+button.downloadPdf=Download PDF
 button.applyToPrograms=Codso barnaamijyada
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=Ma jirana isbeddelo si loo kaydiyo {0}
+content.noChanges=Kumaad samayn wax isbeddelo ah codsiga weli. Ma jeclaan lahayd inaad sii wado wax ka beddelka?
+button.continueEditing=Sii wad wax ka beddelka
+button.exitApplication=Ka bax codsiga
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #

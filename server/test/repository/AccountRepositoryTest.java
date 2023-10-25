@@ -2,10 +2,16 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
 import models.Account;
 import models.Applicant;
+import models.LifecycleStage;
 import org.junit.Before;
 import org.junit.Test;
 import services.CiviFormError;
@@ -208,6 +214,43 @@ public class AccountRepositoryTest extends ResetPostgres {
 
     assertThat(repo.lookupAccountByEmail(EMAIL).get().getAdministeredProgramNames())
         .doesNotContain(PROGRAM_NAME);
+  }
+
+  @Test
+  public void deleteUnusedGuestAccounts() {
+    var testProgram = resourceCreator.insertActiveProgram("test-program");
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(10, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC);
+
+    Applicant newUnusedGuest = resourceCreator.insertApplicantWithAccount();
+    Applicant oldUnusedGuest = resourceCreator.insertApplicantWithAccount();
+    Applicant oldUsedGuest = resourceCreator.insertApplicantWithAccount();
+    resourceCreator.insertApplication(oldUsedGuest, testProgram, LifecycleStage.DRAFT);
+    Applicant oldUnusedAuthenticated =
+        resourceCreator.insertApplicantWithAccount(Optional.of("registered-user@example.com"));
+
+    oldUnusedGuest.setWhenCreated(timeInPast).save();
+    oldUsedGuest.setWhenCreated(timeInPast).save();
+    oldUnusedAuthenticated.setWhenCreated(timeInPast).save();
+
+    var numberDeleted = repo.deleteUnusedGuestAccounts(5);
+    var remainingApplicants = repo.listApplicants().toCompletableFuture().join();
+    var remainingAccounts = repo.listAccounts();
+
+    assertThat(remainingApplicants).contains(newUnusedGuest);
+    assertThat(remainingAccounts).contains(newUnusedGuest.getAccount());
+
+    assertThat(remainingApplicants).contains(oldUsedGuest);
+    assertThat(remainingAccounts).contains(oldUsedGuest.getAccount());
+
+    assertThat(remainingApplicants).contains(oldUnusedAuthenticated);
+    assertThat(remainingAccounts).contains(oldUnusedAuthenticated.getAccount());
+
+    assertThat(remainingApplicants).doesNotContain(oldUnusedGuest);
+    assertThat(remainingAccounts).doesNotContain(oldUnusedGuest.getAccount());
+
+    assertThat(numberDeleted).isEqualTo(1);
+    assertThat(remainingApplicants).hasSize(3);
   }
 
   private Applicant saveApplicantWithDob(String name, String dob) {

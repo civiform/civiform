@@ -31,6 +31,7 @@ toast.errorMessageOutline=發生錯誤: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=登錄
 content.loginPrompt=請使用「{0}」帳戶登入
 button.createAnAccount=建立帳戶
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
+button.downloadPdf=Download PDF
 button.applyToPrograms=申請參加計畫
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=沒有可儲存的「{0}」修改內容
+content.noChanges=您尚未修改申請書。要繼續編輯嗎？
+button.continueEditing=繼續編輯
+button.exitApplication=結束申請程序
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
