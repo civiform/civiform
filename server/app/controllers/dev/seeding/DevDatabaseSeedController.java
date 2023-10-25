@@ -120,7 +120,9 @@ public class DevDatabaseSeedController extends Controller {
 
   /** Remove all content from the cache. */
   public void clearCache() {
-    if (!isDevOrStaging) return;
+    if (!isDevOrStaging) {
+      return;
+    }
     Version activeVersion = versionRepository.getActiveVersion();
     clearVersionCache(programsByVersionCache, activeVersion);
     clearVersionCache(questionsByVersionCache, activeVersion);
