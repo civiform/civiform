@@ -11,8 +11,7 @@ import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.AttributeProvider;
 import org.commonmark.renderer.html.HtmlRenderer;
-import views.style.BaseStyles;
-import views.style.StyleUtils;
+import views.style.ApplicantStyles;
 
 /** Renders markdown to HTML with styles consistent with CiviForm's UI. */
 public final class CiviFormMarkdown {
@@ -42,7 +41,7 @@ public final class CiviFormMarkdown {
       if (node instanceof Link) {
         attributes.put(
             "class",
-            StyleUtils.joinStyles(BaseStyles.LINK_TEXT, BaseStyles.LINK_HOVER_TEXT, "underline"));
+            ApplicantStyles.LINK);
         attributes.put("target", "_blank");
       } else if (node instanceof ListBlock) {
         attributes.put("class", "list-disc mx-8");
