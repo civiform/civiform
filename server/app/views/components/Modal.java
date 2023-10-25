@@ -147,7 +147,7 @@ public abstract class Modal {
 
     @Override
     public String getCloseButtonLabel() {
-      return this.messages.at(MessageKey.ARIA_LABEL_EDIT.getKeyName()); // TODO: Update to CLOSE
+      return this.messages.at(MessageKey.BUTTON_CLOSE.getKeyName());
     }
   }
 
