@@ -176,6 +176,8 @@ public final class ProfileFactory {
 
     CiviFormProfileData tiProfileData = create(new Role[] {Role.ROLE_TI});
     // The email must be unique in order to insert into the database.
+    // Email must be use example.com for TI browser tests to pass, see
+    // ApplicantLayout.tiEmailForDisplay().
     String email = String.format("fake-trusted-intermediary-%s@example.com", tiProfileData.getId());
     tiProfileData.setEmail(email);
 

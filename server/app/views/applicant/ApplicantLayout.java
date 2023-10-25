@@ -402,8 +402,13 @@ public class ApplicantLayout extends BaseHtmlLayout {
   }
 
   private String tiEmailForDisplay(CiviFormProfile profile) {
-    String email = profile.getProfileData().getEmail();
+    // CommonProfile.getEmail() can return null, so we guard that with a generic
+    // display string.
+    String email =
+        Optional.ofNullable(profile.getProfileData().getEmail()).orElse("Trusted Intermediary");
 
+    // To ensure a consistent string with browser snapshots, we override the
+    // display email.
     if (email.endsWith("@example.com")) {
       return "trusted-intermediary@example.com";
     }
