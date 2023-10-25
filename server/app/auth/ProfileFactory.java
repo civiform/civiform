@@ -11,7 +11,6 @@ import models.ApiKey;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import play.libs.concurrent.HttpExecutionContext;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
@@ -178,7 +177,7 @@ public final class ProfileFactory {
     CiviFormProfileData tiProfileData = create(new Role[] {Role.ROLE_TI});
     // The email must be unique in order to insert into the database.
     String email = String.format("fake-trusted-intermediary-%s@example.com", tiProfileData.getId());
-    tiProfileData.addAttribute(CommonProfileDefinition.EMAIL, email);
+    tiProfileData.setEmail(email);
 
     CiviFormProfile tiProfile = wrapProfileData(tiProfileData);
     tiProfile

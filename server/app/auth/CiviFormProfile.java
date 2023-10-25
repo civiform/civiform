@@ -13,7 +13,6 @@ import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
-import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
@@ -152,7 +151,7 @@ public class CiviFormProfile {
    * @return the future of the database operation
    */
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
-    profileData.addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
+    profileData.setEmail(emailAddress);
 
     return this.getAccount()
         .thenApplyAsync(
@@ -187,8 +186,8 @@ public class CiviFormProfile {
    */
   public CompletableFuture<String> getEmailAddress() {
     // Email address should be present in the profile for authenticated users
-    if (profileData.getAttributes().containsKey(CommonProfileDefinition.EMAIL)) {
-      return completedFuture(profileData.getAttribute(CommonProfileDefinition.EMAIL, String.class));
+    if (profileData.hasCanonicalEmail()) {
+      return completedFuture(profileData.getEmail());
     }
 
     // If it's not present i.e. if user is a guest, fall back to the address in the database

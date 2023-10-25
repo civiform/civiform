@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -24,6 +25,15 @@ public class CiviFormProfileData extends CommonProfile {
   public CiviFormProfileData(Long accountId) {
     this();
     this.setId(accountId.toString());
+  }
+
+  public CiviFormProfileData setEmail(String email) {
+    addAttribute(CommonProfileDefinition.EMAIL, email);
+    return this;
+  }
+
+  public boolean hasCanonicalEmail() {
+    return getAttributes().containsKey(CommonProfileDefinition.EMAIL);
   }
 
   /**
