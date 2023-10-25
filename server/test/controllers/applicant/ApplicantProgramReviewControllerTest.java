@@ -240,6 +240,40 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
         .contains("There's been an update to the application");
   }
 
+  @Test
+  public void submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
+    Program activeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+    this.submit(applicant.id, activeProgram.id);
+
+    // Submit the application again without editing
+    Result noEditsResult = this.submit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(noEditsResult.status()).isEqualTo(OK);
+
+    // Edit the application but re-enter the same values
+    answer(activeProgram.id);
+    Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(sameValuesResult.status()).isEqualTo(OK);
+
+    // There is only one application saved in the db
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<Application> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
+  }
+
   public Result review(long applicantId, long programId) {
     Boolean shouldSkipUserProfile = applicantId == applicantWithoutProfile.id;
     Request request =
