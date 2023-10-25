@@ -26,6 +26,8 @@ content.requiredFieldsNote=ማስታወሻ፦ በ {0} ምልክት የተደረ�
 content.optional=(አማራጭ)
 content.mobileFileUploadHelp=በእርስዎ ስልክ ላይ? እንዲሁም «ፋይልን ምረጥ» የስልክ ካሜራዎን ሰነዶችን ለመስቀል እንዲጠቀሙበት ያስችልዎታል።
 toast.errorMessageOutline=ስህተት: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
