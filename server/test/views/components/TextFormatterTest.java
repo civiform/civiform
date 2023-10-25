@@ -38,13 +38,13 @@ public class TextFormatterTest {
     List<String> contentArr = Splitter.on("</a>").splitToList(htmlContent);
     assertIsExternalUrlWithIcon(
         contentArr.get(0),
-        "<a href=\"http://internet.website\" class=\"text-blue-600 hover:text-blue-500 underline\""
+        "<a href=\"http://internet.website\" class=\"text-blue-900 font-bold opacity-75 underline hover:opacity-100\""
             + " target=\"_blank\" rel=\"nofollow noopener"
             + " noreferrer\">http://internet.website<svg",
         "</svg>");
     assertIsExternalUrlWithIcon(
         htmlContent,
-        "<a href=\"https://secure.website\" class=\"text-blue-600 hover:text-blue-500 underline\""
+        "<a href=\"https://secure.website\" class=\"text-blue-900 font-bold opacity-75 underline hover:opacity-100\""
             + " target=\"_blank\" rel=\"nofollow noopener noreferrer\">https://secure.website<svg",
         "</svg></a></p>\n");
   }
@@ -59,7 +59,7 @@ public class TextFormatterTest {
     String htmlContent = content.get(0).render();
     assertIsExternalUrlWithIcon(
         htmlContent,
-        "<a href=\"https://www.google.com\" class=\"text-blue-600 hover:text-blue-500 underline\""
+        "<a href=\"https://www.google.com\" class=\"text-blue-900 font-bold opacity-75 underline hover:opacity-100\""
             + " target=\"_blank\" rel=\"nofollow noopener noreferrer\">this is a link",
         "</svg></a></p>\n");
   }

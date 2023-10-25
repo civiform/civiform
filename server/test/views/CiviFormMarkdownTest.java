@@ -15,7 +15,6 @@ public class CiviFormMarkdownTest {
     assertThat(result)
         .isEqualTo(
             "<h1>one</h1>\n"
-                + "<p>two <a href=\"http://example.com\" class=\"text-blue-600 hover:text-blue-500"
-                + " underline\" target=\"_blank\">three</a></p>\n");
+                + "<p>two <a href=\"http://example.com\" class=\"text-blue-900 font-bold opacity-75 underline hover:opacity-100\" target=\"_blank\">three</a></p>\n");
   }
 }
