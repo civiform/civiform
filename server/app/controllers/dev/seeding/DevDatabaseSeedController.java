@@ -115,8 +115,8 @@ public class DevDatabaseSeedController extends Controller {
 
   /** Remove all content from the cache. */
   private void clearCache() {
-      programsByVersionCache.removeAll().toCompletableFuture().join();
-      questionsByVersionCache.removeAll().toCompletableFuture().join();
+    programsByVersionCache.removeAll().toCompletableFuture().join();
+    questionsByVersionCache.removeAll().toCompletableFuture().join();
   }
 
   // Create a date question definition with the given name and questionText. We currently create
