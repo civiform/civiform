@@ -26,6 +26,8 @@ content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입�
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
