@@ -26,6 +26,8 @@ content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trư�
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
