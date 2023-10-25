@@ -9,6 +9,7 @@ import io.ebean.Database;
 import models.LifecycleStage;
 import models.Models;
 import models.Version;
+import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.mvc.Controller;
@@ -34,11 +35,9 @@ public class DevDatabaseSeedController extends Controller {
   private final ProgramService programService;
   private final SettingsService settingsService;
   private final boolean isDevOrStaging;
-
-  private final VersionRepository versionRepository;
   private final SettingsManifest settingsManifest;
-  private final SyncCacheApi questionsByVersionCache;
-  private final SyncCacheApi programsByVersionCache;
+  private final AsyncCacheApi questionsByVersionCache;
+  private final AsyncCacheApi programsByVersionCache;
 
   @Inject
   public DevDatabaseSeedController(
@@ -48,10 +47,9 @@ public class DevDatabaseSeedController extends Controller {
       ProgramService programService,
       SettingsService settingsService,
       DeploymentType deploymentType,
-      VersionRepository versionRepository,
       SettingsManifest settingsManifest,
-      @NamedCache("version-questions") SyncCacheApi questionsByVersionCache,
-      @NamedCache("version-programs") SyncCacheApi programsByVersionCache) {
+      @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
+      @NamedCache("version-programs") AsyncCacheApi programsByVersionCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
@@ -59,7 +57,6 @@ public class DevDatabaseSeedController extends Controller {
     this.programService = checkNotNull(programService);
     this.settingsService = checkNotNull(settingsService);
     this.isDevOrStaging = deploymentType.isDevOrStaging();
-    this.versionRepository = checkNotNull(versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
@@ -123,21 +120,8 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return;
     }
-    Version activeVersion = versionRepository.getActiveVersion();
-    clearVersionCache(programsByVersionCache, activeVersion);
-    clearVersionCache(questionsByVersionCache, activeVersion);
-  }
-
-  /**
-   * Remove all content from the version cache, using the active version as the maximum key to
-   * clear.
-   */
-  private void clearVersionCache(SyncCacheApi cache, Version activeVersion) {
-    for (int num = 1; num <= activeVersion.id; num++) {
-      if (cache.get(String.valueOf(num)).isPresent()) {
-        cache.remove(String.valueOf(num));
-      }
-    }
+    programsByVersionCache.removeAll();
+    questionsByVersionCache.removeAll();
   }
 
   // Create a date question definition with the given name and questionText. We currently create
