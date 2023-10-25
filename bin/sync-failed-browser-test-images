@@ -1,0 +1,140 @@
+#! /usr/bin/env bash
+
+# DOC: Sync failed github action browser-test snapshots with local system.
+# DOC: With no arguments this defaults to the current active branch or
+# DOC: pass in the first argument to specify a branch name
+
+source bin/lib.sh
+
+# Constants
+readonly CURL_ARGS=(-L
+  --silent
+  -H "Accept: application/vnd.github+json"
+  -H "Authorization: Bearer ${GITHUB_TOKEN}"
+  -H "X-GitHub-Api-Version: 2022-11-28")
+
+#######################################
+# Exit if jq query fails or is null
+# Arguments:
+#   last_exit_code - preseverd exit code of jq query
+#   value - value returned from jq query
+#   message - message to print on failure
+#######################################
+function exit_on_jq_failure() {
+  local last_exit_code="${1}"
+  local value="${2}"
+  local message="${3}"
+
+  if [[ "${last_exit_code}" != "0" ]]; then
+    echo "jq command failed. ${message}"
+    exit 1
+  fi
+
+  if [[ "${value}" == "null" ]]; then
+    echo "${message}"
+    exit 1
+  fi
+}
+
+#######################################
+# Calls curl to get json response or exits the application
+# Globals:
+#   CURL_ARGS - constant variable of shared curl arguments
+# Arguments:
+#   url - full url for curl to call
+#######################################
+function get_json_or_exit_on_failure() {
+  local url="${1}"
+
+  ## Setup common curl arguments
+  #local curl_args=(-L
+  #  --silent
+  #  -H "Accept: application/vnd.github+json"
+  #  -H "Authorization: Bearer ${GITHUB_TOKEN}"
+  #  -H "X-GitHub-Api-Version: 2022-11-28")
+
+  local json
+  json="$(curl "${CURL_ARGS[@]}" "${url}")"
+
+  if (($? != 0)); then
+    echo "Curl failed trying to call ${url}"
+    exit 1
+  fi
+
+  echo "${json}"
+}
+
+#######################################
+# Print helpful info in external requirements are not fulfilled
+# Globals:
+#   GITHUB_TOKEN - environemnt variable of a valid GitHub Personal access token
+#######################################
+function verify_dependencies() {
+  if ! command -v jq &>/dev/null; then
+    echo "Missing jq command"
+    echo "https://jqlang.github.io/jq"
+    exit 1
+  fi
+
+  if [[ -z "${GITHUB_TOKEN}" ]]; then
+    echo "You need a GitHub access token to download the archive."
+    echo "Set 'GITHUB_TOKEN' environment variable with the value"
+    echo "To create one go here: https://github.com/settings/tokens"
+    exit 1
+  fi
+}
+
+verify_dependencies
+
+# Set branch name to user provided value or default to the current active branch
+readonly BRANCH_NAME="${1:-$(git rev-parse --abbrev-ref HEAD)}"
+echo "Checking for failed browser tests snapshots for branch: ${BRANCH_NAME}"
+
+# Get details on the failed run for the active branch
+readonly JOB_RUN_LIST_URL="https://api.github.com/repos/civiform/civiform/actions/runs?per_page=20&status=failure&branch=${BRANCH_NAME}"
+readonly JOB_RUN_LIST_JSON="$(get_json_or_exit_on_failure "${JOB_RUN_LIST_URL}")"
+
+# Determine the url for the artifacts endpoint
+readonly ARTIFACT_LIST_URL="$(echo "${JOB_RUN_LIST_JSON}" | jq -r -c '
+.workflow_runs 
+| map(
+  select(.name == "Server - On PR to Main")
+  | .artifacts_url
+)[0]')"
+
+exit_on_jq_failure "$?" "${ARTIFACT_LIST_URL}" "Branch '${BRANCH_NAME}' doesn't appear to have any snapshots to download"
+
+# Determine the url for the artifact we want to download
+readonly ARTIFACT_LIST_JSON="$(get_json_or_exit_on_failure "${ARTIFACT_LIST_URL}")"
+
+readonly ARTIFACT_DOWNLOAD_URL="$(echo "${ARTIFACT_LIST_JSON}" | jq -r -c '
+.artifacts 
+| map(
+  select(.name == "updated snapshots output directory" and .expired == false) 
+  | .archive_download_url
+)[0]')"
+
+exit_on_jq_failure "$?" "${ARTIFACT_DOWNLOAD_URL}" "Unable to find artifact url"
+
+# Download the archive
+readonly ARTIFACT_FILE="$(mktemp)"
+readonly SNAPSHOT_FOLDER="./browser-test/image_snapshots"
+
+curl "${CURL_ARGS[@]}" "${ARTIFACT_DOWNLOAD_URL}" --output "${ARTIFACT_FILE}"
+
+# Unzip archive file
+unzip -qq "${ARTIFACT_FILE}" -d "${SNAPSHOT_FOLDER}"
+
+# Rename updated files removing the playwright "-received" suffix
+find "${SNAPSHOT_FOLDER}" \
+  -type f \
+  -name "*-received.png" \
+  -exec bash -c 'mv "$0" "${0/-received.png/.png}"' {} \;
+
+# Display changes files
+git --no-pager diff --name-only "${SNAPSHOT_FOLDER}"
+
+#########
+echo
+echo "Done. Check if you need to commit new images"
+echo
