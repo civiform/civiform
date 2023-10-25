@@ -114,7 +114,7 @@ public class DevDatabaseSeedController extends Controller {
   }
 
   /** Remove all content from the cache. */
-  public void clearCache() {
+  private void clearCache() {
     if (!isDevOrStaging) {
       return;
     }
