@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.util.Providers;
 import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.util.Locale;
@@ -13,20 +14,33 @@ import java.util.Set;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import play.cache.SyncCacheApi;
 import services.LocalizedStrings;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import services.settings.SettingsManifest;
 
 public class QuestionRepositoryTest extends ResetPostgres {
 
   private QuestionRepository repo;
+  private SettingsManifest mockSettingsManifest;
+  private SyncCacheApi questionCache;
 
   @Before
   public void setupQuestionRepository() {
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    questionCache = instanceOf(SyncCacheApi.class);
     repo = instanceOf(QuestionRepository.class);
+    repo =
+        new QuestionRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            Providers.of(instanceOf(VersionRepository.class)),
+            mockSettingsManifest,
+            questionCache);
   }
 
   @Test
@@ -59,6 +73,20 @@ public class QuestionRepositoryTest extends ResetPostgres {
     Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(existing);
+  }
+
+  @Test
+  public void lookupQuestion_usesCacheWhenEnabled() {
+    Mockito.when(mockSettingsManifest.getQuestionCacheEnabled()).thenReturn(true);
+    resourceCreator.insertQuestion();
+    Question existing = resourceCreator.insertQuestion();
+
+    assertThat(questionCache.get(String.valueOf(existing.id))).isEmpty();
+
+    Optional<Question> found = repo.lookupQuestion(existing.id).toCompletableFuture().join();
+
+    assertThat(found).hasValue(existing);
+    assertThat(questionCache.get(String.valueOf(existing.id))).hasValue(found);
   }
 
   @Test
