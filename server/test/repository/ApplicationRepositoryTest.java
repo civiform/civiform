@@ -73,8 +73,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Application appTwoSubmitted =
         repo.getApplication(appTwoDraft.id).toCompletableFuture().join().get();
     assertThat(appTwoSubmitted.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-
     assertThat(appTwoSubmitted.getApplicantData().getApplicantName().get()).isEqualTo("Alice");
+    assertThat(repo.getApplication(appOne.id).toCompletableFuture().join().get().getSubmitTime())
+        .isEqualTo(initialSubmitTime);
   }
 
   @Test

@@ -189,17 +189,21 @@ public class SimpleStorage implements StorageClient {
     private static final String AWS_LOCAL_ENDPOINT_CONF_PATH = "aws.local.endpoint";
 
     private final String localEndpoint;
+    private final String localS3Endpoint;
     private final S3Presigner presigner;
 
     LocalStackClient(Config config) {
       localEndpoint = checkNotNull(config).getString(AWS_LOCAL_ENDPOINT_CONF_PATH);
-      URI localUri;
+      URI localS3Uri;
       try {
-        localUri = new URI(localEndpoint);
+        URI localUri = new URI(localEndpoint);
+        localS3Endpoint =
+            String.format("%s://s3.%s", localUri.getScheme(), localUri.getAuthority());
+        localS3Uri = new URI(localS3Endpoint);
       } catch (URISyntaxException e) {
         throw new RuntimeException(e);
       }
-      presigner = S3Presigner.builder().endpointOverride(localUri).region(region).build();
+      presigner = S3Presigner.builder().endpointOverride(localS3Uri).region(region).build();
     }
 
     @Override
@@ -212,7 +216,7 @@ public class SimpleStorage implements StorageClient {
       try {
         return S3EndpointProvider.defaultProvider()
             .resolveEndpoint(
-                (builder) -> builder.endpoint(localEndpoint).bucket(bucket).region(region))
+                (builder) -> builder.endpoint(localS3Endpoint).bucket(bucket).region(region))
             .get()
             .url()
             .toString();

@@ -1,6 +1,7 @@
 import {
   createTestContext,
   dropTables,
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -241,5 +242,28 @@ describe('normal application flow', () => {
         '5009769596aa83552389143189cec81abfc8f56abc1bb966715c47ce4078c403,057ba03d6c44104863dc7361fe4578965d1887360f90a0895882e58a6248fc86,6eecddf47b5f7a90d41ccc978c4c785265242ce75fe50be10c824b73a25167ba',
       )
     }
+  })
+
+  it('download finished application', async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'application_exportable')
+
+    const programName = 'Test program'
+    await adminQuestions.addNameQuestion({questionName: 'Name'})
+    await adminPrograms.addAndPublishProgramWithQuestions(['Name'], programName)
+
+    await logout(page)
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.answerNameQuestion('sarah', 'smith')
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+    await validateScreenshot(page, 'application-confirmation')
+    await applicantQuestions.downloadFromConfirmationPage()
+
+    await logout(page)
+    await loginAsProgramAdmin(page)
   })
 })

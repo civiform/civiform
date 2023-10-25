@@ -24,9 +24,9 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
@@ -34,11 +34,11 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.162",
-      "software.amazon.awssdk" % "ses" % "2.20.162",
+      "software.amazon.awssdk" % "s3" % "2.21.4",
+      "software.amazon.awssdk" % "ses" % "2.21.4",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.10.1",
+      "com.azure" % "azure-identity" % "1.10.3",
       "com.azure" % "azure-storage-blob" % "12.24.0",
 
       // Database and database testing libraries
@@ -95,10 +95,10 @@ lazy val root = (project in file("."))
       "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.22",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.5",
+      "com.github.slugify" % "slugify" % "3.0.6",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.9.0",
+      "commons-net" % "commons-net" % "3.10.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
@@ -218,9 +218,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.3"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

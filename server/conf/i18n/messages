@@ -26,6 +26,8 @@ content.requiredFieldsNote=Note: Fields marked with a {0} are required.
 content.optional=(optional)
 content.mobileFileUploadHelp=On your phone? "Choose File" also allows you to use your phone camera to upload documents.
 toast.errorMessageOutline=Error: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Close
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -149,6 +151,7 @@ content.commonIntakeConfirmationTi=Your client may be able to get these benefits
 content.commonIntakeNoMatchingPrograms=The pre-screener could not find programs you may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
 content.commonIntakeNoMatchingProgramsTi=The pre-screener could not find programs your client may qualify for at this time. However, you may apply for benefits at any time, by clicking ''Apply to programs''.  Or to view additional benefit programs you can visit {0}
 content.commonIntakeNoMatchingProgramsNextStep=You can also return to the previous page to edit your responses.
+button.downloadPdf=Download PDF
 button.applyToPrograms=Apply to programs
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -202,7 +205,7 @@ placeholder.noDropdownSelection=Choose an option:
 #------------------------------------------------------------------------------------------------------------------------------#
 
 label.countryCode=Country
-label.phoneNumber=Enter Phone number
+label.phoneNumber=Enter phone number
 validation.phoneNumberRequired=Phone number is required
 validation.phoneCountryCodeRequired=Country must be selected
 validation.phoneNumberMustContainNumbersOnly=Phone number cannot contain non-number characters

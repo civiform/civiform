@@ -31,6 +31,7 @@ toast.errorMessageOutline=ስህተት: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=ግባ
 content.loginPrompt=እባክዎ በ{0} መለያዎ ይግቡ
 button.createAnAccount=መለያ ፍጠር
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=«ለፕሮግራሞች አመልክት» የ
 content.commonIntakeNoMatchingPrograms=ቅድመ-ማጣሪያው እርስዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 content.commonIntakeNoMatchingProgramsTi=ቅድመ-ማጣሪያው ደንበኛዎ በዚህ ጊዜ ብቁ ሊሆኑ የሚችሉባቸውን ፕሮግራሞች ማግኘት አልቻለም። ሆኖም፣ «ለፕሮግራሞች አመልክት» የሚለውን ጠቅ በማድረግ በማንኛውም ጊዜ ለጥቅማጥቅሞች ማመልከት ይችላሉ። ወይም ተጨማሪ የጥቅማጥቅም ፕሮግራሞችን ለመመልከት {0}ን መጎብኘት ይችላሉ
 content.commonIntakeNoMatchingProgramsNextStep=እንዲሁም የእርስዎን ምላሾች ለማርትዕ ወደ ቀዳሚው ገጽ መመለስ ይችላሉ።
+button.downloadPdf=Download PDF
 button.applyToPrograms=ለፕሮግራሞች ያመልክቱ
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=ለ{0} ምንም የሚቀመጡ ለውጦች የሉም
+content.noChanges=በመተግበሪያው ላይ እስካሁን ምንም ለውጦች አላደረጉም። አርትዖቱን መቀጠል ይፈልጋሉ?
+button.continueEditing=አርትዖቱን ይቀጥሉ
+button.exitApplication=ከመተግበሪያ ይውጡ
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
