@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 # DOC: Sync failed github action browser-test snapshots with local system.
-#      With no arguments this defaults to the current active branch or
-#      pass in the first argument to specify a branch name
+# DOC: With no arguments this defaults to the current active branch or
+# DOC: pass in the first argument to specify a branch name
 
 source bin/lib.sh
 
