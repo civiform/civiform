@@ -23,7 +23,16 @@ public abstract class Modal {
 
   public abstract String modalId();
 
-  public abstract TranslationStrategy translationStrategy();
+  /**
+   * Informs where this modal is seen.
+   *
+   * <p>If the location is {@code Location.APPLICANT_FACING}, then {@code messages()} is required to
+   * be present so that the modal is correctly localized.
+   */
+  public abstract Location location();
+
+  /** Required to be set if this modal is applicant-facing; optional otherwise. */
+  public abstract Optional<Messages> messages();
 
   public abstract ContainerTag<?> content();
 
@@ -46,11 +55,11 @@ public abstract class Modal {
   }
 
   public interface RequiredModalId {
-    RequiredTranslationStrategy setModalId(String modalId);
+    RequiredLocation setModalId(String modalId);
   }
 
-  public interface RequiredTranslationStrategy {
-    RequiredContent setTranslationStrategy(TranslationStrategy translationStrategy);
+  public interface RequiredLocation {
+    RequiredContent setLocation(Location location);
   }
 
   public interface RequiredContent {
@@ -63,7 +72,9 @@ public abstract class Modal {
 
   @AutoValue.Builder
   public abstract static class Builder
-      implements RequiredModalId, RequiredTranslationStrategy, RequiredTitle, RequiredContent {
+      implements RequiredModalId, RequiredLocation, RequiredTitle, RequiredContent {
+    public abstract Builder setMessages(Messages messages);
+
     public abstract Builder setTriggerButtonContent(ButtonTag triggerButtonContent);
 
     public abstract Builder setWidth(Width width);
@@ -77,6 +88,10 @@ public abstract class Modal {
 
     abstract String modalId();
 
+    abstract Location location();
+
+    abstract Optional<Messages> messages();
+
     // This is the build method that AutoValue will generate an implementation for.
     abstract Modal autoBuild();
 
@@ -85,6 +100,9 @@ public abstract class Modal {
     public Modal build() {
       if (modalTitle() == null) {
         setModalTitle(modalId());
+      }
+      if (location() == Location.APPLICANT_FACING && messages().isEmpty()) {
+        throw new IllegalArgumentException("Messages must be set if the modal is applicant-facing");
       }
       return autoBuild();
     }
@@ -108,45 +126,14 @@ public abstract class Modal {
     }
   }
 
-  /** Provides the translation(s) needed for common modal elements. */
-  public interface TranslationStrategy {
-    /** Returns the aria label to use for the close button on the modal. */
-    String getCloseButtonLabel();
-  }
-
-  /**
-   * Translation strategy that does *not* translate text and instead hardcodes text to be in the
-   * default language.
-   *
-   * <p>This strategy should *never* be used for modals shown to applicants, since applicant pages
-   * need to be localized. This strategy *can* be used for modals only shown to admins.
-   */
-  public static class DefaultTranslationStrategy implements TranslationStrategy {
-    public DefaultTranslationStrategy() {}
-
-    @Override
-    public String getCloseButtonLabel() {
-      return "Close";
-    }
-  }
-
-  /**
-   * Translation strategy that uses the provided {@code messages} to localize the modal text.
-   *
-   * <p>Modals shown to applicants are *required* to use this strategy and *not* use {@link
-   * DefaultTranslationStrategy}.
-   */
-  public static class LocalizedTranslationStrategy implements TranslationStrategy {
-    private final Messages messages;
-
-    public LocalizedTranslationStrategy(Messages messages) {
-      this.messages = messages;
-    }
-
-    @Override
-    public String getCloseButtonLabel() {
-      return this.messages.at(MessageKey.BUTTON_CLOSE.getKeyName());
-    }
+  /** Describes where this modal will be seen. */
+  public enum Location {
+    /** This modal is seen by applicants. */
+    APPLICANT_FACING,
+    /** This modal is only seen by admins, never applicants. */
+    ADMIN_FACING,
+    /** This modal is only seen when debug mode is enabled. */
+    DEBUG,
   }
 
   /**
@@ -246,7 +233,13 @@ public abstract class Modal {
   }
 
   private ButtonTag getCloseButton() {
-    return noTextButton(translationStrategy().getCloseButtonLabel())
+    String closeButtonLabel;
+    if (messages().isPresent()) {
+      closeButtonLabel = messages().get().at(MessageKey.BUTTON_CLOSE.getKeyName());
+    } else {
+      closeButtonLabel = "Close";
+    }
+    return noTextButton(closeButtonLabel)
         .withClasses(
             ReferenceClasses.MODAL_CLOSE,
             ButtonStyles.CLEAR_WITH_ICON,

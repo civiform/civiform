@@ -317,7 +317,7 @@ abstract class ProgramFormBuilder extends BaseHtmlView {
                             .withClasses(ButtonStyles.SOLID_BLUE, "cursor-pointer")));
     return Modal.builder()
         .setModalId("confirm-common-intake-change")
-        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(content)
         .setModalTitle("Confirm pre-screener change?")
         .setDisplayOnLoad(true)

@@ -534,7 +534,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return Optional.of(
         Modal.builder()
             .setModalId(Modal.randomModalId())
-            .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+            .setLocation(Modal.Location.ADMIN_FACING)
             .setContent(referencingProgramModalContent)
             .setModalTitle(String.format("Programs referencing %s", questionName))
             .setWidth(Width.HALF)
@@ -679,7 +679,7 @@ public final class QuestionsListView extends BaseHtmlView {
     Modal modal =
         Modal.builder()
             .setModalId("discard-confirmation-modal")
-            .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+            .setLocation(Modal.Location.ADMIN_FACING)
             .setContent(discardConfirmationDiv)
             .setModalTitle("Discard draft?")
             .setTriggerButtonContent(discardMenuButton)

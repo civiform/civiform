@@ -328,7 +328,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
-        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(modalContent)
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
@@ -404,7 +404,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withData("status-update-confirm-for-status", status.statusText());
     return Modal.builder()
         .setModalId(Modal.randomModalId())
-        .setTranslationStrategy(new Modal.DefaultTranslationStrategy())
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(modalContent)
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
