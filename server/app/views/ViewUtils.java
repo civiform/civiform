@@ -56,18 +56,18 @@ public final class ViewUtils {
 
   /**
    * Generates an HTML script tag for loading the javascript file found at
-   * public/javascripts/[filename].js.
+   * public/dist/[filename].js.
    */
   public ScriptTag makeLocalJsTag(String filename) {
     return script()
-        .withSrc(assetsFinder.path("javascripts/" + filename + ".js"))
+        .withSrc(assetsFinder.path("dist/" + filename + ".js"))
         .withType("text/javascript");
   }
 
   public ScriptTag makeUSWDSJsTag(String filename) {
     return script()
-      .withSrc(assetsFinder.path("uswds/js/" + filename + ".js"))
-      .withType("text/javascript");
+        .withSrc(assetsFinder.path("uswds/js/" + filename + ".js"))
+        .withType("text/javascript");
   }
 
   /**
@@ -82,9 +82,7 @@ public final class ViewUtils {
    * Generates an HTML link tag for loading the CSS file found at public/stylesheets/[filename].css.
    */
   LinkTag makeLocalCssTag(String filePath) {
-    return link()
-        .withHref(assetsFinder.path(filePath + ".css"))
-        .withRel("stylesheet");
+    return link().withHref(assetsFinder.path(filePath + ".css")).withRel("stylesheet");
   }
 
   public ImgTag makeLocalImageTag(String filename) {

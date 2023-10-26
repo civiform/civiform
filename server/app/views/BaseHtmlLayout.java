@@ -30,7 +30,7 @@ public class BaseHtmlLayout {
 
   private static final String CIVIFORM_TITLE = "CiviForm";
   private static final String TAILWIND_COMPILED_FILEPATH = "stylesheets/tailwind";
-  private static final String USWDS_FILEPATH = "uswds/css/uswds";
+  private static final String USWDS_FILEPATH = "dist/uswds.min";
   private static final String BANNER_TEXT =
       "Do not enter actual or personal data in this demo site";
 

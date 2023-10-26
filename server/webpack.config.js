@@ -1,3 +1,5 @@
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+
 module.exports = {
   mode: 'production',
   devtool: 'source-map',
@@ -5,18 +7,20 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.scss$/, 
-        use:           
-          { 
-            loader: "sass-loader",
+        test: /\.scss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'postcss-loader',
+          {
+            loader: 'sass-loader',
             options: {
               sassOptions: {
-                includePaths: [
-                  "./node_modules/@uswds/uswds/packages"
-                ],
+                includePaths: ['./node_modules/@uswds/uswds/packages'],
               },
-            }, 
-          }
+            },
+          },
+        ],
       },
       {
         test: /\.tsx?$/,
@@ -31,15 +35,17 @@ module.exports = {
   entry: {
     applicant: './app/assets/javascripts/applicant_entry_point.ts',
     admin: './app/assets/javascripts/admin_entry_point.ts',
-    uswds: [
-      '/node_modules/@uswds/uswds/dist/js/uswds.min.js', 
-      './app/assets/sass/uswds/styles.scss'
-    ],
-
+    uswds: './node_modules/@uswds/uswds/dist/js/uswds.min.js',
+    uswdsStyles: './app/assets/sass/uswds/styles.scss',
   },
   output: {
     filename: `[name].bundle.js`,
     sourceMapFilename: '[name].bundle.js.map',
     iife: true,
   },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: 'uswds.min.css',
+    }),
+  ],
 }

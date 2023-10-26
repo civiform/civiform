@@ -7,9 +7,13 @@ in the form $setting: value,
 ----------------------------------------
 */
 
-//
-//  @use "uswds-core" with (
-//    $setting: value,
-//    $setting: value
-//  );
-//
+@use 'uswds-core' with (
+  $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
+  $theme-image-path: '../../../../node_modules/@uswds/uswds/dist/img',
+  $border-settings: (
+    'output': false,
+  ),
+  $font-weight-settings: (
+    'output': false,
+  )
+);
