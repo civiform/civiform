@@ -181,6 +181,10 @@ public final class VersionRepository {
               programToDelete -> {
                 draft.removeTombstoneForProgram(programToDelete);
                 draft.removeProgram(programToDelete);
+                if (settingsManifest.getProgramCacheEnabled()) {
+                  versionsByProgramCache.remove(String.valueOf(programToDelete.id));
+                  programCache.remove(String.valueOf(programToDelete.id));
+                }
               });
 
       // Move forward the ACTIVE version.
@@ -261,6 +265,10 @@ public final class VersionRepository {
               program -> {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
+                if (settingsManifest.getProgramCacheEnabled()) {
+                  versionsByProgramCache.remove(String.valueOf(program.id));
+                  programCache.remove(String.valueOf(program.id));
+                }
               });
       getQuestionsForVersion(existingDraft).stream()
           .filter(
@@ -279,7 +287,14 @@ public final class VersionRepository {
               activeProgram ->
                   !programToPublishAdminName.equals(
                       activeProgram.getProgramDefinition().adminName()))
-          .forEach(existingDraft::addProgram);
+          .forEach(
+              program -> {
+                existingDraft.addProgram(program);
+                if (settingsManifest.getProgramCacheEnabled()) {
+                  versionsByProgramCache.remove(String.valueOf(program.id));
+                  programCache.remove(String.valueOf(program.id));
+                }
+              });
       getQuestionsForVersion(active).stream()
           .filter(
               activeQuestion ->
