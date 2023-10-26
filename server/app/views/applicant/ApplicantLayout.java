@@ -388,6 +388,9 @@ public class ApplicantLayout extends BaseHtmlLayout {
                   .withClasses(ApplicantStyles.LINK)));
     }
 
+    // For TIs we use the account email rather than first and last name because
+    // TIs usually do not have the latter data available, but will always have
+    // an email address because they are authenticated.
     String accountIdentifier =
         isTi ? tiEmailForDisplay(profile.get()) : personalInfo.getDisplayString(messages);
 

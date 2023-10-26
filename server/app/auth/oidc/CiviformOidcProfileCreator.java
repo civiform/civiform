@@ -122,6 +122,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     // If the civiformProfile is a trusted intermediary, bypass remaining merging because
     // we don't want to actually merge the guest profile into theirs.
     if (isTrustedIntermediary(civiformProfile)) {
+      // Setting the email here ensures the canonical email field is populated
+      // regardless of what the identity provider uses. See comment on
+      // CiviFormProfileData.setEmail() for more info.
       return civiformProfile.getProfileData().setEmail(emailAddress);
     }
 
