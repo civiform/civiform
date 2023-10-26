@@ -409,7 +409,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     // To ensure a consistent string with browser snapshots, we override the
     // display email.
-    if (email.endsWith("@example.com")) {
+    if (email.startsWith("fake-trusted-intermediary") && email.endsWith("@example.com")) {
       return "trusted-intermediary@example.com";
     }
 
