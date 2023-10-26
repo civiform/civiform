@@ -19,10 +19,11 @@ import scala.sys.process.{Process, ProcessLogger}
   * been updated since 2018 and uses Typescript 2 while current Typescript
   * version is 4.
   *
-  * Our custom plugin invokes `tsc` compiler directly through the Webpack ts-loader. 
-  * `tsconfig.json` is setup to compile code from `app/assets/javascripts` directory
-  * and 'node_modules/@uswds/uswds/dist/js' directory and outputs the result to
-  * `target/web/dist` folder.  We also use Webpack to compile the USWDS Sass into CSS.
+  * Our custom plugin invokes `tsc` compiler directly through the Webpack
+  * ts-loader. `tsconfig.json` is setup to compile code from
+  * `app/assets/javascripts` directory and 'node_modules/@uswds/uswds/dist/js'
+  * directory and outputs the result to `target/web/dist` folder. We also use
+  * Webpack to compile the USWDS Sass into CSS.
   * 
   *
   * This plugin introduces `compileTypescript` task which will be used as a
