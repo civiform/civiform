@@ -3,17 +3,12 @@
 # DOC: Build a new server docker image from the local branch
 # DOC: and push to docker hub for testing purposes. Requires
 # DOC: docker hub credentials to be set in the environment
-# DOC: along with DEV_BRANCH_NAME and DEV_TAG_NAME.
+# DOC: along with DEV_BRANCH_NAME.
 
 source bin/lib.sh
 
 if [[ -z "${DEV_BRANCH_NAME}" ]]; then
   echo "DEV_BRANCH_NAME must be set"
-  exit 1
-fi
-
-if [[ -z "${DEV_TAG_NAME}" ]]; then
-  echo "DEV_TAG_NAME must be set"
   exit 1
 fi
 
@@ -31,7 +26,7 @@ docker::do_dockerhub_login
 
 echo "Building ${IMAGE_TAG}..."
 
-readonly IMAGE_TAG="DEV-${DEV_TAG_NAME}"
+readonly IMAGE_TAG="DEV-${DEV_BRANCH_NAME}"
 readonly GIT_SHA="$(git rev-parse HEAD)"
 export DOCKER_BUILDKIT=1
 
