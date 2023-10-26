@@ -52,12 +52,12 @@ public abstract class BaseHtmlView {
 
   /**
    * Creates a button that doesn't display any text but includes an aria label, which is needed for
-   * accessibility.
+   * accessibility. The icon SVG should be displayed as a child of this button.
    *
    * @param ariaLabel a label that will be used by screenreaders and other accessibility services to
    *     describe the button's purpose.
    */
-  public static ButtonTag noTextButton(String ariaLabel) {
+  public static ButtonTag iconOnlyButton(String ariaLabel) {
     return TagCreator.button().withType("button").attr("aria-label", ariaLabel);
   }
 

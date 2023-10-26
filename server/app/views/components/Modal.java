@@ -2,7 +2,7 @@ package views.components;
 
 import static j2html.TagCreator.div;
 import static views.BaseHtmlView.button;
-import static views.BaseHtmlView.noTextButton;
+import static views.BaseHtmlView.iconOnlyButton;
 
 import com.google.auto.value.AutoValue;
 import j2html.tags.ContainerTag;
@@ -239,7 +239,7 @@ public abstract class Modal {
     } else {
       closeButtonLabel = "Close";
     }
-    return noTextButton(closeButtonLabel)
+    return iconOnlyButton(closeButtonLabel)
         .withClasses(
             ReferenceClasses.MODAL_CLOSE,
             ButtonStyles.CLEAR_WITH_ICON,
