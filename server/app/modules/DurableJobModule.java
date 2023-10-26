@@ -1,8 +1,10 @@
 package modules;
 
 import akka.actor.ActorSystem;
+import annotations.BindingAnnotations;
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Provides;
 import com.typesafe.config.Config;
 import durablejobs.DurableJobName;
@@ -12,8 +14,11 @@ import durablejobs.RecurringJobExecutionTimeResolvers;
 import durablejobs.RecurringJobScheduler;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
+import durablejobs.jobs.UnusedAccountCleanupJob;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Random;
+import repository.AccountRepository;
 import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import scala.concurrent.ExecutionContext;
@@ -60,6 +65,8 @@ public final class DurableJobModule extends AbstractModule {
 
   @Provides
   public DurableJobRegistry provideDurableJobRegistry(
+      AccountRepository accountRepository,
+      @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       ReportingRepository reportingRepository) {
     var durableJobRegistry = new DurableJobRegistry();
@@ -75,6 +82,12 @@ public final class DurableJobModule extends AbstractModule {
         persistedDurableJob ->
             new ReportingDashboardMonthlyRefreshJob(reportingRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.FirstOfMonth2Am());
+
+    durableJobRegistry.register(
+        DurableJobName.UNUSED_ACCOUNT_CLEANUP,
+        persistedDurableJob ->
+            new UnusedAccountCleanupJob(accountRepository, nowProvider, persistedDurableJob),
+        new RecurringJobExecutionTimeResolvers.SecondOfMonth2Am());
 
     return durableJobRegistry;
   }

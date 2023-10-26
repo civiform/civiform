@@ -42,6 +42,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   private SyncCacheApi questionsByVersionCache;
   private SyncCacheApi programsByVersionCache;
   private SyncCacheApi questionCache;
+  private SyncCacheApi programCache;
+  private SyncCacheApi versionsByProgramCache;
 
   private SettingsManifest mockSettingsManifest;
 
@@ -51,6 +53,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     questionsByVersionCache = instanceOf(SyncCacheApi.class);
     programsByVersionCache = instanceOf(SyncCacheApi.class);
     questionCache = instanceOf(SyncCacheApi.class);
+    programCache = instanceOf(SyncCacheApi.class);
+    versionsByProgramCache = instanceOf(SyncCacheApi.class);
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
@@ -58,7 +62,9 @@ public class VersionRepositoryTest extends ResetPostgres {
             mockSettingsManifest,
             questionsByVersionCache,
             programsByVersionCache,
-            questionCache);
+            questionCache,
+            programCache,
+            versionsByProgramCache);
   }
 
   @Test
