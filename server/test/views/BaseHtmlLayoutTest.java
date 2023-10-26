@@ -47,7 +47,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
             "<link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
     assertThat(content.body())
         .containsPattern(
-            "<script src=\"/assets/javascripts/[a-z0-9]+-applicant.bundle.js\""
+            "<script src=\"/assets/dist/[a-z0-9]+-applicant.bundle.js\""
                 + " type=\"text/javascript\"></script>");
     assertThat(content.body()).doesNotContain("googletagmanager");
 
@@ -87,7 +87,9 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body())
         .containsPattern(
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
-                + " href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\" rel=\"stylesheet\">");
+                + " href=\"/assets/dist/ff3dc94f468b69c634824625f7fefbd1-uswds.min.css\""
+                + " rel=\"stylesheet\"><link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\""
+                + " rel=\"stylesheet\">");
   }
 
   @Test

@@ -32,7 +32,7 @@ public class ViewUtilsTest {
 
   @Test
   public void makeLocalJsTag_createsAScriptTagWithTheJs() {
-    when(assetsFinder.path("javascripts/hello.js")).thenReturn("/full/asset/path.js");
+    when(assetsFinder.path("dist/hello.js")).thenReturn("/full/asset/path.js");
     ScriptTag result = viewUtils.makeLocalJsTag("hello");
 
     assertThat(result.render())
@@ -42,7 +42,7 @@ public class ViewUtilsTest {
   @Test
   public void makeLocalCssTag_createsALinkTagWithTheCss() {
     when(assetsFinder.path("stylesheets/hello.css")).thenReturn("/full/asset/path.css");
-    LinkTag result = viewUtils.makeLocalCssTag("hello");
+    LinkTag result = viewUtils.makeLocalCssTag("stylesheets/hello");
 
     assertThat(result.render())
         .isEqualTo("<link href=\"/full/asset/path.css\" rel=\"stylesheet\">");
