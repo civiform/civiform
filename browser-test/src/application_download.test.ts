@@ -9,9 +9,10 @@ import {
   logout,
   seedQuestions,
   validateScreenshot,
+  waitForPageJsLoad,
 } from './support'
 
-describe('normal application flow', () => {
+describe('csv export for multioption question', () => {
   const ctx = createTestContext()
 
   beforeAll(async () => {
@@ -19,6 +20,89 @@ describe('normal application flow', () => {
     await dropTables(page)
     await seedQuestions(page)
   })
+  it('test multioption csv into its own column',async () => {
+    const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
+
+    const noApplyFilters = false
+    const applyFilters = true
+
+    await loginAsAdmin(page)
+    const programName = 'Checkbox question program for export'
+    await adminQuestions.createCheckboxQuestion(
+      {
+        questionName: 'csv-color',
+        questionText: 'Sample question text',
+        helpText: 'Sample question help text',
+        options: [
+          {adminName: 'red admin', text: 'red'},
+          {adminName: 'green admin', text: 'green'},
+          {adminName: 'orange admin', text: 'orange'},
+          {adminName: 'blue admin', text: 'blue'},
+        ],
+        maxNum: 3,
+        minNum: 2
+      },
+      /* clickSubmit= */ true,
+    )
+    await adminPrograms.addAndPublishProgramWithQuestions(
+      ['Name','csv-color'],
+      programName,
+    )
+    await logout(page)
+    
+    await loginAsTestUser(page)
+    await applicantQuestions.applyProgram(programName)
+    await applicantQuestions.answerNameQuestion('Jane','Doe')
+    await applicantQuestions.answerCheckboxQuestion(['blue','red'])
+    await applicantQuestions.clickNext()
+
+    // Applicant submits answers from review page.
+    await applicantQuestions.submitFromReviewPage()
+    await logout(page)
+
+    await loginAsAdmin(page)
+    await adminQuestions.gotoQuestionEditPage('csv-color')
+    await adminQuestions.deleteMultiOptionAnswer(0)
+    await waitForPageJsLoad(page)
+    
+    await page.click('#add-new-option')
+    await adminQuestions.fillMultiOptionAnswer(3, {
+      adminName: 'black admin',
+      text: 'black',
+    })
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await waitForPageJsLoad(page)
+    await adminPrograms.publishProgram(programName)
+
+    await logout(page)
+
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await page.click('text="Continue to application"')
+    await waitForPageJsLoad(page)
+    await applicantQuestions.answerNameQuestion('John', 'Do')
+    await applicantQuestions.answerCheckboxQuestion(['black'])
+    await applicantQuestions.clickNext()
+    await applicantQuestions.submitFromReviewPage()
+
+    await logout(page)
+    await loginAsProgramAdmin(page)
+
+    await adminPrograms.viewApplications(programName)
+    const csvContent = await adminPrograms.getCsv(noApplyFilters)
+    await console.log(csvContent)
+    
+  }
+  )
+})
+
+  describe('normal application flow', () => {
+    const ctx = createTestContext()
+  
+    beforeAll(async () => {
+      const {page} = ctx
+      await dropTables(page)
+      await seedQuestions(page)
+    })
 
   it('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
@@ -37,14 +121,29 @@ describe('normal application flow', () => {
         {adminName: 'op3 admin', text: 'op3'},
       ],
     })
+    await adminQuestions.createCheckboxQuestion(
+      {
+        questionName: 'csv-color',
+        questionText: 'Sample question text',
+        helpText: 'Sample question help text',
+        options: [
+          {adminName: 'red admin', text: 'red'},
+          {adminName: 'green admin', text: 'green'},
+          {adminName: 'orange admin', text: 'orange'},
+          {adminName: 'blue admin', text: 'blue'},
+        ],
+      },
+      /* clickSubmit= */ true,
+    )
     await adminQuestions.addDateQuestion({questionName: 'csv-date'})
     await adminQuestions.addCurrencyQuestion({questionName: 'csv-currency'})
     await adminQuestions.exportQuestion('Name')
     await adminQuestions.exportQuestion('dropdown-csv-download')
     await adminQuestions.exportQuestion('csv-date')
     await adminQuestions.exportQuestion('csv-currency')
+    await adminQuestions.exportQuestion('csv-color')
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'dropdown-csv-download', 'csv-date', 'csv-currency'],
+      ['Name', 'dropdown-csv-download', 'csv-date', 'csv-currency','csv-color'],
       programName,
     )
 
@@ -57,6 +156,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerDropdownQuestion('op2')
     await applicantQuestions.answerDateQuestion('2021-05-10')
     await applicantQuestions.answerCurrencyQuestion('1000')
+    await applicantQuestions.answerCheckboxQuestion(['blue'])
     await applicantQuestions.clickNext()
 
     // Applicant submits answers from review page.
@@ -67,7 +167,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(csvContent).toContain('sarah,,smith,op2 admin,05/10/2021,1000.00')
+    expect(csvContent).toContain('sarah,,smith,op2 admin,05/10/2021,1000.00,Not Selected,Not Selected,Not Selected,Selected')
 
     await logout(page)
     await loginAsAdmin(page)
@@ -97,6 +197,7 @@ describe('normal application flow', () => {
     await applicantQuestions.answerDateQuestion('1990-01-01')
     await applicantQuestions.answerCurrencyQuestion('2000')
     await applicantQuestions.answerNumberQuestion('1600')
+    await applicantQuestions.answerCheckboxQuestion(['red'])
     await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
     await applicantQuestions.returnToProgramsFromSubmissionPage()
@@ -198,14 +299,14 @@ describe('normal application flow', () => {
     // so test for both situations.
     if (demographicsCsvContent.includes('Status')) {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
-        ',,sarah,,smith,1000.00,05/10/2021,op2 admin',
+        ',,sarah,,smith,Not Selected,Not Selected,Not Selected,Selected,1000.00,05/10/2021,op2 admin,'
       )
     } else {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
         'sarah,,smith,1000.00,05/10/2021,op2 admin',
@@ -221,7 +322,7 @@ describe('normal application flow', () => {
 
     if (demographicsCsvContent.includes('Status')) {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
       )
     } else {
       expect(newDemographicsCsvContent).toContain(
