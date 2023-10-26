@@ -34,11 +34,11 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.21.4",
-      "software.amazon.awssdk" % "ses" % "2.21.4",
+      "software.amazon.awssdk" % "s3" % "2.21.8",
+      "software.amazon.awssdk" % "ses" % "2.21.8",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.10.3",
+      "com.azure" % "azure-identity" % "1.10.4",
       "com.azure" % "azure-storage-blob" % "12.24.0",
 
       // Database and database testing libraries

@@ -4,9 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
@@ -20,8 +17,9 @@ import models.Program;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import services.DateConverter;
+import services.Path;
+import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramType;
 import support.CfTestHelpers;
 
@@ -62,7 +60,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
                 .getLifecycleStage())
         .isEqualTo(LifecycleStage.DRAFT);
 
-    // Submit another application for the same program and applicant.
+    // Submit another application for the same program and applicant, but update the applicantData
+    // object so it is not detected as a duplicate.
+    applicant.getApplicantData().putString(Path.create("text"), "text");
     repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
 
     assertThat(
@@ -80,11 +80,6 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_doesNotUpdateOtherProgramApplications() {
-    Logger logger = (Logger) LoggerFactory.getLogger(ApplicationRepository.class);
-    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-    listAppender.start();
-    logger.addAppender(listAppender);
-
     Applicant applicant1 = saveApplicant("Alice");
     Applicant applicant2 = saveApplicant("Bob");
 
@@ -101,13 +96,6 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThat(app2.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
     assertThat(app2.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-
-    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
-    assertThat(logsList)
-        .noneSatisfy(
-            event -> {
-              assertThat(event.getFormattedMessage()).matches(".*duplicate = true.*");
-            });
   }
 
   @Test
@@ -176,6 +164,21 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  @Test
+  public void submitApplication_duplicateSubmissionsThrowsException() {
+    Applicant applicant = saveApplicant("Alice");
+    Program program = createDraftProgram("Program");
+
+    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    assertThatThrownBy(
+            () ->
+                repo.submitApplication(applicant, program, Optional.empty())
+                    .toCompletableFuture()
+                    .join())
+        .cause()
+        .isInstanceOf(DuplicateApplicationException.class);
   }
 
   private Application createSubmittedAppAtInstant(Program program, Instant submitTime) {
