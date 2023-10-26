@@ -3,6 +3,8 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -30,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import play.libs.F;
+import play.mvc.Http;
 import services.IdentifierBasedPaginationSpec;
 import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
@@ -51,6 +54,7 @@ public final class ProgramRepository {
   private final DatabaseExecutionContext executionContext;
   private final Provider<VersionRepository> versionRepository;
   private final SettingsManifest settingsManifest;
+  private final boolean isCiviformAdmin;
   private final SyncCacheApi programCache;
   private final SyncCacheApi versionsByProgramCache;
 
@@ -59,6 +63,8 @@ public final class ProgramRepository {
       DatabaseExecutionContext executionContext,
       Provider<VersionRepository> versionRepository,
       SettingsManifest settingsManifest,
+      ProfileUtils profileUtils,
+      Http.Request request,
       @NamedCache("program") SyncCacheApi programCache,
       @NamedCache("program-versions") SyncCacheApi versionsByProgramCache) {
     this.database = DB.getDefault();
@@ -67,10 +73,14 @@ public final class ProgramRepository {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programCache = checkNotNull(programCache);
     this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
+
+    Optional<CiviFormProfile> maybeCiviformProfile = profileUtils.currentUserProfile(request);
+    this.isCiviformAdmin =
+        maybeCiviformProfile.isPresent() && maybeCiviformProfile.get().isCiviFormAdmin();
   }
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
-    if (settingsManifest.getProgramCacheEnabled()) {
+    if (settingsManifest.getProgramCacheEnabled() && !isCiviformAdmin) {
       return supplyAsync(
           () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
           executionContext);
@@ -95,7 +105,7 @@ public final class ProgramRepository {
   }
 
   public ImmutableList<Version> getVersionsForProgram(Program program) {
-    if (settingsManifest.getProgramCacheEnabled()) {
+    if (settingsManifest.getProgramCacheEnabled() && !isCiviformAdmin) {
       return versionsByProgramCache.getOrElseUpdate(
           String.valueOf(program.id), () -> program.getVersions());
     }
