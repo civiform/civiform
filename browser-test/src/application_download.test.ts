@@ -103,6 +103,10 @@ describe('normal application flow', () => {
 
     // Apply to the program again as the same user
     await applicantQuestions.clickApplyProgramButton(programName)
+    // Edit one answer on the application to prevent a duplicate exception
+    await applicantQuestions.clickEdit()
+    await applicantQuestions.answerNumberQuestion('1500')
+    await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
@@ -144,7 +148,7 @@ describe('normal application flow', () => {
       '1990-01-01',
     )
     expect(postEditJsonContent[0].application.numbercsvdownload.number).toEqual(
-      1600,
+      1500,
     )
 
     // Finds a partial text match on applicant name, case insensitive.

@@ -41,6 +41,8 @@ public class VersionRepositoryTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private SyncCacheApi questionsByVersionCache;
   private SyncCacheApi programsByVersionCache;
+  private SyncCacheApi programCache;
+  private SyncCacheApi versionsByProgramCache;
 
   private SettingsManifest mockSettingsManifest;
 
@@ -49,13 +51,17 @@ public class VersionRepositoryTest extends ResetPostgres {
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
     questionsByVersionCache = instanceOf(SyncCacheApi.class);
     programsByVersionCache = instanceOf(SyncCacheApi.class);
+    programCache = instanceOf(SyncCacheApi.class);
+    versionsByProgramCache = instanceOf(SyncCacheApi.class);
     versionRepository =
         new VersionRepository(
             instanceOf(ProgramRepository.class),
             instanceOf(DatabaseExecutionContext.class),
             mockSettingsManifest,
             questionsByVersionCache,
-            programsByVersionCache);
+            programsByVersionCache,
+            programCache,
+            versionsByProgramCache);
   }
 
   @Test
