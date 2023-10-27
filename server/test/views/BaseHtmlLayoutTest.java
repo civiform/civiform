@@ -87,7 +87,7 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     assertThat(content.body())
         .containsPattern(
             "<link href=\"moose.css\" rel=\"stylesheet\"><link"
-                + " href=\"/assets/dist/ff3dc94f468b69c634824625f7fefbd1-uswds.min.css\""
+                + " href=\"/assets/dist/[a-z0-9]+-uswds.min.css\""
                 + " rel=\"stylesheet\"><link href=\"/assets/stylesheets/[a-z0-9]+-tailwind.css\""
                 + " rel=\"stylesheet\">");
   }
