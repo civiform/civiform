@@ -70,6 +70,7 @@ public final class ProgramRepository {
   }
 
   public CompletionStage<Optional<Program>> lookupProgram(long id) {
+    // Use the cache if it is enabled and there isn't a draft version in progress.
     if (settingsManifest.getProgramCacheEnabled()
         && !versionRepository.get().getDraftVersion().isPresent()) {
       return supplyAsync(
