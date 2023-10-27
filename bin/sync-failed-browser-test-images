@@ -5,7 +5,7 @@
 # DOC: pass in the first argument to specify a branch name
 source bin/lib.sh
 
-# bin/lib.sh sets this to -e, but we want to trap errors to provided
+# bin/lib.sh sets this to -e, but we want to trap errors to provide
 # users with better feedback
 set +e
 
