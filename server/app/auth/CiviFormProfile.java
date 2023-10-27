@@ -151,12 +151,11 @@ public class CiviFormProfile {
    * @return the future of the database operation
    */
   public CompletableFuture<Void> setEmailAddress(String emailAddress) {
-    profileData.setEmail(emailAddress);
-
     return this.getAccount()
         .thenApplyAsync(
             a -> {
               String existingEmail = a.getEmailAddress();
+
               if (existingEmail != null && !existingEmail.equals(emailAddress)) {
                 throw new ProfileMergeConflictException(
                     String.format(
@@ -164,8 +163,11 @@ public class CiviFormProfile {
                             + " the new email address %s.",
                         existingEmail, emailAddress));
               }
+
               a.setEmailAddress(emailAddress);
               a.save();
+              profileData.setEmail(emailAddress);
+
               return null;
             },
             dbContext);
