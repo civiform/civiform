@@ -105,18 +105,27 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    if (settingsManifest.getVersionCacheEnabled()) {
-      clearCache();
-    }
+    clearCacheIfEnabled();
     resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
 
   /** Remove all content from the cache. */
-  private void clearCache() {
-    programsByVersionCache.removeAll().toCompletableFuture().join();
-    questionsByVersionCache.removeAll().toCompletableFuture().join();
+  public Result clearCache() {
+    if (!isDevOrStaging) {
+      return notFound();
+    }
+    clearCacheIfEnabled();
+    return redirect(routes.DevDatabaseSeedController.index().url())
+        .flashing("success", "The cache has been cleared");
+  }
+
+  private void clearCacheIfEnabled() {
+    if (settingsManifest.getVersionCacheEnabled()) {
+      programsByVersionCache.removeAll().toCompletableFuture().join();
+      questionsByVersionCache.removeAll().toCompletableFuture().join();
+    }
   }
 
   // Create a date question definition with the given name and questionText. We currently create
