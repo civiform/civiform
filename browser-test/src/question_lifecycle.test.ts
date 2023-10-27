@@ -2,6 +2,8 @@ import {
   AdminQuestions,
   createTestContext,
   dropTables,
+  disableFeatureFlag,
+  enableFeatureFlag,
   loginAsAdmin,
   seedQuestions,
   validateScreenshot,
@@ -376,6 +378,47 @@ describe('normal question lifecycle', () => {
         ),
       ),
     ).toBeTruthy()
+  })
+
+  it('persists universal state', async () => {
+    const {page, adminQuestions} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'universal_questions')
+
+    // Navigate to the new question page and ensure that the universal slider is unset
+    await adminQuestions.gotoAdminQuestionsPage()
+    await adminQuestions.page.click('#create-question-button')
+    await adminQuestions.page.click('#create-text-question')
+    await waitForPageJsLoad(adminQuestions.page)
+    expect(
+      await page.isChecked('.cf-universal-question-toggle input'),
+    ).toBeFalsy()
+
+    const questionName = 'universalTextQuestionTest'
+    await adminQuestions.addTextQuestion({
+      questionName,
+      universal: true,
+    })
+
+    // Confirm that the previously selected universal option was propagated.
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(
+      await page.isChecked('.cf-universal-question-toggle input'),
+    ).toBeTruthy()
+    await validateScreenshot(page, 'question-edit-universal-set')
+
+    // Edit the result and confirm that the new value is propagated.
+    await adminQuestions.clickUniversalToggle()
+    await adminQuestions.clickSubmitButtonAndNavigate('Update')
+    await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    await adminQuestions.gotoQuestionEditPage(questionName)
+    expect(
+      await page.isChecked('.cf-universal-question-toggle input'),
+    ).toBeFalsy()
+    await validateScreenshot(page, 'question-edit-universal-unset')
+
+    await disableFeatureFlag(page, 'universal_questions')
   })
 
   it('redirects to draft question when trying to edit original question', async () => {
