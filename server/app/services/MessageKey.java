@@ -27,6 +27,7 @@ public enum MessageKey {
   BUTTON_APPLY_TO_PROGRAMS("button.applyToPrograms"),
   BUTTON_APPLY_SR("button.applySr"),
   BUTTON_CHOOSE_FILE("button.chooseFile"),
+  BUTTON_CLOSE("button.close"),
   BUTTON_CONTINUE("button.continue"),
   BUTTON_CONTINUE_SR("button.continueSr"),
   BUTTON_CONTINUE_COMMON_INTAKE_SR("button.continueCommonIntakeSr"),

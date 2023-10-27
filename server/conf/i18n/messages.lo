@@ -31,6 +31,7 @@ toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=ເຂົ້າສູ່ລະບົບ
 content.loginPrompt=ກະລຸນາເຂົ້າສູ່ລະບົບດ້ວຍບັນຊີ {0} ຂອງທ່ານ
 button.createAnAccount=ສ້າງບັນຊີ
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=ລູກຄ້າຂອງທ່ານອາ
 content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
+button.downloadPdf=Download PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=ບໍ່ມີການປ່ຽນແປງທີ່ຈະບັນທຶກສຳລັບ {0}
+content.noChanges=ທ່ານຍັງບໍ່ໄດ້ດຳເນີນການປ່ຽນແປງໃດໆຕໍ່ກັບໃບສະໝັກເທື່ອ. ທ່ານຕ້ອງການສືບຕໍ່ແກ້ໄຂບໍ?
+button.continueEditing=ສືບຕໍ່ແກ້ໄຂ
+button.exitApplication=ອອກຈາກໃບສະໝັກ
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #

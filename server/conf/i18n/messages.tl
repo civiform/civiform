@@ -31,6 +31,7 @@ toast.errorMessageOutline=Error: {0}
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=Mag log in
 content.loginPrompt=Maari lamang maglog-in gamit ang inyong account sa Lungsod ng {0}
 button.createAnAccount=Gumawa ng account
@@ -148,16 +149,17 @@ content.commonIntakeConfirmationTi=Puwedeng makuha ng iyong client ang mga benep
 content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang iyong client sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
+button.downloadPdf=Download PDF
 button.applyToPrograms=Mag-apply sa mga programa
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave=Walang pagbabagong ise-save para sa {0}
+content.noChanges=Wala ka pang ginagawang anumang pagbabago sa aplikasyon. Gusto mo bang magpatuloy sa pag-edit?
+button.continueEditing=Magpatuloy sa pag-edit
+button.exitApplication=Lumabas sa aplikasyon
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
