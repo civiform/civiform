@@ -138,7 +138,7 @@ if (($? != 0)); then
   readonly FOUND_FILE="$(find "${ARTIFACT_FILE}" -type f -size -30720c)"
 
   if (($? != 0)); then
-    echo "The artifact file appears to not be set or another error cause 'find' to fail ${ARTIFACT_FILE}"
+    echo "The artifact file path appears to not be set or another error caused 'find' to fail ${ARTIFACT_FILE}"
     exit 1
   fi
 
