@@ -7,6 +7,7 @@ import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.p;
+import static views.BaseHtmlView.iconOnlyButton;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -119,13 +120,11 @@ public final class ProgramQuestionBank {
         div()
             .withClasses("flex", "items-center")
             .with(
-                Icons.svg(Icons.CLOSE)
+                iconOnlyButton("Close")
                     .withClasses(
-                        "w-6",
-                        "h-6",
-                        "cursor-pointer",
-                        "mr-2",
-                        ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON))
+                        ReferenceClasses.CLOSE_QUESTION_BANK_BUTTON, ButtonStyles.CLEAR_WITH_ICON)
+                    .with(
+                        Icons.svg(Icons.CLOSE).withClasses("w-6", "h-6", "cursor-pointer", "mr-2")))
             .with(headerDiv));
     contentDiv.with(
         QuestionBank.renderFilterAndSort(
