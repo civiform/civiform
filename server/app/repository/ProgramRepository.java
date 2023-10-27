@@ -96,8 +96,7 @@ public final class ProgramRepository {
   }
 
   public ImmutableList<Version> getVersionsForProgram(Program program) {
-    if (settingsManifest.getProgramCacheEnabled()
-        && !versionRepository.get().getDraftVersion().isPresent()) {
+    if (settingsManifest.getProgramCacheEnabled()) {
       return versionsByProgramCache.getOrElseUpdate(
           String.valueOf(program.id), () -> program.getVersions());
     }
