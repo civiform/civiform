@@ -181,6 +181,8 @@ public abstract class Modal {
     DivTag divTag =
         div()
             .withId(modalId())
+            .attr("aria-labelledby", getModalTitleId())
+            .attr("tabindex", 0)
             .with(getModalHeader())
             .with(getContent())
             // https://designsystem.digital.gov/components/modal/ recommends putting the close
@@ -219,12 +221,17 @@ public abstract class Modal {
     return modalId() + "-button";
   }
 
+  private String getModalTitleId() {
+    return modalId() + "-title";
+  }
+
   private DivTag getContent() {
     return div(content()).withClasses(BaseStyles.MODAL_CONTENT);
   }
 
   private DivTag getModalHeader() {
     return div()
+        .withId(getModalTitleId())
         .withClasses(BaseStyles.MODAL_HEADER)
         .with(div(modalTitle()).withClasses(BaseStyles.MODAL_TITLE))
         // Leave enough space for the close button so the close button and title
