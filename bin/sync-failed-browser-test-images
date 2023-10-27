@@ -133,7 +133,7 @@ unzip -qq "${ARTIFACT_FILE}" -d "${SNAPSHOT_FOLDER}"
 # We'll attempt to print downloaded file as that often has the error message.
 if (($? != 0)); then
   # This is looking to see if the zip file is 30k or smaller. This should be large enough
-  # for the error response, and also not spam the terminal if it somehow happens to be and
+  # for the error response, and also not spam the terminal if it somehow happens to be a
   # large corrupt zip file.
   readonly FOUND_FILE="$(find "${ARTIFACT_FILE}" -type f -size -30720c)"
 
