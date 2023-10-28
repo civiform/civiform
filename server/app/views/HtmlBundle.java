@@ -40,6 +40,7 @@ import views.style.BaseStyles;
 public final class HtmlBundle {
   private static final Logger logger = LoggerFactory.getLogger(HtmlBundle.class);
 
+  private static final String USWDS_FILEPATH = "dist/uswds.bundle";
   private String pageTitle;
   private String language = "en";
   private Optional<String> faviconURL = Optional.empty();
@@ -192,7 +193,7 @@ public final class HtmlBundle {
     footerTag.with(viewUtils.makeLocalJsTag(jsBundle.getJsPath()));
 
     // Add USWDS scripts
-    footerTag.with(viewUtils.makeLocalJsTag("uswds.bundle"));
+    footerTag.with(viewUtils.makeLocalJsTag(USWDS_FILEPATH));
 
     if (footerStyles.size() > 0) {
       footerTag.withClasses(footerStyles.toArray(new String[0]));

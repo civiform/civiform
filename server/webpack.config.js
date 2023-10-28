@@ -36,7 +36,7 @@ module.exports = {
     applicant: './app/assets/javascripts/applicant_entry_point.ts',
     admin: './app/assets/javascripts/admin_entry_point.ts',
     uswds: './node_modules/@uswds/uswds/dist/js/uswds.min.js',
-    uswdsStyles: './app/assets/sass/uswds/styles.scss',
+    uswdsStyles: './app/assets/stylesheets/uswds/styles.scss',
   },
   output: {
     filename: `[name].bundle.js`,

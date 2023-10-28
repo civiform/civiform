@@ -58,15 +58,9 @@ public final class ViewUtils {
    * Generates an HTML script tag for loading the javascript file found at
    * public/dist/[filename].js.
    */
-  public ScriptTag makeLocalJsTag(String filename) {
+  public ScriptTag makeLocalJsTag(String path) {
     return script()
-        .withSrc(assetsFinder.path("dist/" + filename + ".js"))
-        .withType("text/javascript");
-  }
-
-  public ScriptTag makeUSWDSJsTag(String filename) {
-    return script()
-        .withSrc(assetsFinder.path("uswds/js/" + filename + ".js"))
+        .withSrc(assetsFinder.path(path + ".js"))
         .withType("text/javascript");
   }
 

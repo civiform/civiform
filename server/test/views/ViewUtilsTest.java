@@ -32,7 +32,7 @@ public class ViewUtilsTest {
 
   @Test
   public void makeLocalJsTag_createsAScriptTagWithTheJs() {
-    when(assetsFinder.path("dist/hello.js")).thenReturn("/full/asset/path.js");
+    when(assetsFinder.path("hello.js")).thenReturn("/full/asset/path.js");
     ScriptTag result = viewUtils.makeLocalJsTag("hello");
 
     assertThat(result.render())
