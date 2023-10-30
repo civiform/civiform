@@ -145,10 +145,7 @@ public final class VersionRepository {
           .forEach(
               program -> {
                 draft.addProgram(program);
-                if (settingsManifest.getProgramCacheEnabled()) {
-                  versionsByProgramCache.remove(String.valueOf(program.id));
-                  programCache.remove(String.valueOf(program.id));
-                }
+                removeCacheForProgram(program.id);
               });
 
       // Associate any active questions that aren't present in the draft with the draft.
@@ -181,6 +178,7 @@ public final class VersionRepository {
               programToDelete -> {
                 draft.removeTombstoneForProgram(programToDelete);
                 draft.removeProgram(programToDelete);
+                removeCacheForProgram(programToDelete.id);
               });
 
       // Move forward the ACTIVE version.
@@ -261,6 +259,7 @@ public final class VersionRepository {
               program -> {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
+                removeCacheForProgram(program.id);
               });
       getQuestionsForVersion(existingDraft).stream()
           .filter(
@@ -279,7 +278,11 @@ public final class VersionRepository {
               activeProgram ->
                   !programToPublishAdminName.equals(
                       activeProgram.getProgramDefinition().adminName()))
-          .forEach(existingDraft::addProgram);
+          .forEach(
+              program -> {
+                existingDraft.addProgram(program);
+                removeCacheForProgram(program.id);
+              });
       getQuestionsForVersion(active).stream()
           .filter(
               activeQuestion ->
@@ -505,6 +508,17 @@ public final class VersionRepository {
       questionsByVersionCache.remove(versionKey);
       programsByVersionCache.remove(versionKey);
     }
+  }
+
+  private void removeCacheForProgram(String programKey) {
+    if (settingsManifest.getProgramCacheEnabled()) {
+      versionsByProgramCache.remove(programKey);
+      programCache.remove(programKey);
+    }
+  }
+
+  private void removeCacheForProgram(Long programId) {
+    removeCacheForProgram(String.valueOf(programId));
   }
 
   /**
