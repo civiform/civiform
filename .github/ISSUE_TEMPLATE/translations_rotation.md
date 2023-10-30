@@ -15,5 +15,5 @@ The last string we requested translation for was: ``
 Follow the instructions at [go/civiform-translations](http://go/civiform-translations) to
 
 - [ ] Request a new batch of translations
+- [ ] Create a ticket for the next batch of translations, and assign to the next Google.org Works SWE (when translations are sent out)
 - [ ] Upload translations into Transifex
-- [ ] Create a ticket for the next batch of translations, and assign to the next Google.org Works SWE
