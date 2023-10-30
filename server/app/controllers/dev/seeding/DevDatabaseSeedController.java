@@ -36,6 +36,8 @@ public class DevDatabaseSeedController extends Controller {
   private final SettingsManifest settingsManifest;
   private final AsyncCacheApi questionsByVersionCache;
   private final AsyncCacheApi programsByVersionCache;
+  private final AsyncCacheApi programCache;
+  private final AsyncCacheApi versionsByProgramCache;
 
   @Inject
   public DevDatabaseSeedController(
@@ -47,7 +49,9 @@ public class DevDatabaseSeedController extends Controller {
       DeploymentType deploymentType,
       SettingsManifest settingsManifest,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
-      @NamedCache("version-programs") AsyncCacheApi programsByVersionCache) {
+      @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
+      @NamedCache("program") AsyncCacheApi programCache,
+      @NamedCache("program-versions") AsyncCacheApi versionsByProgramCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
     this.view = checkNotNull(view);
     this.database = DB.getDefault();
@@ -58,6 +62,8 @@ public class DevDatabaseSeedController extends Controller {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionsByVersionCache = checkNotNull(questionsByVersionCache);
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
+    this.programCache = checkNotNull(programCache);
+    this.versionsByProgramCache = checkNotNull(versionsByProgramCache);
   }
 
   /**
@@ -125,6 +131,10 @@ public class DevDatabaseSeedController extends Controller {
     if (settingsManifest.getVersionCacheEnabled()) {
       programsByVersionCache.removeAll().toCompletableFuture().join();
       questionsByVersionCache.removeAll().toCompletableFuture().join();
+    }
+    if (settingsManifest.getProgramCacheEnabled()) {
+      programCache.removeAll().toCompletableFuture().join();
+      versionsByProgramCache.removeAll().toCompletableFuture().join();
     }
   }
 
