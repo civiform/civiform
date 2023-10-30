@@ -3,6 +3,7 @@ package auth.oidc.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
@@ -77,7 +78,8 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
   }
 
   @Test
-  public void profileCreatorIsForAdmins() {
-    assertThat(genericOidcProfileCreator.isAdminProfileCreator()).isTrue();
+  public void genericOidcProfileCreator_identityProviderTypeIsCorrect() {
+    assertThat(genericOidcProfileCreator.identityProviderType())
+        .isEqualTo(IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
   }
 }

@@ -1,6 +1,7 @@
 package auth.oidc.admin;
 
 import auth.CiviFormProfile;
+import auth.IdentityProviderType;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
 import auth.oidc.OidcClientProviderParams;
@@ -71,7 +72,7 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
   }
 
   @Override
-  protected boolean isAdminProfileCreator() {
-    return true;
+  protected IdentityProviderType identityProviderType() {
+    return IdentityProviderType.ADMIN_IDENTITY_PROVIDER;
   }
 }
