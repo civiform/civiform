@@ -195,7 +195,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(l).isEqualTo(Locale.FRENCH);
 
     // Additional validations for enhanced logout behavior.
-    Account account = maybeApplicant.get().getAccount();
+    AccountModel account = maybeApplicant.get().getAccount();
     SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
     assertThat(serializedIdTokens).isNotNull();
     assertThat(serializedIdTokens.containsKey(SESSION_ID)).isTrue();

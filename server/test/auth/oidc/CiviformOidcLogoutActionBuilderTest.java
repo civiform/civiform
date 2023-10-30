@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfileData;
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
@@ -23,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import models.Account;
 import models.AccountModel;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -118,7 +118,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(
             civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
-        new CiviformOidcLogoutActionBuilder(oidcConfig, clientId, params, /* isAdmin= */ false);
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     WebContext context = getWebContext(Optional.of(sessionId));
 
@@ -158,7 +159,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(
             civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
-        new CiviformOidcLogoutActionBuilder(oidcConfig, clientId, params, /* isAdmin= */ true);
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.ADMIN_IDENTITY_PROVIDER);
 
     WebContext context = getWebContext(Optional.of(sessionId));
 
@@ -202,7 +204,8 @@ public class CiviformOidcLogoutActionBuilderTest extends ResetPostgres {
         OidcClientProviderParams.create(
             civiformConfig, profileFactory, idTokensFactory, accountRepositoryProvider);
     CiviformOidcLogoutActionBuilder builder =
-        new CiviformOidcLogoutActionBuilder(oidcConfig, clientId, params, /* isAdmin= */ false);
+        new CiviformOidcLogoutActionBuilder(
+            oidcConfig, clientId, params, IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
 
     WebContext context = getWebContext(Optional.of(sessionId));
 

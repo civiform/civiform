@@ -43,7 +43,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
-  protected final IdTokensFactory idTokensFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
   protected final SettingsManifest settingsManifest;
@@ -53,7 +52,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
-    this.idTokensFactory = Preconditions.checkNotNull(params.idTokensFactory());
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(profileFactory, accountRepositoryProvider);
     this.settingsManifest =
@@ -163,15 +161,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
           .getAccount()
           .thenAccept(
               account -> {
-                SerializedIdTokens serializedIdTokens = account.getSerializedIdTokens();
-                if (serializedIdTokens == null) {
-                  serializedIdTokens = new SerializedIdTokens();
-                  account.setSerializedIdTokens(serializedIdTokens);
-                }
-                IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
-                idTokens.purgeExpiredIdTokens();
-                idTokens.storeIdToken(sessionId.get(), oidcProfile.getIdTokenString());
-                account.save();
+                accountRepositoryProvider
+                    .get()
+                    .updateSerializedIdTokens(account, sessionId.get(), oidcProfile);
               })
           .join();
     }
@@ -255,6 +247,8 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   private boolean enhancedLogoutEnabled(WebContext context) {
     PlayWebContext playWebContext = (PlayWebContext) context;
     Http.RequestHeader request = playWebContext.getNativeJavaRequest();
+    // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
+    // 17).
     switch (identityProviderType()) {
       case ADMIN_IDENTITY_PROVIDER:
         return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
@@ -262,7 +256,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
       default:
         throw new NotImplementedException(
-          "Identity provider type not handled: " + identityProviderType());
+            "Identity provider type not handled: " + identityProviderType());
     }
   }
 }

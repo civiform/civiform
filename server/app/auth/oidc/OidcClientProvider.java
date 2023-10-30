@@ -2,6 +2,7 @@ package auth.oidc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -226,10 +227,13 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     }
     client.setCallbackUrl(callbackURL);
     ProfileCreator profileCreator = getProfileCreator(config, client);
+    IdentityProviderType identityProviderType =
+        ((CiviformOidcProfileCreator) profileCreator).identityProviderType();
     client.setProfileCreator(profileCreator);
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setLogoutActionBuilder(
-        new CiviformOidcLogoutActionBuilder(config, config.getClientId(), params, isAdmin));
+        new CiviformOidcLogoutActionBuilder(
+            config, config.getClientId(), params, identityProviderType));
 
     try {
       client.init();

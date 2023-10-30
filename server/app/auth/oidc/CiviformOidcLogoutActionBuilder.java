@@ -3,6 +3,7 @@ package auth.oidc;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.CiviFormProfileData;
+import auth.IdentityProviderType;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.oauth2.sdk.id.State;
@@ -15,6 +16,7 @@ import java.text.ParseException;
 import java.util.Optional;
 import javax.inject.Provider;
 import models.AccountModel;
+import org.apache.commons.lang3.NotImplementedException;
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.TechnicalException;
@@ -25,6 +27,8 @@ import org.pac4j.core.util.HttpActionHelper;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.logout.OidcLogoutActionBuilder;
 import org.pac4j.play.PlayWebContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import repository.AccountRepository;
 import services.settings.SettingsManifest;
@@ -45,18 +49,20 @@ import services.settings.SettingsManifest;
  */
 public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuilder {
 
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(CiviformOidcLogoutActionBuilder.class);
   private String postLogoutRedirectParam;
   private final String clientId;
-  private Provider<AccountRepository> accountRepositoryProvider;
+  private final Provider<AccountRepository> accountRepositoryProvider;
   private final IdTokensFactory idTokensFactory;
-  private boolean isAdmin;
-  private SettingsManifest settingsManifest;
+  private final IdentityProviderType identityProviderType;
+  private final SettingsManifest settingsManifest;
 
   public CiviformOidcLogoutActionBuilder(
       OidcConfiguration oidcConfiguration,
       String clientId,
       OidcClientProviderParams params,
-      boolean isAdmin) {
+      IdentityProviderType identityProviderType) {
     super(oidcConfiguration);
 
     checkNotNull(params.configuration());
@@ -68,7 +74,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     this.clientId = clientId;
     this.accountRepositoryProvider = params.accountRepositoryProvider();
     this.idTokensFactory = checkNotNull(params.idTokensFactory());
-    this.isAdmin = isAdmin;
+    this.identityProviderType = identityProviderType;
     this.settingsManifest = new SettingsManifest(params.configuration());
   }
 
@@ -90,32 +96,37 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
     return this;
   }
 
-  private JWT getIdTokenForAccount(long accountId, WebContext context) {
+  private Optional<JWT> getIdTokenForAccount(long accountId, WebContext context) {
     PlayWebContext playWebContext = (PlayWebContext) context;
     if (!enhancedLogoutEnabled(context)) {
-      return null;
+      return Optional.empty();
     }
+
     Optional<String> sessionId = playWebContext.getNativeSession().get(SessionIdFilter.SESSION_ID);
     if (sessionId.isEmpty()) {
       // The session id is only populated if the feature flag is enabled.
-      return null;
+      return Optional.empty();
     }
+
     Optional<AccountModel> account = accountRepositoryProvider.get().lookupAccount(accountId);
     if (account.isEmpty()) {
-      return null;
+      return Optional.empty();
     }
+
     SerializedIdTokens serializedIdTokens = account.get().getSerializedIdTokens();
     IdTokens idTokens = idTokensFactory.create(serializedIdTokens);
+
     // When we build the logout action, we do not remove the id token. We leave it in place in case
     // of transient logout failures. Expired tokens are purged at login time instead.
     Optional<String> idToken = idTokens.getIdToken(sessionId.get());
     if (idToken.isEmpty()) {
-      return null;
+      return Optional.empty();
     }
     try {
-      return JWTParser.parse(idToken.get());
+      return Optional.of(JWTParser.parse(idToken.get()));
     } catch (ParseException e) {
-      return null;
+      LOGGER.warn("Could not parse id token for account {}", accountId);
+      return Optional.empty();
     }
   }
 
@@ -140,7 +151,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
             new State(configuration.getStateGenerator().generateValue(context, sessionStore));
 
         long accountId = Long.parseLong(currentProfile.getId());
-        JWT idToken = getIdTokenForAccount(accountId, context);
+        Optional<JWT> idToken = getIdTokenForAccount(accountId, context);
 
         LogoutRequest logoutRequest =
             new CustomOidcLogoutRequest(
@@ -149,7 +160,7 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
                 new URI(targetUrl),
                 Optional.of(clientId),
                 state,
-                idToken);
+                idToken.orElse(null));
 
         return Optional.of(
             HttpActionHelper.buildRedirectUrlAction(context, logoutRequest.toURI().toString()));
@@ -164,10 +175,16 @@ public final class CiviformOidcLogoutActionBuilder extends OidcLogoutActionBuild
   private boolean enhancedLogoutEnabled(WebContext context) {
     PlayWebContext playWebContext = (PlayWebContext) context;
     Http.RequestHeader request = playWebContext.getNativeJavaRequest();
-    if (isAdmin) {
-      return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
-    } else {
-      return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
+    // Sigh. This would be much nicer with switch expressions (Java 12) and exhaustive switch (Java
+    // 17).
+    switch (identityProviderType) {
+      case ADMIN_IDENTITY_PROVIDER:
+        return settingsManifest.getAdminOidcEnhancedLogoutEnabled(request);
+      case APPLICANT_IDENTITY_PROVIDER:
+        return settingsManifest.getApplicantOidcEnhancedLogoutEnabled(request);
+      default:
+        throw new NotImplementedException(
+            "Identity provider type not handled: " + identityProviderType);
     }
   }
 }

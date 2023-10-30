@@ -111,9 +111,6 @@ public class ProfileMergeTest extends ResetPostgres {
             /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
     AccountModel account =
         database.find(AccountModel.class).where().eq("email_address", "foo@example.com").findOne();
-            /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile, context);
-    Account account =
-        database.find(Account.class).where().eq("email_address", "foo@example.com").findOne();
     account.setAuthorityId(null);
     account.save();
 

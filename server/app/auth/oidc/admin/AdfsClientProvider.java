@@ -32,9 +32,9 @@ public class AdfsClientProvider implements Provider<OidcClient> {
       Provider<AccountRepository> accountRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.baseUrl = configuration.getString("base_url");
-    this.profileFactory = profileFactory;
-    this.idTokensFactory = idTokensFactory;
-    this.accountRepositoryProvider = accountRepositoryProvider;
+    this.profileFactory = checkNotNull(profileFactory);
+    this.idTokensFactory = checkNotNull(idTokensFactory);
+    this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
   }
 
   @Override
