@@ -145,7 +145,7 @@ public final class VersionRepository {
           .forEach(
               program -> {
                 draft.addProgram(program);
-                removeCacheForProgram(String.valueOf(program.id));
+                removeCacheForProgram(program.id);
               });
 
       // Associate any active questions that aren't present in the draft with the draft.
@@ -178,7 +178,7 @@ public final class VersionRepository {
               programToDelete -> {
                 draft.removeTombstoneForProgram(programToDelete);
                 draft.removeProgram(programToDelete);
-                removeCacheForProgram(String.valueOf(programToDelete.id));
+                removeCacheForProgram(programToDelete.id);
               });
 
       // Move forward the ACTIVE version.
@@ -259,7 +259,7 @@ public final class VersionRepository {
               program -> {
                 newDraft.addProgram(program);
                 existingDraft.removeProgram(program);
-                removeCacheForProgram(String.valueOf(program.id));
+                removeCacheForProgram(program.id);
               });
       getQuestionsForVersion(existingDraft).stream()
           .filter(
@@ -281,7 +281,7 @@ public final class VersionRepository {
           .forEach(
               program -> {
                 existingDraft.addProgram(program);
-                removeCacheForProgram(String.valueOf(program.id));
+                removeCacheForProgram(program.id);
               });
       getQuestionsForVersion(active).stream()
           .filter(
@@ -515,6 +515,10 @@ public final class VersionRepository {
       versionsByProgramCache.remove(programKey);
       programCache.remove(programKey);
     }
+  }
+
+  private void removeCacheForProgram(Long programId) {
+    removeCacheForProgram(String.valueOf(programId));
   }
 
   /**
