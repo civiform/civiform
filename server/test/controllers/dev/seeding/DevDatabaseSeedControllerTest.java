@@ -13,7 +13,6 @@ import org.junit.After;
 import org.junit.Test;
 import play.Application;
 import play.Mode;
-import play.cache.AsyncCacheApi;
 import play.cache.NamedCacheImpl;
 import play.cache.SyncCacheApi;
 import play.inject.BindingKey;
@@ -130,11 +129,9 @@ public class DevDatabaseSeedControllerTest {
                 .configure("version_cache_enabled", true)
                 .build());
     controller = maybeApp.get().injector().instanceOf(DevDatabaseSeedController.class);
-    BindingKey<AsyncCacheApi> versionProgramsKey =
-        new BindingKey<>(AsyncCacheApi.class)
-            .qualifiedWith(new NamedCacheImpl("version-programs"));
-    programsByVersionCache =
-        maybeApp.get().injector().instanceOf(versionProgramsKey.asScala()).sync();
+    BindingKey<SyncCacheApi> versionProgramsKey =
+        new BindingKey<>(SyncCacheApi.class).qualifiedWith(new NamedCacheImpl("version-programs"));
+    programsByVersionCache = maybeApp.get().injector().instanceOf(versionProgramsKey.asScala());
     versionRepo = maybeApp.get().injector().instanceOf(VersionRepository.class);
   }
 }
