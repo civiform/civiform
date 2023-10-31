@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.img;
+import static j2html.TagCreator.input;
 import static j2html.TagCreator.link;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.rawHtml;
@@ -12,6 +13,7 @@ import static j2html.TagCreator.span;
 
 import com.google.common.base.Joiner;
 import controllers.AssetsFinder;
+import j2html.TagCreator;
 import j2html.tags.ContainerTag;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.ButtonTag;
@@ -224,5 +226,68 @@ public final class ViewUtils {
 
   public static SpanTag requiredQuestionIndicator() {
     return span(rawHtml("&nbsp;*")).withClasses("text-red-600", "font-semibold");
+  }
+
+  public static ButtonTag makeToggleButton(
+      String fieldName,
+      boolean enabled,
+      Optional<String> text,
+      Optional<String> instanceClassSuffix) {
+    String toggleInstanceClass = instanceClassSuffix.map((v) -> "cf-toggle-" + v).orElse("");
+    String toggleInstanceInputClass =
+        instanceClassSuffix.map((v) -> "cf-toggle-hidden-input-" + v).orElse("");
+    String toggleInstanceBackgroundClass =
+        instanceClassSuffix.map((v) -> "cf-toggle-background-" + v).orElse("");
+    String toggleInstanceNubClass = instanceClassSuffix.map((v) -> "cf-toggle-nub-" + v).orElse("");
+    ButtonTag button =
+        TagCreator.button()
+            .withClasses(
+                "cf-toggle",
+                "flex",
+                "px-0",
+                "gap-2",
+                "items-center",
+                "text-black",
+                "font-normal",
+                "bg-transparent",
+                "rounded-full",
+                StyleUtils.hover("bg-transparent"),
+                toggleInstanceClass)
+            .withType("button")
+            .with(
+                input()
+                    .isHidden()
+                    .withName(fieldName)
+                    .withClasses("cf-toggle-hidden-input", toggleInstanceInputClass)
+                    .withValue(Boolean.valueOf(enabled).toString()))
+            .with(
+                div()
+                    .withClasses("relative")
+                    .with(
+                        div()
+                            .withClasses(
+                                enabled ? "bg-blue-600" : "bg-gray-600",
+                                "w-14",
+                                "h-8",
+                                "rounded-full",
+                                "toggle",
+                                "cf-toggle-background",
+                                toggleInstanceBackgroundClass))
+                    .with(
+                        div()
+                            .withClasses(
+                                "absolute",
+                                "bg-white",
+                                enabled ? "right-1" : "left-1",
+                                "top-1",
+                                "w-6",
+                                "h-6",
+                                "rounded-full",
+                                "cf-toggle-nub",
+                                toggleInstanceNubClass)));
+    if (text.isPresent()) {
+      button.withText("Set as a universal question");
+    }
+    return button;
   }
 }

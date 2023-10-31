@@ -391,9 +391,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.page.click('#create-question-button')
     await adminQuestions.page.click('#create-text-question')
     await waitForPageJsLoad(adminQuestions.page)
-    expect(
-      await page.isChecked('.cf-universal-question-toggle input'),
-    ).toBeFalsy()
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
 
     const questionName = 'universalTextQuestionTest'
     await adminQuestions.addTextQuestion({
@@ -403,9 +401,7 @@ describe('normal question lifecycle', () => {
 
     // Confirm that the previously selected universal option was propagated.
     await adminQuestions.gotoQuestionEditPage(questionName)
-    expect(
-      await page.isChecked('.cf-universal-question-toggle input'),
-    ).toBeTruthy()
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('true')
     await validateScreenshot(page, 'question-edit-universal-set')
 
     // Edit the result and confirm that the new value is propagated.
@@ -413,9 +409,7 @@ describe('normal question lifecycle', () => {
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
     await adminQuestions.gotoQuestionEditPage(questionName)
-    expect(
-      await page.isChecked('.cf-universal-question-toggle input'),
-    ).toBeFalsy()
+    expect(await adminQuestions.getUniversalToggleValue()).toEqual('false')
     await validateScreenshot(page, 'question-edit-universal-unset')
 
     await disableFeatureFlag(page, 'universal_questions')

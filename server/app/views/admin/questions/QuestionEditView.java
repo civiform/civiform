@@ -394,15 +394,6 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   private DomContent buildUniversalQuestion(QuestionForm questionForm) {
-    DivTag universalToggle =
-        FieldWithLabel.toggle()
-            .setAriaRequired(true)
-            .setFieldName("isUniversal")
-            .setLabelText("Set as a universal question")
-            .setChecked(questionForm.isUniversal())
-            .setValue("true")
-            .getToggleTag()
-            .withClass("cf-universal-question-toggle");
     return fieldset()
         .with(
             legend("Universal question").withClass(BaseStyles.INPUT_LABEL),
@@ -410,8 +401,12 @@ public final class QuestionEditView extends BaseHtmlView {
                 .with(
                     span(
                         "Universal questions will be recommended as a standardized type of"
-                            + " question to be added to all programs.")))
-        .with(universalToggle);
+                            + " question to be added to all programs.")),
+            ViewUtils.makeToggleButton(
+                /* fieldName= */ "isUniversal",
+                /* enabled= */ questionForm.isUniversal(),
+                /* text= */ Optional.of("Set as a universal question"),
+                /* instanceClassSuffix= */ Optional.of("universal")));
   }
 
   private DomContent buildDemographicFields(QuestionForm questionForm, boolean submittable) {
