@@ -98,17 +98,6 @@ public final class BaseStyles {
   public static final String CHECKBOX = StyleUtils.joinStyles("h-4", "w-4", "mr-4", "align-middle");
   /** For use on an `input` of type "radio". */
   public static final String RADIO = CHECKBOX;
-  /** For use with toggles */
-  public static final String TOGGLE =
-      StyleUtils.joinStyles(
-          BaseStyles.FORM_FIELD,
-          "py-2",
-          "flex-row",
-          "align-middle",
-          "outline-none",
-          "m-2",
-          "rounded-lg",
-          StyleUtils.focusWithin("outline-2", "rounded-lg", "outline-seattle-blue"));
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Modal style classes

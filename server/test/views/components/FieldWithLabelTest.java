@@ -159,13 +159,6 @@ public class FieldWithLabelTest {
   }
 
   @Test
-  public void toggle_isCheckboxAndRendersComponents() {
-    FieldWithLabel fieldWithLabel = FieldWithLabel.toggle();
-    assertThat(fieldWithLabel.getFieldType()).isEqualTo("checkbox");
-    assertThat(fieldWithLabel.getToggleTag().render()).contains("cf-toggle", "cf-toggle-slider");
-  }
-
-  @Test
   public void withNoErrors_DoesNotContainAriaAttributes() {
     FieldWithLabel fieldWithLabel = FieldWithLabel.number().setId("field-id");
     String rendered = fieldWithLabel.getNumberTag().render();

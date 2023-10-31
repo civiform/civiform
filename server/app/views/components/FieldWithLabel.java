@@ -130,11 +130,6 @@ public class FieldWithLabel {
     return new FieldWithLabel().setTagTypeInput().setFieldType("email");
   }
 
-  public static FieldWithLabel toggle() {
-    // The toggle has a hidden checkbox underneath. Sneaky!
-    return new FieldWithLabel().setTagTypeInput().setFieldType("checkbox");
-  }
-
   /** Add a reference class from {@link views.style.ReferenceClasses} to this element. */
   public FieldWithLabel addReferenceClass(String referenceClass) {
     referenceClassesBuilder.add(referenceClass);
@@ -410,11 +405,6 @@ public class FieldWithLabel {
     return checkboxApplyAttrsAndGenLabel(inputFieldTag);
   }
 
-  public DivTag getToggleTag() {
-    InputTag inputFieldTag = nonNumberGenTagApplyAttrs();
-    return toggleApplyAttrsAndGenLabel(inputFieldTag);
-  }
-
   private DivTag getNonNumberInputTag() {
     InputTag inputFieldTag = TagCreator.input();
     inputFieldTag.withType(getFieldType());
@@ -626,19 +616,6 @@ public class FieldWithLabel {
     throw new RuntimeException("needs to be a checkbox or radio type for this method");
   }
 
-  protected <T extends EmptyTag<T> & IChecked<T> & IName<T> & IDisabled<T>>
-      DivTag toggleApplyAttrsAndGenLabel(T fieldTag) {
-    genRandIdIfEmpty();
-    // Apply attributes
-    applyAttrsGenFieldErrorsInfo(fieldTag);
-
-    // Generate label / container
-    if (getFieldType().equals("checkbox")) {
-      return getToggleContainer(fieldTag);
-    }
-    throw new RuntimeException("needs to be a checkbox type for this method");
-  }
-
   protected <T extends Tag<T> & IName<T> & IDisabled<T>> DivTag applyAttrsAndGenLabel(T fieldTag) {
     genRandIdIfEmpty();
     // Apply attributes
@@ -667,24 +644,6 @@ public class FieldWithLabel {
         .withCondFor(!this.id.isEmpty(), this.id)
         .with(fieldTag.withClasses(BaseStyles.CHECKBOX))
         .withText(this.labelText);
-  }
-
-  private <T extends EmptyTag<T> & IChecked<T>> DivTag getToggleContainer(T fieldTag) {
-    if (this.checked) {
-      fieldTag.isChecked();
-    }
-
-    return div()
-        .with(
-            label()
-                .withClasses(
-                    "cf-toggle",
-                    StyleUtils.joinStyles(referenceClassesBuilder.build().toArray(new String[0])),
-                    StyleUtils.joinStyles(styleClassesBuilder.build().toArray(new String[0])),
-                    BaseStyles.TOGGLE)
-                .withCondFor(!this.id.isEmpty(), this.id)
-                .with(fieldTag, span().withClasses("cf-toggle-slider", "round")))
-        .with(span(this.labelText).withClasses("align-middle", BaseStyles.FORM_FIELD));
   }
 
   private FieldWithLabel setTagTypeInput() {
