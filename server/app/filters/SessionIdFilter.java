@@ -5,7 +5,6 @@ import static play.mvc.Results.redirect;
 import akka.stream.Materializer;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
-import com.google.inject.Provider;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -13,7 +12,6 @@ import java.util.function.Function;
 import play.mvc.Filter;
 import play.mvc.Http;
 import play.mvc.Result;
-import services.settings.SettingsManifest;
 
 /** Filter that ensures all sessions have have a unique ID. */
 public final class SessionIdFilter extends Filter {
@@ -22,20 +20,13 @@ public final class SessionIdFilter extends Filter {
   private static final ImmutableSet<String> excludedPrefixes =
       ImmutableSet.of("/api/", "/assets/", "/dev/", "/favicon");
 
-  private final Provider<SettingsManifest> settingsManifestProvider;
-
   @Inject
-  public SessionIdFilter(Materializer mat, Provider<SettingsManifest> settingsManifestProvider) {
+  public SessionIdFilter(Materializer mat) {
     super(mat);
-    this.settingsManifestProvider = settingsManifestProvider;
   }
 
   private boolean shouldApplyThisFilter(Http.RequestHeader requestHeader) {
-    // The session ID needs to be set to use as a key for the map of id tokens if we are using the
-    // enhanced logout method for either admins or applicants.
-    return (settingsManifestProvider.get().getAdminOidcEnhancedLogoutEnabled(requestHeader)
-            || settingsManifestProvider.get().getApplicantOidcEnhancedLogoutEnabled(requestHeader))
-        && excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
+    return excludedPrefixes.stream().noneMatch(prefix -> requestHeader.uri().startsWith(prefix))
         // Since we are using redirects, we only apply this filter for a GET request.
         && requestHeader.method().equals("GET")
         && requestHeader.session().get(SESSION_ID).isEmpty();
