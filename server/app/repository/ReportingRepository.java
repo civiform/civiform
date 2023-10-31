@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Provider;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SqlRow;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
+import models.Version;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
 
@@ -21,11 +23,13 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
+  private final Provider<VersionRepository> versionRepositoryProvider;
 
   @Inject
-  public ReportingRepository(Clock clock) {
+  public ReportingRepository(Clock clock, Provider<VersionRepository> versionRepositoryProvider) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
+    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
   }
 
   /**
@@ -34,6 +38,7 @@ public final class ReportingRepository {
    * month reporting data use {@code loadThisMonthReportingData}.
    */
   public ImmutableList<ApplicationSubmissionsStat> loadMonthlyReportingView() {
+    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
     return database
         .sqlQuery(
             "SELECT * FROM monthly_submissions_reporting_view\n"
@@ -42,16 +47,16 @@ public final class ReportingRepository {
         .findList()
         .stream()
         .map(
-            row ->
-                ApplicationSubmissionsStat.create(
-                    row.getString("public_name"),
-                    row.getString("program_name"),
-                    Optional.of(row.getTimestamp("submit_month")),
-                    row.getLong("count"),
-                    getSecondsFromPgIntervalRowValue(row, "p25"),
-                    getSecondsFromPgIntervalRowValue(row, "p50"),
-                    getSecondsFromPgIntervalRowValue(row, "p75"),
-                    getSecondsFromPgIntervalRowValue(row, "p99")))
+            row -> {
+                return ApplicationSubmissionsStat.create(
+                        row.getString("program_name"),
+                        Optional.of(row.getTimestamp("submit_month")),
+                        row.getLong("count"),
+                        getSecondsFromPgIntervalRowValue(row, "p25"),
+                        getSecondsFromPgIntervalRowValue(row, "p50"),
+                        getSecondsFromPgIntervalRowValue(row, "p75"),
+                        getSecondsFromPgIntervalRowValue(row, "p99"));
+            })
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -67,7 +72,6 @@ public final class ReportingRepository {
     return database
         .sqlQuery(
             "SELECT\n"
-                + "  programs.localized_name AS public_name,\n"
                 + "  programs.name AS program_name,\n"
                 + "  count(*),\n"
                 + "  percentile_cont(0.5) WITHIN GROUP (\n"
@@ -82,21 +86,21 @@ public final class ReportingRepository {
                 + "INNER JOIN programs ON applications.program_id = programs.id\n"
                 + "WHERE applications.lifecycle_stage IN ('active', 'obsolete')\n"
                 + "AND applications.submit_time >= date_trunc('month', :current_date::date)\n"
-                + "GROUP BY programs.localized_name, programs.name")
+                + "GROUP BY programs.name")
         .setParameter("current_date", firstOfMonth)
         .findList()
         .stream()
         .map(
-            row ->
-                ApplicationSubmissionsStat.create(
-                    row.getString("public_name"),
+            row -> {
+                return ApplicationSubmissionsStat.create(
                     row.getString("program_name"),
                     Optional.of(firstOfMonth),
                     row.getLong("count"),
                     getSecondsFromPgIntervalRowValue(row, "p25"),
                     getSecondsFromPgIntervalRowValue(row, "p50"),
                     getSecondsFromPgIntervalRowValue(row, "p75"),
-                    getSecondsFromPgIntervalRowValue(row, "p99")))
+                    getSecondsFromPgIntervalRowValue(row, "p99"));
+            })
         .collect(ImmutableList.toImmutableList());
   }
 

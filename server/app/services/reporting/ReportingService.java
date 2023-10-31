@@ -193,7 +193,7 @@ public final class ReportingService {
                 aggregator = aggregators.get(stat.timestamp().get());
               } else {
                 aggregator =
-                    new ApplicationSubmissionsStat.Aggregator("All", "All", stat.timestamp().get());
+                    new ApplicationSubmissionsStat.Aggregator("All", stat.timestamp().get());
                 aggregators.put(stat.timestamp().get(), aggregator);
               }
 
@@ -220,8 +220,7 @@ public final class ReportingService {
                 aggregator = aggregators.get(stat.programName());
               } else {
                 aggregator =
-                    new ApplicationSubmissionsStat.Aggregator(
-                        stat.publicName(), stat.programName());
+                    new ApplicationSubmissionsStat.Aggregator(stat.programName());
                 aggregators.put(stat.programName(), aggregator);
               }
 
