@@ -8,18 +8,26 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import java.util.Optional;
+import models.Version;
 import org.junit.After;
 import org.junit.Test;
 import play.Application;
 import play.Mode;
+import play.cache.AsyncCacheApi;
+import play.cache.NamedCacheImpl;
+import play.cache.SyncCacheApi;
+import play.inject.BindingKey;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
+import repository.VersionRepository;
 
 public class DevDatabaseSeedControllerTest {
 
   private Optional<Application> maybeApp = Optional.empty();
   private DevDatabaseSeedController controller;
+  private VersionRepository versionRepo;
+  private SyncCacheApi programsByVersionCache;
 
   @After
   public void stopApplication() {
@@ -32,6 +40,7 @@ public class DevDatabaseSeedControllerTest {
   @Test
   public void seedAndClearDatabase_displaysCorrectInformation() {
     setupControllerInMode(Mode.DEV);
+    controller.clear();
     // Navigate to index before seeding - should not have the fake program.
     Result result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
@@ -52,6 +61,41 @@ public class DevDatabaseSeedControllerTest {
     result = controller.index(addCSRFToken(fakeRequest()).build());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
+  }
+
+  @Test
+  public void seedAndClearCache_clearsCache() {
+    setupControllerInMode(Mode.DEV);
+    controller.clear();
+    // Ensure the cache is clear at the beginning of the test
+    assertThat(
+            programsByVersionCache
+                .get(String.valueOf(versionRepo.getActiveVersion().id))
+                .isPresent())
+        .isFalse();
+
+    // Navigate to index before seeding - should not have the fake program.
+    Result result = controller.index(addCSRFToken(fakeRequest()).build());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("comprehensive-sample-program");
+
+    // Seed the fake data.
+    result = controller.seedPrograms();
+    assertThat(result.redirectLocation()).hasValue(routes.DevDatabaseSeedController.index().url());
+    assertThat(result.flash().get("success")).hasValue("The database has been seeded");
+    result = controller.index(addCSRFToken(fakeRequest()).build());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("comprehensive-sample-program");
+
+    // Load the data, which sets the cache and ensure it is present
+    Version activeVersion = versionRepo.getActiveVersion();
+    String cacheKey = String.valueOf(activeVersion.id);
+    assertThat(programsByVersionCache.get(cacheKey).isPresent()).isTrue();
+
+    // Clear the data and ensure the cache is cleared
+    controller.clearCache();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(programsByVersionCache.get(cacheKey).isPresent()).isFalse();
   }
 
   @Test
@@ -79,7 +123,18 @@ public class DevDatabaseSeedControllerTest {
   }
 
   private void setupControllerInMode(Mode mode) {
-    maybeApp = Optional.of(new GuiceApplicationBuilder().in(mode).build());
+    maybeApp =
+        Optional.of(
+            new GuiceApplicationBuilder()
+                .in(mode)
+                .configure("version_cache_enabled", true)
+                .build());
     controller = maybeApp.get().injector().instanceOf(DevDatabaseSeedController.class);
+    BindingKey<AsyncCacheApi> versionProgramsKey =
+        new BindingKey<>(AsyncCacheApi.class)
+            .qualifiedWith(new NamedCacheImpl("version-programs"));
+    programsByVersionCache =
+        maybeApp.get().injector().instanceOf(versionProgramsKey.asScala()).sync();
+    versionRepo = maybeApp.get().injector().instanceOf(VersionRepository.class);
   }
 }

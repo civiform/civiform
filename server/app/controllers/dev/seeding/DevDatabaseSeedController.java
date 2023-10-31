@@ -123,8 +123,7 @@ public class DevDatabaseSeedController extends Controller {
       return notFound();
     }
     clearCacheIfEnabled();
-    return redirect(routes.DevDatabaseSeedController.index().url())
-        .flashing("success", "The cache has been cleared");
+    return ok("The cache has been cleared");
   }
 
   private void clearCacheIfEnabled() {
