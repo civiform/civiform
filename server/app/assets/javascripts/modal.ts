@@ -2,9 +2,9 @@ class ModalController {
   /**
    * Find the modals, and add on-click listeners on their respective buttons to toggle them.
    * @param {Element} modalContainer The container holding the modal.
-   * @param {Element} modal The modal element.
+   * @param {HTMLElement} modal The modal element.
    **/
-  static attachModalListeners(modalContainer: Element, modal: Element) {
+  static attachModalListeners(modalContainer: Element, modal: HTMLElement) {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
     if (modalButton) {
@@ -22,10 +22,11 @@ class ModalController {
     })
   }
 
-  static showModal(modalContainer: Element, modal: Element) {
+  static showModal(modalContainer: Element, modal: HTMLElement) {
     if (!this.avoidShowingModalAgain(modal)) {
       modalContainer.classList.remove('hidden')
       modal.classList.remove('hidden')
+      modal.focus()
     }
   }
 
@@ -68,7 +69,9 @@ class ModalController {
       throw new Error('Modal Container display not found!')
     }
 
-    const modals = Array.from(modalContainer.querySelectorAll('.cf-modal'))
+    const modals = Array.from(
+      modalContainer.querySelectorAll<HTMLElement>('.cf-modal'),
+    )
 
     let alreadyDisplayedModalOnLoad = false
     modals.forEach((modal) => {

@@ -36,12 +36,12 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.21.4",
-      "software.amazon.awssdk" % "ses" % "2.21.4",
+      "software.amazon.awssdk" % "s3" % "2.21.9",
+      "software.amazon.awssdk" % "ses" % "2.21.9",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.10.3",
-      "com.azure" % "azure-storage-blob" % "12.24.0",
+      "com.azure" % "azure-identity" % "1.10.4",
+      "com.azure" % "azure-storage-blob" % "12.24.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
@@ -59,7 +59,7 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "32.1.2-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.1.3-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.22",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.24",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "3.0.6",
