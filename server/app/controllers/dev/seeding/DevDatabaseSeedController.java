@@ -122,7 +122,15 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
+    if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
+      return redirect(routes.DevDatabaseSeedController.index().url())
+          .flashing(
+              "warning",
+              "The cache is not enabled, so no cache was cleared. To enable caching, set"
+                  + " VERSION_CACHE_ENABLED or PROGRAM_CACHE_ENABLED to true.");
+    }
     clearCacheIfEnabled();
+    // We don't redirect to the index page, since that would reset the cache.
     return ok("The cache has been cleared");
   }
 
