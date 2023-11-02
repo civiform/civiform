@@ -228,17 +228,32 @@ public final class ViewUtils {
     return span(rawHtml("&nbsp;*")).withClasses("text-red-600", "font-semibold");
   }
 
+  /**
+   * Creates a toggle button whose state is toggled via app/assets/javascripts/toggle.ts. Behaves
+   * much like a checkbox, and contains a hidden input field to record the state of the toggle, but
+   * is a button, which is better for accessibility.
+   *
+   * @param fieldName The name of the hidden input field, for binding to the form this button is a
+   *     part of.
+   * @param enabled When true, the toggle renders initially as on.
+   * @param idPrefix Optional text to use to set IDs for each component. These will be <id>-toggle
+   *                 for the top level button element, <id>-toggle-input for the hidden input field, 
+   *                 <id>-toggle-background for the background of the toggle, and <id>-toggle-nub for
+   *                 the nub inside the toggle.
+   * @param text Optional text label to include with the toggle.
+   * @return ButtonTag containing the toggle.
+   */
   public static ButtonTag makeToggleButton(
       String fieldName,
       boolean enabled,
-      Optional<String> text,
-      Optional<String> instanceClassSuffix) {
-    String toggleInstanceClass = instanceClassSuffix.map((v) -> "cf-toggle-" + v).orElse("");
-    String toggleInstanceInputClass =
-        instanceClassSuffix.map((v) -> "cf-toggle-hidden-input-" + v).orElse("");
-    String toggleInstanceBackgroundClass =
-        instanceClassSuffix.map((v) -> "cf-toggle-background-" + v).orElse("");
-    String toggleInstanceNubClass = instanceClassSuffix.map((v) -> "cf-toggle-nub-" + v).orElse("");
+      Optional<String> idPrefix,
+      Optional<String> text) {
+    String buttonId = idPrefix.map((v) -> v + "-toggle").orElse("");
+    String inputId = idPrefix.map((v) -> v + "-toggle-input").orElse("");
+    String backgroundId = idPrefix.map((v) -> v + "-toggle-background").orElse("");
+    String nubId = idPrefix.map((v) -> v + "-toggle-nub").orElse("");
+
+    boolean idPresent = idPrefix.isPresent();
     ButtonTag button =
         TagCreator.button()
             .withClasses(
@@ -251,14 +266,15 @@ public final class ViewUtils {
                 "font-normal",
                 "bg-transparent",
                 "rounded-full",
-                StyleUtils.hover("bg-transparent"),
-                toggleInstanceClass)
+                StyleUtils.hover("bg-transparent"))
             .withType("button")
+            .withCondId(idPresent, buttonId)
             .with(
                 input()
                     .isHidden()
+                    .withCondId(idPresent, inputId)
                     .withName(fieldName)
-                    .withClasses("cf-toggle-hidden-input", toggleInstanceInputClass)
+                    .withClass("cf-toggle-hidden-input")
                     .withValue(Boolean.valueOf(enabled).toString()))
             .with(
                 div()
@@ -271,8 +287,8 @@ public final class ViewUtils {
                                 "h-8",
                                 "rounded-full",
                                 "toggle",
-                                "cf-toggle-background",
-                                toggleInstanceBackgroundClass))
+                                "cf-toggle-background"))
+                            .withCondId(idPresent, backgroundId)
                     .with(
                         div()
                             .withClasses(
@@ -283,10 +299,10 @@ public final class ViewUtils {
                                 "w-6",
                                 "h-6",
                                 "rounded-full",
-                                "cf-toggle-nub",
-                                toggleInstanceNubClass)));
+                                "cf-toggle-nub")
+                            .withCondId(idPresent, nubId)));
     if (text.isPresent()) {
-      button.withText("Set as a universal question");
+      button.withText(text.get());
     }
     return button;
   }

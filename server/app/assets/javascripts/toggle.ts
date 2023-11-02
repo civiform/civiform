@@ -1,4 +1,5 @@
 /** This class controls the toggling of toggle components. */
+import {addEventListenerToElements} from './util'
 class ToggleController {
   static toggleClass = '.cf-toggle'
   static toggleBackgroundClass = '.cf-toggle-background'
@@ -15,15 +16,18 @@ class ToggleController {
 
   /** Add listeners to toggle buttons to change style on selection. */
   addToggleListeners() {
-    const toggles = Array.from(
-      document.querySelectorAll(ToggleController.toggleClass),
-    )
-    toggles.forEach((toggle) => {
-      toggle.addEventListener('click', () => {
+    addEventListenerToElements(
+      ToggleController.toggleClass,
+      'click',
+      (event: Event) => {
+        const target = event.target as HTMLElement
+        const toggle = target.closest(
+          ToggleController.toggleClass,
+        ) as HTMLButtonElement
         const inputElement = toggle.querySelector(
           ToggleController.toggleInputClass,
         ) as HTMLInputElement
-        const newValue = inputElement.value == 'false'
+        const newValue = inputElement.value === 'false'
         inputElement.value = newValue.toString()
 
         // Toggle toggle toggle :) The toggle method adds a class if it is missing,
@@ -45,8 +49,8 @@ class ToggleController {
         const nub = toggle.querySelector(ToggleController.toggleNubClass)
         nub?.classList.toggle(ToggleController.setNubClass, newValue)
         nub?.classList.toggle(ToggleController.unsetNubClass, !newValue)
-      })
-    })
+      },
+    )
   }
 }
 

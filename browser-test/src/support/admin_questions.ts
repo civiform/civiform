@@ -1125,11 +1125,11 @@ export class AdminQuestions {
   }
 
   async clickUniversalToggle() {
-    await this.page.click('.cf-toggle-universal')
+    await this.page.click('#universal-toggle')
   }
 
   async getUniversalToggleValue(): Promise<string> {
-    return this.page.inputValue('.cf-toggle-hidden-input-universal')
+    return this.page.inputValue('#universal-toggle-input')
   }
 
   async addIdQuestion({
