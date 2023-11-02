@@ -2,9 +2,10 @@
 ----------------------------------------
 USWDS with settings overrides
 ----------------------------------------
-Uncomment the following lines and add a list of changed settings
-in the form $setting: value,
-----------------------------------------
+Customize USWDS styles here or prevent USWDS utilities (custom HTML classes
+scoped to a single CSS property) from being applied by setting 'output' to 'false'.
+See https://designsystem.digital.gov/documentation/settings/ and
+https://designsystem.digital.gov/utilities/.
 */
 
 @use 'uswds-core' with (
