@@ -55,8 +55,7 @@ public final class ViewUtils {
   }
 
   /**
-   * Generates an HTML script tag for loading the javascript file found at
-   * public/dist/[filename].js.
+   * Generates an HTML script tag for loading the javascript file found at public/main/[path].js.
    */
   public ScriptTag makeLocalJsTag(String path) {
     return script().withSrc(assetsFinder.path(path + ".js")).withType("text/javascript");
@@ -70,9 +69,7 @@ public final class ViewUtils {
     return script().withSrc(assetsFinder.path(assetsRoute));
   }
 
-  /**
-   * Generates an HTML link tag for loading the CSS file found at public/stylesheets/[filename].css.
-   */
+  /** Generates an HTML link tag for loading the CSS file found at public/main/[filePath].css. */
   LinkTag makeLocalCssTag(String filePath) {
     return link().withHref(assetsFinder.path(filePath + ".css")).withRel("stylesheet");
   }
