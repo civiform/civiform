@@ -8,6 +8,7 @@
 # GENERAL - contains text that corresponds to multiple views. #
 #-------------------------------------------------------------#
 
+
 button.logout=Salir
 label.selectLanguage=Selecciona tu idioma preferido.
 button.untranslatedSubmit=Enviar
