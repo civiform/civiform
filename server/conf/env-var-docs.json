@@ -717,6 +717,11 @@
         "mode": "HIDDEN",
         "description": "Enables logic to populate more fields in OIDC logout requests.",
         "type": "bool"
+      },
+      "PROGRAM_CARD_IMAGES": {
+        "mode": "HIDDEN",
+        "description": "Enables images on program cards, both for admins to upload them and for applicants to view them.",
+        "type": "bool"
       }
     }
   }

@@ -847,6 +847,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
   }
 
+  /**
+   * Enables images on program cards, both for admins to upload them and for applicants to view
+   * them.
+   */
+  public boolean getProgramCardImages() {
+    return getBool("PROGRAM_CARD_IMAGES");
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1757,6 +1765,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                   SettingDescription.create(
                       "ENHANCED_OIDC_LOGOUT_ENABLED",
                       "Enables logic to populate more fields in OIDC logout requests.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "PROGRAM_CARD_IMAGES",
+                      "Enables images on program cards, both for admins to upload them and for"
+                          + " applicants to view them.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN))),
