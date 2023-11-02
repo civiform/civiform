@@ -20,7 +20,7 @@ import scala.sys.process.{Process, ProcessLogger}
   * version is 4.
   *
   * Our custom plugin invokes `tsc` compiler directly through the Webpack
-  * ts-loader. `tsconfig.json` and `webpack.config.js` are set up to compile 
+  * ts-loader. `tsconfig.json` and `webpack.config.js` are set up to compile
   * code from `app/assets/javascripts` and 'node_modules/@uswds/uswds/dist/js'
   * directories and output the result to `target/web/dist` folder. We also use
   * Webpack to compile the USWDS Sass into CSS.
