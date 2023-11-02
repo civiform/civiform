@@ -301,9 +301,7 @@ public final class ViewUtils {
                                 "rounded-full",
                                 "cf-toggle-nub")
                             .withCondId(idPresent, nubId)));
-    if (text.isPresent()) {
-      button.withText(text.get());
-    }
+    text.ifPresent(button::withText);
     return button;
   }
 }
