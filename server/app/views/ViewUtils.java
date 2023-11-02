@@ -237,17 +237,14 @@ public final class ViewUtils {
    *     part of.
    * @param enabled When true, the toggle renders initially as on.
    * @param idPrefix Optional text to use to set IDs for each component. These will be <id>-toggle
-   *                 for the top level button element, <id>-toggle-input for the hidden input field, 
-   *                 <id>-toggle-background for the background of the toggle, and <id>-toggle-nub for
-   *                 the nub inside the toggle.
+   *     for the top level button element, <id>-toggle-input for the hidden input field,
+   *     <id>-toggle-background for the background of the toggle, and <id>-toggle-nub for the nub
+   *     inside the toggle.
    * @param text Optional text label to include with the toggle.
    * @return ButtonTag containing the toggle.
    */
   public static ButtonTag makeToggleButton(
-      String fieldName,
-      boolean enabled,
-      Optional<String> idPrefix,
-      Optional<String> text) {
+      String fieldName, boolean enabled, Optional<String> idPrefix, Optional<String> text) {
     String buttonId = idPrefix.map((v) -> v + "-toggle").orElse("");
     String inputId = idPrefix.map((v) -> v + "-toggle-input").orElse("");
     String backgroundId = idPrefix.map((v) -> v + "-toggle-background").orElse("");
@@ -288,7 +285,7 @@ public final class ViewUtils {
                                 "rounded-full",
                                 "toggle",
                                 "cf-toggle-background"))
-                            .withCondId(idPresent, backgroundId)
+                    .withCondId(idPresent, backgroundId)
                     .with(
                         div()
                             .withClasses(
