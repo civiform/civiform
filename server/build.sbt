@@ -34,8 +34,8 @@ lazy val root = (project in file("."))
       "org.commonmark" % "commonmark" % "0.21.0",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.21.9",
-      "software.amazon.awssdk" % "ses" % "2.21.9",
+      "software.amazon.awssdk" % "s3" % "2.21.14",
+      "software.amazon.awssdk" % "ses" % "2.21.14",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.10.4",
@@ -62,7 +62,7 @@ lazy val root = (project in file("."))
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.8",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.9",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -83,7 +83,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.22.0",
+      "com.google.errorprone" % "error_prone_core" % "2.23.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
