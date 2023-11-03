@@ -98,7 +98,7 @@ public final class ReportingService {
         APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
         (printer, stat) -> {
           try {
-            printer.print(stat.programName());
+            printer.print(stat.programURLName());
             printer.print(stat.applicationCount());
             printer.print(
                 ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
@@ -193,7 +193,7 @@ public final class ReportingService {
                 aggregator = aggregators.get(stat.timestamp().get());
               } else {
                 aggregator =
-                    new ApplicationSubmissionsStat.Aggregator("All", stat.timestamp().get());
+                    new ApplicationSubmissionsStat.Aggregator("All", "All", stat.timestamp().get());
                 aggregators.put(stat.timestamp().get(), aggregator);
               }
 
@@ -216,12 +216,13 @@ public final class ReportingService {
         .forEach(
             stat -> {
               ApplicationSubmissionsStat.Aggregator aggregator;
-              if (aggregators.containsKey(stat.programName())) {
-                aggregator = aggregators.get(stat.programName());
+              if (aggregators.containsKey(stat.programURLName())) {
+                aggregator = aggregators.get(stat.programURLName());
               } else {
                 aggregator =
-                    new ApplicationSubmissionsStat.Aggregator(stat.programName());
-                aggregators.put(stat.programName(), aggregator);
+                    new ApplicationSubmissionsStat.Aggregator(
+                        stat.publicName(), stat.programURLName());
+                aggregators.put(stat.programURLName(), aggregator);
               }
 
               aggregator.update(stat);
@@ -253,7 +254,7 @@ public final class ReportingService {
     public ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsForProgram(
         String programName) {
       return monthlySubmissionsByProgram().stream()
-          .filter(stat -> stat.programName().equals(programName))
+          .filter(stat -> stat.programURLName().equals(programName))
           .sorted(STAT_TIMESTAMP_DESCENDING)
           .collect(ImmutableList.toImmutableList());
     }

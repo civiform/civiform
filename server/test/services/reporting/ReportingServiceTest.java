@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import javax.inject.Provider;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -20,7 +21,9 @@ import org.junit.Test;
 import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.DateConverter;
+import support.CfTestHelpers;
 import support.ProgramBuilder;
 
 public class ReportingServiceTest extends ResetPostgres {
@@ -29,13 +32,17 @@ public class ReportingServiceTest extends ResetPostgres {
   private Applicant applicant;
   private Program programA;
   private Program programB;
+  private VersionRepository versionRepository;
+  private Provider<VersionRepository> versionRepositoryProvider;
 
   @Before
   public void setUp() {
+    versionRepository = instanceOf(VersionRepository.class);
+    versionRepositoryProvider = CfTestHelpers.versionRepositoryProvider(versionRepository);
     service =
         new ReportingService(
             instanceOf(DateConverter.class),
-            new ReportingRepository(testClock),
+            new ReportingRepository(testClock, versionRepositoryProvider),
             instanceOf(SyncCacheApi.class));
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();

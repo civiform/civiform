@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import javax.inject.Provider;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Before;
 import org.junit.Test;
 import services.reporting.ApplicationSubmissionsStat;
+import support.CfTestHelpers;
 import support.ProgramBuilder;
 
 public class ReportingRepositoryTest extends ResetPostgres {
@@ -24,10 +26,14 @@ public class ReportingRepositoryTest extends ResetPostgres {
   private Applicant applicant;
   private Program programA;
   private Program programB;
+  private VersionRepository versionRepository;
+  private Provider<VersionRepository> versionRepositoryProvider;
 
   @Before
   public void setUp() {
-    repo = new ReportingRepository(testClock);
+    versionRepository = instanceOf(VersionRepository.class);
+    versionRepositoryProvider = CfTestHelpers.versionRepositoryProvider(versionRepository);
+    repo = new ReportingRepository(testClock, versionRepositoryProvider);
     applicant = resourceCreator.insertApplicantWithAccount();
     programA = ProgramBuilder.newActiveProgram().withName("Fake Program A").build();
     programB = ProgramBuilder.newActiveProgram().withName("Fake Program B").build();
@@ -73,9 +79,23 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "Fake Program A", getMonthTimestamp(lastMonth), 3L, 300, 500, 750, 990),
+                "Fake Program A",
+                "Fake Program A",
+                getMonthTimestamp(lastMonth),
+                3L,
+                300,
+                500,
+                750,
+                990),
             ApplicationSubmissionsStat.create(
-                "Fake Program B", getMonthTimestamp(twoMonthsAgo), 3L, 300, 500, 750, 990));
+                "Fake Program B",
+                "Fake Program B",
+                getMonthTimestamp(twoMonthsAgo),
+                3L,
+                300,
+                500,
+                750,
+                990));
   }
 
   @Test
@@ -115,9 +135,23 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "Fake Program A", getMonthTimestamp(today), 3L, 300, 500, 750, 990),
+                "Fake Program A",
+                "Fake Program A",
+                getMonthTimestamp(today),
+                3L,
+                300,
+                500,
+                750,
+                990),
             ApplicationSubmissionsStat.create(
-                "Fake Program B", getMonthTimestamp(today), 3L, 300, 500, 750, 990));
+                "Fake Program B",
+                "Fake Program B",
+                getMonthTimestamp(today),
+                3L,
+                300,
+                500,
+                750,
+                990));
   }
 
   private static Optional<Timestamp> getMonthTimestamp(Instant lastMonth) {

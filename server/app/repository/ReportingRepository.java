@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.inject.Provider;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.SqlRow;
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
+import javax.inject.Provider;
 import models.Version;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
@@ -48,14 +48,22 @@ public final class ReportingRepository {
         .stream()
         .map(
             row -> {
-                return ApplicationSubmissionsStat.create(
-                        row.getString("program_name"),
-                        Optional.of(row.getTimestamp("submit_month")),
-                        row.getLong("count"),
-                        getSecondsFromPgIntervalRowValue(row, "p25"),
-                        getSecondsFromPgIntervalRowValue(row, "p50"),
-                        getSecondsFromPgIntervalRowValue(row, "p75"),
-                        getSecondsFromPgIntervalRowValue(row, "p99"));
+              String programName = row.getString("program_name");
+              return ApplicationSubmissionsStat.create(
+                  versionRepositoryProvider
+                      .get()
+                      .getProgramByNameForVersion(programName, activeVersion)
+                      .get()
+                      .getProgramDefinition()
+                      .localizedName()
+                      .getDefault(),
+                  programName,
+                  Optional.of(row.getTimestamp("submit_month")),
+                  row.getLong("count"),
+                  getSecondsFromPgIntervalRowValue(row, "p25"),
+                  getSecondsFromPgIntervalRowValue(row, "p50"),
+                  getSecondsFromPgIntervalRowValue(row, "p75"),
+                  getSecondsFromPgIntervalRowValue(row, "p99"));
             })
         .collect(ImmutableList.toImmutableList());
   }
@@ -68,7 +76,7 @@ public final class ReportingRepository {
   /** Loads application submission reporting data for current month. */
   public ImmutableList<ApplicationSubmissionsStat> loadThisMonthReportingData() {
     Timestamp firstOfMonth = getFirstOfMonth();
-
+    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
     return database
         .sqlQuery(
             "SELECT\n"
@@ -92,14 +100,22 @@ public final class ReportingRepository {
         .stream()
         .map(
             row -> {
-                return ApplicationSubmissionsStat.create(
-                    row.getString("program_name"),
-                    Optional.of(firstOfMonth),
-                    row.getLong("count"),
-                    getSecondsFromPgIntervalRowValue(row, "p25"),
-                    getSecondsFromPgIntervalRowValue(row, "p50"),
-                    getSecondsFromPgIntervalRowValue(row, "p75"),
-                    getSecondsFromPgIntervalRowValue(row, "p99"));
+              String programName = row.getString("program_name");
+              return ApplicationSubmissionsStat.create(
+                  versionRepositoryProvider
+                      .get()
+                      .getProgramByNameForVersion(programName, activeVersion)
+                      .get()
+                      .getProgramDefinition()
+                      .localizedName()
+                      .getDefault(),
+                  programName,
+                  Optional.of(firstOfMonth),
+                  row.getLong("count"),
+                  getSecondsFromPgIntervalRowValue(row, "p25"),
+                  getSecondsFromPgIntervalRowValue(row, "p50"),
+                  getSecondsFromPgIntervalRowValue(row, "p75"),
+                  getSecondsFromPgIntervalRowValue(row, "p99"));
             })
         .collect(ImmutableList.toImmutableList());
   }
