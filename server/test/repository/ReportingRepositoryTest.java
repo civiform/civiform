@@ -79,23 +79,9 @@ public class ReportingRepositoryTest extends ResetPostgres {
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
             ApplicationSubmissionsStat.create(
-                "",
-                "Fake Program A",
-                getMonthTimestamp(lastMonth),
-                3L,
-                300,
-                500,
-                750,
-                990),
+                "", "Fake Program A", getMonthTimestamp(lastMonth), 3L, 300, 500, 750, 990),
             ApplicationSubmissionsStat.create(
-                "",
-                "Fake Program B",
-                getMonthTimestamp(twoMonthsAgo),
-                3L,
-                300,
-                500,
-                750,
-                990));
+                "", "Fake Program B", getMonthTimestamp(twoMonthsAgo), 3L, 300, 500, 750, 990));
   }
 
   @Test
@@ -134,23 +120,10 @@ public class ReportingRepositoryTest extends ResetPostgres {
         .containsExactly(
             // The expected values here have submission duration percentile stats calculated from
             // the submitted (i.e. active and obsolete) applications.
-            ApplicationSubmissionsStat.create("",
-                "Fake Program A",
-                getMonthTimestamp(today),
-                3L,
-                300,
-                500,
-                750,
-                990),
             ApplicationSubmissionsStat.create(
-                "",
-                "Fake Program B",
-                getMonthTimestamp(today),
-                3L,
-                300,
-                500,
-                750,
-                990));
+                "", "Fake Program A", getMonthTimestamp(today), 3L, 300, 500, 750, 990),
+            ApplicationSubmissionsStat.create(
+                "", "Fake Program B", getMonthTimestamp(today), 3L, 300, 500, 750, 990));
   }
 
   private static Optional<Timestamp> getMonthTimestamp(Instant lastMonth) {
