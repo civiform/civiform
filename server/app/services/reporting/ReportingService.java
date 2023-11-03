@@ -98,7 +98,7 @@ public final class ReportingService {
         APPLICATION_COUNTS_BY_PROGRAM_HEADERS,
         (printer, stat) -> {
           try {
-            printer.print(stat.programURLName());
+            printer.print(stat.programUrlName());
             printer.print(stat.applicationCount());
             printer.print(
                 ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
@@ -216,13 +216,13 @@ public final class ReportingService {
         .forEach(
             stat -> {
               ApplicationSubmissionsStat.Aggregator aggregator;
-              if (aggregators.containsKey(stat.programURLName())) {
-                aggregator = aggregators.get(stat.programURLName());
+              if (aggregators.containsKey(stat.programUrlName())) {
+                aggregator = aggregators.get(stat.programUrlName());
               } else {
                 aggregator =
                     new ApplicationSubmissionsStat.Aggregator(
-                        stat.publicName(), stat.programURLName());
-                aggregators.put(stat.programURLName(), aggregator);
+                        stat.publicName(), stat.programUrlName());
+                aggregators.put(stat.programUrlName(), aggregator);
               }
 
               aggregator.update(stat);
@@ -254,7 +254,7 @@ public final class ReportingService {
     public ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsForProgram(
         String programName) {
       return monthlySubmissionsByProgram().stream()
-          .filter(stat -> stat.programURLName().equals(programName))
+          .filter(stat -> stat.programUrlName().equals(programName))
           .sorted(STAT_TIMESTAMP_DESCENDING)
           .collect(ImmutableList.toImmutableList());
     }
