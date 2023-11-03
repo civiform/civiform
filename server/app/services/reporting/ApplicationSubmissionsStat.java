@@ -36,7 +36,7 @@ public abstract class ApplicationSubmissionsStat {
   public abstract String publicName();
 
   /** The URL name of the program the applications were submitted for. */
-  public abstract String programURLName();
+  public abstract String programUrlName();
 
   /** A timestamp representing the month they were submitted. */
   public abstract Optional<Timestamp> timestamp();
