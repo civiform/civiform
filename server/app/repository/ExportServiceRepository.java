@@ -63,8 +63,10 @@ public final class ExportServiceRepository {
         .forEach(
             e -> {
               if (e.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)
-                  && e.questionDefinition().getName().equals(questionName) && e.isAnswered()) {
-                    e.applicantQuestion()
+                  && e.questionDefinition().getName().equals(questionName)
+                  && e.isAnswered()) {
+                e
+                    .applicantQuestion()
                     .createMultiSelectQuestion()
                     .getSelectedOptionAdminNames()
                     .get()

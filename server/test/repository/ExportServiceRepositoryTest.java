@@ -2,10 +2,8 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.in;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import models.LifecycleStage;
@@ -38,12 +36,11 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   public void getMultiSelectedHeaders_NoPreviousQuestionVersion() {
     QuestionDefinition questionDefinition =
         testQuestionBank.applicantKitchenTools().getQuestionDefinition();
-    ImmutableList<String> multiSelectHeaders =
-        repo.getMultiSelectedHeaders(questionDefinition);
+    ImmutableList<String> multiSelectHeaders = repo.getMultiSelectedHeaders(questionDefinition);
     assertThat(multiSelectHeaders.size()).isEqualTo(3);
-    checkList(multiSelectHeaders,0, "toaster");
-    checkList(multiSelectHeaders,1, "pepper_grinder");
-    checkList(multiSelectHeaders,2, "garlic_press");
+    checkList(multiSelectHeaders, 0, "toaster");
+    checkList(multiSelectHeaders, 1, "pepper_grinder");
+    checkList(multiSelectHeaders, 2, "garlic_press");
   }
 
   @Test
@@ -111,7 +108,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
         .hasMessage("No value present");
   }
 
-  private void checkList(ImmutableList<String> multiSelectHeaders, int index , String value) {
+  private void checkList(ImmutableList<String> multiSelectHeaders, int index, String value) {
     assertThat(multiSelectHeaders.contains(value)).isTrue();
     assertThat(multiSelectHeaders.get(index)).isEqualTo(value);
   }
