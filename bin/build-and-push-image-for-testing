@@ -26,7 +26,8 @@ docker::do_dockerhub_login
 
 echo "Building ${IMAGE_TAG}..."
 
-readonly IMAGE_TAG="DEV-${DEV_BRANCH_NAME/\//-}"
+readonly SHORT_SHA="$(git rev-parse --short HEAD)"
+readonly IMAGE_TAG="DEV-${SHORT_SHA}-${DEV_BRANCH_NAME/\//-}"
 readonly GIT_SHA="$(git rev-parse HEAD)"
 export DOCKER_BUILDKIT=1
 
