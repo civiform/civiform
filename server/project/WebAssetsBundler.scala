@@ -14,8 +14,8 @@ import sbt.{AutoPlugin, File, Setting, sbtUnchecked, taskKey}
 
 import scala.sys.process.{Process, ProcessLogger}
 
-/** Custom plugin to compile and bundle TypeScript and Sass using Webpack.
-  * We are not using sbt-typescript
+/** Custom plugin to compile and bundle TypeScript and Sass using Webpack. We
+  * are not using sbt-typescript
   * https://github.com/joost-de-vries/sbt-typescript plugin because it hasn't
   * been updated since 2018 and uses Typescript 2 while current Typescript
   * version is 4.
@@ -66,7 +66,7 @@ object WebAssetsBundler extends AutoPlugin {
         cacheDir,
         streamsVal.log
       )
-      // transform compiles JS and CSS files to PathMapping and adds "dist" as
+      // transform compiled JS and CSS files to PathMapping and adds "dist" as
       // part of the file name.  That way, the bundled files will be added in
       // /assets/dist/ in final output.
       val jsFiles: Seq[PathMapping] =
@@ -78,8 +78,8 @@ object WebAssetsBundler extends AutoPlugin {
 
   /** Given list of all assets (css, image, TS files) figures out whether any TS
     * files have been changed and recompiles them. If no files have been changed
-    * assumes JS and CSS files have been compiled at earlier iterations and returns
-    * them.
+    * assumes JS and CSS files have been compiled at earlier iterations and
+    * returns them.
     *
     * @param inputFiles
     *   All assets files passed by sbt-web.
