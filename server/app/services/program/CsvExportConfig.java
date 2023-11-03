@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableMap;
 public abstract class CsvExportConfig {
   public abstract ImmutableList<Column> columns();
 
-  public abstract ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap();
+  public abstract ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap();
 
   public static CsvExportConfig.Builder builder() {
     return new AutoValue_CsvExportConfig.Builder();
@@ -20,7 +20,7 @@ public abstract class CsvExportConfig {
     public abstract CsvExportConfig.Builder setColumns(ImmutableList<Column> columns);
 
     public abstract CsvExportConfig.Builder setCheckBoxQuestionScalarMap(
-        ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap);
+        ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap);
 
     public abstract ImmutableList.Builder<Column> columnsBuilder();
 

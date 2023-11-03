@@ -2,6 +2,7 @@ package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.in;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,13 +38,12 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   public void getMultiSelectedHeaders_NoPreviousQuestionVersion() {
     QuestionDefinition questionDefinition =
         testQuestionBank.applicantKitchenTools().getQuestionDefinition();
-    ImmutableMap<Long, String> multiSelectHeaders =
+    ImmutableList<String> multiSelectHeaders =
         repo.getMultiSelectedHeaders(questionDefinition);
     assertThat(multiSelectHeaders.size()).isEqualTo(3);
-    assertThat(multiSelectHeaders).containsKey(1L);
-    checkMap(multiSelectHeaders, 1L, "toaster");
-    checkMap(multiSelectHeaders, 2L, "pepper_grinder");
-    checkMap(multiSelectHeaders, 3L, "garlic_press");
+    checkList(multiSelectHeaders,0, "toaster");
+    checkList(multiSelectHeaders,1, "pepper_grinder");
+    checkList(multiSelectHeaders,2, "garlic_press");
   }
 
   @Test
@@ -64,18 +64,18 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
             .build();
     questionService.update(toUpdate);
 
-    ImmutableMap<Long, String> multiSelectHeaders =
+    ImmutableList<String> multiSelectHeaders =
         repo.getMultiSelectedHeaders(questionWeather.getQuestionDefinition());
     // not draft versions are not part of the header list
     assertThat(multiSelectHeaders.size()).isEqualTo(3);
     versionRepository.publishNewSynchronizedVersion();
-    ImmutableMap<Long, String> multiSelectHeaderUpdated =
+    ImmutableList<String> multiSelectHeaderUpdated =
         repo.getMultiSelectedHeaders(questionWeather.getQuestionDefinition());
     assertThat(multiSelectHeaderUpdated.size()).isEqualTo(4);
-    checkMap(multiSelectHeaderUpdated, 1L, "fall");
-    checkMap(multiSelectHeaderUpdated, 2L, "spring");
-    checkMap(multiSelectHeaderUpdated, 3L, "summer");
-    checkMap(multiSelectHeaderUpdated, 4L, "winter");
+    checkList(multiSelectHeaderUpdated, 0, "fall");
+    checkList(multiSelectHeaderUpdated, 1, "spring");
+    checkList(multiSelectHeaderUpdated, 2, "summer");
+    checkList(multiSelectHeaderUpdated, 3, "winter");
   }
 
   @Test
@@ -111,9 +111,9 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
         .hasMessage("No value present");
   }
 
-  private void checkMap(ImmutableMap<Long, String> multiSelectHeaders, Long key, String value) {
-    assertThat(multiSelectHeaders).containsKey(key);
-    assertThat(multiSelectHeaders.get(key)).isEqualTo(value);
+  private void checkList(ImmutableList<String> multiSelectHeaders, int index , String value) {
+    assertThat(multiSelectHeaders.contains(value)).isTrue();
+    assertThat(multiSelectHeaders.get(index)).isEqualTo(value);
   }
 
   private Question createMultiSelectQuestion(

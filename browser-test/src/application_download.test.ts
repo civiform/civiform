@@ -20,11 +20,10 @@ describe('csv export for multioption question', () => {
     await dropTables(page)
     await seedQuestions(page)
   })
-  it('test multioption csv into its own column',async () => {
+  it('test multioption csv into its own column', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
 
     const noApplyFilters = false
-    const applyFilters = true
 
     await loginAsAdmin(page)
     const programName = 'Checkbox question program for export'
@@ -40,20 +39,20 @@ describe('csv export for multioption question', () => {
           {adminName: 'blue admin', text: 'blue'},
         ],
         maxNum: 3,
-        minNum: 2
+        minNum: 2,
       },
       /* clickSubmit= */ true,
     )
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name','csv-color'],
+      ['Name', 'csv-color'],
       programName,
     )
     await logout(page)
-    
+
     await loginAsTestUser(page)
     await applicantQuestions.applyProgram(programName)
-    await applicantQuestions.answerNameQuestion('Jane','Doe')
-    await applicantQuestions.answerCheckboxQuestion(['blue','red'])
+    await applicantQuestions.answerNameQuestion('Jane', 'Doe')
+    await applicantQuestions.answerCheckboxQuestion(['blue', 'red'])
     await applicantQuestions.clickNext()
 
     // Applicant submits answers from review page.
@@ -64,7 +63,7 @@ describe('csv export for multioption question', () => {
     await adminQuestions.gotoQuestionEditPage('csv-color')
     await adminQuestions.deleteMultiOptionAnswer(0)
     await waitForPageJsLoad(page)
-    
+
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(3, {
       adminName: 'black admin',
@@ -89,20 +88,18 @@ describe('csv export for multioption question', () => {
 
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
-    await console.log(csvContent)
-    
-  }
-  )
+    console.log(csvContent)
+  })
 })
 
-  describe('normal application flow', () => {
-    const ctx = createTestContext()
-  
-    beforeAll(async () => {
-      const {page} = ctx
-      await dropTables(page)
-      await seedQuestions(page)
-    })
+describe('normal application flow', () => {
+  const ctx = createTestContext()
+
+  beforeAll(async () => {
+    const {page} = ctx
+    await dropTables(page)
+    await seedQuestions(page)
+  })
 
   it('all major steps', async () => {
     const {page, adminQuestions, adminPrograms, applicantQuestions} = ctx
@@ -143,7 +140,13 @@ describe('csv export for multioption question', () => {
     await adminQuestions.exportQuestion('csv-currency')
     await adminQuestions.exportQuestion('csv-color')
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['Name', 'dropdown-csv-download', 'csv-date', 'csv-currency','csv-color'],
+      [
+        'Name',
+        'dropdown-csv-download',
+        'csv-date',
+        'csv-currency',
+        'csv-color',
+      ],
       programName,
     )
 
@@ -167,7 +170,9 @@ describe('csv export for multioption question', () => {
 
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(csvContent).toContain('sarah,,smith,op2 admin,05/10/2021,1000.00,Not Selected,Not Selected,Not Selected,Selected')
+    expect(csvContent).toContain(
+      'sarah,,smith,op2 admin,05/10/2021,1000.00,Not Selected,Not Selected,Not Selected,Selected',
+    )
 
     await logout(page)
     await loginAsAdmin(page)
@@ -302,7 +307,7 @@ describe('csv export for multioption question', () => {
         'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
-        ',,sarah,,smith,Not Selected,Not Selected,Not Selected,Selected,1000.00,05/10/2021,op2 admin,'
+        ',,sarah,,smith,Not Selected,Not Selected,Not Selected,Selected,1000.00,05/10/2021,op2 admin,',
       )
     } else {
       expect(demographicsCsvContent).toContain(

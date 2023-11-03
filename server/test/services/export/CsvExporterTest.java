@@ -17,6 +17,7 @@ import org.junit.Test;
 import repository.ExportServiceRepository;
 import repository.TimeFilter;
 import services.DateConverter;
+import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.question.ApplicantQuestion;
@@ -80,7 +81,9 @@ public class CsvExporterTest extends AbstractExporterTest {
             "applicant name (last_name)",
             "applicant phone (phone_number)",
             "applicant phone (country_code)",
-            "kitchen tools (selections)",
+            "kitchen tools (toaster)",
+            "kitchen tools (pepper_grinder)",
+            "kitchen tools (garlic_press)",
             "number of items applicant can juggle (number)",
             "applicant address (street)",
             "applicant address (line2)",
@@ -126,10 +129,16 @@ public class CsvExporterTest extends AbstractExporterTest {
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.CHECKBOX);
     MultiSelectQuestion multiSelectApplicantQuestion =
         getApplicantQuestion(checkboxQuestion.getQuestionDefinition()).createMultiSelectQuestion();
-    String multiSelectHeader =
-        CsvExporterService.pathToHeader(multiSelectApplicantQuestion.getSelectionPath());
-    assertThat(records.get(1).get(multiSelectHeader)).isEqualTo("[toaster, pepper_grinder]");
-    // Check link for uploaded file
+
+    String multiSelectHeader_1 =
+      CsvExporterService.pathToHeader(Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName()).join("toaster"));
+    assertThat(records.get(1).get(multiSelectHeader_1)).isEqualTo("Selected");
+    String multiSelectHeader_2 =
+      CsvExporterService.pathToHeader(Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName()).join("pepper_grinder"));
+    assertThat(records.get(1).get(multiSelectHeader_2)).isEqualTo("Selected");
+    String multiSelectHeader_3 =
+      CsvExporterService.pathToHeader(Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName()).join("garlic_press"));
+    assertThat(records.get(1).get(multiSelectHeader_3)).isEqualTo("Not Selected");
     Question fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
     FileUploadQuestion fileuploadApplicantQuestion =

@@ -286,7 +286,7 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
-    Map<String, ImmutableMap<Long, String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
+    Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
     System.out.println("---Inside service---");
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
@@ -300,16 +300,12 @@ public final class CsvExporterService {
               questionDefinition.getName(),
               exportServiceRepository.getMultiSelectedHeaders(questionDefinition));
         }
-        Map<Long, String> optionHeaderMap =
+        List<String> optionHeaders =
             currentCheckBoxQuestionScalarMap.get(questionDefinition.getName());
-        optionHeaderMap.keySet().stream()
-            .sorted()
+        optionHeaders.stream()
             .forEach(
                 option -> {
-                  Path path =
-                      answerData
-                          .contextualizedPath()
-                          .join(String.valueOf(optionHeaderMap.get(option)));
+                  Path path = answerData.contextualizedPath().join(String.valueOf(option));
 
                   columnsBuilder.add(
                       Column.builder()
@@ -423,7 +419,7 @@ public final class CsvExporterService {
         Column.builder().setHeader("Submit Time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
-    Map<String, ImmutableMap<Long, String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
+    Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
     for (QuestionTag tagType :
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
       for (QuestionDefinition questionDefinition :
@@ -443,16 +439,15 @@ public final class CsvExporterService {
             currentCheckBoxQuestionScalarMap.put(
                 questionName, exportServiceRepository.getMultiSelectedHeaders(questionDefinition));
           }
-          Map<Long, String> optionHeaderMap = currentCheckBoxQuestionScalarMap.get(questionName);
-          optionHeaderMap.keySet().stream()
-              .sorted()
+          List<String> optionHeaders = currentCheckBoxQuestionScalarMap.get(questionName);
+          optionHeaders.stream()
               .forEach(
                   option -> {
                     Path path =
                         applicantQuestion
                             .getApplicantQuestion()
                             .getContextualizedPath()
-                            .join(String.valueOf(optionHeaderMap.get(option)));
+                            .join(String.valueOf(option));
 
                     columnsBuilder.add(
                         Column.builder()
@@ -485,7 +480,7 @@ public final class CsvExporterService {
 
   private CsvExportConfig getCsvExportConfig(
       ImmutableList.Builder<Column> columnsBuilder,
-      Map<String, ImmutableMap<Long, String>> currentCheckBoxQuestionScalarMap) {
+      Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap) {
     return new CsvExportConfig() {
       @Override
       public ImmutableList<Column> columns() {
@@ -493,8 +488,8 @@ public final class CsvExporterService {
       }
 
       @Override
-      public ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap() {
-        return ImmutableMap.<String, ImmutableMap<Long, String>>builder()
+      public ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap() {
+        return ImmutableMap.<String, ImmutableList<String>>builder()
             .putAll(currentCheckBoxQuestionScalarMap)
             .build();
       }

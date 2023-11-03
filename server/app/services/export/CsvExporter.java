@@ -42,7 +42,7 @@ public final class CsvExporter implements AutoCloseable {
   private final String secret;
   private final CSVPrinter printer;
   private final DateConverter dateConverter;
-  private final ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap;
+  private final ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(
@@ -50,7 +50,7 @@ public final class CsvExporter implements AutoCloseable {
       String secret,
       Writer writer,
       DateConverter dateConverter,
-      ImmutableMap<String, ImmutableMap<Long, String>> checkBoxQuestionScalarMap)
+      ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);
@@ -82,7 +82,7 @@ public final class CsvExporter implements AutoCloseable {
         if (!checkBoxQuestionScalarMap.containsKey(questionName)) {
           continue;
         }
-        Map<Long, String> optionHeaderMap = checkBoxQuestionScalarMap.get(questionName);
+        List<String> optionHeaders = checkBoxQuestionScalarMap.get(questionName);
         String defaultText =
             answerData.isAnswered()
                 ? "Not An Option At Program Version"
@@ -98,20 +98,15 @@ public final class CsvExporter implements AutoCloseable {
         answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
             .forEach(option -> allOptionsShownInQuestion.add(option.adminName()));
 
-        optionHeaderMap.keySet().stream()
-            .sorted()
-            .forEach(
-                option ->
-                    answerDataMap.put(
-                        answerData
-                            .contextualizedPath()
-                            .join(String.valueOf(optionHeaderMap.get(option))),
-                        selectedList.contains(optionHeaderMap.get(option))
-                            ? "Selected"
-                            : allOptionsShownInQuestion.contains(optionHeaderMap.get(option))
-                                    && answerData.isAnswered()
-                                ? "Not Selected"
-                                : defaultText));
+        optionHeaders.forEach(
+            option ->
+                answerDataMap.put(
+                    answerData.contextualizedPath().join(String.valueOf(option)),
+                    selectedList.contains(option)
+                        ? "Selected"
+                        : allOptionsShownInQuestion.contains(option) && answerData.isAnswered()
+                            ? "Not Selected"
+                            : defaultText));
 
       } else {
         for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {
