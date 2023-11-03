@@ -1,0 +1,21 @@
+/*
+----------------------------------------
+USWDS with settings overrides
+----------------------------------------
+Customize USWDS styles here or prevent USWDS utilities (custom HTML classes
+scoped to a single CSS property) from being applied by setting 'output' to 'false'.
+See https://designsystem.digital.gov/documentation/settings/ and
+https://designsystem.digital.gov/utilities/.
+*/
+
+@use 'uswds-core' with (
+  /* When the Webpack sass-loader compiles Sass into CSS, it doesn't update the
+  font and image urls to be relative to the Sass entrypoint. For us, that's
+  app/assets/stylesheets/uswds/styles.scss. The fonts and images are still
+  in the uswds directory under node_modules. So, we specify the correct paths here.
+   */
+    $theme-font-path: '../../../../node_modules/@uswds/uswds/dist/fonts',
+  $theme-image-path: '../../../../node_modules/@uswds/uswds/dist/img',
+  $border-settings: ('output': false),
+  $color-settings: ('output': false)
+);

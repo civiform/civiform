@@ -1,4 +1,4 @@
-import TypescriptBuilder.autoImport.compileTypescript
+import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -134,10 +134,10 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(compileTypescript, digest, gzip), // plugins to use for assets
+    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(compileTypescript, digest, gzip),
+    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
