@@ -14,7 +14,8 @@ import sbt.{AutoPlugin, File, Setting, sbtUnchecked, taskKey}
 
 import scala.sys.process.{Process, ProcessLogger}
 
-/** Custom plugin to compile TypeScript code. We are not using sbt-typescript
+/** Custom plugin to compile and bundle TypeScript and Sass using Webpack.
+  * We are not using sbt-typescript
   * https://github.com/joost-de-vries/sbt-typescript plugin because it hasn't
   * been updated since 2018 and uses Typescript 2 while current Typescript
   * version is 4.
@@ -25,7 +26,7 @@ import scala.sys.process.{Process, ProcessLogger}
   * directories and output the result to `target/web/dist` folder. We also use
   * Webpack to compile the USWDS Sass into CSS.
   *
-  * This plugin introduces `compileTypescript` task which will be used as a
+  * This plugin introduces `bundleWebAssets` task which will be used as a
   * pipeline stage. Read about Asset Pipeline tasks
   * https://github.com/sbt/sbt-web#asset-pipeline The task implements Asset
   * Pipeline task and not Source File task because the latter doesn't allow us
@@ -33,41 +34,43 @@ import scala.sys.process.{Process, ProcessLogger}
   * be compiled to `assets/javascripts/foo.js`. So we are using Pipeline.Stage
   * for that.
   *
-  * This plugin is enabled by adding `compileTypescript` as first task in
+  * This plugin is enabled by adding `bundleWebAssets` as first task in
   * pipelineStages in build.sbt.
   */
-object TypescriptBuilder extends AutoPlugin {
+object WebAssetsBundler extends AutoPlugin {
   override def trigger = allRequirements
 
   object autoImport {
-    // compileTypescript is the entry point of this plugin. It is a task
+    // bundleWebAssets is the entry point of this plugin. It is a task
     // which is called by sbt-web when it prepares assets. This task
-    // receives a seq of all assets (images, css, TS files), compiles TS files
-    // and returns seq of all input assets plus newly compiled JS files.
+    // receives a seq of all assets (images, css, TS files), compiles TS and
+    // Sass files and returns seq of all input assets plus newly compiled JS
+    // and CSS files.
     //
     // This is task declaration. Implementation is below.
-    val compileTypescript = taskKey[Pipeline.Stage](
-      "Compiles typescript from assets/javascript folder"
+    val bundleWebAssets = taskKey[Pipeline.Stage](
+      "Uses Webpack to compile and bundle TypeScript and the USWDS Sass."
     )
   }
   import autoImport._
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    compileTypescript := { inputFiles: Seq[PathMapping] =>
+    bundleWebAssets := { inputFiles: Seq[PathMapping] =>
       val streamsVal = (Assets / streams).value: @sbtUnchecked
-      // targetDir will contain compiled JS files.
+      // targetDir will contain compiled JS and CSS files.
       val targetDir = new File(webTarget.value, "dist")
       val cacheDir = new File(streamsVal.cacheDirectory, "run")
-      val compiledJsFiles: Seq[File] = recompileTypescriptIfFilesChanged(
+      val compiledFiles: Seq[File] = recompileIfTypescriptFilesChanged(
         inputFiles,
         targetDir,
         cacheDir,
         streamsVal.log
       )
-      // transform compiles JS files to PathMapping and add "dist" as part of the file name.
-      // That way JS files fille be added in /assets/dist/*.js in final output.
+      // transform compiles JS and CSS files to PathMapping and adds "dist" as
+      // part of the file name.  That way, the bundled files will be added in
+      // /assets/dist/ in final output.
       val jsFiles: Seq[PathMapping] =
-        compiledJsFiles.map({ f => (f, "dist/" + f.getName) })
+        compiledFiles.map({ f => (f, "dist/" + f.getName) })
 
       inputFiles ++ jsFiles
     }
@@ -75,21 +78,21 @@ object TypescriptBuilder extends AutoPlugin {
 
   /** Given list of all assets (css, image, TS files) figures out whether any TS
     * files have been changed and recompiles them. If no files have been changed
-    * assumes JS files have been compiled at earlier iterations and returns
+    * assumes JS and CSS files have been compiled at earlier iterations and returns
     * them.
     *
     * @param inputFiles
     *   All assets files passed by sbt-web.
     * @param targetDir
-    *   Directory that contains compiled JS files.
+    *   Directory that contains compiled JS and CSS files.
     * @param cacheDir
     *   Directory that contains cache file, used by syncIncremental.
     * @param log
     *   Logger object to output compilation errors to sbt console.
     * @return
-    *   Seq of compiled JS files and sourcemaps.
+    *   Seq of compiled JS and CSS files and sourcemaps.
     */
-  def recompileTypescriptIfFilesChanged(
+  def recompileIfTypescriptFilesChanged(
     inputFiles: Seq[PathMapping],
     targetDir: File,
     cacheDir: File,
@@ -100,30 +103,30 @@ object TypescriptBuilder extends AutoPlugin {
       OpInputHasher[File](f =>
         OpInputHash.hashString(f.getCanonicalPath + f.lastModified)
       )
-    // we are interested only in TS files.
+    // we only watch for changes in TS files.
     val tsFiles = inputFiles map { p => p._1 } filter { f =>
       f.getName.endsWith(".ts")
     }
     // we are using sbt-web syncIncremental function. It's somewhat complicated. For our
-    // use case we just want to see if any of TS files changed and if so - recompile
-    // everything.
-    val (_, compiledJsFiles) =
+    // use case we just want to see if any of TS files changed and if so - rerun Webpack
+    // bundling.
+    val (_, compiledFiles) =
       incremental.syncIncremental(cacheDir, tsFiles)({ modifiedFiles =>
         if (modifiedFiles.nonEmpty || !targetDir.exists()) {
           log.info("Typescript files changed. Recompiling...")
           runWebpack(targetDir, log)
         }
-        val compiledJsFiles: Seq[File] = targetDir.listFiles()
+        val compiledFiles: Seq[File] = targetDir.listFiles()
         // ignore opResults. We are not using full functionality of syncIncremental
-        // so we always return dummy opResults with OpSuccess for each TS file.
+        // so we always return dummy opResults with OpSuccess for each compiled file.
         val opResults: Map[File, OpResult] = modifiedFiles
           .map(f => f -> OpSuccess(Set.empty[File], Set.empty[File]))
           .toMap
 
-        (opResults, compiledJsFiles)
+        (opResults, compiledFiles)
       })(fileHasher)
 
-    compiledJsFiles
+    compiledFiles
   }
 
   def runWebpack(targetDir: File, log: ManagedLogger) = {
