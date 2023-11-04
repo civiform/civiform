@@ -38,7 +38,8 @@ public final class ReportingRepository {
    * month reporting data use {@code loadThisMonthReportingData}.
    */
   public ImmutableList<ApplicationSubmissionsStat> loadMonthlyReportingView() {
-    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
+    VersionRepository versionRepository = versionRepositoryProvider.get();
+    Version activeVersion = versionRepository.getActiveVersion();
     return database
         .sqlQuery(
             "SELECT * FROM monthly_submissions_reporting_view\n"
@@ -50,8 +51,7 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  versionRepositoryProvider
-                      .get()
+                  versionRepository
                       .getProgramByNameForVersion(programName, activeVersion)
                       .get()
                       .getProgramDefinition()
@@ -76,7 +76,8 @@ public final class ReportingRepository {
   /** Loads application submission reporting data for current month. */
   public ImmutableList<ApplicationSubmissionsStat> loadThisMonthReportingData() {
     Timestamp firstOfMonth = getFirstOfMonth();
-    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
+    VersionRepository versionRepository = versionRepositoryProvider.get();
+    Version activeVersion = versionRepository.getActiveVersion();
     return database
         .sqlQuery(
             "SELECT\n"
@@ -102,8 +103,7 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  versionRepositoryProvider
-                      .get()
+                  versionRepository
                       .getProgramByNameForVersion(programName, activeVersion)
                       .get()
                       .getProgramDefinition()
