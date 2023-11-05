@@ -27,6 +27,7 @@ import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
+import services.question.types.QuestionType;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -300,5 +301,22 @@ public final class ViewUtils {
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
     return button;
+  }
+
+  public static DivTag makeUniversalBadge(QuestionType questionType) {
+    return div()
+        .withClasses(
+            "rounded-lg",
+            "flex",
+            "max-w-fit",
+            "px-2",
+            "py-1",
+            "mt-4",
+            "space-x-1",
+            "text-white",
+            "bg-civiform-teal")
+        .with(
+            Icons.svg(Icons.STAR).withClasses("flex", "h-6", "w-4"),
+            span(String.format("Universal %s Question", questionType.getLabel())));
   }
 }
