@@ -287,12 +287,14 @@ public final class CsvExporterService {
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
     Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
-    System.out.println("---Inside service---");
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
       if (answerData.questionDefinition().isEnumerator()) {
         continue; // Do not include Enumerator answers in CSVs.
       }
+      // if the question type is checkbox, we need to find the unique options names to create the
+      // CSV headers
+      // so we use exportServiceRepository to get the uniques headers
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         QuestionDefinition questionDefinition = answerData.questionDefinition();
         if (!currentCheckBoxQuestionScalarMap.containsKey(questionDefinition.getName())) {
@@ -326,6 +328,8 @@ public final class CsvExporterService {
       }
     }
 
+    // we cache the currentCheckBoxQuestionScalarMap in csvExportConfig to help us fill the column
+    // values
     return getCsvExportConfig(columnsBuilder, currentCheckBoxQuestionScalarMap);
   }
 

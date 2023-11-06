@@ -61,10 +61,11 @@ describe('csv export for multioption question', () => {
 
     await loginAsAdmin(page)
     await adminQuestions.gotoQuestionEditPage('csv-color')
+    // deleting red and orange
     await adminQuestions.deleteMultiOptionAnswer(0)
     await adminQuestions.deleteMultiOptionAnswer(1)
     await waitForPageJsLoad(page)
-
+    // adding black and white
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(2, {
       adminName: 'black admin',
@@ -97,6 +98,7 @@ describe('csv export for multioption question', () => {
     expect(csvContent).toContain(
       'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (blue admin),csvcolor (green admin),csvcolor (black admin),csvcolor (white admin)',
     )
+    // colors headers are - red,blue,green,black,white
     expect(csvContent).toContain(
       ',John,,Do,Not An Option At Program Version,Not Selected,Selected,Selected,Not Selected',
     )

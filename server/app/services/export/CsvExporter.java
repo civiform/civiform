@@ -72,17 +72,24 @@ public final class CsvExporter implements AutoCloseable {
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
     Map<Path, String> answerDataMap = new HashMap<>();
-    System.out.println("---Inside Export record---");
     for (AnswerData answerData : roApplicantService.getSummaryData()) {
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         String questionName = answerData.questionDefinition().getName();
         // If the question isn't present in the scalar map, it means, its demographic export and
-        // this question
-        // was flagged not to be included in demographic export
+        // this question was flagged not to be included in demographic export
         if (!checkBoxQuestionScalarMap.containsKey(questionName)) {
           continue;
         }
         List<String> optionHeaders = checkBoxQuestionScalarMap.get(questionName);
+        // the four options for a value are:
+        //    in the selected list and in the question definition and question is answered: Selected
+        //    not in the selected list and in the question definition and question is answered: Not
+        // Selected
+        //    not in the selected list and in the question definition and question is not answered:
+        // Not Answered
+        //    not in the selected list and not in the question definition: Not An Option At Program
+        // Version(or similar. This is both “retired” and “not yet an option at the time of this
+        // application”)
         String defaultText =
             answerData.isAnswered()
                 ? "Not An Option At Program Version"

@@ -33,7 +33,23 @@ public final class ExportServiceRepository {
     this.applicantService = checkNotNull(applicantService);
   }
 
-  private ImmutableList<String> test(String questionName) {
+  /**
+   * This method queries for all submitted applications in the database ordered by their createTime
+   * and checks if they have used the question passed in the input param. If the question is
+   * present, it creates a unique set of all options ever picked along with the question's active
+   * version options and creates the return list.
+   *
+   * @param questionDefinition of a Checkbox question whose CSV Headers needs to be generated
+   * @return ImmutableList of all options ever picked + its active version's options for the
+   *     checkbox question
+   * @throws RuntimeException when the question is not of type Checkbox
+   * @throws NoSuchElementException when the active version of the question is missing
+   */
+  public ImmutableList<String> getMultiSelectedHeaders(QuestionDefinition questionDefinition) {
+    if (!questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
+      throw new RuntimeException("The Question Type is not checkbox");
+    }
+    String questionName = questionDefinition.getName();
     List<Application> applications =
         database
             .find(Application.class)
@@ -98,74 +114,4 @@ public final class ExportServiceRepository {
     ImmutableList.Builder<String> immtableListBuilder = ImmutableList.builder();
     return immtableListBuilder.addAll(allOptions).build();
   }
-
-  /**
-   * This method creates There are two queries which are run here 1. To get all the adminNames to
-   * optionIds for a given question 2. To get all the options which were ever picked by an applicant
-   * (this is to filter out options accidentally introduced) The options are now combined with the
-   * latest active version of the question and returned as an immutable map.
-   *
-   * @param questionDefinition of a Checkbox question whose CSV Headers needs to be generated
-   * @return a map of all the optionIds to its option's adminName string for a given multiselect
-   *     question definition
-   * @throws RuntimeException when the question is not of type Checkbox
-   * @throws NoSuchElementException when the active version of the question is missing
-   */
-  public ImmutableList<String> getMultiSelectedHeaders(QuestionDefinition questionDefinition) {
-    if (!questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
-      throw new RuntimeException("The Question Type is not checkbox");
-    }
-    String questionName = questionDefinition.getName();
-    return test(questionName);
-  }
-  //    Map<Long, String> alloptionsMap = new HashMap<>();
-  //    database
-  //      .sqlQuery(
-  //        "SELECT DISTINCT jsonb_array_elements(q.question_options)->>'adminName'AS"
-  //          + " AdminName,jsonb_array_elements(q.question_options)->>'id' AS Id FROM questions"
-  //          + " q where name = :currentQuestion::varchar")
-  //      .setParameter("currentQuestion", questionName)
-  //      .findList()
-  //      .stream()
-  //      .forEach(row -> alloptionsMap.put(row.getLong("id"), row.getString("AdminName")));
-  //    Set<Long> allSelectedOptions = new HashSet<>();
-  //
-  //    allSelectedOptions.add(1L);
-  //    database
-  //      .sqlQuery(
-  //        "select jsonb_array_elements_text((object #>>
-  // '{}')::jsonb->'applicant'->:currentQuestion->'selections')::integer as id from applications")
-  //      .setParameter("currentQuestion", questionName)
-  //      .findList()
-  //      .forEach(
-  //        row ->
-  //          allSelectedOptions.add(row.getLong("id")));
-  //    System.out.println("Print .....");
-  //    allSelectedOptions.stream().forEach(e -> System.out.println("________ " + e));
-  //    Map<Long, String> combinedList = new HashMap<>();
-  //    alloptionsMap.keySet().stream()
-  //      .forEach(
-  //        e -> {
-  //          if (allSelectedOptions.contains(e)) {
-  //            combinedList.put(e, alloptionsMap.get(e));
-  //          }
-  //        });
-  //
-  //    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
-  //    MultiOptionQuestionDefinition currentQuestion =
-  //      (MultiOptionQuestionDefinition)
-  //        versionRepositoryProvider
-  //          .get()
-  //          .getQuestionByNameForVersion(questionName, activeVersion)
-  //          .get()
-  //          .getQuestionDefinition();
-  //    currentQuestion.getOptions().stream()
-  //      .forEach(
-  //        e -> {
-  //          if (!combinedList.containsKey(e.id())) {
-  //            combinedList.put(e.id(), e.adminName());
-  //          }
-  //        });
-  //    return ImmutableMap.<Long, String>builder().putAll(combinedList).build();
-  //  }
 }
