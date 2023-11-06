@@ -82,14 +82,14 @@ public final class CsvExporter implements AutoCloseable {
         }
         List<String> optionHeaders = checkBoxQuestionScalarMap.get(questionName);
         // the four options for a value are:
-        //    in the selected list and in the question definition and question is answered: Selected
-        //    not in the selected list and in the question definition and question is answered: Not
+        // in the selected list and in the question definition and question is answered: Selected
+        // not in the selected list and in the question definition and question is answered: Not
         // Selected
-        //    not in the selected list and in the question definition and question is not answered:
-        // Not Answered
-        //    not in the selected list and not in the question definition: Not An Option At Program
-        // Version(or similar. This is both “retired” and “not yet an option at the time of this
-        // application”)
+        // not in the selected list and in the question definition and question is not answered: Not
+        // Answered
+        // not in the selected list and not in the question definition: Not An Option At Program
+        // Version
+        // (This is both “retired” and “not yet an option at the time of this application”)
         String defaultText =
             answerData.isAnswered()
                 ? "Not An Option At Program Version"

@@ -102,9 +102,11 @@ public final class MultiSelectQuestion extends Question {
   public Optional<ImmutableList<String>> getSelectedOptionAdminNames() {
     Optional<ImmutableList<Long>> maybeSelectedOptionIds =
         applicantQuestion.getApplicantData().readLongList(getSelectionPath());
+
     if (maybeSelectedOptionIds.isEmpty()) {
       return Optional.empty();
     }
+
     ImmutableList<Long> selectedOptionIds = maybeSelectedOptionIds.get();
     return Optional.of(
         getQuestionDefinition().getOptions().stream()
