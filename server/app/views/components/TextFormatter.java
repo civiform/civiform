@@ -34,6 +34,7 @@ public final class TextFormatter {
     }
     String markdownText = CIVIFORM_MARKDOWN.render(text);
     markdownText = addIconToLinks(markdownText);
+    markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
       markdownText = addRequiredIndicatorInsidePTag(markdownText);
     }
@@ -61,6 +62,12 @@ public final class TextFormatter {
             .withClasses("shrink-0", "h-5", "w-auto", "inline", "ml-1", "align-text-top")
             .toString();
     return markdownText.replaceAll(closingATag, svgIconString + closingATag);
+  }
+
+  private static String addTextSize(String markdownText) {
+    // h1 and h2 tags are set to "text-2xl" and "text-xl" respectively in styles.css
+    String replacedH3Tags = markdownText.replaceAll("<h3>", "<h3 class=\"text-lg\">");
+    return replacedH3Tags.replaceAll("<h4>", "<h4 class=\"text-base\">");
   }
 
   private static String addRequiredIndicatorInsidePTag(String markdownText) {
