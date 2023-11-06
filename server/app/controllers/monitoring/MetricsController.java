@@ -39,7 +39,7 @@ public final class MetricsController extends CiviFormController {
 
   // The start index we use for the metric substring. By default, the metric names start with
   // "orm.", which is why we use 4 as the start index.
-  private static final int SUBSTRING_INDEX = 4;
+  private static final int NAME_SUBSTRING_INDEX = 4;
 
   // The start index we use for the metric substring. By default, the metric names start with
   // "class ", which is why we use 6 as the start index.
@@ -72,7 +72,7 @@ public final class MetricsController extends CiviFormController {
           .getQueryMetrics()
           .forEach(
               metric -> {
-                String name = metric.getName().substring(SUBSTRING_INDEX);
+                String name = metric.getName().substring(NAME_SUBSTRING_INDEX);
                 String className = metric.getType().toString().substring(CLASS_SUBSTRING_INDEX);
                 String location = metric.getLocation() != null ? metric.getLocation() : "";
                 // When we use JPA in the model to get the data, we often see incorrect information
