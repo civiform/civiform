@@ -847,6 +847,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
   }
 
+  /**
+   * Enables setting and displaying the universal question state on questions. These questions are
+   * intended to be used by all programs and will appear at the top of the question bank with a
+   * badge denoting them as universal.
+   */
+  public boolean getUniversalQuestions(RequestHeader request) {
+    return getBool("UNIVERSAL_QUESTIONS", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1759,7 +1768,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables logic to populate more fields in OIDC logout requests.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))),
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "UNIVERSAL_QUESTIONS",
+                      "Enables setting and displaying the universal question state on questions."
+                          + " These questions are intended to be used by all programs and will"
+                          + " appear at the top of the question bank with a badge denoting them as"
+                          + " universal.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
