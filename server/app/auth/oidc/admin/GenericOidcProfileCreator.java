@@ -6,6 +6,7 @@ import auth.oidc.CiviformOidcProfileCreator;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -34,7 +35,7 @@ public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
 
   @Override
   protected String emailAttributeName() {
-    return "email";
+    return CommonProfileDefinition.EMAIL;
   }
 
   @Override
