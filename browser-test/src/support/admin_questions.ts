@@ -18,6 +18,7 @@ type QuestionParams = {
   helpText?: string
   enumeratorName?: string
   exportOption?: string
+  universal?: boolean
 }
 
 export enum QuestionType {
@@ -1088,6 +1089,7 @@ export class AdminQuestions {
     maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1111,11 +1113,23 @@ export class AdminQuestions {
       await this.page.fill('label:has-text("Maximum length")', String(maxNum))
     }
 
+    if (universal) {
+      await this.clickUniversalToggle()
+    }
+
     await this.clickSubmitButtonAndNavigate('Create')
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
     await this.expectDraftQuestionExist(questionName, questionText)
+  }
+
+  async clickUniversalToggle() {
+    await this.page.click('#universal-toggle')
+  }
+
+  async getUniversalToggleValue(): Promise<string> {
+    return this.page.inputValue('#universal-toggle-input')
   }
 
   async addIdQuestion({

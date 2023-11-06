@@ -524,7 +524,7 @@ export class AdminPrograms {
   }
 
   async closeQuestionBank() {
-    await this.page.click('svg.cf-close-question-bank-button')
+    await this.page.click('button.cf-close-question-bank-button')
     await this.waitForQuestionBankAnimationToFinish()
   }
 

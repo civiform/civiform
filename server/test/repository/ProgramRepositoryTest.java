@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.util.Providers;
 import io.ebean.DB;
 import io.ebean.DataIntegrityException;
 import java.time.Instant;
@@ -20,9 +21,12 @@ import models.Application;
 import models.ApplicationEvent;
 import models.DisplayMode;
 import models.Program;
+import models.Version;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import play.cache.SyncCacheApi;
 import play.libs.F;
 import services.IdentifierBasedPaginationSpec;
 import services.LocalizedStrings;
@@ -36,6 +40,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramType;
 import services.program.StatusDefinitions;
 import services.question.QuestionAnswerer;
+import services.settings.SettingsManifest;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 
@@ -44,11 +49,23 @@ public class ProgramRepositoryTest extends ResetPostgres {
 
   private ProgramRepository repo;
   private VersionRepository versionRepo;
+  private SyncCacheApi programCache;
+  private SyncCacheApi versionsByProgramCache;
+  private SettingsManifest mockSettingsManifest;
 
   @Before
   public void setup() {
-    repo = instanceOf(ProgramRepository.class);
     versionRepo = instanceOf(VersionRepository.class);
+    mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    programCache = instanceOf(SyncCacheApi.class);
+    versionsByProgramCache = instanceOf(SyncCacheApi.class);
+    repo =
+        new ProgramRepository(
+            instanceOf(DatabaseExecutionContext.class),
+            Providers.of(versionRepo),
+            mockSettingsManifest,
+            programCache,
+            versionsByProgramCache);
   }
 
   @Test
@@ -66,6 +83,21 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
 
     assertThat(found).hasValue(two);
+  }
+
+  @Test
+  public void lookupProgram_usesCacheWhenEnabled() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+
+    resourceCreator.insertActiveProgram("one");
+    Program two = resourceCreator.insertActiveProgram("two");
+
+    assertThat(programCache.get(String.valueOf(two.id))).isEmpty();
+
+    Optional<Program> found = repo.lookupProgram(two.id).toCompletableFuture().join();
+
+    assertThat(found).hasValue(two);
+    assertThat(programCache.get(String.valueOf(two.id))).hasValue(found);
   }
 
   @Test
@@ -221,6 +253,25 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ImmutableSet<String> result = repo.getAllProgramNames();
 
     assertThat(result).isEqualTo(ImmutableSet.of("old name", "new name"));
+  }
+
+  @Test
+  public void getVersionsForProgram() {
+    Program program = resourceCreator.insertActiveProgram("old name");
+
+    ImmutableList<Version> versions = repo.getVersionsForProgram(program);
+
+    assertThat(versions).hasSize(1);
+  }
+
+  @Test
+  public void getVersionsForProgram_usesCacheWhenEnabled() {
+    Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
+    Program program = resourceCreator.insertActiveProgram("old name");
+
+    ImmutableList<Version> versions = repo.getVersionsForProgram(program);
+
+    assertThat(versionsByProgramCache.get(String.valueOf(program.id)).get()).isEqualTo(versions);
   }
 
   @Test

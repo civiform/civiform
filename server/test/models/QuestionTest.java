@@ -253,4 +253,33 @@ public class QuestionTest extends ResetPostgres {
     assertThat(afterUpdate.getQuestionDefinition().getLastModifiedTime().get())
         .isAfter(initialQuestion.getQuestionDefinition().getLastModifiedTime().get());
   }
+
+  @Test
+  public void savesUniversalCorrectly() {
+    QuestionDefinitionConfig.Builder builder =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("")
+            .setQuestionText(LocalizedStrings.of())
+            .setQuestionHelpText(LocalizedStrings.empty());
+    QuestionDefinition universalQuestionDefinition =
+        new TextQuestionDefinition(builder.setUniversal(true).build());
+    QuestionDefinition nonUniversalQuestionDefinition =
+        new TextQuestionDefinition(builder.setUniversal(false).build());
+
+    Question universalQuestion = new Question(universalQuestionDefinition);
+    universalQuestion.save();
+    Question nonUniversalQuestion = new Question(nonUniversalQuestionDefinition);
+    nonUniversalQuestion.save();
+
+    Question universalFound =
+        repo.lookupQuestion(universalQuestion.id).toCompletableFuture().join().get();
+    assertThat(universalFound.getQuestionDefinition().isUniversal()).isTrue();
+    assertThat(universalFound.containsTag(QuestionTag.UNIVERSAL)).isTrue();
+
+    Question nonUniversalFound =
+        repo.lookupQuestion(nonUniversalQuestion.id).toCompletableFuture().join().get();
+    assertThat(nonUniversalFound.getQuestionDefinition().isUniversal()).isFalse();
+    assertThat(nonUniversalFound.containsTag(QuestionTag.UNIVERSAL)).isFalse();
+  }
 }

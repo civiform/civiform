@@ -61,6 +61,11 @@ public abstract class QuestionDefinition {
     return config.id().getAsLong();
   }
 
+  /** True if the question is marked as a universal question. */
+  public final boolean isUniversal() {
+    return config.universal();
+  }
+
   /**
    * Get the name of this question.
    *
