@@ -6,7 +6,8 @@ import java.util.Map;
 import org.commonmark.Extension;
 import org.commonmark.ext.autolink.AutolinkExtension;
 import org.commonmark.node.Link;
-import org.commonmark.node.ListBlock;
+import org.commonmark.node.BulletList;
+import org.commonmark.node.OrderedList;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.AttributeProvider;
@@ -42,8 +43,10 @@ public final class CiviFormMarkdown {
       if (node instanceof Link) {
         attributes.put("class", StyleUtils.removeStyles(ApplicantStyles.LINK, "text-sm"));
         attributes.put("target", "_blank");
-      } else if (node instanceof ListBlock) {
+      } else if (node instanceof BulletList) {
         attributes.put("class", "list-disc mx-8");
+      } else if (node instanceof OrderedList) {
+        attributes.put("class", "list-decimal mx-8");
       }
     }
   }

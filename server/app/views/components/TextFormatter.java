@@ -73,7 +73,7 @@ public final class TextFormatter {
     PolicyFactory customPolicy =
         new HtmlPolicyBuilder()
             .allowElements(
-                "p", "div", "h2", "h3", "h4", "h5", "h6", "a", "ul", "li", "span", "svg", "br",
+                "p", "div", "h2", "h3", "h4", "h5", "h6", "a", "ul", "ol", "li", "hr", "span", "svg", "br",
                 "em", "strong", "code", "path", "pre")
             // Per accessibility best practices, we want to disallow adding h1 headers to
             // ensure the page does not have more than one h1 header
