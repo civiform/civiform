@@ -3,7 +3,7 @@ package repository;
 import io.ebean.ProfileLocation;
 
 /** Utility class for creating ProfileLocation objects. */
-public class QueryUtils {
+public final class QueryUtils {
   private final String fileName;
 
   /**
