@@ -14,22 +14,22 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.Version;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
+import services.reporting.ReportingFactory;
 
 /** Implements queries related to reporting needs. */
 public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final Provider<VersionRepository> versionRepositoryProvider;
+  private final ReportingFactory reportingFactory;
 
   @Inject
   public ReportingRepository(Clock clock, Provider<VersionRepository> versionRepositoryProvider) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
-    this.versionRepositoryProvider = checkNotNull(versionRepositoryProvider);
+    this.reportingFactory = new ReportingFactory(checkNotNull(versionRepositoryProvider).get());
   }
 
   /**
@@ -38,8 +38,6 @@ public final class ReportingRepository {
    * month reporting data use {@code loadThisMonthReportingData}.
    */
   public ImmutableList<ApplicationSubmissionsStat> loadMonthlyReportingView() {
-    VersionRepository versionRepository = versionRepositoryProvider.get();
-    Version activeVersion = versionRepository.getActiveVersion();
     return database
         .sqlQuery(
             "SELECT * FROM monthly_submissions_reporting_view\n"
@@ -51,8 +49,8 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  versionRepository
-                      .getProgramByNameForVersion(programName, activeVersion)
+                  reportingFactory
+                      .getProgram(programName)
                       .get()
                       .getProgramDefinition()
                       .localizedName()
@@ -76,8 +74,6 @@ public final class ReportingRepository {
   /** Loads application submission reporting data for current month. */
   public ImmutableList<ApplicationSubmissionsStat> loadThisMonthReportingData() {
     Timestamp firstOfMonth = getFirstOfMonth();
-    VersionRepository versionRepository = versionRepositoryProvider.get();
-    Version activeVersion = versionRepository.getActiveVersion();
     return database
         .sqlQuery(
             "SELECT\n"
@@ -103,8 +99,8 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  versionRepository
-                      .getProgramByNameForVersion(programName, activeVersion)
+                  reportingFactory
+                      .getProgram(programName)
                       .get()
                       .getProgramDefinition()
                       .localizedName()
