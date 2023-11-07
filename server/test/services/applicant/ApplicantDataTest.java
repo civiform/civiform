@@ -71,7 +71,7 @@ public class ApplicantDataTest {
     data.setDateOfBirth(sampleDob);
     assertThat(data.getDateOfBirth().get()).isEqualTo(sampleDob);
     assertThat(data.asJsonString())
-        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":1641340800000}}");
+        .isEqualTo("{\"applicant\":{\"applicant_date_of_birth\":{\"date\":1641340800000}}}");
   }
 
   @Test
