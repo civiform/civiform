@@ -124,7 +124,7 @@ public final class ProgramCardFactory {
                 programRow.extraRowActions().size() == 0 ? "invisible" : "");
 
     PTag badge =
-        ViewUtils.makeBadge(
+        ViewUtils.makeLifecycleBadge(
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
