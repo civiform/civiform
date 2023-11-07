@@ -144,6 +144,7 @@ export class AdminQuestions {
     helpText,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     // This function should only be called on question create/edit page.
     await this.page.fill('label:has-text("Question Text")', questionText ?? '')
@@ -161,6 +162,9 @@ export class AdminQuestions {
     })
     if (exportOption) {
       await this.selectExportOption(exportOption)
+    }
+    if (universal) {
+      await this.clickUniversalToggle()
     }
   }
 
@@ -568,6 +572,7 @@ export class AdminQuestions {
     helpText = 'address question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -582,6 +587,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -598,6 +604,7 @@ export class AdminQuestions {
     helpText = 'Phone question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -612,6 +619,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -628,6 +636,7 @@ export class AdminQuestions {
     helpText = 'date question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -642,6 +651,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -662,6 +672,7 @@ export class AdminQuestions {
     helpText = 'checkbox question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.createCheckboxQuestion({
       questionName,
@@ -673,7 +684,9 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
+
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
 
     await this.expectDraftQuestionExist(questionName, questionText)
@@ -691,6 +704,7 @@ export class AdminQuestions {
       helpText = 'checkbox question help text',
       enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
       exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
     }: QuestionParams,
     clickSubmit = true,
   ) {
@@ -707,6 +721,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     if (minNum != null) {
@@ -743,6 +758,7 @@ export class AdminQuestions {
       helpText = 'dropdown question help text',
       enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
       exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
     }: QuestionParams,
     clickSubmit = true,
   ) {
@@ -759,6 +775,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     assert(options)
@@ -833,6 +850,7 @@ export class AdminQuestions {
     helpText = 'currency question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
     await this.page.click('#create-question-button')
@@ -845,6 +863,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
     await this.clickSubmitButtonAndNavigate('Create')
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -860,6 +879,7 @@ export class AdminQuestions {
     helpText = 'dropdown question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.createDropdownQuestion({
       questionName,
@@ -869,6 +889,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.expectAdminQuestionsPageWithCreateSuccessToast()
@@ -883,6 +904,7 @@ export class AdminQuestions {
     helpText = 'fileupload question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -897,6 +919,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -965,6 +988,7 @@ export class AdminQuestions {
     helpText = 'name question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -979,6 +1003,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -995,6 +1020,7 @@ export class AdminQuestions {
     helpText = 'number question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1009,6 +1035,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -1051,6 +1078,7 @@ export class AdminQuestions {
       helpText = 'radio button question help text',
       enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
       exportOption = AdminQuestions.NO_EXPORT_OPTION,
+      universal = false,
     }: QuestionParams,
     clickSubmit = true,
   ) {
@@ -1067,6 +1095,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     assert(options)
@@ -1104,6 +1133,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     if (minNum != null) {
@@ -1111,10 +1141,6 @@ export class AdminQuestions {
     }
     if (maxNum != null) {
       await this.page.fill('label:has-text("Maximum length")', String(maxNum))
-    }
-
-    if (universal) {
-      await this.clickUniversalToggle()
     }
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -1141,6 +1167,7 @@ export class AdminQuestions {
     maxNum = null,
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1155,6 +1182,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     if (minNum != null) {
@@ -1178,6 +1206,7 @@ export class AdminQuestions {
     helpText = 'email question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = AdminQuestions.NO_EXPORT_OPTION,
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1192,6 +1221,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.clickSubmitButtonAndNavigate('Create')
@@ -1258,6 +1288,7 @@ export class AdminQuestions {
     helpText = 'enumerator question help text',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
     exportOption = '',
+    universal = false,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
 
@@ -1272,6 +1303,7 @@ export class AdminQuestions {
       helpText,
       enumeratorName,
       exportOption,
+      universal,
     })
 
     await this.page.fill('text=Repeated Entity Type', 'Entity')

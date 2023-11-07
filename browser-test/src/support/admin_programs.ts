@@ -195,6 +195,25 @@ export class AdminPrograms {
     ).toBe(1)
   }
 
+  /**
+   * Expects a question card either with or without a universal question badge.
+   */
+  async expectQuestionCardUniversalBadgeState(
+    questionName: string,
+    universal: boolean,
+  ) {
+    expect(
+      await this.page
+        .locator(
+          this.withinQuestionCardSelectorInProgramView(
+            questionName,
+            '.cf-universal-badge',
+          ),
+        )
+        .count(),
+    ).toBe(universal ? 1 : 0)
+  }
+
   // Question card within a program edit or read only page
   questionCardSelectorInProgramView(questionName: string) {
     return `.cf-program-question:has(:text("Admin ID: ${questionName}"))`

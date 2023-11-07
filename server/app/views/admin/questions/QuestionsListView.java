@@ -295,10 +295,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .condWith(
                 settingsManifest.getUniversalQuestions(request)
                     && getDisplayQuestion(cardData).isUniversal(),
-                ViewUtils.makeBadgeWithIcon(
-                    Icons.STAR,
-                    String.format(
-                        "Universal %s Question", latestDefinition.getQuestionType().getLabel())))
+                ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
