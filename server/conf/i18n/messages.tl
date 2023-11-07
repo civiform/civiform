@@ -286,7 +286,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
-adminValidation.multiOptionAdminEmpty=Hindi puwedeng blangko ang mga admin ID ng mga tanong na may maraming opsyon.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
