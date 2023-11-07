@@ -242,6 +242,14 @@ public abstract class QuestionDefinition {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
       }
 
+      if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
+          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
+        errors.add(
+            CiviFormError.of(
+                "Multi-option admin names can only contain letters, numbers, underscores, and"
+                    + " dashes"));
+      }
+
       if (multiOptionQuestionDefinition.getOptions().stream()
           .anyMatch(option -> option.optionText().hasEmptyTranslation())) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank options"));

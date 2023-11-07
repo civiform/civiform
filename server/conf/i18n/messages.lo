@@ -284,7 +284,6 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
-adminValidation.multiOptionAdminEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກຕ້ອງບໍ່ມີ ID ຜູ້ເບິ່ງແຍງທີ່ຫວ່າງເປົ່າ.
 
 #----------------------------------#
 # ERRORS - various error messages  #
