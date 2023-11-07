@@ -311,3 +311,14 @@ email.tiManageYourClients=ደንበኛዎችዎን በ{0} ላይ ያስተዳድ
 email.applicationUpdateSubject=በእርስዎ ማምልከቻ {0} ላይ ዝማኔ
 email.tiApplicationUpdateSubject=አመልካች {1}ን በመወከል ለፕሮግራም {0} በማመልከቻ ላይ ዝማኔ
 email.tiApplicationUpdateBody=በፕሮግራም {1} ላይ ለአመልካች {0} ሁኔታው ወደ {2} ተለውጧል።
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
