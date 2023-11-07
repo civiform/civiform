@@ -77,7 +77,7 @@ public class TextFormatterTest {
     assertThat(content.get(0).render())
         .isEqualTo(
             "<p>Enter your full legal name.<span class=\"text-red-600"
-                + " font-semibold\">\u00a0*</span></p>");
+                + " font-semibold\">\u00a0*</span></p>\n");
   }
 
   @Test
@@ -166,8 +166,12 @@ public class TextFormatterTest {
         TextFormatter.formatText(stringWithH1Markdown, false, false);
     assertThat(formattedText.get(0).render())
         .isEqualTo(
-            "<h2>Header 1</h2>\n<p>should be changed to h2 but</p>\n<h2>Header"
-                + " 2</h2>\n<p>and</p>\n<h3>Header 3</h3>\n<p>should be allowed</p>\n");
+            "<h2>Header 1</h2>\n"
+                + "<p>should be changed to h2 but</p>\n"
+                + "<h2>Header 2</h2>\n"
+                + "<p>and</p>\n"
+                + "<h3 class=\"text-lg\">Header 3</h3>\n"
+                + "<p>should be allowed</p>\n");
   }
 
   @Test
