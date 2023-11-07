@@ -14,7 +14,7 @@ type QuestionParams = {
   options?: Array<QuestionOption>
   description?: string
   questionText?: string
-  accordionText?: string
+  markdownText?: string
   helpText?: string
   enumeratorName?: string
   exportOption?: string
@@ -910,14 +910,14 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
-    accordionText = '\n### Accordion Header \n> This is some content.',
+    markdownText = '\n[Here is a link](https://www.example.com)\n',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.createStaticQuestion({
       questionName,
       description,
       questionText,
-      accordionText,
+      markdownText,
       enumeratorName,
     })
 
@@ -932,7 +932,7 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
-    accordionText = '',
+    markdownText = '',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
@@ -943,7 +943,7 @@ export class AdminQuestions {
 
     await this.page.fill(
       'label:has-text("Question Text")',
-      questionText + accordionText,
+      questionText + markdownText,
     )
     await this.page.fill(
       'label:has-text("Administrative identifier")',

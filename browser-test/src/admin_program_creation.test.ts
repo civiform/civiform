@@ -31,7 +31,11 @@ describe('program creation', () => {
     await adminQuestions.createStaticQuestion({
       questionName: 'static-question',
       questionText:
-        '### This is an example of some static text with formatting',
+        'This is an example of some static text with formatting\n' +
+        '* List Item 1\n' +
+        '* List Item 2\n' +
+        '\n' +
+        '[This is a link](https://www.example.com)\n',
     })
 
     await page.waitForTimeout(100) // ms

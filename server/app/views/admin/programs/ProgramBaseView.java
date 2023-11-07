@@ -19,6 +19,7 @@ import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
 import views.components.ButtonStyles;
 import views.components.Icons;
+import views.components.TextFormatter;
 import views.style.StyleUtils;
 
 abstract class ProgramBaseView extends BaseHtmlView {
@@ -30,7 +31,13 @@ abstract class ProgramBaseView extends BaseHtmlView {
             .withId("program-title")
             .withClasses("text-3xl", "pb-3");
     DivTag description =
-        div(programDefinition.localizedDescription().getDefault()).withClasses("text-sm");
+        div()
+            .with(
+                TextFormatter.formatText(
+                    programDefinition.localizedDescription().getDefault(),
+                    /*preserveEmptyLines=*/ false,
+                    /*addRequiredIndicator=*/ false))
+            .withClasses("text-sm");
     DivTag adminNote =
         div()
             .withClasses("text-sm")

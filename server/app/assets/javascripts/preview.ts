@@ -1,6 +1,6 @@
 /** The preview controller is responsible for updating question preview text in the question builder. */
 import {assertNotNull} from './util'
-import {AccordionController as Accordion} from './accordion'
+import MarkdownIt = require('markdown-it')
 
 class PreviewController {
   private static readonly QUESTION_TEXT_INPUT_ID = 'question-text-textarea'
@@ -43,40 +43,12 @@ class PreviewController {
   // highlight them in the question preview.
   private static readonly THIS_REGEX = /(\$this(?:\.parent)*)/g
 
-  private static accordionClasses = [
-    'cf-accordion',
-    'bg-white',
-    'my-4',
-    'p-4',
-    'rounded-lg',
-    'shadow-md',
-    'border',
-    'border-gray-300',
-  ]
-  private static accordionContentClasses = [
-    'cf-accordion-content',
-    'h-auto',
-    'mt-2',
-    'mb-1',
-  ]
-  private static accordionHeaderClasses = [
-    'cf-accordion-header',
-    'flex',
-    'justify-between',
-    'relative',
-    'w-full',
-    'bg-white',
-    'text-black',
-    'px-0',
-    'py-0',
-    'border-0',
-    'hover:bg-gray-100',
-  ]
-  private static accordionTitleClasses = ['text-xl', 'font-light']
-
-  private static accordionContent = '>'
-  private static accordionHeader = '### '
-  private static bulletedItem = '* '
+  private static parser = new DOMParser()
+  private static md = new MarkdownIt({
+    html: true,
+    linkify: true,
+    breaks: true,
+  })
 
   constructor() {
     const textInput = document.getElementById(
@@ -261,9 +233,7 @@ class PreviewController {
       questionType &&
       questionType.textContent === PreviewController.STATIC_QUESTION_TEXT
     if (useAdvancedFormatting) {
-      const contentElement = PreviewController.formatText(text, true)
-      contentElement.classList.add('text-sm')
-      contentElement.classList.add('font-normal')
+      const contentElement = PreviewController.formatText(text)
       contentElement.classList.add('pr-16')
 
       const contentParent = document.querySelector(
@@ -278,13 +248,6 @@ class PreviewController {
         PreviewController.QUESTION_TEXT_SELECTOR,
         text,
       )
-    }
-    // Add the ability for the accordion to expand and collapse on click
-    const accordionHeaderElement = document.querySelector(
-      '.cf-accordion-header',
-    )
-    if (accordionHeaderElement) {
-      new Accordion(accordionHeaderElement as HTMLElement)
     }
   }
 
@@ -371,102 +334,35 @@ class PreviewController {
     })
   }
 
-  private static formatText(
-    text: string,
-    preserveEmptyLines: boolean,
-  ): Element {
-    const ret = document.createElement('div')
-    const lines = text.split('\n')
-    for (let i = 0; i < lines.length; i++) {
-      const currentLine = lines[i].trim()
-      if (currentLine.startsWith(this.accordionHeader)) {
-        const title = currentLine.substring(4)
-        let content = ''
-        let next = i + 1
-        while (
-          next < lines.length &&
-          lines[next].startsWith(this.accordionContent)
-        ) {
-          content += lines[next].substring(1) + '\n'
-          next++
-        }
-        i = next - 1
-        ret.appendChild(PreviewController.buildAccordion(title, content))
-      } else if (currentLine.startsWith(this.bulletedItem)) {
-        const listItems = [currentLine.substring(2).trim()]
-        let next = i + 1
-        while (
-          next < lines.length &&
-          lines[next].startsWith(this.bulletedItem)
-        ) {
-          listItems.push(lines[next].substring(2).trim())
-          next++
-        }
-        i = next - 1
-        ret.appendChild(PreviewController.buildList(listItems))
-      } else if (currentLine.length > 0) {
-        const content = document.createElement('div')
-        content.textContent = currentLine
-        ret.appendChild(content)
-      } else if (preserveEmptyLines) {
-        const emptyLine = document.createElement('div')
-        emptyLine.classList.add('h-6')
-        ret.appendChild(emptyLine)
+  private static formatText(text: string): Element {
+    // Preserve line breaks before parsing the text
+    const textArray = text.split('\n')
+    for (let i = 0; i < textArray.length; i++) {
+      if (!textArray[i]) {
+        textArray[i] = '&nbsp;\n'
       }
     }
-    return ret
-  }
+    text = textArray.join('\n')
 
-  private static buildAccordion(title: string, content: string): Element {
-    const childContent = PreviewController.formatText(
-      content,
-      /* preserveEmptyLines = */ true,
+    let parsedHtml = PreviewController.md.render(text)
+    // Format lists
+    parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
+    parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')
+    // Format links
+    parsedHtml = parsedHtml
+      .split('href')
+      .join(
+        'class="text-blue-600 hover:text-blue-500 underline" target="_blank" href',
+      )
+    // Change h1 to h2 (per accessibility standards, there should only ever be one H1 per page)
+    parsedHtml = parsedHtml.split('<h1>').join('<h2>')
+    parsedHtml = parsedHtml.split('</h1>').join('</h2>')
+
+    const html = PreviewController.parser.parseFromString(
+      parsedHtml,
+      'text/html',
     )
-    const accordion = document.createElement('div')
-    this.accordionClasses.forEach((accordionClass) =>
-      accordion.classList.add(accordionClass),
-    )
-
-    const accordionHeader = document.createElement('button')
-    accordionHeader.setAttribute('aria-controls', 'cf-accordion-content')
-    accordionHeader.setAttribute('aria-expanded', 'false')
-    accordionHeader.setAttribute('type', 'button')
-
-    this.accordionHeaderClasses.forEach((headerClass) =>
-      accordionHeader.classList.add(headerClass),
-    )
-
-    const accordionTitle = document.createElement('div')
-    this.accordionTitleClasses.forEach((titleClass) =>
-      accordionHeader.classList.add(titleClass),
-    )
-    accordionTitle.textContent = title
-    accordionHeader.appendChild(accordionTitle)
-
-    const accordionButton = document.createElement('div')
-    accordionHeader.appendChild(accordionButton)
-
-    accordion.appendChild(accordionHeader)
-
-    childContent.setAttribute('id', 'cf-accordion-content')
-    this.accordionContentClasses.forEach((contentClass) =>
-      childContent.classList.add(contentClass),
-    )
-    accordion.appendChild(childContent)
-    return accordion
-  }
-
-  private static buildList(items: string[]): Element {
-    const listTag = document.createElement('ul')
-    listTag.classList.add('list-disc')
-    listTag.classList.add('mx-8')
-
-    items.forEach((item) => {
-      const listItem = document.createElement('li')
-      listItem.textContent = item
-      listTag.appendChild(listItem)
-    })
-    return listTag
+    return html.body
   }
 }
 
