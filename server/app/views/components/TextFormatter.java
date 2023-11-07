@@ -36,7 +36,7 @@ public final class TextFormatter {
     markdownText = addIconToLinks(markdownText);
     markdownText = addTextSize(markdownText);
     if (addRequiredIndicator) {
-      markdownText = addRequiredIndicatorInsidePTag(markdownText);
+      markdownText = addRequiredIndicator(markdownText);
     }
 
     builder.add(rawHtml(sanitizeHtml(markdownText)));
@@ -70,10 +70,12 @@ public final class TextFormatter {
     return replacedH3Tags.replaceAll("<h4>", "<h4 class=\"text-base\">");
   }
 
-  private static String addRequiredIndicatorInsidePTag(String markdownText) {
-    int indexOfPTag = markdownText.lastIndexOf("</p>");
-    String stringWithRequiredIndicator = ViewUtils.requiredQuestionIndicator().toString() + "</p>";
-    return markdownText.substring(0, indexOfPTag) + stringWithRequiredIndicator;
+  private static String addRequiredIndicator(String markdownText) {
+    int indexOfClosingTag = markdownText.lastIndexOf("</");
+    String closingTag = markdownText.substring(indexOfClosingTag);
+    String stringWithRequiredIndicator =
+        ViewUtils.requiredQuestionIndicator().toString().concat(closingTag);
+    return markdownText.substring(0, indexOfClosingTag) + stringWithRequiredIndicator;
   }
 
   private static String sanitizeHtml(String markdownText) {
