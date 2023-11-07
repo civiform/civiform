@@ -5,17 +5,14 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Program;
-import models.Version;
 import repository.VersionRepository;
 
 public final class ReportingFactory {
-  private final Version activeVersion;
   private final ImmutableList<Program> listOfPrograms;
 
   @Inject
   public ReportingFactory(VersionRepository versionRepository) {
-    activeVersion = Preconditions.checkNotNull(versionRepository).getActiveVersion();
-    listOfPrograms = activeVersion.getPrograms();
+    listOfPrograms = Preconditions.checkNotNull(versionRepository).getActiveVersion().getPrograms();
   }
 
   public Optional<Program> getProgram(String name) {
