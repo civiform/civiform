@@ -311,3 +311,14 @@ email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.
 email.applicationUpdateSubject=Cập nhật về đơn đăng ký của bạn {0}
 email.tiApplicationUpdateSubject=Cập nhật về đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
 email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong chương trình {1} đã thay đổi thành {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
