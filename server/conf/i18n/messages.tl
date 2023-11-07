@@ -311,3 +311,14 @@ email.tiManageYourClients=Pamahalaan ang iyong mga client sa {0}.
 email.applicationUpdateSubject=Update sa iyong aplikasyong {0}
 email.tiApplicationUpdateSubject=Update sa aplikasyon para sa programang {0} sa ngalan ng aplikanteng si {1}
 email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programang {1} ay naging {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
