@@ -36,13 +36,9 @@
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
-<<<<<<< HEAD
+    "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
     "markdown-it": "^13.0.1"
-  }
-=======
-    "@uswds/uswds": "^3.6.0",
-    "cleave.js": "1.6.0"
   },
   "browserslist": [
     "> 2%",
@@ -50,5 +46,4 @@
     "IE 11",
     "not dead"
   ]
->>>>>>> main
 }
