@@ -213,7 +213,8 @@ function attachLineClampListeners() {
   const applicationCardDescriptions = Array.from(
     document.querySelectorAll('.cf-application-card-description'),
   )
-  applicationCardDescriptions.forEach((el) => el.addEventListener('click', removeLineClamp)
+  applicationCardDescriptions.forEach((el) =>
+    el.addEventListener('click', removeLineClamp),
   )
 }
 
