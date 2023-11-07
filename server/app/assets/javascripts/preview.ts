@@ -347,7 +347,7 @@ class PreviewController {
     let parsedHtml = PreviewController.md.render(text)
     // Format lists
     parsedHtml = parsedHtml.split('<ul>').join('<ul class="list-disc mx-8">')
-    parsedHtml = parsedHtml.split('<ol>').join('<ul class="list-decimal mx-8">')
+    parsedHtml = parsedHtml.split('<ol>').join('<ol class="list-decimal mx-8">')
     // Format links
     parsedHtml = parsedHtml
       .split('href')
