@@ -160,7 +160,8 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     assertThat(profileData).isNotNull();
     assertThat(profileData).isEqualTo(fakeProfileData);
 
-    assertThat(profileData.getEmail()).isNull();
+    // email is set
+    assertThat(profileData.getEmail()).isEqualTo(EMAIL);
     assertThat(profileData.getDisplayName()).isNull();
 
     Optional<Applicant> maybeApplicant = oidcProfileAdapter.getExistingApplicant(profile);

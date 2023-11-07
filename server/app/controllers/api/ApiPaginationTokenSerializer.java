@@ -8,7 +8,6 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.inject.Inject;
 import com.typesafe.config.Config;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import services.CryptographicUtils;
@@ -66,14 +65,8 @@ public final class ApiPaginationTokenSerializer {
    * deserialization fails or the token's signature is invalid.
    */
   public ApiPaginationTokenPayload deserialize(String serializedPageToken) {
-    String tokenJson;
-
-    try {
-      tokenJson = new String(Base64.getDecoder().decode(serializedPageToken), "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new BadApiRequestException("Page token encoding invalid");
-    }
-
+    String tokenJson =
+        new String(Base64.getDecoder().decode(serializedPageToken), StandardCharsets.UTF_8);
     ApiPaginationToken token = deserializeJson(tokenJson, ApiPaginationToken.class);
 
     var computedPayloadSignature =

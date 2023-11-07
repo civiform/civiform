@@ -111,20 +111,38 @@ public class DevDatabaseSeedController extends Controller {
     if (!isDevOrStaging) {
       return notFound();
     }
-    if (settingsManifest.getVersionCacheEnabled()) {
-      clearCache();
-    }
+    clearCacheIfEnabled();
     resetTables();
     return redirect(routes.DevDatabaseSeedController.index().url())
         .flashing("success", "The database has been cleared");
   }
 
   /** Remove all content from the cache. */
-  private void clearCache() {
-    programsByVersionCache.removeAll().toCompletableFuture().join();
-    questionsByVersionCache.removeAll().toCompletableFuture().join();
-    programCache.removeAll().toCompletableFuture().join();
-    versionsByProgramCache.removeAll().toCompletableFuture().join();
+  public Result clearCache() {
+    if (!isDevOrStaging) {
+      return notFound();
+    }
+    if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
+      return redirect(routes.DevDatabaseSeedController.index().url())
+          .flashing(
+              "warning",
+              "The cache is not enabled, so no cache was cleared. To enable caching, set"
+                  + " VERSION_CACHE_ENABLED or PROGRAM_CACHE_ENABLED to true.");
+    }
+    clearCacheIfEnabled();
+    // We don't redirect to the index page, since that would reset the cache.
+    return ok("The cache has been cleared");
+  }
+
+  private void clearCacheIfEnabled() {
+    if (settingsManifest.getVersionCacheEnabled()) {
+      programsByVersionCache.removeAll().toCompletableFuture().join();
+      questionsByVersionCache.removeAll().toCompletableFuture().join();
+    }
+    if (settingsManifest.getProgramCacheEnabled()) {
+      programCache.removeAll().toCompletableFuture().join();
+      versionsByProgramCache.removeAll().toCompletableFuture().join();
+    }
   }
 
   // Create a date question definition with the given name and questionText. We currently create

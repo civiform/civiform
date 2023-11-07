@@ -36,9 +36,15 @@ public abstract class QuestionDefinitionConfig {
 
   abstract Optional<Instant> lastModifiedTime();
 
-  /** Used to create a new {@link QuestionDefinitionConfig} */
+  abstract boolean universal();
+
+  /**
+   * Used to create a new {@link QuestionDefinitionConfig}. We default the universal field to false
+   * here to avoid having to explicitly set it to false everywhere that is using a builder and not
+   * trying to create a universal question.
+   */
   public static RequiredName builder() {
-    return new AutoValue_QuestionDefinitionConfig.Builder();
+    return new AutoValue_QuestionDefinitionConfig.Builder().setUniversal(false);
   }
 
   /** Used to create a new {@link QuestionDefinitionConfig.Builder} based on an existing one. */
@@ -79,6 +85,8 @@ public abstract class QuestionDefinitionConfig {
     }
 
     abstract Builder setQuestionHelpTextInternal(LocalizedStrings questionHelpText);
+
+    public abstract Builder setUniversal(boolean universal);
 
     public abstract QuestionDefinitionConfig build();
   }

@@ -1,5 +1,6 @@
 package auth;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Optional;
@@ -99,6 +100,7 @@ public final class ProfileFactory {
     return p;
   }
 
+  @VisibleForTesting
   public CiviFormProfile wrap(Account account) {
     return wrapProfileData(new CiviFormProfileData(account.id));
   }
@@ -173,15 +175,18 @@ public final class ProfileFactory {
     }
 
     CiviFormProfileData tiProfileData = create(new Role[] {Role.ROLE_TI});
+    // The email must be unique in order to insert into the database.
+    // Email must be use example.com for TI browser tests to pass, see
+    // ApplicantLayout.tiEmailForDisplay().
+    String email = String.format("fake-trusted-intermediary-%s@example.com", tiProfileData.getId());
+    tiProfileData.setEmail(email);
+
     CiviFormProfile tiProfile = wrapProfileData(tiProfileData);
     tiProfile
         .getAccount()
         .thenAccept(
             account -> {
               account.setAuthorityId(generateFakeAdminAuthorityId());
-              // The email must be unique in order to insert into the database.
-              String email =
-                  String.format("fake-trusted-intermediary-%s@example.com", tiProfile.getId());
               account.setEmailAddress(email);
               account.save();
               accountRepository.addTrustedIntermediaryToGroup(group.id, email);

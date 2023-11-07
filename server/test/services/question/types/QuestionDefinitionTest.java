@@ -26,6 +26,7 @@ import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 @RunWith(JUnitParamsRunner.class)
 public class QuestionDefinitionTest {
   private QuestionDefinitionBuilder builder;
+  private QuestionDefinitionConfig.Builder configBuilder;
 
   @Before
   public void setup() {
@@ -38,6 +39,12 @@ public class QuestionDefinitionTest {
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
             .setEntityType(LocalizedStrings.empty())
             .setValidationPredicates(TextValidationPredicates.builder().setMaxLength(128).build());
+    configBuilder =
+        QuestionDefinitionConfig.builder()
+            .setName("name")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"));
   }
 
   @Test
@@ -130,14 +137,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void isEnumerator_false() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.isEnumerator()).isFalse();
   }
@@ -145,27 +145,13 @@ public class QuestionDefinitionTest {
   @Test
   public void isEnumerator_true() {
     QuestionDefinition question =
-        new EnumeratorQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build(),
-            LocalizedStrings.empty());
+        new EnumeratorQuestionDefinition(configBuilder.build(), LocalizedStrings.empty());
     assertThat(question.isEnumerator()).isTrue();
   }
 
   @Test
   public void isRepeated_false() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.isRepeated()).isFalse();
   }
@@ -173,29 +159,13 @@ public class QuestionDefinitionTest {
   @Test
   public void isRepeated_true() {
     QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .setEnumeratorId(Optional.of(123L))
-                .build());
+        new TextQuestionDefinition(configBuilder.setEnumeratorId(Optional.of(123L)).build());
     assertThat(question.isRepeated()).isTrue();
   }
 
   @Test
   public void newQuestionHasCorrectFields() throws Exception {
-    QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.TEXT)
-            .setId(123L)
-            .setName("name")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-            .setValidationPredicates(TextValidationPredicates.builder().setMinLength(0).build())
-            .build();
+    QuestionDefinition question = builder.setId(123L).build();
 
     assertThat(question.getId()).isEqualTo(123L);
     assertThat(question.getName()).isEqualTo("name");
@@ -203,19 +173,13 @@ public class QuestionDefinitionTest {
     assertThat(question.getQuestionText().get(Locale.US)).isEqualTo("question?");
     assertThat(question.getQuestionHelpText().get(Locale.US)).isEqualTo("help text");
     assertThat(question.getValidationPredicates())
-        .isEqualTo(TextValidationPredicates.builder().setMinLength(0).build());
+        .isEqualTo(TextValidationPredicates.builder().setMaxLength(128).build());
+    assertThat(question.isUniversal()).isFalse();
   }
 
   @Test
   public void getQuestionTextForUnknownLocale_throwsException() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "not french"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionText().get(Locale.FRANCE));
 
@@ -225,14 +189,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void getQuestionHelpTextForUnknownLocale_throwsException() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     Throwable thrown = catchThrowable(() -> question.getQuestionHelpText().get(Locale.FRANCE));
 
@@ -244,9 +201,7 @@ public class QuestionDefinitionTest {
   public void getEmptyHelpTextForUnknownLocale_succeeds() throws TranslationNotFoundException {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("")
+            configBuilder
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
@@ -257,12 +212,7 @@ public class QuestionDefinitionTest {
   public void getQuestionTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.withDefaultValue("default"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+            configBuilder.setQuestionText(LocalizedStrings.withDefaultValue("default")).build());
 
     assertThat(question.getQuestionText().getOrDefault(Locale.forLanguageTag("und")))
         .isEqualTo("default");
@@ -272,10 +222,7 @@ public class QuestionDefinitionTest {
   public void getQuestionHelpTextOrDefault_returnsDefaultIfNotFound() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
+            configBuilder
                 .setQuestionHelpText(LocalizedStrings.withDefaultValue("default"))
                 .build());
 
@@ -285,84 +232,42 @@ public class QuestionDefinitionTest {
 
   @Test
   public void maybeGetQuestionText_returnsOptionalWithText() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "hello"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
-    assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("hello");
+    assertThat(question.getQuestionText().maybeGet(Locale.US)).hasValue("question?");
   }
 
   @Test
   public void maybeGetQuestionText_returnsEmptyIfLocaleNotFound() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.getQuestionText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
 
   @Test
   public void maybeGetQuestionHelpText_returnsOptionalWithText() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "world"))
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
-    assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("world");
+    assertThat(question.getQuestionHelpText().maybeGet(Locale.US)).hasValue("help text");
   }
 
   @Test
   public void maybeGetQuestionHelpText_returnsEmptyIfLocaleNotFound() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.getQuestionHelpText().maybeGet(Locale.forLanguageTag("und"))).isEmpty();
   }
 
   @Test
   public void newQuestionHasTypeText() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("")
-                .setQuestionText(LocalizedStrings.of())
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
 
     assertThat(question.getQuestionType()).isEqualTo(QuestionType.TEXT);
   }
 
   @Test
   public void validateWellFormedQuestion_returnsNoErrors() {
-    QuestionDefinition question =
-        new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("text")
-                .setDescription("description")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
-                .setQuestionHelpText(LocalizedStrings.empty())
-                .build());
+    QuestionDefinition question = new TextQuestionDefinition(configBuilder.build());
     assertThat(question.validate()).isEmpty();
   }
 
@@ -370,7 +275,7 @@ public class QuestionDefinitionTest {
   public void validateBadQuestion_returnsErrors() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
+            configBuilder
                 .setName("")
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
@@ -385,11 +290,7 @@ public class QuestionDefinitionTest {
   @Test
   public void validate_withEnumerator_withEmptyEntityString_returnsErrors() throws Exception {
     QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
+        builder
             .setEntityType(LocalizedStrings.withDefaultValue(""))
             .setQuestionType(QuestionType.ENUMERATOR)
             .build();
@@ -401,15 +302,7 @@ public class QuestionDefinitionTest {
   @Test
   public void validate_withRepeatedQuestion_missingEntityNameFormatString_returnsErrors()
       throws Exception {
-    QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
-            .setQuestionText(LocalizedStrings.withDefaultValue("text"))
-            .setQuestionHelpText(LocalizedStrings.withDefaultValue("help text"))
-            .setEnumeratorId(Optional.of(1L))
-            .setQuestionType(QuestionType.TEXT)
-            .build();
+    QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();
 
     assertThat(question.validate())
         .containsOnly(
@@ -423,9 +316,7 @@ public class QuestionDefinitionTest {
       validate_withRepeatedQuestion_oneTranslationMissingEntityNameFormatString_returnsErrors()
           throws Exception {
     QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
+        builder
             .setQuestionText(
                 LocalizedStrings.of(
                     Locale.US, "$this is present", Locale.FRANCE, "$this is also present"))
@@ -433,7 +324,6 @@ public class QuestionDefinitionTest {
                 LocalizedStrings.of(
                     Locale.US, "$this is present", Locale.FRANCE, "this is not present"))
             .setEnumeratorId(Optional.of(1L))
-            .setQuestionType(QuestionType.TEXT)
             .build();
 
     assertThat(question.validate())
@@ -446,12 +336,10 @@ public class QuestionDefinitionTest {
   @Test
   public void validate_withRepeatedQuestion_withNoHelpText_returnsNoErrors() throws Exception {
     QuestionDefinition question =
-        new QuestionDefinitionBuilder()
-            .setName("name")
-            .setDescription("description")
+        builder
             .setQuestionText(LocalizedStrings.withDefaultValue("something with $this"))
+            .setQuestionHelpText(LocalizedStrings.empty())
             .setEnumeratorId(Optional.of(1L))
-            .setQuestionType(QuestionType.TEXT)
             .build();
 
     assertThat(question.validate()).isEmpty();
@@ -461,9 +349,7 @@ public class QuestionDefinitionTest {
   public void validate_localeHasBlankText_returnsError() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("test")
-                .setDescription("test")
+            configBuilder
                 .setQuestionText(LocalizedStrings.of(Locale.US, ""))
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
@@ -474,11 +360,10 @@ public class QuestionDefinitionTest {
   public void validate_nameIsNotEntityName() {
     QuestionDefinition question =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
+            configBuilder
                 .setName("entity name")
                 .setDescription("test")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "Entity Name Test"))
-                .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
     assertThat(question.validate())
         .containsOnly(CiviFormError.of("Administrative identifier 'entity name' is not allowed"));
@@ -502,13 +387,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void validate_multiOptionQuestion_withBlankOption_returnsError() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("test")
-            .setDescription("test")
-            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
-            .setQuestionHelpText(LocalizedStrings.empty())
-            .build();
+    QuestionDefinitionConfig config = configBuilder.build();
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config,
@@ -521,13 +400,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void validate_multiOptionQuestion_withBlankOptionAdminNames_returnsError() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("test")
-            .setDescription("test")
-            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
-            .setQuestionHelpText(LocalizedStrings.empty())
-            .build();
+    QuestionDefinitionConfig config = configBuilder.build();
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config,
@@ -539,13 +412,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void validate_multiOptionQuestion_withDuplicateOptions_returnsError() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("test")
-            .setDescription("test")
-            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
-            .setQuestionHelpText(LocalizedStrings.empty())
-            .build();
+    QuestionDefinitionConfig config = configBuilder.build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
             QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
@@ -559,13 +426,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void validate_multiOptionQuestion_withDuplicateOptionAdminNames_returnsError() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("test")
-            .setDescription("test")
-            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
-            .setQuestionHelpText(LocalizedStrings.empty())
-            .build();
+    QuestionDefinitionConfig config = configBuilder.build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
             QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
@@ -579,13 +440,7 @@ public class QuestionDefinitionTest {
 
   @Test
   public void validate_multiOptionQuestion_withUniqueOptionAdminNames_doesNotReturnError() {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("test")
-            .setDescription("test")
-            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
-            .setQuestionHelpText(LocalizedStrings.empty())
-            .build();
+    QuestionDefinitionConfig config = configBuilder.build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
             QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
@@ -646,11 +501,7 @@ public class QuestionDefinitionTest {
       OptionalInt maxChoicesAllowed,
       Optional<String> wantErrorMessage) {
     QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName("test")
-            .setDescription("test")
-            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
-            .setQuestionHelpText(LocalizedStrings.empty())
+        configBuilder
             .setValidationPredicates(
                 MultiOptionValidationPredicates.builder()
                     .setMinChoicesRequired(minChoicesRequired)
@@ -678,9 +529,7 @@ public class QuestionDefinitionTest {
   public void getSupportedLocales_onlyReturnsFullySupportedLocales() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("test")
-                .setDescription("test")
+            configBuilder
                 .setQuestionText(
                     LocalizedStrings.of(
                         Locale.US,
@@ -707,9 +556,7 @@ public class QuestionDefinitionTest {
   public void getSupportedLocales_emptyHelpText_returnsLocalesForQuestionText() {
     QuestionDefinition definition =
         new TextQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("test")
-                .setDescription("test")
+            configBuilder
                 .setQuestionText(
                     LocalizedStrings.of(
                         Locale.US,
