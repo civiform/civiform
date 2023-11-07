@@ -36,7 +36,8 @@ abstract class ProgramBaseView extends BaseHtmlView {
             .withClasses("text-sm")
             .with(span("Admin note: ").withClasses("font-semibold"))
             .with(span(programDefinition.adminDescription()));
-    return div(ViewUtils.makeBadge(getProgramDisplayStatus()), title, description, adminNote)
+    return div(
+            ViewUtils.makeLifecycleBadge(getProgramDisplayStatus()), title, description, adminNote)
         .withClasses("bg-gray-100", "text-gray-800", "shadow-md", "p-8", "pt-4", "-mx-2");
   }
 

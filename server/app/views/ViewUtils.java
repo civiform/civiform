@@ -27,7 +27,6 @@ import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
-import services.question.types.QuestionType;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -162,7 +161,7 @@ public final class ViewUtils {
    * @return Tag representing the badge. No classes should be added to the returned tag as it will
    *     overwrite existing classes due to how Jhtml works.
    */
-  public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
+  public static PTag makeLifecycleBadge(ProgramDisplayType status, String... extraClasses) {
     String badgeText = "", badgeBGColor = "", badgeFillColor = "";
     switch (status) {
       case ACTIVE:
@@ -303,7 +302,14 @@ public final class ViewUtils {
     return button;
   }
 
-  public static DivTag makeUniversalBadge(QuestionType questionType) {
+  /**
+   * Makes a badge with a civiform-teal background, white text, and the given icon.
+   *
+   * @param icon Icon to use in the badge, left of the text.
+   * @param text Text for the badge.
+   * @return DivTag containing the badge.
+   */
+  public static DivTag makeBadgeWithIcon(Icons icon, String text) {
     return div()
         .withClasses(
             "rounded-lg",
@@ -315,8 +321,6 @@ public final class ViewUtils {
             "space-x-1",
             "text-white",
             "bg-civiform-teal")
-        .with(
-            Icons.svg(Icons.STAR).withClasses("flex", "h-6", "w-4"),
-            span(String.format("Universal %s Question", questionType.getLabel())));
+        .with(Icons.svg(icon).withClasses("flex", "h-6", "w-4"), span(text));
   }
 }

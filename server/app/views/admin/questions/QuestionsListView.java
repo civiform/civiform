@@ -295,7 +295,10 @@ public final class QuestionsListView extends BaseHtmlView {
             .condWith(
                 settingsManifest.getUniversalQuestions(request)
                     && getDisplayQuestion(cardData).isUniversal(),
-                ViewUtils.makeUniversalBadge(latestDefinition.getQuestionType()))
+                ViewUtils.makeBadgeWithIcon(
+                    Icons.STAR,
+                    String.format(
+                        "Universal %s Question", latestDefinition.getQuestionType().getLabel())))
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
@@ -334,7 +337,8 @@ public final class QuestionsListView extends BaseHtmlView {
               ? ProgramDisplayType.PENDING_DELETION
               : ProgramDisplayType.DRAFT;
     }
-    PTag badge = ViewUtils.makeBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
+    PTag badge =
+        ViewUtils.makeLifecycleBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()
