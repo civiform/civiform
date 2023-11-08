@@ -14,22 +14,22 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
+import models.Program;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
-import services.reporting.ReportingFactory;
 
 /** Implements queries related to reporting needs. */
 public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final ReportingFactory reportingFactory;
+  private final ImmutableList<Program> listOfPrograms;
 
   @Inject
   public ReportingRepository(Clock clock, Provider<VersionRepository> versionRepositoryProvider) {
     this.clock = Preconditions.checkNotNull(clock);
     this.database = DB.getDefault();
-    this.reportingFactory = new ReportingFactory(checkNotNull(versionRepositoryProvider).get());
+    listOfPrograms = versionRepositoryProvider.get().getActiveVersion().getPrograms();
   }
 
   /**
@@ -49,12 +49,7 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  reportingFactory
-                      .getProgram(programName)
-                      .get()
-                      .getProgramDefinition()
-                      .localizedName()
-                      .getDefault(),
+                  getProgram(programName).get().getProgramDefinition().localizedName().getDefault(),
                   programName,
                   Optional.of(row.getTimestamp("submit_month")),
                   row.getLong("count"),
@@ -64,6 +59,12 @@ public final class ReportingRepository {
                   getSecondsFromPgIntervalRowValue(row, "p99"));
             })
         .collect(ImmutableList.toImmutableList());
+  }
+
+  private Optional<Program> getProgram(String name) {
+    return listOfPrograms.stream()
+        .filter(p -> p.getProgramDefinition().adminName().equals(name))
+        .findAny();
   }
 
   private Timestamp getFirstOfMonth() {
@@ -99,12 +100,7 @@ public final class ReportingRepository {
             row -> {
               String programName = row.getString("program_name");
               return ApplicationSubmissionsStat.create(
-                  reportingFactory
-                      .getProgram(programName)
-                      .get()
-                      .getProgramDefinition()
-                      .localizedName()
-                      .getDefault(),
+                  getProgram(programName).get().getProgramDefinition().localizedName().getDefault(),
                   programName,
                   Optional.of(firstOfMonth),
                   row.getLong("count"),
