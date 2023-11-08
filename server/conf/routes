@@ -143,8 +143,16 @@ GET     /assets/*file               controllers.Assets.versioned(file)
 GET     /applicants/:applicantId/edit                                       controllers.applicant.ApplicantInformationController.setLangFromBrowser(request: Request, applicantId: Long)
 POST    /applicants/:applicantId                                            controllers.applicant.ApplicantInformationController.setLangFromSwitcher(request: Request, applicantId: Long)
 
-# Program methods for applicants
-GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.index(request: Request, applicantId: Long)
+# Program methods for applicants (new)
+GET     /programs                   controllers.applicant.ApplicantProgramsController.index(request: Request)
+
+# Program methods for TI actions on behalf of applicants.
+#
+# Also: Program methods for applicants (legacy). Maintained for now
+# because some applicants will have profiles in the sessions that
+# do not yet contain the applicant id, so we maintain these routes
+# during migration.
+GET     /applicants/:applicantId/programs                                                      controllers.applicant.ApplicantProgramsController.indexWithApplicantId(request: Request, applicantId: Long)
 GET     /applicants/:applicantId/programs/:programId                                           controllers.applicant.ApplicantProgramsController.view(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/edit                                      controllers.applicant.ApplicantProgramsController.edit(request: Request, applicantId: Long, programId: Long)
 GET     /applicants/:applicantId/programs/:programId/review                                    controllers.applicant.ApplicantProgramReviewController.review(request: Request, applicantId: Long, programId: Long)

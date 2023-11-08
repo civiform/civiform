@@ -6,6 +6,8 @@ import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
 import static j2html.TagCreator.p;
 
+import auth.CiviFormProfile;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
@@ -40,7 +42,8 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
       Request request,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Messages messages,
-      long applicantId) {
+      long applicantId,
+      CiviFormProfile profile) {
 
     DivTag content =
         div()
@@ -66,7 +69,7 @@ public final class PreventDuplicateSubmissionView extends ApplicationBaseView {
                         redirectButton(
                                 "exit-application-button",
                                 messages.at(MessageKey.BUTTON_EXIT_APPLICATION.getKeyName()),
-                                routes.ApplicantProgramsController.index(applicantId).url())
+                                ApplicantRoutes.index(profile, applicantId).url())
                             .withClasses(ButtonStyles.OUTLINED_TRANSPARENT)));
 
     String title = "No changes to save";

@@ -16,6 +16,7 @@ import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
 import repository.DatabaseExecutionContext;
+import services.applicant.exception.ApplicantNotFoundException;
 import services.settings.SettingsManifest;
 
 // NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CiviFormProfile
@@ -44,6 +45,27 @@ public class CiviFormProfile {
 
   /** Get the latest {@link Applicant} associated with the profile. */
   public CompletableFuture<Applicant> getApplicant() {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      return supplyAsync(
+          () -> {
+            long applicantId =
+                profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+            Applicant applicant = new Applicant();
+            applicant.id = applicantId;
+            try {
+              applicant.refresh();
+            } catch (EntityNotFoundException e) {
+              // Unlike AccountNotFoundException, ApplicantNotFoundException is not a
+              // RuntimeException.
+              throw new RuntimeException(new ApplicantNotFoundException(applicantId));
+            }
+            return applicant;
+          },
+          dbContext);
+    }
+
+    // If the applicant id has not yet been stored in the profile, then get it from the account,
+    // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
             (a) ->

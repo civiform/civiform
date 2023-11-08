@@ -1,4 +1,4 @@
-package controllers;
+package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,6 +13,9 @@ import repository.ResetPostgres;
 public class ApplicantRoutesTest extends ResetPostgres {
 
   private ProfileFactory profileFactory;
+  private static long applicantId = 123L;
+  private static long applicantAccountId = 456L;
+  private static long tiAccountId = 789L;
 
   @Before
   public void setupProfileFactory() {
@@ -21,10 +24,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testIndexRouteForApplicantWithIdInProfile() {
-    long applicantId = 123L;
-    long accountId = 789L;
-
-    CiviFormProfileData profileData = new CiviFormProfileData(accountId);
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
     profileData.addAttribute(
         ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(applicantId));
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
@@ -34,10 +34,7 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testIndexRouteForApplicantWithoutIdInProfile() {
-    long applicantId = 123L;
-    long accountId = 789L;
-
-    CiviFormProfileData profileData = new CiviFormProfileData(accountId);
+    CiviFormProfileData profileData = new CiviFormProfileData(applicantAccountId);
     profileData.removeAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
     CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
 
@@ -48,9 +45,6 @@ public class ApplicantRoutesTest extends ResetPostgres {
 
   @Test
   public void testIndexRouteForTrustedIntermediary() {
-    long tiAccountId = 123L;
-    long applicantId = 456L;
-
     CiviFormProfileData profileData = new CiviFormProfileData(tiAccountId);
     profileData.addRole(Role.ROLE_TI.toString());
     CiviFormProfile tiProfile = profileFactory.wrapProfileData(profileData);

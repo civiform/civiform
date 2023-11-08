@@ -40,7 +40,7 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
 
   @Test
   public void testLanguageSelectorNotShownOneLanguage() {
-    Applicant applicant = createApplicantWithMockedProfile();
+    createApplicantWithMockedProfile();
     Langs mockLangs = Mockito.mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
     SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
@@ -55,8 +55,6 @@ public class HomeControllerWithProfileTest extends WithMockedProfiles {
             instanceOf(HttpExecutionContext.class),
             languageUtils);
     Result result = controller.index(fakeRequest().build()).toCompletableFuture().join();
-    assertThat(result.redirectLocation())
-        .contains(
-            controllers.applicant.routes.ApplicantProgramsController.index(applicant.id).url());
+    assertThat(result.redirectLocation()).hasValue("/programs");
   }
 }

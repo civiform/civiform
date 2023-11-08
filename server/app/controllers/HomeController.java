@@ -7,6 +7,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Strings;
 import com.typesafe.config.Config;
+import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -79,9 +80,7 @@ public class HomeController extends Controller {
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
                 if (data.hasPreferredLocale()) {
-                  return redirect(
-                          controllers.applicant.routes.ApplicantProgramsController.index(
-                              applicant.id))
+                  return redirect(ApplicantRoutes.index(profile, applicant.id))
                       .withLang(data.preferredLocale(), messagesApi);
                 } else {
                   return redirect(

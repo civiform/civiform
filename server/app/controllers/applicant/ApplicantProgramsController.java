@@ -5,6 +5,8 @@ import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
+import auth.ProfileFactory;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
 import java.util.Optional;
@@ -59,7 +61,7 @@ public final class ApplicantProgramsController extends CiviFormController {
   }
 
   @Secure
-  public CompletionStage<Result> index(Request request, long applicantId) {
+  public CompletionStage<Result> indexWithApplicantId(Request request, long applicantId) {
     Optional<CiviFormProfile> requesterProfile = profileUtils.currentUserProfile(request);
 
     // If the user doesn't have a profile, send them home.
@@ -102,6 +104,14 @@ public final class ApplicantProgramsController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
+  }
+
+  @Secure
+  public CompletionStage<Result> index(Request request) {
+    // The route for this action should only be computed if the applicant ID is available in the
+    // session.
+    long applicantId = getApplicantId(request).orElseThrow();
+    return indexWithApplicantId(request, applicantId);
   }
 
   @Secure
@@ -214,5 +224,17 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   private static Result redirectToHome() {
     return redirect(controllers.routes.HomeController.index().url());
+  }
+
+  private Optional<Long> getApplicantId(Request request) {
+    CiviFormProfileData profileData =
+        profileUtils.currentUserProfile(request).orElseThrow().getProfileData();
+
+    if (profileData == null) {
+      return Optional.empty();
+    }
+
+    return Optional.ofNullable(
+        profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class));
   }
 }

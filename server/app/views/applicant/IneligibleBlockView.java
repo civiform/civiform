@@ -9,6 +9,7 @@ import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.ul;
 
 import auth.CiviFormProfile;
+import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.routes;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
@@ -100,7 +101,7 @@ public final class IneligibleBlockView extends ApplicationBaseView {
                     .with(div().withClasses("flex-grow"))
                     .with(
                         new LinkElement()
-                            .setHref(routes.ApplicantProgramsController.index(applicantId).url())
+                            .setHref(ApplicantRoutes.index(submittingProfile, applicantId).url())
                             .setText(
                                 messages.at(MessageKey.LINK_APPLY_TO_ANOTHER_PROGRAM.getKeyName()))
                             .asButton()

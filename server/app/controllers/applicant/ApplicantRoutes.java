@@ -1,4 +1,4 @@
-package controllers;
+package controllers.applicant;
 
 import auth.CiviFormProfile;
 import auth.ProfileFactory;
@@ -12,10 +12,11 @@ public final class ApplicantRoutes {
 
   // There are two cases where we want to use the URL that contains the applicant id:
   // - TIs performing actions on behalf of applicants.
-  // - The applicant has a profile that does not include the applicant id.
+  // - The applicant has a profile that does not (yet) include the applicant id.
   //   This case will eventually go away once existing profiles have expired and been replaced.
   private static boolean includeApplicantIdInRoute(CiviFormProfile profile) {
     boolean isTi = profile.isTrustedIntermediary();
+    // TODO(yotommy): add a counter to monitor this case
     boolean applicantIdInProfile =
         profile.getProfileData().containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME);
 
