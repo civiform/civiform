@@ -7,6 +7,7 @@ import static views.components.Modal.RepeatOpenBehavior.Group.PROGRAM_SLUG_LOGIN
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import controllers.ApplicantRoutes;
 import controllers.CiviFormController;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -258,7 +259,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantId,
                       programId,
                       applicationId,
-                      routes.ApplicantProgramsController.index(applicantId).url());
+                      ApplicantRoutes.index(submittingProfile, applicantId).url());
               return found(endOfProgramSubmission);
             },
             httpExecutionContext.current())
@@ -312,7 +313,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           request,
                           roApplicantProgramService,
                           messagesApi.preferred(request),
-                          applicantId));
+                          applicantId,
+                          profileUtils.currentUserProfile(request).orElseThrow()));
                 }
                 throw new RuntimeException(cause);
               }

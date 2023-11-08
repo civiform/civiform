@@ -3,7 +3,9 @@ package controllers.applicant;
 import static controllers.CallbackController.REDIRECT_TO_SESSION_KEY;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import controllers.ApplicantRoutes;
 import controllers.CiviFormController;
 import forms.ApplicantInformationForm;
 import java.util.Locale;
@@ -90,7 +92,8 @@ public final class ApplicantInformationController extends CiviFormController {
                             /* page= */ Optional.of(1))
                         .url();
               } else {
-                redirectLink = routes.ApplicantProgramsController.index(applicantId).url();
+                CiviFormProfile profile = profileUtils.currentUserProfile(request).orElseThrow();
+                redirectLink = ApplicantRoutes.index(profile, applicantId).url();
               }
 
               return redirect(redirectLink)
@@ -129,9 +132,10 @@ public final class ApplicantInformationController extends CiviFormController {
     ApplicantInformationForm infoForm = form.bindFromRequest(request).get();
     String redirectLocation;
     Session session;
+    CiviFormProfile profile = profileUtils.currentUserProfile(request).orElseThrow();
 
     if (infoForm.getRedirectLink().isEmpty()) {
-      redirectLocation = routes.ApplicantProgramsController.index(applicantId).url();
+      redirectLocation = ApplicantRoutes.index(profile, applicantId).url();
       session = request.session();
     } else {
       redirectLocation = infoForm.getRedirectLink();

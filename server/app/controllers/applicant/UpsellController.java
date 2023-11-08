@@ -142,15 +142,11 @@ public final class UpsellController extends CiviFormController {
                         applicantPersonalInfo.join(),
                         applicantId,
                         programId,
-                        profileUtils
-                            .currentUserProfile(request)
-                            .orElseThrow()
-                            .isTrustedIntermediary(),
+                        profile.get(),
                         maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
                         toastMessage));
               }
-
               return ok(
                   upsellView.render(
                       request,
@@ -161,6 +157,7 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
                       applicantId,
+                      profile.get(),
                       applicationId,
                       messagesApi.preferred(request),
                       toastMessage));

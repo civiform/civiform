@@ -12,6 +12,7 @@ import static views.applicant.AuthenticateUpsellCreator.createLoginPromptModal;
 import static views.applicant.AuthenticateUpsellCreator.createNewAccountButton;
 
 import annotations.BindingAnnotations;
+import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import j2html.tags.DomContent;
@@ -57,7 +58,7 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
       ApplicantPersonalInfo personalInfo,
       Long applicantId,
       Long programId,
-      boolean isTrustedIntermediary,
+      CiviFormProfile profile,
       ImmutableList<ApplicantService.ApplicantProgramData> eligiblePrograms,
       Messages messages,
       Optional<ToastMessage> bannerMessage) {
@@ -95,17 +96,19 @@ public final class ApplicantCommonIntakeUpsellCreateAccountView extends Applican
           createApplyToProgramsButton(
               "apply-to-programs",
               messages.at(MessageKey.BUTTON_APPLY_TO_PROGRAMS.getKeyName()),
-              applicantId));
+              applicantId,
+              profile));
     }
 
     String title =
-        isTrustedIntermediary
+        profile.isTrustedIntermediary()
             ? messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION_TI.getKeyName())
             : messages.at(MessageKey.TITLE_COMMON_INTAKE_CONFIRMATION.getKeyName());
     var content =
         createMainContent(
             title,
-            eligibleProgramsSection(request, eligiblePrograms, messages, isTrustedIntermediary)
+            eligibleProgramsSection(
+                    request, eligiblePrograms, messages, profile.isTrustedIntermediary())
                 .withClasses("mb-4"),
             shouldUpsell,
             messages,

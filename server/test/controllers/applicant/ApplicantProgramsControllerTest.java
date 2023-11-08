@@ -53,7 +53,11 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void index_differentApplicant_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request, currentApplicant.id + 1).toCompletableFuture().join();
+    Result result =
+        controller
+            .indexWithApplicantId(request, currentApplicant.id + 1)
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -62,7 +66,10 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void index_applicantWithoutProfile_redirectsToHome() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result =
-        controller.index(request, applicantWithoutProfile.id).toCompletableFuture().join();
+        controller
+            .indexWithApplicantId(request, applicantWithoutProfile.id)
+            .toCompletableFuture()
+            .join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation()).hasValue("/");
   }
@@ -70,7 +77,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   @Test
   public void index_withNoPrograms_returnsEmptyResult() {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -85,7 +93,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     resourceCreator().insertDraftProgram("three");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -97,7 +106,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   public void index_clearsRedirectToSessionKey() {
     Request request =
         addCSRFToken(Helpers.fakeRequest().session(REDIRECT_TO_SESSION_KEY, "redirect")).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
     assertThat(result.session().get(REDIRECT_TO_SESSION_KEY)).isEmpty();
   }
 
@@ -114,7 +124,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     this.versionRepository.publishNewSynchronizedVersion();
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     // A program's name appears in the index view page content 3 times:
@@ -139,7 +150,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     Program program = resourceCreator().insertActiveProgram("program");
 
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -152,7 +164,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     Request request =
         addCSRFToken(requestBuilderWithSettings("INTAKE_FORM_ENABLED", "true")).build();
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
@@ -167,7 +180,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .build();
 
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Obtén beneficios");
@@ -184,7 +198,8 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .langCookie(Locale.forLanguageTag("es-US"), stubMessagesApi())
             .build();
 
-    Result result = controller.index(request, currentApplicant.id).toCompletableFuture().join();
+    Result result =
+        controller.indexWithApplicantId(request, currentApplicant.id).toCompletableFuture().join();
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("A different language!");
@@ -358,6 +373,6 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(FOUND);
     assertThat(result.redirectLocation())
-        .hasValue(routes.ApplicantProgramsController.index(currentApplicant.id).url());
+        .hasValue(routes.ApplicantProgramsController.index().url());
   }
 }

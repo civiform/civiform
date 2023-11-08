@@ -46,6 +46,13 @@ public final class CiviFormProfileMerger {
         // Merge the two applicants and prefer the newer one.
         guestProfile = Optional.of(mergeProfiles(applicantInDatabase.get(), guestProfile.get()));
       }
+      // Store applicant ID in profile so that:
+      // - we don't need it in the URL for applicant actions
+      // - we don't need to look it up based on the account corresponding to the profile
+      guestProfile
+          .orElseThrow()
+          .getProfileData()
+          .addAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, applicantInDatabase.get().id);
     }
 
     // Merge externalProfile into existingProfile.

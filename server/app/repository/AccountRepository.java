@@ -1,10 +1,12 @@
 package repository;
 
+import static auth.ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -330,5 +332,11 @@ public final class AccountRepository {
             + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
 
     return database.sqlUpdate(sql).execute();
+  }
+
+  public void populateApplicantIdInProfile(Account account, CiviFormProfileData profileData) {
+    // Accounts correspond to a single applicant.
+    Long applicantId = account.ownedApplicantIds().stream().findAny().orElseThrow();
+    profileData.addAttribute(APPLICANT_ID_ATTRIBUTE_NAME, applicantId);
   }
 }

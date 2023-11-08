@@ -290,7 +290,7 @@ export const logout = async (page: Page, closeToast = true) => {
   // page with civiform js where we should waitForPageJsLoad. Because
   // the process goes through a sequence of redirects we need to wait
   // for the final destination URL (the programs index page), to make tests reliable.
-  await page.waitForURL('**/applicants/**')
+  await page.waitForURL('**/programs')
   await validateToastMessage(page, 'Your session has ended.')
   if (closeToast) await dismissToast(page)
 }
@@ -379,7 +379,7 @@ async function loginAsTestUserAwsStaging(
   await page.fill('input[name=username]', TEST_USER_LOGIN)
   await page.fill('input[name=password]', TEST_USER_PASSWORD)
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+    page.waitForURL(isTi ? '**/admin/**' : '/programs', {
       waitUntil: 'networkidle',
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
@@ -421,7 +421,7 @@ async function loginAsTestUserFakeOidc(
   // A screen is shown prompting the user to authorize a set of scopes.
   // This screen is skipped if the user has already logged in once.
   await Promise.all([
-    page.waitForURL(isTi ? '**/admin/**' : '**/applicants/**', {
+    page.waitForURL(isTi ? '**/admin/**' : /\/programs.*/, {
       waitUntil: 'networkidle',
     }),
     page.click('button:has-text("Continue")'),

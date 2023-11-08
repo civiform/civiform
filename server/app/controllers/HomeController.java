@@ -79,9 +79,7 @@ public class HomeController extends Controller {
                 // If the applicant has not yet set their preferred language, redirect to
                 // the information controller to ask for preferred language.
                 if (data.hasPreferredLocale()) {
-                  return redirect(
-                          controllers.applicant.routes.ApplicantProgramsController.index(
-                              applicant.id))
+                  return redirect(ApplicantRoutes.index(profile, applicant.id))
                       .withLang(data.preferredLocale(), messagesApi);
                 } else {
                   return redirect(
