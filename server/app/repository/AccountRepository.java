@@ -6,10 +6,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
+import auth.CiviFormProfileData;
 import auth.oidc.IdTokens;
 import auth.oidc.IdTokensFactory;
 import auth.oidc.SerializedIdTokens;
-import auth.CiviFormProfileData;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
@@ -409,7 +409,6 @@ public final class AccountRepository {
     return database.sqlUpdate(sql).execute();
   }
 
-<<<<<<< HEAD
   /**
    * For use in {@link FixApplicantDobDataPathJob}. This will return applicants who have the
    * incorrect path for applicant_date_of_birth where applicant_date_of_birth points directly to a
@@ -447,9 +446,8 @@ public final class AccountRepository {
   /**
    * Stores applicant id in user profile.
    *
-   * This allows us to know the applicant id instead of:
-   * - having to specify it in the URL path, or
-   * - looking up the account each time and finding the corresponding applicant id.
+   * <p>This allows us to know the applicant id instead of having to specify it in the URL path,
+   * or looking up the account each time and finding the corresponding applicant id.
    */
   public void populateApplicantIdInProfile(AccountModel account, CiviFormProfileData profileData) {
     // Accounts correspond to a single applicant.

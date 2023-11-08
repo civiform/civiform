@@ -142,7 +142,7 @@ public final class UpsellController extends CiviFormController {
                         applicantPersonalInfo.join(),
                         applicantId,
                         programId,
-                        profile.get(),
+                        profile.orElseThrow(),
                         maybeEligiblePrograms.orElseGet(ImmutableList::of),
                         messagesApi.preferred(request),
                         toastMessage));
@@ -157,7 +157,7 @@ public final class UpsellController extends CiviFormController {
                       roApplicantProgramService.join().getCustomConfirmationMessage(),
                       applicantPersonalInfo.join(),
                       applicantId,
-                      profile.get(),
+                      profile.orElseThrow(),
                       applicationId,
                       messagesApi.preferred(request),
                       toastMessage));
