@@ -14,7 +14,7 @@ type QuestionParams = {
   options?: Array<QuestionOption>
   description?: string
   questionText?: string
-  accordionText?: string
+  markdownText?: string
   helpText?: string
   enumeratorName?: string
   exportOption?: string
@@ -107,14 +107,17 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPageWithSuccessToast('created')
   }
 
-  async expectMultiOptionBlankOptionError(options: QuestionOption[]) {
+  async expectMultiOptionBlankOptionError(
+    options: QuestionOption[],
+    blankIndices: number[],
+  ) {
     const errors = this.page.locator(
       '#question-settings .cf-multi-option-input-error',
     )
-    // Checks that the error is not hidden when its corresponding option is empty.
+    // Checks that the error is not hidden when its corresponding option is blank.
     // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
-      if (options[i].text === '') {
+      if (blankIndices.includes(i)) {
         expect(await errors.nth(i).isHidden()).toEqual(false)
       } else {
         expect(await errors.nth(i).isHidden()).toEqual(true)
@@ -122,14 +125,17 @@ export class AdminQuestions {
     }
   }
 
-  async expectMultiOptionBlankOptionAdminError(options: QuestionOption[]) {
+  async expectMultiOptionInvalidOptionAdminError(
+    options: QuestionOption[],
+    invalidIndices: number[],
+  ) {
     const errors = this.page.locator(
       '#question-settings .cf-multi-option-admin-input-error',
     )
-    // Checks that the error is not hidden when its corresponding option adminName is empty.
+    // Checks that the error is not hidden when its corresponding option adminName is invalid.
     // The order of the options array corresponds to the order of the errors array.
     for (let i = 0; i < options.length; i++) {
-      if (options[i].adminName === '') {
+      if (invalidIndices.includes(i)) {
         expect(await errors.nth(i).isHidden()).toEqual(false)
       } else {
         expect(await errors.nth(i).isHidden()).toEqual(true)
@@ -476,10 +482,10 @@ export class AdminQuestions {
         await this.addCheckboxQuestion({
           questionName,
           options: [
-            {adminName: 'op1 admin', text: 'op1'},
-            {adminName: 'op2 admin', text: 'op2'},
-            {adminName: 'op3 admin', text: 'op3'},
-            {adminName: 'op4 admin', text: 'op4'},
+            {adminName: 'op1_admin', text: 'op1'},
+            {adminName: 'op2_admin', text: 'op2'},
+            {adminName: 'op3_admin', text: 'op3'},
+            {adminName: 'op4_admin', text: 'op4'},
           ],
         })
         break
@@ -495,9 +501,9 @@ export class AdminQuestions {
         await this.addDropdownQuestion({
           questionName,
           options: [
-            {adminName: 'op1 admin', text: 'op1'},
-            {adminName: 'op2 admin', text: 'op2'},
-            {adminName: 'op3 admin', text: 'op3'},
+            {adminName: 'op1_admin', text: 'op1'},
+            {adminName: 'op2_admin', text: 'op2'},
+            {adminName: 'op3_admin', text: 'op3'},
           ],
         })
         break
@@ -519,9 +525,9 @@ export class AdminQuestions {
         await this.addRadioButtonQuestion({
           questionName,
           options: [
-            {adminName: 'one admin', text: 'one'},
-            {adminName: 'two admin', text: 'two'},
-            {adminName: 'three admin', text: 'three'},
+            {adminName: 'one_admin', text: 'one'},
+            {adminName: 'two_admin', text: 'two'},
+            {adminName: 'three_admin', text: 'three'},
           ],
         })
         break
@@ -910,14 +916,14 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
-    accordionText = '\n### Accordion Header \n> This is some content.',
+    markdownText = '\n[Here is a link](https://www.example.com)\n',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.createStaticQuestion({
       questionName,
       description,
       questionText,
-      accordionText,
+      markdownText,
       enumeratorName,
     })
 
@@ -932,7 +938,7 @@ export class AdminQuestions {
     questionName,
     description = 'static description',
     questionText = 'static question text',
-    accordionText = '',
+    markdownText = '',
     enumeratorName = AdminQuestions.DOES_NOT_REPEAT_OPTION,
   }: QuestionParams) {
     await this.gotoAdminQuestionsPage()
@@ -943,7 +949,7 @@ export class AdminQuestions {
 
     await this.page.fill(
       'label:has-text("Question Text")',
-      questionText + accordionText,
+      questionText + markdownText,
     )
     await this.page.fill(
       'label:has-text("Administrative identifier")',

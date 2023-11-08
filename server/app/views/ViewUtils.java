@@ -161,7 +161,7 @@ public final class ViewUtils {
    * @return Tag representing the badge. No classes should be added to the returned tag as it will
    *     overwrite existing classes due to how Jhtml works.
    */
-  public static PTag makeBadge(ProgramDisplayType status, String... extraClasses) {
+  public static PTag makeLifecycleBadge(ProgramDisplayType status, String... extraClasses) {
     String badgeText = "", badgeBGColor = "", badgeFillColor = "";
     switch (status) {
       case ACTIVE:
@@ -300,5 +300,27 @@ public final class ViewUtils {
                             .withCondId(idPresent, nubId)));
     text.ifPresent(button::withText);
     return button;
+  }
+
+  /**
+   * Makes a badge with a civiform-teal background, white text, and the given icon.
+   *
+   * @param icon Icon to use in the badge, left of the text.
+   * @param text Text for the badge.
+   * @return DivTag containing the badge.
+   */
+  public static DivTag makeBadgeWithIcon(Icons icon, String text) {
+    return div()
+        .withClasses(
+            "rounded-lg",
+            "flex",
+            "max-w-fit",
+            "px-2",
+            "py-1",
+            "mt-4",
+            "space-x-1",
+            "text-white",
+            "bg-civiform-teal")
+        .with(Icons.svg(icon).withClasses("flex", "h-6", "w-4"), span(text));
   }
 }

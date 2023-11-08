@@ -1,5 +1,6 @@
 package auth;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
@@ -9,7 +10,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
 import models.Account;
 import models.Applicant;
@@ -31,7 +31,6 @@ public class CiviFormProfile {
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
 
-  @Inject
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
@@ -156,6 +155,7 @@ public class CiviFormProfile {
         .thenApplyAsync(
             a -> {
               String existingEmail = a.getEmailAddress();
+
               if (existingEmail != null && !existingEmail.equals(emailAddress)) {
                 throw new ProfileMergeConflictException(
                     String.format(
@@ -163,8 +163,11 @@ public class CiviFormProfile {
                             + " the new email address %s.",
                         existingEmail, emailAddress));
               }
+
               a.setEmailAddress(emailAddress);
               a.save();
+              profileData.setEmail(emailAddress);
+
               return null;
             },
             dbContext);
@@ -176,13 +179,20 @@ public class CiviFormProfile {
   }
 
   /**
-   * Get the email address from the {@link Account} associated with the profile.
+   * Get the email address from the session's {@link CiviFormProfileData} if present, otherwise get
+   * it from the {@link Account} associated with the profile.
    *
    * <p>This value could be null.
    *
    * @return the future of the address to be retrieved.
    */
   public CompletableFuture<String> getEmailAddress() {
+    // Email address should be present in the profile for authenticated users
+    if (profileData.hasCanonicalEmail()) {
+      return completedFuture(profileData.getEmail());
+    }
+
+    // If it's not present i.e. if user is a guest, fall back to the address in the database
     return this.getAccount().thenApplyAsync(Account::getEmailAddress, httpContext.current());
   }
 

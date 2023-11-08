@@ -407,7 +407,11 @@ public class QuestionDefinitionTest {
             ImmutableList.of(QuestionOption.create(1L, "", LocalizedStrings.withDefaultValue("a"))),
             MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate())
-        .containsOnly(CiviFormError.of("Multi-option questions cannot have blank admin names"));
+        .containsExactlyInAnyOrder(
+            CiviFormError.of("Multi-option questions cannot have blank admin names"),
+            CiviFormError.of(
+                "Multi-option admin names can only contain letters, numbers, underscores, and"
+                    + " dashes"));
   }
 
   @Test
@@ -443,12 +447,35 @@ public class QuestionDefinitionTest {
     QuestionDefinitionConfig config = configBuilder.build();
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, "opt1", LocalizedStrings.withDefaultValue("a")),
-            QuestionOption.create(2L, "opt2", LocalizedStrings.withDefaultValue("b")));
+            QuestionOption.create(1L, "a_one-1", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_two-2", LocalizedStrings.withDefaultValue("b")));
     QuestionDefinition question =
         new MultiOptionQuestionDefinition(
             config, questionOptions, MultiOptionQuestionType.CHECKBOX);
     assertThat(question.validate()).isEmpty();
+  }
+
+  @Test
+  public void validate_multiOptionQuestion_withInvalidOptionAdminNames_returnsError() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("test")
+            .setQuestionText(LocalizedStrings.withDefaultValue("test"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, "a' invalid", LocalizedStrings.withDefaultValue("a")),
+            QuestionOption.create(2L, "b_valid", LocalizedStrings.withDefaultValue("b")));
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.CHECKBOX);
+    assertThat(question.validate())
+        .containsOnly(
+            CiviFormError.of(
+                "Multi-option admin names can only contain letters, numbers, underscores, and"
+                    + " dashes"));
   }
 
   private static ImmutableList<Object[]> getMultiOptionQuestionValidationTestData() {

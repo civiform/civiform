@@ -35,9 +35,9 @@ describe('Applicant navigation flow', () => {
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'nav-radio-q',
         options: [
-          {adminName: 'one admin', text: 'one'},
-          {adminName: 'two admin', text: 'two'},
-          {adminName: 'three admin', text: 'three'},
+          {adminName: 'one_admin', text: 'one'},
+          {adminName: 'two_admin', text: 'two'},
+          {adminName: 'three_admin', text: 'three'},
         ],
       })
       await adminQuestions.addStaticQuestion({questionName: 'nav-static-q'})
@@ -140,11 +140,18 @@ describe('Applicant navigation flow', () => {
     it('verify program list page', async () => {
       const {page, adminPrograms} = ctx
       await loginAsAdmin(page)
-      // create second program that has an external link.
+      // create second program that has an external link and markdown in the program description.
       const programWithExternalLink = 'Program with external link'
+      const programDescriptionWithMarkdown =
+        '# Program description\n' +
+        'Some things to know:\n' +
+        '* Thing 1\n' +
+        '* Thing 2\n' +
+        '\n' +
+        'For more info go to our [website](https://www.example.com)\n'
       await adminPrograms.addProgram(
         programWithExternalLink,
-        'Program description',
+        programDescriptionWithMarkdown,
         'https://external.com',
       )
       await adminPrograms.publishProgram(programWithExternalLink)
@@ -153,10 +160,24 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('h1')).toContain(
         'Save time when applying for benefits',
       )
+
       const cardHtml = await page.innerHTML(
         '.cf-application-card:has-text("' + programWithExternalLink + '")',
       )
       expect(cardHtml).toContain('https://external.com')
+
+      // Verify markdown was parsed correctly
+      // h1 set in markdown should be changed to h2
+      expect(cardHtml).toContain('<h2>Program description</h2>')
+      // lists are formatted correctly
+      expect(cardHtml).toContain(
+        '<ul class="list-disc mx-8"><li>Thing 1</li><li>Thing 2</li></ul>',
+      )
+      // text links are formatted correctly with an icon
+      expect(cardHtml).toContain(
+        '<a href="https://www.example.com" class="text-blue-900 font-bold opacity-75 underline hover:opacity-100" target="_blank" rel="nofollow noopener noreferrer">website<svg',
+      )
+
       // there shouldn't be any external Links
       const cardText = await page.innerText(
         '.cf-application-card:has-text("' + programWithExternalLink + '")',
@@ -275,7 +296,7 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('h1')).toContain('Application confirmation')
       expect(
         await page.locator('.cf-application-id + div').textContent(),
-      ).toContain('Lorem ipsum')
+      ).toContain('This is the custom confirmation message with markdown')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-guest')
 
@@ -321,7 +342,7 @@ describe('Applicant navigation flow', () => {
       expect(await page.innerText('h1')).toContain('Application confirmation')
       expect(
         await page.locator('.cf-application-id + div').textContent(),
-      ).toContain('Lorem ipsum')
+      ).toContain('This is the custom confirmation message with markdown')
       await validateAccessibility(page)
       await validateScreenshot(page, 'program-submission-logged-in')
     })

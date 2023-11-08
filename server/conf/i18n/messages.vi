@@ -284,7 +284,6 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
-adminValidation.multiOptionAdminEmpty=Các câu hỏi có nhiều lựa chọn không được để trống mã nhận dạng quản trị viên.
 
 #----------------------------------#
 # ERRORS - various error messages  #

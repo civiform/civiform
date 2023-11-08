@@ -218,9 +218,9 @@ describe('Admin can manage translations', () => {
     await adminQuestions.addRadioButtonQuestion({
       questionName,
       options: [
-        {adminName: 'one admin', text: 'one'},
-        {adminName: 'two admin', text: 'two'},
-        {adminName: 'three admin', text: 'three'},
+        {adminName: 'one_admin', text: 'one'},
+        {adminName: 'two_admin', text: 'two'},
+        {adminName: 'three_admin', text: 'three'},
       ],
     })
 
