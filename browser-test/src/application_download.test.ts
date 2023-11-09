@@ -96,14 +96,14 @@ describe('csv export for multioption question', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (blue admin),csvcolor (green admin),csvcolor (black admin),csvcolor (white admin)',
+      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcolor (black admin),csvcolor (white admin)',
     )
-    // colors headers are - red,blue,green,black,white
+    // colors headers are - red,green,orange,blue,black,white
     expect(csvContent).toContain(
-      ',John,,Do,Not An Option At Program Version,Not Selected,Selected,Selected,Not Selected',
+      ',John,,Do,NOT_AN_OPTION_AT_PROGRAM_VERSION,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_SELECTED,SELECTED,NOT_SELECTED',
     )
     expect(csvContent).toContain(
-      ',Jane,,Doe,Selected,Selected,Not Selected,Not An Option At Program Version,Not An Option At Program Version',
+      ',Jane,,Doe,SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,NOT_AN_OPTION_AT_PROGRAM_VERSION,NOT_AN_OPTION_AT_PROGRAM_VERSION',
     )
   })
 })
@@ -187,7 +187,7 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      'sarah,,smith,op2 admin,05/10/2021,1000.00,Selected,Not Selected,Not Selected,Not Selected',
+      ',,sarah,,smith,op2 admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED',
     )
 
     await logout(page)
@@ -324,10 +324,10 @@ describe('normal application flow', () => {
     // so test for both situations.
     if (demographicsCsvContent.includes('Status')) {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (blue admin),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
-        ',sarah,,smith,Selected,Not Selected,Not Selected,Not Selected,1000.00,05/10/2021,op2 admin',
+        'sarah,,smith,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,1000.00,05/10/2021,op2 admin',
       )
     } else {
       expect(demographicsCsvContent).toContain(
@@ -347,7 +347,7 @@ describe('normal application flow', () => {
 
     if (demographicsCsvContent.includes('Status')) {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (blue admin),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
       )
     } else {
       expect(newDemographicsCsvContent).toContain(

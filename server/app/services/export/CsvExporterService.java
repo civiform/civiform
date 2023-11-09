@@ -163,7 +163,7 @@ public final class CsvExporterService {
               config.getString("play.http.secret.key"),
               writer,
               dateConverter,
-              exportConfig.checkBoxQuestionScalarMap())) {
+              exportConfig.checkboxQuestionNameToOptionsMap())) {
         // Cache Program data which doesn't change, so we only look it up once rather than on every
         // exported row.
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
@@ -286,7 +286,7 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
-    Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
+    Map<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap = new HashMap<>();
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
       if (answerData.questionDefinition().isEnumerator()) {
@@ -297,13 +297,13 @@ public final class CsvExporterService {
       // so we use exportServiceRepository to get the uniques headers
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         QuestionDefinition questionDefinition = answerData.questionDefinition();
-        if (!currentCheckBoxQuestionScalarMap.containsKey(questionDefinition.getName())) {
-          currentCheckBoxQuestionScalarMap.put(
+        if (!checkboxQuestionNameToOptionsMap.containsKey(questionDefinition.getName())) {
+          checkboxQuestionNameToOptionsMap.put(
               questionDefinition.getName(),
-              exportServiceRepository.getMultiSelectedHeaders(questionDefinition));
+              exportServiceRepository.getAllHistoricMultiOptionAdminNames(questionDefinition));
         }
         List<String> optionHeaders =
-            currentCheckBoxQuestionScalarMap.get(questionDefinition.getName());
+            checkboxQuestionNameToOptionsMap.get(questionDefinition.getName());
         optionHeaders.stream()
             .forEach(
                 option -> {
@@ -328,9 +328,13 @@ public final class CsvExporterService {
       }
     }
 
-    // we cache the currentCheckBoxQuestionScalarMap in csvExportConfig to help us fill the column
+    // we cache the checkboxQuestionNameToOptionsMap in csvExportConfig to help us fill the column
     // values
-    return getCsvExportConfig(columnsBuilder, currentCheckBoxQuestionScalarMap);
+    ImmutableMap<String, ImmutableList<String>> immutableCheckboxQuestionNameToOptionsMap =
+        ImmutableMap.<String, ImmutableList<String>>builder()
+            .putAll(checkboxQuestionNameToOptionsMap)
+            .build();
+    return getCsvExportConfig(columnsBuilder, immutableCheckboxQuestionNameToOptionsMap);
   }
 
   /**
@@ -423,7 +427,7 @@ public final class CsvExporterService {
         Column.builder().setHeader("Submit Time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
-    Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap = new HashMap<>();
+    Map<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap = new HashMap<>();
     for (QuestionTag tagType :
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
       for (QuestionDefinition questionDefinition :
@@ -439,11 +443,12 @@ public final class CsvExporterService {
             new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).getQuestion();
         if (questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
           String questionName = questionDefinition.getName();
-          if (!currentCheckBoxQuestionScalarMap.containsKey(questionName)) {
-            currentCheckBoxQuestionScalarMap.put(
-                questionName, exportServiceRepository.getMultiSelectedHeaders(questionDefinition));
+          if (!checkboxQuestionNameToOptionsMap.containsKey(questionName)) {
+            checkboxQuestionNameToOptionsMap.put(
+                questionName,
+                exportServiceRepository.getAllHistoricMultiOptionAdminNames(questionDefinition));
           }
-          List<String> optionHeaders = currentCheckBoxQuestionScalarMap.get(questionName);
+          List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
           optionHeaders.stream()
               .forEach(
                   option -> {
@@ -479,12 +484,16 @@ public final class CsvExporterService {
         }
       }
     }
-    return getCsvExportConfig(columnsBuilder, currentCheckBoxQuestionScalarMap);
+    ImmutableMap<String, ImmutableList<String>> immutableCheckboxQuestionNameToOptionsMap =
+        ImmutableMap.<String, ImmutableList<String>>builder()
+            .putAll(checkboxQuestionNameToOptionsMap)
+            .build();
+    return getCsvExportConfig(columnsBuilder, immutableCheckboxQuestionNameToOptionsMap);
   }
 
   private CsvExportConfig getCsvExportConfig(
       ImmutableList.Builder<Column> columnsBuilder,
-      Map<String, ImmutableList<String>> currentCheckBoxQuestionScalarMap) {
+      ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap) {
     return new CsvExportConfig() {
       @Override
       public ImmutableList<Column> columns() {
@@ -492,10 +501,8 @@ public final class CsvExporterService {
       }
 
       @Override
-      public ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap() {
-        return ImmutableMap.<String, ImmutableList<String>>builder()
-            .putAll(currentCheckBoxQuestionScalarMap)
-            .build();
+      public ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap() {
+        return checkboxQuestionNameToOptionsMap;
       }
     };
   }

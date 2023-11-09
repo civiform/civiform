@@ -10,9 +10,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import models.Application;
@@ -23,6 +21,7 @@ import services.DateConverter;
 import services.Path;
 import services.applicant.AnswerData;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.export.enums.MultiOptionSelectionExportType;
 import services.export.enums.SubmitterType;
 import services.program.Column;
 import services.question.types.QuestionType;
@@ -42,7 +41,7 @@ public final class CsvExporter implements AutoCloseable {
   private final String secret;
   private final CSVPrinter printer;
   private final DateConverter dateConverter;
-  private final ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap;
+  private final ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap;
 
   /** Provide a secret if you will need to use OPAQUE_ID type columns. */
   public CsvExporter(
@@ -50,12 +49,12 @@ public final class CsvExporter implements AutoCloseable {
       String secret,
       Writer writer,
       DateConverter dateConverter,
-      ImmutableMap<String, ImmutableList<String>> checkBoxQuestionScalarMap)
+      ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap)
       throws IOException {
     this.columns = checkNotNull(columns);
     this.secret = checkNotNull(secret);
     this.dateConverter = dateConverter;
-    this.checkBoxQuestionScalarMap = checkNotNull(checkBoxQuestionScalarMap);
+    this.checkboxQuestionNameToOptionsMap = checkNotNull(checkboxQuestionNameToOptionsMap);
 
     CSVFormat format =
         CSVFormat.DEFAULT
@@ -71,29 +70,20 @@ public final class CsvExporter implements AutoCloseable {
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
-    Map<Path, String> answerDataMap = new HashMap<>();
+    ImmutableMap.Builder<Path, String> answerMap = new ImmutableMap.Builder<>();
     for (AnswerData answerData : roApplicantService.getSummaryData()) {
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         String questionName = answerData.questionDefinition().getName();
         // If the question isn't present in the scalar map, it means, its demographic export and
         // this question was flagged not to be included in demographic export
-        if (!checkBoxQuestionScalarMap.containsKey(questionName)) {
+        if (!checkboxQuestionNameToOptionsMap.containsKey(questionName)) {
           continue;
         }
-        List<String> optionHeaders = checkBoxQuestionScalarMap.get(questionName);
-        // the four options for a value are:
-        // in the selected list and in the question definition and question is answered: Selected
-        // not in the selected list and in the question definition and question is answered: Not
-        // Selected
-        // not in the selected list and in the question definition and question is not answered: Not
-        // Answered
-        // not in the selected list and not in the question definition: Not An Option At Program
-        // Version
-        // (This is both “retired” and “not yet an option at the time of this application”)
+        List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
         String defaultText =
             answerData.isAnswered()
-                ? "Not An Option At Program Version"
-                : "Not Answered - optional";
+                ? MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString()
+                : MultiOptionSelectionExportType.NOT_ANSWERED.toString();
         List<String> selectedList =
             answerData
                 .applicantQuestion()
@@ -107,26 +97,24 @@ public final class CsvExporter implements AutoCloseable {
 
         optionHeaders.forEach(
             option ->
-                answerDataMap.put(
+                answerMap.put(
                     answerData.contextualizedPath().join(String.valueOf(option)),
                     selectedList.contains(option)
-                        ? "Selected"
+                        ? MultiOptionSelectionExportType.SELECTED.toString()
                         : allOptionsShownInQuestion.contains(option) && answerData.isAnswered()
-                            ? "Not Selected"
+                            ? MultiOptionSelectionExportType.NOT_SELECTED.toString()
                             : defaultText));
 
       } else {
         for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {
-          answerDataMap.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
+          answerMap.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
         }
       }
     }
-    ImmutableMap<Path, String> answerMap =
-        ImmutableMap.<Path, String>builder().putAll(answerDataMap).build();
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
-          printer.print(getValueFromAnswerMap(column, answerMap));
+          printer.print(getValueFromAnswerMap(column, answerMap.build()));
           break;
         case APPLICANT_ID:
           printer.print(application.getApplicant().id);
@@ -193,7 +181,7 @@ public final class CsvExporter implements AutoCloseable {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
           // We still hash the empty value.
-          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
+          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap.build())));
           break;
         case ELIGIBILITY_STATUS:
           if (optionalEligibilityStatus.isPresent()) {

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import models.LifecycleStage;
 import models.Question;
 import org.junit.Before;
@@ -20,8 +19,6 @@ import services.question.types.QuestionDefinitionConfig;
 
 public class ExportServiceRepositoryTest extends ResetPostgres {
   private ExportServiceRepository repo;
-  // private Applicant applicant;
-  // private Program program;
   private QuestionService questionService;
   private VersionRepository versionRepository;
 
@@ -36,11 +33,10 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   public void getMultiSelectedHeaders_NoPreviousQuestionVersion() {
     QuestionDefinition questionDefinition =
         testQuestionBank.applicantKitchenTools().getQuestionDefinition();
-    ImmutableList<String> multiSelectHeaders = repo.getMultiSelectedHeaders(questionDefinition);
+    ImmutableList<String> multiSelectHeaders =
+        repo.getAllHistoricMultiOptionAdminNames(questionDefinition);
     assertThat(multiSelectHeaders.size()).isEqualTo(3);
-    checkList(multiSelectHeaders, 0, "toaster");
-    checkList(multiSelectHeaders, 1, "pepper_grinder");
-    checkList(multiSelectHeaders, 2, "garlic_press");
+    assertThat(multiSelectHeaders).containsExactly("toaster", "pepper_grinder", "garlic_press");
   }
 
   @Test
@@ -50,6 +46,8 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
         createMultiSelectQuestion("weather", "fall", "spring", "summer", LifecycleStage.ACTIVE);
     MultiOptionQuestionDefinition multiOptionQuestionDefinition =
         (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
+
+    // add new option but do not publish
     QuestionOption newOption =
         QuestionOption.create(4L, 4L, "winter", LocalizedStrings.of(Locale.US, "winter"));
     ImmutableList<QuestionOption> currentOptions = multiOptionQuestionDefinition.getOptions();
@@ -60,26 +58,65 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
             .setQuestionOptions(newOptionList)
             .build();
     questionService.update(toUpdate);
-
     ImmutableList<String> multiSelectHeaders =
-        repo.getMultiSelectedHeaders(questionWeather.getQuestionDefinition());
-    // not draft versions are not part of the header list
+        repo.getAllHistoricMultiOptionAdminNames(questionWeather.getQuestionDefinition());
+    // draft version are not part of the header list
     assertThat(multiSelectHeaders.size()).isEqualTo(3);
+
+    // publish with updated options
     versionRepository.publishNewSynchronizedVersion();
     ImmutableList<String> multiSelectHeaderUpdated =
-        repo.getMultiSelectedHeaders(questionWeather.getQuestionDefinition());
+        repo.getAllHistoricMultiOptionAdminNames(questionWeather.getQuestionDefinition());
     assertThat(multiSelectHeaderUpdated.size()).isEqualTo(4);
-    checkList(multiSelectHeaderUpdated, 0, "fall");
-    checkList(multiSelectHeaderUpdated, 1, "spring");
-    checkList(multiSelectHeaderUpdated, 2, "summer");
-    checkList(multiSelectHeaderUpdated, 3, "winter");
+    assertThat(multiSelectHeaders).containsExactly("fall", "spring", "summer", "winter");
+  }
+
+  @Test
+  public void getMultiSelectedHeaders_DeletedOptionsIncluded() throws Exception {
+    Question questionWeather =
+        createMultiSelectQuestion("weather", "fall", "spring", "summer", LifecycleStage.ACTIVE);
+    MultiOptionQuestionDefinition multiOptionQuestionDefinition =
+        (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
+
+    // add new option and publish
+    QuestionOption winterOption =
+        QuestionOption.create(4L, 4L, "winter", LocalizedStrings.of(Locale.US, "winter"));
+    ImmutableList<QuestionOption> currentOptionsWithoutWinter =
+        multiOptionQuestionDefinition.getOptions();
+    ImmutableList<QuestionOption> newOptionListWithWinter =
+        ImmutableList.<QuestionOption>builder()
+            .addAll(currentOptionsWithoutWinter)
+            .add(winterOption)
+            .build();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(questionWeather.getQuestionDefinition())
+            .setQuestionOptions(newOptionListWithWinter)
+            .build();
+    questionService.update(toUpdate);
+
+    versionRepository.publishNewSynchronizedVersion();
+    ImmutableList<String> multiSelectHeaderWithNewOption =
+        repo.getAllHistoricMultiOptionAdminNames(questionWeather.getQuestionDefinition());
+    assertThat(multiSelectHeaderWithNewOption.size()).isEqualTo(4);
+
+    // publish again without "winter" option
+    QuestionDefinition newUpdate =
+        new QuestionDefinitionBuilder(questionWeather.getQuestionDefinition())
+            .setQuestionOptions(currentOptionsWithoutWinter)
+            .build();
+    questionService.update(newUpdate);
+    versionRepository.publishNewSynchronizedVersion();
+    ImmutableList<String> multiSelectHeaderUpdated =
+        repo.getAllHistoricMultiOptionAdminNames(questionWeather.getQuestionDefinition());
+    assertThat(multiSelectHeaderUpdated.size()).isEqualTo(4);
+    assertThat(multiSelectHeaderUpdated).containsExactly("fall", "spring", "summer", "winter");
   }
 
   @Test
   public void getMultiSelectedHeaders_ThrowsExceptionOnWrongQuestionType() {
     QuestionDefinition questionDefinition =
         testQuestionBank.applicantAddress().getQuestionDefinition();
-    assertThatThrownBy(() -> repo.getMultiSelectedHeaders(questionDefinition))
+    assertThatThrownBy(() -> repo.getAllHistoricMultiOptionAdminNames(questionDefinition))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("The Question Type is not checkbox");
   }
@@ -103,14 +140,9 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
             config,
             questionOptions,
             MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
-    assertThatThrownBy(() -> repo.getMultiSelectedHeaders(definition))
-        .isInstanceOf(NoSuchElementException.class)
-        .hasMessage("No value present");
-  }
-
-  private void checkList(ImmutableList<String> multiSelectHeaders, int index, String value) {
-    assertThat(multiSelectHeaders.contains(value)).isTrue();
-    assertThat(multiSelectHeaders.get(index)).isEqualTo(value);
+    assertThatThrownBy(() -> repo.getAllHistoricMultiOptionAdminNames(definition))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessage("Draft questions cannot be exported");
   }
 
   private Question createMultiSelectQuestion(

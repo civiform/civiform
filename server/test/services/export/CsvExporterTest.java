@@ -25,6 +25,7 @@ import services.applicant.question.FileUploadQuestion;
 import services.applicant.question.MultiSelectQuestion;
 import services.applicant.question.NameQuestion;
 import services.applicant.question.PhoneQuestion;
+import services.export.enums.MultiOptionSelectionExportType;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
@@ -134,17 +135,20 @@ public class CsvExporterTest extends AbstractExporterTest {
         CsvExporterService.pathToHeader(
             Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName())
                 .join("toaster"));
-    assertThat(records.get(1).get(multiSelectHeader_1)).isEqualTo("Selected");
+    assertThat(records.get(1).get(multiSelectHeader_1))
+        .isEqualTo(MultiOptionSelectionExportType.SELECTED.toString());
     String multiSelectHeader_2 =
         CsvExporterService.pathToHeader(
             Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName())
                 .join("pepper_grinder"));
-    assertThat(records.get(1).get(multiSelectHeader_2)).isEqualTo("Selected");
+    assertThat(records.get(1).get(multiSelectHeader_2))
+        .isEqualTo(MultiOptionSelectionExportType.SELECTED.toString());
     String multiSelectHeader_3 =
         CsvExporterService.pathToHeader(
             Path.create(multiSelectApplicantQuestion.getQuestionDefinition().getName())
                 .join("garlic_press"));
-    assertThat(records.get(1).get(multiSelectHeader_3)).isEqualTo("Not Selected");
+    assertThat(records.get(1).get(multiSelectHeader_3))
+        .isEqualTo(MultiOptionSelectionExportType.NOT_SELECTED.toString());
     Question fileuploadQuestion =
         testQuestionBank.getSampleQuestionsForAllTypes().get(QuestionType.FILEUPLOAD);
     FileUploadQuestion fileuploadApplicantQuestion =
