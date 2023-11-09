@@ -91,8 +91,8 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("question name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+          .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -101,25 +101,12 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   }
 
   @Test
-  public void maybeFocusOnInputNameMismatch_autofocusIsNotPresent() {
-    params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
-            .build();
-
-    DivTag result = renderer.render(params);
-
-    assertThat(result.render()).doesNotContain(Attr.AUTOFOCUS);
-  }
-
-  @Test
   public void maybeFocusOnInputNameIsBlank_autofocusIsNotPresent() {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+          .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);

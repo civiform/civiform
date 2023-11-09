@@ -122,14 +122,4 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         .withClasses("mx-auto", "mb-8", getReferenceClass(), getRequiredClass())
         .with(questionTag);
   }
-
-  /**
-   * Determines whether a user arrived at the edit page by clicking on a specific question. If they
-   * clicked on a specific question, we set the autofocus to the input for that question.
-   */
-  protected boolean applicantSelectedQuestion(Optional<String> questionName) {
-    return questionName
-        .map(applicantQuestion.getQuestionDefinition().getName()::equals)
-        .orElse(false);
-  }
 }

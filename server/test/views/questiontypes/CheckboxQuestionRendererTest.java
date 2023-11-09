@@ -58,6 +58,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
     renderer = new CheckboxQuestionRenderer(question);
@@ -105,22 +106,6 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
   }
 
   @Test
-  public void renderWithNoSelections_andSingleErrorMode_hasAutofocus() {
-    params =
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(messages)
-            .setErrorDisplayMode(
-                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)
-            .build();
-    QuestionAnswerer.answerMultiSelectQuestion(
-        applicantData, question.getContextualizedPath(), 0, 0L);
-
-    DivTag result = renderer.render(params);
-
-    assertThat(result.render()).contains(Attr.AUTOFOCUS);
-  }
-
-  @Test
   public void renderWithSelection_hasNoAutofocus() {
     QuestionAnswerer.answerMultiSelectQuestion(
         applicantData, question.getContextualizedPath(), 0, 1L);
@@ -136,7 +121,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("question name"))
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
             .build();
 
     DivTag result = renderer.render(params);
@@ -150,7 +135,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setQuestionName(Optional.of("wrong name"))
+          .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
 
     DivTag result = renderer.render(params);
