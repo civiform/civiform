@@ -18,7 +18,7 @@ public final class ExportServiceRepository {
   }
 
   /**
-   * This method queries for all unique option admin names ordered by is creation time.
+   * Queries for all unique option admin names ordered by their creation time.
    *
    * @param (@link QuestionDefinition) of a Checkbox question
    * @throws (@link RuntimeException) when the questionDefinition is not of type Checkbox

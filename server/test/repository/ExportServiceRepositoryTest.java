@@ -68,7 +68,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
     ImmutableList<String> multiSelectHeaderUpdated =
         repo.getAllHistoricMultiOptionAdminNames(questionWeather.getQuestionDefinition());
     assertThat(multiSelectHeaderUpdated.size()).isEqualTo(4);
-    assertThat(multiSelectHeaders).containsExactly("fall", "spring", "summer", "winter");
+    assertThat(multiSelectHeaderUpdated).containsExactly("fall", "spring", "summer", "winter");
   }
 
   @Test
@@ -145,6 +145,10 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
         .hasMessage("Draft questions cannot be exported");
   }
 
+  /*
+   *TODO- structuring this using the Builder pattern would make this easier to extend or customize in the future
+   * (eg if we wanted more than 3 options)
+   * */
   private Question createMultiSelectQuestion(
       String name, String option1, String option2, String option3, LifecycleStage stage) {
     QuestionDefinitionConfig config =

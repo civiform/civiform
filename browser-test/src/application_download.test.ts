@@ -33,10 +33,10 @@ describe('csv export for multioption question', () => {
         questionText: 'Sample question text',
         helpText: 'Sample question help text',
         options: [
-          {adminName: 'red admin', text: 'red'},
-          {adminName: 'green admin', text: 'green'},
-          {adminName: 'orange admin', text: 'orange'},
-          {adminName: 'blue admin', text: 'blue'},
+          {adminName: 'red_admin', text: 'red'},
+          {adminName: 'green_admin', text: 'green'},
+          {adminName: 'orange_admin', text: 'orange'},
+          {adminName: 'blue_admin', text: 'blue'},
         ],
         maxNum: 3,
         minNum: 2,
@@ -68,12 +68,12 @@ describe('csv export for multioption question', () => {
     // adding black and white
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(2, {
-      adminName: 'black admin',
+      adminName: 'black_admin',
       text: 'black',
     })
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(3, {
-      adminName: 'white admin',
+      adminName: 'white_admin',
       text: 'white',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
@@ -96,7 +96,7 @@ describe('csv export for multioption question', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcolor (black admin),csvcolor (white admin)',
+      'Applicant ID,Application ID,Applicant Language,Submit Time,Submitter Type,TI Email,TI Organization,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red_admin),csvcolor (green_admin),csvcolor (orange_admin),csvcolor (blue_admin),csvcolor (black_admin),csvcolor (white_admin)',
     )
     // colors headers are - red,green,orange,blue,black,white
     expect(csvContent).toContain(
@@ -140,10 +140,10 @@ describe('normal application flow', () => {
         questionText: 'Sample question text',
         helpText: 'Sample question help text',
         options: [
-          {adminName: 'red admin', text: 'red'},
-          {adminName: 'green admin', text: 'green'},
-          {adminName: 'orange admin', text: 'orange'},
-          {adminName: 'blue admin', text: 'blue'},
+          {adminName: 'red_admin', text: 'red'},
+          {adminName: 'green_admin', text: 'green'},
+          {adminName: 'orange_admin', text: 'orange'},
+          {adminName: 'blue_admin', text: 'blue'},
         ],
       },
       /* clickSubmit= */ true,
@@ -187,7 +187,7 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(csvContent).toContain(
-      ',,sarah,,smith,op2 admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED',
+      ',sarah,,smith,op2_admin,05/10/2021,1000.00,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED',
     )
 
     await logout(page)
@@ -324,14 +324,14 @@ describe('normal application flow', () => {
     // so test for both situations.
     if (demographicsCsvContent.includes('Status')) {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red_admin),csvcolor (green_admin),csvcolor (orange_admin),csvcolor (blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
-        'sarah,,smith,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,1000.00,05/10/2021,op2 admin',
+        'sarah,,smith,NOT_SELECTED,NOT_SELECTED,NOT_SELECTED,SELECTED,1000.00,05/10/2021,op2_admin,',
       )
     } else {
       expect(demographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcolor (red_admin),csvcolor (green_admin),csvcolor (orange_admin),csvcolor (blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number)',
       )
       expect(demographicsCsvContent).toContain(
         'sarah,,smith,1000.00,05/10/2021,op2_admin',
@@ -347,7 +347,7 @@ describe('normal application flow', () => {
 
     if (demographicsCsvContent.includes('Status')) {
       expect(newDemographicsCsvContent).toContain(
-        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (red admin),csvcolor (green admin),csvcolor (orange admin),csvcolor (blue admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
+        'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,csvcolor (red_admin),csvcolor (green_admin),csvcolor (orange_admin),csvcolor (blue_admin),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection),numbercsvdownload (number),name (first_name),name (middle_name),name (last_name)',
       )
     } else {
       expect(newDemographicsCsvContent).toContain(
