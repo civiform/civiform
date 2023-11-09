@@ -7,12 +7,11 @@ import static j2html.TagCreator.span;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import j2html.attributes.Attr;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
 import java.util.Comparator;
-import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.RandomStringUtils;
 import services.Path;
 import services.applicant.ValidationErrorMessage;
@@ -42,6 +41,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       boolean isOptional) {
     SingleSelectQuestion singleOptionQuestion = applicantQuestion.createSingleSelectQuestion();
     boolean hasErrors = !validationErrors.isEmpty();
+    AtomicBoolean alreadyAutofocused = new AtomicBoolean(false);
 
     DivTag radioQuestionFormContent =
         div()
@@ -49,15 +49,22 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
                 singleOptionQuestion.getOptions().stream()
                     .sorted(Comparator.comparing(LocalizedQuestionOption::order))
                     .map(
-                        option ->
-                            renderRadioOption(
-                                singleOptionQuestion.getSelectionPath().toString(),
-                                option,
-                                singleOptionQuestion.optionIsSelected(option),
-                                hasErrors,
-                                isOptional,
-                                params.errorDisplayMode(),
-                                params.questionName())));
+                        option -> {
+                          boolean shouldAutofocus = false;
+
+                          if (params.autofocusSingleField() && !alreadyAutofocused.get()) {
+                            shouldAutofocus = true;
+                            alreadyAutofocused.setPlain(true);
+                          }
+
+                          return renderRadioOption(
+                              singleOptionQuestion.getSelectionPath().toString(),
+                              option,
+                              singleOptionQuestion.optionIsSelected(option),
+                              hasErrors,
+                              isOptional,
+                              shouldAutofocus);
+                        }));
 
     return radioQuestionFormContent;
   }
@@ -68,8 +75,7 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
       boolean checked,
       boolean hasErrors,
       boolean isOptional,
-      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
-      Optional<String> questionName) {
+      boolean shouldAutofocus) {
     String id = RandomStringUtils.randomAlphabetic(8);
 
     InputTag inputTag =
@@ -79,13 +85,8 @@ public class RadioButtonQuestionRenderer extends ApplicantCompositeQuestionRende
             .withName(selectionPath)
             .withValue(String.valueOf(option.id()))
             .withCondChecked(checked)
-            .condAttr(applicantSelectedQuestion(questionName), Attr.AUTOFOCUS, "")
+            .condAttr(shouldAutofocus, "autofocus", "")
             .condAttr(hasErrors, "aria-invalid", "true")
-            .condAttr(
-                errorDisplayMode.equals(
-                    ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR),
-                Attr.AUTOFOCUS,
-                "")
             .condAttr(!isOptional, "aria-required", "true")
             .withClasses(StyleUtils.joinStyles(ReferenceClasses.RADIO_INPUT, BaseStyles.RADIO));
 

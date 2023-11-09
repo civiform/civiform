@@ -41,17 +41,12 @@ public class TextQuestionRenderer extends ApplicantSingleQuestionRenderer {
             .setAriaDescribedByIds(ariaDescribedByIds)
             .setScreenReaderText(applicantQuestion.getQuestionTextForScreenReader());
 
-    if (applicantSelectedQuestion(params.questionName())) {
+    if (params.autofocusSingleField()) {
       textField.focusOnInput();
     }
 
     if (!validationErrors.isEmpty()) {
       textField.forceAriaInvalid();
-      if (params
-          .errorDisplayMode()
-          .equals(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_SINGLE_ERROR)) {
-        textField.focusOnError();
-      }
     }
 
     return textField.getInputTag();

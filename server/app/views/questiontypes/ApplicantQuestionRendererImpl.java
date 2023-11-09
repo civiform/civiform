@@ -82,7 +82,6 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
         validationErrors = ImmutableMap.of();
         break;
       case DISPLAY_ERRORS:
-      case DISPLAY_SINGLE_ERROR:
         validationErrors = applicantQuestion.getQuestion().getValidationErrors();
         break;
       default:
@@ -104,8 +103,8 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     ImmutableList<DomContent> questionTextDoms =
         TextFormatter.formatText(
             applicantQuestion.getQuestionText(),
-            /*preserveEmptyLines= */ false,
-            /*addRequiredIndicator= */ !applicantQuestion.isOptional());
+            /* preserveEmptyLines= */ false,
+            /* addRequiredIndicator= */ !applicantQuestion.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();
 
@@ -125,13 +124,12 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
   }
 
   /**
-   * Determines whether or not a user arrived on the edit page by clicking on a specific question.
-   * If they clicked on a specific question, we set the autofocus to the input for that question.
+   * Determines whether a user arrived at the edit page by clicking on a specific question. If they
+   * clicked on a specific question, we set the autofocus to the input for that question.
    */
-  public boolean applicantSelectedQuestion(Optional<String> questionName) {
-    if (questionName.isPresent()) {
-      return questionName.get().equals(applicantQuestion.getQuestionDefinition().getName());
-    }
-    return false;
+  protected boolean applicantSelectedQuestion(Optional<String> questionName) {
+    return questionName
+        .map(applicantQuestion.getQuestionDefinition().getName()::equals)
+        .orElse(false);
   }
 }

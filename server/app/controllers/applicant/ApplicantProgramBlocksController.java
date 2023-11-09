@@ -527,10 +527,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           roApplicantProgramService,
                           thisBlockUpdated,
                           personalInfo,
-                          thisBlockUpdated.hasSingleError()
-                              ? ApplicantQuestionRendererParams.ErrorDisplayMode
-                                  .DISPLAY_SINGLE_ERROR
-                              : ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
+                          ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS))));
     }
 
     if (settingsManifest.getEsriAddressCorrectionEnabled(request)
@@ -731,7 +728,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .setStorageClient(storageClient)
         .setBaseUrl(baseUrl)
         .setErrorDisplayMode(errorDisplayMode)
-        .setQuestionName(questionName);
+        .setApplicantSelectedQuestionName(questionName);
   }
 
   private ApplicationBaseView.Params buildApplicationBaseViewParams(
