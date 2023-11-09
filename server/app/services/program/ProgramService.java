@@ -31,7 +31,7 @@ import models.Program;
 import models.Version;
 import modules.MainModule;
 import play.libs.F;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
@@ -76,7 +76,7 @@ public final class ProgramService {
 
   private final ProgramRepository programRepository;
   private final QuestionService questionService;
-  private final HttpExecutionContext httpExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final AccountRepository accountRepository;
   private final VersionRepository versionRepository;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
@@ -87,11 +87,11 @@ public final class ProgramService {
       QuestionService questionService,
       AccountRepository accountRepository,
       VersionRepository versionRepository,
-      HttpExecutionContext ec,
+      ClassLoaderExecutionContext ec,
       ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programRepository = checkNotNull(programRepository);
     this.questionService = checkNotNull(questionService);
-    this.httpExecutionContext = checkNotNull(ec);
+    this.classLoaderExecutionContext = checkNotNull(ec);
     this.accountRepository = checkNotNull(accountRepository);
     this.versionRepository = checkNotNull(versionRepository);
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
@@ -179,7 +179,7 @@ public final class ProgramService {
 
               return syncProgramAssociations(programMaybe.get());
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   /**
@@ -193,7 +193,7 @@ public final class ProgramService {
   public CompletionStage<ProgramDefinition> getActiveProgramDefinitionAsync(String programSlug) {
     return programRepository
         .getActiveProgramFromSlug(programSlug)
-        .thenComposeAsync(this::syncProgramAssociations, httpExecutionContext.current());
+        .thenComposeAsync(this::syncProgramAssociations, classLoaderExecutionContext.current());
   }
 
   /**
@@ -1590,7 +1590,7 @@ public final class ProgramService {
                     String.format("Question not found for Program %s", programDefinition.id()), e);
               }
             },
-            httpExecutionContext.current());
+            classLoaderExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
