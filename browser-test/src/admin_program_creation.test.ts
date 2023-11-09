@@ -760,4 +760,53 @@ describe('program creation', () => {
     await adminPrograms.gotoEditDraftProgramPage('cif')
     expect(await page.innerText('main')).not.toContain('Eligibility')
   })
+
+  it('create program with universal questions', async () => {
+    const {page, adminQuestions, adminPrograms} = ctx
+
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'universal_questions')
+
+    await adminQuestions.addAddressQuestion({
+      questionName: 'universal-address',
+      universal: true,
+    })
+    await adminQuestions.addTextQuestion({
+      questionName: 'nonuniversal-text',
+      universal: false,
+    })
+    await adminQuestions.addPhoneQuestion({
+      questionName: 'universal-phone',
+      universal: true,
+    })
+
+    const programName = 'Program with universal questions'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.editProgramBlock(
+      programName,
+      'universal program description',
+    )
+    await adminPrograms.addQuestionFromQuestionBank('universal-address')
+    await adminPrograms.addQuestionFromQuestionBank('nonuniversal-text')
+    await adminPrograms.addQuestionFromQuestionBank('universal-phone')
+
+    await validateScreenshot(
+      page,
+      'program-block-edit-with-universal-questions',
+    )
+    await adminPrograms.expectQuestionCardUniversalBadgeState(
+      'universal-address',
+      true,
+    )
+    await adminPrograms.expectQuestionCardUniversalBadgeState(
+      'nonuniversal-text',
+      false,
+    )
+    await adminPrograms.expectQuestionCardUniversalBadgeState(
+      'universal-phone',
+      true,
+    )
+
+    await disableFeatureFlag(page, 'universal_questions')
+  })
 })

@@ -3,7 +3,7 @@ import {createTestContext, loginAsAdmin, waitForPageJsLoad} from './support'
 describe('create dropdown question with options', () => {
   const ctx = createTestContext()
 
-  fit('add remove buttons work correctly', async () => {
+  it('add remove buttons work correctly', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
