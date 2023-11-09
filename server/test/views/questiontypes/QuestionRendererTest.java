@@ -1,6 +1,3 @@
 package views.questiontypes;
 
-public abstract class QuestionRendererTest {
-
-
-}
+public abstract class QuestionRendererTest {}

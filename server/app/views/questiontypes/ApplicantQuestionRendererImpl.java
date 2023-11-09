@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableSet;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
-import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import play.i18n.Messages;
 import services.Path;

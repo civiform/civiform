@@ -104,7 +104,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
-          .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -118,7 +118,7 @@ public class TextQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
-          .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -131,8 +131,8 @@ public class TextQuestionRendererTest extends ResetPostgres {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-          .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
-          .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);

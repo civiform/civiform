@@ -92,7 +92,7 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
-          .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
+            .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -106,7 +106,7 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
-          .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
+            .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);

@@ -135,7 +135,7 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-          .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build();
 
     DivTag result = renderer.render(params);

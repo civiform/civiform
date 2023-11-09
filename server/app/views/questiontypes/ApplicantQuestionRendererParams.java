@@ -25,8 +25,8 @@ public abstract class ApplicantQuestionRendererParams {
 
   public static Builder builder() {
     return new AutoValue_ApplicantQuestionRendererParams.Builder()
-      .setAutofocus(AutoFocusTarget.NONE)
-      .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS);
+        .setAutofocus(AutoFocusTarget.NONE)
+        .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS);
   }
 
   public abstract Messages messages();

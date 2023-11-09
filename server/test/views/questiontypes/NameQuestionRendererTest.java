@@ -57,9 +57,9 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-          .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
-          .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
-          .build();
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
+            .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
 
     DivTag result = renderer.render(params);
 
@@ -71,8 +71,8 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-          .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
-          .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setErrorDisplayMode(ErrorDisplayMode.DISPLAY_ERRORS)
             .build();
 
     DivTag result = renderer.render(params);
@@ -85,7 +85,7 @@ public class NameQuestionRendererTest {
     params =
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
-          .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .build();
 

@@ -58,8 +58,8 @@ public class EmailQuestionRendererTest {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD)
-          .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
-          .build();
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
 
     DivTag result = renderer.render(params);
 

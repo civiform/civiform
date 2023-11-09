@@ -57,8 +57,8 @@ public class IdQuestionRendererTest extends ResetPostgres {
         ApplicantQuestionRendererParams.builder()
             .setMessages(messages)
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
-          .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
-          .build();
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS)
+            .build();
     renderer = new IdQuestionRenderer(question);
   }
 
