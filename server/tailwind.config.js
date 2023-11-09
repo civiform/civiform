@@ -55,6 +55,9 @@ module.exports = {
           light: '#ffefc9',
           DEFAULT: '#6b4b00',
         },
+        'civiform-teal': {
+          DEFAULT: '#164e63',
+        },
       },
       spacing: {
         4.5: '18px',

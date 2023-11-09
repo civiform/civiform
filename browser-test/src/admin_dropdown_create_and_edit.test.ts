@@ -3,7 +3,7 @@ import {createTestContext, loginAsAdmin, waitForPageJsLoad} from './support'
 describe('create dropdown question with options', () => {
   const ctx = createTestContext()
 
-  fit('add remove buttons work correctly', async () => {
+  it('add remove buttons work correctly', async () => {
     const {page, adminQuestions} = ctx
 
     await loginAsAdmin(page)
@@ -36,17 +36,17 @@ describe('create dropdown question with options', () => {
     // Add three options
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(0, {
-      adminName: 'chocolate admin',
+      adminName: 'chocolate_admin',
       text: 'chocolate',
     })
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(1, {
-      adminName: 'vanilla admin',
+      adminName: 'vanilla_admin',
       text: 'vanilla',
     })
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(2, {
-      adminName: 'strawberry admin',
+      adminName: 'strawberry_admin',
       text: 'strawberry',
     })
 
@@ -65,7 +65,7 @@ describe('create dropdown question with options', () => {
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(5)
     // First option should now be vanilla
     await adminQuestions.expectNewMultiOptionAnswer(0, {
-      adminName: 'vanilla admin',
+      adminName: 'vanilla_admin',
       text: 'vanilla',
     })
 
@@ -88,11 +88,11 @@ describe('create dropdown question with options', () => {
     expect(questionSettingsDiv.match(/<input/g)).toHaveLength(7)
     // Check that admin names were set correctly
     await adminQuestions.expectExistingMultiOptionAnswer(0, {
-      adminName: 'vanilla admin',
+      adminName: 'vanilla_admin',
       text: 'vanilla',
     })
     await adminQuestions.expectExistingMultiOptionAnswer(1, {
-      adminName: 'strawberry admin',
+      adminName: 'strawberry_admin',
       text: 'strawberry',
     })
 
@@ -102,7 +102,7 @@ describe('create dropdown question with options', () => {
     await adminQuestions.gotoQuestionEditPage(questionName)
     // Expect that the option text has changed but the admin name has not
     await adminQuestions.expectExistingMultiOptionAnswer(1, {
-      adminName: 'strawberry admin',
+      adminName: 'strawberry_admin',
       text: 'pistachio',
     })
 
@@ -110,14 +110,14 @@ describe('create dropdown question with options', () => {
     await adminQuestions.deleteMultiOptionAnswer(1)
     await page.click('#add-new-option')
     await adminQuestions.fillMultiOptionAnswer(1, {
-      adminName: 'mango admin',
+      adminName: 'mango_admin',
       text: 'mango',
     })
     await adminQuestions.clickSubmitButtonAndNavigate('Update')
     await adminQuestions.gotoQuestionEditPage(questionName)
     // Expect that the option text has changed but the admin name has not
     await adminQuestions.expectExistingMultiOptionAnswer(1, {
-      adminName: 'mango admin',
+      adminName: 'mango_admin',
       text: 'mango',
     })
   })

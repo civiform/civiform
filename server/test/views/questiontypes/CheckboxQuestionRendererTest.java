@@ -95,13 +95,12 @@ public class CheckboxQuestionRendererTest extends ResetPostgres {
         applicantData, question.getContextualizedPath(), 2, 3L);
 
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
     assertThat(
-            result
-                .render()
-                .matches(
-                    ".*fieldset aria-describedby=\"[A-Za-z]{8}-error"
-                        + " [A-Za-z]{8}-description\".*"))
+            cleanHtml.matches(
+                ".*fieldset aria-describedby=\"[A-Za-z]{8}-error" + " [A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 
