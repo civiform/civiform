@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@types/jest": "29.5.7",
-    "@types/jest-image-snapshot": "6.2.2",
+    "@types/jest-image-snapshot": "6.2.3",
     "@types/node": "18.18.8",
     "@typescript-eslint/eslint-plugin": "6.7.5",
     "@typescript-eslint/parser": "6.7.5",
