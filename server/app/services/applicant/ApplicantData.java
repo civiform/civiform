@@ -149,7 +149,7 @@ public class ApplicantData extends CfJsonDocumentContext {
   public Optional<LocalDate> getDateOfBirth() {
     Path dobPath = WellKnownPaths.APPLICANT_DOB;
     if (!hasPath(dobPath)) {
-      dobPath = Path.create("applicant.applicant_date_of_birth");
+      dobPath = WellKnownPaths.APPLICANT_DOB_DEPRECATED;
     }
     return readDate(dobPath);
   }
