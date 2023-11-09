@@ -331,8 +331,8 @@ public final class ViewUtils {
    * Makes a universal question badge, with text denoting the question type, and a
    * "cf-universal-badge" class applied.
    *
-   * @param questionDefinition The QuestionDefinition associated with the question this badge will
-   *     be applied to.
+   * @param questionDefinition The {@link QuestionDefinition} associated with the question this
+   *     badge will be applied to.
    * @param classes Additional classes to apply to the badge.
    * @return DivTag containing the badge.
    */
