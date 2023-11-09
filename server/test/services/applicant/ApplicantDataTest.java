@@ -76,7 +76,7 @@ public class ApplicantDataTest {
   }
 
   @Test
-  public void getDateOfBirth_canHandleDeprecatedPathsA() {
+  public void getDateOfBirth_canHandleDeprecatedDobPath() {
     ApplicantData data = new ApplicantData();
     String sampleDob = "2022-01-05";
     data.putDate(WellKnownPaths.APPLICANT_DOB_DEPRECATED, sampleDob);
