@@ -15,7 +15,7 @@ import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -31,7 +31,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
-  private Program activeProgram;
+  private ProgramModel activeProgram;
   public Applicant applicant;
   public Applicant applicantWithoutProfile;
 
@@ -67,7 +67,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -81,7 +81,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
   public void review_civiformAdminAccessToDraftProgram_isOk() {
     Account adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -92,7 +92,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
     Result result = this.review(applicant.id, obsoleteProgram.id);
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -127,7 +127,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -202,7 +202,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_isSuccessful() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -227,7 +227,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_incomplete_showsError() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -242,7 +242,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())

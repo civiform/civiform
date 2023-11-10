@@ -15,7 +15,7 @@ import java.util.Base64;
 import java.util.Optional;
 import models.ApiKey;
 import models.Application;
-import models.Program;
+import models.ProgramModel;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -134,7 +134,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
 
   @Test
   public void list_unauthorized() {
-    Program program = resourceCreator.insertActiveProgram("test-program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test-program");
 
     String requestUrl =
         controllers.api.routes.ProgramApplicationsApiController.list(

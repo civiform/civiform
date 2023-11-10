@@ -11,7 +11,7 @@ import models.Account;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
-import models.Program;
+import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -83,7 +83,7 @@ public final class ProgramAdminApplicationService {
    */
   public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
-    Program program = application.getProgram();
+    ProgramModel program = application.getProgram();
     Applicant applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent

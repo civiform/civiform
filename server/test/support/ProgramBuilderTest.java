@@ -3,7 +3,7 @@ package support;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -89,7 +89,7 @@ public class ProgramBuilderTest extends ResetPostgres {
 
   @Test
   public void emptyProgram() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     assertThat(program.id).isGreaterThan(0);
     assertThat(program.getProgramDefinition().adminName()).isEmpty();

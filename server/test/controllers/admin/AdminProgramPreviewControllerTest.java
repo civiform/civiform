@@ -6,7 +6,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 
 import controllers.WithMockedProfiles;
 import models.Account;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
@@ -42,7 +42,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void back_draftProgram_redirectsToProgramEditView() {
-    Program program = resourceCreator().insertDraftProgram("some program");
+    ProgramModel program = resourceCreator().insertDraftProgram("some program");
     Result result =
         controller.back(Helpers.fakeRequest().build(), program.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -52,7 +52,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void back_nonDraftProgram_redirectsToProgramReadOnlyView() {
-    Program program = resourceCreator().insertActiveProgram("another program");
+    ProgramModel program = resourceCreator().insertActiveProgram("another program");
     Result result =
         controller.back(Helpers.fakeRequest().build(), program.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(SEE_OTHER);

@@ -12,7 +12,7 @@ import java.util.Optional;
 import models.Account;
 import models.Applicant;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import models.TrustedIntermediaryGroup;
 import models.Version;
 import org.junit.AfterClass;
@@ -112,7 +112,7 @@ public class WithMockedProfiles {
     return ti;
   }
 
-  protected Account createProgramAdminWithMockedProfile(Program program) {
+  protected Account createProgramAdminWithMockedProfile(ProgramModel program) {
     Account programAdmin = resourceCreator.insertAccount();
 
     programAdmin.addAdministeredProgram(program.getProgramDefinition());

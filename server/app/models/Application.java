@@ -32,7 +32,7 @@ public class Application extends BaseModel {
 
   @ManyToOne private Applicant applicant;
 
-  @ManyToOne private Program program;
+  @ManyToOne private ProgramModel program;
 
   // Note: there is not an index on createTime currently as we don't filter on
   // it and expect the number of results to be small.
@@ -52,7 +52,7 @@ public class Application extends BaseModel {
   private String latestStatus;
   private boolean isAdmin;
 
-  public Application(Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+  public Application(Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     this.applicant = applicant;
     this.program = program;
     this.object = "{}";
@@ -63,7 +63,7 @@ public class Application extends BaseModel {
   }
 
   public static Application create(
-      Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+      Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     Application application = new Application(applicant, program, lifecycleStage);
     application.save();
     return application;
@@ -89,7 +89,7 @@ public class Application extends BaseModel {
     return this.applicant;
   }
 
-  public Program getProgram() {
+  public ProgramModel getProgram() {
     return this.program;
   }
 

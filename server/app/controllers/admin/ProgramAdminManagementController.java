@@ -13,7 +13,7 @@ import forms.ManageProgramAdminsForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
-import models.Program;
+import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -97,7 +97,7 @@ public final class ProgramAdminManagementController {
    */
   private Result loadProgram(Http.Request request, long programId, Optional<ToastMessage> message) {
     try {
-      Optional<Program> program =
+      Optional<ProgramModel> program =
           programRepository.lookupProgram(programId).toCompletableFuture().join();
 
       if (program.isEmpty()) {
