@@ -164,7 +164,10 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   private void testApplicationTopLevelAnswers(
-    ProgramModel program, ResultAsserter resultAsserter, Application application, int resultIndex) {
+      ProgramModel program,
+      ResultAsserter resultAsserter,
+      Application application,
+      int resultIndex) {
     resultAsserter.assertValueAtPath(
         "$[" + resultIndex + "].program_name", program.getProgramDefinition().adminName());
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].program_version_id", program.id);
@@ -659,7 +662,8 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenEnumeratorQuestionIsNotAnswered_valueInResponseIsEmptyArray() {
     createFakeQuestions();
-    ProgramModel fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    ProgramModel fakeProgram =
+        new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram).answerEnumeratorQuestion(ImmutableList.of()).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
@@ -684,7 +688,8 @@ public class JsonExporterTest extends AbstractExporterTest {
   public void
       export_whenEnumeratorAndRepeatedQuestionsAreAnswered_repeatedQuestionsHaveAnswerInResponse() {
     createFakeQuestions();
-    ProgramModel fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    ProgramModel fakeProgram =
+        new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram)
         .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
         .answerRepeatedTextQuestion("tswift", "hearts")
@@ -724,7 +729,8 @@ public class JsonExporterTest extends AbstractExporterTest {
   public void
       export_whenEnumeratorQuestionIsAnsweredAndRepeatedQuestionIsNot_repeatedQuestionsHaveNullAnswers() {
     createFakeQuestions();
-    ProgramModel fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    ProgramModel fakeProgram =
+        new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram)
         .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
         .submit();

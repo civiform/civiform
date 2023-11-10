@@ -3,7 +3,6 @@ package services.applicant;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
-
 import models.ProgramModel;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;

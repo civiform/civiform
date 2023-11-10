@@ -68,7 +68,8 @@ public class VersionTest extends ResetPostgres {
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
 
-    Optional<ProgramModel> result = versionRepository.getProgramByNameForVersion(programName, version);
+    Optional<ProgramModel> result =
+        versionRepository.getProgramByNameForVersion(programName, version);
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().getProgramDefinition().adminName()).isEqualTo(programName);
   }
@@ -130,9 +131,11 @@ public class VersionTest extends ResetPostgres {
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String tombstonedProgramNameOne = "tombstoneOne";
-    ProgramModel tombstonedProgramOne = resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
+    ProgramModel tombstonedProgramOne =
+        resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
     String tombstonedProgramNameTwo = "tombstoneTwo";
-    ProgramModel tombstonedProgramTwo = resourceCreator.insertDraftProgram(tombstonedProgramNameTwo);
+    ProgramModel tombstonedProgramTwo =
+        resourceCreator.insertDraftProgram(tombstonedProgramNameTwo);
 
     version.addProgram(programOne);
     version.addProgram(tombstonedProgramOne);
@@ -194,7 +197,8 @@ public class VersionTest extends ResetPostgres {
     String programNameOne = "programone";
     ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String tombstonedProgramNameOne = "tombstoneOne";
-    ProgramModel tombstonedProgramOne = resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
+    ProgramModel tombstonedProgramOne =
+        resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
 
     version.addProgram(programOne);
     version.addProgram(tombstonedProgramOne);

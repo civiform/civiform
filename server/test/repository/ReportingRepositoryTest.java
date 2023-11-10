@@ -127,7 +127,7 @@ public class ReportingRepositoryTest extends ResetPostgres {
   }
 
   private Application createFakeApplication(
-          ProgramModel program, LifecycleStage lifecycleStage, Instant createTime, Instant submitTime) {
+      ProgramModel program, LifecycleStage lifecycleStage, Instant createTime, Instant submitTime) {
     Application application = new Application(applicant, program, lifecycleStage);
     application.setApplicantData(applicant.getApplicantData());
     application.save();

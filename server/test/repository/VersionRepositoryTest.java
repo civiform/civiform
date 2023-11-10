@@ -265,7 +265,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getActiveVersion().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(firstQuestion.id, secondQuestion.id);
     // Second program is in draft, since a question within it was updated.
-    ProgramModel newSecondProgram = versionRepository.getDraftVersionOrCreate().getPrograms().get(0);
+    ProgramModel newSecondProgram =
+        versionRepository.getDraftVersionOrCreate().getPrograms().get(0);
     assertThat(
             versionRepository.getDraftVersionOrCreate().getPrograms().stream()
                 .map(p -> p.getProgramDefinition().adminName()))
@@ -1069,7 +1070,8 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     String version1Key = String.valueOf(version1.id);
 
-    ImmutableList<ProgramModel> programsForVersion = versionRepository.getProgramsForVersion(version1);
+    ImmutableList<ProgramModel> programsForVersion =
+        versionRepository.getProgramsForVersion(version1);
 
     assertThat(programsByVersionCache.get(version1Key).get()).isEqualTo(programsForVersion);
   }
@@ -1084,7 +1086,8 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     String version1Key = String.valueOf(version1.id);
 
-    ImmutableList<ProgramModel> programsForVersion = versionRepository.getProgramsForVersion(version1);
+    ImmutableList<ProgramModel> programsForVersion =
+        versionRepository.getProgramsForVersion(version1);
 
     assertThat(programsByVersionCache.get(version1Key).get()).isEqualTo(programsForVersion);
   }

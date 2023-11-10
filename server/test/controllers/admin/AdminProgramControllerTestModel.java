@@ -429,7 +429,8 @@ public class AdminProgramControllerTestModel extends ResetPostgres {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
-    ProgramModel draftProgram = ProgramBuilder.newDraftProgram(programName, "draft description").build();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram(programName, "draft description").build();
 
     Result result = controller.newVersionFrom(request, activeProgram.id);
 
@@ -474,7 +475,8 @@ public class AdminProgramControllerTestModel extends ResetPostgres {
 
   @Test
   public void update_overwritesExistingProgram() throws Exception {
-    ProgramModel program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
         requestBuilderWithSettings()
             .bodyForm(
@@ -509,7 +511,8 @@ public class AdminProgramControllerTestModel extends ResetPostgres {
 
   @Test
   public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
-    ProgramModel program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     RequestBuilder requestBuilder =
@@ -541,7 +544,8 @@ public class AdminProgramControllerTestModel extends ResetPostgres {
 
   @Test
   public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
-    ProgramModel program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     RequestBuilder requestBuilder =
@@ -572,7 +576,8 @@ public class AdminProgramControllerTestModel extends ResetPostgres {
 
   @Test
   public void update_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() throws Exception {
-    ProgramModel program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
 
     RequestBuilder requestBuilder =
         addCSRFToken(
@@ -613,7 +618,8 @@ public class AdminProgramControllerTestModel extends ResetPostgres {
 
   @Test
   public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
-    ProgramModel program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     String newProgramName = "External program name";

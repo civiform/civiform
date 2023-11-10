@@ -139,7 +139,8 @@ public class AdminProgramBlockQuestionsControllerTestModel extends ResetPostgres
     // Setup.
     QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
-    ProgramModel program = programBuilder.withBlock("block1").withOptionalQuestion(nameQuestion).build();
+    ProgramModel program =
+        programBuilder.withBlock("block1").withOptionalQuestion(nameQuestion).build();
     BlockDefinition block = program.getProgramDefinition().getLastBlockDefinition();
 
     // Missing position value.

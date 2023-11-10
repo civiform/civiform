@@ -41,8 +41,8 @@ import services.program.ProgramNotFoundException;
 import services.settings.SettingsManifest;
 
 /**
- * ProgramRepository performs complicated operations on {@link ProgramModel} that often involve other
- * EBean models or asynchronous handling.
+ * ProgramRepository performs complicated operations on {@link ProgramModel} that often involve
+ * other EBean models or asynchronous handling.
  */
 public final class ProgramRepository {
   private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
@@ -151,7 +151,8 @@ public final class ProgramRepository {
       // Program -> builder -> back to program in order to clear any metadata stored in the program
       // (for example, version information).
       ProgramModel newDraft =
-          new ProgramModel(existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
+          new ProgramModel(
+              existingProgram.getProgramDefinition().toBuilder().build(), draftVersion);
       newDraft = insertProgramSync(newDraft);
       draftVersion.refresh();
       Preconditions.checkState(
@@ -229,7 +230,8 @@ public final class ProgramRepository {
 
   public ImmutableList<Account> getProgramAdministrators(long programId)
       throws ProgramNotFoundException {
-    Optional<ProgramModel> program = database.find(ProgramModel.class).setId(programId).findOneOrEmpty();
+    Optional<ProgramModel> program =
+        database.find(ProgramModel.class).setId(programId).findOneOrEmpty();
     if (program.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
@@ -350,7 +352,12 @@ public final class ProgramRepository {
     Query<ProgramModel> programNameQuery =
         database.find(ProgramModel.class).select("name").where().eq("id", programId).query();
 
-    return database.find(ProgramModel.class).select("id").where().in("name", programNameQuery).query();
+    return database
+        .find(ProgramModel.class)
+        .select("id")
+        .where()
+        .in("name", programNameQuery)
+        .query();
   }
 
   private String getApplicationObjectPath(Path path) {

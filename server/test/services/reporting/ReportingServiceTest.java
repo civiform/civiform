@@ -137,7 +137,7 @@ public class ReportingServiceTest extends ResetPostgres {
   }
 
   private Application createFakeApplication(
-          ProgramModel program, Instant createTime, Instant submitTime) {
+      ProgramModel program, Instant createTime, Instant submitTime) {
     Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();

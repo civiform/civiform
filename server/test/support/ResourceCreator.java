@@ -146,7 +146,7 @@ public class ResourceCreator {
   }
 
   public Application insertApplication(
-          Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
+      Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     return Application.create(applicant, program, lifecycleStage);
   }
 

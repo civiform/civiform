@@ -62,7 +62,7 @@ public final class ApplicationRepository {
 
   @VisibleForTesting
   public CompletionStage<Application> submitApplication(
-    Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
+      Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
         () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
         executionContext.current());
@@ -83,7 +83,7 @@ public final class ApplicationRepository {
   }
 
   private Application submitApplicationInternal(
-    Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
+      Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     database.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -236,7 +236,8 @@ public final class ApplicationRepository {
     }
   }
 
-  private Application createOrUpdateDraftApplicationInternal(Applicant applicant, ProgramModel program) {
+  private Application createOrUpdateDraftApplicationInternal(
+      Applicant applicant, ProgramModel program) {
     database.beginTransaction();
     try {
       Optional<Application> existingDraft =

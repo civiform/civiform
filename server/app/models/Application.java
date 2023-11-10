@@ -63,7 +63,7 @@ public class Application extends BaseModel {
   }
 
   public static Application create(
-    Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
+      Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     Application application = new Application(applicant, program, lifecycleStage);
     application.save();
     return application;

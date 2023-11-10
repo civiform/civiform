@@ -55,16 +55,16 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates {@link ProgramBuilder} with a new {@link ProgramModel} with an empty name and description,
-   * in draft state.
+   * Creates {@link ProgramBuilder} with a new {@link ProgramModel} with an empty name and
+   * description, in draft state.
    */
   public static ProgramBuilder newDraftProgram() {
     return newDraftProgram("", "");
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in draft
-   * state.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in
+   * draft state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
     return newDraftProgram(name, "");
@@ -95,7 +95,8 @@ public class ProgramBuilder {
   /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in draft state. */
   public static ProgramBuilder newDraftProgram(ProgramDefinition programDefinition) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    ProgramModel program = new ProgramModel(programDefinition, versionRepository.getDraftVersionOrCreate());
+    ProgramModel program =
+        new ProgramModel(programDefinition, versionRepository.getDraftVersionOrCreate());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -111,8 +112,8 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a blank
-   * description.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
+   * blank description.
    */
   public static ProgramBuilder newActiveProgram(String name) {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, /* description= */ "");
@@ -124,8 +125,8 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a blank
-   * description.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a
+   * blank description.
    */
   public static ProgramBuilder newActiveProgramWithDisplayName(
       String adminName, String displayName) {
@@ -133,8 +134,8 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with the type
-   * ProgramType.COMMON_INTAKE_FORM.
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with the
+   * type ProgramType.COMMON_INTAKE_FORM.
    */
   public static ProgramBuilder newActiveCommonIntakeForm(String name) {
     return newActiveProgram(

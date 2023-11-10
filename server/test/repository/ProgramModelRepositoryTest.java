@@ -392,7 +392,11 @@ public class ProgramModelRepositoryTest extends ResetPostgres {
   }
 
   private Application makeApplicationWithName(
-          Applicant applicant, ProgramModel program, String firstName, String middleName, String lastName) {
+      Applicant applicant,
+      ProgramModel program,
+      String firstName,
+      String middleName,
+      String lastName) {
     Application application = resourceCreator.insertActiveApplication(applicant, program);
     ApplicantData applicantData = application.getApplicantData();
     QuestionAnswerer.answerNameQuestion(
@@ -524,7 +528,7 @@ public class ProgramModelRepositoryTest extends ResetPostgres {
   }
 
   private ImmutableSet<Long> applicationIdsForProgramAndFilter(
-          ProgramModel program, SubmittedApplicationFilter filter) {
+      ProgramModel program, SubmittedApplicationFilter filter) {
     PaginationResult<Application> result =
         repo.getApplicationsForAllProgramVersions(
             program.id,
