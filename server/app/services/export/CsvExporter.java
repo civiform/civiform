@@ -70,7 +70,7 @@ public final class CsvExporter implements AutoCloseable {
       ReadOnlyApplicantProgramService roApplicantService,
       Optional<Boolean> optionalEligibilityStatus)
       throws IOException {
-    ImmutableMap.Builder<Path, String> answerMap = new ImmutableMap.Builder<>();
+    ImmutableMap.Builder<Path, String> answerMapBuilder = new ImmutableMap.Builder<>();
     for (AnswerData answerData : roApplicantService.getSummaryData()) {
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         String questionName = answerData.questionDefinition().getName();
@@ -80,41 +80,47 @@ public final class CsvExporter implements AutoCloseable {
           continue;
         }
         List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
-        String defaultText =
-            answerData.isAnswered()
-                ? MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString()
-                : MultiOptionSelectionExportType.NOT_ANSWERED.toString();
+
         List<String> selectedList =
             answerData
                 .applicantQuestion()
                 .createMultiSelectQuestion()
                 .getSelectedOptionAdminNames()
                 .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
-                .orElse(Collections.singletonList(""));
+                .orElse(Collections.emptyList());
         List<String> allOptionsShownInQuestion = new ArrayList<>();
         answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
-            .forEach(option -> allOptionsShownInQuestion.add(option.adminName()));
+            .map(o -> o.adminName())
+            .collect(Collectors.toList());
 
         optionHeaders.forEach(
-            option ->
-                answerMap.put(
-                    answerData.contextualizedPath().join(String.valueOf(option)),
-                    selectedList.contains(option)
-                        ? MultiOptionSelectionExportType.SELECTED.toString()
-                        : allOptionsShownInQuestion.contains(option) && answerData.isAnswered()
-                            ? MultiOptionSelectionExportType.NOT_SELECTED.toString()
-                            : defaultText));
+            option -> {
+              String defaultText = MultiOptionSelectionExportType.NOT_ANSWERED.toString();
+              if (answerData.isAnswered()) {
+                defaultText =
+                    MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString();
+              }
+              if (allOptionsShownInQuestion.contains(option)) {
+                defaultText = MultiOptionSelectionExportType.NOT_SELECTED.toString();
+              }
+              if (selectedList.contains(option)) {
+                defaultText = MultiOptionSelectionExportType.SELECTED.toString();
+              }
+              answerMapBuilder.put(
+                  answerData.contextualizedPath().join(String.valueOf(option)), defaultText);
+            });
 
       } else {
         for (Path p : answerData.scalarAnswersInDefaultLocale().keySet()) {
-          answerMap.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
+          answerMapBuilder.put(p, answerData.scalarAnswersInDefaultLocale().get(p));
         }
       }
     }
+    ImmutableMap<Path, String> answerMap = answerMapBuilder.build();
     for (Column column : columns) {
       switch (column.columnType()) {
         case APPLICANT_ANSWER:
-          printer.print(getValueFromAnswerMap(column, answerMap.build()));
+          printer.print(getValueFromAnswerMap(column, answerMap));
           break;
         case APPLICANT_ID:
           printer.print(application.getApplicant().id);
@@ -181,7 +187,7 @@ public final class CsvExporter implements AutoCloseable {
             throw new RuntimeException("Secret not present, but opaque applicant data requested.");
           }
           // We still hash the empty value.
-          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap.build())));
+          printer.print(opaqueIdentifier(secret, getValueFromAnswerMap(column, answerMap)));
           break;
         case ELIGIBILITY_STATUS:
           if (optionalEligibilityStatus.isPresent()) {

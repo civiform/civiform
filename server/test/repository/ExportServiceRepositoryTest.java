@@ -146,8 +146,7 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   }
 
   /*
-   *TODO- structuring this using the Builder pattern would make this easier to extend or customize in the future
-   * (eg if we wanted more than 3 options)
+   *TODO- https://github.com/civiform/civiform/issues/5957
    * */
   private Question createMultiSelectQuestion(
       String name, String option1, String option2, String option3, LifecycleStage stage) {
