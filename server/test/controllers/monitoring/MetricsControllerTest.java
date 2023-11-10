@@ -64,7 +64,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
     assertThat(metricsContent).contains(getEbeanCountName("models.Question"));
     assertThat(metricsContent).contains(getEbeanCountName("Version.byId"));
     assertThat(metricsContent).contains("location=\"VersionRepository.getActiveVersion");
-    assertThat(metricsContent).contains("className=\"models.Version");
+    assertThat(metricsContent).contains("className=\"models.VersionModel");
   }
 
   @Test
