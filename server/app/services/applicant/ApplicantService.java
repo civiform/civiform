@@ -894,6 +894,7 @@ public final class ApplicantService {
                     // Return all programs the user is eligible for, or that have no
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
+                    .filter(programData -> !programData.program().isCommonIntakeForm())
                     .collect(ImmutableList.toImmutableList()),
             httpExecutionContext.current());
   }
@@ -1025,11 +1026,7 @@ public final class ApplicantService {
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicationEligibilityStatus(maybeSubmittedApp.get(), programDefinition));
-            if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
-            } else {
-              submittedPrograms.add(applicantProgramDataBuilder.build());
-            }
+            submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           }
         });
