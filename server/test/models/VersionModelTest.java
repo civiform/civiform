@@ -13,7 +13,7 @@ import repository.VersionRepository;
 import services.program.ProgramType;
 import services.question.exceptions.QuestionNotFoundException;
 
-// TODO(#4912): Add more tests for Version.java.
+// TODO(#4912): Add more tests for VersionModel.java.
 public class VersionModelTest extends ResetPostgres {
 
   private VersionRepository versionRepository;
