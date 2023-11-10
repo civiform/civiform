@@ -29,7 +29,9 @@ import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 
-/** AccountRepository contains database interactions for {@link AccountModel} and {@link Applicant}. */
+/**
+ * AccountRepository contains database interactions for {@link AccountModel} and {@link Applicant}.
+ */
 public final class AccountRepository {
   private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
       new QueryProfileLocationBuilder("AccountRepository");

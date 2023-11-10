@@ -18,7 +18,7 @@ public final class TrustedIntermediarySearchResult {
   private final Optional<String> errorMessage;
 
   private TrustedIntermediarySearchResult(
-          Optional<ImmutableList<AccountModel>> accounts, Optional<String> errorMessage) {
+      Optional<ImmutableList<AccountModel>> accounts, Optional<String> errorMessage) {
     this.accounts = accounts;
     this.errorMessage = errorMessage;
   }
@@ -29,7 +29,7 @@ public final class TrustedIntermediarySearchResult {
   }
 
   public static TrustedIntermediarySearchResult fail(
-          ImmutableList<AccountModel> allAccount, String errorMessage) {
+      ImmutableList<AccountModel> allAccount, String errorMessage) {
     return new TrustedIntermediarySearchResult(Optional.of(allAccount), Optional.of(errorMessage));
   }
 

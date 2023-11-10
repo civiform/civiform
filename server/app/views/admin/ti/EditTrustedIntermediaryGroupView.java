@@ -104,7 +104,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
-  private TrTag renderTIRow(TrustedIntermediaryGroup tiGroup, AccountModel ti, Http.Request request) {
+  private TrTag renderTIRow(
+      TrustedIntermediaryGroup tiGroup, AccountModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -131,7 +132,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(
-    TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
+      TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
     return td().with(
             div()
                 .withClasses("flex", "justify-end", "items-center", "pr-3")
@@ -139,7 +140,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private FormTag renderDeleteButton(
-    TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
+      TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
     return form()
         .withMethod("POST")
         .withAction(
