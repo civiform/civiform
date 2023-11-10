@@ -72,7 +72,12 @@ public final class ProgramCardFactory {
                                 "font-bold",
                                 "text-xl"))
                     .with(
-                        p(programDescriptionText)
+                        div()
+                            .with(
+                                TextFormatter.formatText(
+                                    programDescriptionText,
+                                    /*preserveEmptyLines=*/ false,
+                                    /*addRequiredIndicator=*/ false))
                             .withClasses("line-clamp-2", "text-gray-700", "text-base"))
                     .condWith(
                         shouldShowCommonIntakeFormIndicator(request, displayProgram),
@@ -124,7 +129,7 @@ public final class ProgramCardFactory {
                 programRow.extraRowActions().size() == 0 ? "invisible" : "");
 
     PTag badge =
-        ViewUtils.makeBadge(
+        ViewUtils.makeLifecycleBadge(
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));

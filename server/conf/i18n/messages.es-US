@@ -284,7 +284,6 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
-adminValidation.multiOptionAdminEmpty=Las preguntas de opción múltiple no se puede dejar sin IDs de administrador.
 
 #----------------------------------#
 # ERRORS - various error messages  #

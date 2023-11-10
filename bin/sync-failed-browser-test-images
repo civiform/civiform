@@ -70,7 +70,7 @@ function get_json_or_exit_on_failure() {
 #######################################
 # Print helpful info in external requirements are not fulfilled
 # Globals:
-#   GITHUB_TOKEN - environemnt variable of a valid GitHub Personal access token
+#   GITHUB_TOKEN - environment variable of a valid GitHub Personal access token
 #######################################
 function verify_dependencies() {
   if ! command -v jq &>/dev/null; then

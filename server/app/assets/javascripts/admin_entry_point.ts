@@ -7,6 +7,7 @@ import * as main from './main'
 import * as accordion from './accordion'
 import * as radio from './radio'
 import * as toast from './toast'
+import * as toggle from './toggle'
 import * as adminApplicationView from './admin_application_view'
 import * as adminApplications from './admin_applications'
 import * as adminPredicates from './admin_predicate_configuration'
@@ -37,6 +38,7 @@ window.addEventListener('load', () => {
   accordion.init()
   radio.init()
   toast.init()
+  toggle.init()
   adminApplicationView.init()
   adminApplications.init()
   adminPredicates.init()

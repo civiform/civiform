@@ -423,10 +423,10 @@ public final class ProgramIndexView extends BaseHtmlView {
                 .withClasses(ReferenceClasses.APPLICATION_CARD_TITLE, "text-lg", "font-semibold")
                 .withText(program.localizedName().getOrDefault(preferredLocale));
     ImmutableList<DomContent> descriptionContent =
-        TextFormatter.createLinksAndEscapeText(
+        TextFormatter.formatText(
             program.localizedDescription().getOrDefault(preferredLocale),
-            TextFormatter.UrlOpenAction.NewTab,
-            /* addRequiredIndicator= */ false);
+            /*preserveEmptyLines= */ false,
+            /*addRequiredIndicator= */ false);
     DivTag description =
         div()
             .withId(baseId + "-description")

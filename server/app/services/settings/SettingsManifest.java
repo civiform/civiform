@@ -848,6 +848,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Enables setting and displaying the universal question state on questions. These questions are
+   * intended to be used by all programs and will appear at the top of the question bank with a
+   * badge denoting them as universal.
+   */
+  public boolean getUniversalQuestions(RequestHeader request) {
+    return getBool("UNIVERSAL_QUESTIONS", request);
+  }
+
+  /**
    * Enables images on program cards, both for admins to upload them and for applicants to view
    * them.
    */
@@ -1769,12 +1778,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.HIDDEN),
                   SettingDescription.create(
-                      "PROGRAM_CARD_IMAGES",
-                      "Enables images on program cards, both for admins to upload them and for"
-                          + " applicants to view them.",
+                      "UNIVERSAL_QUESTIONS",
+                      "Enables setting and displaying the universal question state on questions."
+                          + " These questions are intended to be used by all programs and will"
+                          + " appear at the top of the question bank with a badge denoting them as"
+                          + " universal.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))),
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                    "PROGRAM_CARD_IMAGES",
+                    "Enables images on program cards, both for admins to upload them and for"
+                      + " applicants to view them.",
+                    /* isRequired= */ false,
+                    SettingType.BOOLEAN,
+                    SettingMode.HIDDEN))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",

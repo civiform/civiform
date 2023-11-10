@@ -36,6 +36,7 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.ViewUtils;
@@ -61,15 +62,18 @@ public final class QuestionsListView extends BaseHtmlView {
   private final AdminLayout layout;
   private final TranslationLocales translationLocales;
   private final ViewUtils viewUtils;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionsListView(
       AdminLayoutFactory layoutFactory,
       TranslationLocales translationLocales,
-      ViewUtils viewUtils) {
+      ViewUtils viewUtils,
+      SettingsManifest settingsManifest) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Renders a page with a list view of all questions. */
@@ -158,7 +162,12 @@ public final class QuestionsListView extends BaseHtmlView {
                       .build();
                 })
             .sorted(
-                Comparator.<QuestionCardData, Instant>comparing(
+                Comparator.<QuestionCardData, Boolean>comparing(
+                        card ->
+                            settingsManifest.getUniversalQuestions(request)
+                                ? getDisplayQuestion(card).isUniversal()
+                                : true)
+                    .thenComparing(
                         card ->
                             getDisplayQuestion(card).getLastModifiedTime().orElse(Instant.EPOCH))
                     .reversed()
@@ -283,6 +292,10 @@ public final class QuestionsListView extends BaseHtmlView {
                 "rounded-lg",
                 "border",
                 ReferenceClasses.ADMIN_QUESTION_TABLE_ROW)
+            .condWith(
+                settingsManifest.getUniversalQuestions(request)
+                    && getDisplayQuestion(cardData).isUniversal(),
+                ViewUtils.makeUniversalBadge(latestDefinition, "mt-4"))
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
@@ -321,7 +334,8 @@ public final class QuestionsListView extends BaseHtmlView {
               ? ProgramDisplayType.PENDING_DELETION
               : ProgramDisplayType.DRAFT;
     }
-    PTag badge = ViewUtils.makeBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
+    PTag badge =
+        ViewUtils.makeLifecycleBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
     DivTag row =
         div()

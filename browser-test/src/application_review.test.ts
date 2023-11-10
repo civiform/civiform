@@ -24,37 +24,37 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.addDropdownQuestion({
       questionName: 'ice-cream-q',
       options: [
-        {adminName: 'chocolate admin', text: 'chocolate'},
-        {adminName: 'banana admin', text: 'banana'},
-        {adminName: 'black raspberry admin', text: 'black raspberry'},
+        {adminName: 'chocolate_admin', text: 'chocolate'},
+        {adminName: 'banana_admin', text: 'banana'},
+        {adminName: 'black_raspberry_admin', text: 'black raspberry'},
       ],
     })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'favorite-trees-q',
       options: [
-        {adminName: 'oak admin', text: 'oak'},
-        {adminName: 'maple admin', text: 'maple'},
-        {adminName: 'pine admin', text: 'pine'},
-        {adminName: 'cherry admin', text: 'cherry'},
+        {adminName: 'oak_admin', text: 'oak'},
+        {adminName: 'maple_admin', text: 'maple'},
+        {adminName: 'pine_admin', text: 'pine'},
+        {adminName: 'cherry_admin', text: 'cherry'},
       ],
     })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'favorite-rats-q',
       options: [
-        {adminName: 'sewage admin', text: 'sewage'},
-        {adminName: 'laboratory admin', text: 'laboratory'},
-        {adminName: 'bubonic admin', text: 'bubonic'},
-        {adminName: 'giant admin', text: 'giant'},
+        {adminName: 'sewage_admin', text: 'sewage'},
+        {adminName: 'laboratory_admin', text: 'laboratory'},
+        {adminName: 'bubonic_admin', text: 'bubonic'},
+        {adminName: 'giant_admin', text: 'giant'},
       ],
     })
     await adminQuestions.addCheckboxQuestion({
       questionName: 'scared-of-q',
       options: [
-        {adminName: 'dog admin', text: 'dogs'},
-        {adminName: 'bee admin', text: 'bees'},
-        {adminName: 'spider admin', text: 'spiders'},
-        {adminName: 'dark admin', text: 'the dark'},
-        {adminName: 'clown admin', text: 'clowns'},
+        {adminName: 'dog_admin', text: 'dogs'},
+        {adminName: 'bee_admin', text: 'bees'},
+        {adminName: 'spider_admin', text: 'spiders'},
+        {adminName: 'dark_admin', text: 'the dark'},
+        {adminName: 'clown_admin', text: 'clowns'},
       ],
     })
     await adminQuestions.addCurrencyQuestion({
@@ -70,9 +70,9 @@ describe('Program admin review of submitted applications', () => {
     await adminQuestions.addRadioButtonQuestion({
       questionName: 'radio-q',
       options: [
-        {adminName: 'one admin', text: 'one'},
-        {adminName: 'two admin', text: 'two'},
-        {adminName: 'three admin', text: 'three'},
+        {adminName: 'one_admin', text: 'one'},
+        {adminName: 'two_admin', text: 'two'},
+        {adminName: 'three_admin', text: 'three'},
       ],
     })
     await adminQuestions.addStaticQuestion({questionName: 'first-static-q'})

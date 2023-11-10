@@ -20,9 +20,9 @@ describe('Radio button question for applicant flow', () => {
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'ice-cream-radio-q',
         options: [
-          {adminName: 'matcha admin', text: 'matcha'},
-          {adminName: 'strawberry admin', text: 'strawberry'},
-          {adminName: 'vanilla admin', text: 'vanilla'},
+          {adminName: 'matcha_admin', text: 'matcha'},
+          {adminName: 'strawberry_admin', text: 'strawberry'},
+          {adminName: 'vanilla_admin', text: 'vanilla'},
         ],
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
@@ -43,10 +43,10 @@ describe('Radio button question for applicant flow', () => {
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
           options: [
-            {adminName: 'red admin', text: 'red'},
-            {adminName: 'green admin', text: 'green'},
-            {adminName: 'orange admin', text: 'orange'},
-            {adminName: 'blue admin', text: 'blue'},
+            {adminName: 'red_admin', text: 'red'},
+            {adminName: 'green_admin', text: 'green'},
+            {adminName: 'orange_admin', text: 'orange'},
+            {adminName: 'blue_admin', text: 'blue'},
           ],
         },
         /* clickSubmit= */ false,
@@ -126,19 +126,19 @@ describe('Radio button question for applicant flow', () => {
       await adminQuestions.addRadioButtonQuestion({
         questionName: 'fave-ice-cream-q',
         options: [
-          {adminName: 'matcha admin', text: 'matcha'},
-          {adminName: 'strawberry admin', text: 'strawberry'},
-          {adminName: 'vanilla admin', text: 'vanilla'},
+          {adminName: 'matcha_admin', text: 'matcha'},
+          {adminName: 'strawberry_admin', text: 'strawberry'},
+          {adminName: 'vanilla_admin', text: 'vanilla'},
         ],
       })
 
       await adminQuestions.addCheckboxQuestion({
         questionName: 'fave-vacation-q',
         options: [
-          {adminName: 'beach admin', text: 'beach'},
-          {adminName: 'mountains admin', text: 'mountains'},
-          {adminName: 'city admin', text: 'city'},
-          {adminName: 'cruise admin', text: 'cruise'},
+          {adminName: 'beach_admin', text: 'beach'},
+          {adminName: 'mountains_admin', text: 'mountains'},
+          {adminName: 'city_admin', text: 'city'},
+          {adminName: 'cruise_admin', text: 'cruise'},
         ],
       })
 

@@ -57,7 +57,7 @@ public final class Accordion {
             .withClasses(
                 ReferenceClasses.ACCORDION_BUTTON,
                 "transition-all",
-                "duration-300",
+                "duration-100",
                 "absolute",
                 "top-1",
                 "right-2",
