@@ -1025,11 +1025,7 @@ public final class ApplicantService {
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicationEligibilityStatus(maybeSubmittedApp.get(), programDefinition));
-            if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
-            } else {
-              submittedPrograms.add(applicantProgramDataBuilder.build());
-            }
+            submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           }
         });
