@@ -27,7 +27,7 @@ content.optional=(opcional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
-button.close=Close
+button.close=Cerrar
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -151,7 +151,7 @@ content.commonIntakeConfirmationTi=Tu cliente puede obtener estos beneficios si 
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no encontró programas para los que reúnas los requisitos en este momento. No obstante, puedes solicitar beneficios en cualquier momento si haces clic en "Postularse a programas". Para ver programas de beneficios adicionales, visita {0}.
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no encontró programas para los que tu cliente reúna los requisitos en este momento. No obstante, puedes solicitar beneficios en cualquier momento si haces clic en "Postularse a programas". Para ver programas de beneficios adicionales, visita {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
-button.downloadPdf=Download PDF
+button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
 
 #-------------------------------------------------------------------------------------------------------------------------#
