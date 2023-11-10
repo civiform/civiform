@@ -4,7 +4,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.form;
+import static views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.assistedinject.Assisted;
 import controllers.applicant.routes;
 import j2html.tags.ContainerTag;
@@ -19,6 +21,7 @@ import play.mvc.Http.HttpVerbs;
 import play.twirl.api.Content;
 import services.MessageKey;
 import services.applicant.question.ApplicantQuestion;
+import services.question.types.QuestionDefinition;
 import views.ApplicationBaseView;
 import views.FileUploadViewStrategy;
 import views.HtmlBundle;
@@ -164,10 +167,11 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
                           .setErrorDisplayMode(params.errorDisplayMode())
                           .setAutofocus(
                               calculateAutoFocusTarget(
+                                  params.errorDisplayMode(),
+                                  question.getQuestionDefinition(),
                                   formHasErrors,
                                   ordinalErrorCount.get(),
-                                  params.applicantSelectedQuestionName(),
-                                  question))
+                                  params.applicantSelectedQuestionName()))
                           .build();
 
                   return renderQuestion(question, rendererParams);
@@ -179,22 +183,22 @@ public final class ApplicantProgramBlockEditView extends ApplicationBaseView {
   // it should be the first field with an error of the first question with
   // errors. Otherwise, if there is a user-selected question it should be the
   // first field of that question.
-  private ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
+  @VisibleForTesting
+  ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
+      ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
+      QuestionDefinition questionDefinition,
       boolean formHasErrors,
       int ordinalErrorCount,
-      Optional<String> applicantSelectedQuestion,
-      ApplicantQuestion applicantQuestion) {
-    if (formHasErrors) {
+      Optional<String> applicantSelectedQuestionName) {
+    if (formHasErrors && DISPLAY_ERRORS.equals(errorDisplayMode)) {
       return ordinalErrorCount == 1
           ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR
           : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
     }
 
-    return applicantSelectedQuestion
-            .map(applicantQuestion.getQuestionDefinition().getName()::equals)
-            .orElse(false)
-        ? ApplicantQuestionRendererParams.AutoFocusTarget.NONE
-        : ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD;
+    return applicantSelectedQuestionName.map(questionDefinition.getName()::equals).orElse(false)
+        ? ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD
+        : ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
   }
 
   private DivTag renderQuestion(

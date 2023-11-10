@@ -1,0 +1,117 @@
+package views.applicant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
+import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD;
+import static views.questiontypes.ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+
+import java.util.Optional;
+import org.junit.Test;
+import org.mockito.Mockito;
+import repository.ResetPostgres;
+import services.question.types.QuestionDefinition;
+import views.FileUploadViewStrategy;
+import views.questiontypes.ApplicantQuestionRendererFactory;
+import views.questiontypes.ApplicantQuestionRendererParams;
+
+public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
+
+  private static QuestionDefinition ADDRESS_QD =
+      testQuestionBank.applicantAddress().getQuestionDefinition();
+  // While mocking is generally discouraged, some tests in this file don't need c'tor so mocking
+  // them is a
+  // convenient way to construct an instance of the class under test. The mocks are
+  // not otherwise used.
+  private static ApplicantProgramBlockEditView EMPTY_VIEW =
+      new ApplicantProgramBlockEditView(
+          Mockito.mock(ApplicantLayout.class),
+          Mockito.mock(FileUploadViewStrategy.class),
+          Mockito.mock(ApplicantQuestionRendererFactory.class));
+
+  @Test
+  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isFirstQuestionWithErrors() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(FIRST_ERROR);
+  }
+
+  @Test
+  public void calculateAutoFocusTarget_formHasErrors_hideErrors_isFirstQuestionWithErrors() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(NONE);
+  }
+
+  @Test
+  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 2,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(NONE);
+  }
+
+  @Test
+  public void calculateAutoFocusTarget_noErrors_displayErrors_noApplicantSelectedQuestionName() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ false,
+                /* ordinalErrorCount= */ 0,
+                /* applicantSelectedQuestionName= */ Optional.empty()))
+        .isEqualTo(NONE);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_noErrors_hasApplicantSelectedQuestionName_questionSelected() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ false,
+                /* ordinalErrorCount= */ 0,
+                /* applicantSelectedQuestionName= */ Optional.of(ADDRESS_QD.getName())))
+        .isEqualTo(FIRST_FIELD);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_hasErrors_hideErrors_hasApplicantSelectedQuestionName_questionSelected() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ true,
+                /* ordinalErrorCount= */ 1,
+                /* applicantSelectedQuestionName= */ Optional.of(ADDRESS_QD.getName())))
+        .isEqualTo(FIRST_FIELD);
+  }
+
+  @Test
+  public void
+      calculateAutoFocusTarget_noErrors_hasApplicantSelectedQuestionName_differentQuestionSelected() {
+    assertThat(
+            EMPTY_VIEW.calculateAutoFocusTarget(
+                ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
+                ADDRESS_QD,
+                /* formHasErrors */ false,
+                /* ordinalErrorCount= */ 0,
+                /* applicantSelectedQuestionName= */ Optional.of("other question")))
+        .isEqualTo(NONE);
+  }
+}
