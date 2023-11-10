@@ -1719,15 +1719,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
     assertThat(result.inProgress()).isEmpty();
-    assertThat(result.submitted()).isEmpty();
+    assertThat(result.submitted().stream().map(p -> p.program().id()))
+        .isEqualTo(commonIntakeForm.id);
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
-    assertThat(result.commonIntakeForm().isPresent()).isTrue();
-    assertThat(result.commonIntakeForm().get().program().id()).isEqualTo(commonIntakeForm.id);
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().isPresent())
-        .isTrue();
-    assertThat(result.commonIntakeForm().get().latestApplicationLifecycleStage().get())
-        .isEqualTo(LifecycleStage.ACTIVE);
   }
 
   @Test
