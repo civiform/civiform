@@ -46,6 +46,8 @@ import services.settings.SettingsManifest;
  */
 public final class ProgramRepository {
   private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ProgramRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -81,7 +83,13 @@ public final class ProgramRepository {
   }
 
   private Optional<Program> lookupProgramSync(long id) {
-    return database.find(Program.class).where().eq("id", id).findOneOrEmpty();
+    return database
+        .find(Program.class)
+        .setLabel("Program.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
+        .where()
+        .eq("id", id)
+        .findOneOrEmpty();
   }
 
   public Program insertProgramSync(Program program) {
@@ -224,12 +232,24 @@ public final class ProgramRepository {
 
   public ImmutableList<Account> getProgramAdministrators(String programName) {
     return ImmutableList.copyOf(
-        database.find(Account.class).where().arrayContains("admin_of", programName).findList());
+        database
+            .find(Account.class)
+            .setLabel("Account.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
+            .where()
+            .arrayContains("admin_of", programName)
+            .findList());
   }
 
   public ImmutableList<Account> getProgramAdministrators(long programId)
       throws ProgramNotFoundException {
-    Optional<Program> program = database.find(Program.class).setId(programId).findOneOrEmpty();
+    Optional<Program> program =
+        database
+            .find(Program.class)
+            .setLabel("Program.findById")
+            .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
+            .setId(programId)
+            .findOneOrEmpty();
     if (program.isEmpty()) {
       throw new ProgramNotFoundException(programId);
     }
@@ -240,6 +260,8 @@ public final class ProgramRepository {
     Query<Program> programNameQuery =
         database
             .find(Program.class)
+            .setLabel("Program.findById")
+            .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
             .select("name")
             .where()
             .eq("id", programId)
@@ -248,6 +270,8 @@ public final class ProgramRepository {
 
     return database
         .find(Program.class)
+        .setLabel("Program.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
         .where()
         .in("name", programNameQuery)
         .query()
@@ -273,6 +297,9 @@ public final class ProgramRepository {
     ExpressionList<Application> query =
         database
             .find(Application.class)
+            .setLabel("Application.findList")
+            .setProfileLocation(
+                queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("program")
             .fetch("applicant")
             .orderBy("id desc")
@@ -348,9 +375,23 @@ public final class ProgramRepository {
 
   private Query<Program> allProgramVersionsQuery(long programId) {
     Query<Program> programNameQuery =
-        database.find(Program.class).select("name").where().eq("id", programId).query();
+        database
+            .find(Program.class)
+            .select("name")
+            .setLabel("Program.findByName")
+            .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
+            .where()
+            .eq("id", programId)
+            .query();
 
-    return database.find(Program.class).select("id").where().in("name", programNameQuery).query();
+    return database
+        .find(Program.class)
+        .select("id")
+        .setLabel("Program.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
+        .where()
+        .in("name", programNameQuery)
+        .query();
   }
 
   private String getApplicationObjectPath(Path path) {
