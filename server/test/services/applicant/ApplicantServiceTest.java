@@ -1720,7 +1720,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .join();
     assertThat(result.inProgress()).isEmpty();
     assertThat(result.submitted().stream().map(p -> p.program().id()))
-        .isEqualTo(commonIntakeForm.id);
+        .containsExactly(commonIntakeForm.id);
     assertThat(result.unapplied().stream().map(p -> p.program().id()))
         .containsExactlyInAnyOrder(programDefinition.id());
   }
