@@ -860,8 +860,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables images on program cards, both for admins to upload them and for applicants to view
    * them.
    */
-  public boolean getProgramCardImages() {
-    return getBool("PROGRAM_CARD_IMAGES");
+  public boolean getProgramCardImages(RequestHeader request) {
+    return getBool("PROGRAM_CARD_IMAGES", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1787,12 +1787,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE),
                   SettingDescription.create(
-                    "PROGRAM_CARD_IMAGES",
-                    "Enables images on program cards, both for admins to upload them and for"
-                      + " applicants to view them.",
-                    /* isRequired= */ false,
-                    SettingType.BOOLEAN,
-                    SettingMode.HIDDEN))),
+                      "PROGRAM_CARD_IMAGES",
+                      "Enables images on program cards, both for admins to upload them and for"
+                          + " applicants to view them.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",
