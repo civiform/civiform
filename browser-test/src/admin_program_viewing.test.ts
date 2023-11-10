@@ -43,6 +43,7 @@ describe('admin program view page', () => {
   it('view draft program has no edit image button if images flag off', async () => {
     const {page, adminPrograms} = ctx
     await loginAsAdmin(page)
+    await disableFeatureFlag(page, 'program_card_images')
 
     const programName = 'Draft Program'
     await adminPrograms.addProgram(programName)

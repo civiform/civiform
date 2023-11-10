@@ -1,11 +1,10 @@
 package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.div;
-import static j2html.TagCreator.h1;
+import static views.BaseHtmlView.renderHeader;
 
 import com.google.inject.Inject;
-import j2html.tags.specialized.DivTag;
+import j2html.tags.specialized.H1Tag;
 import play.mvc.Http;
 import play.twirl.api.Content;
 import services.program.ProgramDefinition;
@@ -27,17 +26,11 @@ public class ProgramImageView {
    * image (and its alt text).
    */
   public Content render(Http.Request request, ProgramDefinition programDefinition) {
-    DivTag headingDiv =
-        div()
-            .withClasses("flex", "items-center", "space-x-4", "mt-12", "mb-10")
-            .with(
-                h1(
-                    String.format(
-                        "Manage program image: %s",
-                        programDefinition.localizedName().getDefault())),
-                div().withClass("flex-grow"));
-    HtmlBundle htmlBundle =
-        layout.getBundle(request).setTitle("Manage program image").addMainContent(headingDiv);
+    String title =
+        String.format(
+            "Manage program image for %s", programDefinition.localizedName().getDefault());
+    H1Tag headerDiv = renderHeader(title, "my-10", "mx-10");
+    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(headerDiv);
     return layout.renderCentered(htmlBundle);
   }
 }

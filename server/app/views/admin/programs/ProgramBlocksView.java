@@ -162,8 +162,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     } else {
       headerButtons.add(ProgramHeaderButton.EDIT_PROGRAM);
     }
-    // TODO: Different flag
-    if (viewAllowsEditingProgram() && settingsManifest.getUniversalQuestions(request)) {
+    if (viewAllowsEditingProgram() && settingsManifest.getProgramCardImages(request)) {
       headerButtons.add(ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
     }
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);

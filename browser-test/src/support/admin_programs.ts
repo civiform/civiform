@@ -286,17 +286,8 @@ export class AdminPrograms {
   async goToProgramImagePage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
-    await this.page.click(
-      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
-    )
-    await this.page.click(
-      this.withinProgramCardSelector(
-        programName,
-        'Draft',
-        ':text("Edit Program Image")',
-      ),
-    )
-    await waitForPageJsLoad(this.page)
+    await this.gotoEditDraftProgramPage(programName)
+    await this.page.click('button:has-text("Edit program image")')
     await this.expectProgramImagePage(programName)
   }
 
@@ -448,7 +439,7 @@ export class AdminPrograms {
 
   async expectProgramImagePage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
-      `Manage program image: ${programName}`,
+      `Manage program image for ${programName}`,
     )
   }
 
