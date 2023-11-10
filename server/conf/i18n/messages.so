@@ -27,7 +27,7 @@ content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
-button.close=Close
+button.close=Xidh
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -151,7 +151,7 @@ content.commonIntakeConfirmationTi=Macmiilkaagu waxa uu awoodi karaa inuu helo f
 content.commonIntakeNoMatchingPrograms=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
-button.downloadPdf=Download PDF
+button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada
 
 #-------------------------------------------------------------------------------------------------------------------------#
