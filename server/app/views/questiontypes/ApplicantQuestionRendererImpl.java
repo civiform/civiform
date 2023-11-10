@@ -70,9 +70,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
                         ReferenceClasses.APPLICANT_QUESTION_HELP_TEXT,
                         ApplicantStyles.QUESTION_HELP_TEXT)
                     .with(
-                        TextFormatter.createLinksAndEscapeText(
+                        TextFormatter.formatText(
                             applicantQuestion.getQuestionHelpText(),
-                            TextFormatter.UrlOpenAction.NewTab,
+                            /*preserveEmptyLines= */ false,
                             /*addRequiredIndicator= */ false)))
             .withClasses("mb-4");
 
@@ -102,9 +102,9 @@ abstract class ApplicantQuestionRendererImpl implements ApplicantQuestionRendere
     }
 
     ImmutableList<DomContent> questionTextDoms =
-        TextFormatter.createLinksAndEscapeText(
+        TextFormatter.formatText(
             applicantQuestion.getQuestionText(),
-            TextFormatter.UrlOpenAction.NewTab,
+            /*preserveEmptyLines= */ false,
             /*addRequiredIndicator= */ !applicantQuestion.isOptional());
     // Reverse the list to have errors appear first.
     ImmutableList<String> ariaDescribedByIds = ariaDescribedByBuilder.build().reverse();

@@ -387,17 +387,37 @@ public class ApplicantLayout extends BaseHtmlLayout {
               a(createAnAccountMessage)
                   .withHref(createAnAccountLink)
                   .withClasses(ApplicantStyles.LINK)));
-    } else {
-      String loggedInAsMessage =
-          messages.at(MessageKey.USER_NAME.getKeyName(), personalInfo.getDisplayString(messages));
-      String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
-      return outsideDiv.with(
-          div(loggedInAsMessage).withClasses("text-sm"),
-          a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
-              .withId("logout-button")
-              .withHref(logoutLink)
-              .withClasses(ApplicantStyles.LINK));
     }
+
+    // For TIs we use the account email rather than first and last name because
+    // TIs usually do not have the latter data available, but will always have
+    // an email address because they are authenticated.
+    String accountIdentifier =
+        isTi ? tiEmailForDisplay(profile.get()) : personalInfo.getDisplayString(messages);
+
+    String loggedInAsMessage = messages.at(MessageKey.USER_NAME.getKeyName(), accountIdentifier);
+    String logoutLink = org.pac4j.play.routes.LogoutController.logout().url();
+    return outsideDiv.with(
+        div(loggedInAsMessage).withClasses("text-sm"),
+        a(messages.at(MessageKey.BUTTON_LOGOUT.getKeyName()))
+            .withId("logout-button")
+            .withHref(logoutLink)
+            .withClasses(ApplicantStyles.LINK));
+  }
+
+  private String tiEmailForDisplay(CiviFormProfile profile) {
+    // CommonProfile.getEmail() can return null, so we guard that with a generic
+    // display string.
+    String email =
+        Optional.ofNullable(profile.getProfileData().getEmail()).orElse("Trusted Intermediary");
+
+    // To ensure a consistent string with browser snapshots, we override the
+    // display email.
+    if (email.startsWith("fake-trusted-intermediary") && email.endsWith("@example.com")) {
+      return "trusted-intermediary@example.com";
+    }
+
+    return email;
   }
 
   protected String renderPageTitleWithBlockProgress(

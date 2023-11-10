@@ -77,6 +77,30 @@ class AdminValidationController {
   }
 
   /**
+   * Validates that there are no invalid admin names and updates the field error state.
+   * @param {HTMLInputElement[]} inputElements All the inputElements to verify
+   * @param {string} errorClass The error class to show on error
+   *
+   * @return {boolean} true if all fields are valid
+   *  */
+  private validateMultiOptionQuestionAdminNames(
+    inputElements: HTMLInputElement[],
+    errorClass: string,
+  ) {
+    let multiOptionIsValid = true
+    for (const inputElement of inputElements) {
+      // Assert that the admin name is not blank, and that it only
+      // contains 0-9, a-z, A-Z, _, and -
+      const inputIsValid = /^[0-9a-zA-Z_-]+$/.test(inputElement.value)
+      this.updateFieldErrorState(inputElement, errorClass, inputIsValid)
+      if (!inputIsValid) {
+        multiOptionIsValid = inputIsValid
+      }
+    }
+    return multiOptionIsValid
+  }
+
+  /**
    * Validates multi option question options when creating a multi option question.
    * @return {boolean} true if all fields are valid
    * */
@@ -95,7 +119,7 @@ class AdminValidationController {
       options,
       AdminValidationController.MULTI_OPTION_QUESTION_OPTION_ERROR_CLASS,
     )
-    const optionAdminNamesAreValid = this.validateMultiOptionQuestionOptions(
+    const optionAdminNamesAreValid = this.validateMultiOptionQuestionAdminNames(
       optionAdminNames,
       AdminValidationController.MULTI_OPTION_QUESTION_OPTION_ADMIN_ERROR_CLASS,
     )

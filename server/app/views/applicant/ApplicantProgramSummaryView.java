@@ -30,11 +30,11 @@ import services.settings.SettingsManifest;
 import views.ApplicationBaseView;
 import views.BaseHtmlView;
 import views.HtmlBundle;
-import views.ViewUtils;
 import views.components.ButtonStyles;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.components.Modal;
+import views.components.TextFormatter;
 import views.components.ToastMessage;
 import views.style.ApplicantStyles;
 import views.style.ReferenceClasses;
@@ -160,11 +160,13 @@ public final class ApplicantProgramSummaryView extends BaseHtmlView {
 
   /** Renders {@code data} including the question and any existing answer to it. */
   private DivTag renderQuestionSummary(AnswerData data, Messages messages, long applicantId) {
-    DivTag questionPrompt = div(data.questionText()).withClasses("font-semibold");
-    if (!data.applicantQuestion().isOptional()) {
-      questionPrompt.with(ViewUtils.requiredQuestionIndicator());
-    }
-    DivTag questionContent = div(questionPrompt).withClasses("pr-2");
+    DivTag questionContent =
+        div(div()
+                .with(
+                    TextFormatter.formatText(
+                        data.questionText(), true, !data.applicantQuestion().isOptional()))
+                .withClasses("font-semibold"))
+            .withClasses("pr-2");
 
     // Add existing answer.
     if (data.isAnswered()) {
