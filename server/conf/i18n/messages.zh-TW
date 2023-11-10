@@ -27,7 +27,7 @@ content.optional=(選用)
 content.mobileFileUploadHelp=如果您是使用手機操作，還可以透過「選擇檔案」按鈕用手機相機上傳文件。
 toast.errorMessageOutline=發生錯誤: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
-button.close=Close
+button.close=關閉
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -151,7 +151,7 @@ content.commonIntakeConfirmationTi=如果點選「申請參加計畫」，並填
 content.commonIntakeNoMatchingPrograms=預先篩選工具目前找不到您可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsTi=預先篩選工具目前找不到您的客戶可能符合資格的計畫。不過，您隨時可以點選「申請參加計畫」提出福利申請，或是前往「{0}」查看其他福利計畫
 content.commonIntakeNoMatchingProgramsNextStep=您也可以返回上一頁編輯回答。
-button.downloadPdf=Download PDF
+button.downloadPdf=下載 PDF
 button.applyToPrograms=申請參加計畫
 
 #-------------------------------------------------------------------------------------------------------------------------#
