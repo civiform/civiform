@@ -36,6 +36,8 @@ abstract class ProgramBaseView extends BaseHtmlView {
     EDIT_PROGRAM,
     /** Redirects to the program details editing page. */
     EDIT_PROGRAM_DETAILS,
+    /** Redirects to the program image editing page. */
+    EDIT_PROGRAM_IMAGE,
     /** Redirects to previewing this program as an applicant. */
     PREVIEW_AS_APPLICANT,
   }
@@ -156,6 +158,13 @@ abstract class ProgramBaseView extends BaseHtmlView {
         return asRedirectElement(
             getStandardizedEditButton("Edit program details"),
             routes.AdminProgramController.edit(programDefinition.id()).url());
+      case EDIT_PROGRAM_IMAGE:
+        return asRedirectElement(
+            // TODO(#5676): Possibly use a different icon for the button.
+            ViewUtils.makeSvgTextButton("Edit program image", Icons.FILEUPLOAD)
+                .withClasses(HEADER_BUTTON_STYLES)
+                .withId("header_edit_program_image_button"),
+            routes.AdminProgramImageController.index(programDefinition.id()).url());
       case PREVIEW_AS_APPLICANT:
         return asRedirectElement(
             ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)

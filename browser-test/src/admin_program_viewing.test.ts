@@ -27,6 +27,29 @@ describe('admin program view page', () => {
     await validateScreenshot(page, 'program-list-active-and-draft-program')
   })
 
+  it('view draft program has edit image button if images flag on', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+    await enableFeatureFlag(page, 'program_card_images')
+
+    const programName = 'Draft Program'
+    await adminPrograms.addProgram(programName)
+
+    await validateScreenshot(page, 'program-draft-view-images-flag-on')
+
+    await disableFeatureFlag(page, 'program_card_images')
+  })
+
+  it('view draft program has no edit image button if images flag off', async () => {
+    const {page, adminPrograms} = ctx
+    await loginAsAdmin(page)
+
+    const programName = 'Draft Program'
+    await adminPrograms.addProgram(programName)
+
+    await validateScreenshot(page, 'program-draft-view-images-flag-off')
+  })
+
   it('view program with universal questions', async () => {
     const {page, adminPrograms, adminQuestions} = ctx
     await loginAsAdmin(page)

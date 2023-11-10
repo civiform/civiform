@@ -283,6 +283,23 @@ export class AdminPrograms {
     await this.expectProgramManageTranslationsPage(programName)
   }
 
+  async goToProgramImagePage(programName: string) {
+    await this.gotoAdminProgramsPage()
+    await this.expectDraftProgram(programName)
+    await this.page.click(
+      this.withinProgramCardSelector(programName, 'Draft', '.cf-with-dropdown'),
+    )
+    await this.page.click(
+      this.withinProgramCardSelector(
+        programName,
+        'Draft',
+        ':text("Edit Program Image")',
+      ),
+    )
+    await waitForPageJsLoad(this.page)
+    await this.expectProgramImagePage(programName)
+  }
+
   async gotoManageProgramAdminsPage(programName: string) {
     await this.gotoAdminProgramsPage()
     await this.expectDraftProgram(programName)
@@ -426,6 +443,12 @@ export class AdminPrograms {
   async expectProgramManageTranslationsPage(programName: string) {
     expect(await this.page.innerText('h1')).toContain(
       `Manage program translations: ${programName}`,
+    )
+  }
+
+  async expectProgramImagePage(programName: string) {
+    expect(await this.page.innerText('h1')).toContain(
+      `Manage program image: ${programName}`,
     )
   }
 
