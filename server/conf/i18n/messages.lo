@@ -27,7 +27,7 @@ content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
 # Description for an "X" button that will close a dialog, modal, or page.
-button.close=Close
+button.close=ປິດ
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -151,7 +151,7 @@ content.commonIntakeConfirmationTi=ລູກຄ້າຂອງທ່ານອາ
 content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
-button.downloadPdf=Download PDF
+button.downloadPdf=ດາວໂຫຼດ PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
 #-------------------------------------------------------------------------------------------------------------------------#
