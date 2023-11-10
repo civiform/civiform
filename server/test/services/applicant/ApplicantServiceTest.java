@@ -511,9 +511,9 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ImmutableList<QuestionOption> questionOptions =
         ImmutableList.of(
-            QuestionOption.create(1L, "cat admin", LocalizedStrings.of(Locale.US, "cat")),
-            QuestionOption.create(2L, "dog admin", LocalizedStrings.of(Locale.US, "dog")),
-            QuestionOption.create(3L, "horse admin", LocalizedStrings.of(Locale.US, "horse")));
+            QuestionOption.create(1L, "cat_admin", LocalizedStrings.of(Locale.US, "cat")),
+            QuestionOption.create(2L, "dog_admin", LocalizedStrings.of(Locale.US, "dog")),
+            QuestionOption.create(3L, "horse_admin", LocalizedStrings.of(Locale.US, "horse")));
     QuestionDefinition multiSelectQuestion =
         questionService
             .create(
@@ -2262,6 +2262,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join()
             .get();
+
+    // Update application for the second submission to avoid duplicate exception
+    applicant.getApplicantData().putString(Path.create("text"), "text");
+    applicant.save();
     applicationRepository
         .submitApplication(applicant.id, programForSubmitted.id, Optional.empty())
         .toCompletableFuture()

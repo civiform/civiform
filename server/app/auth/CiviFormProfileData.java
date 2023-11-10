@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import models.Account;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -24,6 +25,26 @@ public class CiviFormProfileData extends CommonProfile {
   public CiviFormProfileData(Long accountId) {
     this();
     this.setId(accountId.toString());
+  }
+
+  /**
+   * Sets the "canonical" email field in the profile data. Some identity providers use non-standard
+   * attribute names for email. We use the attribute name provided by pac4j here to ensure all
+   * profiles store the email in the same place to make it is accessible via {@code
+   * CommonProfile.getEmail()}.
+   */
+  public CiviFormProfileData setEmail(String email) {
+    addAttribute(CommonProfileDefinition.EMAIL, email);
+    return this;
+  }
+
+  /**
+   * True if the "canonical" email attribute is set in the profile data. Some identity providers use
+   * non-standard attribute names for email. We use the attribute name provided by pac4j here for
+   * all profiles for consistency.
+   */
+  public boolean hasCanonicalEmail() {
+    return getAttributes().containsKey(CommonProfileDefinition.EMAIL);
   }
 
   /**

@@ -76,13 +76,13 @@ public class CurrencyQuestionRendererTest extends ResetPostgres {
   @Test
   public void render_withAriaLabels() {
     DivTag result = renderer.render(params);
+    // Remove invisible new line characters that break the regex match
+    String cleanHtml = result.render().replace("\n", "");
 
     assertThat(
-            result
-                .render()
-                .matches(
-                    ".*input type=\"text\" currency value=\"\""
-                        + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
+            cleanHtml.matches(
+                ".*input type=\"text\" currency value=\"\""
+                    + " aria-describedby=\"[A-Za-z]{8}-description\".*"))
         .isTrue();
   }
 

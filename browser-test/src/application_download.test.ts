@@ -32,9 +32,9 @@ describe('normal application flow', () => {
     await adminQuestions.addDropdownQuestion({
       questionName: 'dropdown-csv-download',
       options: [
-        {adminName: 'op1 admin', text: 'op1'},
-        {adminName: 'op2 admin', text: 'op2'},
-        {adminName: 'op3 admin', text: 'op3'},
+        {adminName: 'op1_admin', text: 'op1'},
+        {adminName: 'op2_admin', text: 'op2'},
+        {adminName: 'op3_admin', text: 'op3'},
       ],
     })
     await adminQuestions.addDateQuestion({questionName: 'csv-date'})
@@ -67,7 +67,7 @@ describe('normal application flow', () => {
 
     await adminPrograms.viewApplications(programName)
     const csvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(csvContent).toContain('sarah,,smith,op2 admin,05/10/2021,1000.00')
+    expect(csvContent).toContain('sarah,,smith,op2_admin,05/10/2021,1000.00')
 
     await logout(page)
     await loginAsAdmin(page)
@@ -103,6 +103,10 @@ describe('normal application flow', () => {
 
     // Apply to the program again as the same user
     await applicantQuestions.clickApplyProgramButton(programName)
+    // Edit one answer on the application to prevent a duplicate exception
+    await applicantQuestions.clickEdit()
+    await applicantQuestions.answerNumberQuestion('1500')
+    await applicantQuestions.clickNext()
     await applicantQuestions.submitFromReviewPage()
     await logout(page)
 
@@ -113,14 +117,14 @@ describe('normal application flow', () => {
     await adminPrograms.viewApplications(programName)
     const postEditCsvContent = await adminPrograms.getCsv(noApplyFilters)
     expect(postEditCsvContent).toContain(
-      'sarah,,smith,op2 admin,05/10/2021,1000.00',
+      'sarah,,smith,op2_admin,05/10/2021,1000.00',
     )
     expect(postEditCsvContent).toContain(
-      'Gus,,Guest,op2 admin,01/01/1990,2000.00',
+      'Gus,,Guest,op2_admin,01/01/1990,2000.00',
     )
 
     const numberOfGusEntries =
-      postEditCsvContent.split('Gus,,Guest,op2 admin,01/01/1990,2000.00')
+      postEditCsvContent.split('Gus,,Guest,op2_admin,01/01/1990,2000.00')
         .length - 1
     expect(numberOfGusEntries).toEqual(2)
 
@@ -136,7 +140,7 @@ describe('normal application flow', () => {
     ).toEqual(2000.0)
     expect(
       postEditJsonContent[0].application.dropdowncsvdownload.selection,
-    ).toEqual('op2 admin')
+    ).toEqual('op2_admin')
     expect(postEditJsonContent[0].application.name.first_name).toEqual('Gus')
     expect(postEditJsonContent[0].application.name.middle_name).toBeNull()
     expect(postEditJsonContent[0].application.name.last_name).toEqual('Guest')
@@ -144,17 +148,17 @@ describe('normal application flow', () => {
       '1990-01-01',
     )
     expect(postEditJsonContent[0].application.numbercsvdownload.number).toEqual(
-      1600,
+      1500,
     )
 
     // Finds a partial text match on applicant name, case insensitive.
     await adminPrograms.filterProgramApplications({searchFragment: 'SARA'})
     const filteredCsvContent = await adminPrograms.getCsv(applyFilters)
     expect(filteredCsvContent).toContain(
-      'sarah,,smith,op2 admin,05/10/2021,1000.00',
+      'sarah,,smith,op2_admin,05/10/2021,1000.00',
     )
     expect(filteredCsvContent).not.toContain(
-      'Gus,,Guest,op2 admin,01/01/1990,2000.00',
+      'Gus,,Guest,op2_admin,01/01/1990,2000.00',
     )
     const filteredJsonContent = await adminPrograms.getJson(applyFilters)
     expect(filteredJsonContent.length).toEqual(1)
@@ -162,8 +166,8 @@ describe('normal application flow', () => {
     // Ensures that choosing not to apply filters continues to return all
     // results.
     const allCsvContent = await adminPrograms.getCsv(noApplyFilters)
-    expect(allCsvContent).toContain('sarah,,smith,op2 admin,05/10/2021,1000.00')
-    expect(allCsvContent).toContain('Gus,,Guest,op2 admin,01/01/1990,2000.00')
+    expect(allCsvContent).toContain('sarah,,smith,op2_admin,05/10/2021,1000.00')
+    expect(allCsvContent).toContain('Gus,,Guest,op2_admin,01/01/1990,2000.00')
     const allJsonContent = await adminPrograms.getJson(noApplyFilters)
     expect(allJsonContent.length).toEqual(3)
     expect(allJsonContent[0].application.name.first_name).toEqual('Gus')
@@ -201,14 +205,14 @@ describe('normal application flow', () => {
         'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,Status,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
       )
       expect(demographicsCsvContent).toContain(
-        ',,sarah,,smith,1000.00,05/10/2021,op2 admin',
+        ',,sarah,,smith,1000.00,05/10/2021,op2_admin',
       )
     } else {
       expect(demographicsCsvContent).toContain(
         'Opaque ID,Program,Submitter Type,TI Email (Opaque),TI Organization,Create Time,Submit Time,name (first_name),name (middle_name),name (last_name),csvcurrency (currency),csvdate (date),dropdowncsvdownload (selection)',
       )
       expect(demographicsCsvContent).toContain(
-        'sarah,,smith,1000.00,05/10/2021,op2 admin',
+        'sarah,,smith,1000.00,05/10/2021,op2_admin',
       )
     }
 
@@ -229,7 +233,7 @@ describe('normal application flow', () => {
       )
     }
     expect(newDemographicsCsvContent).not.toContain(',sarah,,smith')
-    expect(newDemographicsCsvContent).toContain(',op2 admin,')
+    expect(newDemographicsCsvContent).toContain(',op2_admin,')
     expect(newDemographicsCsvContent).toContain(',1600,')
 
     if (isLocalDevEnvironment()) {

@@ -27,6 +27,6 @@ public enum JsBundle {
   }
 
   public String getJsPath() {
-    return jsPath;
+    return "dist/" + jsPath;
   }
 }

@@ -157,7 +157,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.create(request, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text field question");
+    assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Question text cannot be blank");
     assertThat(contentAsString(result)).contains("name");
@@ -208,7 +208,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.edit(request, question.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name field question");
+    assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
   }
@@ -219,7 +219,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
     Result result = controller.edit(request, repeatedQuestion.id).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit name field question");
+    assertThat(contentAsString(result)).contains("Edit name question");
     assertThat(contentAsString(result)).contains("applicant household members");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
@@ -290,7 +290,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.newOne(request, "text", "/some/redirect/url");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("New text field question");
+    assertThat(contentAsString(result)).contains("New text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("Sample Question of type:");
     assertThat(contentAsString(result)).contains("/some/redirect/url");
@@ -368,19 +368,19 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
             QuestionOption.create(
                 3L,
-                "vanilla admin",
+                "vanilla_admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
             QuestionOption.create(
                 4L,
-                "coffee admin",
+                "coffee_admin",
                 LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
     MultiOptionQuestionDefinition definition =
         new MultiOptionQuestionDefinition(
@@ -392,7 +392,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     DropdownQuestionForm questionForm = new DropdownQuestionForm(definition);
     questionForm.setNewOptions(ImmutableList.of("cookie", "mint", "pistachio"));
     questionForm.setNewOptionAdminNames(
-        ImmutableList.of("cookie admin", "mint admin", "pistachio admin"));
+        ImmutableList.of("cookie_admin", "mint_admin", "pistachio_admin"));
 
     DropdownQuestionForm newQuestionForm =
         new DropdownQuestionForm((MultiOptionQuestionDefinition) questionForm.getBuilder().build());
@@ -419,19 +419,19 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")),
             QuestionOption.create(
                 /* id= */ 3L,
-                "vanilla admin",
+                "vanilla_admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
             QuestionOption.create(
                 /* id= */ 4L,
-                "coffee admin",
+                "coffee_admin",
                 LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")));
 
     QuestionDefinition definition =
@@ -453,9 +453,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptions[0]", "lavender") // New flavor
             .put("optionIds[0]", "4")
             .put("optionIds[1]", "3")
-            .put("optionAdminNames[0]", "coffee admin")
-            .put("optionAdminNames[1]", "vanilla admin")
-            .put("newOptionAdminNames[0]", "lavender admin")
+            .put("optionAdminNames[0]", "coffee_admin")
+            .put("optionAdminNames[1]", "vanilla_admin")
+            .put("newOptionAdminNames[0]", "lavender_admin")
             .put("nextAvailableId", "5")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             // Has one fewer than the original question
@@ -481,17 +481,17 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(
                 /* id= */ 4,
                 /* displayOrder= */ 0,
-                "coffee admin",
+                "coffee_admin",
                 LocalizedStrings.of(Locale.US, "coffee", Locale.FRENCH, "café")),
             QuestionOption.create(
                 /* id= */ 3,
                 /* displayOrder= */ 1,
-                "vanilla admin",
+                "vanilla_admin",
                 LocalizedStrings.of(Locale.US, "vanilla", Locale.FRENCH, "vanille")),
             QuestionOption.create(
                 /* id= */ 5,
                 /* displayOrder= */ 2,
-                "lavender admin",
+                "lavender_admin",
                 LocalizedStrings.withDefaultValue("lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -519,11 +519,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
 
     QuestionDefinition definition =
@@ -544,8 +544,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("options[1]", "strawberry")
             .put("optionIds[0]", "1")
             .put("optionIds[1]", "2")
-            .put("optionAdminNames[0]", "chocolate admin")
-            .put("optionAdminNames[1]", "strawberry new admin name") // updated admin name
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_new_admin_name") // updated admin name
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
@@ -559,12 +559,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(
                 /* id= */ 1,
                 /* displayOrder= */ 0,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2,
                 /* displayOrder= */ 1,
-                "strawberry admin", // ignore changed admin name
+                "strawberry_admin", // ignore changed admin name
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -585,11 +585,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
 
     QuestionDefinition definition =
@@ -610,8 +610,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("options[1]", "new ice cream name")
             .put("optionIds[0]", "1")
             .put("optionIds[1]", "2")
-            .put("optionAdminNames[0]", "chocolate admin")
-            .put("optionAdminNames[1]", "new admin name") // updated admin name
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "new_admin_name") // updated admin name
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
@@ -625,12 +625,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(
                 /* id= */ 1,
                 /* displayOrder= */ 0,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2,
                 /* displayOrder= */ 1,
-                "strawberry admin", // ignore changed admin name
+                "strawberry_admin", // ignore changed admin name
                 LocalizedStrings.of(Locale.US, "new ice cream name"))); // clear other locales
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -651,11 +651,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         ImmutableList.of(
             QuestionOption.create(
                 /* id= */ 1L,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 2L,
-                "strawberry admin",
+                "strawberry_admin",
                 LocalizedStrings.of(Locale.US, "strawberry", Locale.FRENCH, "fraise")));
 
     QuestionDefinition definition =
@@ -674,12 +674,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("questionHelpText", "new help text")
             .put("options[0]", "chocolate")
             .put("optionIds[0]", "1")
-            .put("optionAdminNames[0]", "chocolate admin")
+            .put("optionAdminNames[0]", "chocolate_admin")
             // id 2 was deleted by the user, but 3 is still set as the next ID by the
             // QuestionConfig
             .put("nextAvailableId", "3")
             .put("newOptions[0]", "lavender") // New flavor
-            .put("newOptionAdminNames[0]", "lavender admin")
+            .put("newOptionAdminNames[0]", "lavender_admin")
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .build();
     RequestBuilder requestBuilder = addCSRFToken(requestBuilderWithSettings().bodyForm(formData));
@@ -692,12 +692,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             QuestionOption.create(
                 /* id= */ 1,
                 /* displayOrder= */ 0,
-                "chocolate admin",
+                "chocolate_admin",
                 LocalizedStrings.of(Locale.US, "chocolate", Locale.FRENCH, "chocolat")),
             QuestionOption.create(
                 /* id= */ 3, // use nextAvailableId
                 /* displayOrder= */ 1,
-                "lavender admin",
+                "lavender_admin",
                 LocalizedStrings.of(Locale.US, "lavender")));
     assertThat(((MultiOptionQuestionDefinition) found.getQuestionDefinition()).getOptions())
         .isEqualTo(expectedOptions);
@@ -716,7 +716,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Result result = controller.update(request, question.id, "text");
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Edit text field question");
+    assertThat(contentAsString(result)).contains("Edit text question");
     assertThat(contentAsString(result)).contains(CSRF.getToken(request.asScala()).value());
     assertThat(contentAsString(result)).contains("question text updated!");
   }

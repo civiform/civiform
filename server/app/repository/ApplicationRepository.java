@@ -22,6 +22,7 @@ import models.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.applicant.exception.ApplicantNotFoundException;
+import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -135,6 +136,16 @@ public final class ApplicationRepository {
       }
 
       for (Application app : previousActive) {
+        boolean isDuplicate = applicant.getApplicantData().isDuplicateOf(app.getApplicantData());
+        if (isDuplicate) {
+          LOGGER.info(
+              "Application for applicant {} to program {} {} was detected as a duplicate and was"
+                  + " not saved",
+              applicant.id,
+              program.id,
+              program.getProgramDefinition().adminName());
+          throw new DuplicateApplicationException();
+        }
         // https://github.com/civiform/civiform/issues/3227
         if (app.getSubmitTime() == null) {
           app.setSubmitTimeToNow();
@@ -183,6 +194,9 @@ public final class ApplicationRepository {
         .thenApplyAsync(Optional::of)
         .exceptionally(
             exception -> {
+              if (exception.getCause() instanceof DuplicateApplicationException) {
+                throw new DuplicateApplicationException();
+              }
               LOGGER.error(exception.toString());
               exception.printStackTrace();
               return Optional.empty();

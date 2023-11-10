@@ -384,9 +384,13 @@ export class ApplicantQuestions {
     if (pageContent!.includes('Continue without an account')) {
       await this.page.click('text="Continue without an account"')
     }
-    await waitForPageJsLoad(this.page)
 
     // Ensure that we redirected to the programs list page.
+    await this.expectProgramsPage()
+  }
+
+  async expectProgramsPage() {
+    await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
@@ -446,6 +450,12 @@ export class ApplicantQuestions {
 
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
+  }
+
+  async expectDuplicatesPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'There are no changes to save',
+    )
   }
 
   async expectIneligibleQuestion(questionText: string) {
