@@ -46,7 +46,8 @@ import services.settings.SettingsManifest;
  */
 public final class ProgramRepository {
   private static final Logger logger = LoggerFactory.getLogger(ProgramRepository.class);
-  private final QueryUtils queryUtils = new QueryUtils("ProgramRepository");
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ProgramRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -85,7 +86,7 @@ public final class ProgramRepository {
     return database
         .find(Program.class)
         .setLabel("Program.findById")
-        .setProfileLocation(queryUtils.createProfileLocation("lookupProgramSync"))
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
         .where()
         .eq("id", id)
         .findOneOrEmpty();
@@ -234,7 +235,7 @@ public final class ProgramRepository {
         database
             .find(Account.class)
             .setLabel("Account.findList")
-            .setProfileLocation(queryUtils.createProfileLocation("getProgramAdministrators"))
+            .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
             .where()
             .arrayContains("admin_of", programName)
             .findList());
@@ -246,7 +247,7 @@ public final class ProgramRepository {
         database
             .find(Program.class)
             .setLabel("Program.findById")
-            .setProfileLocation(queryUtils.createProfileLocation("getProgramAdministrators"))
+            .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
             .setId(programId)
             .findOneOrEmpty();
     if (program.isEmpty()) {
@@ -260,7 +261,7 @@ public final class ProgramRepository {
         database
             .find(Program.class)
             .setLabel("Program.findById")
-            .setProfileLocation(queryUtils.createProfileLocation("getAllProgramVersions"))
+            .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
             .select("name")
             .where()
             .eq("id", programId)
@@ -270,7 +271,7 @@ public final class ProgramRepository {
     return database
         .find(Program.class)
         .setLabel("Program.findList")
-        .setProfileLocation(queryUtils.createProfileLocation("getAllProgramVersions"))
+        .setProfileLocation(queryProfileLocationBuilder.create("getAllProgramVersions"))
         .where()
         .in("name", programNameQuery)
         .query()
@@ -298,7 +299,7 @@ public final class ProgramRepository {
             .find(Application.class)
             .setLabel("Application.findList")
             .setProfileLocation(
-                queryUtils.createProfileLocation("getApplicationsForAllProgramVersions"))
+                queryProfileLocationBuilder.create("getApplicationsForAllProgramVersions"))
             .fetch("program")
             .fetch("applicant")
             .orderBy("id desc")
@@ -378,7 +379,7 @@ public final class ProgramRepository {
             .find(Program.class)
             .select("name")
             .setLabel("Program.findByName")
-            .setProfileLocation(queryUtils.createProfileLocation("allProgramVersionsQuery"))
+            .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
             .where()
             .eq("id", programId)
             .query();
@@ -387,7 +388,7 @@ public final class ProgramRepository {
         .find(Program.class)
         .select("id")
         .setLabel("Program.findById")
-        .setProfileLocation(queryUtils.createProfileLocation("allProgramVersionsQuery"))
+        .setProfileLocation(queryProfileLocationBuilder.create("allProgramVersionsQuery"))
         .where()
         .in("name", programNameQuery)
         .query();

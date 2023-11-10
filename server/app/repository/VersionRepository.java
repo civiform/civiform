@@ -57,7 +57,8 @@ import services.settings.SettingsManifest;
 public final class VersionRepository {
 
   private static final Logger logger = LoggerFactory.getLogger(VersionRepository.class);
-  private final QueryUtils queryUtils = new QueryUtils("VersionRepository");
+  private static final QueryProfileLocationBuilder profileLocationBuilder =
+      new QueryProfileLocationBuilder("VersionRepository");
   private final Database database;
   private final ProgramRepository programRepository;
   private final DatabaseExecutionContext databaseExecutionContext;
@@ -334,7 +335,7 @@ public final class VersionRepository {
         .where()
         .eq("lifecycle_stage", LifecycleStage.DRAFT)
         .setLabel("Version.findDraft")
-        .setProfileLocation(queryUtils.createProfileLocation("getDraftVersion"))
+        .setProfileLocation(profileLocationBuilder.create("getDraftVersion"))
         .findOneOrEmpty();
   }
 
@@ -366,7 +367,7 @@ public final class VersionRepository {
           .where()
           .eq("lifecycle_stage", LifecycleStage.DRAFT)
           .setLabel("Version.findDraft")
-          .setProfileLocation(queryUtils.createProfileLocation("getDraftVersionOrCreate"))
+          .setProfileLocation(profileLocationBuilder.create("getDraftVersionOrCreate"))
           .findOne();
       transaction.commit();
       return newDraftVersion;
@@ -392,7 +393,7 @@ public final class VersionRepository {
         .where()
         .eq("lifecycle_stage", LifecycleStage.ACTIVE)
         .setLabel("Version.findActive")
-        .setProfileLocation(queryUtils.createProfileLocation("getActiveVersion"))
+        .setProfileLocation(profileLocationBuilder.create("getActiveVersion"))
         .findOne();
   }
 
@@ -414,7 +415,7 @@ public final class VersionRepository {
             .desc("id")
             .setMaxRows(1)
             .setLabel("Version.findPrevious")
-            .setProfileLocation(queryUtils.createProfileLocation("getPreviousVersion"))
+            .setProfileLocation(profileLocationBuilder.create("getPreviousVersion"))
             .findOne();
 
     return Optional.ofNullable(previousVersion);
@@ -541,7 +542,7 @@ public final class VersionRepository {
             .setId(questionId)
             .select("name")
             .setLabel("Question.findLatest")
-            .setProfileLocation(queryUtils.createProfileLocation("getLatestVersionOfQuestion"))
+            .setProfileLocation(profileLocationBuilder.create("getLatestVersionOfQuestion"))
             .findSingleAttribute();
     Optional<Question> draftQuestion =
         getQuestionsForVersion(getDraftVersionOrCreate()).stream()

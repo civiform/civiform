@@ -3,7 +3,7 @@ package repository;
 import io.ebean.ProfileLocation;
 
 /** Utility class for creating ProfileLocation objects. */
-public final class QueryUtils {
+public final class QueryProfileLocationBuilder {
   private final String fileName;
 
   /**
@@ -11,7 +11,7 @@ public final class QueryUtils {
    *
    * @param fileName The file name to be used in ProfileLocation.
    */
-  public QueryUtils(String fileName) {
+  public QueryProfileLocationBuilder(String fileName) {
     this.fileName = fileName;
   }
 
@@ -21,7 +21,7 @@ public final class QueryUtils {
    * @param functionName The name of the function.
    * @return ProfileLocation created using the provided file name and function name.
    */
-  ProfileLocation createProfileLocation(String functionName) {
+  ProfileLocation create(String functionName) {
     return ProfileLocation.createAt(fileName + "." + functionName);
   }
 }
