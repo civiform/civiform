@@ -373,7 +373,7 @@ public final class ProgramRepository {
         pagedQuery.getTotalPageCount(),
         pagedQuery.getList().stream().collect(ImmutableList.toImmutableList()));
   }
-  
+
   private Query<ProgramModel> allProgramVersionsQuery(long programId) {
     Query<ProgramModel> programNameQuery =
         database
