@@ -25,7 +25,7 @@ import services.program.ProgramNotFoundException;
 import support.ProgramBuilder;
 import views.html.helper.CSRF;
 
-public class AdminProgramControllerTestModel extends ResetPostgres {
+public class AdminProgramControllerTest extends ResetPostgres {
 
   private AdminProgramController controller;
   private ProgramRepository programRepository;

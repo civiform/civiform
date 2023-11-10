@@ -32,7 +32,7 @@ import support.ProgramBuilder;
 import views.style.ReferenceClasses;
 
 @RunWith(JUnitParamsRunner.class)
-public class AdminProgramStatusesControllerTestModel extends ResetPostgres {
+public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   private ProgramService programService;
   private AdminProgramStatusesController controller;

@@ -45,7 +45,7 @@ import support.CfTestHelpers;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramModelRepositoryTest extends ResetPostgres {
+public class ProgramRepositoryTest extends ResetPostgres {
 
   private ProgramRepository repo;
   private VersionRepository versionRepo;

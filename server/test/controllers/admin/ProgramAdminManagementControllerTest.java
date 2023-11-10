@@ -20,7 +20,7 @@ import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class ProgramModelAdminManagementControllerTest extends ResetPostgres {
+public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
   private AccountRepository accountRepository;
   private ProgramAdminManagementController controller;

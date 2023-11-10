@@ -53,7 +53,7 @@ import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramModelServiceTest extends ResetPostgres {
+public class ProgramServiceTest extends ResetPostgres {
 
   private QuestionDefinition addressQuestion;
   private QuestionDefinition secondaryAddressQuestion;

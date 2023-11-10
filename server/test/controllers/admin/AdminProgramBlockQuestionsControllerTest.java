@@ -26,7 +26,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramBlocksView;
 
-public class AdminProgramBlockQuestionsControllerTestModel extends ResetPostgres {
+public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
   private AdminProgramBlockQuestionsController controller;
 

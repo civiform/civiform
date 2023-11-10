@@ -46,7 +46,7 @@ import services.program.StatusNotFoundException;
 import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramModelAdminApplicationServiceTest extends ResetPostgres {
+public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   private static final StatusDefinitions.Status STATUS_WITH_ONLY_ENGLISH_EMAIL =
       StatusDefinitions.Status.builder()
           .setStatusText("STATUS_WITH_ONLY_ENGLISH_EMAIL")

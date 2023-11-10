@@ -14,7 +14,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class ProgramModelBuilderTest extends ResetPostgres {
+public class ProgramBuilderTest extends ResetPostgres {
   @Test
   public void fluentlyCreateProgramWithBlocks() {
     ProgramDefinition programDefinition =

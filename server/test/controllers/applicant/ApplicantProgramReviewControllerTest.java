@@ -27,7 +27,7 @@ import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class ApplicantProgramReviewControllerTestModel extends WithMockedProfiles {
+public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;

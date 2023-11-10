@@ -24,7 +24,7 @@ import play.mvc.Result;
 import services.applicant.JsonPathProvider;
 import services.export.AbstractExporterTest;
 
-public class ProgramModelApplicationsApiControllerTest extends AbstractExporterTest {
+public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
 
   private static final String keyId = "key-id";
   private static final String keySecret = "key-secret";

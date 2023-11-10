@@ -31,7 +31,7 @@ import services.Path;
 import services.applicant.question.Scalar;
 import support.ProgramBuilder;
 
-public class ApplicantProgramBlocksControllerTestModel extends WithMockedProfiles {
+public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramBlocksController subject;
   private ProgramModel program;

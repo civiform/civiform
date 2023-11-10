@@ -14,7 +14,7 @@ import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
 import support.ProgramBuilder;
 
-public class ProgramModelBlockValidationTest extends ResetPostgres {
+public class ProgramBlockValidationTest extends ResetPostgres {
 
   private ProgramBlockValidation programBlockValidation;
   private VersionRepository versionRepository;

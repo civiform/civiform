@@ -25,7 +25,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
 
-public class AdminProgramBlocksControllerTestModel extends ResetPostgres {
+public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   private AdminProgramBlocksController controller;
   private QuestionService questionService;

@@ -17,7 +17,7 @@ import services.program.LocalizationUpdate;
 import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
-public class ProgramModelTranslationFormTest extends ResetPostgres {
+public class ProgramTranslationFormTest extends ResetPostgres {
 
   private static final ImmutableMap<String, String> REQUEST_DATA_WITH_TWO_TRANSLATIONS =
       ImmutableMap.<String, String>builder()

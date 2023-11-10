@@ -28,7 +28,7 @@ import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
 
-public class ProgramModelDefinitionTest extends ResetPostgres {
+public class ProgramDefinitionTest extends ResetPostgres {
 
   private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 

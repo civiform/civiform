@@ -21,7 +21,7 @@ import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateValue;
 import support.ProgramBuilder;
 
-public class AdminProgramBlockPredicatesControllerTestModel extends ResetPostgres {
+public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   private ProgramModel programWithThreeBlocks;
 
   private AdminProgramBlockPredicatesController controller;

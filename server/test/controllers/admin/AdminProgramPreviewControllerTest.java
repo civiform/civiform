@@ -12,7 +12,7 @@ import org.junit.Test;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class AdminProgramPreviewControllerTestModel extends WithMockedProfiles {
+public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   private AdminProgramPreviewController controller;
 

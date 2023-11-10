@@ -26,7 +26,7 @@ import services.program.ProgramNotFoundException;
 import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
-public class AdminProgramTranslationsControllerTestModel extends ResetPostgres {
+public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   private static final Locale ES_LOCALE = Locale.forLanguageTag("es-US");
 
