@@ -25,7 +25,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Account;
+import models.AccountModel;
 import models.DisplayMode;
 import models.ProgramModel;
 import models.Question;
@@ -2313,7 +2313,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(ps.getNotificationEmailAddresses(programName)).isEmpty();
 
     String globalAdminEmail = "global@admin";
-    Account globalAdmin = new Account();
+    AccountModel globalAdmin = new AccountModel();
     globalAdmin.setEmailAddress(globalAdminEmail);
     globalAdmin.setGlobalAdmin(true);
     globalAdmin.save();
@@ -2322,7 +2322,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(globalAdminEmail);
 
     String programAdminEmail = "program@admin";
-    Account programAdmin = new Account();
+    AccountModel programAdmin = new AccountModel();
     programAdmin.setEmailAddress(programAdminEmail);
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();

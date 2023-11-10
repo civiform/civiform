@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -262,7 +262,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     long adminApplicantId = adminAccount.newestApplicant().orElseThrow().id;
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram().build();
     Request request = addCSRFToken(requestBuilderWithSettings()).build();

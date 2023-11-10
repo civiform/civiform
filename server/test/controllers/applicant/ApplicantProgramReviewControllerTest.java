@@ -11,7 +11,7 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -79,7 +79,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
@@ -139,7 +139,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
 
     ProgramBuilder.newActiveProgram("test program", "desc")

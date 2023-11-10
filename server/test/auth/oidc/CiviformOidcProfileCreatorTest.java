@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.junit.Before;
@@ -78,7 +78,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Verify.
     assertThat(applicant).isPresent();
-    Account account = applicant.get().getAccount();
+    AccountModel account = applicant.get().getAccount();
 
     assertThat(account.getEmailAddress()).isEqualTo(EMAIL);
     // The existing account doesn't have an authority as it didn't before.
@@ -105,7 +105,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
     // Verify.
     assertThat(applicant).isPresent();
-    Account account = applicant.get().getAccount();
+    AccountModel account = applicant.get().getAccount();
 
     // The email of the existing account is the pre-existing one, not a new profile
     // one.
@@ -140,7 +140,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
   @Test
   public void mergeCiviFormProfile_skipped_forTrustedIntermediaries() {
     // Setup.
-    Account accountWithTiGroup = new Account();
+    AccountModel accountWithTiGroup = new AccountModel();
     accountWithTiGroup.setMemberOfGroup(new TrustedIntermediaryGroup("name", "description"));
     CiviFormProfile trustedIntermediary = mock(CiviFormProfile.class);
     when(trustedIntermediary.getAccount())

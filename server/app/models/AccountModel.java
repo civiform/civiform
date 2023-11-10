@@ -33,7 +33,7 @@ import services.program.ProgramDefinition;
  */
 @Entity
 @Table(name = "accounts")
-public class Account extends BaseModel {
+public class AccountModel extends BaseModel {
 
   private static final long serialVersionUID = 1L;
 
@@ -62,12 +62,12 @@ public class Account extends BaseModel {
     return applicants.stream().max(Comparator.comparing(Applicant::getWhenCreated));
   }
 
-  public Account setApplicants(List<Applicant> applicants) {
+  public AccountModel setApplicants(List<Applicant> applicants) {
     this.applicants = applicants;
     return this;
   }
 
-  public Account setAuthorityId(String authorityId) {
+  public AccountModel setAuthorityId(String authorityId) {
     this.authorityId = authorityId;
     return this;
   }
@@ -76,7 +76,7 @@ public class Account extends BaseModel {
     return this.authorityId;
   }
 
-  public Account setEmailAddress(String emailAddress) {
+  public AccountModel setEmailAddress(String emailAddress) {
     this.emailAddress = emailAddress;
     return this;
   }
@@ -85,12 +85,12 @@ public class Account extends BaseModel {
     return this.emailAddress;
   }
 
-  public Account setMemberOfGroup(TrustedIntermediaryGroup group) {
+  public AccountModel setMemberOfGroup(TrustedIntermediaryGroup group) {
     this.memberOfGroup = group;
     return this;
   }
 
-  public Account setManagedByGroup(TrustedIntermediaryGroup group) {
+  public AccountModel setManagedByGroup(TrustedIntermediaryGroup group) {
     this.managedByGroup = group;
     return this;
   }
@@ -114,7 +114,7 @@ public class Account extends BaseModel {
    * Set whether or not the user is a global admin. If they are a global admin, they are cleared of
    * any program-admin role.
    */
-  public Account setGlobalAdmin(boolean isGlobalAdmin) {
+  public AccountModel setGlobalAdmin(boolean isGlobalAdmin) {
     this.globalAdmin = isGlobalAdmin;
     if (this.globalAdmin) {
       this.adminOf.clear();
@@ -130,7 +130,7 @@ public class Account extends BaseModel {
    * If this account does not already administer this program, add it to the list of administered
    * programs.
    */
-  public Account addAdministeredProgram(ProgramDefinition program) {
+  public AccountModel addAdministeredProgram(ProgramDefinition program) {
     if (this.adminOf == null) {
       this.adminOf = new ArrayList<>();
     }

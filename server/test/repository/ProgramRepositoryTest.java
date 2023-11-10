@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
@@ -277,7 +277,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   @Test
   public void returnsAllAdmins() throws ProgramNotFoundException {
     ProgramModel withAdmins = resourceCreator.insertActiveProgram("with admins");
-    Account admin = new Account();
+    AccountModel admin = new AccountModel();
     admin.save();
     assertThat(repo.getProgramAdministrators(withAdmins.id)).isEmpty();
     admin.addAdministeredProgram(withAdmins.getProgramDefinition());
@@ -432,7 +432,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 new StatusDefinitions(ImmutableList.of(FIRST_STATUS, SECOND_STATUS, THIRD_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
 
     Application firstStatusApplication =
         resourceCreator.insertActiveApplication(
@@ -541,7 +541,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   }
 
   private void createStatusEvents(
-      Account actorAccount,
+      AccountModel actorAccount,
       Application application,
       ImmutableList<Optional<StatusDefinitions.Status>> statuses)
       throws InterruptedException {

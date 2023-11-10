@@ -24,7 +24,7 @@ public final class ApplicationEvent extends BaseModel {
   // The Account that triggered the event.
   @ManyToOne
   @JoinColumn(name = "creator_id")
-  private Account creator;
+  private AccountModel creator;
   // Details of the event specific to the eventType.
   @Constraints.Required @DbJson private ApplicationEventDetails details;
   @WhenCreated private Instant createTime;
@@ -38,7 +38,7 @@ public final class ApplicationEvent extends BaseModel {
    * @param creator the Account that created the event.
    */
   public ApplicationEvent(
-      Application application, Optional<Account> creator, ApplicationEventDetails details) {
+          Application application, Optional<AccountModel> creator, ApplicationEventDetails details) {
     this.application = checkNotNull(application);
     this.creator = checkNotNull(creator).orElse(null);
     this.details = checkNotNull(details);
@@ -63,11 +63,11 @@ public final class ApplicationEvent extends BaseModel {
     return this;
   }
 
-  public Optional<Account> getCreator() {
+  public Optional<AccountModel> getCreator() {
     return Optional.ofNullable(creator);
   }
 
-  public ApplicationEvent setCreator(Account creator) {
+  public ApplicationEvent setCreator(AccountModel creator) {
     this.creator = checkNotNull(creator);
     return this;
   }

@@ -9,7 +9,7 @@ import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -83,7 +83,7 @@ public class WithMockedProfiles {
 
   protected Applicant createApplicant() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
 
     applicant.setAccount(account);
     applicant.save();
@@ -97,11 +97,11 @@ public class WithMockedProfiles {
     return applicant;
   }
 
-  protected Account createTIWithMockedProfile(Applicant managedApplicant) {
-    Account ti = resourceCreator.insertAccount();
+  protected AccountModel createTIWithMockedProfile(Applicant managedApplicant) {
+    AccountModel ti = resourceCreator.insertAccount();
 
     TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
-    Account managedAccount = managedApplicant.getAccount();
+    AccountModel managedAccount = managedApplicant.getAccount();
     managedAccount.setManagedByGroup(group);
     managedAccount.save();
     ti.setMemberOfGroup(group);
@@ -112,8 +112,8 @@ public class WithMockedProfiles {
     return ti;
   }
 
-  protected Account createProgramAdminWithMockedProfile(ProgramModel program) {
-    Account programAdmin = resourceCreator.insertAccount();
+  protected AccountModel createProgramAdminWithMockedProfile(ProgramModel program) {
+    AccountModel programAdmin = resourceCreator.insertAccount();
 
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();
@@ -123,11 +123,11 @@ public class WithMockedProfiles {
     return programAdmin;
   }
 
-  protected Account createGlobalAdminWithMockedProfile() {
+  protected AccountModel createGlobalAdminWithMockedProfile() {
     CiviFormProfile profile = profileFactory.wrapProfileData(profileFactory.createNewAdmin());
     mockProfile(profile);
 
-    Account adminAccount = profile.getAccount().join();
+    AccountModel adminAccount = profile.getAccount().join();
 
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.setAccount(adminAccount);

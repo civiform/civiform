@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.SEE_OTHER;
 
 import controllers.WithMockedProfiles;
-import models.Account;
+import models.AccountModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class AdminProgramPreviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void preview_redirectsToProgramReviewPage() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     long programId = 0;
     Result result = controller.preview(Helpers.fakeRequest().build(), programId);
     assertThat(result.status()).isEqualTo(SEE_OTHER);
