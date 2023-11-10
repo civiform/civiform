@@ -12,7 +12,6 @@ import io.ebean.ExpressionList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import javax.inject.Inject;
 import models.Applicant;
@@ -30,6 +29,9 @@ import services.program.ProgramNotFoundException;
  * other EBean models or asynchronous handling.
  */
 public final class ApplicationRepository {
+  private final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ApplicationRepository");
+
   private final ProgramRepository programRepository;
   private final AccountRepository accountRepository;
   private final Database database;
@@ -45,19 +47,6 @@ public final class ApplicationRepository {
     this.accountRepository = checkNotNull(accountRepository);
     this.database = DB.getDefault();
     this.executionContext = checkNotNull(executionContext);
-  }
-
-  /**
-   * Pages through all submitted applications calling the provided consumer function with each one.
-   * Program association is eager loaded.
-   */
-  public void forEachSubmittedApplication(Consumer<Application> fn) {
-    database
-        .find(Application.class)
-        .fetch("program")
-        .where()
-        .in("lifecycle_stage", ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
-        .findEach(fn);
   }
 
   @VisibleForTesting
@@ -92,6 +81,8 @@ public final class ApplicationRepository {
               .where()
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
+              .setLabel("Application.findList")
+              .setProfileLocation(queryProfileLocationBuilder.create("submitApplicationInternal"))
               .findList();
 
       ImmutableList<Application> drafts =
@@ -221,7 +212,11 @@ public final class ApplicationRepository {
     if (submitTimeFilter.untilTime().isPresent()) {
       query = query.where().lt("submit_time", submitTimeFilter.untilTime().get());
     }
-    return ImmutableList.copyOf(query.findList());
+    return ImmutableList.copyOf(
+        query
+            .setLabel("Application.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getApplications"))
+            .findList());
   }
 
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
@@ -246,6 +241,9 @@ public final class ApplicationRepository {
               .eq("applicant.id", applicant.id)
               .eq("program.name", program.getProgramDefinition().adminName())
               .eq("lifecycle_stage", LifecycleStage.DRAFT)
+              .setLabel("Application.findById")
+              .setProfileLocation(
+                  queryProfileLocationBuilder.create("createOrUpdateDraftApplicationInternal"))
               .findOneOrEmpty();
       Application application =
           existingDraft.orElseGet(() -> new Application(applicant, program, LifecycleStage.DRAFT));
@@ -279,7 +277,13 @@ public final class ApplicationRepository {
 
   public CompletionStage<Optional<Application>> getApplication(long applicationId) {
     return supplyAsync(
-        () -> database.find(Application.class).setId(applicationId).findOneOrEmpty(),
+        () ->
+            database
+                .find(Application.class)
+                .setId(applicationId)
+                .setLabel("Application.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("getApplication"))
+                .findOneOrEmpty(),
         executionContext.current());
   }
 
@@ -301,6 +305,8 @@ public final class ApplicationRepository {
               // Eagerly fetch the program in a SQL join.
               .fetch("program")
               .fetch("applicationEvents")
+              .setLabel("Application.findSet")
+              .setProfileLocation(queryProfileLocationBuilder.create("getApplicationsForApplicant"))
               .findSet()
               .stream()
               .collect(ImmutableSet.toImmutableSet());

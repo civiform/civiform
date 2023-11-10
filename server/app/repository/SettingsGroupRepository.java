@@ -12,6 +12,8 @@ import models.SettingsGroup;
 
 /** Contains queries related to the server settings system. */
 public final class SettingsGroupRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("SettingsGroupRepository");
 
   private final Database database;
   private final DatabaseExecutionContext databaseExecutionContext;
@@ -31,6 +33,8 @@ public final class SettingsGroupRepository {
                 .orderBy()
                 .desc("create_time")
                 .setMaxRows(1)
+                .setLabel("SettingsGroup.findOne")
+                .setProfileLocation(queryProfileLocationBuilder.create("getCurrentSettings"))
                 .findOneOrEmpty(),
         databaseExecutionContext);
   }
