@@ -32,7 +32,7 @@ import javax.persistence.RollbackException;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.cache.NamedCache;
@@ -101,7 +101,7 @@ public final class VersionRepository {
    * next version. This method will not mutate the database and will return an updated Version
    * corresponding to what would be the new ACTIVE version.
    */
-  public Version previewPublishNewSynchronizedVersion() {
+  public VersionModel previewPublishNewSynchronizedVersion() {
     return publishNewSynchronizedVersion(PublishMode.DRY_RUN);
   }
 
@@ -110,15 +110,15 @@ public final class VersionRepository {
     PUBLISH_CHANGES,
   }
 
-  private Version publishNewSynchronizedVersion(PublishMode publishMode) {
+  private VersionModel publishNewSynchronizedVersion(PublishMode publishMode) {
     // Regardless of whether changes are published or not, we still perform
     // this operation inside of a transaction in order to ensure we have
     // consistent reads.
     Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      Version draft = getDraftVersionOrCreate();
-      Version active = getActiveVersion();
+      VersionModel draft = getDraftVersionOrCreate();
+      VersionModel active = getActiveVersion();
 
       ImmutableSet<String> draftProgramsNames = getProgramNamesForVersion(draft);
       ImmutableSet<String> draftQuestionNames = getQuestionNamesForVersion(draft);
@@ -230,11 +230,11 @@ public final class VersionRepository {
     Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      Version existingDraft = getDraftVersionOrCreate();
-      Version active = getActiveVersion();
+      VersionModel existingDraft = getDraftVersionOrCreate();
+      VersionModel active = getActiveVersion();
 
       // Any drafts not being published right now will be moved to newDraft.
-      Version newDraft = new Version(LifecycleStage.DRAFT);
+      VersionModel newDraft = new VersionModel(LifecycleStage.DRAFT);
       database.insert(newDraft);
 
       ProgramModel programToPublish =
@@ -329,9 +329,9 @@ public final class VersionRepository {
   }
 
   /** Get the current draft version. Empty optional if not available. */
-  public Optional<Version> getDraftVersion() {
+  public Optional<VersionModel> getDraftVersion() {
     return database
-        .find(Version.class)
+        .find(VersionModel.class)
         .where()
         .eq("lifecycle_stage", LifecycleStage.DRAFT)
         .setLabel("Version.findDraft")
@@ -340,8 +340,8 @@ public final class VersionRepository {
   }
 
   /** Get the current draft version. Creates it if one does not exist. */
-  public Version getDraftVersionOrCreate() {
-    Optional<Version> version = getDraftVersion();
+  public VersionModel getDraftVersionOrCreate() {
+    Optional<VersionModel> version = getDraftVersion();
 
     if (version.isPresent()) {
       return version.get();
@@ -359,10 +359,10 @@ public final class VersionRepository {
     Transaction transaction =
         database.beginTransaction(TxScope.requiresNew().setIsolation(TxIsolation.SERIALIZABLE));
     try {
-      Version newDraftVersion = new Version(LifecycleStage.DRAFT);
+      VersionModel newDraftVersion = new VersionModel(LifecycleStage.DRAFT);
       database.insert(newDraftVersion);
       database
-          .find(Version.class)
+          .find(VersionModel.class)
           .forUpdate()
           .where()
           .eq("lifecycle_stage", LifecycleStage.DRAFT)
@@ -387,9 +387,9 @@ public final class VersionRepository {
     }
   }
 
-  public Version getActiveVersion() {
+  public VersionModel getActiveVersion() {
     return database
-        .find(Version.class)
+        .find(VersionModel.class)
         .where()
         .eq("lifecycle_stage", LifecycleStage.ACTIVE)
         .setLabel("Version.findActive")
@@ -403,10 +403,10 @@ public final class VersionRepository {
    *
    * <p>This can return active or obsolete versions. Versions flagged as deleted are excluded.
    */
-  public Optional<Version> getPreviousVersion(Version version) {
-    Version previousVersion =
+  public Optional<VersionModel> getPreviousVersion(VersionModel version) {
+    VersionModel previousVersion =
         database
-            .find(Version.class)
+            .find(VersionModel.class)
             .where()
             .lt("id", version.id)
             .not()
@@ -428,7 +428,7 @@ public final class VersionRepository {
    * @return true if the question was successfully marked as tombstoned, false otherwise.
    * @throws QuestionNotFoundException if the question cannot be found in this version.
    */
-  public boolean addTombstoneForQuestionInVersion(Question question, Version version)
+  public boolean addTombstoneForQuestionInVersion(Question question, VersionModel version)
       throws QuestionNotFoundException {
     String name = question.getQuestionDefinition().getName();
     if (!getQuestionNamesForVersion(version).contains(name)) {
@@ -438,7 +438,7 @@ public final class VersionRepository {
   }
 
   /** Returns the names of all the questions for a particular version. */
-  public ImmutableSet<String> getQuestionNamesForVersion(Version version) {
+  public ImmutableSet<String> getQuestionNamesForVersion(VersionModel version) {
     return getQuestionsForVersion(version).stream()
         .map(Question::getQuestionDefinition)
         .map(QuestionDefinition::getName)
@@ -449,7 +449,7 @@ public final class VersionRepository {
    * If a question by the given name exists, return it. A maximum of one question by a given name
    * can exist in a version.
    */
-  public Optional<Question> getQuestionByNameForVersion(String name, Version version) {
+  public Optional<Question> getQuestionByNameForVersion(String name, VersionModel version) {
     return getQuestionsForVersion(version).stream()
         .filter(q -> q.getQuestionDefinition().getName().equals(name))
         .findAny();
@@ -461,7 +461,7 @@ public final class VersionRepository {
    * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
    * present.
    */
-  public ImmutableList<Question> getQuestionsForVersion(Version version) {
+  public ImmutableList<Question> getQuestionsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return questionsByVersionCache.getOrElseUpdate(
@@ -471,7 +471,7 @@ public final class VersionRepository {
   }
 
   /** Returns the questions for a version without using the cache. */
-  public ImmutableList<Question> getQuestionsForVersionWithoutCache(Version version) {
+  public ImmutableList<Question> getQuestionsForVersionWithoutCache(VersionModel version) {
     return version.getQuestions();
   }
 
@@ -479,14 +479,14 @@ public final class VersionRepository {
    * If a program by the given name exists, return it. A maximum of one program by a given name can
    * exist in a version.
    */
-  public Optional<ProgramModel> getProgramByNameForVersion(String name, Version version) {
+  public Optional<ProgramModel> getProgramByNameForVersion(String name, VersionModel version) {
     return getProgramsForVersion(version).stream()
         .filter(p -> p.getProgramDefinition().adminName().equals(name))
         .findAny();
   }
 
   /** Returns the names of all the programs. */
-  public ImmutableSet<String> getProgramNamesForVersion(Version version) {
+  public ImmutableSet<String> getProgramNamesForVersion(VersionModel version) {
     return getProgramsForVersion(version).stream()
         .map(ProgramModel::getProgramDefinition)
         .map(ProgramDefinition::adminName)
@@ -499,7 +499,7 @@ public final class VersionRepository {
    * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
    * present.
    */
-  public ImmutableList<ProgramModel> getProgramsForVersion(Version version) {
+  public ImmutableList<ProgramModel> getProgramsForVersion(VersionModel version) {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
@@ -509,7 +509,7 @@ public final class VersionRepository {
   }
 
   /** Returns the programs for a version without using the cache. */
-  public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(Version version) {
+  public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
     return version.getPrograms();
   }
 
@@ -617,7 +617,7 @@ public final class VersionRepository {
 
   /** Validate all programs have associated questions. */
   private void validateProgramQuestionState() {
-    Version activeVersion = getActiveVersion();
+    VersionModel activeVersion = getActiveVersion();
     removeCacheForVersion(String.valueOf(activeVersion.id));
     ImmutableList<QuestionDefinition> newActiveQuestions =
         getQuestionsForVersionWithoutCache(activeVersion).stream()
@@ -774,7 +774,7 @@ public final class VersionRepository {
    * value is a set of programs that reference the given question in this version.
    */
   public ImmutableMap<String, ImmutableSet<ProgramDefinition>> buildReferencingProgramsMap(
-      Version version) {
+      VersionModel version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     Map<String, Set<ProgramDefinition>> result = Maps.newHashMap();
     for (ProgramModel program : getProgramsForVersion(version)) {
@@ -794,7 +794,7 @@ public final class VersionRepository {
 
   /** Returns the names of questions referenced by the program that are in the specified version. */
   public ImmutableSet<String> getProgramQuestionNamesInVersion(
-      ProgramDefinition program, Version version) {
+      ProgramDefinition program, VersionModel version) {
     ImmutableMap<Long, String> questionIdToNameLookup = getQuestionIdToNameMap(version);
     return getProgramQuestionNames(program, questionIdToNameLookup);
   }
@@ -803,7 +803,7 @@ public final class VersionRepository {
    * Returns true if any questions in the provided set are referenced by multiple programs in the
    * specified version.
    */
-  private boolean anyQuestionIsShared(Version version, ImmutableSet<String> questions) {
+  private boolean anyQuestionIsShared(VersionModel version, ImmutableSet<String> questions) {
     ImmutableMap<String, ImmutableSet<ProgramDefinition>> referencingProgramsByQuestionName =
         buildReferencingProgramsMap(version);
     return questions.stream()
@@ -818,7 +818,7 @@ public final class VersionRepository {
    * Different versions of a question can have distinct IDs. The name is an ID that is constant
    * across versions.
    */
-  private ImmutableMap<Long, String> getQuestionIdToNameMap(Version version) {
+  private ImmutableMap<Long, String> getQuestionIdToNameMap(VersionModel version) {
     return getQuestionsForVersion(version).stream()
         .map(Question::getQuestionDefinition)
         .collect(

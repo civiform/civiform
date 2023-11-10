@@ -26,7 +26,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "versions")
-public final class Version extends BaseModel {
+public final class VersionModel extends BaseModel {
 
   @Constraints.Required private LifecycleStage lifecycleStage;
 
@@ -51,11 +51,11 @@ public final class Version extends BaseModel {
 
   @WhenModified private Instant submitTime;
 
-  public Version() {
+  public VersionModel() {
     this(LifecycleStage.DRAFT);
   }
 
-  public Version(LifecycleStage lifecycleStage) {
+  public VersionModel(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
   }
 
@@ -63,7 +63,7 @@ public final class Version extends BaseModel {
     return lifecycleStage;
   }
 
-  public Version setLifecycleStage(LifecycleStage lifecycleStage) {
+  public VersionModel setLifecycleStage(LifecycleStage lifecycleStage) {
     this.lifecycleStage = lifecycleStage;
     return this;
   }
@@ -72,7 +72,7 @@ public final class Version extends BaseModel {
     return this.submitTime;
   }
 
-  public Version addProgram(ProgramModel program) {
+  public VersionModel addProgram(ProgramModel program) {
     this.programs.add(program);
     return this;
   }
@@ -81,7 +81,7 @@ public final class Version extends BaseModel {
     return this.programs.remove(program);
   }
 
-  public Version addQuestion(Question question) {
+  public VersionModel addQuestion(Question question) {
     this.questions.add(question);
     return this;
   }

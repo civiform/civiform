@@ -14,7 +14,7 @@ import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.Version;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
@@ -27,16 +27,16 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   private ApplicationRepository repo;
   private DateConverter dateConverter;
 
-  private Version draftVersion;
-  private Version activeVersion;
+  private VersionModel draftVersion;
+  private VersionModel activeVersion;
 
   @Before
   public void setUp() {
     repo = instanceOf(ApplicationRepository.class);
     dateConverter = instanceOf(DateConverter.class);
-    draftVersion = new Version(LifecycleStage.DRAFT);
+    draftVersion = new VersionModel(LifecycleStage.DRAFT);
     draftVersion.save();
-    activeVersion = new Version(LifecycleStage.ACTIVE);
+    activeVersion = new VersionModel(LifecycleStage.ACTIVE);
     activeVersion.save();
   }
 
@@ -359,7 +359,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     return createProgram(name, activeVersion);
   }
 
-  private ProgramModel createProgram(String name, Version version) {
+  private ProgramModel createProgram(String name, VersionModel version) {
     ProgramModel program =
         new ProgramModel(
             name,

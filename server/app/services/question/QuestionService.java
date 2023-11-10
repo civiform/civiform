@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import models.Question;
 import models.QuestionTag;
-import models.Version;
+import models.VersionModel;
 import repository.QuestionRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
@@ -104,7 +104,7 @@ public final class QuestionService {
    * questions in a particular version.
    */
   public ReadOnlyQuestionService getReadOnlyVersionedQuestionService(
-      Version version, VersionRepository versionRepository) {
+      VersionModel version, VersionRepository versionRepository) {
     return new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
   }
 
@@ -163,7 +163,7 @@ public final class QuestionService {
         .equals(DeletionStatus.PENDING_DELETION)) {
       throw new InvalidUpdateException("Question is not restorable.");
     }
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!draftVersion.removeTombstoneForQuestion(question.get())) {
       throw new InvalidUpdateException("Not tombstoned.");
     }
@@ -187,7 +187,7 @@ public final class QuestionService {
 
     Question draftQuestion =
         questionRepository.createOrUpdateDraft(question.get().getQuestionDefinition());
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     try {
       if (!versionRepositoryProvider
           .get()
@@ -211,7 +211,7 @@ public final class QuestionService {
             .orElseThrow(() -> new InvalidUpdateException("Did not find question."));
 
     // Find the Active version.
-    Version activeVersion = versionRepositoryProvider.get().getActiveVersion();
+    VersionModel activeVersion = versionRepositoryProvider.get().getActiveVersion();
     Long activeId =
         versionRepositoryProvider
             .get()
@@ -228,7 +228,7 @@ public final class QuestionService {
         draftId,
         question.getQuestionDefinition().getName());
 
-    Version draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+    VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
     if (!question.removeVersion(draftVersion)) {
       throw new InvalidUpdateException("Did not find question in draft version.");
     }
@@ -388,8 +388,8 @@ public final class QuestionService {
    * @param version The version used to lookup the previous version
    * @return Populated list of Question Definitions or an empty list
    */
-  public ImmutableList<QuestionDefinition> getAllPreviousVersionQuestions(Version version) {
-    Optional<Version> optionalPreviousVersion =
+  public ImmutableList<QuestionDefinition> getAllPreviousVersionQuestions(VersionModel version) {
+    Optional<VersionModel> optionalPreviousVersion =
         versionRepositoryProvider.get().getPreviousVersion(version);
 
     // This should only happen if we only have one version in the system

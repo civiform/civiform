@@ -9,7 +9,7 @@ import models.DisplayMode;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import play.inject.Injector;
 import repository.VersionRepository;
 import services.program.BlockDefinition;
@@ -179,7 +179,7 @@ public class ProgramBuilder {
    * Version.
    */
   public static ProgramBuilder newObsoleteProgram(String adminName) {
-    Version obsoleteVersion = new Version(LifecycleStage.OBSOLETE);
+    VersionModel obsoleteVersion = new VersionModel(LifecycleStage.OBSOLETE);
     obsoleteVersion.save();
     ProgramModel program =
         new ProgramModel(

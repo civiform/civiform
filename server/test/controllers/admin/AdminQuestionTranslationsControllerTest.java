@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import java.util.Locale;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -36,7 +36,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   private static final String SPANISH_QUESTION_TEXT = "spanish question text";
   private static final String SPANISH_QUESTION_HELP_TEXT = "spanish question help text";
 
-  private Version draftVersion;
+  private VersionModel draftVersion;
   private QuestionRepository questionRepository;
   private AdminQuestionTranslationsController controller;
 

@@ -21,7 +21,7 @@ import models.Application;
 import models.ApplicationEvent;
 import models.DisplayMode;
 import models.ProgramModel;
-import models.Version;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -259,7 +259,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
   public void getVersionsForProgram() {
     ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
-    ImmutableList<Version> versions = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
 
     assertThat(versions).hasSize(1);
   }
@@ -269,7 +269,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     Mockito.when(mockSettingsManifest.getProgramCacheEnabled()).thenReturn(true);
     ProgramModel program = resourceCreator.insertActiveProgram("old name");
 
-    ImmutableList<Version> versions = repo.getVersionsForProgram(program);
+    ImmutableList<VersionModel> versions = repo.getVersionsForProgram(program);
 
     assertThat(versionsByProgramCache.get(String.valueOf(program.id)).get()).isEqualTo(versions);
   }

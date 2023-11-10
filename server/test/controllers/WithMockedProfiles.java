@@ -14,7 +14,7 @@ import models.Applicant;
 import models.LifecycleStage;
 import models.ProgramModel;
 import models.TrustedIntermediaryGroup;
-import models.Version;
+import models.VersionModel;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.mockito.ArgumentMatcher;
@@ -77,7 +77,7 @@ public class WithMockedProfiles {
   protected void resetDatabase() {
     testQuestionBank().reset();
     resourceCreator().truncateTables();
-    Version newActiveVersion = new Version(LifecycleStage.ACTIVE);
+    VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
     newActiveVersion.save();
   }
 

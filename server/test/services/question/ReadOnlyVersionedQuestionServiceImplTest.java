@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableList;
 import models.LifecycleStage;
 import models.Question;
-import models.Version;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.ResetPostgres;
@@ -19,7 +19,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   private VersionRepository versionRepository;
   private final ReadOnlyQuestionService emptyService =
       new ReadOnlyVersionedQuestionServiceImpl(
-          new Version(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
+          new VersionModel(LifecycleStage.OBSOLETE), instanceOf(VersionRepository.class));
   private TestQuestionBank testQuestionBank;
   private Question nameQuestion;
   private Question addressQuestion;
@@ -36,7 +36,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
     basicQuestion = testQuestionBank.applicantFavoriteColor();
     questions = ImmutableList.of(nameQuestion, addressQuestion, basicQuestion);
     versionRepository = instanceOf(VersionRepository.class);
-    Version version = new Version(LifecycleStage.OBSOLETE);
+    VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
     service = new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
   }
@@ -76,7 +76,7 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
   public void getEnumeratorQuestions() {
     Question enumeratorQuestion = testQuestionBank.applicantHouseholdMembers();
 
-    Version version = new Version(LifecycleStage.OBSOLETE);
+    VersionModel version = new VersionModel(LifecycleStage.OBSOLETE);
     addQuestionsToVersion(version, questions);
     addQuestionsToVersion(version, ImmutableList.of(enumeratorQuestion));
     var service = new ReadOnlyVersionedQuestionServiceImpl(version, versionRepository);
@@ -99,7 +99,8 @@ public class ReadOnlyVersionedQuestionServiceImplTest extends ResetPostgres {
     assertThat(questionDefinition.getQuestionType()).isEqualTo(QuestionType.NULL_QUESTION);
   }
 
-  private static void addQuestionsToVersion(Version version, ImmutableList<Question> questions) {
+  private static void addQuestionsToVersion(
+      VersionModel version, ImmutableList<Question> questions) {
     questions.stream().forEach(version::addQuestion);
     version.save();
   }

@@ -107,18 +107,18 @@ public class Question extends BaseModel {
 
   @ManyToMany
   @JoinTable(name = "versions_questions")
-  private List<Version> versions;
+  private List<VersionModel> versions;
 
   public Question(QuestionDefinition questionDefinition) {
     this.questionDefinition = checkNotNull(questionDefinition);
     setFieldsFromQuestionDefinition(questionDefinition);
   }
 
-  public ImmutableList<Version> getVersions() {
+  public ImmutableList<VersionModel> getVersions() {
     return ImmutableList.copyOf(versions);
   }
 
-  public Question addVersion(Version version) {
+  public Question addVersion(VersionModel version) {
     versions.add(version);
     return this;
   }
@@ -276,7 +276,7 @@ public class Question extends BaseModel {
     return this;
   }
 
-  public boolean removeVersion(Version draftVersion) {
+  public boolean removeVersion(VersionModel draftVersion) {
     return this.versions.remove(draftVersion);
   }
 
