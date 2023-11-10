@@ -18,6 +18,8 @@ import models.StoredFile;
  * asynchronous handling.
  */
 public final class StoredFileRepository {
+  private final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("StoredFileRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -30,12 +32,26 @@ public final class StoredFileRepository {
 
   /** Return all files in a set. */
   public CompletionStage<Set<StoredFile>> list() {
-    return supplyAsync(() -> database.find(StoredFile.class).findSet(), executionContext);
+    return supplyAsync(
+        () ->
+            database
+                .find(StoredFile.class)
+                .setLabel("StoredFile.findSet")
+                .setProfileLocation(queryProfileLocationBuilder.create("list"))
+                .findSet(),
+        executionContext);
   }
 
   public CompletionStage<List<StoredFile>> lookupFiles(ImmutableList<String> keyNames) {
     return supplyAsync(
-        () -> database.find(StoredFile.class).where().in("name", keyNames).findList(),
+        () ->
+            database
+                .find(StoredFile.class)
+                .setLabel("StoredFile.findList")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupFiles"))
+                .where()
+                .in("name", keyNames)
+                .findList(),
         executionContext);
   }
 
@@ -43,13 +59,26 @@ public final class StoredFileRepository {
     return supplyAsync(
         () ->
             Optional.ofNullable(
-                database.find(StoredFile.class).where().eq("name", keyName).findOne()),
+                database
+                    .find(StoredFile.class)
+                    .setLabel("StoredFile.findByName")
+                    .setProfileLocation(queryProfileLocationBuilder.create("lookupFile"))
+                    .where()
+                    .eq("name", keyName)
+                    .findOne()),
         executionContext);
   }
 
   public CompletionStage<Optional<StoredFile>> lookupFile(Long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(database.find(StoredFile.class).setId(id).findOne()),
+        () ->
+            Optional.ofNullable(
+                database
+                    .find(StoredFile.class)
+                    .setLabel("StoredFile.findOne")
+                    .setProfileLocation(queryProfileLocationBuilder.create("lookupFile"))
+                    .setId(id)
+                    .findOne()),
         executionContext);
   }
 
