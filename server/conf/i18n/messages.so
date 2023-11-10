@@ -26,6 +26,8 @@ content.requiredFieldsNote=Fiiro: Qaybaha ku calaamadsan {0} waa loo baahan yaha
 content.optional=(Ikhtiyaar)
 content.mobileFileUploadHelp=Telefoonkaaga? "Choose File" sidoo kale waxuu kuu oggolaanayaa inaad isticmaasho kamarada telefoonkaaga si aad u soo geliso dukumintiyo.
 toast.errorMessageOutline=Khalad: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Xidh
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -149,7 +151,7 @@ content.commonIntakeConfirmationTi=Macmiilkaagu waxa uu awoodi karaa inuu helo f
 content.commonIntakeNoMatchingPrograms=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada aad u qalmi karto wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsTi=Qiimeeyaha hore waa uu heli kari waayey barnaamijyada uu macmiilkaagu u qalmi karo wakhtigan. Si kastaba ha ahaatee, waxaad codsan kartaa faa'iidooyinka wakhti kasta, addoo riixaya "Codso barnaamiyada". Ama arag faa'iidooyinka dheeraadka ah ee barnaamijyada aad booqan karto {0}
 content.commonIntakeNoMatchingProgramsNextStep=Sidoo kale waxaad ku noqon kartaa bogga hore si aad wax uga beddesho jawaabahaaga.
-button.downloadPdf=Download PDF
+button.downloadPdf=Soo.deji.PDF
 button.applyToPrograms=Codso barnaamijyada
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +286,7 @@ validation.textTooShort=Waa in uu ka kooban yahay ugu yaraan {0} xaraf.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Su''aalaha xulashada badan ma yeelan karaan ikhtiyaaro madhan.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +311,14 @@ email.tiManageYourClients=Ka maamul macaamiishaada xaga {0}.
 email.applicationUpdateSubject=Cosboonaysiinta codsigaaga {0}
 email.tiApplicationUpdateSubject=Cusboonaysiinta codsiga barnaamijka {0} iyadoo la metelaayo codsadaha {1}
 email.tiApplicationUpdateBody=Heerka codsadaha {0} barnaamijka {1} waxa uu u beddelmay {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.
