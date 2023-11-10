@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import models.Account;
+import models.AccountModel;
 import models.ApiKey;
 import models.Applicant;
 import models.Application;
@@ -156,8 +156,8 @@ public class ResourceCreator {
     return applicant;
   }
 
-  public Account insertAccount() {
-    Account account = new Account();
+  public AccountModel insertAccount() {
+    AccountModel account = new AccountModel();
     account.save();
     return account;
   }
@@ -182,7 +182,7 @@ public class ResourceCreator {
    */
   public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
     Applicant applicant = insertApplicant();
-    Account account = insertAccount();
+    AccountModel account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);
     // If the account has an email, it is an authorized user and should have an
@@ -202,8 +202,8 @@ public class ResourceCreator {
    * @param email the email address to use for the account
    * @return the account
    */
-  public Account insertAccountWithEmail(String email) {
-    Account account = new Account();
+  public AccountModel insertAccountWithEmail(String email) {
+    AccountModel account = new AccountModel();
     account.setEmailAddress(email);
     // User is not a guest, so they should have an authority ID.
     account.setAuthorityId(UUID.randomUUID().toString());

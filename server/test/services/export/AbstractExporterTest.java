@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.converters.Nullable;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
@@ -155,7 +155,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * is a different user in Active state.
    */
   protected void createFakeApplications() throws Exception {
-    Account admin = resourceCreator.insertAccount();
+    AccountModel admin = resourceCreator.insertAccount();
     Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
     Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
@@ -183,7 +183,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   private Application createFakeApplication(
       Applicant applicant,
-      @Nullable Account admin,
+      @Nullable AccountModel admin,
       ProgramModel program,
       LifecycleStage lifecycleStage,
       @Nullable String status)
@@ -570,10 +570,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   /** A "Builder" to fill a fake application one question at a time. */
   static class FakeApplicationFiller {
-    Account admin;
+    AccountModel admin;
     Applicant applicant;
     ProgramModel program;
-    Optional<Account> trustedIntermediary = Optional.empty();
+    Optional<AccountModel> trustedIntermediary = Optional.empty();
     Application application;
 
     public FakeApplicationFiller(ProgramModel program) {

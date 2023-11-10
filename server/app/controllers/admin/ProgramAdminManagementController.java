@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import forms.ManageProgramAdminsForm;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
+import models.AccountModel;
 import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -105,7 +105,7 @@ public final class ProgramAdminManagementController {
       } else {
         ImmutableList<String> programAdmins =
             programRepository.getProgramAdministrators(programId).stream()
-                .map(Account::getEmailAddress)
+                .map(AccountModel::getEmailAddress)
                 .collect(toImmutableList());
 
         return ok(

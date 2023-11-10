@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
@@ -28,7 +28,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insert() {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
+    AccountModel actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
@@ -79,7 +79,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
   public void insertMultipleEventsOnApplication() {
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
+    AccountModel actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 
@@ -114,7 +114,7 @@ public class ApplicationEventRepositoryTest extends ResetPostgres {
     // Setup
     Instant startInstant = Instant.now();
     ProgramModel program = resourceCreator.insertActiveProgram("Program");
-    Account actor = resourceCreator.insertAccount();
+    AccountModel actor = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application = resourceCreator.insertActiveApplication(applicant, program);
 

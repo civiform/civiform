@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.util.Locale;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
@@ -81,7 +81,7 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
+  public void setStatus(Application application, StatusEvent newStatusEvent, AccountModel admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
     ProgramModel program = application.getProgram();
     Applicant applicant = application.getApplicant();
@@ -176,7 +176,7 @@ public final class ProgramAdminApplicationService {
     Locale locale =
         accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
-            .flatMap(Account::newestApplicant)
+            .flatMap(AccountModel::newestApplicant)
             .map(Applicant::getApplicantData)
             .map(ApplicantData::preferredLocale)
             .orElse(LocalizedStrings.DEFAULT_LOCALE);
@@ -200,7 +200,7 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setNote(Application application, NoteEvent note, Account admin) {
+  public void setNote(Application application, NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)

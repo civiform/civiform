@@ -9,7 +9,7 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
-import models.Account;
+import models.AccountModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void edit_rendersFormWithExistingAdmins() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram("Existing Admins").buildDefinition();
-    Account existingAdmin = resourceCreator.insertAccount();
+    AccountModel existingAdmin = resourceCreator.insertAccount();
     existingAdmin.setEmailAddress("test@test.com");
     existingAdmin.addAdministeredProgram(program);
     existingAdmin.save();
@@ -68,7 +68,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String email = "add me";
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(email);
     account.save();
 
@@ -88,7 +88,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String deleteEmail = "delete me";
-    Account deleteAccount = new Account();
+    AccountModel deleteAccount = new AccountModel();
     deleteAccount.setEmailAddress(deleteEmail);
     deleteAccount.addAdministeredProgram(program.getProgramDefinition());
     deleteAccount.save();
@@ -112,7 +112,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String adminEmail = "admin";
-    Account adminAccount = new Account();
+    AccountModel adminAccount = new AccountModel();
     adminAccount.setEmailAddress(adminEmail);
     adminAccount.addAdministeredProgram(program.getProgramDefinition());
     adminAccount.save();

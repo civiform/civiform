@@ -19,10 +19,10 @@ import javax.persistence.Table;
 public class TrustedIntermediaryGroup extends BaseModel {
 
   @OneToMany(mappedBy = "memberOfGroup")
-  private List<Account> tiAccounts;
+  private List<AccountModel> tiAccounts;
 
   @OneToMany(mappedBy = "managedByGroup")
-  private List<Account> managedAccounts;
+  private List<AccountModel> managedAccounts;
 
   private String name;
   private String description;
@@ -32,14 +32,14 @@ public class TrustedIntermediaryGroup extends BaseModel {
     this.description = description;
   }
 
-  public ImmutableList<Account> getTrustedIntermediaries() {
+  public ImmutableList<AccountModel> getTrustedIntermediaries() {
     return ImmutableList.copyOf(tiAccounts);
   }
 
   /** Get all the accounts, sorted by applicant name. */
-  public ImmutableList<Account> getManagedAccounts() {
+  public ImmutableList<AccountModel> getManagedAccounts() {
     return managedAccounts.stream()
-        .sorted(Comparator.comparing(Account::getApplicantName))
+        .sorted(Comparator.comparing(AccountModel::getApplicantName))
         .collect(ImmutableList.toImmutableList());
   }
 

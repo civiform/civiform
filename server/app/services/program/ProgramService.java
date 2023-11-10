@@ -24,7 +24,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import models.Account;
+import models.AccountModel;
 import models.Application;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -706,7 +706,7 @@ public final class ProgramService {
   public ImmutableList<String> getNotificationEmailAddresses(String programName) {
     ImmutableList<String> explicitProgramAdmins =
         programRepository.getProgramAdministrators(programName).stream()
-            .map(Account::getEmailAddress)
+            .map(AccountModel::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(ImmutableList.toImmutableList());
     // If there are any program admins, return them.
@@ -715,7 +715,7 @@ public final class ProgramService {
     }
     // Return all the global admins email addresses.
     return accountRepository.getGlobalAdmins().stream()
-        .map(Account::getEmailAddress)
+        .map(AccountModel::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
   }
