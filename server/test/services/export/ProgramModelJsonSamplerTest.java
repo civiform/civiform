@@ -24,7 +24,7 @@ import services.program.StatusDefinitions;
 import services.question.types.QuestionDefinition;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProgramJsonSamplerTest extends ResetPostgres {
+public class ProgramModelJsonSamplerTest extends ResetPostgres {
 
   private static final Stream<QuestionDefinition> ALL_SAMPLE_QUESTION_DEFINITIONS_WITH_IDS_STREAM =
       ALL_SAMPLE_QUESTION_DEFINITIONS.stream().map(QuestionDefinition::withPopulatedTestId);

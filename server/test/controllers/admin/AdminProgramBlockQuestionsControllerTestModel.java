@@ -10,7 +10,7 @@ import static play.test.Helpers.stubMessagesApi;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -26,7 +26,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramBlocksView;
 
-public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
+public class AdminProgramBlockQuestionsControllerTestModel extends ResetPostgres {
 
   private AdminProgramBlockQuestionsController controller;
 
@@ -48,7 +48,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             .build();
     testQuestionBank.maybeSave(toUpdate, LifecycleStage.DRAFT);
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
-    Program program = programBuilder.withBlock("block1").build();
+    ProgramModel program = programBuilder.withBlock("block1").build();
 
     // Execute.
     Request request =
@@ -103,7 +103,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     QuestionDefinition addressQuestion =
         testQuestionBank.applicantAddress().getQuestionDefinition();
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
-    Program program =
+    ProgramModel program =
         programBuilder
             .withBlock("block1")
             .withOptionalQuestion(nameQuestion)
@@ -139,7 +139,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     // Setup.
     QuestionDefinition nameQuestion = testQuestionBank.applicantName().getQuestionDefinition();
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
-    Program program = programBuilder.withBlock("block1").withOptionalQuestion(nameQuestion).build();
+    ProgramModel program = programBuilder.withBlock("block1").withOptionalQuestion(nameQuestion).build();
     BlockDefinition block = program.getProgramDefinition().getLastBlockDefinition();
 
     // Missing position value.

@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.applicant.exception.ApplicantNotFoundException;
@@ -62,7 +62,7 @@ public final class ApplicationRepository {
 
   @VisibleForTesting
   public CompletionStage<Application> submitApplication(
-      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
+    Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     return supplyAsync(
         () -> submitApplicationInternal(applicant, program, tiSubmitterEmail),
         executionContext.current());
@@ -83,7 +83,7 @@ public final class ApplicationRepository {
   }
 
   private Application submitApplicationInternal(
-      Applicant applicant, Program program, Optional<String> tiSubmitterEmail) {
+    Applicant applicant, ProgramModel program, Optional<String> tiSubmitterEmail) {
     database.beginTransaction();
     try {
       List<Application> oldApplications =
@@ -177,7 +177,7 @@ public final class ApplicationRepository {
       long applicantId, long programId, Function<ApplicationArguments, Application> fn) {
     CompletionStage<Optional<Applicant>> applicantDb =
         accountRepository.lookupApplicant(applicantId);
-    CompletionStage<Optional<Program>> programDb = programRepository.lookupProgram(programId);
+    CompletionStage<Optional<ProgramModel>> programDb = programRepository.lookupProgram(programId);
     return applicantDb
         .thenCombineAsync(
             programDb,
@@ -227,16 +227,16 @@ public final class ApplicationRepository {
   // Need to transmit both arguments to submitApplication through the CompletionStage pipeline.
   // Not useful in the API, not needed more broadly.
   private static final class ApplicationArguments {
-    public Program program;
+    public ProgramModel program;
     public Applicant applicant;
 
-    public ApplicationArguments(Program program, Applicant applicant) {
+    public ApplicationArguments(ProgramModel program, Applicant applicant) {
       this.program = program;
       this.applicant = applicant;
     }
   }
 
-  private Application createOrUpdateDraftApplicationInternal(Applicant applicant, Program program) {
+  private Application createOrUpdateDraftApplicationInternal(Applicant applicant, ProgramModel program) {
     database.beginTransaction();
     try {
       Optional<Application> existingDraft =
@@ -258,7 +258,7 @@ public final class ApplicationRepository {
   }
 
   @VisibleForTesting
-  CompletionStage<Application> createOrUpdateDraft(Applicant applicant, Program program) {
+  CompletionStage<Application> createOrUpdateDraft(Applicant applicant, ProgramModel program) {
     return supplyAsync(
         () -> createOrUpdateDraftApplicationInternal(applicant, program),
         executionContext.current());
@@ -286,7 +286,7 @@ public final class ApplicationRepository {
   /**
    * Get all applications with the specified {@link LifecycleStage}s for an applicant.
    *
-   * <p>The {@link Program} associated with the application is eagerly loaded.
+   * <p>The {@link ProgramModel} associated with the application is eagerly loaded.
    */
   public CompletionStage<ImmutableSet<Application>> getApplicationsForApplicant(
       long applicantId, ImmutableSet<LifecycleStage> stages) {

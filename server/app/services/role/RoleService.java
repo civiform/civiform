@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.Account;
+import models.ProgramModel;
 import repository.AccountRepository;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
@@ -43,7 +44,7 @@ public final class RoleService {
    * admins. Instead, we return a {@link CiviFormError} listing the admin accounts that could not be
    * promoted to program admins.
    *
-   * @param programId the ID of the {@link models.Program} these accounts administer
+   * @param programId the ID of the {@link ProgramModel} these accounts administer
    * @param accountEmails a {@link ImmutableSet} of account emails to make program admins
    * @return {@link Optional#empty()} if all accounts were promoted to program admins, or an {@link
    *     Optional} of a {@link CiviFormError} listing the accounts that could not be promoted to

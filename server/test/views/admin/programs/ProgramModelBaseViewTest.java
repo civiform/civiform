@@ -23,7 +23,7 @@ import support.TestQuestionBank;
 import views.ViewUtils.ProgramDisplayType;
 
 @RunWith(JUnitParamsRunner.class)
-public class ProgramBaseViewTest {
+public class ProgramModelBaseViewTest {
 
   private static final String BLOCK_NAME = "Block_name";
   private TestQuestionBank testQuestionBank = new TestQuestionBank(/* canSave= */ false);

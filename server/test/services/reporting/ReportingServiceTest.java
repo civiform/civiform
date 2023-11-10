@@ -10,7 +10,7 @@ import java.util.List;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -27,8 +27,8 @@ public class ReportingServiceTest extends ResetPostgres {
 
   private ReportingService service;
   private Applicant applicant;
-  private Program programA;
-  private Program programB;
+  private ProgramModel programA;
+  private ProgramModel programB;
 
   @Before
   public void setUp() {
@@ -137,7 +137,7 @@ public class ReportingServiceTest extends ResetPostgres {
   }
 
   private Application createFakeApplication(
-      Program program, Instant createTime, Instant submitTime) {
+          ProgramModel program, Instant createTime, Instant submitTime) {
     Application application = new Application(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();

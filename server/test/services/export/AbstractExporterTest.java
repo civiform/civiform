@@ -11,7 +11,7 @@ import models.Account;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import org.junit.Before;
 import repository.ResetPostgres;
@@ -51,10 +51,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   private ProgramAdminApplicationService programAdminApplicationService;
 
-  protected Program fakeProgramWithEnumerator;
-  protected Program fakeProgramWithEligibility;
-  protected Program fakeProgramWithOptionalFileUpload;
-  protected Program fakeProgram;
+  protected ProgramModel fakeProgramWithEnumerator;
+  protected ProgramModel fakeProgramWithEligibility;
+  protected ProgramModel fakeProgramWithOptionalFileUpload;
+  protected ProgramModel fakeProgram;
   protected ImmutableList<Question> fakeQuestions;
   protected Applicant applicantOne;
   protected Applicant applicantFive;
@@ -184,7 +184,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   private Application createFakeApplication(
       Applicant applicant,
       @Nullable Account admin,
-      Program program,
+      ProgramModel program,
       LifecycleStage lifecycleStage,
       @Nullable String status)
       throws Exception {
@@ -543,7 +543,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    Program build() {
+    ProgramModel build() {
       if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
         fakeProgramBuilder
             .withBlock()
@@ -572,11 +572,11 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   static class FakeApplicationFiller {
     Account admin;
     Applicant applicant;
-    Program program;
+    ProgramModel program;
     Optional<Account> trustedIntermediary = Optional.empty();
     Application application;
 
-    public FakeApplicationFiller(Program program) {
+    public FakeApplicationFiller(ProgramModel program) {
       this.program = program;
       this.applicant = resourceCreator.insertApplicantWithAccount();
       this.admin = resourceCreator.insertAccount();

@@ -3,6 +3,8 @@ package services.applicant;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
+
+import models.ProgramModel;
 import services.Path;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.Question;
@@ -21,7 +23,7 @@ public abstract class AnswerData {
     return new AutoValue_AnswerData.Builder();
   }
 
-  /** The {@link models.Program} id that this is currently in the context of. */
+  /** The {@link ProgramModel} id that this is currently in the context of. */
   public abstract Long programId();
 
   /** The {@link Block} id for where this question resides within the current program. */

@@ -10,7 +10,7 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import models.Account;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -20,7 +20,7 @@ import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class ProgramAdminManagementControllerTest extends ResetPostgres {
+public class ProgramModelAdminManagementControllerTest extends ResetPostgres {
 
   private AccountRepository accountRepository;
   private ProgramAdminManagementController controller;
@@ -33,7 +33,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
   @Test
   public void edit_rendersForm() {
-    Program program = ProgramBuilder.newDraftProgram("Success").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("Success").build();
 
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id);
 
@@ -65,7 +65,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void add_succeeds() {
     String programName = "add test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String email = "add me";
     Account account = new Account();
@@ -85,7 +85,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void delete_succeeds() {
     String programName = "delete test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String deleteEmail = "delete me";
     Account deleteAccount = new Account();
@@ -109,7 +109,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void delete_nonExistentEmail_doesNotReturnError() {
     String programName = "delete test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String adminEmail = "admin";
     Account adminAccount = new Account();

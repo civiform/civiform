@@ -15,7 +15,7 @@ import java.util.Base64;
 import java.util.Optional;
 import models.ApiKey;
 import models.Application;
-import models.Program;
+import models.ProgramModel;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +24,7 @@ import play.mvc.Result;
 import services.applicant.JsonPathProvider;
 import services.export.AbstractExporterTest;
 
-public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
+public class ProgramModelApplicationsApiControllerTest extends AbstractExporterTest {
 
   private static final String keyId = "key-id";
   private static final String keySecret = "key-secret";
@@ -134,7 +134,7 @@ public class ProgramApplicationsApiControllerTest extends AbstractExporterTest {
 
   @Test
   public void list_unauthorized() {
-    Program program = resourceCreator.insertActiveProgram("test-program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test-program");
 
     String requestUrl =
         controllers.api.routes.ProgramApplicationsApiController.list(

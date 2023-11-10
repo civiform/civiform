@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import models.Application;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Test;
 import repository.SubmittedApplicationFilter;
 import services.CfJsonDocumentContext;
@@ -164,7 +164,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   }
 
   private void testApplicationTopLevelAnswers(
-      Program program, ResultAsserter resultAsserter, Application application, int resultIndex) {
+    ProgramModel program, ResultAsserter resultAsserter, Application application, int resultIndex) {
     resultAsserter.assertValueAtPath(
         "$[" + resultIndex + "].program_name", program.getProgramDefinition().adminName());
     resultAsserter.assertValueAtPath("$[" + resultIndex + "].program_version_id", program.id);
@@ -659,7 +659,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenEnumeratorQuestionIsNotAnswered_valueInResponseIsEmptyArray() {
     createFakeQuestions();
-    Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    ProgramModel fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram).answerEnumeratorQuestion(ImmutableList.of()).submit();
 
     JsonExporter exporter = instanceOf(JsonExporter.class);
@@ -684,7 +684,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   public void
       export_whenEnumeratorAndRepeatedQuestionsAreAnswered_repeatedQuestionsHaveAnswerInResponse() {
     createFakeQuestions();
-    Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    ProgramModel fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram)
         .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
         .answerRepeatedTextQuestion("tswift", "hearts")
@@ -724,7 +724,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   public void
       export_whenEnumeratorQuestionIsAnsweredAndRepeatedQuestionIsNot_repeatedQuestionsHaveNullAnswers() {
     createFakeQuestions();
-    Program fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
+    ProgramModel fakeProgram = new FakeProgramBuilder().withHouseholdMembersEnumeratorQuestion().build();
     new FakeApplicationFiller(fakeProgram)
         .answerEnumeratorQuestion(ImmutableList.of("carly rae", "tswift"))
         .submit();
@@ -761,7 +761,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   @Test
   public void export_whenNestedEnumeratorQuestionsAreNotAnswered_valueInResponseIsEmptyArray() {
     createFakeQuestions();
-    Program fakeProgram =
+    ProgramModel fakeProgram =
         new FakeProgramBuilder()
             .withHouseholdMembersEnumeratorQuestion()
             .withHouseholdMembersJobsNestedEnumeratorQuestion()
@@ -811,7 +811,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   public void
       export_whenNestedEnumeratorQuestionsAreAnsweredAndRepeatedQuestionsAreNot_theyAllHaveEntityNames() {
     createFakeQuestions();
-    Program fakeProgram =
+    ProgramModel fakeProgram =
         new FakeProgramBuilder()
             .withHouseholdMembersEnumeratorQuestion()
             .withHouseholdMembersJobsNestedEnumeratorQuestion()
@@ -887,7 +887,7 @@ public class JsonExporterTest extends AbstractExporterTest {
   public void
       export_whenNestedEnumeratorAndRepeatedQuestionsAreAnswered_theyHaveAnswersInResponse() {
     createFakeQuestions();
-    Program fakeProgram =
+    ProgramModel fakeProgram =
         new FakeProgramBuilder()
             .withHouseholdMembersEnumeratorQuestion()
             .withHouseholdMembersJobsNestedEnumeratorQuestion()

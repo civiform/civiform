@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
 import models.Account;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import repository.AccountRepository;
@@ -39,7 +39,7 @@ public class RoleServiceTest extends ResetPostgres {
     account2.save();
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     Optional<CiviFormError> result =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
@@ -62,7 +62,7 @@ public class RoleServiceTest extends ResetPostgres {
     account.save();
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     // Make the lower case email a program admin.
     Optional<CiviFormError> lowerCaseResult =
@@ -114,7 +114,7 @@ public class RoleServiceTest extends ResetPostgres {
     String email = "admin_does_not_exist@email.com";
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email));
@@ -137,7 +137,7 @@ public class RoleServiceTest extends ResetPostgres {
     String email2 = "second_admin_does_not_exist@email.com";
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     Optional<CiviFormError> lowerCaseResult =
         service.makeProgramAdmins(program.id, ImmutableSet.of(email1, email2));
@@ -202,7 +202,7 @@ public class RoleServiceTest extends ResetPostgres {
     globalAdmin.save();
 
     String programName = "test program";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     assertThat(service.makeProgramAdmins(program.id, ImmutableSet.of(globalAdminEmail)))
         .isEqualTo(

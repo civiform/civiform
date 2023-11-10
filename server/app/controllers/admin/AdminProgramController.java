@@ -12,7 +12,7 @@ import forms.ProgramForm;
 import forms.ProgramSettingsForm;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Program;
+import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -194,7 +194,7 @@ public final class AdminProgramController extends CiviFormController {
       // If there's already a draft then use that, likely the client is out of date and unaware a
       // draft exists.
       // TODO(#2246): Implement FE staleness detection system to handle this more robustly.
-      Optional<Program> existingDraft =
+      Optional<ProgramModel> existingDraft =
           versionRepository.getProgramByNameForVersion(
               programService.getProgramDefinition(programId).adminName(),
               versionRepository.getDraftVersionOrCreate());

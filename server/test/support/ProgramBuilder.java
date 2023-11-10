@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import models.DisplayMode;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import models.Version;
 import play.inject.Injector;
@@ -55,7 +55,7 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates {@link ProgramBuilder} with a new {@link Program} with an empty name and description,
+   * Creates {@link ProgramBuilder} with a new {@link ProgramModel} with an empty name and description,
    * in draft state.
    */
   public static ProgramBuilder newDraftProgram() {
@@ -63,18 +63,18 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} with an empty description, in draft
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} with an empty description, in draft
    * state.
    */
   public static ProgramBuilder newDraftProgram(String name) {
     return newDraftProgram(name, "");
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
+  /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in draft state. */
   public static ProgramBuilder newDraftProgram(String name, String description) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             name,
             description,
             name,
@@ -92,10 +92,10 @@ public class ProgramBuilder {
     return new ProgramBuilder(program.id, builder);
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} in draft state. */
+  /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in draft state. */
   public static ProgramBuilder newDraftProgram(ProgramDefinition programDefinition) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program = new Program(programDefinition, versionRepository.getDraftVersionOrCreate());
+    ProgramModel program = new ProgramModel(programDefinition, versionRepository.getDraftVersionOrCreate());
     program.save();
     ProgramDefinition.Builder builder =
         program.getProgramDefinition().toBuilder().setBlockDefinitions(ImmutableList.of());
@@ -103,7 +103,7 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} in active state, with blank
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state, with blank
    * description and name.
    */
   public static ProgramBuilder newActiveProgram() {
@@ -111,20 +111,20 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with a blank
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a blank
    * description.
    */
   public static ProgramBuilder newActiveProgram(String name) {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, /* description= */ "");
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} in the active state. */
+  /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state. */
   public static ProgramBuilder newActiveProgram(String name, String description) {
     return newActiveProgram(/* adminName= */ name, /* displayName= */ name, description);
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with a blank
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with a blank
    * description.
    */
   public static ProgramBuilder newActiveProgramWithDisplayName(
@@ -133,7 +133,7 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} in the active state, with the type
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in the active state, with the type
    * ProgramType.COMMON_INTAKE_FORM.
    */
   public static ProgramBuilder newActiveCommonIntakeForm(String name) {
@@ -144,18 +144,18 @@ public class ProgramBuilder {
         ProgramType.COMMON_INTAKE_FORM);
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
+  /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description) {
     return newActiveProgram(adminName, displayName, description, ProgramType.DEFAULT);
   }
 
-  /** Creates a {@link ProgramBuilder} with a new {@link Program} in active state. */
+  /** Creates a {@link ProgramBuilder} with a new {@link ProgramModel} in active state. */
   public static ProgramBuilder newActiveProgram(
       String adminName, String displayName, String description, ProgramType programType) {
     VersionRepository versionRepository = injector.instanceOf(VersionRepository.class);
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             adminName,
             description,
             displayName,
@@ -174,14 +174,14 @@ public class ProgramBuilder {
   }
 
   /**
-   * Creates a {@link ProgramBuilder} with a new {@link Program} associated with an obsolete
+   * Creates a {@link ProgramBuilder} with a new {@link ProgramModel} associated with an obsolete
    * Version.
    */
   public static ProgramBuilder newObsoleteProgram(String adminName) {
     Version obsoleteVersion = new Version(LifecycleStage.OBSOLETE);
     obsoleteVersion.save();
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             adminName,
             adminName,
             adminName,
@@ -257,18 +257,18 @@ public class ProgramBuilder {
 
   /** Returns the {@link ProgramDefinition} built from this {@link ProgramBuilder}. */
   public ProgramDefinition buildDefinition() {
-    Program program = build();
+    ProgramModel program = build();
     return program.getProgramDefinition();
   }
 
-  /** Returns the {@link Program} built from this {@link ProgramBuilder}. */
-  public Program build() {
+  /** Returns the {@link ProgramModel} built from this {@link ProgramBuilder}. */
+  public ProgramModel build() {
     ProgramDefinition programDefinition = builder.build();
     if (programDefinition.blockDefinitions().isEmpty()) {
       return withBlock().build();
     }
 
-    Program program = programDefinition.toProgram();
+    ProgramModel program = programDefinition.toProgram();
     program.update();
     return program;
   }
@@ -499,10 +499,10 @@ public class ProgramBuilder {
     }
 
     /**
-     * Returns the {@link Program} built from the {@link ProgramBuilder} with this {@link
+     * Returns the {@link ProgramModel} built from the {@link ProgramBuilder} with this {@link
      * BlockBuilder}.
      */
-    public Program build() {
+    public ProgramModel build() {
       programBuilder.builder.addBlockDefinition(blockDefBuilder.build());
       return programBuilder.build();
     }

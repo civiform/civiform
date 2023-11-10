@@ -26,8 +26,8 @@ public class VersionTest extends ResetPostgres {
   @Test
   public void addAndRemoveProgram() {
     Version version = versionRepository.getDraftVersionOrCreate();
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             "adminName",
             "adminDescription",
             "displayName",
@@ -68,7 +68,7 @@ public class VersionTest extends ResetPostgres {
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
 
-    Optional<Program> result = versionRepository.getProgramByNameForVersion(programName, version);
+    Optional<ProgramModel> result = versionRepository.getProgramByNameForVersion(programName, version);
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().getProgramDefinition().adminName()).isEqualTo(programName);
   }
@@ -80,7 +80,7 @@ public class VersionTest extends ResetPostgres {
     resourceCreator.insertDraftProgram(programName);
     version.refresh();
 
-    Optional<Program> result =
+    Optional<ProgramModel> result =
         versionRepository.getProgramByNameForVersion(programName + "other", version);
     assertThat(result.isPresent()).isFalse();
   }
@@ -89,11 +89,11 @@ public class VersionTest extends ResetPostgres {
   public void getProgramNames() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String programNameTwo = "programtwo";
-    Program programTwo = resourceCreator.insertDraftProgram(programNameTwo);
+    ProgramModel programTwo = resourceCreator.insertDraftProgram(programNameTwo);
     String programNameThree = "programthree";
-    Program programThree = resourceCreator.insertDraftProgram(programNameThree);
+    ProgramModel programThree = resourceCreator.insertDraftProgram(programNameThree);
 
     version.addProgram(programOne);
     version.addProgram(programTwo);
@@ -128,11 +128,11 @@ public class VersionTest extends ResetPostgres {
   public void getTombstonedProgramNames() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String tombstonedProgramNameOne = "tombstoneOne";
-    Program tombstonedProgramOne = resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
+    ProgramModel tombstonedProgramOne = resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
     String tombstonedProgramNameTwo = "tombstoneTwo";
-    Program tombstonedProgramTwo = resourceCreator.insertDraftProgram(tombstonedProgramNameTwo);
+    ProgramModel tombstonedProgramTwo = resourceCreator.insertDraftProgram(tombstonedProgramNameTwo);
 
     version.addProgram(programOne);
     version.addProgram(tombstonedProgramOne);
@@ -192,9 +192,9 @@ public class VersionTest extends ResetPostgres {
   public void programIsTombstoned() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     String tombstonedProgramNameOne = "tombstoneOne";
-    Program tombstonedProgramOne = resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
+    ProgramModel tombstonedProgramOne = resourceCreator.insertDraftProgram(tombstonedProgramNameOne);
 
     version.addProgram(programOne);
     version.addProgram(tombstonedProgramOne);
@@ -287,7 +287,7 @@ public class VersionTest extends ResetPostgres {
   public void removeTombstoneForProgram() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
 
     version.addProgram(programOne);
     version.addTombstoneForProgramForTest(programOne);
@@ -304,7 +304,7 @@ public class VersionTest extends ResetPostgres {
   public void removeTombstoneForProgram_forNonTombstonedProgram() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     version.addProgram(programOne);
 
     boolean suceeded = version.removeTombstoneForProgram(programOne);
@@ -328,7 +328,7 @@ public class VersionTest extends ResetPostgres {
   public void hasAnyChanges_hasTombstonedPrograms() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     version.addTombstoneForProgramForTest(programOne);
 
     assertThat(version.hasAnyChanges()).isTrue();
@@ -348,7 +348,7 @@ public class VersionTest extends ResetPostgres {
   public void hasAnyChanges_hasPrograms() {
     Version version = versionRepository.getDraftVersionOrCreate();
     String programNameOne = "programone";
-    Program programOne = resourceCreator.insertDraftProgram(programNameOne);
+    ProgramModel programOne = resourceCreator.insertDraftProgram(programNameOne);
     version.addProgram(programOne);
 
     assertThat(version.hasAnyChanges()).isTrue();

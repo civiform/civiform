@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ import support.ProgramBuilder;
 import views.style.ReferenceClasses;
 
 @RunWith(JUnitParamsRunner.class)
-public class AdminProgramStatusesControllerTest extends ResetPostgres {
+public class AdminProgramStatusesControllerTestModel extends ResetPostgres {
 
   private ProgramService programService;
   private AdminProgramStatusesController controller;
@@ -83,7 +83,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void index_ok_get() throws ProgramNotFoundException {
-    Program program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
 
     Result result = controller.index(addCSRFToken(fakeRequest().method("GET")).build(), program.id);
 
@@ -94,7 +94,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void index_ok_noEmailOrDefaultForStatus() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(
                 new StatusDefinitions(
@@ -117,7 +117,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_createNewStatus() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -154,7 +154,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_createNewStatusAsDefault() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -233,7 +233,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editExistingStatus() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -268,7 +268,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Test
   public void update_editExistingStatusPreservesNonDefaultLocaleTranslations()
       throws ProgramNotFoundException, TranslationNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -315,7 +315,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Test
   public void update_editExistingStatusClearEmailClearsTranslatedEmailContent()
       throws ProgramNotFoundException, TranslationNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -354,7 +354,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editExistingStatusMakeDefault() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -425,7 +425,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_emptyStatusParam() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -448,7 +448,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editStatusNameAlreadyExists() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -472,7 +472,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_editUnrecognizedStatusName() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -496,7 +496,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void update_createStatusNameAlreadyExists() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -531,7 +531,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
   @Test
   @Parameters({"GET", "POST"})
   public void index_nonDraftProgram(String httpMethod) {
-    Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
 
     assertThatThrownBy(
             () ->
@@ -542,7 +542,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_ok() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -564,7 +564,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_unrecognizedStatusParam() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -584,7 +584,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_missingStatusParam() throws ProgramNotFoundException {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("test name", "test description")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .build();
@@ -606,7 +606,7 @@ public class AdminProgramStatusesControllerTest extends ResetPostgres {
 
   @Test
   public void delete_nonDraftProgram() {
-    Program program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
 
     assertThatThrownBy(() -> makeDeleteRequest(program.id, ImmutableMap.of()))
         .isInstanceOf(NotChangeableException.class);

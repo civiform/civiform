@@ -13,7 +13,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import java.util.Locale;
 import java.util.Optional;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -26,7 +26,7 @@ import services.program.ProgramNotFoundException;
 import services.program.StatusDefinitions;
 import support.ProgramBuilder;
 
-public class AdminProgramTranslationsControllerTest extends ResetPostgres {
+public class AdminProgramTranslationsControllerTestModel extends ResetPostgres {
 
   private static final Locale ES_LOCALE = Locale.forLanguageTag("es-US");
 
@@ -56,7 +56,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_defaultLocaleRedirectsWithError() throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Result result =
         controller.edit(
@@ -72,7 +72,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void edit_rendersFormWithExistingContent_otherLocale() throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Result result =
         controller.edit(
@@ -105,7 +105,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void edit_rendersFormWithExistingContent_noStatusEmail_otherLocale()
       throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_NO_EMAIL);
 
     Result result =
         controller.edit(
@@ -144,7 +144,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_savesNewFields() throws Exception {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -228,7 +228,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
   @Test
   public void update_validationErrors_rendersEditFormWithMessages()
       throws ProgramNotFoundException {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -268,7 +268,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Test
   public void update_outOfSyncFormData_redirectsToFreshData() throws Exception {
-    Program program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
+    ProgramModel program = createDraftProgramEnglishAndSpanish(STATUSES_WITH_EMAIL);
 
     Http.RequestBuilder requestBuilder =
         fakeRequest()
@@ -304,7 +304,7 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
     assertProgramNotChanged(program);
   }
 
-  private void assertProgramNotChanged(Program initialProgram) {
+  private void assertProgramNotChanged(ProgramModel initialProgram) {
     ProgramDefinition freshProgram =
         programRepository
             .lookupProgram(initialProgram.id)
@@ -358,12 +358,12 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
                       .updateTranslation(ES_LOCALE, SPANISH_SECOND_STATUS_TEXT))
               .build());
 
-  private Program createDraftProgramEnglishAndSpanish(
+  private ProgramModel createDraftProgramEnglishAndSpanish(
       ImmutableList<StatusDefinitions.Status> statuses) {
-    Program initialProgram = ProgramBuilder.newDraftProgram("Internal program name").build();
+    ProgramModel initialProgram = ProgramBuilder.newDraftProgram("Internal program name").build();
     // ProgamBuilder initializes the localized name and doesn't currently support providing
     // overrides. Here we manually update the localized string in a separate update.
-    Program program =
+    ProgramModel program =
         initialProgram.getProgramDefinition().toBuilder()
             .setLocalizedName(
                 LocalizedStrings.withDefaultValue(ENGLISH_DISPLAY_NAME)

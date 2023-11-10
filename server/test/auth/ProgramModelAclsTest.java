@@ -10,7 +10,7 @@ import models.TrustedIntermediaryGroup;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ProgramAclsTest extends WithMockedProfiles {
+public class ProgramModelAclsTest extends WithMockedProfiles {
 
   private CiviFormProfile tiProfileOne;
   private CiviFormProfile tiProfileTwo;
