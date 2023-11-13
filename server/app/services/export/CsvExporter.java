@@ -8,7 +8,6 @@ import com.google.common.hash.Hashing;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -88,10 +87,10 @@ public final class CsvExporter implements AutoCloseable {
                 .getSelectedOptionAdminNames()
                 .map(selectedOptions -> selectedOptions.stream().collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
-        List<String> allOptionsShownInQuestion = new ArrayList<>();
-        answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
-            .map(o -> o.adminName())
-            .collect(Collectors.toList());
+        List<String> allOptionsShownInQuestion =
+            answerData.applicantQuestion().createMultiSelectQuestion().getOptions().stream()
+                .map(o -> o.adminName())
+                .collect(Collectors.toList());
 
         optionHeaders.forEach(
             option -> {
