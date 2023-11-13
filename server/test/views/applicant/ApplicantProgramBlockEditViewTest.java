@@ -29,7 +29,8 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
           Mockito.mock(ApplicantQuestionRendererFactory.class));
 
   @Test
-  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isFirstQuestionWithErrors_shouldAutofocusFirstError() {
+  public void
+      calculateAutoFocusTarget_formHasErrors_displayErrors_isFirstQuestionWithErrors_shouldAutofocusFirstError() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
@@ -41,7 +42,8 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void calculateAutoFocusTarget_formHasErrors_hideErrors_isFirstQuestionWithErrors_shouldNotAutofocus() {
+  public void
+      calculateAutoFocusTarget_formHasErrors_hideErrors_isFirstQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
@@ -53,7 +55,8 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors_shouldNotAutofocus() {
+  public void
+      calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
@@ -65,7 +68,8 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void calculateAutoFocusTarget_noErrors_displayErrors_noApplicantSelectedQuestionName_shouldNotAutofocus() {
+  public void
+      calculateAutoFocusTarget_noErrors_displayErrors_noApplicantSelectedQuestionName_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
