@@ -14,7 +14,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.Program;
+import models.ProgramModel;
 import org.postgresql.util.PGInterval;
 import services.reporting.ApplicationSubmissionsStat;
 
@@ -23,7 +23,7 @@ public final class ReportingRepository {
 
   private final Clock clock;
   private final Database database;
-  private final ImmutableList<Program> listOfPrograms;
+  private final ImmutableList<ProgramModel> listOfPrograms;
 
   @Inject
   public ReportingRepository(Clock clock, Provider<VersionRepository> versionRepositoryProvider) {
@@ -61,7 +61,7 @@ public final class ReportingRepository {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private Optional<Program> getProgram(String name) {
+  private Optional<ProgramModel> getProgram(String name) {
     return listOfPrograms.stream()
         .filter(p -> p.getProgramDefinition().adminName().equals(name))
         .findAny();
