@@ -13,7 +13,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 
 /** A view for admins to update the image associated with a particular program. */
-public class ProgramImageView {
+public final class ProgramImageView {
   private final AdminLayout layout;
 
   @Inject
