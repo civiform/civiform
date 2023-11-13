@@ -26,6 +26,8 @@ content.requiredFieldsNote=Nota: Los campos marcados con un {0} son obligatorios
 content.optional=(opcional)
 content.mobileFileUploadHelp=¿Estás usando el teléfono? "Elegir archivo" también te permite usar la cámara del teléfono para cargar documentos.
 toast.errorMessageOutline=Error: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Cerrar
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -149,7 +151,7 @@ content.commonIntakeConfirmationTi=Tu cliente puede obtener estos beneficios si 
 content.commonIntakeNoMatchingPrograms=El proceso de evaluación no encontró programas para los que reúnas los requisitos en este momento. No obstante, puedes solicitar beneficios en cualquier momento si haces clic en "Postularse a programas". Para ver programas de beneficios adicionales, visita {0}.
 content.commonIntakeNoMatchingProgramsTi=El proceso de evaluación no encontró programas para los que tu cliente reúna los requisitos en este momento. No obstante, puedes solicitar beneficios en cualquier momento si haces clic en "Postularse a programas". Para ver programas de beneficios adicionales, visita {0}.
 content.commonIntakeNoMatchingProgramsNextStep=También puedes volver a la página anterior para editar tus respuestas.
-button.downloadPdf=Download PDF
+button.downloadPdf=Descargar PDF
 button.applyToPrograms=Postularse a programas
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +286,7 @@ validation.textTooShort=Debe tener más de {0} caracteres.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Las preguntas con varias respuestas no pueden tener opciones vacías.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +311,14 @@ email.tiManageYourClients=Administra tus clientes en {0}.
 email.applicationUpdateSubject=Una actualización de tu solicitud {0}
 email.tiApplicationUpdateSubject=Una actualización de la solicitud para el programa {0} en nombre del solicitante {1}
 email.tiApplicationUpdateBody=El estado del solicitante {0} en el programa {1} cambió a {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.

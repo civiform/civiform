@@ -26,6 +26,8 @@ content.requiredFieldsNote=Tandaan: Nire-require ang mga field na may markang {0
 content.optional=(opsyonal)
 content.mobileFileUploadHelp=Ginagamit ang iyong telepono? Binibigyang-daan ka rin ng "Pumili ng File" na gamitin ang camera ng iyong telepono para mag-upload ng mga dokumento.
 toast.errorMessageOutline=Error: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Isara
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -149,7 +151,7 @@ content.commonIntakeConfirmationTi=Puwedeng makuha ng iyong client ang mga benep
 content.commonIntakeNoMatchingPrograms=Hindi makahanap ang pre-screener ng mga programa kung saan puwede kang maging kwalipikado sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsTi=Hindi makahanap ang pre-screener ng mga programa kung saan puwedeng maging kwalipikado ang iyong client sa panahong ito. Pero puwede kang mag-apply sa mga benepisyo anumang oras sa pamamagitan ng pag-click sa "Mag-apply sa mga programa." O para tingnan ang mga karagdagang programa para sa benepisyo, puwede kang pumunta sa {0}
 content.commonIntakeNoMatchingProgramsNextStep=Puwede ka ring bumalik sa nakaraang page para i-edit ang iyong mga sagot.
-button.downloadPdf=Download PDF
+button.downloadPdf=I-download ang PDF
 button.applyToPrograms=Mag-apply sa mga programa
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +286,7 @@ validation.textTooShort=Dapat ay naglalaman ng hindi bababa sa {0} na mga charac
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang opsyon ay hindi maaaring magkaroon ng mga blanko na mga opsyon.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +311,14 @@ email.tiManageYourClients=Pamahalaan ang iyong mga client sa {0}.
 email.applicationUpdateSubject=Update sa iyong aplikasyong {0}
 email.tiApplicationUpdateSubject=Update sa aplikasyon para sa programang {0} sa ngalan ng aplikanteng si {1}
 email.tiApplicationUpdateBody=Ang status para sa aplikanteng si {0} sa programang {1} ay naging {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.

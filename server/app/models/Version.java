@@ -41,7 +41,7 @@ public final class Version extends BaseModel {
 
   @ManyToMany
   @JoinTable(name = "versions_programs")
-  private List<Program> programs;
+  private List<ProgramModel> programs;
 
   /**
    * A tombstoned program is a program that will not be copied to the next version published. It is
@@ -72,12 +72,12 @@ public final class Version extends BaseModel {
     return this.submitTime;
   }
 
-  public Version addProgram(Program program) {
+  public Version addProgram(ProgramModel program) {
     this.programs.add(program);
     return this;
   }
 
-  public boolean removeProgram(Program program) {
+  public boolean removeProgram(ProgramModel program) {
     return this.programs.remove(program);
   }
 
@@ -94,7 +94,7 @@ public final class Version extends BaseModel {
    * Returns all programs of a given version. Instead of calling this function directly,
    * getProgramsForVersion should be called, since that will implement caching.
    */
-  public ImmutableList<Program> getPrograms() {
+  public ImmutableList<ProgramModel> getPrograms() {
     return ImmutableList.copyOf(programs);
   }
 
@@ -162,7 +162,7 @@ public final class Version extends BaseModel {
    *
    * @return true if the program was successfully marked as tombstoned, false otherwise.
    */
-  public boolean addTombstoneForProgramForTest(Program program) {
+  public boolean addTombstoneForProgramForTest(ProgramModel program) {
     if (this.tombstonedProgramNames == null) {
       this.tombstonedProgramNames = new ArrayList<>();
     }
@@ -177,7 +177,7 @@ public final class Version extends BaseModel {
    *
    * @return true if the program previously was tombstoned and false otherwise.
    */
-  public boolean removeTombstoneForProgram(Program program) {
+  public boolean removeTombstoneForProgram(ProgramModel program) {
     if (this.tombstonedProgramNames == null) {
       this.tombstonedProgramNames = new ArrayList<>();
     }

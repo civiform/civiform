@@ -47,7 +47,7 @@ import services.question.types.QuestionDefinition;
  */
 @Entity
 @Table(name = "programs")
-public class Program extends BaseModel {
+public class ProgramModel extends BaseModel {
 
   private ProgramDefinition programDefinition;
 
@@ -131,15 +131,15 @@ public class Program extends BaseModel {
         .findFirst();
   }
 
-  public Program(ProgramDefinition definition) {
+  public ProgramModel(ProgramDefinition definition) {
     this(definition, Optional.empty());
   }
 
-  public Program(ProgramDefinition definition, Version version) {
+  public ProgramModel(ProgramDefinition definition, Version version) {
     this(definition, Optional.of(version));
   }
 
-  private Program(ProgramDefinition definition, Optional<Version> version) {
+  private ProgramModel(ProgramDefinition definition, Optional<Version> version) {
     this.programDefinition = definition;
     this.id = definition.id();
     this.name = definition.adminName();
@@ -165,7 +165,7 @@ public class Program extends BaseModel {
   /**
    * Construct a new Program object with the given program name, description, and block definitions.
    */
-  public Program(
+  public ProgramModel(
       String adminName,
       String adminDescription,
       String defaultDisplayName,
@@ -242,7 +242,7 @@ public class Program extends BaseModel {
   }
 
   /** The majority of programs should have `localizedName` and not `legacyLocalizedName`. */
-  private Program setLocalizedName(ProgramDefinition.Builder builder) {
+  private ProgramModel setLocalizedName(ProgramDefinition.Builder builder) {
     if (localizedName != null) {
       builder.setLocalizedName(localizedName);
     } else {
@@ -255,7 +255,7 @@ public class Program extends BaseModel {
    * The majority of programs should have `localizedDescription` and not
    * `legacyLocalizedDescription`.
    */
-  private Program setLocalizedDescription(ProgramDefinition.Builder builder) {
+  private ProgramModel setLocalizedDescription(ProgramDefinition.Builder builder) {
     if (localizedDescription != null) {
       builder.setLocalizedDescription(localizedDescription);
     } else {
@@ -264,7 +264,7 @@ public class Program extends BaseModel {
     return this;
   }
 
-  private Program setLocalizedConfirmationMessage(ProgramDefinition.Builder builder) {
+  private ProgramModel setLocalizedConfirmationMessage(ProgramDefinition.Builder builder) {
     if (localizedConfirmationMessage != null) {
       builder.setLocalizedConfirmationMessage(localizedConfirmationMessage);
     } else {

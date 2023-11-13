@@ -10,7 +10,7 @@ import static play.test.Helpers.contentAsString;
 import static support.CfTestHelpers.requestBuilderWithSettings;
 
 import com.google.common.collect.ImmutableMap;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void index_withProgram_redirectsToEdit() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     Result result = controller.index(program.id);
 
@@ -57,7 +57,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void readOnlyIndex_readOnly_redirectsToShow() {
-    Program program = ProgramBuilder.newActiveProgram().build();
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
     Result result = controller.readOnlyIndex(program.id);
 
@@ -77,7 +77,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void create_withProgram_addsBlock() {
     Request request = requestBuilderWithSettings().build();
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     Result result = controller.create(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -91,7 +91,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void create_withProgram_addsRepeatedBlock() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
@@ -116,7 +116,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   @Test
   public void show_withNoneActiveProgram_throwsNotViewableException() throws Exception {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Program program = ProgramBuilder.newDraftProgram("test program").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 
     assertThatThrownBy(() -> controller.show(request, program.id, /*blockId =*/ 1L))
         .isInstanceOf(NotViewableException.class);
@@ -131,7 +131,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void show_withInvalidBlock_notFound() {
-    Program program = ProgramBuilder.newActiveProgram().build();
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
     Request request = requestBuilderWithSettings().build();
     Result result = controller.show(request, program.id, /*blockId =*/ 2L);
 
@@ -140,7 +140,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void show() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("Public name", "Public description")
             // Override only admin name and description to distinguish from applicant-visible
             // name/description.
@@ -174,7 +174,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withInvalidBlock_notFound() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     Request request = requestBuilderWithSettings().build();
     Result result = controller.edit(request, program.id, /*blockId =*/ 2L);
 
@@ -183,7 +183,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void edit() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("Public name", "Public description")
             // Override only admin name and description to distinguish from applicant-visible
             // name/description.
@@ -237,7 +237,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void update_withInvalidBlockId_notFound() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     Request request =
         requestBuilderWithSettings()
             .bodyForm(ImmutableMap.of("name", "name", "description", "description"))
@@ -285,7 +285,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void destroy_programWithTwoBlocks_redirects() {
-    Program program = ProgramBuilder.newDraftProgram().withBlock().withBlock().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().withBlock().build();
     Result result = controller.destroy(program.id, /*blockId =*/ 1L);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
@@ -295,7 +295,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void destroy_lastBlock_notFound() {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     Result result = controller.destroy(program.id, /*blockId =*/ 1L);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);

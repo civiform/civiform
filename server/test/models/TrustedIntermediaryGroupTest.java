@@ -8,9 +8,9 @@ import repository.ResetPostgres;
 public class TrustedIntermediaryGroupTest extends ResetPostgres {
   @Test
   public void testTIOrg() {
-    Account ti = new Account();
+    AccountModel ti = new AccountModel();
     ti.save();
-    Account applicant = new Account();
+    AccountModel applicant = new AccountModel();
     applicant.save();
 
     TrustedIntermediaryGroup tiGroup = new TrustedIntermediaryGroup("org", "an org");

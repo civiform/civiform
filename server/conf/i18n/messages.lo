@@ -26,6 +26,8 @@ content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອ
 content.optional=(ບໍ່ບັງຄັບ)
 content.mobileFileUploadHelp=ທ່ານຢູ່ໃນສາຍໂທບໍ? ນອກຈາກນັ້ນ, "ເລືອກໄຟລ໌" ຍັງອະນຸຍາດໃຫ້ທ່ານໃຊ້ກ້ອງຖ່າຍຮູບໃນໂທລະສັບຂອງທ່ານອັບໂຫຼດເອກະສານໄດ້ນຳ.
 toast.errorMessageOutline=ຂໍ້ຜິດພາດ: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=ປິດ
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -149,7 +151,7 @@ content.commonIntakeConfirmationTi=ລູກຄ້າຂອງທ່ານອາ
 content.commonIntakeNoMatchingPrograms=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsTi=ຕົວກວດສອບລ່ວງໜ້າບໍ່ພົບໂຄງການທີ່ລູກຄ້າຂອງທ່ານອາດມີຄຸນສົມບັດເຂົ້າຮ່ວມໃນເວລານີ້. ແນວໃດກໍຕາມ, ທ່ານອາດສະໝັກຂໍຮັບສິດທິປະໂຫຍດໄດ້ທຸກເວລາ, ໂດຍຄລິກ ''ສະໝັກເຂົ້າຮ່ວມໂຄງການ''.  ຫຼື ເພື່ອເບິ່ງໂຄງການສິດທິປະໂຫຍດເພີ່ມເຕີມ ທ່ານສາມາດເຂົ້າໄປ {0} ໄດ້
 content.commonIntakeNoMatchingProgramsNextStep=ນອກຈາກນັ້ນ, ທ່ານຍັງສາມາດກັບຄືນໄປຫາໜ້າກ່ອນໜ້ານີ້ເພື່ອແກ້ໄຂຄຳຕອບຂອງທ່ານໄດ້ນຳ.
-button.downloadPdf=Download PDF
+button.downloadPdf=ດາວໂຫຼດ PDF
 button.applyToPrograms=ສະໝັກເຂົ້າຮ່ວມໂຄງການ
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +286,7 @@ validation.textTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວ
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=ຄຳຖາມແບບຫຼາຍຕົວເລືອກບໍ່ສາມາດມີເລືອກຫວ່າງເປົ່າໄດ້.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +311,14 @@ email.tiManageYourClients=ຈັດການລູກຄ້າຂອງທ່າ
 email.applicationUpdateSubject=ການອັບເດດໃບສະໝັກ {0} ຂອງທ່ານ
 email.tiApplicationUpdateSubject=ການອັບເດດໃບສະໝັກຂໍເຂົ້າຮ່ວມໂຄງການ {0} ໃນນາມຂອງຜູ້ສະໝັກ {1}
 email.tiApplicationUpdateBody=ສະຖານະຂອງຜູ້ສະໝັກ {0} ໃນໂຄງການ {1} ໄດ້ປ່ຽນເປັນ {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.

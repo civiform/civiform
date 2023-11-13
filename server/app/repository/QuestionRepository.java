@@ -30,6 +30,8 @@ import services.question.types.QuestionDefinitionBuilder;
  * EBean models or asynchronous handling.
  */
 public final class QuestionRepository {
+  private final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("QuestionRepository");
 
   private final Database database;
   private final DatabaseExecutionContext executionContext;
@@ -45,12 +47,26 @@ public final class QuestionRepository {
   }
 
   public CompletionStage<Set<Question>> listQuestions() {
-    return supplyAsync(() -> database.find(Question.class).findSet(), executionContext);
+    return supplyAsync(
+        () ->
+            database
+                .find(Question.class)
+                .setLabel("Question.findSet")
+                .setProfileLocation(queryProfileLocationBuilder.create("listQuestions"))
+                .findSet(),
+        executionContext);
   }
 
   public CompletionStage<Optional<Question>> lookupQuestion(long id) {
     return supplyAsync(
-        () -> database.find(Question.class).setId(id).findOneOrEmpty(), executionContext);
+        () ->
+            database
+                .find(Question.class)
+                .setLabel("Question.findById")
+                .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestion"))
+                .setId(id)
+                .findOneOrEmpty(),
+        executionContext);
   }
 
   /**
@@ -160,6 +176,8 @@ public final class QuestionRepository {
             newQuestionDefinition.getName());
     database
         .find(Question.class)
+        .setLabel("Question.findConflict")
+        .setProfileLocation(queryProfileLocationBuilder.create("findConflictingQuestion"))
         .findEachWhile(question -> !conflictDetector.hasConflict(question));
     return conflictDetector.getConflictedQuestion();
   }
@@ -173,6 +191,8 @@ public final class QuestionRepository {
             .collect(ImmutableSet.toImmutableSet());
     return database
         .find(Question.class)
+        .setLabel("Question.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getAllQuestionsForTag"))
         .where()
         .arrayContains("question_tags", tag)
         .findList()
@@ -190,6 +210,8 @@ public final class QuestionRepository {
     // value with the greater ID.
     return database
         .find(Question.class)
+        .setLabel("Question.findList")
+        .setProfileLocation(queryProfileLocationBuilder.create("getExistingQuestions"))
         .where()
         .in("name", questionNames)
         .orderBy()

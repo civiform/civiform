@@ -856,6 +856,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("UNIVERSAL_QUESTIONS", request);
   }
 
+  /**
+   * Enables images on program cards, both for admins to upload them and for applicants to view
+   * them.
+   */
+  public boolean getProgramCardImages(RequestHeader request) {
+    return getBool("PROGRAM_CARD_IMAGES", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.of(
           "Branding",
@@ -1775,6 +1783,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           + " These questions are intended to be used by all programs and will"
                           + " appear at the top of the question bank with a badge denoting them as"
                           + " universal.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_CARD_IMAGES",
+                      "Enables images on program cards, both for admins to upload them and for"
+                          + " applicants to view them.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
                       SettingMode.ADMIN_WRITEABLE))),
