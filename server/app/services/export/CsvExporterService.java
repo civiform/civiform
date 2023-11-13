@@ -292,9 +292,9 @@ public final class CsvExporterService {
       if (answerData.questionDefinition().isEnumerator()) {
         continue; // Do not include Enumerator answers in CSVs.
       }
-      // if the question type is checkbox, we need to find the unique options names
-      // to create the CSV headers
-      // so we use exportServiceRepository to get the uniques headers
+      // If the question type is checkbox, we need to find the unique options names
+      // to create the CSV headers,
+      // so we use exportServiceRepository to get the unique headers
       if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
         QuestionDefinition questionDefinition = answerData.questionDefinition();
         if (!checkboxQuestionNameToOptionsMap.containsKey(questionDefinition.getName())) {
@@ -305,7 +305,7 @@ public final class CsvExporterService {
         List<String> optionHeaders =
             checkboxQuestionNameToOptionsMap.get(questionDefinition.getName());
         optionHeaders.stream()
-            .forEach(
+            .forEachOrdered(
                 option -> {
                   Path path = answerData.contextualizedPath().join(String.valueOf(option));
 
@@ -450,7 +450,7 @@ public final class CsvExporterService {
           }
           List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
           optionHeaders.stream()
-              .forEach(
+              .forEachOrdered(
                   option -> {
                     Path path =
                         applicantQuestion

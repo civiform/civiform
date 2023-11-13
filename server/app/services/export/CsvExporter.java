@@ -94,19 +94,19 @@ public final class CsvExporter implements AutoCloseable {
 
         optionHeaders.forEach(
             option -> {
-              String defaultText = MultiOptionSelectionExportType.NOT_ANSWERED.toString();
+              String valueToWrite = MultiOptionSelectionExportType.NOT_ANSWERED.toString();
               if (answerData.isAnswered()) {
-                defaultText =
+                valueToWrite =
                     MultiOptionSelectionExportType.NOT_AN_OPTION_AT_PROGRAM_VERSION.toString();
               }
               if (allOptionsShownInQuestion.contains(option)) {
-                defaultText = MultiOptionSelectionExportType.NOT_SELECTED.toString();
+                valueToWrite = MultiOptionSelectionExportType.NOT_SELECTED.toString();
               }
               if (selectedList.contains(option)) {
-                defaultText = MultiOptionSelectionExportType.SELECTED.toString();
+                valueToWrite = MultiOptionSelectionExportType.SELECTED.toString();
               }
               answerMapBuilder.put(
-                  answerData.contextualizedPath().join(String.valueOf(option)), defaultText);
+                  answerData.contextualizedPath().join(String.valueOf(option)), valueToWrite);
             });
 
       } else {

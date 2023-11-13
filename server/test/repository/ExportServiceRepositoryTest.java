@@ -145,9 +145,8 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
         .hasMessage("Draft questions cannot be exported");
   }
 
-  /*
-   *TODO- https://github.com/civiform/civiform/issues/5957
-   * */
+  // TODO(#5957): Structuring this using the Builder pattern would make this easier to extend or
+  // customize
   private Question createMultiSelectQuestion(
       String name, String option1, String option2, String option3, LifecycleStage stage) {
     QuestionDefinitionConfig config =

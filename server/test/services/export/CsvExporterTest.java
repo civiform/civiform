@@ -2,11 +2,13 @@ package services.export;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.Hashing;
 import com.typesafe.config.ConfigFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import models.Question;
 import org.apache.commons.csv.CSVFormat;
@@ -16,7 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import repository.ExportServiceRepository;
 import repository.TimeFilter;
+import repository.VersionRepository;
 import services.DateConverter;
+import services.LocalizedStrings;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
@@ -27,8 +31,11 @@ import services.applicant.question.NameQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.program.ProgramService;
+import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 public class CsvExporterTest extends AbstractExporterTest {
@@ -37,6 +44,8 @@ public class CsvExporterTest extends AbstractExporterTest {
   private static final String SECRET_SALT = "super secret";
   private static final String EMPTY_VALUE = "";
   CsvExporterService exporterService;
+  private QuestionService questionService;
+  private VersionRepository versionRepository;
 
   private ApplicantQuestion getApplicantQuestion(QuestionDefinition questionDefinition) {
     return new ApplicantQuestion(questionDefinition, new ApplicantData(), Optional.empty());
@@ -44,6 +53,8 @@ public class CsvExporterTest extends AbstractExporterTest {
 
   @Before
   public void setUp() {
+    questionService = instanceOf(QuestionService.class);
+    versionRepository = instanceOf(VersionRepository.class);
     exporterService =
         new CsvExporterService(
             instanceOf(ProgramService.class),
@@ -52,6 +63,57 @@ public class CsvExporterTest extends AbstractExporterTest {
             ConfigFactory.parseMap(ImmutableMap.of("play.http.secret.key", SECRET_SALT)),
             instanceOf(DateConverter.class),
             instanceOf(ExportServiceRepository.class));
+  }
+
+  @Test
+  public void programCsv_TestNotAnOptionAtProgramVersionInCheckBoxExport() throws Exception {
+    createFakeQuestions();
+    var fakeProgram =
+        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantKitchenTools()).build();
+    new FakeApplicationFiller(fakeProgram)
+        .answerCheckboxQuestion(
+            ImmutableList.of(
+                2L, // "pepper_grinder"
+                3L // "garlic_press"
+                ))
+        .submit();
+
+    // update question and publish new version
+    QuestionOption newOption =
+        QuestionOption.create(4L, 4L, "stand_mixer", LocalizedStrings.of(Locale.US, "stand_mixer"));
+    MultiOptionQuestionDefinition questionDefinition =
+        (MultiOptionQuestionDefinition)
+            testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+    ImmutableList<QuestionOption> currentOptions = questionDefinition.getOptions();
+    ImmutableList<QuestionOption> newOptionList =
+        ImmutableList.<QuestionOption>builder().addAll(currentOptions).add(newOption).build();
+    QuestionDefinition toUpdate =
+        new QuestionDefinitionBuilder(questionDefinition).setQuestionOptions(newOptionList).build();
+    questionService.update(toUpdate);
+    versionRepository.publishNewSynchronizedVersion();
+
+    CSVParser parser =
+        CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
+    List<CSVRecord> records = parser.getRecords();
+    assertThat(parser.getHeaderNames())
+        .containsExactly(
+            "Applicant ID",
+            "Application ID",
+            "Applicant Language",
+            "Submit Time",
+            "Submitter Type",
+            "TI Email",
+            "TI Organization",
+            "Status",
+            "kitchen tools (toaster)",
+            "kitchen tools (pepper_grinder)",
+            "kitchen tools (garlic_press)",
+            "kitchen tools (stand_mixer)");
+    assertThat(records.get(0).get("kitchen tools (toaster)")).contains("NOT_SELECTED");
+    assertThat(records.get(0).get("kitchen tools (pepper_grinder)")).contains("SELECTED");
+    assertThat(records.get(0).get("kitchen tools (garlic_press)")).contains("SELECTED");
+    assertThat(records.get(0).get("kitchen tools (stand_mixer)"))
+        .contains("NOT_AN_OPTION_AT_PROGRAM_VERSION");
   }
 
   @Test
