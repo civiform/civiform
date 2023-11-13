@@ -156,15 +156,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
         programDefinition.getNonRepeatedBlockDefinitions().stream()
             .anyMatch(BlockDefinition::hasNullQuestion);
 
-    ArrayList<ProgramHeaderButton> headerButtons = new ArrayList<>();
-    if (viewAllowsEditingProgram()) {
-      headerButtons.add(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
-    } else {
-      headerButtons.add(ProgramHeaderButton.EDIT_PROGRAM);
-    }
-    if (viewAllowsEditingProgram() && settingsManifest.getProgramCardImages(request)) {
-      headerButtons.add(ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
-    }
+    ArrayList<ProgramHeaderButton> headerButtons =
+        new ArrayList<>(
+            getEditHeaderButtons(
+                request, settingsManifest, /* isEditingAllowed= */ viewAllowsEditingProgram()));
     headerButtons.add(ProgramHeaderButton.PREVIEW_AS_APPLICANT);
 
     HtmlBundle htmlBundle =

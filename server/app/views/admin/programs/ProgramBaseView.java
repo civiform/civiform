@@ -18,6 +18,7 @@ import services.program.ProgramDefinition;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.BaseHtmlView;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -40,6 +41,26 @@ abstract class ProgramBaseView extends BaseHtmlView {
     EDIT_PROGRAM_IMAGE,
     /** Redirects to previewing this program as an applicant. */
     PREVIEW_AS_APPLICANT,
+  }
+
+  /**
+   * Returns the header buttons used for editing various parts of the program (details, image,
+   * etc.).
+   *
+   * @param isEditingAllowed true if the program currently allows editing and false otherwise.
+   */
+  protected final ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
+      Http.Request request, SettingsManifest settingsManifest, boolean isEditingAllowed) {
+    if (isEditingAllowed) {
+      if (settingsManifest.getProgramCardImages(request)) {
+        return ImmutableList.of(
+            ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.EDIT_PROGRAM_IMAGE);
+      } else {
+        return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS);
+      }
+    } else {
+      return ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM);
+    }
   }
 
   /**
