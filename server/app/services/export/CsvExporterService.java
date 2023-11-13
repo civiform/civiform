@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +25,7 @@ import javax.inject.Inject;
 import models.Application;
 import models.QuestionTag;
 import play.libs.F;
+import repository.ExportServiceRepository;
 import repository.SubmittedApplicationFilter;
 import repository.TimeFilter;
 import services.DateConverter;
@@ -67,6 +69,7 @@ public final class CsvExporterService {
 
   public static final ImmutableSet<QuestionType> NON_EXPORTED_QUESTION_TYPES =
       ImmutableSet.of(QuestionType.ENUMERATOR, QuestionType.STATIC);
+  private final ExportServiceRepository exportServiceRepository;
 
   @Inject
   public CsvExporterService(
@@ -74,12 +77,14 @@ public final class CsvExporterService {
       QuestionService questionService,
       ApplicantService applicantService,
       Config config,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      ExportServiceRepository exportServiceRepository) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.applicantService = checkNotNull(applicantService);
     this.config = checkNotNull(config);
     this.dateConverter = dateConverter;
+    this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
@@ -128,7 +133,7 @@ public final class CsvExporterService {
                     .thenComparing(answerData -> answerData.contextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return generateDefaultCsvConfig(answers, showEligibilityColumn);
+    return buildColumnHeaders(answers, showEligibilityColumn);
   }
 
   /**
@@ -157,7 +162,8 @@ public final class CsvExporterService {
               exportConfig.columns(),
               config.getString("play.http.secret.key"),
               writer,
-              dateConverter)) {
+              dateConverter,
+              exportConfig.checkboxQuestionNameToOptionsMap())) {
         // Cache Program data which doesn't change, so we only look it up once rather than on every
         // exported row.
         // TODO(#1750): Lookup all relevant programs in one request to reduce cost of N lookups.
@@ -232,14 +238,14 @@ public final class CsvExporterService {
             .sorted(
                 Comparator.comparing(AnswerData::blockId).thenComparing(AnswerData::questionIndex))
             .collect(ImmutableList.toImmutableList());
-    return generateDefaultCsvConfig(answers, showEligibilityColumn);
+    return buildColumnHeaders(answers, showEligibilityColumn);
   }
 
   /**
    * Produce the default {@link CsvExportConfig} for a list of {@link AnswerData}s. The default
    * config includes all the questions, the application id, and the application submission time.
    */
-  private CsvExportConfig generateDefaultCsvConfig(
+  private CsvExportConfig buildColumnHeaders(
       ImmutableList<AnswerData> answerDataList, boolean showEligibilityColumn) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
@@ -280,26 +286,55 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
+    Map<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap = new HashMap<>();
     // Add columns for each path to an answer.
     for (AnswerData answerData : answerDataList) {
       if (answerData.questionDefinition().isEnumerator()) {
         continue; // Do not include Enumerator answers in CSVs.
       }
-      for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
-        columnsBuilder.add(
-            Column.builder()
-                .setHeader(pathToHeader(path))
-                .setJsonPath(path)
-                .setColumnType(ColumnType.APPLICANT_ANSWER)
-                .build());
+      // If the question type is checkbox, we need to find the unique options names
+      // to create the CSV headers,
+      // so we use exportServiceRepository to get the unique headers
+      if (answerData.questionDefinition().getQuestionType().equals(QuestionType.CHECKBOX)) {
+        QuestionDefinition questionDefinition = answerData.questionDefinition();
+        if (!checkboxQuestionNameToOptionsMap.containsKey(questionDefinition.getName())) {
+          checkboxQuestionNameToOptionsMap.put(
+              questionDefinition.getName(),
+              exportServiceRepository.getAllHistoricMultiOptionAdminNames(questionDefinition));
+        }
+        List<String> optionHeaders =
+            checkboxQuestionNameToOptionsMap.get(questionDefinition.getName());
+        optionHeaders.stream()
+            .forEachOrdered(
+                option -> {
+                  Path path = answerData.contextualizedPath().join(String.valueOf(option));
+
+                  columnsBuilder.add(
+                      Column.builder()
+                          .setHeader(pathToHeader(path))
+                          .setJsonPath(path)
+                          .setColumnType(ColumnType.APPLICANT_ANSWER)
+                          .build());
+                });
+      } else {
+        for (Path path : answerData.scalarAnswersInDefaultLocale().keySet()) {
+          columnsBuilder.add(
+              Column.builder()
+                  .setHeader(pathToHeader(path))
+                  .setJsonPath(path)
+                  .setColumnType(ColumnType.APPLICANT_ANSWER)
+                  .build());
+        }
       }
     }
-    return new CsvExportConfig() {
-      @Override
-      public ImmutableList<Column> columns() {
-        return columnsBuilder.build();
-      }
-    };
+
+    // We cache the checkboxQuestionNameToOptionsMap in csvExportConfig to help us fill the column
+    // values
+    ImmutableMap<String, ImmutableList<String>> immutableCheckboxQuestionNameToOptionsMap =
+        ImmutableMap.<String, ImmutableList<String>>builder()
+            .putAll(checkboxQuestionNameToOptionsMap)
+            .build();
+    return getCsvExportConfig(columnsBuilder, immutableCheckboxQuestionNameToOptionsMap);
   }
 
   /**
@@ -392,7 +427,7 @@ public final class CsvExporterService {
         Column.builder().setHeader("Submit Time").setColumnType(ColumnType.SUBMIT_TIME).build());
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
-
+    Map<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap = new HashMap<>();
     for (QuestionTag tagType :
         ImmutableList.of(QuestionTag.DEMOGRAPHIC, QuestionTag.DEMOGRAPHIC_PII)) {
       for (QuestionDefinition questionDefinition :
@@ -406,23 +441,68 @@ public final class CsvExporterService {
             ProgramQuestionDefinition.create(questionDefinition, Optional.empty());
         Question applicantQuestion =
             new ApplicantQuestion(pqd, new ApplicantData(), Optional.empty()).getQuestion();
-        for (Path path : applicantQuestion.getAllPaths()) {
-          columnsBuilder.add(
-              Column.builder()
-                  .setHeader(pathToHeader(path))
-                  .setJsonPath(path)
-                  .setColumnType(
-                      tagType == QuestionTag.DEMOGRAPHIC_PII
-                          ? ColumnType.APPLICANT_OPAQUE
-                          : ColumnType.APPLICANT_ANSWER)
-                  .build());
+        if (questionDefinition.getQuestionType().equals(QuestionType.CHECKBOX)) {
+          String questionName = questionDefinition.getName();
+          if (!checkboxQuestionNameToOptionsMap.containsKey(questionName)) {
+            checkboxQuestionNameToOptionsMap.put(
+                questionName,
+                exportServiceRepository.getAllHistoricMultiOptionAdminNames(questionDefinition));
+          }
+          List<String> optionHeaders = checkboxQuestionNameToOptionsMap.get(questionName);
+          optionHeaders.stream()
+              .forEachOrdered(
+                  option -> {
+                    Path path =
+                        applicantQuestion
+                            .getApplicantQuestion()
+                            .getContextualizedPath()
+                            .join(String.valueOf(option));
+
+                    columnsBuilder.add(
+                        Column.builder()
+                            .setHeader(pathToHeader(path))
+                            .setJsonPath(path)
+                            .setColumnType(
+                                tagType == QuestionTag.DEMOGRAPHIC_PII
+                                    ? ColumnType.APPLICANT_OPAQUE
+                                    : ColumnType.APPLICANT_ANSWER)
+                            .build());
+                  });
+        } else {
+
+          for (Path path : applicantQuestion.getAllPaths()) {
+            columnsBuilder.add(
+                Column.builder()
+                    .setHeader(pathToHeader(path))
+                    .setJsonPath(path)
+                    .setColumnType(
+                        tagType == QuestionTag.DEMOGRAPHIC_PII
+                            ? ColumnType.APPLICANT_OPAQUE
+                            : ColumnType.APPLICANT_ANSWER)
+                    .build());
+          }
         }
       }
     }
+    ImmutableMap<String, ImmutableList<String>> immutableCheckboxQuestionNameToOptionsMap =
+        ImmutableMap.<String, ImmutableList<String>>builder()
+            .putAll(checkboxQuestionNameToOptionsMap)
+            .build();
+    return getCsvExportConfig(columnsBuilder, immutableCheckboxQuestionNameToOptionsMap);
+  }
+
+  private CsvExportConfig getCsvExportConfig(
+      ImmutableList.Builder<Column> columnsBuilder,
+      ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap) {
     return new CsvExportConfig() {
       @Override
       public ImmutableList<Column> columns() {
         return columnsBuilder.build();
+      }
+
+      @Override
+      public ImmutableMap<String, ImmutableList<String>> checkboxQuestionNameToOptionsMap() {
+        return checkboxQuestionNameToOptionsMap;
       }
     };
   }
