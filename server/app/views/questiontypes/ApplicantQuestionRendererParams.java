@@ -47,7 +47,7 @@ public abstract class ApplicantQuestionRendererParams {
     return AutoFocusTarget.FIRST_ERROR.equals(autofocus());
   }
 
-  /** True if questions that only have a single question should autofocus it. */
+  /** True if a question that only has a single field should autofocus it. */
   public boolean autofocusSingleField() {
     return AutoFocusTarget.FIRST_ERROR.equals(autofocus())
         || AutoFocusTarget.FIRST_FIELD.equals(autofocus());

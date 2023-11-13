@@ -29,7 +29,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
           Mockito.mock(ApplicantQuestionRendererFactory.class));
 
   @Test
-  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isFirstQuestionWithErrors() {
+  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isFirstQuestionWithErrors_shouldAutofocusFirstError() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
@@ -41,7 +41,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void calculateAutoFocusTarget_formHasErrors_hideErrors_isFirstQuestionWithErrors() {
+  public void calculateAutoFocusTarget_formHasErrors_hideErrors_isFirstQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
@@ -53,7 +53,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors() {
+  public void calculateAutoFocusTarget_formHasErrors_displayErrors_isSecondQuestionWithErrors_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
@@ -65,7 +65,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
   }
 
   @Test
-  public void calculateAutoFocusTarget_noErrors_displayErrors_noApplicantSelectedQuestionName() {
+  public void calculateAutoFocusTarget_noErrors_displayErrors_noApplicantSelectedQuestionName_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
@@ -78,7 +78,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   @Test
   public void
-      calculateAutoFocusTarget_noErrors_hasApplicantSelectedQuestionName_questionSelected() {
+      calculateAutoFocusTarget_noErrors_hasApplicantSelectedQuestionName_questionSelected_shouldAutofocusFirstField() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
@@ -91,7 +91,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   @Test
   public void
-      calculateAutoFocusTarget_hasErrors_hideErrors_hasApplicantSelectedQuestionName_questionSelected() {
+      calculateAutoFocusTarget_hasErrors_hideErrors_hasApplicantSelectedQuestionName_questionSelected_shouldAutofocusFirstField() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
@@ -104,7 +104,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
 
   @Test
   public void
-      calculateAutoFocusTarget_noErrors_hasApplicantSelectedQuestionName_differentQuestionSelected() {
+      calculateAutoFocusTarget_noErrors_hasApplicantSelectedQuestionName_differentQuestionSelected_shouldNotAutofocus() {
     assertThat(
             EMPTY_VIEW.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
