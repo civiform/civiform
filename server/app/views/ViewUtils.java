@@ -12,6 +12,7 @@ import static j2html.TagCreator.script;
 import static j2html.TagCreator.span;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import controllers.AssetsFinder;
 import j2html.TagCreator;
 import j2html.tags.ContainerTag;
@@ -27,6 +28,7 @@ import java.time.Instant;
 import java.util.Optional;
 import javax.inject.Inject;
 import services.DateConverter;
+import services.question.types.QuestionDefinition;
 import views.components.Icons;
 import views.components.LinkElement;
 import views.style.BaseStyles;
@@ -307,9 +309,10 @@ public final class ViewUtils {
    *
    * @param icon Icon to use in the badge, left of the text.
    * @param text Text for the badge.
+   * @param classes Additional classes to apply to the badge.
    * @return DivTag containing the badge.
    */
-  public static DivTag makeBadgeWithIcon(Icons icon, String text) {
+  public static DivTag makeBadgeWithIcon(Icons icon, String text, String... classes) {
     return div()
         .withClasses(
             "rounded-lg",
@@ -317,10 +320,28 @@ public final class ViewUtils {
             "max-w-fit",
             "px-2",
             "py-1",
-            "mt-4",
             "space-x-1",
             "text-white",
-            "bg-civiform-teal")
+            "bg-civiform-teal",
+            String.join(" ", classes))
         .with(Icons.svg(icon).withClasses("flex", "h-6", "w-4"), span(text));
+  }
+
+  /**
+   * Makes a universal question badge, with text denoting the question type, and a
+   * "cf-universal-badge" class applied.
+   *
+   * @param questionDefinition The {@link QuestionDefinition} associated with the question this
+   *     badge will be applied to.
+   * @param classes Additional classes to apply to the badge.
+   * @return DivTag containing the badge.
+   */
+  public static DivTag makeUniversalBadge(
+      QuestionDefinition questionDefinition, String... classes) {
+
+    return makeBadgeWithIcon(
+        Icons.STAR,
+        String.format("Universal %s Question", questionDefinition.getQuestionType().getLabel()),
+        Lists.asList("cf-universal-badge", classes).toArray(new String[0]));
   }
 }

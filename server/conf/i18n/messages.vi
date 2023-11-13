@@ -26,6 +26,8 @@ content.requiredFieldsNote=Lưu ý: Các trường có gắn dấu {0} là trư�
 content.optional=(không bắt buộc)
 content.mobileFileUploadHelp=Trên điện thoại của bạn? Tính năng "Chọn tệp" cũng cho phép bạn sử dụng camera của điện thoại để tải tài liệu lên.
 toast.errorMessageOutline=Lỗi: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=Đóng
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
@@ -149,7 +151,7 @@ content.commonIntakeConfirmationTi=Khách hàng của bạn có thể nhận đ�
 content.commonIntakeNoMatchingPrograms=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsTi=Trình sàng lọc sơ bộ không thể tìm thấy những chương trình mà khách hàng của bạn có thể đủ tiêu chuẩn nhận vào lúc này. Tuy nhiên, bạn có thể đăng ký nhận phúc lợi bất cứ lúc nào bằng cách nhấp vào ''Đăng ký chương trình''. Hoặc để xem thêm các chương trình phúc lợi khác, bạn có thể truy cập {0}
 content.commonIntakeNoMatchingProgramsNextStep=Bạn cũng có thể quay lại trang trước để chỉnh sửa câu trả lời của mình.
-button.downloadPdf=Download PDF
+button.downloadPdf=Tải bản PDF xuống
 button.applyToPrograms=Đăng ký chương trình
 
 #-------------------------------------------------------------------------------------------------------------------------#
@@ -284,6 +286,7 @@ validation.textTooShort=Phải có ít nhất {0} ký tự.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=Không được để lựa chọn trống trong câu hỏi có nhiều lựa chọn.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -308,3 +311,14 @@ email.tiManageYourClients=Quản lý khách hàng của bạn tại {0}.
 email.applicationUpdateSubject=Cập nhật về đơn đăng ký của bạn {0}
 email.tiApplicationUpdateSubject=Cập nhật về đơn đăng ký tham gia chương trình {0} thay mặt cho người đăng ký {1}
 email.tiApplicationUpdateBody=Trạng thái của người đăng ký {0} trong chương trình {1} đã thay đổi thành {2}.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.

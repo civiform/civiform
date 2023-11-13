@@ -156,6 +156,13 @@ public final class ProgramBlocksView extends ProgramBaseView {
         programDefinition.getNonRepeatedBlockDefinitions().stream()
             .anyMatch(BlockDefinition::hasNullQuestion);
 
+    ImmutableList<ProgramHeaderButton> headerButtons =
+        viewAllowsEditingProgram()
+            ? ImmutableList.of(
+                ProgramHeaderButton.EDIT_PROGRAM_DETAILS, ProgramHeaderButton.PREVIEW_AS_APPLICANT)
+            : ImmutableList.of(
+                ProgramHeaderButton.EDIT_PROGRAM, ProgramHeaderButton.PREVIEW_AS_APPLICANT);
+
     HtmlBundle htmlBundle =
         layout
             .getBundle(request)
@@ -169,12 +176,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         "px-2",
                         StyleUtils.responsive2XLarge("px-16"))
                     .with(
-                        renderProgramInfo(programDefinition)
-                            .with(
-                                div()
-                                    .withClasses("flex")
-                                    .with(renderEditButton(request, programDefinition))
-                                    .with(renderPreviewButton(programDefinition)))
+                        renderProgramInfoHeader(programDefinition, headerButtons, request)
                             .with(
                                 iff(
                                     malformedQuestionDefinition,
@@ -677,11 +679,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 iffElse(malformedQuestionDefinition, "border-red-500", "border-gray-200"),
                 "px-4",
                 "py-2",
-                "flex",
-                "gap-4",
                 "items-center",
+                "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"));
+    ret.condWith(
+        settingsManifest.getUniversalQuestions(request)
+            && !malformedQuestionDefinition
+            && questionDefinition.isUniversal(),
+        ViewUtils.makeUniversalBadge(questionDefinition, "mt-2", "mb-4"));
 
+    DivTag row = div().withClasses("flex", "gap-4", "items-center");
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses("shrink-0", "h-12", "w-6");
@@ -724,12 +731,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
             questionDefinition,
             addressCorrectionEnabled);
 
-    ret.with(icon, content);
+    row.with(icon, content);
     // UI for editing is only added if we are viewing a draft.
     if (viewAllowsEditingProgram()) {
-      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> ret.with(toggle));
-      maybeOptionalToggle.ifPresent(ret::with);
-      ret.with(
+      maybeAddressCorrectionEnabledToggle.ifPresent(toggle -> row.with(toggle));
+      maybeOptionalToggle.ifPresent(row::with);
+      row.with(
           this.renderMoveQuestionButtonsSection(
               csrfTag,
               programDefinition.id(),
@@ -737,7 +744,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questionDefinition,
               questionIndex,
               questionsCount));
-      ret.with(
+      row.with(
           renderDeleteQuestionForm(
               csrfTag,
               programDefinition.id(),
@@ -751,14 +758,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
             addressCorrectionEnabled
                 ? "Address correction: enabled"
                 : "Address correction: disabled";
-        ret.with(renderReadOnlyLabel(label));
+        row.with(renderReadOnlyLabel(label));
       }
       if (maybeOptionalToggle.isPresent()) {
         String label = isOptional ? "optional question" : "required question";
-        ret.with(renderReadOnlyLabel(label));
+        row.with(renderReadOnlyLabel(label));
       }
     }
-    return ret;
+    return ret.with(row);
   }
 
   /**
@@ -1209,30 +1216,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
   /** Returns if this view is editable or not. A view is editable only if it represents a draft. */
   private boolean viewAllowsEditingProgram() {
     return programDisplayType.equals(DRAFT);
-  }
-
-  /**
-   * Creates the Edit button shown at the top of the page. For a read only view it redirects to an
-   * editable view.
-   */
-  private ButtonTag renderEditButton(Request request, ProgramDefinition programDefinition) {
-    if (viewAllowsEditingProgram()) {
-      ButtonTag editButton = getStandardizedEditButton("Edit program details");
-      String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
-      return asRedirectElement(editButton, editLink);
-    } else {
-      ButtonTag editButton = getStandardizedEditButton("Edit program");
-      String editLink = routes.AdminProgramController.newVersionFrom(programDefinition.id()).url();
-      return toLinkButtonForPost(editButton, editLink, request);
-    }
-  }
-
-  private ButtonTag renderPreviewButton(ProgramDefinition programDefinition) {
-    return asRedirectElement(
-        ViewUtils.makeSvgTextButton("Preview as applicant", Icons.VIEW)
-            .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mx-2"),
-        controllers.admin.routes.AdminProgramPreviewController.preview(programDefinition.id())
-            .url());
   }
 
   /** Indicates if this view is showing a draft or published program. */

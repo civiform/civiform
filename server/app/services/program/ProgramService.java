@@ -24,10 +24,10 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import models.Account;
+import models.AccountModel;
 import models.Application;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
 import models.Version;
 import modules.MainModule;
 import play.libs.F;
@@ -205,7 +205,7 @@ public final class ProgramService {
    */
   public ProgramDefinition getDraftProgramDefinition(String programSlug)
       throws ProgramDraftNotFoundException {
-    Program draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
+    ProgramModel draftProgram = programRepository.getDraftProgramFromSlug(programSlug);
     return syncProgramAssociations(draftProgram).toCompletableFuture().join();
   }
 
@@ -219,7 +219,7 @@ public final class ProgramService {
         .collect(ImmutableList.toImmutableList());
   }
 
-  private CompletionStage<ProgramDefinition> syncProgramAssociations(Program program) {
+  private CompletionStage<ProgramDefinition> syncProgramAssociations(ProgramModel program) {
     if (isActiveOrDraftProgram(program)) {
       return syncProgramDefinitionQuestions(program.getProgramDefinition())
           .thenApply(ProgramDefinition::orderBlockDefinitions);
@@ -233,7 +233,7 @@ public final class ProgramService {
     return CompletableFuture.completedStage(programDefinition.orderBlockDefinitions());
   }
 
-  private boolean isActiveOrDraftProgram(Program program) {
+  private boolean isActiveOrDraftProgram(ProgramModel program) {
     return Streams.concat(
             versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream(),
             versionRepository
@@ -303,8 +303,8 @@ public final class ProgramService {
     }
     ProgramAcls programAcls = new ProgramAcls(new HashSet<>(tiGroups));
     BlockDefinition emptyBlock = maybeEmptyBlock.getResult();
-    Program program =
-        new Program(
+    ProgramModel program =
+        new ProgramModel(
             adminName,
             adminDescription,
             defaultDisplayName,
@@ -434,7 +434,7 @@ public final class ProgramService {
       programDefinition = removeAllEligibilityPredicates(programDefinition);
     }
 
-    Program program =
+    ProgramModel program =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
             .setLocalizedName(
@@ -506,7 +506,7 @@ public final class ProgramService {
         programRepository
             .createOrUpdateDraft(maybeCommonIntakeForm.get().toProgram())
             .getProgramDefinition();
-    Program commonIntakeProgram =
+    ProgramModel commonIntakeProgram =
         draftCommonIntakeProgramDefinition.toBuilder()
             .setProgramType(ProgramType.DEFAULT)
             .build()
@@ -645,7 +645,7 @@ public final class ProgramService {
       return ErrorAnd.error(errors);
     }
 
-    Program program =
+    ProgramModel program =
         programDefinition.toBuilder()
             .setLocalizedName(
                 programDefinition
@@ -706,7 +706,7 @@ public final class ProgramService {
   public ImmutableList<String> getNotificationEmailAddresses(String programName) {
     ImmutableList<String> explicitProgramAdmins =
         programRepository.getProgramAdministrators(programName).stream()
-            .map(Account::getEmailAddress)
+            .map(AccountModel::getEmailAddress)
             .filter(address -> !Strings.isNullOrEmpty(address))
             .collect(ImmutableList.toImmutableList());
     // If there are any program admins, return them.
@@ -715,7 +715,7 @@ public final class ProgramService {
     }
     // Return all the global admins email addresses.
     return accountRepository.getGlobalAdmins().stream()
-        .map(Account::getEmailAddress)
+        .map(AccountModel::getEmailAddress)
         .filter(address -> !Strings.isNullOrEmpty(address))
         .collect(ImmutableList.toImmutableList());
   }
@@ -934,7 +934,7 @@ public final class ProgramService {
           ProgramBlockAdditionResult.of(programDefinition, Optional.empty()));
     }
     BlockDefinition blockDefinition = maybeBlockDefinition.getResult();
-    Program program =
+    ProgramModel program =
         programDefinition.insertBlockDefinitionInTheRightPlace(blockDefinition).toProgram();
     ProgramDefinition updatedProgram =
         syncProgramDefinitionQuestions(
@@ -971,7 +971,7 @@ public final class ProgramService {
   public ProgramDefinition moveBlock(
       long programId, long blockId, ProgramDefinition.Direction direction)
       throws ProgramNotFoundException, IllegalPredicateOrderingException {
-    final Program program;
+    final ProgramModel program;
     try {
       program = getProgramDefinition(programId).moveBlock(blockId, direction).toProgram();
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -1308,7 +1308,7 @@ public final class ProgramService {
     Map<Long, ReadOnlyQuestionService> programToQuestionService = new HashMap<>();
 
     for (ProgramDefinition programDef : programDefinitions) {
-      Program p = programDef.toProgram();
+      ProgramModel p = programDef.toProgram();
       p.refresh();
       // We only need to get the question data if the program has eligibility conditions.
       if (programDef.hasEligibilityEnabled()) {
@@ -1516,7 +1516,7 @@ public final class ProgramService {
    */
   public ImmutableList<Application> getSubmittedProgramApplications(long programId)
       throws ProgramNotFoundException {
-    Optional<Program> programMaybe =
+    Optional<ProgramModel> programMaybe =
         programRepository.lookupProgram(programId).toCompletableFuture().join();
     if (programMaybe.isEmpty()) {
       throw new ProgramNotFoundException(programId);

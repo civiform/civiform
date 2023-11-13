@@ -9,13 +9,13 @@ import io.ebean.Database;
 public final class Models {
   private static final ImmutableList<Class<? extends BaseModel>> MODELS =
       ImmutableList.of(
-          Account.class,
+          AccountModel.class,
           ApiKey.class,
           Applicant.class,
           Application.class,
           ApplicationEvent.class,
           PersistedDurableJob.class,
-          Program.class,
+          ProgramModel.class,
           Question.class,
           StoredFile.class,
           TrustedIntermediaryGroup.class,

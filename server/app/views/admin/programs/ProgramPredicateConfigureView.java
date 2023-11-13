@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.admin.routes;
 import j2html.tags.specialized.ATag;
-import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.LabelTag;
@@ -241,8 +240,10 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
             .getBundle(request)
             .setTitle(String.format("Configure %s predicate", typeDisplayName))
             .addMainContent(
-                renderProgramInfo(programDefinition)
-                    .with(renderEditProgramDetailsButton(programDefinition)),
+                renderProgramInfoHeader(
+                    programDefinition,
+                    ImmutableList.of(ProgramHeaderButton.EDIT_PROGRAM_DETAILS),
+                    request),
                 content);
     return layout.renderCentered(htmlBundle);
   }
@@ -846,12 +847,6 @@ public final class ProgramPredicateConfigureView extends ProgramBaseView {
         .splitToStream(value.substring(1, value.length() - 1))
         // Join to CSV
         .collect(Collectors.joining(","));
-  }
-
-  private ButtonTag renderEditProgramDetailsButton(ProgramDefinition programDefinition) {
-    ButtonTag editButton = getStandardizedEditButton("Edit program details");
-    String editLink = routes.AdminProgramController.edit(programDefinition.id()).url();
-    return asRedirectElement(editButton, editLink);
   }
 
   @Override

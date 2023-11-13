@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import controllers.WithMockedProfiles;
 import java.util.HashSet;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import org.junit.Before;
@@ -24,7 +24,7 @@ public class ProgramAclsTest extends WithMockedProfiles {
     tiProfileOne = profileFactory.wrapProfileData(profileFactory.createFakeTrustedIntermediary());
     tiProfileTwo = profileFactory.wrapProfileData(profileFactory.createFakeTrustedIntermediary());
     TrustedIntermediaryGroup tiGroupTwo = new TrustedIntermediaryGroup("CBO2", "Food shelter");
-    Account tiTwo = tiProfileTwo.getAccount().join();
+    AccountModel tiTwo = tiProfileTwo.getAccount().join();
     tiTwo.setMemberOfGroup(tiGroupTwo);
     tiTwo.save();
     Applicant applicant = createApplicant();

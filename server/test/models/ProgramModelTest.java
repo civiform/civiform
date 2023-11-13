@@ -32,7 +32,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
-public class ProgramTest extends ResetPostgres {
+public class ProgramModelTest extends ResetPostgres {
 
   private ProgramRepository repo;
 
@@ -82,11 +82,11 @@ public class ProgramTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls(tiOrgList))
             .build();
-    Program program = new Program(definition);
+    ProgramModel program = new ProgramModel(definition);
 
     program.save();
 
-    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+    ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
     assertThat(found.getProgramDefinition().adminName()).isEqualTo("Admin name");
     assertThat(found.getProgramDefinition().localizedName())
@@ -161,10 +161,10 @@ public class ProgramTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .build();
-    Program program = new Program(definition);
+    ProgramModel program = new ProgramModel(definition);
     program.save();
 
-    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+    ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
     ProgramQuestionDefinition addressQuestion =
         found.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions().get(0);
@@ -218,10 +218,10 @@ public class ProgramTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .build();
-    Program program = new Program(definition);
+    ProgramModel program = new ProgramModel(definition);
     program.save();
 
-    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+    ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
 
     assertThat(found.getProgramDefinition().blockDefinitions()).hasSize(1);
     BlockDefinition block = found.getProgramDefinition().getBlockDefinition(1L);
@@ -322,7 +322,7 @@ public class ProgramTest extends ResetPostgres {
 
     assertThat(programDefinition.hasOrderedBlockDefinitions()).isFalse();
 
-    Program program = programDefinition.toProgram();
+    ProgramModel program = programDefinition.toProgram();
     program.save();
 
     assertThat(program.getProgramDefinition().hasOrderedBlockDefinitions()).isTrue();
@@ -377,9 +377,9 @@ public class ProgramTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .build();
-    Program program = new Program(definition);
+    ProgramModel program = new ProgramModel(definition);
     program.save();
-    Program found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
+    ProgramModel found = repo.lookupProgram(program.id).toCompletableFuture().join().get();
     assertThat(found.getDefaultStatus()).isEqualTo(Optional.empty());
 
     ProgramDefinition definition2 =
@@ -400,9 +400,9 @@ public class ProgramTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls())
             .build();
-    Program program2 = new Program(definition2);
+    ProgramModel program2 = new ProgramModel(definition2);
     program2.save();
-    Program found2 = repo.lookupProgram(program2.id).toCompletableFuture().join().get();
+    ProgramModel found2 = repo.lookupProgram(program2.id).toCompletableFuture().join().get();
     assertThat(found2.getDefaultStatus()).isEqualTo(Optional.of(defaultStatus));
   }
 }
