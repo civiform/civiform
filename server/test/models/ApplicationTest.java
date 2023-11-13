@@ -30,7 +30,7 @@ public class ApplicationTest extends ResetPostgres {
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);

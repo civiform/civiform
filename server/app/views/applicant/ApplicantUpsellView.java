@@ -12,7 +12,7 @@ import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.SectionTag;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
@@ -69,7 +69,7 @@ public abstract class ApplicantUpsellView extends BaseHtmlView {
   }
 
   /** Don't show "create an account" upsell box to TIs, or anyone with an account already. */
-  protected static boolean shouldUpsell(Account account) {
+  protected static boolean shouldUpsell(AccountModel account) {
     return Strings.isNullOrEmpty(account.getAuthorityId()) && account.getMemberOfGroup().isEmpty();
   }
 

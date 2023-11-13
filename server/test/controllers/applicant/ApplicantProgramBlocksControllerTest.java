@@ -17,7 +17,7 @@ import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.ProgramModel;
 import models.StoredFile;
@@ -95,7 +95,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void edit_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
@@ -259,7 +259,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void previous_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
@@ -350,7 +350,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void update_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
@@ -669,7 +669,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void updateFile_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
     ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()

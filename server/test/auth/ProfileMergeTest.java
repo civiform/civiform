@@ -13,7 +13,7 @@ import io.ebean.Database;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import models.Account;
+import models.AccountModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.pac4j.core.profile.definition.CommonProfileDefinition;
@@ -99,8 +99,8 @@ public class ProfileMergeTest extends ResetPostgres {
     CiviFormProfileData existingProfileWithoutAuthority =
         idcsApplicantProfileCreator.mergeCiviFormProfile(
             /* maybeCiviFormProfile = */ Optional.empty(), oidcProfile);
-    Account account =
-        database.find(Account.class).where().eq("email_address", "foo@example.com").findOne();
+    AccountModel account =
+        database.find(AccountModel.class).where().eq("email_address", "foo@example.com").findOne();
     account.setAuthorityId(null);
     account.save();
 

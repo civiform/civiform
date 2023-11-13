@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
@@ -122,7 +122,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     trustedIntermediaryProfile = Mockito.mock(CiviFormProfile.class);
     applicantProfile = Mockito.mock(CiviFormProfile.class);
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress("test@example.com");
     Mockito.when(trustedIntermediaryProfile.isTrustedIntermediary()).thenReturn(true);
     Mockito.when(trustedIntermediaryProfile.getAccount())
@@ -130,7 +130,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     Mockito.when(trustedIntermediaryProfile.getEmailAddress())
         .thenReturn(CompletableFuture.completedFuture("test@example.com"));
     Mockito.when(applicantProfile.isTrustedIntermediary()).thenReturn(false);
-    Account applicantAccount = new Account();
+    AccountModel applicantAccount = new AccountModel();
     applicantAccount.setEmailAddress("applicant@example.com");
     Mockito.when(applicantProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(applicantAccount));
@@ -956,7 +956,7 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void submitApplication_sendsEmailsWithoutDefaultStatus() {
-    Account admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel admin = resourceCreator.insertAccountWithEmail("admin@example.com");
     admin.addAdministeredProgram(programDefinition);
     admin.save();
 
@@ -1035,7 +1035,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
-    Account admin = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel admin = resourceCreator.insertAccountWithEmail("admin@example.com");
     admin.addAdministeredProgram(programDefinition);
     admin.save();
 
@@ -1103,7 +1103,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         APPROVED_STATUS.toBuilder().setDefaultStatus(Optional.of(true)).build();
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
-    Account tiAccount = resourceCreator.insertAccountWithEmail("ti@example.com");
+    AccountModel tiAccount = resourceCreator.insertAccountWithEmail("ti@example.com");
     Applicant tiApplicant = subject.createApplicant().toCompletableFuture().join();
     tiApplicant.setAccount(tiAccount);
     tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
@@ -1163,7 +1163,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     createProgramWithStatusDefinitions(new StatusDefinitions(ImmutableList.of(status)));
 
     CiviFormProfile applicantProfile = Mockito.mock(CiviFormProfile.class);
-    Account account = resourceCreator.insertAccountWithEmail("user3@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("user3@example.com");
     Mockito.when(applicantProfile.isTrustedIntermediary()).thenReturn(false);
     Mockito.when(applicantProfile.getAccount())
         .thenReturn(CompletableFuture.completedFuture(account));
@@ -1444,7 +1444,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithEmailAndName() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.getApplicantData().setUserName("Hello World");
     applicant.save();
@@ -1461,7 +1461,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantWithEmailNoName() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
 
@@ -1475,7 +1475,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void getPersonalInfo_applicantWithThreeNames() {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Middle Last");
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
 
@@ -1492,7 +1492,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void getPersonalInfo_applicantWithManyNames() {
     Applicant applicant = resourceCreator.insertApplicant();
     applicant.getApplicantData().setUserName("First Second Third Fourth");
-    Account account = resourceCreator.insertAccountWithEmail("test@example.com");
+    AccountModel account = resourceCreator.insertAccountWithEmail("test@example.com");
     applicant.setAccount(account);
     applicant.save();
 
@@ -1508,7 +1508,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantNoAuthorityId_isGuest() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     applicant.setAccount(account);
     applicant.save();
 
@@ -1519,7 +1519,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void getPersonalInfo_applicantNoAuthorityIdIsManaged_isTiPartiallyCreated() {
     Applicant applicant = resourceCreator.insertApplicant();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     TrustedIntermediaryGroup group = resourceCreator.insertTrustedIntermediaryGroup();
     account.setManagedByGroup(group);
     applicant.setAccount(account);
@@ -2021,7 +2021,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   public void relevantProgramsForApplicant_tiOnly() {
     Applicant applicant = createTestApplicant();
     Applicant ti = resourceCreator.insertApplicant();
-    Account tiAccount = resourceCreator.insertAccount();
+    AccountModel tiAccount = resourceCreator.insertAccount();
     TrustedIntermediaryGroup tiGroup =
         new TrustedIntermediaryGroup("Super Cool CBO", "Description");
     tiGroup.save();
@@ -2329,7 +2329,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application submittedApplication =
         applicationRepository
             .submitApplication(applicant.id, program.id, Optional.empty())
@@ -2368,7 +2368,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         .addQuestion(testQuestionBank.applicantFavoriteColor())
         .save();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application submittedApplication =
         applicationRepository
             .submitApplication(applicant.id, originalProgram.id, Optional.empty())
@@ -2815,7 +2815,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   private static void addStatusEvent(
-      Application application, StatusDefinitions.Status status, Account actorAccount) {
+      Application application, StatusDefinitions.Status status, AccountModel actorAccount) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.STATUS_CHANGE)

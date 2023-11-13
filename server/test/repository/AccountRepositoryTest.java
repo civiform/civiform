@@ -9,7 +9,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.Set;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.LifecycleStage;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   @Test
   public void lookupByAuthorityId() {
 
-    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(repo.lookupAccountByAuthorityId(AUTHORITY_ID).get().getEmailAddress())
         .isEqualTo(EMAIL);
@@ -76,14 +76,14 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void lookupByEmailAddress() {
-    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(repo.lookupAccountByEmail(EMAIL).get().getAuthorityId()).isEqualTo(AUTHORITY_ID);
   }
 
   @Test
   public void lookupByEmailAddressAsync() {
-    new Account().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
+    new AccountModel().setEmailAddress(EMAIL).setAuthorityId(AUTHORITY_ID).save();
 
     assertThat(
             repo.lookupAccountByEmailAsync(EMAIL)
@@ -144,7 +144,7 @@ public class AccountRepositoryTest extends ResetPostgres {
 
   @Test
   public void addAdministeredProgram_existingAccount_succeeds() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(EMAIL);
     account.save();
 
@@ -189,7 +189,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void removeAdministeredProgram_succeeds() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(EMAIL);
     account.addAdministeredProgram(program);
     account.save();
@@ -205,7 +205,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   public void removeAdministeredProgram_accountNotAdminForProgram_doesNothing() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram(PROGRAM_NAME).buildDefinition();
 
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(EMAIL);
     account.save();
     assertThat(account.getAdministeredProgramNames()).doesNotContain(PROGRAM_NAME);

@@ -10,7 +10,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.TrustedIntermediaryGroup;
 import play.data.Form;
@@ -126,11 +126,11 @@ public final class TrustedIntermediaryService {
    */
   public TrustedIntermediarySearchResult getManagedAccounts(
       SearchParameters searchParameters, TrustedIntermediaryGroup tiGroup) {
-    ImmutableList<Account> allAccounts = tiGroup.getManagedAccounts();
+    ImmutableList<AccountModel> allAccounts = tiGroup.getManagedAccounts();
     if (searchParameters.nameQuery().isEmpty() && searchParameters.dateQuery().isEmpty()) {
       return TrustedIntermediarySearchResult.success(allAccounts);
     }
-    final ImmutableList<Account> searchedResult;
+    final ImmutableList<AccountModel> searchedResult;
     try {
       searchedResult = searchAccounts(searchParameters, allAccounts);
     } catch (DateTimeParseException e) {
@@ -140,8 +140,8 @@ public final class TrustedIntermediaryService {
     return TrustedIntermediarySearchResult.success(searchedResult);
   }
 
-  private ImmutableList<Account> searchAccounts(
-      SearchParameters searchParameters, ImmutableList<Account> allAccounts) {
+  private ImmutableList<AccountModel> searchAccounts(
+      SearchParameters searchParameters, ImmutableList<AccountModel> allAccounts) {
     return allAccounts.stream()
         .filter(
             account ->
@@ -191,7 +191,7 @@ public final class TrustedIntermediaryService {
     if (form.hasErrors()) {
       return form;
     }
-    Optional<Account> optionalAccount =
+    Optional<AccountModel> optionalAccount =
         trustedIntermediaryGroup.getManagedAccounts().stream()
             .filter(account -> account.id.equals(accountId))
             .findAny();

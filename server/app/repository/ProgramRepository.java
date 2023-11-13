@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import models.Account;
+import models.AccountModel;
 import models.Application;
 import models.LifecycleStage;
 import models.ProgramModel;
@@ -231,10 +231,10 @@ public final class ProgramRepository {
         .orElseThrow(() -> new ProgramDraftNotFoundException(slug));
   }
 
-  public ImmutableList<Account> getProgramAdministrators(String programName) {
+  public ImmutableList<AccountModel> getProgramAdministrators(String programName) {
     return ImmutableList.copyOf(
         database
-            .find(Account.class)
+            .find(AccountModel.class)
             .setLabel("Account.findList")
             .setProfileLocation(queryProfileLocationBuilder.create("getProgramAdministrators"))
             .where()
@@ -242,7 +242,7 @@ public final class ProgramRepository {
             .findList());
   }
 
-  public ImmutableList<Account> getProgramAdministrators(long programId)
+  public ImmutableList<AccountModel> getProgramAdministrators(long programId)
       throws ProgramNotFoundException {
     Optional<ProgramModel> program =
         database

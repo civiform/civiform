@@ -3,7 +3,7 @@ package auth;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import javax.inject.Provider;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
@@ -58,7 +58,7 @@ public final class CiviFormProfileMerger {
       Applicant applicantInDatabase, CiviFormProfile sessionGuestProfile) {
     // Merge guest applicant data into already existing account in database
     Applicant guestApplicant = sessionGuestProfile.getApplicant().join();
-    Account existingAccount = applicantInDatabase.getAccount();
+    AccountModel existingAccount = applicantInDatabase.getAccount();
     Applicant mergedApplicant =
         applicantRepositoryProvider
             .get()

@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Account;
+import models.AccountModel;
 import models.StoredFile;
 import org.pac4j.play.java.Secure;
 import play.libs.concurrent.HttpExecutionContext;
@@ -105,7 +105,7 @@ public class FileController extends CiviFormController {
       return notFound();
     }
 
-    Account adminAccount =
+    AccountModel adminAccount =
         profileUtils.currentUserProfile(request).orElseThrow().getAccount().join();
 
     return maybeFile.get().getAcls().hasProgramReadPermission(adminAccount)
