@@ -43,7 +43,7 @@ public class Applicant extends BaseModel {
   private String preferredLocale;
 
   @Constraints.Required @DbJson private String object;
-  @ManyToOne private Account account;
+  @ManyToOne private AccountModel account;
 
   @OneToMany(mappedBy = "applicant")
   private List<Application> applications;
@@ -86,11 +86,11 @@ public class Applicant extends BaseModel {
     return getApplicantData().asJsonString();
   }
 
-  public Account getAccount() {
+  public AccountModel getAccount() {
     return account;
   }
 
-  public Applicant setAccount(Account account) {
+  public Applicant setAccount(AccountModel account) {
     this.account = account;
     return this;
   }
@@ -101,6 +101,12 @@ public class Applicant extends BaseModel {
 
   public Instant getWhenCreated() {
     return this.whenCreated;
+  }
+
+  @VisibleForTesting
+  public Applicant setWhenCreated(Instant whenCreated) {
+    this.whenCreated = whenCreated;
+    return this;
   }
 
   /** Convenience to save the model and return it. */

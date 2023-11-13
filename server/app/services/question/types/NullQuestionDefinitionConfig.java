@@ -65,6 +65,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     return Optional.empty();
   }
 
+  @Override
+  boolean universal() {
+    return false;
+  }
+
   /** Used to create a new {@link Builder} based on an existing one. */
   public static class Builder extends QuestionDefinitionConfig.Builder {
 
@@ -123,6 +128,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     public QuestionDefinitionConfig.Builder setValidationPredicates(
         QuestionDefinition.ValidationPredicates validationPredicates) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setUniversal(boolean Universal) {
       return this;
     }
 

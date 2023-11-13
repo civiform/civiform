@@ -4,24 +4,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import auth.ProgramAcls;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.DisplayMode;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import models.Version;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.LoggerFactory;
 import services.DateConverter;
+import services.Path;
+import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramType;
 import support.CfTestHelpers;
 
@@ -45,7 +43,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_updatesOtherApplicationVersions() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    ProgramModel program = createDraftProgram("Program");
 
     Application appOne =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
@@ -62,7 +60,9 @@ public class ApplicationRepositoryTest extends ResetPostgres {
                 .getLifecycleStage())
         .isEqualTo(LifecycleStage.DRAFT);
 
-    // Submit another application for the same program and applicant.
+    // Submit another application for the same program and applicant, but update the applicantData
+    // object so it is not detected as a duplicate.
+    applicant.getApplicantData().putString(Path.create("text"), "text");
     repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
 
     assertThat(
@@ -80,16 +80,11 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void submitApplication_doesNotUpdateOtherProgramApplications() {
-    Logger logger = (Logger) LoggerFactory.getLogger(ApplicationRepository.class);
-    ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
-    listAppender.start();
-    logger.addAppender(listAppender);
-
     Applicant applicant1 = saveApplicant("Alice");
     Applicant applicant2 = saveApplicant("Bob");
 
-    Program program1 = createDraftProgram("Program");
-    Program program2 = createDraftProgram("OtherProgram");
+    ProgramModel program1 = createDraftProgram("Program");
+    ProgramModel program2 = createDraftProgram("OtherProgram");
 
     repo.createOrUpdateDraft(applicant1, program1).toCompletableFuture().join();
 
@@ -101,25 +96,18 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
     assertThat(app2.getSubmitTime()).isEqualTo(appTwoInitialSubmitTime);
     assertThat(app2.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
-
-    ImmutableList<ILoggingEvent> logsList = ImmutableList.copyOf(listAppender.list);
-    assertThat(logsList)
-        .noneSatisfy(
-            event -> {
-              assertThat(event.getFormattedMessage()).matches(".*duplicate = true.*");
-            });
   }
 
   @Test
   public void createOrUpdateDraftApplication_updatesExistingDraft() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createActiveProgram("Program");
+    ProgramModel program = createActiveProgram("Program");
     Application appDraft1 =
         repo.createOrUpdateDraft(applicant, program).toCompletableFuture().join();
 
     // If the applicant already has an application to a different version of
     // the same program, that version should be used.
-    Program programV2 = createDraftProgram("Program");
+    ProgramModel programV2 = createDraftProgram("Program");
 
     assertThat(program.id).isNotEqualTo(programV2.id);
 
@@ -137,7 +125,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_twoDraftsThrowsException() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    ProgramModel program = createDraftProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
     Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -171,14 +159,29 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   @Test
   public void submitApplication_noDrafts() {
     Applicant applicant = saveApplicant("Alice");
-    Program program = createDraftProgram("Program");
+    ProgramModel program = createDraftProgram("Program");
     Application app =
         repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
     assertThat(repo.getApplication(app.id).toCompletableFuture().join().get().getLifecycleStage())
         .isEqualTo(LifecycleStage.ACTIVE);
   }
 
-  private Application createSubmittedAppAtInstant(Program program, Instant submitTime) {
+  @Test
+  public void submitApplication_duplicateSubmissionsThrowsException() {
+    Applicant applicant = saveApplicant("Alice");
+    ProgramModel program = createDraftProgram("Program");
+
+    repo.submitApplication(applicant, program, Optional.empty()).toCompletableFuture().join();
+    assertThatThrownBy(
+            () ->
+                repo.submitApplication(applicant, program, Optional.empty())
+                    .toCompletableFuture()
+                    .join())
+        .cause()
+        .isInstanceOf(DuplicateApplicationException.class);
+  }
+
+  private Application createSubmittedAppAtInstant(ProgramModel program, Instant submitTime) {
     // Use a distinct applicant for each application since it's not possible to create multiple
     // submitted applications for the same program for a given applicant.
     Applicant applicant = saveApplicant("Alice");
@@ -196,8 +199,8 @@ public class ApplicationRepositoryTest extends ResetPostgres {
 
   @Test
   public void getApplications() {
-    Program programOne = createDraftProgram("first");
-    Program programTwo = createDraftProgram("second");
+    ProgramModel programOne = createDraftProgram("first");
+    ProgramModel programTwo = createDraftProgram("second");
 
     Instant yesterday = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-02");
     Instant today = dateConverter.parseIso8601DateToStartOfDateInstant("2022-01-03");
@@ -251,7 +254,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   public void getApplicationsForApplicant() throws Exception {
     Applicant applicant = saveApplicant("Applicant");
 
-    Program program = createDraftProgram("Program");
+    ProgramModel program = createDraftProgram("Program");
     Application appDraft1 = Application.create(applicant, program, LifecycleStage.DRAFT);
     appDraft1.save();
     Application appDraft2 = Application.create(applicant, program, LifecycleStage.DRAFT);
@@ -300,7 +303,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     Applicant primaryApplicant = saveApplicant("Applicant");
     Applicant otherApplicant = saveApplicant("Other");
 
-    Program program = createDraftProgram("Program");
+    ProgramModel program = createDraftProgram("Program");
     Application primaryApplicantDraftApp =
         Application.create(primaryApplicant, program, LifecycleStage.DRAFT);
     primaryApplicantDraftApp.save();
@@ -340,7 +343,7 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   private Applicant saveApplicant(String name) {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     Applicant applicant = new Applicant();
     applicant.getApplicantData().setUserName(name);
     applicant.setAccount(account);
@@ -348,17 +351,17 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     return applicant;
   }
 
-  private Program createDraftProgram(String name) {
+  private ProgramModel createDraftProgram(String name) {
     return createProgram(name, draftVersion);
   }
 
-  private Program createActiveProgram(String name) {
+  private ProgramModel createActiveProgram(String name) {
     return createProgram(name, activeVersion);
   }
 
-  private Program createProgram(String name, Version version) {
-    Program program =
-        new Program(
+  private ProgramModel createProgram(String name, Version version) {
+    ProgramModel program =
+        new ProgramModel(
             name,
             "desc",
             name,

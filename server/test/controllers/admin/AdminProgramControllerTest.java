@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -354,7 +354,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Program> newProgram =
+    Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(
             adminName, versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
@@ -377,7 +377,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void edit_returnsExpectedForm() throws Exception {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Program program = ProgramBuilder.newDraftProgram("test program").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
 
     Result result = controller.edit(request, program.id);
 
@@ -391,7 +391,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
   @Test
   public void edit_withNoneDraftProgram_throwsNotChangeableException() throws Exception {
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Program program = ProgramBuilder.newActiveProgram("test program").build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test program").build();
 
     assertThatThrownBy(() -> controller.edit(request, program.id))
         .isInstanceOf(NotChangeableException.class);
@@ -402,11 +402,11 @@ public class AdminProgramControllerTest extends ResetPostgres {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
 
     Result result = controller.newVersionFrom(request, activeProgram.id);
-    Optional<Program> newDraft =
+    Optional<ProgramModel> newDraft =
         versionRepository.getProgramByNameForVersion(
             programName, versionRepository.getDraftVersionOrCreate());
 
@@ -427,9 +427,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
     // When there's a draft, editing the active one instead edits the existing draft.
     String programName = "test program";
     Request request = addCSRFToken(requestBuilderWithSettings()).build();
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram(programName, "active description").build();
-    Program draftProgram = ProgramBuilder.newDraftProgram(programName, "draft description").build();
+    ProgramModel draftProgram =
+        ProgramBuilder.newDraftProgram(programName, "draft description").build();
 
     Result result = controller.newVersionFrom(request, activeProgram.id);
 
@@ -439,7 +440,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
         .hasValue(
             controllers.admin.routes.AdminProgramBlocksController.index(draftProgram.id).url());
 
-    Program updatedDraft =
+    ProgramModel updatedDraft =
         programRepository.lookupProgram(draftProgram.id).toCompletableFuture().join().get();
     assertThat(updatedDraft.getProgramDefinition().adminDescription())
         .isEqualTo("draft description");
@@ -458,7 +459,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_invalidInput_returnsFormWithErrors() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("Existing One").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("Existing One").build();
     Request request =
         addCSRFToken(requestBuilderWithSettings())
             .bodyForm(ImmutableMap.of("name", "", "description", ""))
@@ -474,7 +475,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_overwritesExistingProgram() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     RequestBuilder requestBuilder =
         requestBuilderWithSettings()
             .bodyForm(
@@ -509,7 +511,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_showsErrorsBeforePromptingUserToConfirmCommonIntakeChange() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     RequestBuilder requestBuilder =
@@ -541,7 +544,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_promptsUserToConfirmCommonIntakeChange() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     RequestBuilder requestBuilder =
@@ -572,7 +576,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_doesNotPromptUserToConfirmCommonIntakeChangeIfNoneExists() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
 
     RequestBuilder requestBuilder =
         addCSRFToken(
@@ -613,7 +618,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void update_allowsChangingCommonIntakeAfterConfirming() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("Existing One", "old description").build();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Existing One", "old description").build();
     ProgramBuilder.newActiveCommonIntakeForm("Old common intake").build();
 
     String newProgramName = "External program name";
@@ -641,7 +647,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Result result = controller.update(addCSRFToken(requestBuilder).build(), program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    Optional<Program> newProgram =
+    Optional<ProgramModel> newProgram =
         versionRepository.getProgramByNameForVersion(
             "Existing One", versionRepository.getDraftVersionOrCreate());
     assertThat(newProgram).isPresent();
@@ -655,7 +661,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void setEligibilityIsGating() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("one").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("one").build();
     assertThat(program.getProgramDefinition().eligibilityIsGating()).isTrue();
 
     RequestBuilder request =
@@ -666,7 +672,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(result.redirectLocation())
         .hasValue(routes.AdminProgramController.editProgramSettings(program.id).url());
 
-    Program updatedDraft =
+    ProgramModel updatedDraft =
         programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isFalse();
   }
@@ -684,7 +690,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void publishProgram() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram("one").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("one").build();
     Result result =
         controller.publishProgram(addCSRFToken(requestBuilderWithSettings()).build(), program.id);
 
@@ -696,7 +702,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
   @Test
   public void publishProgram_nonDraftProgram_throwsException() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram("active").build();
+    ProgramModel program = ProgramBuilder.newActiveProgram("active").build();
     assertThatThrownBy(
             () ->
                 controller.publishProgram(

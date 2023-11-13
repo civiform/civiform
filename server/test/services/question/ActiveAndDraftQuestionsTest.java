@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Optional;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import models.Version;
 import org.junit.Before;
@@ -291,12 +291,12 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     // DRAFT version - second-program and third-program
 
     // newActiveProgram / newDraftProgram automatically adds the program to the specified version.
-    Program firstProgramActive =
+    ProgramModel firstProgramActive =
         ProgramBuilder.newActiveProgram("first-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(question)
             .build();
-    Program secondProgramActive =
+    ProgramModel secondProgramActive =
         ProgramBuilder.newActiveProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
@@ -306,14 +306,14 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
 
     // No longer reference the question from the first program.
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    Program secondProgramDraft =
+    ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
             .withBlock("Screen 3")
             .withRequiredQuestion(question)
             .build();
-    Program thirdProgramDraft =
+    ProgramModel thirdProgramDraft =
         ProgramBuilder.newDraftProgram("third-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(question)
@@ -338,12 +338,12 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     Question activeQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getActiveVersion().addQuestion(activeQuestion).save();
     // newActiveProgram / newDraftProgram automatically adds the program to the specified version.
-    Program firstProgramActive =
+    ProgramModel firstProgramActive =
         ProgramBuilder.newActiveProgram("first-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(activeQuestion)
             .build();
-    Program secondProgramActive =
+    ProgramModel secondProgramActive =
         ProgramBuilder.newActiveProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
@@ -354,14 +354,14 @@ public class ActiveAndDraftQuestionsTest extends ResetPostgres {
     Question draftQuestion = resourceCreator.insertQuestion(TEST_QUESTION_NAME);
     versionRepository.getDraftVersionOrCreate().addQuestion(draftQuestion).save();
     ProgramBuilder.newDraftProgram("first-program").withBlock("Screen 1").build();
-    Program secondProgramDraft =
+    ProgramModel secondProgramDraft =
         ProgramBuilder.newDraftProgram("second-program")
             .withBlock("Screen 1")
             .withBlock("Screen 2")
             .withBlock("Screen 3")
             .withRequiredQuestion(draftQuestion)
             .build();
-    Program thirdProgramDraft =
+    ProgramModel thirdProgramDraft =
         ProgramBuilder.newDraftProgram("third-program")
             .withBlock("Screen 1")
             .withRequiredQuestion(draftQuestion)

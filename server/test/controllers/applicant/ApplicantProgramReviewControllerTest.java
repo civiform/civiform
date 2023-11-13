@@ -11,11 +11,11 @@ import static support.CfTestHelpers.requestBuilderWithSettings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -31,7 +31,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   private ApplicantProgramReviewController subject;
   private ApplicantProgramBlocksController blockController;
-  private Program activeProgram;
+  private ProgramModel activeProgram;
   public Applicant applicant;
   public Applicant applicantWithoutProfile;
 
@@ -67,7 +67,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -79,9 +79,9 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_civiformAdminAccessToDraftProgram_isOk() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -92,7 +92,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void review_obsoleteProgram_isOk() {
-    Program obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
+    ProgramModel obsoleteProgram = ProgramBuilder.newObsoleteProgram("program").build();
     Result result = this.review(applicant.id, obsoleteProgram.id);
     assertThat(result.status()).isEqualTo(OK);
   }
@@ -127,7 +127,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_applicantAccessToDraftProgram_redirectsToHome() {
-    Program draftProgram =
+    ProgramModel draftProgram =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -139,7 +139,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_civiformAdminAccessToDraftProgram_redirectsAndDoesNotSubmitApplication() {
-    Account adminAccount = createGlobalAdminWithMockedProfile();
+    AccountModel adminAccount = createGlobalAdminWithMockedProfile();
     applicant = adminAccount.newestApplicant().orElseThrow();
 
     ProgramBuilder.newActiveProgram("test program", "desc")
@@ -202,7 +202,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_isSuccessful() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -227,7 +227,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
   @Test
   public void submit_incomplete_showsError() {
-    Program activeProgram =
+    ProgramModel activeProgram =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank().applicantName())
@@ -238,6 +238,40 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(result.flash().get("error")).isPresent();
     assertThat(result.flash().get("error").get())
         .contains("There's been an update to the application");
+  }
+
+  @Test
+  public void submit_duplicate_handlesErrorAndDoesNotSaveDuplicateApplication() {
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().applicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+    this.submit(applicant.id, activeProgram.id);
+
+    // Submit the application again without editing
+    Result noEditsResult = this.submit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(noEditsResult.status()).isEqualTo(OK);
+
+    // Edit the application but re-enter the same values
+    answer(activeProgram.id);
+    Result sameValuesResult = this.submit(applicant.id, activeProgram.id);
+    // Error is handled and applicant is shown duplicates page
+    assertThat(sameValuesResult.status()).isEqualTo(OK);
+
+    // There is only one application saved in the db
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<Application> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
   public Result review(long applicantId, long programId) {

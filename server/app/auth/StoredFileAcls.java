@@ -6,7 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Nullable;
-import models.Account;
+import models.AccountModel;
 import services.program.ProgramDefinition;
 
 /**
@@ -49,7 +49,7 @@ public final class StoredFileAcls {
     return this;
   }
 
-  public boolean hasProgramReadPermission(Account account) {
+  public boolean hasProgramReadPermission(AccountModel account) {
     return account.getAdministeredProgramNames().stream().anyMatch(programReadAcls::contains);
   }
 

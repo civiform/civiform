@@ -3,9 +3,10 @@ package auth;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import org.pac4j.core.profile.CommonProfile;
+import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import repository.DatabaseExecutionContext;
 
 /**
@@ -27,6 +28,26 @@ public class CiviFormProfileData extends CommonProfile {
   }
 
   /**
+   * Sets the "canonical" email field in the profile data. Some identity providers use non-standard
+   * attribute names for email. We use the attribute name provided by pac4j here to ensure all
+   * profiles store the email in the same place to make it is accessible via {@code
+   * CommonProfile.getEmail()}.
+   */
+  public CiviFormProfileData setEmail(String email) {
+    addAttribute(CommonProfileDefinition.EMAIL, email);
+    return this;
+  }
+
+  /**
+   * True if the "canonical" email attribute is set in the profile data. Some identity providers use
+   * non-standard attribute names for email. We use the attribute name provided by pac4j here for
+   * all profiles for consistency.
+   */
+  public boolean hasCanonicalEmail() {
+    return getAttributes().containsKey(CommonProfileDefinition.EMAIL);
+  }
+
+  /**
    * This method needs to be called outside the constructor since constructors should not do
    * database accesses (or other work). It should be called before the object is used - the object
    * has not been persisted / correctly created until it is called.
@@ -40,7 +61,7 @@ public class CiviFormProfileData extends CommonProfile {
     // asynchronous because the security code that executes it is entirely synchronous.
     supplyAsync(
             () -> {
-              Account acc = new Account();
+              AccountModel acc = new AccountModel();
               acc.save();
               Applicant newA = new Applicant();
               newA.setAccount(acc);

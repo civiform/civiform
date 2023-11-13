@@ -20,10 +20,10 @@ describe('Dropdown question for applicant flow', () => {
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-color-q',
         options: [
-          {adminName: 'red admin', text: 'red'},
-          {adminName: 'green admin', text: 'green'},
-          {adminName: 'orange admin', text: 'orange'},
-          {adminName: 'blue admin', text: 'blue'},
+          {adminName: 'red_admin', text: 'red'},
+          {adminName: 'green_admin', text: 'green'},
+          {adminName: 'orange_admin', text: 'orange'},
+          {adminName: 'blue_admin', text: 'blue'},
         ],
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
@@ -44,10 +44,10 @@ describe('Dropdown question for applicant flow', () => {
           questionText: 'Sample question text',
           helpText: 'Sample question help text',
           options: [
-            {adminName: 'red admin', text: 'red'},
-            {adminName: 'green admin', text: 'green'},
-            {adminName: 'orange admin', text: 'orange'},
-            {adminName: 'blue admin', text: 'blue'},
+            {adminName: 'red_admin', text: 'red'},
+            {adminName: 'green_admin', text: 'green'},
+            {adminName: 'orange_admin', text: 'orange'},
+            {adminName: 'blue_admin', text: 'blue'},
           ],
         },
         /* clickSubmit= */ false,
@@ -125,19 +125,19 @@ describe('Dropdown question for applicant flow', () => {
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-fave-vacation-q',
         options: [
-          {adminName: 'beach admin', text: 'beach'},
-          {adminName: 'mountains admin', text: 'mountains'},
-          {adminName: 'city admin', text: 'city'},
-          {adminName: 'cruise admin', text: 'cruise'},
+          {adminName: 'beach_admin', text: 'beach'},
+          {adminName: 'mountains_admin', text: 'mountains'},
+          {adminName: 'city_admin', text: 'city'},
+          {adminName: 'cruise_admin', text: 'cruise'},
         ],
       })
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-fave-color-q',
         options: [
-          {adminName: 'red admin', text: 'red'},
-          {adminName: 'green admin', text: 'green'},
-          {adminName: 'orange admin', text: 'orange'},
-          {adminName: 'blue admin', text: 'blue'},
+          {adminName: 'red_admin', text: 'red'},
+          {adminName: 'green_admin', text: 'green'},
+          {adminName: 'orange_admin', text: 'orange'},
+          {adminName: 'blue_admin', text: 'blue'},
         ],
       })
 

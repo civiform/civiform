@@ -12,7 +12,7 @@ import javax.inject.Provider;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import org.apache.commons.lang3.tuple.Triple;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,10 +24,10 @@ public class ReportingRepositoryTest extends ResetPostgres {
 
   private ReportingRepository repo;
   private Applicant applicant;
-  private Program programA;
-  private Program programB;
   private VersionRepository versionRepository;
   private Provider<VersionRepository> versionRepositoryProvider;
+  private ProgramModel programA;
+  private ProgramModel programB;
 
   @Before
   public void setUp() {
@@ -163,7 +163,7 @@ public class ReportingRepositoryTest extends ResetPostgres {
   }
 
   private Application createFakeApplication(
-      Program program, LifecycleStage lifecycleStage, Instant createTime, Instant submitTime) {
+      ProgramModel program, LifecycleStage lifecycleStage, Instant createTime, Instant submitTime) {
     Application application = new Application(applicant, program, lifecycleStage);
     application.setApplicantData(applicant.getApplicantData());
     application.save();

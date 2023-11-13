@@ -31,12 +31,14 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
+import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantProgramSummaryView;
 import views.applicant.IneligibleBlockView;
+import views.applicant.PreventDuplicateSubmissionView;
 import views.components.Modal;
 import views.components.Modal.RepeatOpenBehavior;
 import views.components.ToastMessage;
@@ -54,6 +56,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
   private final IneligibleBlockView ineligibleBlockView;
+  private final PreventDuplicateSubmissionView preventDuplicateSubmissionView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
 
@@ -64,6 +67,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
       IneligibleBlockView ineligibleBlockView,
+      PreventDuplicateSubmissionView preventDuplicateSubmissionView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
@@ -74,6 +78,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
     this.ineligibleBlockView = checkNotNull(ineligibleBlockView);
+    this.preventDuplicateSubmissionView = checkNotNull(preventDuplicateSubmissionView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
   }
@@ -298,6 +303,16 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   } catch (ProgramNotFoundException e) {
                     notFound(e.toString());
                   }
+                }
+                if (cause instanceof DuplicateApplicationException) {
+                  ReadOnlyApplicantProgramService roApplicantProgramService =
+                      readOnlyApplicantProgramServiceFuture.join();
+                  return ok(
+                      preventDuplicateSubmissionView.render(
+                          request,
+                          roApplicantProgramService,
+                          messagesApi.preferred(request),
+                          applicantId));
                 }
                 throw new RuntimeException(cause);
               }

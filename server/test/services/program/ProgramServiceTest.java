@@ -25,9 +25,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
-import models.Account;
+import models.AccountModel;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import org.junit.Before;
 import org.junit.Test;
@@ -311,7 +311,7 @@ public class ProgramServiceTest extends ResetPostgres {
     // Program name here is missing the extra space
     // so that the names are different but the resulting
     // slug is the same.
-    Program updatedProgram =
+    ProgramModel updatedProgram =
         originalProgramDefinition.toBuilder().setAdminName("name    one").build().toProgram();
     updatedProgram.update();
     assertThat(updatedProgram.getProgramDefinition().adminName()).isEqualTo("name    one");
@@ -520,7 +520,7 @@ public class ProgramServiceTest extends ResetPostgres {
     // Program name here is missing the extra space
     // so that the names are different but the resulting
     // slug is the same.
-    Program updatedProgram =
+    ProgramModel updatedProgram =
         originalProgramDefinition.toBuilder().setAdminName("name    one").build().toProgram();
     updatedProgram.update();
     assertThat(updatedProgram.getProgramDefinition().adminName()).isEqualTo("name    one");
@@ -1147,7 +1147,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void addRepeatedBlockToProgram() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantHouseholdMembers())
@@ -1196,7 +1196,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void addRepeatedBlockToProgram_toEndOfBlockList() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram()
             .withBlock()
             .withRequiredQuestion(testQuestionBank.applicantFavoriteColor())
@@ -1252,7 +1252,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void
       addRepeatedBlockToProgram_invalidEnumeratorId_throwsProgramBlockDefinitionNotFoundException() {
-    Program program = ProgramBuilder.newActiveProgram().build();
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
     assertThatThrownBy(() -> ps.addRepeatedBlockToProgram(program.id, 5L))
         .isInstanceOf(ProgramBlockDefinitionNotFoundException.class);
@@ -1395,7 +1395,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void addQuestionsToBlock_withDuplicatedQuestions_throwsCantAddQuestionToBlockException() {
     QuestionDefinition questionA = nameQuestion;
 
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestionDefinition(questionA)
@@ -1432,7 +1432,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void removeQuestionsFromBlock_withoutQuestion_throwsQuestionNotFoundException()
       throws Exception {
     QuestionDefinition questionA = nameQuestion;
-    Program program = ProgramBuilder.newDraftProgram().withBlock().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withBlock().build();
 
     assertThatThrownBy(
             () -> ps.removeQuestionsFromBlock(program.id, 1L, ImmutableList.of(questionA.getId())))
@@ -1486,7 +1486,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void setBlockPredicate_updatesBlock() throws Exception {
     Question question = testQuestionBank.applicantAddress();
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(question)
@@ -1599,7 +1599,7 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void setBlockEligibilityDefinition_updatesBlock() throws Exception {
     Question question = testQuestionBank.applicantAddress();
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestion(question)
@@ -1673,7 +1673,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void removeBlockPredicate() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
             .withRequiredQuestionDefinition(addressQuestion)
@@ -1860,7 +1860,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void deleteBlock_lastBlock_throwsProgramNeedsABlockException() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     assertThatThrownBy(() -> ps.deleteBlock(program.id, 1L))
         .isInstanceOf(ProgramNeedsABlockException.class);
@@ -1944,7 +1944,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void newProgramFromExisting() throws Exception {
-    Program program = ProgramBuilder.newActiveProgram().build();
+    ProgramModel program = ProgramBuilder.newActiveProgram().build();
     program.save();
 
     ProgramDefinition newDraft = ps.newDraftOf(program.id);
@@ -1989,7 +1989,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_addsNewLocale() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
@@ -2047,7 +2047,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_updatesExistingLocale() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
@@ -2114,7 +2114,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_returnsErrorMessages() throws Exception {
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
 
     LocalizationUpdate updateData =
         LocalizationUpdate.builder()
@@ -2149,7 +2149,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_allowsClearingStatusFields() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
@@ -2207,7 +2207,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_providesUnrecognizedStatuses_throws() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
@@ -2242,7 +2242,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_doesNotProvideStatus_throws() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(STATUS_WITH_EMAIL, STATUS_WITH_NO_EMAIL)))
@@ -2268,7 +2268,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void updateLocalizations_emailProvidedInUpdateWithNoEmailInConfigure_throws() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("English name", "English description")
             .withLocalizedName(Locale.FRENCH, "existing French name")
             .withLocalizedDescription(Locale.FRENCH, "existing French description")
@@ -2306,14 +2306,14 @@ public class ProgramServiceTest extends ResetPostgres {
   @Test
   public void getNotificationEmailAddresses() {
     String programName = "administered program";
-    Program program = resourceCreator.insertActiveProgram(programName);
+    ProgramModel program = resourceCreator.insertActiveProgram(programName);
     program.save();
 
     // If there are no admins (uncommon), return empty.
     assertThat(ps.getNotificationEmailAddresses(programName)).isEmpty();
 
     String globalAdminEmail = "global@admin";
-    Account globalAdmin = new Account();
+    AccountModel globalAdmin = new AccountModel();
     globalAdmin.setEmailAddress(globalAdminEmail);
     globalAdmin.setGlobalAdmin(true);
     globalAdmin.save();
@@ -2322,7 +2322,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(ps.getNotificationEmailAddresses(programName)).containsExactly(globalAdminEmail);
 
     String programAdminEmail = "program@admin";
-    Account programAdmin = new Account();
+    AccountModel programAdmin = new AccountModel();
     programAdmin.setEmailAddress(programAdminEmail);
     programAdmin.addAdministeredProgram(program.getProgramDefinition());
     programAdmin.save();
@@ -2457,7 +2457,7 @@ public class ProgramServiceTest extends ResetPostgres {
   public void appendStatus() throws Exception {
     // Also tests unsetDefaultStatus
 
-    Program program = ProgramBuilder.newDraftProgram().build();
+    ProgramModel program = ProgramBuilder.newDraftProgram().build();
     assertThat(program.getStatusDefinitions().getStatuses()).isEmpty();
 
     final ErrorAnd<ProgramDefinition, CiviFormError> firstResult =
@@ -2485,7 +2485,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void appendStatus_duplicateStatus_throws() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
@@ -2506,7 +2506,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void editStatus() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
@@ -2548,7 +2548,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void editStatus_updatedStatusIsDuplicate_throws() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
@@ -2577,7 +2577,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void editStatus_missingStatus_returnsError() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
@@ -2602,7 +2602,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void deleteStatus() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(
                 new StatusDefinitions(ImmutableList.of(APPROVED_STATUS, REJECTED_STATUS)))
@@ -2626,7 +2626,7 @@ public class ProgramServiceTest extends ResetPostgres {
 
   @Test
   public void deleteStatus_missingStatus_returnsError() throws Exception {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();

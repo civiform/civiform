@@ -7,11 +7,11 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import junitparams.converters.Nullable;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import org.junit.Before;
 import repository.ResetPostgres;
@@ -51,10 +51,10 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   private ProgramAdminApplicationService programAdminApplicationService;
 
-  protected Program fakeProgramWithEnumerator;
-  protected Program fakeProgramWithEligibility;
-  protected Program fakeProgramWithOptionalFileUpload;
-  protected Program fakeProgram;
+  protected ProgramModel fakeProgramWithEnumerator;
+  protected ProgramModel fakeProgramWithEligibility;
+  protected ProgramModel fakeProgramWithOptionalFileUpload;
+  protected ProgramModel fakeProgram;
   protected ImmutableList<Question> fakeQuestions;
   protected Applicant applicantOne;
   protected Applicant applicantFive;
@@ -155,7 +155,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * is a different user in Active state.
    */
   protected void createFakeApplications() throws Exception {
-    Account admin = resourceCreator.insertAccount();
+    AccountModel admin = resourceCreator.insertAccount();
     Applicant applicantOne = resourceCreator.insertApplicantWithAccount();
     Applicant applicantTwo = resourceCreator.insertApplicantWithAccount();
     testQuestionBank.getSampleQuestionsForAllTypes().entrySet().stream()
@@ -183,8 +183,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   private Application createFakeApplication(
       Applicant applicant,
-      @Nullable Account admin,
-      Program program,
+      @Nullable AccountModel admin,
+      ProgramModel program,
       LifecycleStage lifecycleStage,
       @Nullable String status)
       throws Exception {
@@ -543,7 +543,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
-    Program build() {
+    ProgramModel build() {
       if (addEnumeratorQuestion && addNestedEnumeratorQuestion) {
         fakeProgramBuilder
             .withBlock()
@@ -570,13 +570,13 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
   /** A "Builder" to fill a fake application one question at a time. */
   static class FakeApplicationFiller {
-    Account admin;
+    AccountModel admin;
     Applicant applicant;
-    Program program;
-    Optional<Account> trustedIntermediary = Optional.empty();
+    ProgramModel program;
+    Optional<AccountModel> trustedIntermediary = Optional.empty();
     Application application;
 
-    public FakeApplicationFiller(Program program) {
+    public FakeApplicationFiller(ProgramModel program) {
       this.program = program;
       this.applicant = resourceCreator.insertApplicantWithAccount();
       this.admin = resourceCreator.insertAccount();

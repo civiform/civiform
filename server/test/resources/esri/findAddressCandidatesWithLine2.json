@@ -1,0 +1,23 @@
+{
+  "spatialReference": {
+    "wkid": 4326,
+    "latestWkid": 4326
+  },
+  "candidates": [
+    {
+      "address": "Apartment Address, Apt 123, Redlands, California, 92373",
+      "location": {
+        "x": -100,
+        "y": 100
+      },
+      "score": 100,
+      "attributes": {
+        "SubAddr": "Apt 123",
+        "Address": "Apartment Address",
+        "City": "Redlands",
+        "RegionAbbr": "CA",
+        "Postal": "92373"
+      }
+    }
+  ]
+}

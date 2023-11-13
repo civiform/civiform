@@ -7,7 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
-import models.Program;
+import models.ProgramModel;
 import org.junit.Test;
 import play.data.FormFactory;
 import play.mvc.Http.Request;
@@ -159,7 +159,7 @@ public class ProgramTranslationFormTest extends ResetPostgres {
 
   @Test
   public void fromProgram() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newDraftProgram("english-name", "english-description")
             .withLocalizedName(Locale.FRENCH, "french-name")
             .withLocalizedDescription(Locale.FRENCH, "french-description")

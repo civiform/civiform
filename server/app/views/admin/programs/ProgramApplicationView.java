@@ -24,6 +24,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.SelectTag;
+import j2html.tags.specialized.SpanTag;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
@@ -137,6 +138,9 @@ public final class ProgramApplicationView extends BaseHtmlView {
                                 renderStatusOptionsSelector(application, statusDefinitions),
                                 updateNoteModal.getButton()))
                     .with(renderDownloadButton(programId, application.id)))
+            .with(
+                p(renderSubmitTime(application))
+                    .withClasses("text-xs", "text-gray-700", "mb-2", ReferenceClasses.BT_DATE))
             .with(
                 each(
                     blocks,
@@ -324,6 +328,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
                 submitButton("Save").withClass(ButtonStyles.CLEAR_WITH_ICON)));
     return Modal.builder()
         .setModalId(Modal.randomModalId())
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(modalContent)
         .setModalTitle("Edit note")
         .setTriggerButtonContent(triggerButton)
@@ -399,6 +404,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
             .withData("status-update-confirm-for-status", status.statusText());
     return Modal.builder()
         .setModalId(Modal.randomModalId())
+        .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(modalContent)
         .setModalTitle("Change the status of this application?")
         .setWidth(Width.THREE_FOURTHS)
@@ -443,5 +449,13 @@ public final class ProgramApplicationView extends BaseHtmlView {
             span(applicantNameWithApplicationId).withClass("font-semibold"),
             span(" of this change at "),
             span(maybeApplicantEmail.orElse("")).withClass("font-semibold"));
+  }
+
+  private SpanTag renderSubmitTime(Application application) {
+    String submitTime =
+        application.getSubmitTime() == null
+            ? "Application submitted without submission time marked."
+            : dateConverter.renderDateTime(application.getSubmitTime());
+    return span().withText(submitTime);
   }
 }

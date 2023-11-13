@@ -9,7 +9,7 @@ import repository.ResetPostgres;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
-public class AccountTest extends ResetPostgres {
+public class AccountModelTest extends ResetPostgres {
 
   private AccountRepository repository;
 
@@ -20,7 +20,7 @@ public class AccountTest extends ResetPostgres {
 
   @Test
   public void canAddAdministeredProgram() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     String email = "fake email";
     account.setEmailAddress(email);
 
@@ -31,13 +31,13 @@ public class AccountTest extends ResetPostgres {
 
     account.save();
 
-    Account found = repository.lookupAccountByEmail(email).get();
+    AccountModel found = repository.lookupAccountByEmail(email).get();
     assertThat(found.getAdministeredProgramNames()).containsExactly("one", "two");
   }
 
   @Test
   public void addDuplicateProgram_doesNotAddToList() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     String programName = "duplicate";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 
@@ -51,7 +51,7 @@ public class AccountTest extends ResetPostgres {
 
   @Test
   public void removeAdministeredProgram() {
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     String programName = "remove";
     ProgramDefinition program = ProgramBuilder.newDraftProgram(programName).buildDefinition();
 

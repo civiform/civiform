@@ -1,4 +1,4 @@
-import TypescriptBuilder.autoImport.compileTypescript
+import WebAssetsBundler.autoImport.bundleWebAssets
 import sbt.internal.io.Source
 import play.sbt.PlayImport.PlayKeys.playRunHooks
 import com.typesafe.sbt.web.SbtWeb
@@ -24,22 +24,24 @@ lazy val root = (project in file("."))
       javaWs,
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "2.8.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.15.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "5.1.0",
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.commonmark" % "commonmark" % "0.21.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.21.0",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.20.162",
-      "software.amazon.awssdk" % "ses" % "2.20.162",
+      "software.amazon.awssdk" % "s3" % "2.21.19",
+      "software.amazon.awssdk" % "ses" % "2.21.19",
 
       // Microsoft Azure SDK
-      "com.azure" % "azure-identity" % "1.10.1",
-      "com.azure" % "azure-storage-blob" % "12.24.0",
+      "com.azure" % "azure-identity" % "1.10.4",
+      "com.azure" % "azure-storage-blob" % "12.24.1",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.6.0",
@@ -57,12 +59,12 @@ lazy val root = (project in file("."))
       "org.assertj" % "assertj-core" % "3.24.2" % Test,
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "32.1.2-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "32.1.3-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "javax.xml.bind" % "jaxb-api" % "2.3.1",
       "javax.activation" % "activation" % "1.1.1",
-      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.8",
+      "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.9",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -83,7 +85,7 @@ lazy val root = (project in file("."))
       "com.google.auto.value" % "auto-value" % "1.10.4",
 
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.22.0",
+      "com.google.errorprone" % "error_prone_core" % "2.23.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.10.0",
@@ -92,13 +94,13 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.3",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.22",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "8.13.24",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "3.0.5",
+      "com.github.slugify" % "slugify" % "3.0.6",
 
       // Apache libraries for testing subnets
-      "commons-net" % "commons-net" % "3.9.0",
+      "commons-net" % "commons-net" % "3.10.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
@@ -134,10 +136,10 @@ lazy val root = (project in file("."))
     // After 2 transitive steps, do more aggressive invalidation
     // https://github.com/sbt/zinc/issues/911
     incOptions := incOptions.value.withTransitiveStep(2),
-    pipelineStages := Seq(compileTypescript, digest, gzip), // plugins to use for assets
+    pipelineStages := Seq(bundleWebAssets, digest, gzip), // plugins to use for assets
     // Enable digest for local dev so that files can be served çached improving
     // page speed and also browser tests speed.
-    Assets / pipelineStages := Seq(compileTypescript, digest, gzip),
+    Assets / pipelineStages := Seq(bundleWebAssets, digest, gzip),
 
     // Make verbose tests
     Test / testOptions := Seq(
@@ -218,9 +220,9 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
-  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.2"
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.15.3",
+  "com.fasterxml.jackson.core" % "jackson-annotations" % "2.15.3"
 )
 playRunHooks += TailwindBuilder(baseDirectory.value)
 // Reload when the build.sbt file changes.

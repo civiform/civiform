@@ -7,11 +7,11 @@ import com.google.inject.Inject;
 import com.typesafe.config.Config;
 import java.util.Locale;
 import java.util.Optional;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
-import models.Program;
+import models.ProgramModel;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -30,6 +30,7 @@ import services.application.ApplicationEventDetails.NoteEvent;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.cloud.aws.SimpleEmail;
 import services.program.ProgramDefinition;
+import services.program.ProgramNotFoundException;
 import services.program.StatusDefinitions.Status;
 import services.program.StatusNotFoundException;
 
@@ -37,7 +38,6 @@ import services.program.StatusNotFoundException;
 public final class ProgramAdminApplicationService {
 
   private final ApplicantService applicantService;
-  private final ApplicationRepository applicationRepository;
   private final ApplicationEventRepository eventRepository;
   private final AccountRepository accountRepository;
   private final SimpleEmail emailClient;
@@ -46,17 +46,18 @@ public final class ProgramAdminApplicationService {
   private final String stagingApplicantNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final MessagesApi messagesApi;
+  private final ApplicationRepository applicationRepository;
 
   @Inject
   ProgramAdminApplicationService(
       ApplicantService applicantService,
-      ApplicationRepository applicationRepository,
       ApplicationEventRepository eventRepository,
       AccountRepository accountRepository,
       Config configuration,
       SimpleEmail emailClient,
       DeploymentType deploymentType,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      ApplicationRepository applicationRepository) {
     this.applicantService = checkNotNull(applicantService);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -76,35 +77,13 @@ public final class ProgramAdminApplicationService {
   }
 
   /**
-   * Retrieves the application with the given ID and validates that it is associated with the given
-   * program.
-   */
-  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
-    Optional<Application> maybeApplication =
-        applicationRepository.getApplication(applicationId).toCompletableFuture().join();
-    if (maybeApplication.isEmpty()) {
-      return Optional.empty();
-    }
-    Application application = maybeApplication.get();
-    if (program.adminName().isEmpty()
-        || !application
-            .getProgram()
-            .getProgramDefinition()
-            .adminName()
-            .equals(program.adminName())) {
-      return Optional.empty();
-    }
-    return Optional.of(application);
-  }
-
-  /**
    * Sets the status on the {@code Application}.
    *
    * @param admin The Account that instigated the change.
    */
-  public void setStatus(Application application, StatusEvent newStatusEvent, Account admin)
+  public void setStatus(Application application, StatusEvent newStatusEvent, AccountModel admin)
       throws StatusEmailNotFoundException, StatusNotFoundException, AccountHasNoEmailException {
-    Program program = application.getProgram();
+    ProgramModel program = application.getProgram();
     Applicant applicant = application.getApplicant();
     String newStatusText = newStatusEvent.statusText();
     // The send/sent phrasing is a little weird as the service layer is converting between intent
@@ -197,7 +176,7 @@ public final class ProgramAdminApplicationService {
     Locale locale =
         accountRepository
             .lookupAccountByEmail(adminSubmitterEmail.get())
-            .flatMap(Account::newestApplicant)
+            .flatMap(AccountModel::newestApplicant)
             .map(Applicant::getApplicantData)
             .map(ApplicantData::preferredLocale)
             .orElse(LocalizedStrings.DEFAULT_LOCALE);
@@ -221,7 +200,7 @@ public final class ProgramAdminApplicationService {
    *
    * @param admin The Account that instigated the change.
    */
-  public void setNote(Application application, NoteEvent note, Account admin) {
+  public void setNote(Application application, NoteEvent note, AccountModel admin) {
     ApplicationEventDetails details =
         ApplicationEventDetails.builder()
             .setEventType(ApplicationEventDetails.Type.NOTE_CHANGE)
@@ -238,5 +217,31 @@ public final class ProgramAdminApplicationService {
         .filter(app -> app.getEventType().equals(ApplicationEventDetails.Type.NOTE_CHANGE))
         .findFirst()
         .map(app -> app.getDetails().noteEvent().get().note());
+  }
+
+  /**
+   * Retrieves the application with the given ID and validates that it is associated with the given
+   * program.
+   */
+  public Optional<Application> getApplication(long applicationId, ProgramDefinition program) {
+    try {
+      return validateProgram(
+          applicationRepository.getApplication(applicationId).toCompletableFuture().join(),
+          program);
+    } catch (ProgramNotFoundException e) {
+      return Optional.empty();
+    }
+  }
+
+  /** Validates that the given application is part of the given program. */
+  private Optional<Application> validateProgram(
+      Optional<Application> application, ProgramDefinition program)
+      throws ProgramNotFoundException {
+    if (application.isEmpty()
+        || application.get().getProgramName().isEmpty()
+        || !application.get().getProgramName().equals(program.adminName())) {
+      throw new ProgramNotFoundException("Application or program is empty or mismatched");
+    }
+    return application;
   }
 }

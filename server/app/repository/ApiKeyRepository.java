@@ -21,6 +21,8 @@ import services.PaginationResult;
  * thread pool.
  */
 public final class ApiKeyRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ApiKeyRepository");
   private final Database database;
   private final DatabaseExecutionContext executionContext;
 
@@ -47,6 +49,8 @@ public final class ApiKeyRepository {
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
+            .setLabel("ApiKey.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("listActiveApiKeys"))
             .findPagedList();
 
     pagedList.loadCount();
@@ -69,6 +73,8 @@ public final class ApiKeyRepository {
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
+            .setLabel("ApiKey.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("listRetiredApiKeys"))
             .findPagedList();
 
     pagedList.loadCount();
@@ -97,6 +103,8 @@ public final class ApiKeyRepository {
             .order("id desc")
             .setFirstRow((paginationSpec.getCurrentPage() - 1) * paginationSpec.getPageSize())
             .setMaxRows(paginationSpec.getPageSize())
+            .setLabel("ApiKey.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("listExpiredApiKeys"))
             .findPagedList();
 
     pagedList.loadCount();
@@ -109,7 +117,14 @@ public final class ApiKeyRepository {
 
   /** Increment an API key's call count and set its last call IP address to the one provided. */
   public void recordApiKeyUsage(String apiKeyId, String remoteAddress) {
-    ApiKey apiKey = database.find(ApiKey.class).where().eq("key_id", apiKeyId).findOne();
+    ApiKey apiKey =
+        database
+            .find(ApiKey.class)
+            .where()
+            .eq("key_id", apiKeyId)
+            .setLabel("ApiKey.findById")
+            .setProfileLocation(queryProfileLocationBuilder.create("recordApiKeyUsage"))
+            .findOne();
 
     apiKey.incrementCallCount();
     apiKey.setLastCallIpAddress(remoteAddress);
@@ -130,7 +145,14 @@ public final class ApiKeyRepository {
   /** Find an ApiKey record by database primary ID asynchronously. */
   public CompletionStage<Optional<ApiKey>> lookupApiKey(long id) {
     return supplyAsync(
-        () -> Optional.ofNullable(database.find(ApiKey.class).setId(id).findOne()),
+        () ->
+            Optional.ofNullable(
+                database
+                    .find(ApiKey.class)
+                    .setId(id)
+                    .setLabel("ApiKey.findById")
+                    .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
+                    .findOne()),
         executionContext);
   }
 
@@ -138,7 +160,14 @@ public final class ApiKeyRepository {
   public CompletionStage<Optional<ApiKey>> lookupApiKey(String keyId) {
     return supplyAsync(
         () ->
-            Optional.ofNullable(database.find(ApiKey.class).where().eq("key_id", keyId).findOne()),
+            Optional.ofNullable(
+                database
+                    .find(ApiKey.class)
+                    .where()
+                    .eq("key_id", keyId)
+                    .setLabel("ApiKey.findById")
+                    .setProfileLocation(queryProfileLocationBuilder.create("lookupApiKey"))
+                    .findOne()),
         executionContext);
   }
 }

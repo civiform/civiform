@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import junitparams.JUnitParamsRunner;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import models.Application;
 import models.ApplicationEvent;
@@ -154,7 +154,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     String note = "Application note";
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount();
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
@@ -182,19 +182,19 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
@@ -242,19 +242,19 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     // Set the user to Korean.
     applicant.getApplicantData().setPreferredLocale(userLocale);
@@ -294,19 +294,19 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
@@ -354,19 +354,19 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            messagesApi);
+            messagesApi,
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgramWithDisplayName("some-program", programDisplayName)
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Applicant tiApplicant = resourceCreator.insertApplicantWithAccount(Optional.of(tiEmail));
     tiApplicant.getApplicantData().setPreferredLocale(Locale.KOREA);
@@ -417,7 +417,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.of(userEmail));
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
@@ -438,7 +438,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =
@@ -464,7 +464,7 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant = resourceCreator.insertApplicantWithAccount(Optional.empty());
     Application application =
         Application.create(applicant, program.toProgram(), LifecycleStage.ACTIVE)
@@ -491,19 +491,19 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
     service =
         new ProgramAdminApplicationService(
             instanceOf(ApplicantService.class),
-            instanceOf(ApplicationRepository.class),
             instanceOf(ApplicationEventRepository.class),
             instanceOf(AccountRepository.class),
             instanceOf(Config.class),
             simpleEmail,
             instanceOf(DeploymentType.class),
-            instanceOf(MessagesApi.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(ApplicationRepository.class));
 
     ProgramDefinition program =
         ProgramBuilder.newActiveProgram("some-program")
             .withStatusDefinitions(new StatusDefinitions(ORIGINAL_STATUSES))
             .buildDefinition();
-    Account account = resourceCreator.insertAccount();
+    AccountModel account = resourceCreator.insertAccount();
     Applicant applicant =
         resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
     Application application =

@@ -74,7 +74,9 @@ public class ApplicantProgramInfoView extends BaseHtmlView {
                 BaseStyles.TEXT_SEATTLE_BLUE, "text-2xl", "font-semibold", "text-gray-700", "mt-4");
 
     // "Markdown" the program description.
-    ImmutableList<DomContent> items = TextFormatter.formatText(programInfo, false);
+    ImmutableList<DomContent> items =
+        TextFormatter.formatText(
+            programInfo, /*preserveEmptyLines= */ true, /*addRequiredIndicator= */ false);
 
     DivTag descriptionDiv = div().withClasses("py-2").with(items);
 

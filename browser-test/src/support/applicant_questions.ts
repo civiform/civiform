@@ -323,6 +323,18 @@ export class ApplicantQuestions {
     await waitForPageJsLoad(this.page)
   }
 
+  async clickDownload() {
+    const [downloadEvent] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.click('text="Download PDF"'),
+    ])
+    const path = await downloadEvent.path()
+    if (path === null || readFileSync(path, 'utf8').length === 0) {
+      throw new Error('download failed')
+    }
+    await waitForPageJsLoad(this.page)
+  }
+
   async clickEdit() {
     await this.page.click('text="Edit"')
     await waitForPageJsLoad(this.page)
@@ -363,9 +375,7 @@ export class ApplicantQuestions {
 
   async returnToProgramsFromSubmissionPage() {
     // Assert that we're on the submission page.
-    expect(await this.page.innerText('h1')).toContain(
-      'Application confirmation',
-    )
+    await this.expectConfirmationPage()
     await this.clickApplyToAnotherProgramButton()
 
     // If we are a guest, we will get a prompt to log in before going back to the
@@ -374,15 +384,25 @@ export class ApplicantQuestions {
     if (pageContent!.includes('Continue without an account')) {
       await this.page.click('text="Continue without an account"')
     }
-    await waitForPageJsLoad(this.page)
 
     // Ensure that we redirected to the programs list page.
+    await this.expectProgramsPage()
+  }
+
+  async expectProgramsPage() {
+    await waitForPageJsLoad(this.page)
     expect(this.page.url().split('/').pop()).toEqual('programs')
   }
 
   async expectReviewPage() {
     expect(await this.page.innerText('h2')).toContain(
       'Program application summary',
+    )
+  }
+
+  async expectConfirmationPage() {
+    expect(await this.page.innerText('h1')).toContain(
+      'Application confirmation',
     )
   }
 
@@ -430,6 +450,12 @@ export class ApplicantQuestions {
 
   async expectIneligiblePage() {
     expect(await this.page.innerText('h2')).toContain('you may not qualify')
+  }
+
+  async expectDuplicatesPage() {
+    expect(await this.page.innerText('h2')).toContain(
+      'There are no changes to save',
+    )
   }
 
   async expectIneligibleQuestion(questionText: string) {
@@ -487,6 +513,14 @@ export class ApplicantQuestions {
 
     // Click on submit button.
     await this.clickSubmit()
+  }
+
+  async downloadFromConfirmationPage() {
+    // Assert that we're on the review page.
+    await this.expectConfirmationPage()
+
+    // Click on download button.
+    await this.clickDownload()
   }
 
   async validateHeader(lang: string) {

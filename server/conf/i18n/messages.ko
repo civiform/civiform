@@ -26,11 +26,14 @@ content.requiredFieldsNote=참고: {0} 표시가 있는 입력란은 필수입�
 content.optional=(선택사항)
 content.mobileFileUploadHelp=휴대전화를 사용 중이신가요? '파일 선택'을 사용하여 휴대전화 카메라로 문서를 업로드할 수도 있습니다.
 toast.errorMessageOutline=오류: {0}
+# Description for an "X" button that will close a dialog, modal, or page.
+button.close=닫기
 
 #-------------------------------------------------------------#
 # LOGIN - contains text that for login page.                  #
 #-------------------------------------------------------------#
 
+# This is a title for the login page
 title.login=로그인
 content.loginPrompt={0} 계정으로 로그인하세요.
 button.createAnAccount=계정 만들기
@@ -148,16 +151,17 @@ content.commonIntakeConfirmationTi='프로그램 신청'을 클릭하여 온라�
 content.commonIntakeNoMatchingPrograms=이번에는 사전 선별 과정에서 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
 content.commonIntakeNoMatchingProgramsTi=이번에는 사전 선별 과정에서 고객이 자격요건을 충족할 수도 있는 프로그램을 찾지 못했습니다. 하지만 언제든지 '프로그램 신청'을 클릭하여 혜택을 신청할 수 있습니다. 또는 {0} 페이지를 방문하여 추가로 받을 수 있는 혜택 프로그램을 확인할 수 있습니다.
 content.commonIntakeNoMatchingProgramsNextStep=이전 페이지로 돌아가 응답을 수정할 수도 있습니다.
+button.downloadPdf=PDF 다운로드
 button.applyToPrograms=프로그램 신청
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE - text for a page informing the applicant of a duplicate submission and redirecting #
 #-------------------------------------------------------------------------------------------------------------------------#
 
-title.noChangesToSave=There are no changes to save for the {0}
-content.noChanges=You have not made any changes to the application yet. Would you like to continue editing?
-button.continueEditing=Continue editing
-button.exitApplication=Exit application
+title.noChangesToSave={0}에 저장할 변경사항이 없습니다.
+content.noChanges=아직 신청서를 변경하지 않으셨습니다. 계속해서 수정하시겠습니까?
+button.continueEditing=계속 수정
+button.exitApplication=신청서 닫기
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -282,7 +286,7 @@ validation.textTooShort=최소 {0}자(영문 기준)를 포함해야 합니다.
 #---------------------------------------------------------------------#
 
 adminValidation.multiOptionEmpty=객관식 질문의 옵션은 비워둘 수 없습니다.
-adminValidation.multiOptionAdminEmpty=다중 선택이 가능한 질문에서 관리자 ID를 비워두면 안 됩니다.
+adminValidation.multiOptionAdminError=Admin names can only contain letters, numbers, underscores, and dashes.
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -307,3 +311,14 @@ email.tiManageYourClients={0}에서 고객 관리하기
 email.applicationUpdateSubject={0} 신청서 업데이트
 email.tiApplicationUpdateSubject={1} 신청인의 {0} 프로그램 신청서 업데이트
 email.tiApplicationUpdateBody={0} 신청인의 {1} 프로그램 상태가 {2}(으)로 변경되었습니다.
+
+#------------------------------------------------------------------------------#
+# GOVERNMENT BANNER - text explaining that CF is an official government site #
+#------------------------------------------------------------------------------#
+
+banner.title=This is an official government website.
+banner.link=Here's how you know
+banner.govWebsiteSectionHeader=Official websites use .gov
+banner.govWebsiteSectionContent=Website addresses ending in .gov belong to official government organizations in the United States.
+banner.httpsSectionHeader=Secure .gov websites use HTTPS
+banner.httpsSectionContent=A lock ( {0} ) or https:// means you''ve safely connected to the .gov website. Only share sensitive information on official, secure websites.

@@ -19,7 +19,7 @@ import j2html.tags.specialized.FormTag;
 import j2html.tags.specialized.TdTag;
 import j2html.tags.specialized.TheadTag;
 import j2html.tags.specialized.TrTag;
-import models.Account;
+import models.AccountModel;
 import models.TrustedIntermediaryGroup;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
@@ -104,7 +104,8 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .withClasses("border", "border-gray-300", "shadow-md", "mt-6");
   }
 
-  private TrTag renderTIRow(TrustedIntermediaryGroup tiGroup, Account ti, Http.Request request) {
+  private TrTag renderTIRow(
+      TrustedIntermediaryGroup tiGroup, AccountModel ti, Http.Request request) {
     return tr().withClasses(
             ReferenceClasses.ADMIN_QUESTION_TABLE_ROW,
             "border-b",
@@ -115,13 +116,13 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
         .with(renderActionsCell(tiGroup, ti, request));
   }
 
-  private TdTag renderInfoCell(Account ti) {
+  private TdTag renderInfoCell(AccountModel ti) {
     return td().with(div(ti.getApplicantName()).withClasses("font-semibold"))
         .with(div(ti.getEmailAddress()).withClasses("text-xs"))
         .withClasses(BaseStyles.TABLE_CELL_STYLES, "pr-12");
   }
 
-  private TdTag renderStatusCell(Account ti) {
+  private TdTag renderStatusCell(AccountModel ti) {
     String accountStatus = "OK";
     if (ti.ownedApplicantIds().isEmpty()) {
       accountStatus = "Not yet signed in.";
@@ -131,7 +132,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private TdTag renderActionsCell(
-      TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
+      TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
     return td().with(
             div()
                 .withClasses("flex", "justify-end", "items-center", "pr-3")
@@ -139,7 +140,7 @@ public class EditTrustedIntermediaryGroupView extends BaseHtmlView {
   }
 
   private FormTag renderDeleteButton(
-      TrustedIntermediaryGroup tiGroup, Account account, Http.Request request) {
+      TrustedIntermediaryGroup tiGroup, AccountModel account, Http.Request request) {
     return form()
         .withMethod("POST")
         .withAction(

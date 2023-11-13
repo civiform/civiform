@@ -402,7 +402,17 @@ public enum Icons {
   CLOSE(
       48,
       "m12.45 37.65-2.1-2.1L21.9 24 10.35 12.45l2.1-2.1L24 21.9l11.55-11.55 2.1 2.1L26.1 24l11.55"
-          + " 11.55-2.1 2.1L24 26.1Z");
+          + " 11.55-2.1 2.1L24 26.1Z"),
+  // This one does not come from the Google icon library, and instead is part
+  // of in-development CiviForm icons library.
+  // https://www.figma.com/file/RmhVJCLgAKWGENJLWWAtNS/CiviForm%3A-Components%2C-Styles?type=design&node-id=1019-4484&mode=design
+  STAR(
+      24,
+      "M11.99 2C6.47 2 2 6.48 2 12C2 17.52 6.47 22 11.99 22C17.52 22 22 17.52 22 12C22 6.48 17.52"
+          + " 2 11.99 2ZM15.22 17.39L12 15.45L8.78 17.39C8.4 17.62 7.93 17.28 8.03 16.85L8.88"
+          + " 13.19L6.05 10.74C5.72 10.45 5.9 9.9 6.34 9.86L10.08 9.54L11.54 6.09C11.71 5.68 12.29"
+          + " 5.68 12.46 6.09L13.92 9.53L17.66 9.85C18.1 9.89 18.28 10.44 17.94 10.73L15.11"
+          + " 13.18L15.96 16.85C16.06 17.28 15.6 17.62 15.22 17.39Z");
 
   public final String path;
   private final int size;

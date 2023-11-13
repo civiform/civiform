@@ -760,6 +760,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getInt("DURABLE_JOBS_THREAD_POOL_SIZE");
   }
 
+  /** Enables the feature that allows completed applications to be downloadable by PDF. */
+  public boolean getApplicationExportable(RequestHeader request) {
+    return getBool("APPLICATION_EXPORTABLE", request);
+  }
+
   /**
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
@@ -840,6 +845,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enables logic to populate more fields in OIDC logout requests. */
   public boolean getEnhancedOidcLogoutEnabled() {
     return getBool("ENHANCED_OIDC_LOGOUT_ENABLED");
+  }
+
+  /**
+   * Enables setting and displaying the universal question state on questions. These questions are
+   * intended to be used by all programs and will appear at the top of the question bank with a
+   * badge denoting them as universal.
+   */
+  public boolean getUniversalQuestions(RequestHeader request) {
+    return getBool("UNIVERSAL_QUESTIONS", request);
+  }
+
+  /**
+   * Enables images on program cards, both for admins to upload them and for applicants to view
+   * them.
+   */
+  public boolean getProgramCardImages(RequestHeader request) {
+    return getBool("PROGRAM_CARD_IMAGES", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -1663,6 +1685,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
               ImmutableList.of(),
               ImmutableList.of(
                   SettingDescription.create(
+                      "APPLICATION_EXPORTABLE",
+                      "Enables the feature that allows completed applications to be downloadable"
+                          + " by PDF.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
                       "ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED",
                       "Enables the feature that allows for service area validation of a corrected"
                           + " address. ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.",
@@ -1747,7 +1776,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       "Enables logic to populate more fields in OIDC logout requests.",
                       /* isRequired= */ false,
                       SettingType.BOOLEAN,
-                      SettingMode.HIDDEN))),
+                      SettingMode.HIDDEN),
+                  SettingDescription.create(
+                      "UNIVERSAL_QUESTIONS",
+                      "Enables setting and displaying the universal question state on questions."
+                          + " These questions are intended to be used by all programs and will"
+                          + " appear at the top of the question bank with a badge denoting them as"
+                          + " universal.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE),
+                  SettingDescription.create(
+                      "PROGRAM_CARD_IMAGES",
+                      "Enables images on program cards, both for admins to upload them and for"
+                          + " applicants to view them.",
+                      /* isRequired= */ false,
+                      SettingType.BOOLEAN,
+                      SettingMode.ADMIN_WRITEABLE))),
           "Miscellaneous",
           SettingsSection.create(
               "Miscellaneous",

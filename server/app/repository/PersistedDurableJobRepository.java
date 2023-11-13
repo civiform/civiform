@@ -14,6 +14,8 @@ import models.PersistedDurableJob;
 
 /** Implements queries related to {@link PersistedDurableJob}. */
 public final class PersistedDurableJobRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("PersistedDurableJobRepository");
 
   private final Database database;
   private final Provider<LocalDateTime> nowProvider;
@@ -28,6 +30,8 @@ public final class PersistedDurableJobRepository {
   public Optional<PersistedDurableJob> findScheduledJob(String jobName, Instant executionTime) {
     return database
         .find(PersistedDurableJob.class)
+        .setLabel("PersistedDurableJob.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("findScheduledJob"))
         .where()
         .eq("job_name", jobName)
         .eq("execution_time", executionTime)
@@ -52,6 +56,8 @@ public final class PersistedDurableJobRepository {
     return database
         .find(PersistedDurableJob.class)
         .forUpdateSkipLocked()
+        .setLabel("PersistedDurableJob.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("getJobForExecution"))
         .where()
         .le("execution_time", nowProvider.get())
         .gt("remaining_attempts", 0)
@@ -63,7 +69,12 @@ public final class PersistedDurableJobRepository {
   /** All {@link PersistedDurableJob}s ordered by execution time ascending. */
   public ImmutableList<PersistedDurableJob> getJobs() {
     return ImmutableList.copyOf(
-        database.find(PersistedDurableJob.class).orderBy("execution_time asc").findList());
+        database
+            .find(PersistedDurableJob.class)
+            .orderBy("execution_time asc")
+            .setLabel("PersistedDurableJob.findList")
+            .setProfileLocation(queryProfileLocationBuilder.create("getJobs"))
+            .findList());
   }
 
   /** Delete all {@link PersistedDurableJob}s that have an execution time older than six months. */
