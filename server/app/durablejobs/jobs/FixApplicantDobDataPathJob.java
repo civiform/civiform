@@ -11,8 +11,10 @@ import services.WellKnownPaths;
 import services.applicant.ApplicantData;
 
 /**
- * Finds applicant data objects with applicant_date_of_birth set to a number and changes it to a
- * nest object.
+ * Fixes applicant data objects that have the wrong path for applicant_date_of_birth and are causing
+ * errors when TIs attempt to apply on behalf of clients. This job finds all applicant data objects
+ * with applicant_date_of_birth set to a number and changes them to nested objects of the form
+ * {applicant_date_of_birth: {date: number}}.
  */
 public final class FixApplicantDobDataPathJob extends DurableJob {
   private final Database database;
@@ -32,8 +34,8 @@ public final class FixApplicantDobDataPathJob extends DurableJob {
   @Override
   public void run() {
     String sql =
-        "select * from applicants where ((object #>>"
-            + " '{}')::jsonb)::json#>'{applicant,applicant_date_of_birth}' is not null";
+        "SELECT * FROM applicants WHERE ((object"
+            + " #>>'{}')::jsonb)::json#>'{applicant,applicant_date_of_birth}' IS NOT NULL";
     database
         .findNative(Applicant.class, sql)
         .findEach(
@@ -43,7 +45,7 @@ public final class FixApplicantDobDataPathJob extends DurableJob {
               // is the deprecated path
               if (applicantData.getDateOfBirth().isPresent()
                   && !applicantData.hasPath(WellKnownPaths.APPLICANT_DOB)) {
-                LocalDate dob = applicantData.getDateOfBirth().get();
+                LocalDate dob = applicantData.getDeprecatedDateOfBirth().get();
                 // Clear the old path off the json data before inserting the new one
                 applicantData
                     .getDocumentContext()
