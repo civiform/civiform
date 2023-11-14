@@ -10,7 +10,6 @@ import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
-import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import models.ProgramModel;
 import org.junit.Before;
@@ -116,7 +115,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.US))
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("fake description");
   }
 
@@ -140,7 +140,8 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.US))
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("second description");
   }
 
@@ -170,17 +171,17 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.US))
+    assertThat(updatedProgram.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.US))
         .isEqualTo("new US description");
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.FRENCH))
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.FRENCH))
         .isEqualTo("French description");
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.ITALIAN))
+    assertThat(updatedProgram.localizedSummaryImageDescription().get().get(Locale.ITALIAN))
         .isEqualTo("Italian description");
   }
 
   @Test
-  public void updateDescription_empty_removesDescription()
-      throws ProgramNotFoundException, TranslationNotFoundException {
+  public void updateDescription_empty_removesDescription() throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -198,12 +199,11 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.US)).isEqualTo("");
+    assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
   }
 
   @Test
-  public void updateDescription_blank_removesDescription()
-      throws ProgramNotFoundException, TranslationNotFoundException {
+  public void updateDescription_blank_removesDescription() throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -221,12 +221,12 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.US)).isEqualTo("");
+    assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
   }
 
   @Test
   public void updateDescription_empty_removesNonDefaultLocaleTranslations()
-      throws ProgramNotFoundException, TranslationNotFoundException {
+      throws ProgramNotFoundException {
     ProgramModel program =
         ProgramBuilder.newDraftProgram("test name")
             .setLocalizedSummaryImageDescription(
@@ -250,11 +250,7 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     ProgramDefinition updatedProgram = programService.getProgramDefinition(program.id);
-    assertThat(updatedProgram.localizedSummaryImageDescription().get(Locale.US)).isEqualTo("");
-    assertThat(updatedProgram.localizedSummaryImageDescription().maybeGet(Locale.FRENCH))
-        .isEqualTo(Optional.empty());
-    assertThat(updatedProgram.localizedSummaryImageDescription().maybeGet(Locale.ITALIAN))
-        .isEqualTo(Optional.empty());
+    assertThat(updatedProgram.localizedSummaryImageDescription().isEmpty()).isTrue();
   }
 
   @Test

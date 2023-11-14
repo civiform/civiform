@@ -98,7 +98,7 @@ public abstract class ProgramDefinition {
   public abstract ProgramAcls acls();
 
   /** A description of the program's summary image, used for alt text. */
-  public abstract LocalizedStrings localizedSummaryImageDescription();
+  public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -757,7 +757,7 @@ public abstract class ProgramDefinition {
     public abstract Builder setAcls(ProgramAcls programAcls);
 
     public abstract Builder setLocalizedSummaryImageDescription(
-        LocalizedStrings localizedSummaryImageDescription);
+        Optional<LocalizedStrings> localizedSummaryImageDescription);
 
     public abstract ProgramDefinition build();
 

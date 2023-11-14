@@ -228,7 +228,7 @@ public class ProgramBuilder {
 
   public ProgramBuilder setLocalizedSummaryImageDescription(
       LocalizedStrings localizedSummaryImageDescription) {
-    builder.setLocalizedSummaryImageDescription(localizedSummaryImageDescription);
+    builder.setLocalizedSummaryImageDescription(Optional.of(localizedSummaryImageDescription));
     return this;
   }
 

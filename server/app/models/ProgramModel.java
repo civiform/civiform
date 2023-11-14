@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -107,7 +108,7 @@ public class ProgramModel extends BaseModel {
   @Constraints.Required private Boolean eligibilityIsGating;
 
   /** A localized description of the summary image (used as alt text). */
-  @DbJsonB private LocalizedStrings localizedSummaryImageDescription;
+  @DbJsonB @Nullable private LocalizedStrings localizedSummaryImageDescription;
 
   @ManyToMany(mappedBy = "programs")
   private List<Version> versions;
@@ -157,7 +158,8 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
-    this.localizedSummaryImageDescription = definition.localizedSummaryImageDescription();
+    this.localizedSummaryImageDescription =
+        definition.localizedSummaryImageDescription().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -196,8 +198,6 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = true;
     this.acls = programAcls;
-    // The summary image is only set *after* a program is created.
-    this.localizedSummaryImageDescription = null;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
@@ -217,7 +217,8 @@ public class ProgramModel extends BaseModel {
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
     acls = programDefinition.acls();
-    localizedSummaryImageDescription = programDefinition.localizedSummaryImageDescription();
+    localizedSummaryImageDescription =
+        programDefinition.localizedSummaryImageDescription().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -283,9 +284,9 @@ public class ProgramModel extends BaseModel {
 
   private void setLocalizedSummaryImageDescription(ProgramDefinition.Builder builder) {
     if (localizedSummaryImageDescription != null) {
-      builder.setLocalizedSummaryImageDescription(localizedSummaryImageDescription);
+      builder.setLocalizedSummaryImageDescription(Optional.of(localizedSummaryImageDescription));
     } else {
-      builder.setLocalizedSummaryImageDescription(LocalizedStrings.withEmptyDefault());
+      builder.setLocalizedSummaryImageDescription(Optional.empty());
     }
   }
 
