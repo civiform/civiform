@@ -1,5 +1,6 @@
 package auth;
 
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import com.google.common.base.Preconditions;
@@ -9,9 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
-import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
-import models.Account;
+import models.AccountModel;
 import models.Applicant;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http.Request;
@@ -31,7 +31,6 @@ public class CiviFormProfile {
   private final CiviFormProfileData profileData;
   private final SettingsManifest settingsManifest;
 
-  @Inject
   public CiviFormProfile(
       DatabaseExecutionContext dbContext,
       HttpExecutionContext httpContext,
@@ -54,11 +53,11 @@ public class CiviFormProfile {
             httpContext.current());
   }
 
-  /** Look up the {@link Account} associated with the profile from database. */
-  public CompletableFuture<Account> getAccount() {
+  /** Look up the {@link AccountModel} associated with the profile from database. */
+  public CompletableFuture<AccountModel> getAccount() {
     return supplyAsync(
         () -> {
-          Account account = new Account();
+          AccountModel account = new AccountModel();
           account.id = Long.valueOf(this.profileData.getId());
           try {
             account.refresh();
@@ -114,7 +113,7 @@ public class CiviFormProfile {
   }
 
   /**
-   * Sets the authority id for the associated {@link Account} if none is set.
+   * Sets the authority id for the associated {@link AccountModel} if none is set.
    *
    * <p>If an id is already present this may only be called with the same exact ID.
    *
@@ -143,7 +142,7 @@ public class CiviFormProfile {
   }
 
   /**
-   * Set email address for the associated {@link Account} if none is set.
+   * Set email address for the associated {@link AccountModel} if none is set.
    *
    * <p>If email address is present and different from the address to be set, a
    * `CompletionException` is thrown caused by a `ProfileMergeConflictException`.
@@ -156,6 +155,7 @@ public class CiviFormProfile {
         .thenApplyAsync(
             a -> {
               String existingEmail = a.getEmailAddress();
+
               if (existingEmail != null && !existingEmail.equals(emailAddress)) {
                 throw new ProfileMergeConflictException(
                     String.format(
@@ -163,27 +163,37 @@ public class CiviFormProfile {
                             + " the new email address %s.",
                         existingEmail, emailAddress));
               }
+
               a.setEmailAddress(emailAddress);
               a.save();
+              profileData.setEmail(emailAddress);
+
               return null;
             },
             dbContext);
   }
 
-  /** Returns the authority id from the {@link Account} associated with the profile. */
+  /** Returns the authority id from the {@link AccountModel} associated with the profile. */
   public CompletableFuture<String> getAuthorityId() {
-    return this.getAccount().thenApplyAsync(Account::getAuthorityId, httpContext.current());
+    return this.getAccount().thenApplyAsync(AccountModel::getAuthorityId, httpContext.current());
   }
 
   /**
-   * Get the email address from the {@link Account} associated with the profile.
+   * Get the email address from the session's {@link CiviFormProfileData} if present, otherwise get
+   * it from the {@link AccountModel} associated with the profile.
    *
    * <p>This value could be null.
    *
    * @return the future of the address to be retrieved.
    */
   public CompletableFuture<String> getEmailAddress() {
-    return this.getAccount().thenApplyAsync(Account::getEmailAddress, httpContext.current());
+    // Email address should be present in the profile for authenticated users
+    if (profileData.hasCanonicalEmail()) {
+      return completedFuture(profileData.getEmail());
+    }
+
+    // If it's not present i.e. if user is a guest, fall back to the address in the database
+    return this.getAccount().thenApplyAsync(AccountModel::getEmailAddress, httpContext.current());
   }
 
   /** Get the profile data. */
@@ -210,7 +220,7 @@ public class CiviFormProfile {
                             .flatMap(tiGroup -> Optional.of(tiGroup.getManagedAccounts().stream()))
                             .orElse(Stream.of()),
                         Stream.of(account))
-                    .map(Account::ownedApplicantIds)
+                    .map(AccountModel::ownedApplicantIds)
                     .reduce(
                         ImmutableList.of(),
                         (one, two) ->

@@ -9,8 +9,8 @@ import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
-import models.Account;
-import models.Program;
+import models.AccountModel;
+import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -33,7 +33,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
 
   @Test
   public void edit_rendersForm() {
-    Program program = ProgramBuilder.newDraftProgram("Success").build();
+    ProgramModel program = ProgramBuilder.newDraftProgram("Success").build();
 
     Result result = controller.edit(addCSRFToken(fakeRequest()).build(), program.id);
 
@@ -44,7 +44,7 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void edit_rendersFormWithExistingAdmins() {
     ProgramDefinition program = ProgramBuilder.newDraftProgram("Existing Admins").buildDefinition();
-    Account existingAdmin = resourceCreator.insertAccount();
+    AccountModel existingAdmin = resourceCreator.insertAccount();
     existingAdmin.setEmailAddress("test@test.com");
     existingAdmin.addAdministeredProgram(program);
     existingAdmin.save();
@@ -65,10 +65,10 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void add_succeeds() {
     String programName = "add test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String email = "add me";
-    Account account = new Account();
+    AccountModel account = new AccountModel();
     account.setEmailAddress(email);
     account.save();
 
@@ -85,10 +85,10 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void delete_succeeds() {
     String programName = "delete test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String deleteEmail = "delete me";
-    Account deleteAccount = new Account();
+    AccountModel deleteAccount = new AccountModel();
     deleteAccount.setEmailAddress(deleteEmail);
     deleteAccount.addAdministeredProgram(program.getProgramDefinition());
     deleteAccount.save();
@@ -109,10 +109,10 @@ public class ProgramAdminManagementControllerTest extends ResetPostgres {
   @Test
   public void delete_nonExistentEmail_doesNotReturnError() {
     String programName = "delete test";
-    Program program = ProgramBuilder.newDraftProgram(programName).build();
+    ProgramModel program = ProgramBuilder.newDraftProgram(programName).build();
 
     String adminEmail = "admin";
-    Account adminAccount = new Account();
+    AccountModel adminAccount = new AccountModel();
     adminAccount.setEmailAddress(adminEmail);
     adminAccount.addAdministeredProgram(program.getProgramDefinition());
     adminAccount.save();

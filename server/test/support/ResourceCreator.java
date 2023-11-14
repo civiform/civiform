@@ -6,13 +6,13 @@ import java.time.Instant;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
-import models.Account;
+import models.AccountModel;
 import models.ApiKey;
 import models.Applicant;
 import models.Application;
 import models.LifecycleStage;
 import models.Models;
-import models.Program;
+import models.ProgramModel;
 import models.Question;
 import models.TrustedIntermediaryGroup;
 import play.inject.Injector;
@@ -121,32 +121,32 @@ public class ResourceCreator {
     return question;
   }
 
-  public Program insertActiveProgram(String name) {
+  public ProgramModel insertActiveProgram(String name) {
     return ProgramBuilder.newActiveProgram(name, "description").build();
   }
 
-  public Program insertActiveProgram(Locale locale, String name) {
+  public ProgramModel insertActiveProgram(Locale locale, String name) {
     return ProgramBuilder.newActiveProgram().withLocalizedName(locale, name).build();
   }
 
-  public Program insertActiveCommonIntakeForm(String name) {
+  public ProgramModel insertActiveCommonIntakeForm(String name) {
     return ProgramBuilder.newActiveCommonIntakeForm(name).build();
   }
 
-  public Program insertDraftProgram(String name) {
+  public ProgramModel insertDraftProgram(String name) {
     return ProgramBuilder.newDraftProgram(name, "description").build();
   }
 
-  public Application insertActiveApplication(Applicant applicant, Program program) {
+  public Application insertActiveApplication(Applicant applicant, ProgramModel program) {
     return Application.create(applicant, program, LifecycleStage.ACTIVE);
   }
 
-  public Application insertDraftApplication(Applicant applicant, Program program) {
+  public Application insertDraftApplication(Applicant applicant, ProgramModel program) {
     return Application.create(applicant, program, LifecycleStage.DRAFT);
   }
 
   public Application insertApplication(
-      Applicant applicant, Program program, LifecycleStage lifecycleStage) {
+      Applicant applicant, ProgramModel program, LifecycleStage lifecycleStage) {
     return Application.create(applicant, program, lifecycleStage);
   }
 
@@ -156,8 +156,8 @@ public class ResourceCreator {
     return applicant;
   }
 
-  public Account insertAccount() {
-    Account account = new Account();
+  public AccountModel insertAccount() {
+    AccountModel account = new AccountModel();
     account.save();
     return account;
   }
@@ -182,7 +182,7 @@ public class ResourceCreator {
    */
   public Applicant insertApplicantWithAccount(Optional<String> accountEmail) {
     Applicant applicant = insertApplicant();
-    Account account = insertAccount();
+    AccountModel account = insertAccount();
 
     accountEmail.ifPresent(account::setEmailAddress);
     // If the account has an email, it is an authorized user and should have an
@@ -202,8 +202,8 @@ public class ResourceCreator {
    * @param email the email address to use for the account
    * @return the account
    */
-  public Account insertAccountWithEmail(String email) {
-    Account account = new Account();
+  public AccountModel insertAccountWithEmail(String email) {
+    AccountModel account = new AccountModel();
     account.setEmailAddress(email);
     // User is not a guest, so they should have an authority ID.
     account.setAuthorityId(UUID.randomUUID().toString());

@@ -16,7 +16,6 @@ import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.profile.UserProfile;
-import org.pac4j.core.profile.definition.CommonProfileDefinition;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
@@ -34,7 +33,7 @@ import repository.AccountRepository;
  */
 public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
-  private static final Logger logger = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(CiviformOidcProfileCreator.class);
   protected final ProfileFactory profileFactory;
   protected final Provider<AccountRepository> accountRepositoryProvider;
   protected final CiviFormProfileMerger civiFormProfileMerger;
@@ -60,10 +59,11 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
   protected final Optional<String> getEmail(OidcProfile oidcProfile) {
     final String emailAttributeName = emailAttributeName();
 
-    if (!emailAttributeName.isBlank()) {
-      return Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName, String.class));
+    if (emailAttributeName.isBlank()) {
+      return Optional.empty();
     }
-    return Optional.empty();
+
+    return Optional.ofNullable(oidcProfile.getAttribute(emailAttributeName, String.class));
   }
 
   private Optional<String> getAuthorityId(OidcProfile oidcProfile) {
@@ -97,7 +97,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     var civiformProfile =
         maybeCiviFormProfile.orElseGet(
             () -> {
-              logger.debug("Found no existing profile in session cookie.");
+              LOGGER.debug("Found no existing profile in session cookie.");
               return createEmptyCiviFormProfile(oidcProfile);
             });
     return mergeCiviFormProfile(civiformProfile, oidcProfile);
@@ -114,16 +114,20 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .forEach(role -> civiformProfile.getProfileData().addRole(role));
     adaptForRole(civiformProfile, roles);
 
-    // If the civiformProfile is a trusted intermediary, bypass remaining merging because
-    // we don't want to actually merge the guest profile into theirs.
-    if (isTrustedIntermediary(civiformProfile)) {
-      return civiformProfile.getProfileData();
-    }
-
     String emailAddress =
         getEmail(oidcProfile)
             .orElseThrow(
                 () -> new InvalidOidcProfileException("Unable to get email from profile."));
+
+    // If the civiformProfile is a trusted intermediary, bypass remaining merging because
+    // we don't want to actually merge the guest profile into theirs.
+    if (isTrustedIntermediary(civiformProfile)) {
+      // Setting the email here ensures the canonical email field is populated
+      // regardless of what the identity provider uses. See comment on
+      // CiviFormProfileData.setEmail() for more info.
+      return civiformProfile.getProfileData().setEmail(emailAddress);
+    }
+
     civiformProfile.setEmailAddress(emailAddress).join();
 
     String authorityId =
@@ -132,8 +136,6 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
                 () -> new InvalidOidcProfileException("Unable to get authority ID from profile."));
 
     civiformProfile.setAuthorityId(authorityId).join();
-
-    civiformProfile.getProfileData().addAttribute(CommonProfileDefinition.EMAIL, emailAddress);
 
     return civiformProfile.getProfileData();
   }
@@ -145,12 +147,12 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     Optional<UserProfile> oidcProfile = super.create(cred, context, sessionStore);
 
     if (oidcProfile.isEmpty()) {
-      logger.warn("Didn't get a valid profile back from OIDC.");
+      LOGGER.warn("Didn't get a valid profile back from OIDC.");
       return Optional.empty();
     }
 
     if (!(oidcProfile.get() instanceof OidcProfile)) {
-      logger.warn(
+      LOGGER.warn(
           "Got a profile from OIDC callback but it wasn't an OIDC profile: %s",
           oidcProfile.get().getClass().getName());
       return Optional.empty();
@@ -159,6 +161,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     OidcProfile profile = (OidcProfile) oidcProfile.get();
     Optional<Applicant> existingApplicant = getExistingApplicant(profile);
     Optional<CiviFormProfile> guestProfile = profileUtils.currentUserProfile(context);
+
     return civiFormProfileMerger.mergeProfiles(
         existingApplicant, guestProfile, profile, this::mergeCiviFormProfile);
   }
@@ -182,14 +185,14 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             .toCompletableFuture()
             .join();
     if (applicantOpt.isPresent()) {
-      logger.debug("Found user using authority ID: {}", authorityId);
+      LOGGER.debug("Found user using authority ID: {}", authorityId);
       return applicantOpt;
     }
 
     // For pre-existing deployments before April 2022, users will exist without an
     // authority ID and will be keyed on their email.
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
-    logger.debug("Looking up user using email {}", userEmail);
+    LOGGER.debug("Looking up user using email {}", userEmail);
     return accountRepositoryProvider
         .get()
         .lookupApplicantByEmail(userEmail)

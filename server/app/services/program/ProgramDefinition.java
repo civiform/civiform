@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import models.DisplayMode;
-import models.Program;
+import models.ProgramModel;
 import modules.MainModule;
 import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
@@ -691,8 +691,8 @@ public abstract class ProgramDefinition {
             && !pqd.addressCorrectionEnabled());
   }
 
-  public Program toProgram() {
-    return new Program(this);
+  public ProgramModel toProgram() {
+    return new ProgramModel(this);
   }
 
   public abstract Builder toBuilder();

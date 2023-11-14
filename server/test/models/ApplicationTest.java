@@ -25,12 +25,12 @@ public class ApplicationTest extends ResetPostgres {
     // Tests a case where an Application (and its associated latest_status value has been loaded
     // in-memory, a new ApplicationEventDetails is added (causing the trigger to execute), and the
     // Application is persisted.
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -60,7 +60,7 @@ public class ApplicationTest extends ResetPostgres {
 
   @Test
   public void latestStatusIsNotPersistedEvenWithNoApplicationEvents() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
@@ -78,7 +78,7 @@ public class ApplicationTest extends ResetPostgres {
 
   @Test
   public void isAdmin_applicant_isFalse() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
@@ -91,7 +91,7 @@ public class ApplicationTest extends ResetPostgres {
 
   @Test
   public void isAdmin_globalAdmin_isTrue() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();
@@ -105,7 +105,7 @@ public class ApplicationTest extends ResetPostgres {
 
   @Test
   public void isAdmin_programAdmin_isTrue() {
-    Program program =
+    ProgramModel program =
         ProgramBuilder.newActiveProgram("test program", "description")
             .withStatusDefinitions(new StatusDefinitions(ImmutableList.of(APPROVED_STATUS)))
             .build();

@@ -34,7 +34,7 @@ import models.Application;
 import models.ApplicationEvent;
 import models.DisplayMode;
 import models.LifecycleStage;
-import models.Program;
+import models.ProgramModel;
 import models.StoredFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -461,7 +461,7 @@ public final class ApplicantService {
               }
 
               Application application = applicationMaybe.get();
-              Program applicationProgram = application.getProgram();
+              ProgramModel applicationProgram = application.getProgram();
               ProgramDefinition programDefinition = applicationProgram.getProgramDefinition();
               String programName = programDefinition.adminName();
               Optional<StatusDefinitions.Status> maybeDefaultStatus =
@@ -833,7 +833,7 @@ public final class ApplicantService {
             .toCompletableFuture();
     ImmutableList<ProgramDefinition> activeProgramDefinitions =
         versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()).stream()
-            .map(Program::getProgramDefinition)
+            .map(ProgramModel::getProgramDefinition)
             .filter(
                 pdef ->
                     pdef.displayMode().equals(DisplayMode.PUBLIC)
@@ -894,6 +894,7 @@ public final class ApplicantService {
                     // Return all programs the user is eligible for, or that have no
                     // eligibility conditions.
                     .filter(programData -> programData.isProgramMaybeEligible().orElse(true))
+                    .filter(programData -> !programData.program().isCommonIntakeForm())
                     .collect(ImmutableList.toImmutableList()),
             httpExecutionContext.current());
   }
@@ -1025,11 +1026,7 @@ public final class ApplicantService {
 
             applicantProgramDataBuilder.setIsProgramMaybeEligible(
                 getApplicationEligibilityStatus(maybeSubmittedApp.get(), programDefinition));
-            if (programDefinition.isCommonIntakeForm()) {
-              relevantPrograms.setCommonIntakeForm(applicantProgramDataBuilder.build());
-            } else {
-              submittedPrograms.add(applicantProgramDataBuilder.build());
-            }
+            submittedPrograms.add(applicantProgramDataBuilder.build());
             programNamesWithApplications.add(programName);
           }
         });

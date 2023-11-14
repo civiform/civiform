@@ -184,10 +184,10 @@ public final class SampleQuestionDefinitions {
               .setQuestionText(
                   LocalizedStrings.withDefaultValue(
                       "Hi I'm a block of static text. \n"
-                          + " * Welcome to this test program.\n"
+                          + " * Welcome to this __test program__.\n"
                           + " * It contains one of every question type. \n\n"
-                          + "### What are the eligibility requirements? \n"
-                          + ">You are 18 years or older."))
+                          + "## What are the eligibility requirements? \n"
+                          + "Please go [here](https://www.example.com) for more information"))
               .setQuestionHelpText(LocalizedStrings.withDefaultValue(""))
               .build());
 

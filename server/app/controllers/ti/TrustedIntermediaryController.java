@@ -15,7 +15,7 @@ import forms.UpdateApplicantDobForm;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Account;
+import models.AccountModel;
 import models.TrustedIntermediaryGroup;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
@@ -90,7 +90,7 @@ public final class TrustedIntermediaryController {
     if (!trustedIntermediarySearchResult.isSuccessful()) {
       throw new BadRequestException(trustedIntermediarySearchResult.getErrorMessage().get());
     }
-    PaginationInfo<Account> pageInfo =
+    PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(
             trustedIntermediarySearchResult.getAccounts().get(), PAGE_SIZE, page.get());
 

@@ -61,6 +61,11 @@ public abstract class QuestionDefinition {
     return config.id().getAsLong();
   }
 
+  /** True if the question is marked as a universal question. */
+  public final boolean isUniversal() {
+    return config.universal();
+  }
+
   /**
    * Get the name of this question.
    *
@@ -235,6 +240,14 @@ public abstract class QuestionDefinition {
 
       if (multiOptionQuestionDefinition.getOptionAdminNames().stream().anyMatch(String::isEmpty)) {
         errors.add(CiviFormError.of("Multi-option questions cannot have blank admin names"));
+      }
+
+      if (multiOptionQuestionDefinition.getOptionAdminNames().stream()
+          .anyMatch(s -> !s.matches("[0-9a-zA-Z_-]+"))) {
+        errors.add(
+            CiviFormError.of(
+                "Multi-option admin names can only contain letters, numbers, underscores, and"
+                    + " dashes"));
       }
 
       if (multiOptionQuestionDefinition.getOptions().stream()

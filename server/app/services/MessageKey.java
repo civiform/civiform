@@ -133,7 +133,7 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS_SR("link.programDetailsSr"),
   MOBILE_FILE_UPLOAD_HELP("content.mobileFileUploadHelp"),
   MULTI_OPTION_VALIDATION("adminValidation.multiOptionEmpty"),
-  MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminEmpty"),
+  MULTI_OPTION_ADMIN_VALIDATION("adminValidation.multiOptionAdminError"),
   MULTI_SELECT_VALIDATION_TOO_FEW("validation.tooFewSelections"),
   MULTI_SELECT_VALIDATION_TOO_MANY("validation.tooManySelections"),
   NAME_LABEL_FIRST("label.firstName"),

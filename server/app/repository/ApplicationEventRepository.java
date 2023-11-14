@@ -16,6 +16,8 @@ import models.ApplicationEvent;
  * other EBean models or asynchronous handling.
  */
 public final class ApplicationEventRepository {
+  private static final QueryProfileLocationBuilder queryProfileLocationBuilder =
+      new QueryProfileLocationBuilder("ApplicationEventRepository");
   private final Database database;
   private final DatabaseExecutionContext executionContext;
 
@@ -55,6 +57,9 @@ public final class ApplicationEventRepository {
             .eq("application_id", applicationId)
             .orderBy()
             .desc("create_time")
+            .setLabel("ApplicationEvent.findSet")
+            .setProfileLocation(
+                queryProfileLocationBuilder.create("getEventsOrderByCreateTimeDesc"))
             .findList());
   }
 }

@@ -205,8 +205,8 @@ function moveMultiOptionQuestionDown(event: Event) {
  * @param {Event} event The event that triggered this action.
  */
 function removeLineClamp(event: Event) {
-  const target = event.target as HTMLElement
-  target.classList.add('line-clamp-none')
+  const div = event.currentTarget as HTMLElement
+  div.classList.add('line-clamp-none')
 }
 
 function attachLineClampListeners() {

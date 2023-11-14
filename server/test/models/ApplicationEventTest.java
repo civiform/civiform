@@ -13,9 +13,9 @@ import services.application.ApplicationEventDetails.StatusEvent;
 public class ApplicationEventTest extends ResetPostgres {
   @Test
   public void createNonStatusEventDoesNothing() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -37,9 +37,9 @@ public class ApplicationEventTest extends ResetPostgres {
 
   @Test
   public void createStatusEventUpdatesApplicationLatestStatus() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
@@ -74,7 +74,7 @@ public class ApplicationEventTest extends ResetPostgres {
 
   @Test
   public void createStatusEventWithEmptyAccountUpdatesApplicationLatestStatus() {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
     Application application =
         resourceCreator.insertActiveApplication(
@@ -97,9 +97,9 @@ public class ApplicationEventTest extends ResetPostgres {
 
   @Test
   public void eventTriggerUsesLatestStatusEvent() throws Exception {
-    Program program = resourceCreator.insertActiveProgram("test program");
+    ProgramModel program = resourceCreator.insertActiveProgram("test program");
 
-    Account adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
+    AccountModel adminAccount = resourceCreator.insertAccountWithEmail("admin@example.com");
     Application application =
         resourceCreator.insertActiveApplication(
             resourceCreator.insertApplicantWithAccount(), program);
