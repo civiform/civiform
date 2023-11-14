@@ -7,7 +7,7 @@ public final class ProgramImageDescriptionForm {
   public static final String SUMMARY_IMAGE_DESCRIPTION = "summaryImageDescription";
 
   public static final ImmutableList<String> FIELD_NAMES =
-    ImmutableList.of(SUMMARY_IMAGE_DESCRIPTION);
+      ImmutableList.of(SUMMARY_IMAGE_DESCRIPTION);
 
   private String summaryImageDescription;
 
@@ -23,6 +23,7 @@ public final class ProgramImageDescriptionForm {
     return this.summaryImageDescription;
   }
 
+  @SuppressWarnings("unused") // Used by FormFactory
   public void setSummaryImageDescription(String summaryImageDescription) {
     this.summaryImageDescription = summaryImageDescription;
   }

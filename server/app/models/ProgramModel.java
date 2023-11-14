@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -108,8 +107,7 @@ public class ProgramModel extends BaseModel {
   @Constraints.Required private Boolean eligibilityIsGating;
 
   /** A localized description of the summary image (used as alt text). */
-  @DbJsonB @Nullable
-  private LocalizedStrings localizedSummaryImageDescription;
+  @DbJsonB private LocalizedStrings localizedSummaryImageDescription;
 
   @ManyToMany(mappedBy = "programs")
   private List<Version> versions;
@@ -159,7 +157,7 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
-    this.localizedSummaryImageDescription = definition.localizedSummaryImageDescription().orElse(null);
+    this.localizedSummaryImageDescription = definition.localizedSummaryImageDescription();
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -204,7 +202,7 @@ public class ProgramModel extends BaseModel {
 
   /** Populates column values from {@link ProgramDefinition} */
   @PreUpdate
-  public void persistChangesToProgramDefinition() { // TODO: How is this used?
+  public void persistChangesToProgramDefinition() {
     id = programDefinition.id();
     name = programDefinition.adminName();
     externalLink = programDefinition.externalLink();
@@ -219,7 +217,7 @@ public class ProgramModel extends BaseModel {
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
     acls = programDefinition.acls();
-    localizedSummaryImageDescription = programDefinition.localizedSummaryImageDescription().orElse(null);
+    localizedSummaryImageDescription = programDefinition.localizedSummaryImageDescription();
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -278,8 +276,7 @@ public class ProgramModel extends BaseModel {
     if (localizedConfirmationMessage != null) {
       builder.setLocalizedConfirmationMessage(localizedConfirmationMessage);
     } else {
-      builder.setLocalizedConfirmationMessage(
-          LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
+      builder.setLocalizedConfirmationMessage(LocalizedStrings.withEmptyDefault());
     }
     return this;
   }
@@ -288,8 +285,7 @@ public class ProgramModel extends BaseModel {
     if (localizedSummaryImageDescription != null) {
       builder.setLocalizedSummaryImageDescription(localizedSummaryImageDescription);
     } else {
-      builder.setLocalizedSummaryImageDescription(
-        LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
+      builder.setLocalizedSummaryImageDescription(LocalizedStrings.withEmptyDefault());
     }
   }
 
