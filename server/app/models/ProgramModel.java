@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
@@ -106,6 +107,10 @@ public class ProgramModel extends BaseModel {
    */
   @Constraints.Required private Boolean eligibilityIsGating;
 
+  /** A localized description of the summary image (used as alt text). */
+  @DbJsonB @Nullable
+  private LocalizedStrings localizedSummaryImageDescription;
+
   @ManyToMany(mappedBy = "programs")
   private List<Version> versions;
 
@@ -154,6 +159,7 @@ public class ProgramModel extends BaseModel {
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
     this.acls = definition.acls();
+    this.localizedSummaryImageDescription = definition.localizedSummaryImageDescription().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
 
@@ -192,11 +198,13 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = true;
     this.acls = programAcls;
+    // The summary image is only set *after* a program is created.
+    this.localizedSummaryImageDescription = null;
   }
 
   /** Populates column values from {@link ProgramDefinition} */
   @PreUpdate
-  public void persistChangesToProgramDefinition() {
+  public void persistChangesToProgramDefinition() { // TODO: How is this used?
     id = programDefinition.id();
     name = programDefinition.adminName();
     externalLink = programDefinition.externalLink();
@@ -211,6 +219,7 @@ public class ProgramModel extends BaseModel {
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
     acls = programDefinition.acls();
+    localizedSummaryImageDescription = programDefinition.localizedSummaryImageDescription().orElse(null);
 
     orderBlockDefinitionsBeforeUpdate();
   }
@@ -238,6 +247,7 @@ public class ProgramModel extends BaseModel {
     setLocalizedName(builder);
     setLocalizedDescription(builder);
     setLocalizedConfirmationMessage(builder);
+    setLocalizedSummaryImageDescription(builder);
     this.programDefinition = builder.build();
   }
 
@@ -272,6 +282,15 @@ public class ProgramModel extends BaseModel {
           LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
     }
     return this;
+  }
+
+  private void setLocalizedSummaryImageDescription(ProgramDefinition.Builder builder) {
+    if (localizedSummaryImageDescription != null) {
+      builder.setLocalizedSummaryImageDescription(localizedSummaryImageDescription);
+    } else {
+      builder.setLocalizedSummaryImageDescription(
+        LocalizedStrings.create(ImmutableMap.of(Locale.US, "")));
+    }
   }
 
   /**

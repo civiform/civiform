@@ -97,6 +97,9 @@ public abstract class ProgramDefinition {
 
   public abstract ProgramAcls acls();
 
+  /** TODO */
+  public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
+
   /**
    * Returns a program definition with block definitions such that each enumerator block is
    * immediately followed by all of its repeated and nested repeated blocks. This method should be
@@ -400,6 +403,7 @@ public abstract class ProgramDefinition {
             .map(QuestionDefinition::getSupportedLocales)
             .collect(toImmutableSet());
 
+    // TODO: Should this also include localizedConfigurationMessage & localizedSummaryImageDescription?
     Set<Locale> intersection =
         Sets.intersection(localizedName().locales(), localizedDescription().locales());
     for (ImmutableSet<Locale> set : questionLocales) {
@@ -750,6 +754,9 @@ public abstract class ProgramDefinition {
     public abstract Builder setEligibilityIsGating(Boolean eligibilityIsGating);
 
     public abstract Builder setAcls(ProgramAcls programAcls);
+
+    public abstract Builder setLocalizedSummaryImageDescription(
+      LocalizedStrings localizedSummaryImageDescription);
 
     public abstract ProgramDefinition build();
 

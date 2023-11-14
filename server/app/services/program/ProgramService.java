@@ -44,6 +44,7 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
+import services.TranslationNotFoundException;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -876,6 +877,46 @@ public final class ProgramService {
     return programRepository
         .updateProgramSync(programDefinition.toProgram())
         .getProgramDefinition();
+  }
+
+  public ProgramDefinition setSummaryImageDescription(long programId,       Locale locale,
+                                                      String summaryImageDescription)
+    throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition programDefinition = getProgramDefinition(programId);
+    LocalizedStrings newStrings = maybeClearSummaryImageDescription(programDefinition, locale, summaryImageDescription);
+    System.out.println("new strings = " + newStrings);
+    System.out.println("en-US string=" + newStrings.get(Locale.US));
+    programDefinition = programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
+    System.out.println("new program definition: " + programDefinition);
+    return programRepository.updateProgramSync(programDefinition.toProgram()).getProgramDefinition();
+  }
+
+  /**
+   * When an admin deletes a custom confirmation screen, we want to also clear out all associated
+   * translations
+   *
+   * TODO: What if they just update the text, should we automatically clear the translations? Probably not?
+   * TODO: Mostly duped from #maybeClearConfirmationMessageTranslations
+   */
+  private LocalizedStrings maybeClearSummaryImageDescription(
+    ProgramDefinition programDefinition, Locale locale, String summaryImageDescription) {
+    System.out.println("#maybeClear. locale=" + locale + " new string=" + summaryImageDescription);
+    Optional<LocalizedStrings> existing =
+      programDefinition.localizedSummaryImageDescription();
+    LocalizedStrings newTranslations;
+    if (locale.equals(Locale.US) && summaryImageDescription.equals("")) {
+      System.out.println("clearing translation");
+      newTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
+    } else if (existing.isPresent()) {
+      System.out.println("have existing translations = " + existing);
+      newTranslations =
+        existing.get().updateTranslation(locale, summaryImageDescription);
+    } else {
+      System.out.println("creating new translations");
+      newTranslations = LocalizedStrings.of(locale, summaryImageDescription);
+      //newTranslations.updateTranslation(locale, summaryImageDescription);
+    }
+    return newTranslations;
   }
 
   /**
