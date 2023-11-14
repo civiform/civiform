@@ -1101,4 +1101,80 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
     assertThat(def.lastModifiedTime().isPresent()).isFalse();
   }
+
+  @Test
+  public void getLocalizedSummaryImageDescription_whenExists() {
+    LocalizedStrings description = LocalizedStrings.of(Locale.US, "summary image description");
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setLocalizedSummaryImageDescription(Optional.of(description))
+            .build();
+
+    assertThat(def.localizedSummaryImageDescription().isPresent()).isTrue();
+    assertThat(def.localizedSummaryImageDescription().get()).isEqualTo(description);
+  }
+
+  @Test
+  public void getLocalizedSummaryImageDescription_whenDoesntExist() {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .build();
+
+    assertThat(def.localizedSummaryImageDescription().isPresent()).isFalse();
+  }
+
+  @Test
+  public void getLocalizedSummaryImageDescription_replacesExistingValue()
+      throws TranslationNotFoundException {
+    ProgramDefinition def =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("Admin name")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setExternalLink("")
+            .setStatusDefinitions(new StatusDefinitions())
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setAcls(new ProgramAcls())
+            .setLocalizedSummaryImageDescription(
+                Optional.of(LocalizedStrings.of(Locale.US, "first image description")))
+            .build();
+
+    def =
+        def.toBuilder()
+            .setLocalizedSummaryImageDescription(
+                Optional.of(
+                    def.localizedSummaryImageDescription()
+                        .get()
+                        .updateTranslation(Locale.US, "new image description")))
+            .build();
+
+    assertThat(def.localizedSummaryImageDescription().get().get(Locale.US))
+        .isEqualTo("new image description");
+  }
 }

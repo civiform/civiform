@@ -12,6 +12,7 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
+import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import views.BaseHtmlView;
 import views.HtmlBundle;
@@ -61,7 +62,11 @@ public final class ProgramImageView extends BaseHtmlView {
 
   private FormTag createImageDescriptionForm(
       Http.Request request, ProgramDefinition programDefinition) {
-    String existingDescription = programDefinition.localizedSummaryImageDescription().getDefault();
+    String existingDescription =
+        programDefinition
+            .localizedSummaryImageDescription()
+            .map(LocalizedStrings::getDefault)
+            .orElse("");
     ProgramImageDescriptionForm form = new ProgramImageDescriptionForm(existingDescription);
     Form<ProgramImageDescriptionForm> programImageForm =
         formFactory.form(ProgramImageDescriptionForm.class).fill(form);
@@ -77,6 +82,6 @@ public final class ProgramImageView extends BaseHtmlView {
                 .setLabelText("Image description")
                 .setValue(programImageForm.value().get().getSummaryImageDescription())
                 .getInputTag())
-        .with(submitButton("Save").withClass(ButtonStyles.SOLID_BLUE));
+        .with(submitButton("Save description").withClass(ButtonStyles.SOLID_BLUE));
   }
 }

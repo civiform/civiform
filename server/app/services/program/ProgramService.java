@@ -1,6 +1,7 @@
 package services.program;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import auth.ProgramAcls;
 import com.google.common.base.Strings;
@@ -482,7 +483,7 @@ public final class ProgramService {
     LocalizedStrings existingConfirmationMessageTranslations =
         programDefinition.localizedConfirmationMessage();
     LocalizedStrings newConfirmationMessageTranslations;
-    if (locale.equals(Locale.US) && confirmationMessage.equals("")) {
+    if (locale.equals(DEFAULT_LOCALE) && confirmationMessage.equals("")) {
       newConfirmationMessageTranslations = LocalizedStrings.withEmptyDefault();
     } else {
       newConfirmationMessageTranslations =
@@ -879,30 +880,38 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
-  public void setSummaryImageDescription(
+  public ProgramDefinition setSummaryImageDescription(
       long programId, Locale locale, String summaryImageDescription)
       throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    LocalizedStrings newStrings =
+    Optional<LocalizedStrings> newStrings =
         updateSummaryImageDescription(programDefinition, locale, summaryImageDescription);
     programDefinition =
         programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
-    programRepository.updateProgramSync(programDefinition.toProgram());
+    return programRepository
+        .updateProgramSync(programDefinition.toProgram())
+        .getProgramDefinition();
   }
 
   /**
    * When an admin deletes a summary image description, we want to also clear out all associated
    * translations.
    */
-  private LocalizedStrings updateSummaryImageDescription(
+  private Optional<LocalizedStrings> updateSummaryImageDescription(
       ProgramDefinition programDefinition, Locale locale, String summaryImageDescription) {
-    if (locale.equals(Locale.US) && summaryImageDescription.isBlank()) {
-      return LocalizedStrings.withEmptyDefault();
-    } else {
-      return programDefinition
-          .localizedSummaryImageDescription()
-          .updateTranslation(locale, summaryImageDescription);
+    if (locale.equals(DEFAULT_LOCALE) && summaryImageDescription.isBlank()) {
+      return Optional.empty();
     }
+
+    Optional<LocalizedStrings> currentDescription =
+        programDefinition.localizedSummaryImageDescription();
+    LocalizedStrings newStrings;
+    if (currentDescription.isEmpty()) {
+      newStrings = LocalizedStrings.of(locale, summaryImageDescription);
+    } else {
+      newStrings = currentDescription.get().updateTranslation(locale, summaryImageDescription);
+    }
+    return Optional.of(newStrings);
   }
 
   /**

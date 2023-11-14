@@ -82,7 +82,7 @@ public class ProgramModelTest extends ResetPostgres {
             .setEligibilityIsGating(false)
             .setAcls(new ProgramAcls(tiOrgList))
             .setLocalizedSummaryImageDescription(
-                LocalizedStrings.of(Locale.US, "custom summary image description"))
+                Optional.of(LocalizedStrings.of(Locale.US, "custom summary image description")))
             .build();
     ProgramModel program = new ProgramModel(definition);
 
@@ -95,7 +95,7 @@ public class ProgramModelTest extends ResetPostgres {
         .isEqualTo(LocalizedStrings.of(Locale.US, "ProgramTest"));
     assertThat(found.getProgramDefinition().localizedConfirmationMessage())
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom confirmation message"));
-    assertThat(found.getProgramDefinition().localizedSummaryImageDescription())
+    assertThat(found.getProgramDefinition().localizedSummaryImageDescription().get())
         .isEqualTo(LocalizedStrings.of(Locale.US, "custom summary image description"));
     assertThat(found.getProgramDefinition().blockDefinitions().get(0).name())
         .isEqualTo("First Block");

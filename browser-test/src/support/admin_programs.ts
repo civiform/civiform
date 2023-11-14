@@ -8,6 +8,7 @@ import {
 } from './wait'
 import {BASE_URL, TEST_CIVIC_ENTITY_SHORT_NAME} from './config'
 import {AdminProgramStatuses} from './admin_program_statuses'
+import {AdminProgramImage} from './admin_program_image'
 import {validateScreenshot} from '.'
 
 /**
@@ -438,9 +439,8 @@ export class AdminPrograms {
   }
 
   async expectProgramImagePage(programName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      `Manage program image for ${programName}`,
-    )
+    const adminProgramImage = new AdminProgramImage(this.page)
+    await adminProgramImage.expectProgramImagePage(programName)
   }
 
   async expectManageProgramAdminsPage() {

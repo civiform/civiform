@@ -64,9 +64,9 @@ public final class AdminProgramImageController extends CiviFormController {
 
     String toastMessage;
     if (newDescription.isEmpty()) {
-      toastMessage = "Summary image description removed";
+      toastMessage = "Image description removed";
     } else {
-      toastMessage = "Summary image description set to " + newDescription;
+      toastMessage = "Image description set to " + newDescription;
     }
 
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();

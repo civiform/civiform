@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.assertj.core.api.Assertions.fail;
+import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
@@ -36,6 +37,7 @@ import repository.ResetPostgres;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationNotFoundException;
 import services.applicant.question.Scalar;
 import services.program.predicate.AndNode;
 import services.program.predicate.LeafOperationExpressionNode;
@@ -2707,5 +2709,69 @@ public class ProgramServiceTest extends ResetPostgres {
 
     assertThat(ps.getCommonIntakeForm()).isPresent();
     assertThat(ps.getCommonIntakeForm().get().adminName()).isEqualTo("two");
+  }
+
+  @Test
+  public void setSummaryImageDescription_missingProgram_throws() {
+    assertThatThrownBy(() -> ps.setSummaryImageDescription(Long.MAX_VALUE, Locale.US, "test"))
+        .isInstanceOf(ProgramNotFoundException.class)
+        .hasMessageContaining("Program not found for ID:");
+  }
+
+  @Test
+  public void setSummaryImageDescription_defaultLocale_createsNewStrings()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+
+    ProgramDefinition result =
+        ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "fake description");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isTrue();
+    LocalizedStrings descriptions = result.localizedSummaryImageDescription().get();
+    assertThat(descriptions.get(DEFAULT_LOCALE)).isEqualTo("fake description");
+    assertThatThrownBy(() -> descriptions.get(Locale.ITALIAN))
+        .isInstanceOf(TranslationNotFoundException.class);
+  }
+
+  @Test
+  public void setSummaryImageDescription_additionalLocale_addsToExisting()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+
+    ProgramDefinition result =
+        ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isTrue();
+    LocalizedStrings descriptions = result.localizedSummaryImageDescription().get();
+    assertThat(descriptions.get(Locale.US)).isEqualTo("US description");
+    assertThat(descriptions.get(Locale.CANADA)).isEqualTo("Canada description");
+  }
+
+  @Test
+  public void setSummaryImageDescription_existingLocale_updates()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "Old description");
+
+    ProgramDefinition result =
+        ps.setSummaryImageDescription(program.id(), Locale.US, "New description");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isTrue();
+    LocalizedStrings descriptions = result.localizedSummaryImageDescription().get();
+    assertThat(descriptions.get(Locale.US)).isEqualTo("New description");
+  }
+
+  @Test
+  public void setSummaryImageDescription_defaultLocaleAndBlank_removesAllTranslations()
+      throws ProgramNotFoundException, TranslationNotFoundException {
+    ProgramDefinition program = ProgramBuilder.newDraftProgram().buildDefinition();
+    ps.setSummaryImageDescription(program.id(), Locale.US, "US description");
+    ps.setSummaryImageDescription(program.id(), Locale.CANADA, "Canada description");
+    ps.setSummaryImageDescription(program.id(), Locale.KOREAN, "Korean description");
+
+    ProgramDefinition result = ps.setSummaryImageDescription(program.id(), DEFAULT_LOCALE, "");
+
+    assertThat(result.localizedSummaryImageDescription().isPresent()).isFalse();
   }
 }
