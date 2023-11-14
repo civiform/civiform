@@ -5,9 +5,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import controllers.CiviFormController;
-import javax.inject.Inject;
-
 import forms.admin.ProgramImageDescriptionForm;
+import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -15,7 +14,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
-import services.TranslationNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -51,17 +49,18 @@ public final class AdminProgramImageController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updateDescription(Http.Request request, long programId)
-    throws ProgramNotFoundException, TranslationNotFoundException {
+      throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = programService.getProgramDefinition(programId);
     Form<ProgramImageDescriptionForm> form =
-      formFactory
-        .form(ProgramImageDescriptionForm.class)
-        .bindFromRequest(request, ProgramImageDescriptionForm.FIELD_NAMES.toArray(new String[0]));
+        formFactory
+            .form(ProgramImageDescriptionForm.class)
+            .bindFromRequest(
+                request, ProgramImageDescriptionForm.FIELD_NAMES.toArray(new String[0]));
     String newDescription = form.get().getSummaryImageDescription();
-    System.out.println("new description = " + newDescription);
 
-    programService.setSummaryImageDescription(program.id(), LocalizedStrings.DEFAULT_LOCALE, newDescription);
+    programService.setSummaryImageDescription(
+        program.id(), LocalizedStrings.DEFAULT_LOCALE, newDescription);
 
     String toastMessage;
     if (newDescription.isEmpty()) {
@@ -69,8 +68,6 @@ public final class AdminProgramImageController extends CiviFormController {
     } else {
       toastMessage = "Summary image description set to " + newDescription;
     }
-
-    System.out.println("doing the redirect, toast = " + toastMessage);
 
     final String indexUrl = routes.AdminProgramImageController.index(programId).url();
     return redirect(indexUrl).flashing("success", toastMessage);

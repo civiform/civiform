@@ -44,7 +44,6 @@ import services.PageNumberBasedPaginationSpec;
 import services.PaginationResult;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
-import services.TranslationNotFoundException;
 import services.program.predicate.PredicateDefinition;
 import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
@@ -484,7 +483,7 @@ public final class ProgramService {
         programDefinition.localizedConfirmationMessage();
     LocalizedStrings newConfirmationMessageTranslations;
     if (locale.equals(Locale.US) && confirmationMessage.equals("")) {
-      newConfirmationMessageTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
+      newConfirmationMessageTranslations = LocalizedStrings.withEmptyDefault();
     } else {
       newConfirmationMessageTranslations =
           existingConfirmationMessageTranslations.updateTranslation(locale, confirmationMessage);
@@ -880,44 +879,30 @@ public final class ProgramService {
         .getProgramDefinition();
   }
 
-  public ProgramDefinition setSummaryImageDescription(long programId,       Locale locale,
-                                                      String summaryImageDescription)
-    throws ProgramNotFoundException, TranslationNotFoundException {
+  public void setSummaryImageDescription(
+      long programId, Locale locale, String summaryImageDescription)
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getProgramDefinition(programId);
-    LocalizedStrings newStrings = maybeClearSummaryImageDescription(programDefinition, locale, summaryImageDescription);
-    System.out.println("new strings = " + newStrings);
-    System.out.println("en-US string=" + newStrings.get(Locale.US));
-    programDefinition = programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
-    System.out.println("new program definition: " + programDefinition);
-    return programRepository.updateProgramSync(programDefinition.toProgram()).getProgramDefinition();
+    LocalizedStrings newStrings =
+        updateSummaryImageDescription(programDefinition, locale, summaryImageDescription);
+    programDefinition =
+        programDefinition.toBuilder().setLocalizedSummaryImageDescription(newStrings).build();
+    programRepository.updateProgramSync(programDefinition.toProgram());
   }
 
   /**
-   * When an admin deletes a custom confirmation screen, we want to also clear out all associated
-   * translations
-   *
-   * TODO: What if they just update the text, should we automatically clear the translations? Probably not?
-   * TODO: Mostly duped from #maybeClearConfirmationMessageTranslations
+   * When an admin deletes a summary image description, we want to also clear out all associated
+   * translations.
    */
-  private LocalizedStrings maybeClearSummaryImageDescription(
-    ProgramDefinition programDefinition, Locale locale, String summaryImageDescription) {
-    System.out.println("#maybeClear. locale=" + locale + " new string=" + summaryImageDescription);
-    Optional<LocalizedStrings> existing =
-      programDefinition.localizedSummaryImageDescription();
-    LocalizedStrings newTranslations;
-    if (locale.equals(Locale.US) && summaryImageDescription.equals("")) {
-      System.out.println("clearing translation");
-      newTranslations = LocalizedStrings.create(ImmutableMap.of(Locale.US, ""));
-    } else if (existing.isPresent()) {
-      System.out.println("have existing translations = " + existing);
-      newTranslations =
-        existing.get().updateTranslation(locale, summaryImageDescription);
+  private LocalizedStrings updateSummaryImageDescription(
+      ProgramDefinition programDefinition, Locale locale, String summaryImageDescription) {
+    if (locale.equals(Locale.US) && summaryImageDescription.isBlank()) {
+      return LocalizedStrings.withEmptyDefault();
     } else {
-      System.out.println("creating new translations");
-      newTranslations = LocalizedStrings.of(locale, summaryImageDescription);
-      //newTranslations.updateTranslation(locale, summaryImageDescription);
+      return programDefinition
+          .localizedSummaryImageDescription()
+          .updateTranslation(locale, summaryImageDescription);
     }
-    return newTranslations;
   }
 
   /**

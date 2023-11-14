@@ -12,6 +12,7 @@ import models.Question;
 import models.VersionModel;
 import play.inject.Injector;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
@@ -222,6 +223,12 @@ public class ProgramBuilder {
 
   public ProgramBuilder withLocalizedConfirmationMessage(Locale locale, String customText) {
     builder.addLocalizedConfirmationMessage(locale, customText);
+    return this;
+  }
+
+  public ProgramBuilder setLocalizedSummaryImageDescription(
+      LocalizedStrings localizedSummaryImageDescription) {
+    builder.setLocalizedSummaryImageDescription(localizedSummaryImageDescription);
     return this;
   }
 

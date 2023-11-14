@@ -69,7 +69,7 @@ public abstract class BaseHtmlView {
     return button(textContents).withId(id);
   }
 
-  public static ButtonTag submitButton(String textContents) {
+  protected static ButtonTag submitButton(String textContents) {
     return TagCreator.button(text(textContents)).withType("submit");
   }
 
@@ -110,7 +110,7 @@ public abstract class BaseHtmlView {
    * Generates a hidden HTML input tag containing a signed CSRF token. The token and tag must be
    * present in all CiviForm forms.
    */
-  public static InputTag makeCsrfTokenInputTag(Http.Request request) {
+  protected static InputTag makeCsrfTokenInputTag(Http.Request request) {
     return input().isHidden().withValue(getCsrfToken(request)).withName("csrfToken");
   }
 

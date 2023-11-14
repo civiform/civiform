@@ -2,9 +2,6 @@ package views.admin.programs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.form;
-import static views.BaseHtmlView.makeCsrfTokenInputTag;
-import static views.BaseHtmlView.renderHeader;
-import static views.BaseHtmlView.submitButton;
 
 import com.google.inject.Inject;
 import controllers.admin.routes;
@@ -15,8 +12,8 @@ import play.data.Form;
 import play.data.FormFactory;
 import play.mvc.Http;
 import play.twirl.api.Content;
-import services.LocalizedStrings;
 import services.program.ProgramDefinition;
+import views.BaseHtmlView;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
@@ -25,7 +22,7 @@ import views.components.FieldWithLabel;
 import views.components.ToastMessage;
 
 /** A view for admins to update the image associated with a particular program. */
-public final class ProgramImageView {
+public final class ProgramImageView extends BaseHtmlView {
   private final AdminLayout layout;
   private final FormFactory formFactory;
 
@@ -47,9 +44,11 @@ public final class ProgramImageView {
             "Manage program image for %s", programDefinition.localizedName().getDefault());
     H1Tag headerDiv = renderHeader(title, "my-10", "mx-10");
     FormTag imageDescriptionForm = createImageDescriptionForm(request, programDefinition);
-    HtmlBundle htmlBundle = layout.getBundle(request).setTitle(title).addMainContent(headerDiv, imageDescriptionForm);
+    HtmlBundle htmlBundle =
+        layout.getBundle(request).setTitle(title).addMainContent(headerDiv, imageDescriptionForm);
 
-    // TODO: Helper?
+    // TODO(#5676): This toast code is shared across multiple controllers. Can we write a helper
+    // method for it?
     Http.Flash flash = request.flash();
     if (flash.get("error").isPresent()) {
       htmlBundle.addToastMessages(ToastMessage.errorNonLocalized(flash.get("error").get()));
@@ -60,25 +59,24 @@ public final class ProgramImageView {
     return layout.renderCentered(htmlBundle);
   }
 
-  private FormTag createImageDescriptionForm(Http.Request request, ProgramDefinition programDefinition) {
-    String existingDescription = programDefinition.localizedSummaryImageDescription().map(LocalizedStrings::getDefault).orElse("");
-    System.out.println("existing description = " + existingDescription);
+  private FormTag createImageDescriptionForm(
+      Http.Request request, ProgramDefinition programDefinition) {
+    String existingDescription = programDefinition.localizedSummaryImageDescription().getDefault();
     ProgramImageDescriptionForm form = new ProgramImageDescriptionForm(existingDescription);
     Form<ProgramImageDescriptionForm> programImageForm =
-      formFactory.form(ProgramImageDescriptionForm.class).fill(form);
+        formFactory.form(ProgramImageDescriptionForm.class).fill(form);
 
-    return
-      form()
+    return form()
         .withMethod("POST")
-        .withAction(routes.AdminProgramImageController.updateDescription(programDefinition.id()).url())
+        .withAction(
+            routes.AdminProgramImageController.updateDescription(programDefinition.id()).url())
         .with(
-          makeCsrfTokenInputTag(request),
-          FieldWithLabel.input()
-            .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
-            .setLabelText("Image description")
-            .setValue(programImageForm.value().get().getSummaryImageDescription())
-            .getInputTag())
-        .with(
-          submitButton("Save").withClass(ButtonStyles.SOLID_BLUE));
+            makeCsrfTokenInputTag(request),
+            FieldWithLabel.input()
+                .setFieldName(ProgramImageDescriptionForm.SUMMARY_IMAGE_DESCRIPTION)
+                .setLabelText("Image description")
+                .setValue(programImageForm.value().get().getSummaryImageDescription())
+                .getInputTag())
+        .with(submitButton("Save").withClass(ButtonStyles.SOLID_BLUE));
   }
 }

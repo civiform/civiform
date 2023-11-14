@@ -97,8 +97,8 @@ public abstract class ProgramDefinition {
 
   public abstract ProgramAcls acls();
 
-  /** TODO */
-  public abstract Optional<LocalizedStrings> localizedSummaryImageDescription();
+  /** A description of the program's summary image, used for alt text. */
+  public abstract LocalizedStrings localizedSummaryImageDescription();
 
   /**
    * Returns a program definition with block definitions such that each enumerator block is
@@ -403,7 +403,8 @@ public abstract class ProgramDefinition {
             .map(QuestionDefinition::getSupportedLocales)
             .collect(toImmutableSet());
 
-    // TODO: Should this also include localizedConfigurationMessage & localizedSummaryImageDescription?
+    // TODO(#5676): Should this also include localizedConfigurationMessage and/or
+    // localizedSummaryImageDescription?
     Set<Locale> intersection =
         Sets.intersection(localizedName().locales(), localizedDescription().locales());
     for (ImmutableSet<Locale> set : questionLocales) {
@@ -756,7 +757,7 @@ public abstract class ProgramDefinition {
     public abstract Builder setAcls(ProgramAcls programAcls);
 
     public abstract Builder setLocalizedSummaryImageDescription(
-      LocalizedStrings localizedSummaryImageDescription);
+        LocalizedStrings localizedSummaryImageDescription);
 
     public abstract ProgramDefinition build();
 
