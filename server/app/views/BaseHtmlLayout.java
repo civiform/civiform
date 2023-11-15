@@ -200,7 +200,7 @@ public class BaseHtmlLayout {
                     .attr("focusable", false)
                     .with(title("Lock").withId("banner-lock-title-default")));
     return section()
-          .withClasses("usa-banner", "bg-gray-900")
+        .withClasses("usa-banner", "bg-gray-900")
         .attr(
             "aria-label",
             // i18n messages are only available on the applicant views
