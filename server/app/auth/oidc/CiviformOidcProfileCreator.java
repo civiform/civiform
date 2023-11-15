@@ -3,6 +3,7 @@ package auth.oidc;
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.CiviFormProfileMerger;
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import auth.Role;
@@ -55,6 +56,9 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
 
   /** Create a totally new CiviForm profile informed by the provided OidcProfile. */
   public abstract CiviFormProfile createEmptyCiviFormProfile(OidcProfile profile);
+
+  /** Returns the type of the identity provider used to create profiles. */
+  protected abstract IdentityProviderType identityProviderType();
 
   protected final Optional<String> getEmail(OidcProfile oidcProfile) {
     final String emailAttributeName = emailAttributeName();

@@ -3,6 +3,7 @@ package auth.oidc.applicant;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.CiviFormProfileData;
+import auth.IdentityProviderType;
 import auth.ProfileFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.google.common.collect.ImmutableList;
@@ -77,5 +78,11 @@ public class GenericApplicantProfileCreatorTest extends ResetPostgres {
         .isEqualTo("Fry, Philip");
     Locale l = applicantData.preferredLocale();
     assertThat(l).isEqualTo(Locale.ENGLISH);
+  }
+
+  @Test
+  public void applicantProfileCreator_identityProviderTypeIsCorrect() {
+    assertThat(oidcProfileAdapter.identityProviderType())
+        .isEqualTo(IdentityProviderType.APPLICANT_IDENTITY_PROVIDER);
   }
 }

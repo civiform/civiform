@@ -2,6 +2,7 @@ package auth.oidc.applicant;
 
 import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
+import auth.IdentityProviderType;
 import auth.Role;
 import auth.oidc.CiviformOidcProfileCreator;
 import auth.oidc.OidcClientProviderParams;
@@ -117,5 +118,10 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
     }
 
     return super.mergeCiviFormProfile(civiformProfile, oidcProfile);
+  }
+
+  @Override
+  protected IdentityProviderType identityProviderType() {
+    return IdentityProviderType.APPLICANT_IDENTITY_PROVIDER;
   }
 }
