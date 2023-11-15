@@ -1,50 +1,31 @@
 package filters;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
 import akka.stream.testkit.NoMaterializer$;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.typesafe.config.ConfigFactory;
 import io.prometheus.client.CollectorRegistry;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import play.libs.streams.Accumulator;
 import play.mvc.EssentialAction;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import services.settings.SettingDescription;
-import services.settings.SettingMode;
-import services.settings.SettingType;
 import services.settings.SettingsManifest;
-import services.settings.SettingsSection;
 
 public class RecordCookieSizeFilterTest {
+
+  private final SettingsManifest mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+
   @Before
   public void clearRegistry() {
     CollectorRegistry.defaultRegistry.clear();
-  }
-
-  private SettingsManifest createSettingsManifest(boolean metricsEnabled) {
-    return new SettingsManifest(
-        ImmutableMap.of(
-            "section1",
-            SettingsSection.create(
-                "section1",
-                "description1",
-                ImmutableList.of(),
-                ImmutableList.of(
-                    SettingDescription.create(
-                        "CIVIFORM_SERVER_METRICS_ENABLED",
-                        "CiviForm server metrics enabled",
-                        false,
-                        SettingType.BOOLEAN,
-                        SettingMode.ADMIN_WRITEABLE)))),
-        ConfigFactory.parseMap(ImmutableMap.of("civiform_server_metrics_enabled", metricsEnabled)));
   }
 
   private Result runFilterWithCookieSize(RecordCookieSizeFilter filter, int cookieSize)
@@ -66,9 +47,10 @@ public class RecordCookieSizeFilterTest {
 
   @Test
   public void testCookieSizesAreRecorded() throws Exception {
-    // Run filter with several requests with various cookie sizes.
-    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> createSettingsManifest(true));
+    when(mockSettingsManifest.getCiviformServerMetricsEnabled()).thenReturn(true);
+    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> mockSettingsManifest);
 
+    // Run filter with several requests with various cookie sizes.
     List<Integer> cookieSizes = ImmutableList.of(1000, 2000, 2000, 3000, 3500, 4000);
     for (int cookieSize : cookieSizes) {
       assertThat(runFilterWithCookieSize(filter, cookieSize).status()).isEqualTo(200);
@@ -114,7 +96,8 @@ public class RecordCookieSizeFilterTest {
 
   @Test
   public void testCookieSizesAreNotRecordedIfMetricsAreNotEnabled() throws Exception {
-    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> createSettingsManifest(false));
+    when(mockSettingsManifest.getCiviformServerMetricsEnabled()).thenReturn(false);
+    RecordCookieSizeFilter filter = new RecordCookieSizeFilter(() -> mockSettingsManifest);
 
     assertThat(runFilterWithCookieSize(filter, 1000).status()).isEqualTo(200);
 
