@@ -63,7 +63,7 @@ public final class AdminProgramImageController extends CiviFormController {
         program.id(), LocalizedStrings.DEFAULT_LOCALE, newDescription);
 
     String toastMessage;
-    if (newDescription.isEmpty()) {
+    if (newDescription.isBlank()) {
       toastMessage = "Image description removed";
     } else {
       toastMessage = "Image description set to " + newDescription;

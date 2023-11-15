@@ -1,7 +1,10 @@
 import {Page} from 'playwright'
+import {
+  waitForPageJsLoad,
+} from './wait'
 
 export class AdminProgramImage {
-  private imageDescriptionLocator = 'label:has-text("Image description")'
+  private imageDescriptionLocator = 'input[name="summaryImageDescription"]'
 
   private page!: Page
 
@@ -12,6 +15,7 @@ export class AdminProgramImage {
   async setImageDescriptionAndSubmit(description: string) {
     await this.page.fill(this.imageDescriptionLocator, description)
     await this.page.click('button:has-text("Save description")')
+    await waitForPageJsLoad(this.page)
   }
 
   async expectProgramImagePage(programName: string) {
@@ -22,7 +26,7 @@ export class AdminProgramImage {
 
   async expectDescriptionIs(description: string) {
     const descriptionElement = this.page.locator(this.imageDescriptionLocator)
-    expect(await descriptionElement.innerText()).toContain(description)
+    expect(await descriptionElement.inputValue()).toBe(description)
   }
 
   descriptionUpdatedToastMessage(description: string) {
