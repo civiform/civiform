@@ -14,7 +14,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.LocalizedStrings;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import views.admin.programs.ProgramImageView;
@@ -59,7 +58,7 @@ public final class AdminProgramImageController extends CiviFormController {
     String newDescription = form.get().getSummaryImageDescription();
 
     programService.setSummaryImageDescription(
-      programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
+        programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
 
     String toastMessage;
     if (newDescription.isBlank()) {
