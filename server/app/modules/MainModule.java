@@ -6,6 +6,7 @@ import annotations.BindingAnnotations.ApplicantAuthProviderName;
 import annotations.BindingAnnotations.EnUsLang;
 import annotations.BindingAnnotations.Now;
 import auth.ProfileFactory;
+import auth.oidc.IdTokensFactory;
 import auth.oidc.OidcClientProviderParams;
 import com.github.slugify.Slugify;
 import com.google.common.collect.ImmutableList;
@@ -67,6 +68,11 @@ public class MainModule extends AbstractModule {
     }
 
     return config.getString("whitelabel_civic_entity_full_name");
+  }
+
+  @Provides
+  public IdTokensFactory provideIdTokensFactory(Clock clock) {
+    return new IdTokensFactory(clock);
   }
 
   @Provides
