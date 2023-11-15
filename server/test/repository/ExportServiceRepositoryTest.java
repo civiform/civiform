@@ -10,6 +10,7 @@ import models.Question;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.MultiOptionQuestionBuilder;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -43,7 +44,13 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   public void getMultiSelectedHeaders_DraftVersionExcludedButPublishedVersionIncluded()
       throws Exception {
     Question questionWeather =
-        createMultiSelectQuestion("weather", "fall", "spring", "summer", LifecycleStage.ACTIVE);
+        new MultiOptionQuestionBuilder()
+            .withName("weather")
+            .addOption("fall")
+            .addOption("spring")
+            .addOption("summer")
+            .withLifeCycleStage(LifecycleStage.ACTIVE)
+            .build();
     MultiOptionQuestionDefinition multiOptionQuestionDefinition =
         (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
 
@@ -74,7 +81,13 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
   @Test
   public void getMultiSelectedHeaders_DeletedOptionsIncluded() throws Exception {
     Question questionWeather =
-        createMultiSelectQuestion("weather", "fall", "spring", "summer", LifecycleStage.ACTIVE);
+        new MultiOptionQuestionBuilder()
+            .withName("weather")
+            .addOption("fall")
+            .addOption("spring")
+            .addOption("summer")
+            .withLifeCycleStage(LifecycleStage.ACTIVE)
+            .build();
     MultiOptionQuestionDefinition multiOptionQuestionDefinition =
         (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
 
@@ -143,29 +156,5 @@ public class ExportServiceRepositoryTest extends ResetPostgres {
     assertThatThrownBy(() -> repo.getAllHistoricMultiOptionAdminNames(definition))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Draft questions cannot be exported");
-  }
-
-  // TODO(#5957): Structuring this using the Builder pattern would make this easier to extend or
-  // customize
-  private Question createMultiSelectQuestion(
-      String name, String option1, String option2, String option3, LifecycleStage stage) {
-    QuestionDefinitionConfig config =
-        QuestionDefinitionConfig.builder()
-            .setName(name)
-            .setDescription(name)
-            .setQuestionText(LocalizedStrings.of(Locale.US, name))
-            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
-            .build();
-    ImmutableList<QuestionOption> questionOptions =
-        ImmutableList.of(
-            QuestionOption.create(1L, 1L, option1, LocalizedStrings.of(Locale.US, option1)),
-            QuestionOption.create(2L, 2L, option2, LocalizedStrings.of(Locale.US, option2)),
-            QuestionOption.create(3L, 3L, option3, LocalizedStrings.of(Locale.US, option3)));
-    QuestionDefinition definition =
-        new MultiOptionQuestionDefinition(
-            config,
-            questionOptions,
-            MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
-    return testQuestionBank.maybeSave(definition, stage);
   }
 }

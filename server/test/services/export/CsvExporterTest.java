@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import models.Question;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -21,6 +22,7 @@ import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
 import services.LocalizedStrings;
+import services.MultiOptionQuestionBuilder;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
@@ -68,33 +70,53 @@ public class CsvExporterTest extends AbstractExporterTest {
   @Test
   public void programCsv_TestNotAnOptionAtProgramVersionInCheckBoxExport() throws Exception {
     createFakeQuestions();
-    var fakeProgram =
-        new FakeProgramBuilder().withQuestion(testQuestionBank.applicantKitchenTools()).build();
+    Question questionWeather =
+        new MultiOptionQuestionBuilder()
+            .withName("weather")
+            .addOption("fall")
+            .addOption("spring")
+            .addOption("summer")
+            .withLifeCycleStage(LifecycleStage.ACTIVE)
+            .build();
+    var fakeProgram = new FakeProgramBuilder().withQuestion(questionWeather).build();
     new FakeApplicationFiller(fakeProgram)
         .answerCheckboxQuestion(
             ImmutableList.of(
-                2L, // "pepper_grinder"
-                3L // "garlic_press"
-                ))
+                2L, // "spring"
+                3L // "summer"
+                ),
+            questionWeather.getQuestionDefinition())
         .submit();
 
     // update question and publish new version
     QuestionOption newOption =
-        QuestionOption.create(4L, 4L, "stand_mixer", LocalizedStrings.of(Locale.US, "stand_mixer"));
+        QuestionOption.create(4L, 4L, "winter", LocalizedStrings.of(Locale.US, "winter"));
     MultiOptionQuestionDefinition questionDefinition =
-        (MultiOptionQuestionDefinition)
-            testQuestionBank.applicantKitchenTools().getQuestionDefinition();
+        (MultiOptionQuestionDefinition) questionWeather.getQuestionDefinition();
     ImmutableList<QuestionOption> currentOptions = questionDefinition.getOptions();
     ImmutableList<QuestionOption> newOptionList =
         ImmutableList.<QuestionOption>builder().addAll(currentOptions).add(newOption).build();
+
     QuestionDefinition toUpdate =
         new QuestionDefinitionBuilder(questionDefinition).setQuestionOptions(newOptionList).build();
+    resourceCreator.insertDraftProgram(fakeProgram.getProgramDefinition().adminName());
     questionService.update(toUpdate);
     versionRepository.publishNewSynchronizedVersion();
+
+    // submitting new application
+    new FakeApplicationFiller(fakeProgram)
+        .answerCheckboxQuestion(
+            ImmutableList.of(
+                2L, // "spring"
+                4L // "winter"
+                ),
+            toUpdate)
+        .submit();
 
     CSVParser parser =
         CSVParser.parse(exporterService.getProgramCsv(fakeProgram.id), DEFAULT_FORMAT);
     List<CSVRecord> records = parser.getRecords();
+    System.out.println(records);
     assertThat(parser.getHeaderNames())
         .containsExactly(
             "Applicant ID",
@@ -105,15 +127,18 @@ public class CsvExporterTest extends AbstractExporterTest {
             "TI Email",
             "TI Organization",
             "Status",
-            "kitchen tools (toaster)",
-            "kitchen tools (pepper_grinder)",
-            "kitchen tools (garlic_press)",
-            "kitchen tools (stand_mixer)");
-    assertThat(records.get(0).get("kitchen tools (toaster)")).contains("NOT_SELECTED");
-    assertThat(records.get(0).get("kitchen tools (pepper_grinder)")).contains("SELECTED");
-    assertThat(records.get(0).get("kitchen tools (garlic_press)")).contains("SELECTED");
-    assertThat(records.get(0).get("kitchen tools (stand_mixer)"))
-        .contains("NOT_AN_OPTION_AT_PROGRAM_VERSION");
+            "weather (fall)",
+            "weather (spring)",
+            "weather (summer)",
+            "weather (winter)");
+    assertThat(records.get(0).get("weather (fall)")).contains("NOT_SELECTED");
+    assertThat(records.get(0).get("weather (spring)")).contains("SELECTED");
+    assertThat(records.get(0).get("weather (summer)")).contains("NOT_SELECTED");
+    assertThat(records.get(0).get("weather (winter)")).contains("NOT_AN_OPTION_AT_PROGRAM_VERSION");
+    assertThat(records.get(1).get("weather (fall)")).contains("NOT_SELECTED");
+    assertThat(records.get(1).get("weather (spring)")).contains("SELECTED");
+    assertThat(records.get(1).get("weather (summer)")).contains("NOT_SELECTED");
+    assertThat(records.get(1).get("weather (winter)")).contains("SELECTED");
   }
 
   @Test

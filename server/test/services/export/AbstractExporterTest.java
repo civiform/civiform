@@ -33,6 +33,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
@@ -599,6 +600,20 @@ public abstract class AbstractExporterTest extends ResetPostgres {
                   /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
       QuestionAnswerer.answerAddressQuestion(
           applicant.getApplicantData(), answerPath, street, line2, city, state, zip);
+      applicant.save();
+      return this;
+    }
+
+    public FakeApplicationFiller answerCheckboxQuestion(
+        ImmutableList<Long> optionIds, QuestionDefinition questionDefinition) {
+      Path answerPath =
+          questionDefinition.getContextualizedPath(
+              /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+      ApplicantData applicantData = applicant.getApplicantData();
+      for (int i = 0; i < optionIds.size(); i++) {
+        System.out.println(optionIds.get(i));
+        QuestionAnswerer.answerMultiSelectQuestion(applicantData, answerPath, i, optionIds.get(i));
+      }
       applicant.save();
       return this;
     }
