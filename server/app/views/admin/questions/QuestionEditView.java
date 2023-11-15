@@ -312,11 +312,11 @@ public final class QuestionEditView extends BaseHtmlView {
         controllers.admin.routes.AdminQuestionController.update(
                 id, questionForm.getQuestionType().toString())
             .url());
-    
+
     if (settingsManifest.getUniversalQuestions(request)) {
-        formTag.with(modal.getButton());
+      formTag.with(modal.getButton());
     } else {
-        formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
+      formTag.with(submitButton("Update").withClasses("ml-2", ButtonStyles.SOLID_BLUE));
     }
     // This button would trigger the modal
     // So I think we would be returning a modal here

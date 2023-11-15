@@ -1,5 +1,4 @@
 export class ModalController {
-
   static abortSignal = new AbortController()
 
   /**
@@ -11,10 +10,14 @@ export class ModalController {
     // Connect the modal to its button
     const modalButton = document.querySelector(`#${modal.id}-button`)
     if (modalButton) {
-      modalButton.addEventListener('click', (e: Event) => {
-        e.stopPropagation()
-        ModalController.showModal(modalContainer, modal)
-      }, {signal: ModalController.abortSignal.signal})
+      modalButton.addEventListener(
+        'click',
+        (e: Event) => {
+          e.stopPropagation()
+          ModalController.showModal(modalContainer, modal)
+        },
+        {signal: ModalController.abortSignal.signal},
+      )
     }
 
     const modalCloses = Array.from(modal.querySelectorAll('.cf-modal-close'))

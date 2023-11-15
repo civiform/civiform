@@ -1,45 +1,53 @@
 import {assertNotNull} from './util'
-import { ModalController } from './modal'
-
+import {ModalController} from './modal'
 
 class AdminQuestionEdit {
-  
-    constructor() {
-        // get the initial toggle value
-        // I'm getting console errors from this, why not the other ones? what's different?
-        const toggleElement = assertNotNull(document.getElementById("universal-toggle-input")) as HTMLInputElement
-        const initialToggleValue = toggleElement.value
-
-        const modalContainer = assertNotNull(document.getElementById("modal-container"))
-        const modal = assertNotNull(document.getElementById("confirm-question-updates-modal"))
-        // remove the default event listener
-        ModalController.abortSignal.abort();
-        const button = assertNotNull(document.getElementById("confirm-question-updates-modal-button"))
-        
-        // add a new click handler that checks if the toggle went from on to off
-        button.addEventListener('click', (e: Event) => {
-            e.stopPropagation() // do we need this?
-            // get the new toggle value
-            const newToggleElement = assertNotNull(document.getElementById("universal-toggle-input")) as HTMLInputElement
-            const currentToggleValue = newToggleElement.value
-            console.log("currentToggleValue", currentToggleValue)
-            console.log("initialToggleValue", initialToggleValue)
-            if (initialToggleValue === "true" && currentToggleValue === "false") {
-                ModalController.showModal(modalContainer, modal)
-            } else {
-                // click the hidden button
-                const submitButton = assertNotNull(document.getElementById("accept-question-updates-button"))
-                submitButton.click()
-            }
-        })
-
-        // do i need to prevent this from running when the flag is off? will it affect anything?
-        // probably not because the modal just won't be on the page
-      
+  constructor() {
+    // Check for the universal questions toggle button to confirm we are on the question edit page with the UNIVERSAL_QUESTIONS feature flag turned on
+    const toggleElement = document.getElementById(
+      'universal-toggle-input',
+    ) as HTMLInputElement
+    if (toggleElement === null) {
+      return
     }
-}
-  
-  export function init() {
-    new AdminQuestionEdit()
+
+    const modalContainer = assertNotNull(
+      document.getElementById('modal-container'),
+    )
+    const modal = assertNotNull(
+      document.getElementById('confirm-question-updates-modal'),
+    )
+    const modalTriggerButton = assertNotNull(
+      document.getElementById('confirm-question-updates-modal-button'),
+    )
+
+    // Get the toggle value on page load so we can compare it to the toggle value on click
+    const initialToggleValue = toggleElement.value
+
+    // Remove the default event listener on the modal since we want to show it conditionally
+    ModalController.abortSignal.abort()
+
+    // Add a new click handler that checks if the toggle went from "on" to "off"
+    modalTriggerButton.addEventListener('click', (e: Event) => {
+      e.stopPropagation() // do we need this?
+
+      // Get the toggle value when the user clicks to update the question
+      const currentToggleValue = toggleElement.value
+
+      if (initialToggleValue === 'true' && currentToggleValue === 'false') {
+        // If they are unsetting the universal question attribute, show a modal to confirm
+        ModalController.showModal(modalContainer, modal)
+      } else {
+        // Otherwise, click the hidden "submit" button on the modal to submit the update
+        const submitButton = assertNotNull(
+          document.getElementById('accept-question-updates-button'),
+        )
+        submitButton.click()
+      }
+    })
   }
-  
+}
+
+export function init() {
+  new AdminQuestionEdit()
+}
